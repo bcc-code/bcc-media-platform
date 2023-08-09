@@ -239,7 +239,7 @@ SELECT ts.id,
        json_build_object('title', title, 'description', description) as values
 FROM achievementgroups_translations ts
          JOIN items i ON i.id = ts.achievementgroups_id
-WHERE ts.languages_code = ANY ($1::varchar[])
+WHERE ts.languages_code = $1::varchar
 `
 
 type ListAchievementGroupTranslationsRow struct {
@@ -249,8 +249,8 @@ type ListAchievementGroupTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListAchievementGroupTranslations(ctx context.Context, dollar_1 []string) ([]ListAchievementGroupTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listAchievementGroupTranslations, pq.Array(dollar_1))
+func (q *Queries) ListAchievementGroupTranslations(ctx context.Context, language string) ([]ListAchievementGroupTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listAchievementGroupTranslations, language)
 	if err != nil {
 		return nil, err
 	}
@@ -321,7 +321,7 @@ SELECT ts.id,
        json_build_object('title', title, 'description', description) as values
 FROM achievements_translations ts
          JOIN items i ON i.id = ts.achievements_id
-WHERE ts.languages_code = ANY ($1::varchar[])
+WHERE ts.languages_code = $1::varchar
 `
 
 type ListAchievementTranslationsRow struct {
@@ -331,8 +331,8 @@ type ListAchievementTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListAchievementTranslations(ctx context.Context, dollar_1 []string) ([]ListAchievementTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listAchievementTranslations, pq.Array(dollar_1))
+func (q *Queries) ListAchievementTranslations(ctx context.Context, language string) ([]ListAchievementTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listAchievementTranslations, language)
 	if err != nil {
 		return nil, err
 	}
@@ -368,7 +368,7 @@ SELECT ts.id,
        json_build_object('title', title) as values
 FROM questionalternatives_translations ts
          JOIN items i ON i.id = ts.questionalternatives_id
-WHERE ts.languages_code = ANY ($1::varchar[])
+WHERE ts.languages_code = $1::varchar
 `
 
 type ListAlternativeTranslationsRow struct {
@@ -378,8 +378,8 @@ type ListAlternativeTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListAlternativeTranslations(ctx context.Context, dollar_1 []string) ([]ListAlternativeTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listAlternativeTranslations, pq.Array(dollar_1))
+func (q *Queries) ListAlternativeTranslations(ctx context.Context, language string) ([]ListAlternativeTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listAlternativeTranslations, language)
 	if err != nil {
 		return nil, err
 	}
@@ -420,7 +420,7 @@ SELECT et.id,
        json_build_object('title', title, 'description', description) as values
 FROM episodes_translations et
          JOIN episodes e ON e.id = et.episodes_id
-WHERE et.languages_code = ANY ($1::varchar[])
+WHERE et.languages_code = $1::varchar
 `
 
 type ListEpisodeTranslationsRow struct {
@@ -430,8 +430,8 @@ type ListEpisodeTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListEpisodeTranslations(ctx context.Context, language []string) ([]ListEpisodeTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listEpisodeTranslations, pq.Array(language))
+func (q *Queries) ListEpisodeTranslations(ctx context.Context, language string) ([]ListEpisodeTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listEpisodeTranslations, language)
 	if err != nil {
 		return nil, err
 	}
@@ -502,7 +502,7 @@ SELECT ts.id,
        json_build_object('title', ts.title, 'description', ts.description) as values
 FROM faqcategories_translations ts
          JOIN items i ON i.id = ts.faqcategories_id
-WHERE ts.languages_code = ANY ($1::varchar[])
+WHERE ts.languages_code = $1::varchar
 `
 
 type ListFAQCategoryTranslationsRow struct {
@@ -512,8 +512,8 @@ type ListFAQCategoryTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListFAQCategoryTranslations(ctx context.Context, dollar_1 []string) ([]ListFAQCategoryTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listFAQCategoryTranslations, pq.Array(dollar_1))
+func (q *Queries) ListFAQCategoryTranslations(ctx context.Context, language string) ([]ListFAQCategoryTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listFAQCategoryTranslations, language)
 	if err != nil {
 		return nil, err
 	}
@@ -588,7 +588,7 @@ SELECT ts.id,
        json_build_object('question', ts.question, 'answer', ts.answer) as values
 FROM faqs_translations ts
          JOIN items i ON i.id = ts.faqs_id
-WHERE ts.languages_code = ANY ($1::varchar[])
+WHERE ts.languages_code = $1::varchar
 `
 
 type ListFAQTranslationsRow struct {
@@ -598,8 +598,8 @@ type ListFAQTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListFAQTranslations(ctx context.Context, dollar_1 []string) ([]ListFAQTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listFAQTranslations, pq.Array(dollar_1))
+func (q *Queries) ListFAQTranslations(ctx context.Context, language string) ([]ListFAQTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listFAQTranslations, language)
 	if err != nil {
 		return nil, err
 	}
@@ -670,7 +670,7 @@ SELECT ts.id,
        json_build_object('title', ts.title, 'description', ts.description) as values
 FROM games_translations ts
          JOIN items i ON i.id = ts.games_id
-WHERE ts.languages_code = ANY ($1::varchar[])
+WHERE ts.languages_code = $1::varchar
 `
 
 type ListGameTranslationsRow struct {
@@ -680,8 +680,8 @@ type ListGameTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListGameTranslations(ctx context.Context, dollar_1 []string) ([]ListGameTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listGameTranslations, pq.Array(dollar_1))
+func (q *Queries) ListGameTranslations(ctx context.Context, language string) ([]ListGameTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listGameTranslations, language)
 	if err != nil {
 		return nil, err
 	}
@@ -753,7 +753,7 @@ SELECT st.id,
        json_build_object('title', title, 'description', description) as values
 FROM lessons_translations st
          JOIN lessons e ON e.id = st.lessons_id
-WHERE st.languages_code = ANY ($1::varchar[])
+WHERE st.languages_code = $1::varchar
 `
 
 type ListLessonTranslationsRow struct {
@@ -763,8 +763,8 @@ type ListLessonTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListLessonTranslations(ctx context.Context, dollar_1 []string) ([]ListLessonTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listLessonTranslations, pq.Array(dollar_1))
+func (q *Queries) ListLessonTranslations(ctx context.Context, language string) ([]ListLessonTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listLessonTranslations, language)
 	if err != nil {
 		return nil, err
 	}
@@ -801,7 +801,7 @@ SELECT st.id,
        json_build_object('title', title, 'description', description) as values
 FROM links_translations st
          JOIN links e ON e.id = st.links_id
-WHERE st.languages_code = ANY ($1::varchar[])
+WHERE st.languages_code = $1::varchar
 `
 
 type ListLinkTranslationsRow struct {
@@ -811,8 +811,8 @@ type ListLinkTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListLinkTranslations(ctx context.Context, dollar_1 []string) ([]ListLinkTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listLinkTranslations, pq.Array(dollar_1))
+func (q *Queries) ListLinkTranslations(ctx context.Context, language string) ([]ListLinkTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listLinkTranslations, language)
 	if err != nil {
 		return nil, err
 	}
@@ -849,7 +849,7 @@ SELECT st.id,
        json_build_object('title', title, 'description', description) as values
 FROM pages_translations st
          JOIN pages e ON e.id = st.pages_id
-WHERE st.languages_code = ANY ($1::varchar[])
+WHERE st.languages_code = $1::varchar
 `
 
 type ListPageTranslationsRow struct {
@@ -859,8 +859,8 @@ type ListPageTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListPageTranslations(ctx context.Context, dollar_1 []string) ([]ListPageTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listPageTranslations, pq.Array(dollar_1))
+func (q *Queries) ListPageTranslations(ctx context.Context, language string) ([]ListPageTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listPageTranslations, language)
 	if err != nil {
 		return nil, err
 	}
@@ -935,7 +935,7 @@ SELECT et.id,
        json_build_object('title', title, 'description', description) as values
 FROM seasons_translations et
          JOIN seasons e ON e.id = et.seasons_id
-WHERE et.languages_code = ANY ($1::varchar[])
+WHERE et.languages_code = $1::varchar
 `
 
 type ListSeasonTranslationsRow struct {
@@ -945,8 +945,8 @@ type ListSeasonTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListSeasonTranslations(ctx context.Context, dollar_1 []string) ([]ListSeasonTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listSeasonTranslations, pq.Array(dollar_1))
+func (q *Queries) ListSeasonTranslations(ctx context.Context, language string) ([]ListSeasonTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listSeasonTranslations, language)
 	if err != nil {
 		return nil, err
 	}
@@ -984,7 +984,7 @@ SELECT st.id,
        json_build_object('title', title, 'description', description) as values
 FROM sections_translations st
          JOIN sections e ON e.id = st.sections_id
-WHERE st.languages_code = ANY ($1::varchar[])
+WHERE st.languages_code = $1::varchar
 `
 
 type ListSectionTranslationsRow struct {
@@ -994,8 +994,8 @@ type ListSectionTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListSectionTranslations(ctx context.Context, dollar_1 []string) ([]ListSectionTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listSectionTranslations, pq.Array(dollar_1))
+func (q *Queries) ListSectionTranslations(ctx context.Context, language string) ([]ListSectionTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listSectionTranslations, language)
 	if err != nil {
 		return nil, err
 	}
@@ -1032,7 +1032,7 @@ SELECT et.id,
        json_build_object('title', title, 'description', description) as values
 FROM shows_translations et
          JOIN shows e ON e.id = et.shows_id
-WHERE et.languages_code = ANY ($1::varchar[])
+WHERE et.languages_code = $1::varchar
 `
 
 type ListShowTranslationsRow struct {
@@ -1042,8 +1042,8 @@ type ListShowTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListShowTranslations(ctx context.Context, dollar_1 []string) ([]ListShowTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listShowTranslations, pq.Array(dollar_1))
+func (q *Queries) ListShowTranslations(ctx context.Context, language string) ([]ListShowTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listShowTranslations, language)
 	if err != nil {
 		return nil, err
 	}
@@ -1115,7 +1115,7 @@ SELECT ts.id,
        json_build_object('title', title, 'description', description) as values
 FROM studytopics_translations ts
          JOIN items i ON i.id = ts.studytopics_id
-WHERE ts.languages_code = ANY ($1::varchar[])
+WHERE ts.languages_code = $1::varchar
 `
 
 type ListStudyTopicTranslationsRow struct {
@@ -1125,8 +1125,8 @@ type ListStudyTopicTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListStudyTopicTranslations(ctx context.Context, dollar_1 []string) ([]ListStudyTopicTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listStudyTopicTranslations, pq.Array(dollar_1))
+func (q *Queries) ListStudyTopicTranslations(ctx context.Context, language string) ([]ListStudyTopicTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listStudyTopicTranslations, language)
 	if err != nil {
 		return nil, err
 	}
@@ -1235,7 +1235,7 @@ SELECT ts.id,
 FROM surveyquestions_translations ts
          JOIN surveyquestions items ON items.id = ts.surveyquestions_id
          JOIN surveys s ON s.id = items.survey_id AND s.status = ANY ('{published,unlisted}')
-WHERE ts.languages_code = ANY ($1::varchar[])
+WHERE ts.languages_code = $1::varchar
 `
 
 type ListSurveyQuestionTranslationsRow struct {
@@ -1245,8 +1245,8 @@ type ListSurveyQuestionTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListSurveyQuestionTranslations(ctx context.Context, dollar_1 []string) ([]ListSurveyQuestionTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listSurveyQuestionTranslations, pq.Array(dollar_1))
+func (q *Queries) ListSurveyQuestionTranslations(ctx context.Context, language string) ([]ListSurveyQuestionTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listSurveyQuestionTranslations, language)
 	if err != nil {
 		return nil, err
 	}
@@ -1283,7 +1283,7 @@ SELECT ts.id,
        json_build_object('title', title, 'description', description) as values
 FROM surveys_translations ts
          JOIN items i ON i.id = ts.surveys_id
-WHERE ts.languages_code = ANY ($1::varchar[])
+WHERE ts.languages_code = $1::varchar
 `
 
 type ListSurveyTranslationsRow struct {
@@ -1293,8 +1293,8 @@ type ListSurveyTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListSurveyTranslations(ctx context.Context, dollar_1 []string) ([]ListSurveyTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listSurveyTranslations, pq.Array(dollar_1))
+func (q *Queries) ListSurveyTranslations(ctx context.Context, language string) ([]ListSurveyTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listSurveyTranslations, language)
 	if err != nil {
 		return nil, err
 	}
@@ -1366,7 +1366,7 @@ SELECT ts.id,
        json_build_object('title', title, 'description', description) as values
 FROM tasks_translations ts
          JOIN items i ON i.id = ts.tasks_id
-WHERE ts.languages_code = ANY ($1::varchar[])
+WHERE ts.languages_code = $1::varchar
 `
 
 type ListTaskTranslationsRow struct {
@@ -1376,8 +1376,8 @@ type ListTaskTranslationsRow struct {
 	Values   json.RawMessage `db:"values" json:"values"`
 }
 
-func (q *Queries) ListTaskTranslations(ctx context.Context, dollar_1 []string) ([]ListTaskTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listTaskTranslations, pq.Array(dollar_1))
+func (q *Queries) ListTaskTranslations(ctx context.Context, language string) ([]ListTaskTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listTaskTranslations, language)
 	if err != nil {
 		return nil, err
 	}

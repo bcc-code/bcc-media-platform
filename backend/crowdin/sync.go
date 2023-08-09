@@ -9,30 +9,62 @@ import (
 )
 
 // TranslationHandler handles translations
-type TranslationHandler struct {
-	SaveTranslation func(ctx context.Context, item SimpleTranslation) error
+type TranslationHandler[T any, TUpdate any] struct {
+	Collection      string
+	Fetch           func(ctx context.Context, language string) ([]T, error)
+	ConvertToUpdate func(item SimpleTranslation) TUpdate
+	Save            func(ctx context.Context, item TUpdate) error
+	GetContext      func(identifier string) string
 }
 
-func (c *Client) syncCollection(
-	ctx context.Context,
-	handler TranslationHandler,
-	project Project,
-	directoryId int,
+// NewTranslationHandler creates a handler from functions
+func NewTranslationHandler[T any, TUpdate any](
 	collection string,
-	translationFactory func(ctx context.Context, language string) ([]SimpleTranslation, error),
-	crowdinTranslations []Translation,
-	contextFactory func(identifier string) string,
+	fetch func(ctx context.Context, language string) ([]T, error),
+	convertToUpdate func(item SimpleTranslation) TUpdate,
+	save func(ctx context.Context, item TUpdate) error,
+	getContext func(identifier string) string) TranslationHandler[T, TUpdate] {
+	return TranslationHandler[T, TUpdate]{
+		Collection:      collection,
+		Fetch:           fetch,
+		ConvertToUpdate: convertToUpdate,
+		Save:            save,
+		GetContext:      getContext,
+	}
+}
+
+// Options are common options for every translation collection
+type Options struct {
+	Project      Project
+	DirectoryID  int
+	Translations []Translation
+}
+
+func syncCollection[T any, TUpdate any](
+	ctx context.Context,
+	c *Client,
+	options Options,
+	handler TranslationHandler[T, TUpdate],
 ) error {
+	project := options.Project
+	directoryID := options.DirectoryID
+	collection := handler.Collection
+
 	l := log.L.With().Int("project", project.ID).Str("collection", collection).Logger()
 	l.Debug().Msg("Syncing collection")
 
 	projectId := project.ID
 	language := project.SourceLanguageId
+
+	translationFactory := func(ctx context.Context, language string) ([]SimpleTranslation, error) {
+		return dbToSimple(ctx, language, handler.Fetch)
+	}
+
 	sourceTranslations, err := translationFactory(ctx, language)
 	if err != nil {
 		return err
 	}
-	file, found, err := c.getFileForCollection(project, directoryId, collection)
+	file, found, err := c.getFileForCollection(project, directoryID, collection)
 	if err != nil {
 		return err
 	}
@@ -41,14 +73,14 @@ func (c *Client) syncCollection(
 		if c.readonly || len(sourceTranslations) <= 0 {
 			return nil
 		}
-		_, err := c.createFile(project.ID, directoryId, collection, convertTsToStrings(sourceTranslations, collection, contextFactory))
+		_, err := c.createFile(project.ID, directoryID, collection, convertTsToStrings(sourceTranslations, collection, handler.GetContext))
 		if err != nil {
 			l.Error().Err(err).Msg("failed to create file for collection")
 		}
 		return err
 	}
 
-	dbStrings := convertTsToStrings(sourceTranslations, collection, contextFactory)
+	dbStrings := convertTsToStrings(sourceTranslations, collection, handler.GetContext)
 
 	fileStrings, err := c.getStrings(projectId, file.ID)
 	if err != nil {
@@ -122,7 +154,7 @@ func (c *Client) syncCollection(
 			l.Debug().Int("count", length).Msg("Pushing translations to database")
 			if !c.readonly {
 				for _, t := range queuedTranslations {
-					err = handler.SaveTranslation(ctx, t)
+					err = handler.Save(ctx, handler.ConvertToUpdate(t))
 					if err != nil {
 						return err
 					}
@@ -138,7 +170,7 @@ func (c *Client) syncCollection(
 
 		existingTranslations, err := translationFactory(ctx, lan)
 
-		ts := lo.Filter(crowdinTranslations, func(i Translation, _ int) bool {
+		ts := lo.Filter(options.Translations, func(i Translation, _ int) bool {
 			return i.Collection == collection && i.Language == lan
 		})
 
