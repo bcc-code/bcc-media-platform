@@ -51,8 +51,8 @@ GRANT UPDATE ON SEQUENCE "public"."lessons_translations_id_seq" TO background_wo
 
 --- BEGIN ALTER SEQUENCE "public"."faqs_translations_id_seq" ---
 
-GRANT USAGE ON SEQUENCE "public"."faqs_translations_id_seq" TO background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON SEQUENCE "public"."faqs_translations_id_seq" TO background_worker;
+GRANT USAGE ON SEQUENCE "public"."faqs_translations_id_seq1" TO background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON SEQUENCE "public"."faqs_translations_id_seq1" TO background_worker;
 --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 --- END ALTER SEQUENCE "public"."faqs_translations_id_seq" ---
 
@@ -77,6 +77,9 @@ GRANT UPDATE ON SEQUENCE "public"."studytopics_translations_id_seq" TO backgroun
 GRANT SELECT ON SEQUENCE "public"."questionalternatives_translations_id_seq" TO background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT USAGE ON SEQUENCE "public"."questionalternatives_translations_id_seq" TO background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON SEQUENCE "public"."questionalternatives_translations_id_seq" TO background_worker;
+GRANT SELECT ON SEQUENCE "public"."questionalternatives_translations_id_seq1" TO background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT USAGE ON SEQUENCE "public"."questionalternatives_translations_id_seq1" TO background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT UPDATE ON SEQUENCE "public"."questionalternatives_translations_id_seq1" TO background_worker;
 --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 --- END ALTER SEQUENCE "public"."questionalternatives_translations_id_seq" ---
 
