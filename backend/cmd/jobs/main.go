@@ -11,7 +11,6 @@ import (
 	"github.com/bcc-code/brunstadtv/backend/auth0"
 	"github.com/bcc-code/brunstadtv/backend/cmd/jobs/server"
 	"github.com/bcc-code/brunstadtv/backend/crowdin"
-	"github.com/bcc-code/brunstadtv/backend/directus"
 	"github.com/bcc-code/brunstadtv/backend/events"
 	"github.com/bcc-code/brunstadtv/backend/members"
 	"github.com/bcc-code/brunstadtv/backend/notifications"
@@ -31,8 +30,6 @@ import (
 	"github.com/sony/gobreaker"
 	"go.opentelemetry.io/otel"
 )
-
-const debugDirectus = false
 
 func main() {
 	ctx := context.Background()
@@ -67,7 +64,6 @@ func main() {
 	s3Client := s3.NewFromConfig(awsConfig)
 	mediaPackageVOD := mediapackagevod.NewFromConfig(awsConfig)
 
-	directusClient := directus.New(config.Directus.BaseURL, config.Directus.Key, debugDirectus)
 	rdb, rdbChan := utils.MustCreateRedisClient(ctx, config.Redis)
 	db, dbChan := utils.MustCreateDBClient(ctx, config.DB)
 
@@ -75,7 +71,7 @@ func main() {
 	queries.SetImageCDNDomain(config.ImageCDNDomain)
 
 	searchService := search.New(queries, config.Algolia)
-	directusEventHandler := directus.NewEventHandler()
+	eventHandler := events.NewHandler()
 	crowdinClient := crowdin.New(config.Crowdin, queries, false)
 	statisticsHandler := statistics.NewHandler(ctx, config.BigQuery, queries)
 
@@ -108,23 +104,23 @@ func main() {
 		return mh.handleModelUpdate(ctx, item.Collection, item.ID)
 	})
 
-	directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, mh.handleModelUpdate)
+	eventHandler.On([]string{events.EventItemsCreate, events.EventItemsUpdate}, mh.handleModelUpdate)
 
 	eventService, err := events.NewService(ctx, config.Firebase.ProjectID, queries)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to initialize event service, disabling")
 	} else {
-		directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, eventService.HandleModelUpdate)
+		eventHandler.On([]string{events.EventItemsCreate, events.EventItemsUpdate}, eventService.HandleModelUpdate)
 	}
 
-	directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate}, searchService.IndexModel)
-	directusEventHandler.On([]string{directus.EventItemsDelete}, searchService.DeleteModel)
+	eventHandler.On([]string{events.EventItemsCreate, events.EventItemsUpdate}, searchService.IndexModel)
+	eventHandler.On([]string{events.EventItemsDelete}, searchService.DeleteModel)
 
 	if statisticsHandler != nil {
 		log.L.Info().Msg("Registering BQ handler")
 		// If we are unable to initialize BQ then we do not listen
 		// Warning is emitted in the statistics.NewDirectusHandler call
-		directusEventHandler.On([]string{directus.EventItemsCreate, directus.EventItemsUpdate, directus.EventItemsDelete}, statisticsHandler.HandleDirectusEvent)
+		eventHandler.On([]string{events.EventItemsCreate, events.EventItemsUpdate, events.EventItemsDelete}, statisticsHandler.HandleDirectusEvent)
 	}
 
 	log.L.Debug().Msg("Set up HTTP server")
@@ -133,17 +129,16 @@ func main() {
 	locker := redislock.New(rdb)
 
 	services := server.ExternalServices{
-		Database:             db,
-		S3Client:             s3Client,
-		MediaPackageVOD:      mediaPackageVOD,
-		DirectusClient:       directusClient,
-		SearchService:        searchService,
-		DirectusEventHandler: directusEventHandler,
-		Queries:              queries,
-		RemoteCache:          remotecache.New(rdb, locker),
-		CrowdinClient:        crowdinClient,
-		Scheduler:            sr,
-		StatisticsHandler:    statisticsHandler,
+		Database:          db,
+		S3Client:          s3Client,
+		MediaPackageVOD:   mediaPackageVOD,
+		SearchService:     searchService,
+		EventHandler:      eventHandler,
+		Queries:           queries,
+		RemoteCache:       remotecache.New(rdb, locker),
+		CrowdinClient:     crowdinClient,
+		Scheduler:         sr,
+		StatisticsHandler: statisticsHandler,
 	}
 
 	handlers := server.NewServer(services, serverConfig)

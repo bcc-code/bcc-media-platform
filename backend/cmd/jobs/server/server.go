@@ -131,7 +131,7 @@ func (s Server) ProcessMessage(c *gin.Context) {
 	case events.TypeRefreshView:
 		err = maintenance.RefreshView(ctx, s.services, e)
 	case events.TypeDirectusEvent:
-		err = s.services.GetDirectusEventHandler().ProcessCloudEvent(ctx, e)
+		err = s.services.GetEventHandler().ProcessCloudEvent(ctx, e)
 	case events.TypeSearchReindex:
 		err = s.services.GetSearchService().Reindex(ctx)
 	case events.TypeExportAnswersToBQ:
