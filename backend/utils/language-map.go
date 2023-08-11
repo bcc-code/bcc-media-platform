@@ -40,6 +40,7 @@ var langMap = map[string]string{
 	"hbs-hrv":   "hr",
 	"tam":       "ta",
 	"kha":       "kha",
+	"yue":       "yue",
 }
 
 // LegacyLanguageCodeTo639_1 converts language codes used in the legacy system and
