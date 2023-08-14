@@ -207,7 +207,7 @@ func main() {
 	r.Use(cors.New(cors.Config{
 		AllowAllOrigins:  true,
 		AllowMethods:     []string{"POST", "GET"},
-		AllowHeaders:     []string{"content-type", "authorization", "accept-language", "x-api-key"},
+		AllowHeaders:     []string{"content-type", "authorization", "accept-language", "x-api-key", "x-application"},
 		AllowCredentials: true,
 	}))
 
