@@ -18,7 +18,6 @@ const query = new URLSearchParams(location.search)
 if (query.get("app")) {
     currentApp.value = query.get("app") as string
 }
-console.log(query)
 
 const episodeId = ref<string>("")
 
