@@ -5,12 +5,20 @@ import { lanTo3letter } from "@/utils/languages"
 import { onMounted, ref } from "vue"
 import { useGetEpisodeEmbedQuery } from "@/graph/generated"
 import EmbedDownloadables from "@/components/embed/EmbedDownloadables.vue"
+import { current as currentApp } from "@/services/app"
 
 const props = defineProps<{
     episodeId?: string
     legacyId?: number
     programId?: number
 }>()
+
+const query = new URLSearchParams(location.search)
+
+if (query.get("app")) {
+    currentApp.value = query.get("app") as string
+}
+console.log(query)
 
 const episodeId = ref<string>("")
 
