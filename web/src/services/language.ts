@@ -47,9 +47,13 @@ export const getLanguages: (language: string) => Language[] = (language) => {
 }
 
 const getCurrentLanguage = () => {
-    const saved = settings.locale
-    if (saved && SUPPORT_LOCALES.includes(saved)) {
-        return saved
+    try {
+        const saved = settings.locale
+        if (saved && SUPPORT_LOCALES.includes(saved)) {
+            return saved
+        }
+    } catch {
+        // just ignore. likely in an iframe
     }
 
     const navLanguage = navigator.language?.split("-")[0]?.toLowerCase() ?? ""
