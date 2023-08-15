@@ -23,7 +23,7 @@ const languages = computed(() => {
     return r.map((i) => langs.value.find((l) => l.code === i)!).filter((i) => i)
 })
 
-const _language = ref<string>()
+const _language = ref<string>("")
 
 const language = computed({
     get() {
@@ -31,7 +31,7 @@ const language = computed({
     },
     set(v) {
         _language.value = v
-        file.value = undefined
+        fileId.value = ""
     },
 })
 
@@ -43,7 +43,11 @@ const files = computed(() => {
     return props.episode.files.filter((f) => f.audioLanguage === language.value)
 })
 
-const file = ref<GetEpisodeEmbedQuery["episode"]["files"][0]>()
+const fileId = ref<string>("")
+
+const file = computed(() => {
+    return props.episode.files.find((f) => f.id === fileId.value)
+})
 
 const fileSize = (bytes: number) => {
     const threshhold = 1024
@@ -140,17 +144,19 @@ const downloadFile = (url: string, name: string) => {
             leave-to-class="transform opacity-0"
         >
             <div class="flex flex-col gap-2" v-if="showTitle">
-                <label class="opacity-0">{{ $t("buttons.download") }}</label>
                 <h1 class="text-lg font-bold my-auto uppercase">
                     {{ $t("buttons.download") }}
                 </h1>
             </div>
             <div class="flex flex-col gap-2">
-                <label>{{ $t("download.language") }}</label>
                 <select
                     class="bg-primary-light p-2 h-12 rounded-md"
+                    :class="{ 'text-gray': !language }"
                     v-model="language"
                 >
+                    <option value="" disabled selected hidden>
+                        {{ $t("download.language") }}
+                    </option>
                     <option
                         v-for="l in languages"
                         :key="l.code"
@@ -161,19 +167,23 @@ const downloadFile = (url: string, name: string) => {
                 </select>
             </div>
             <div class="flex flex-col gap-2" v-if="language" :key="language">
-                <label>{{ $t("download.resolution") }}</label>
                 <select
                     class="bg-primary-light p-2 h-12 rounded-md"
-                    v-model="file"
+                    :class="{ 'text-gray': !fileId }"
+                    v-model="fileId"
                 >
-                    <option v-for="f in files" :key="f.id" :value="f">
+                    <option value="" disabled selected hidden>
+                        <span class="text-opacity-50">{{
+                            $t("download.resolution")
+                        }}</span>
+                    </option>
+                    <option v-for="f in files" :value="f.id">
                         {{ f.resolution }}
                         <span v-if="f.size > 0">({{ fileSize(f.size) }})</span>
                     </option>
                 </select>
             </div>
             <div class="flex flex-col gap-2" v-if="file">
-                <label>{{ $t("buttons.download") }}</label>
                 <button
                     class="bg-primary-light p-2 h-12 rounded-md gap-2"
                     :class="{
@@ -187,7 +197,6 @@ const downloadFile = (url: string, name: string) => {
                 </button>
             </div>
             <div class="flex flex-col gap-2" v-if="file && downloading">
-                <label>{{ $t("download.progress") }}</label>
                 <div
                     class="w-64 flex bg-black bg-opacity-20 my-auto h-8 rounded p-2"
                 >
