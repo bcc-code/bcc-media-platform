@@ -14,9 +14,13 @@ const props = defineProps<{
 }>()
 
 const query = new URLSearchParams(location.search)
-
 if (query.get("app")) {
     currentApp.value = query.get("app") as string
+}
+
+const showDownloadables = ref(true)
+if (query.get("downloads")) {
+    showDownloadables.value = query.get("downloads") !== "false"
 }
 
 const episodeId = ref<string>("")
@@ -89,7 +93,7 @@ const load = async () => {
             <div id="embed-video-player"></div>
         </div>
         <EmbedDownloadables
-            v-if="episode"
+            v-if="episode && showDownloadables"
             show-title
             :episode="episode.episode"
         />
