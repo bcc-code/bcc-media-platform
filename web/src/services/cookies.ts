@@ -1,26 +1,34 @@
 import { ref, watch } from "vue"
 
-const preferences = ref(localStorage.getItem("cookies.preferences") !== "false")
-const statistics = ref(localStorage.getItem("cookies.statistics") !== "false")
-const accepted = ref(localStorage.getItem("cookies.accepted") === "true")
+const preferences = ref<boolean>()
+const statistics = ref<boolean>()
+const accepted = ref<boolean>()
 
-watch(
-    () => [preferences.value, statistics.value, accepted.value],
-    () => {
-        localStorage.setItem(
-            "cookies.preferences",
-            preferences.value ? "true" : "false"
-        )
-        localStorage.setItem(
-            "cookies.statistics",
-            statistics.value ? "true" : "false"
-        )
-        localStorage.setItem(
-            "cookies.accepted",
-            accepted.value ? "true" : "false"
-        )
-    }
-)
+try {
+    preferences.value = localStorage.getItem("cookies.preferences") !== "false"
+
+    statistics.value = localStorage.getItem("cookies.statistics") !== "false"
+
+    accepted.value = localStorage.getItem("cookies.accepted") === "true"
+
+    watch(
+        () => [preferences.value, statistics.value, accepted.value],
+        () => {
+            localStorage.setItem(
+                "cookies.preferences",
+                preferences.value ? "true" : "false"
+            )
+            localStorage.setItem(
+                "cookies.statistics",
+                statistics.value ? "true" : "false"
+            )
+            localStorage.setItem(
+                "cookies.accepted",
+                accepted.value ? "true" : "false"
+            )
+        }
+    )
+} catch {}
 
 export const useCookies = () => {
     return {
