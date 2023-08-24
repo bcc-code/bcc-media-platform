@@ -14,6 +14,11 @@
                     class="text-tint-1 hover:underline"
                     >{{ $t("footer.privacyPolicy") }}</a
                 >
+                <a
+                    href="https://bcc.media/terms-of-use"
+                    class="text-tint-1 hover:underline"
+                    >{{ $t("footer.termsOfUse") }}</a
+                >
             </div>
             <div
                 id="footer-description"
