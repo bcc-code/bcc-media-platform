@@ -18,9 +18,9 @@
         "join": "Rejoindre"
     },
     "download": {
-        "resolution": "",
-        "language": "",
-        "progress": ""
+        "resolution": "Résolution",
+        "language": "Langue",
+        "progress": "Progression"
     },
     "error": {
         "couldntSendYourMessage": "Ton message n'a pas pu être envoyé",
@@ -145,7 +145,8 @@
         "information": "BCC Media est une fondation médiatique de la [BCC federation](https://bcc.no) qui produit et distribue des contenus aux valeurs positives et chrétiennes.\n\nBCC Media est un radiodiffuseur enregistré et adhère aux règlements établis dans la loi norvégienne sur la radiodiffusion. L'organe de surveillance de cette loi est [the Norwegian Media Authority](https://medietilsynet.no/).",
         "headOffice": "Siège social",
         "contactUs": "Nous contacter",
-        "downloadApp": "Télécharge notre application"
+        "downloadApp": "Télécharge notre application",
+        "termsOfUse": ""
     },
     "share": {
         "title": "Partager",
@@ -166,28 +167,28 @@
     "sending": "Envoi en cours",
     "defaultInputPlaceholder": "Commence à écrire ici...",
     "requests": {
-        "name": "",
-        "email": "",
-        "role": "",
-        "what": "",
-        "how": "",
-        "howDescription": "",
-        "where": "",
-        "when": "",
-        "clear": "",
+        "name": "Ton nom",
+        "email": "E-mail",
+        "role": "Ton rôle",
+        "what": "Matériel à demander",
+        "how": "Comment le matériel sera-t-il utilisé ?",
+        "howDescription": "Montré partiellement/entièrement, édité...",
+        "where": "Où le matériel sera-t-il utilisé ?",
+        "when": "Quand le matériel sera-t-il utilisé ?",
+        "clear": "Annuler",
         "send": "Envoyer",
-        "editor": "",
-        "director": "",
-        "producer": "",
-        "eventCamp": "",
-        "local": "",
-        "mediaResponsible": "",
-        "other": "",
-        "confirmSend": "",
-        "title": "",
-        "description": "",
-        "receitTitle": "",
-        "confirmAgenda": "",
-        "receitDescription": ""
+        "editor": "Éditeur",
+        "director": "Directeur",
+        "producer": "Producteur",
+        "eventCamp": "Événement/Camp",
+        "local": "Rassemblement local",
+        "mediaResponsible": "Responsable Média",
+        "other": "Autre",
+        "confirmSend": "Envoyer une demande de matériel ?",
+        "title": "Demande de matériel",
+        "description": "Formulaire de demande de matériel audio, photo et vidéo auprès de BCC Media",
+        "receitTitle": "Demande reçue",
+        "confirmAgenda": "Je confirme que le matériel ne sera utilisé qu'aux fins convenues.",
+        "receitDescription": "Notre équipe te contactera dans les 7 jours ouvrables. Une réponse automatique a été envoyée à ton adresse e-mail."
     }
 }

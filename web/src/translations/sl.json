@@ -18,9 +18,9 @@
         "join": "Pridruži se"
     },
     "download": {
-        "resolution": "",
-        "language": "",
-        "progress": ""
+        "resolution": "Resolucija",
+        "language": "Jezik",
+        "progress": "Napredek"
     },
     "error": {
         "couldntSendYourMessage": "Sporočila ni bilo mogoče poslati",
@@ -145,7 +145,8 @@
         "information": "BCC Media je medijska fundacija v BCC zvezi (https://bcc.no), ki proizvaja in širi vsebino s pozitivnimi in krščanskimi vrednotami.\n\nBCC je registriran izdajatelj televizijskega programa in spoštuje pravila norveškega zakonika o oddajanju. Nadzorno telo tega zakonika je [the Norwegian Media Authority](https://medietilsynet.no/).",
         "headOffice": "Sedež podjetja",
         "contactUs": "Kontaktiraj nas",
-        "downloadApp": "Prenesi našo aplikacijo"
+        "downloadApp": "Prenesi našo aplikacijo",
+        "termsOfUse": ""
     },
     "share": {
         "title": "Deli",
@@ -166,28 +167,28 @@
     "sending": "Pošiljam",
     "defaultInputPlaceholder": "Napiši tukaj ...",
     "requests": {
-        "name": "",
-        "email": "",
-        "role": "",
-        "what": "",
-        "how": "",
+        "name": "Tvoje ime",
+        "email": "Email",
+        "role": "Tvoja vloga",
+        "what": "Zahtevano gradivo",
+        "how": "Kako bo gradivo uporabljeno?",
         "howDescription": "",
-        "where": "",
-        "when": "",
-        "clear": "",
+        "where": "Kje bo gradivo uporabljeno?",
+        "when": "Kdaj bo gradivo uporabljeno?",
+        "clear": "Počisti",
         "send": "Pošlji",
-        "editor": "",
-        "director": "",
-        "producer": "",
-        "eventCamp": "",
-        "local": "",
-        "mediaResponsible": "",
-        "other": "",
-        "confirmSend": "",
-        "title": "",
-        "description": "",
-        "receitTitle": "",
-        "confirmAgenda": "",
-        "receitDescription": ""
+        "editor": "Urednik",
+        "director": "Direktor",
+        "producer": "Producent",
+        "eventCamp": "Event/camp",
+        "local": "Lokalno srečanje",
+        "mediaResponsible": "Odgovorni mediji",
+        "other": "Ostalo",
+        "confirmSend": "Pošlji prošnjo za gradivo?",
+        "title": "Zaprosi za gradivo",
+        "description": "Obrazec za prošnjo zvoka, slik in video gradiva BCC Media",
+        "receitTitle": "Prošnja prejeta",
+        "confirmAgenda": "Strinjam se, da bo gradivo uporabljeno samo za dogovorjen namen.",
+        "receitDescription": "Naša ekipa te bo kontaktirala v roku 7 delovnih dni. Avtomatsko sporočilo je bilo poslano na tvoj mail."
     }
 }

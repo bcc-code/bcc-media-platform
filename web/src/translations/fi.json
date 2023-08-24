@@ -18,9 +18,9 @@
         "join": "Liity"
     },
     "download": {
-        "resolution": "",
-        "language": "",
-        "progress": ""
+        "resolution": "Kuvatarkkuus",
+        "language": "Kieli",
+        "progress": "Eteneminen"
     },
     "error": {
         "couldntSendYourMessage": "Lähettäminen epäonnistui",
@@ -145,7 +145,8 @@
         "information": "BCC Media on [BCC Liiton](https://bcc.no) mediaosasto, joka tuottaa ja toimittaa positiivista Kristillisten arvojen mukaista sisältöä.\n\nBCC Media on rekisteröity juokkoviestinnän tarjoaja ja noudattaa Norjan lakia joukkoviestinnästä. Joukkoviestintää Norjassa sääntelee [Medietilsynet](https://medietilsynet.no/).",
         "headOffice": "Pääkonttori",
         "contactUs": "Yhteydenotto",
-        "downloadApp": "Lataa sovelluksemme"
+        "downloadApp": "Lataa sovelluksemme",
+        "termsOfUse": ""
     },
     "share": {
         "title": "Jaa",
@@ -166,28 +167,28 @@
     "sending": "Lähetetään",
     "defaultInputPlaceholder": "Kirjoita tähän...",
     "requests": {
-        "name": "",
-        "email": "",
-        "role": "",
-        "what": "",
-        "how": "",
-        "howDescription": "",
-        "where": "",
-        "when": "",
-        "clear": "",
+        "name": "Nimesi",
+        "email": "Sähköposti",
+        "role": "Asema/tehtävä",
+        "what": "Pyydettävä aineisto",
+        "how": "Mihin aineistoa käytetään?",
+        "howDescription": "Näytetään osittain/täysin, muokattu...",
+        "where": "Missä aineistoa tullaan käyttämään?",
+        "when": "Milloin aineistoa tullaan käyttämään?",
+        "clear": "Tyhjennä",
         "send": "Lähetä",
-        "editor": "",
-        "director": "",
-        "producer": "",
-        "eventCamp": "",
-        "local": "",
-        "mediaResponsible": "",
-        "other": "",
-        "confirmSend": "",
-        "title": "",
-        "description": "",
-        "receitTitle": "",
-        "confirmAgenda": "",
-        "receitDescription": ""
+        "editor": "Editoija",
+        "director": "Ohjaaja",
+        "producer": "Tuottaja",
+        "eventCamp": "Tilaisuus/Leiri",
+        "local": "Paikallinen kokoontuminen",
+        "mediaResponsible": "Mediavastaava",
+        "other": "Muu",
+        "confirmSend": "Lähetä aineistopyyntö?",
+        "title": "Pyydä ainestoa",
+        "description": "Lomake ääni-, kuva-, ja videoaineiston pyytämistä varten BCC Medialta",
+        "receitTitle": "Pyyntö vastaanotettu",
+        "confirmAgenda": "Vahvistan, että aineistoa tullaan käyttämään vain sovittuun tarkoitukseen.",
+        "receitDescription": "Otamme sinuun yhteyttä 7 päivän kuluessa. Sähköpostiisi tulee myös automaattinen vastaus."
     }
 }

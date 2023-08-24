@@ -18,9 +18,9 @@
         "join": "Alătură-te"
     },
     "download": {
-        "resolution": "",
-        "language": "",
-        "progress": ""
+        "resolution": "Rezoluție",
+        "language": "Limbă",
+        "progress": "Progres"
     },
     "error": {
         "couldntSendYourMessage": "Nu am putut trimite mesajul dvs",
@@ -145,7 +145,8 @@
         "information": "BCC Media este o fundație media din [Federația BCC](https://bcc.no) care produce și distribuie conținut cu valori pozitive și creștine.\n\nBCC Media este un transmițător înregistrat și respectă reglementările prevăzute în Legea Norvegiană de Difuzare. Organismul de supraveghere pentru această Lege este [Autoritatea Media Norvegiană](https://medietilsynet.no/).",
         "headOffice": "Sediul central",
         "contactUs": "Contactează-ne",
-        "downloadApp": "Descarcă aplicația noastră"
+        "downloadApp": "Descarcă aplicația noastră",
+        "termsOfUse": ""
     },
     "share": {
         "title": "Distribuie",
@@ -166,23 +167,23 @@
     "sending": "Se trimite",
     "defaultInputPlaceholder": "Începe să scrii aici...",
     "requests": {
-        "name": "",
-        "email": "",
-        "role": "",
-        "what": "",
-        "how": "",
-        "howDescription": "",
-        "where": "",
-        "when": "",
-        "clear": "",
+        "name": "Numele tău",
+        "email": "Email",
+        "role": "Rolul tău",
+        "what": "Material care trebuie solicitat",
+        "how": "Cum va fi folosit materialul?",
+        "howDescription": "Prezentat parțial/complet, editat...",
+        "where": "Unde va fi utilizat materialul?",
+        "when": "Când va fi folosit materialul?",
+        "clear": "Golește",
         "send": "Trimite",
-        "editor": "",
-        "director": "",
-        "producer": "",
-        "eventCamp": "",
-        "local": "",
-        "mediaResponsible": "",
-        "other": "",
+        "editor": "Editor",
+        "director": "Director",
+        "producer": "Producător",
+        "eventCamp": "Eveniment/tabără",
+        "local": "Adunare locală",
+        "mediaResponsible": "Responsabil media",
+        "other": "Altele",
         "confirmSend": "",
         "title": "",
         "description": "",

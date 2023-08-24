@@ -18,9 +18,9 @@
         "join": "Deltag"
     },
     "download": {
-        "resolution": "",
-        "language": "",
-        "progress": ""
+        "resolution": "Opløsning",
+        "language": "Sprog",
+        "progress": "Progression"
     },
     "error": {
         "couldntSendYourMessage": "Kunne ikke sende din besked",
@@ -145,7 +145,8 @@
         "information": "BCC Media er en mediefond i [BCC-forbundet](https://bcc.no), der producerer og distribuerer indhold med positive og kristne værdier.\n\nBCC Media er et registreret TV-selskab og overholder reglerne i den norske radio- og TV-lov. Tilsynsorganet for denne lov er [den norske medietilsyn](https://medietilsynet.no/).",
         "headOffice": "Hovedkontor",
         "contactUs": "Kontakt os",
-        "downloadApp": "Download vores app"
+        "downloadApp": "Download vores app",
+        "termsOfUse": ""
     },
     "share": {
         "title": "Del",
@@ -166,28 +167,28 @@
     "sending": "Sender",
     "defaultInputPlaceholder": "Begynd at skrive her...",
     "requests": {
-        "name": "",
-        "email": "",
-        "role": "",
-        "what": "",
-        "how": "",
-        "howDescription": "",
-        "where": "",
-        "when": "",
-        "clear": "",
+        "name": "Dit navn",
+        "email": "Email",
+        "role": "Din rolle",
+        "what": "Ønsket materiale",
+        "how": "Hvordan skal materialet bruges?",
+        "howDescription": "Vises materialet delvist, fuldstændigt eller redigeret?",
+        "where": "Hvor skal materialet bruges?",
+        "when": "Hvornår skal materialet bruges?",
+        "clear": "Tøm",
         "send": "Send",
-        "editor": "",
-        "director": "",
-        "producer": "",
-        "eventCamp": "",
-        "local": "",
-        "mediaResponsible": "",
-        "other": "",
-        "confirmSend": "",
-        "title": "",
-        "description": "",
-        "receitTitle": "",
-        "confirmAgenda": "",
-        "receitDescription": ""
+        "editor": "Redaktør",
+        "director": "Instruktør",
+        "producer": "Producent",
+        "eventCamp": "Event/camp",
+        "local": "Lokalt møde",
+        "mediaResponsible": "Media-ansvarlig",
+        "other": "Andet",
+        "confirmSend": "Send anmodning om materiale",
+        "title": "Anmodning om materiale",
+        "description": "Ansøgning om lyd-, billed- og videomateriale fra BCC Media",
+        "receitTitle": "Ansøgning modtaget",
+        "confirmAgenda": "Jeg bekræfter at materialet kun vil blive brugt til det aftalte formål",
+        "receitDescription": "Vores team vil kontakte dig inden for 7 arbejdsdage. Et automatisk svar er blevet sendt til din e-mail."
     }
 }

@@ -18,9 +18,9 @@
         "join": "Unirse"
     },
     "download": {
-        "resolution": "",
-        "language": "",
-        "progress": ""
+        "resolution": "Resolución",
+        "language": "Idiomas",
+        "progress": "Progreso"
     },
     "error": {
         "couldntSendYourMessage": "Tu mensaje no pudo ser enviado",
@@ -145,7 +145,8 @@
         "information": "BCC Media es una fundación de medios en la [Federación BCC](https://bcc.no) que produce y distribuye contenidos con valores positivos y cristianos.",
         "headOffice": "Oficina central",
         "contactUs": "Contactenos",
-        "downloadApp": "Descarga nuestra aplicación"
+        "downloadApp": "Descarga nuestra aplicación",
+        "termsOfUse": ""
     },
     "share": {
         "title": "Compartir",
@@ -166,28 +167,28 @@
     "sending": "Enviando",
     "defaultInputPlaceholder": "Empieza a escribir aquí...",
     "requests": {
-        "name": "",
-        "email": "",
-        "role": "",
-        "what": "",
-        "how": "",
-        "howDescription": "",
-        "where": "",
-        "when": "",
-        "clear": "",
+        "name": "Tu nombre",
+        "email": "Correo electrónico",
+        "role": "Tu rol",
+        "what": "Material a solicitar",
+        "how": "¿Cómo se utilizará el material?",
+        "howDescription": "Mostrado parcial/completamente, editado...",
+        "where": "¿Dónde se utilizará el material?",
+        "when": "¿Cuándo se utilizará el material?",
+        "clear": "Limpiar",
         "send": "Enviar",
-        "editor": "",
-        "director": "",
-        "producer": "",
-        "eventCamp": "",
-        "local": "",
-        "mediaResponsible": "",
-        "other": "",
-        "confirmSend": "",
-        "title": "",
-        "description": "",
-        "receitTitle": "",
-        "confirmAgenda": "",
-        "receitDescription": ""
+        "editor": "Editor",
+        "director": "Director",
+        "producer": "Productor",
+        "eventCamp": "Evento/campamento",
+        "local": "Reunión local",
+        "mediaResponsible": "Responsable de los medios de comunicación",
+        "other": "Otro",
+        "confirmSend": "¿Enviar solicitud de material?",
+        "title": "Solicitud de material",
+        "description": "Formulario para solicitar material de audio, imagen y vídeo a BCC Media",
+        "receitTitle": "Solicitud recibida",
+        "confirmAgenda": "Confirmo que el material sólo se utilizará para el fin acordado.",
+        "receitDescription": "Nuestro equipo se pondrá en contacto con usted en un plazo de 7 días laborables. Se ha enviado una respuesta automática a su correo electrónico."
     }
 }

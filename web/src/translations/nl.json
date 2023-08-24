@@ -18,9 +18,9 @@
         "join": "Meedoen"
     },
     "download": {
-        "resolution": "",
-        "language": "",
-        "progress": ""
+        "resolution": "Oplossing",
+        "language": "Taal",
+        "progress": "Voortgang"
     },
     "error": {
         "couldntSendYourMessage": "Je bericht kon niet worden verzonden",
@@ -145,7 +145,8 @@
         "information": "BCC Media is een geregistreerde omroep en volgt de regels van de omroepwet. Toezichthoudend orgaan voor deze wet is De Noorse Media-autoriteit/).",
         "headOffice": "Hoofdkantoor",
         "contactUs": "Contact",
-        "downloadApp": "Download onze app"
+        "downloadApp": "Download onze app",
+        "termsOfUse": ""
     },
     "share": {
         "title": "Deel",
@@ -166,28 +167,28 @@
     "sending": "Aan het verzenden",
     "defaultInputPlaceholder": "Begin hier met typen...",
     "requests": {
-        "name": "",
-        "email": "",
-        "role": "",
-        "what": "",
-        "how": "",
-        "howDescription": "",
-        "where": "",
-        "when": "",
-        "clear": "",
+        "name": "Jouw naam",
+        "email": "E-mail",
+        "role": "Jouw rol",
+        "what": "Aan te vragen materiaal",
+        "how": "Hoe wordt het materiaal gebruikt?",
+        "howDescription": "Volledig/deels getoond, gewijzigd...",
+        "where": "Waar zal het materiaal gebruikt worden?",
+        "when": "Wanneer zal het materiaal gebruikt worden?",
+        "clear": "Wis",
         "send": "Verzenden",
-        "editor": "",
-        "director": "",
-        "producer": "",
-        "eventCamp": "",
-        "local": "",
-        "mediaResponsible": "",
-        "other": "",
-        "confirmSend": "",
-        "title": "",
-        "description": "",
-        "receitTitle": "",
-        "confirmAgenda": "",
-        "receitDescription": ""
+        "editor": "Editor",
+        "director": "Regisseur",
+        "producer": "Producent",
+        "eventCamp": "Event/camp",
+        "local": "Lokale bijeenkomst",
+        "mediaResponsible": "Media verantwoordelijke",
+        "other": "Overig",
+        "confirmSend": "Verzend de materiaalaanvraag?",
+        "title": "Aanvraag voor materiaal",
+        "description": "Formulier voor het aanvragen van audio, beeld, video materiaal van BCC Media",
+        "receitTitle": "Aanvraag ontvangen",
+        "confirmAgenda": "Ik bevestig dat het materiaal alleen gebruikt wordt voor het afgesproken doel.",
+        "receitDescription": "Ons team zal binnen 7 werkdagen contact met je opnemen. Een automatische bevestiging is naar je email-adres gestuurd."
     }
 }
