@@ -3,6 +3,7 @@ import { GetEpisodeEmbedQuery } from "@/graph/generated"
 import { getLanguages } from "@/services/language"
 import { computed, ref } from "vue"
 import { DocumentArrowDownIcon } from "@heroicons/vue/24/outline"
+import { analytics } from "@/services/analytics"
 
 const props = defineProps<{
     episode: GetEpisodeEmbedQuery["episode"]
@@ -75,8 +76,19 @@ const progress = ref(0)
 
 const downloading = ref(false)
 
-const downloadFile = (url: string, name: string) => {
+const downloadFile = () => {
+    if (!file.value) {
+        return
+    }
+    const url = file.value.url
+    const name = file.value.fileName
     downloading.value = true
+    analytics.track("episode_download", {
+        episodeId: props.episode.id,
+        fileName: name,
+        audioLanguage: file.value.audioLanguage,
+        resolution: file.value.resolution ?? null,
+    })
     fetch(url)
         .then((response) => {
             const contentEncoding = response.headers.get("content-encoding")
@@ -189,7 +201,7 @@ const downloadFile = (url: string, name: string) => {
                     :class="{
                         'opacity-50 cursor-not-allowed': downloading,
                     }"
-                    @click="downloadFile(file?.url, file?.fileName)"
+                    @click="downloadFile()"
                     :disabled="downloading"
                 >
                     <!-- <span class="my-auto">{{ $t("buttons.download") }}</span> -->

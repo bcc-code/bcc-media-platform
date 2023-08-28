@@ -105,4 +105,10 @@ export type Events = {
     playback_ended: VideoEvent
     playback_interrupted: VideoEvent
     playback_buffering_started: VideoEvent
+    episode_download: {
+        episodeId: string
+        fileName: string
+        audioLanguage: string
+        resolution: string | null
+    }
 }

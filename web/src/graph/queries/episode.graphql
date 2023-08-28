@@ -143,6 +143,7 @@ query getDefaultEpisodeForShow($id: ID!) {
 
 query getEpisodeEmbed($id: ID!) {
     episode(id: $id) {
+        id
         files {
             id
             url

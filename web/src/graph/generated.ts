@@ -1563,7 +1563,7 @@ export type GetEpisodeEmbedQueryVariables = Exact<{
 }>;
 
 
-export type GetEpisodeEmbedQuery = { episode: { files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, size: number, resolution?: string | null }> } };
+export type GetEpisodeEmbedQuery = { episode: { id: string, files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, size: number, resolution?: string | null }> } };
 
 export type SendEpisodeFeedbackMutationVariables = Exact<{
   episodeId: Scalars['ID'];
@@ -2203,6 +2203,7 @@ export function useGetDefaultEpisodeForShowQuery(options: Omit<Urql.UseQueryArgs
 export const GetEpisodeEmbedDocument = gql`
     query getEpisodeEmbed($id: ID!) {
   episode(id: $id) {
+    id
     files {
       id
       url
