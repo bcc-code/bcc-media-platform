@@ -83,11 +83,6 @@ func validateTokenAndFillCtx(vs []*validator.Validator) gin.HandlerFunc {
 
 		ctx.Set(CtxPersonID, strconv.Itoa(custom.PersonID))
 
-		if custom.PersonID == 54962 {
-			// Nathan Lux test account
-			custom.Metadata.HasMembership = false
-		}
-
 		ctx.Set(CtxIsBCCMember, custom.Metadata.HasMembership)
 	}
 }

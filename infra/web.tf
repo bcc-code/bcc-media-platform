@@ -90,36 +90,6 @@ resource "google_compute_url_map" "website" {
       service = google_compute_backend_service.rewriter.id
     }
 
-    path_rule {
-      paths = [
-        "/api/*",
-        "/Content/*",
-        "/static/css/videojs-brunstadtv-skin.css",
-        "/static/video.js/video-js.min.css",
-        "/static/video.js/video.min.js",
-        "/static/js/videojs-create-player.js"
-      ]
-      service = google_compute_backend_service.old-api.id
-
-      route_action {
-        url_rewrite {
-          host_rewrite = "old.brunstad.tv"
-        }
-      }
-    }
-
-    path_rule {
-      paths = [
-        "/tvlogin/*",
-      ]
-
-      url_redirect {
-        host_redirect          = "old.brunstad.tv"
-        https_redirect         = true
-        redirect_response_code = "MOVED_PERMANENTLY_DEFAULT"
-        strip_query            = false
-      }
-    }
 
     path_rule {
       paths = [
@@ -205,47 +175,3 @@ resource "google_compute_global_forwarding_rule" "website-redirect" {
   port_range = "80"
 }
 
-
-# Rewrite /api to old api
-resource "google_compute_global_network_endpoint_group" "old-api" {
-  project               = google_project.brunstadtv.project_id
-  name                  = "old-api"
-  default_port          = "443"
-  network_endpoint_type = "INTERNET_FQDN_PORT"
-}
-
-resource "google_compute_global_network_endpoint" "old-api-endpoint" {
-  project                       = google_project.brunstadtv.project_id
-  global_network_endpoint_group = google_compute_global_network_endpoint_group.old-api.name
-  fqdn                          = "old.brunstad.tv"
-  port                          = 443
-}
-
-resource "google_compute_backend_service" "old-api" {
-  project                         = google_project.brunstadtv.project_id
-  name                            = "old-api"
-  enable_cdn                      = false
-  timeout_sec                     = 10
-  connection_draining_timeout_sec = 10
-
-  cdn_policy {
-    cache_mode                   = "USE_ORIGIN_HEADERS"
-    client_ttl                   = 0
-    default_ttl                  = 0
-    max_ttl                      = 0
-    signed_url_cache_max_age_sec = 3600
-    serve_while_stale            = 604800 //1 week
-    cache_key_policy {
-      include_host         = false
-      include_protocol     = false
-      include_query_string = true
-    }
-  }
-
-  # custom_request_headers          = ["host: ${google_compute_global_network_endpoint.old-api-endpoint.fqdn}"]
-  # custom_response_headers         = ["X-Cache-Hit: {cdn_cache_status}"]
-
-  backend {
-    group = google_compute_global_network_endpoint_group.old-api.self_link
-  }
-}
