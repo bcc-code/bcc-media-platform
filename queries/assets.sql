@@ -89,7 +89,8 @@ SELECT md.id,
                    AND dsts.datasources_id = ds.id), '{}')::json AS datasource_description
 FROM timedmetadata md
          LEFT JOIN datasources ds ON ds.id = md.datasource_id
-WHERE md.asset_id = ANY (@asset_ids::int[]);
+WHERE md.status == 'published'
+  AND md.asset_id = ANY (@asset_ids::int[]);
 
 -- name: ListAssets :many
 SELECT *
