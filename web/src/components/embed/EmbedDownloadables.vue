@@ -87,7 +87,7 @@ const downloadFile = () => {
         episodeId: props.episode.id,
         fileName: name,
         audioLanguage: file.value.audioLanguage,
-        resolution: file.value.resolution ?? null,
+        resolution: file.value.resolution ?? "",
     })
     fetch(url)
         .then((response) => {

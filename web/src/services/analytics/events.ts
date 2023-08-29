@@ -109,6 +109,6 @@ export type Events = {
         episodeId: string
         fileName: string
         audioLanguage: string
-        resolution: string | null
+        resolution: string
     }
 }
