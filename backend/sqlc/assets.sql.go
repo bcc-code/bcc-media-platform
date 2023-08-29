@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"time"
 
@@ -599,21 +600,30 @@ const getTimedMetadataForAssets = `-- name: getTimedMetadataForAssets :many
 SELECT md.id,
        md.asset_id,
        md.type,
-       md.title                                                        AS original_title,
-       md.description                                                  AS original_description,
-       md.datasource_id                                                AS datasource_id,
-       (SELECT json_object_agg(ts.languages_code, ts.title))           AS title,
-       (SELECT json_object_agg(ts.languages_code, ts.description))     AS description,
-       ds.title                                                        AS datasource_original_title,
-       ds.description                                                  AS datasource_original_description,
-       (SELECT json_object_agg(dsts.languages_code, dsts.title))       AS datasource_title,
-       (SELECT json_object_agg(dsts.languages_code, dsts.description)) AS datasource_description,
+       md.title                                                  AS original_title,
+       md.description                                            AS original_description,
+       COALESCE((SELECT json_object_agg(ts.languages_code, ts.title)
+                 FROM timedmetadata_translations ts
+                 WHERE ts.timedmetadata_id = md.id), '{}')::json AS title,
+       COALESCE((SELECT json_object_agg(ts.languages_code, ts.description)
+                 FROM timedmetadata_translations ts
+                 WHERE ts.timedmetadata_id = md.id), '{}')::json AS description,
        md.timestamp,
-       md.highlight
+       md.highlight,
+       md.datasource_id                                          AS datasource_id,
+       ds.has_translations                                       AS datasource_has_translations,
+       COALESCE(ds.title, '')                                    AS datasource_original_title,
+       ds.description                                            AS datasource_original_description,
+       COALESCE((SELECT json_object_agg(dsts.languages_code, dsts.title)
+                 FROM datasources_translations dsts
+                 WHERE ds.has_translations
+                   AND dsts.datasources_id = ds.id), '{}')::json AS datasource_title,
+       COALESCE((SELECT json_object_agg(dsts.languages_code, dsts.description)
+                 FROM datasources_translations dsts
+                 WHERE ds.has_translations
+                   AND dsts.datasources_id = ds.id), '{}')::json AS datasource_description
 FROM timedmetadata md
-         JOIN timedmetadata_translations ts ON ts.timedmetadata_id = md.id
-         JOIN public.datasources ds ON ds.id = md.datasource_id
-         JOIN public.datasources_translations dsts ON dsts.datasources_id = ds.id
+         LEFT JOIN datasources ds ON ds.id = md.datasource_id
 WHERE md.asset_id = ANY ($1::int[])
 `
 
@@ -623,15 +633,16 @@ type getTimedMetadataForAssetsRow struct {
 	Type                          string          `db:"type" json:"type"`
 	OriginalTitle                 null_v4.String  `db:"original_title" json:"originalTitle"`
 	OriginalDescription           null_v4.String  `db:"original_description" json:"originalDescription"`
-	DatasourceID                  uuid.NullUUID   `db:"datasource_id" json:"datasourceId"`
 	Title                         json.RawMessage `db:"title" json:"title"`
 	Description                   json.RawMessage `db:"description" json:"description"`
+	Timestamp                     time.Time       `db:"timestamp" json:"timestamp"`
+	Highlight                     bool            `db:"highlight" json:"highlight"`
+	DatasourceID                  uuid.NullUUID   `db:"datasource_id" json:"datasourceId"`
+	DatasourceHasTranslations     sql.NullBool    `db:"datasource_has_translations" json:"datasourceHasTranslations"`
 	DatasourceOriginalTitle       string          `db:"datasource_original_title" json:"datasourceOriginalTitle"`
 	DatasourceOriginalDescription null_v4.String  `db:"datasource_original_description" json:"datasourceOriginalDescription"`
 	DatasourceTitle               json.RawMessage `db:"datasource_title" json:"datasourceTitle"`
 	DatasourceDescription         json.RawMessage `db:"datasource_description" json:"datasourceDescription"`
-	Timestamp                     time.Time       `db:"timestamp" json:"timestamp"`
-	Highlight                     bool            `db:"highlight" json:"highlight"`
 }
 
 func (q *Queries) getTimedMetadataForAssets(ctx context.Context, assetIds []int32) ([]getTimedMetadataForAssetsRow, error) {
@@ -649,15 +660,16 @@ func (q *Queries) getTimedMetadataForAssets(ctx context.Context, assetIds []int3
 			&i.Type,
 			&i.OriginalTitle,
 			&i.OriginalDescription,
-			&i.DatasourceID,
 			&i.Title,
 			&i.Description,
+			&i.Timestamp,
+			&i.Highlight,
+			&i.DatasourceID,
+			&i.DatasourceHasTranslations,
 			&i.DatasourceOriginalTitle,
 			&i.DatasourceOriginalDescription,
 			&i.DatasourceTitle,
 			&i.DatasourceDescription,
-			&i.Timestamp,
-			&i.Highlight,
 		); err != nil {
 			return nil, err
 		}
