@@ -12,7 +12,7 @@ SELECT et.id,
        json_build_object('title', title, 'description', description) as values
 FROM episodes_translations et
          JOIN episodes e ON e.id = et.episodes_id
-WHERE et.languages_code = ANY (@language::varchar[]);
+WHERE et.languages_code = @language::varchar;
 
 -- name: ClearEpisodeTranslations :exec
 DELETE
@@ -38,7 +38,7 @@ SELECT et.id,
        json_build_object('title', title, 'description', description) as values
 FROM seasons_translations et
          JOIN seasons e ON e.id = et.seasons_id
-WHERE et.languages_code = ANY ($1::varchar[]);
+WHERE et.languages_code = @language::varchar;
 
 -- name: ClearSeasonTranslations :exec
 DELETE
@@ -62,7 +62,7 @@ SELECT et.id,
        json_build_object('title', title, 'description', description) as values
 FROM shows_translations et
          JOIN shows e ON e.id = et.shows_id
-WHERE et.languages_code = ANY ($1::varchar[]);
+WHERE et.languages_code = @language::varchar;
 
 -- name: ClearShowTranslations :exec
 DELETE
@@ -87,7 +87,7 @@ SELECT st.id,
        json_build_object('title', title, 'description', description) as values
 FROM sections_translations st
          JOIN sections e ON e.id = st.sections_id
-WHERE st.languages_code = ANY ($1::varchar[]);
+WHERE st.languages_code = @language::varchar;
 
 -- name: ClearSectionTranslations :exec
 DELETE
@@ -111,7 +111,7 @@ SELECT st.id,
        json_build_object('title', title, 'description', description) as values
 FROM pages_translations st
          JOIN pages e ON e.id = st.pages_id
-WHERE st.languages_code = ANY ($1::varchar[]);
+WHERE st.languages_code = @language::varchar;
 
 -- name: ClearPageTranslations :exec
 DELETE
@@ -135,7 +135,7 @@ SELECT st.id,
        json_build_object('title', title, 'description', description) as values
 FROM links_translations st
          JOIN links e ON e.id = st.links_id
-WHERE st.languages_code = ANY ($1::varchar[]);
+WHERE st.languages_code = @language::varchar;
 
 -- name: UpdateLinkTranslation :exec
 INSERT INTO links_translations (links_id, languages_code, title, description)
@@ -153,7 +153,7 @@ SELECT ts.id,
        json_build_object('title', title, 'description', description) as values
 FROM studytopics_translations ts
          JOIN items i ON i.id = ts.studytopics_id
-WHERE ts.languages_code = ANY ($1::varchar[]);
+WHERE ts.languages_code = @language::varchar;
 
 -- name: UpdateStudyTopicTranslation :exec
 INSERT INTO studytopics_translations (studytopics_id, languages_code, title, description)
@@ -171,7 +171,7 @@ SELECT st.id,
        json_build_object('title', title, 'description', description) as values
 FROM lessons_translations st
          JOIN lessons e ON e.id = st.lessons_id
-WHERE st.languages_code = ANY ($1::varchar[]);
+WHERE st.languages_code = @language::varchar;
 
 -- name: UpdateLessonTranslation :exec
 INSERT INTO lessons_translations (lessons_id, languages_code, title, description)
@@ -189,7 +189,7 @@ SELECT ts.id,
        json_build_object('title', title, 'description', description) as values
 FROM tasks_translations ts
          JOIN items i ON i.id = ts.tasks_id
-WHERE ts.languages_code = ANY ($1::varchar[]);
+WHERE ts.languages_code = @language::varchar;
 
 -- name: UpdateTaskTranslation :exec
 INSERT INTO tasks_translations (tasks_id, languages_code, title, description)
@@ -206,7 +206,7 @@ SELECT ts.id,
        json_build_object('title', title) as values
 FROM questionalternatives_translations ts
          JOIN items i ON i.id = ts.questionalternatives_id
-WHERE ts.languages_code = ANY ($1::varchar[]);
+WHERE ts.languages_code = @language::varchar;
 
 -- name: UpdateAlternativeTranslation :exec
 INSERT INTO questionalternatives_translations (questionalternatives_id, languages_code, title)
@@ -222,7 +222,7 @@ SELECT ts.id,
        json_build_object('title', title, 'description', description) as values
 FROM achievements_translations ts
          JOIN items i ON i.id = ts.achievements_id
-WHERE ts.languages_code = ANY ($1::varchar[]);
+WHERE ts.languages_code = @language::varchar;
 
 -- name: UpdateAchievementTranslation :exec
 INSERT INTO achievements_translations (achievements_id, languages_code, title, description)
@@ -239,7 +239,7 @@ SELECT ts.id,
        json_build_object('title', title, 'description', description) as values
 FROM achievementgroups_translations ts
          JOIN items i ON i.id = ts.achievementgroups_id
-WHERE ts.languages_code = ANY ($1::varchar[]);
+WHERE ts.languages_code = @language::varchar;
 
 -- name: UpdateAchievementGroupTranslation :exec
 INSERT INTO achievementgroups_translations (achievementgroups_id, languages_code, title, description)
@@ -334,7 +334,7 @@ SELECT ts.id,
        json_build_object('title', title, 'description', description) as values
 FROM surveys_translations ts
          JOIN items i ON i.id = ts.surveys_id
-WHERE ts.languages_code = ANY ($1::varchar[]);
+WHERE ts.languages_code = @language::varchar;
 
 -- name: ClearSurveyTranslations :exec
 DELETE
@@ -361,7 +361,7 @@ SELECT ts.id,
 FROM surveyquestions_translations ts
          JOIN surveyquestions items ON items.id = ts.surveyquestions_id
          JOIN surveys s ON s.id = items.survey_id AND s.status = ANY ('{published,unlisted}')
-WHERE ts.languages_code = ANY ($1::varchar[]);
+WHERE ts.languages_code = @language::varchar;
 
 -- name: ClearSurveyQuestionTranslations :exec
 DELETE
@@ -393,7 +393,7 @@ SELECT ts.id,
        json_build_object('question', ts.question, 'answer', ts.answer) as values
 FROM faqs_translations ts
          JOIN items i ON i.id = ts.faqs_id
-WHERE ts.languages_code = ANY ($1::varchar[]);
+WHERE ts.languages_code = @language::varchar;
 
 -- name: ClearFAQTranslations :exec
 DELETE
@@ -421,7 +421,7 @@ SELECT ts.id,
        json_build_object('title', ts.title, 'description', ts.description) as values
 FROM faqcategories_translations ts
          JOIN items i ON i.id = ts.faqcategories_id
-WHERE ts.languages_code = ANY ($1::varchar[]);
+WHERE ts.languages_code = @language::varchar;
 
 -- name: ClearFAQCategoryTranslations :exec
 DELETE
@@ -449,7 +449,7 @@ SELECT ts.id,
        json_build_object('title', ts.title, 'description', ts.description) as values
 FROM games_translations ts
          JOIN items i ON i.id = ts.games_id
-WHERE ts.languages_code = ANY ($1::varchar[]);
+WHERE ts.languages_code = @language::varchar;
 
 -- name: ClearGameTranslations :exec
 DELETE
