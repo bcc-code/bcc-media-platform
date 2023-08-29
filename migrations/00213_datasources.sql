@@ -56,7 +56,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS datasources_key_unique ON public.datasources U
 
 ALTER TABLE IF EXISTS "public"."datasources" OWNER TO manager;
 
-GRANT SELECT ON TABLE "public"."datasources" TO manager, directus, background_worker, api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."datasources" TO manager, directus, background_worker, api, onsite_backup; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."datasources" TO manager, directus, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."datasources" TO manager, directus, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT DELETE ON TABLE "public"."datasources" TO manager, directus, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS "public"."datasources_styledimages" (
 
 ALTER TABLE IF EXISTS "public"."datasources_styledimages" OWNER TO manager;
 
-GRANT SELECT ON TABLE "public"."datasources_styledimages" TO manager, directus, background_worker, api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."datasources_styledimages" TO manager, directus, background_worker, api, onsite_backup; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."datasources_styledimages" TO manager, directus, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."datasources_styledimages" TO manager, directus, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT DELETE ON TABLE "public"."datasources_styledimages" TO manager, directus, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -150,7 +150,7 @@ CREATE TABLE IF NOT EXISTS "public"."datasources_translations" (
 
 ALTER TABLE IF EXISTS "public"."datasources_translations" OWNER TO manager;
 
-GRANT SELECT ON TABLE "public"."datasources_translations" TO manager, directus, background_worker, api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."datasources_translations" TO manager, directus, background_worker, api, onsite_backup; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."datasources_translations" TO manager, directus, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."datasources_translations" TO manager, directus, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT DELETE ON TABLE "public"."datasources_translations" TO manager, directus, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
