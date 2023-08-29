@@ -309,6 +309,28 @@ type Computeddatum struct {
 	Label       null_v4.String `db:"label" json:"label"`
 }
 
+type Datasource struct {
+	ID              uuid.UUID      `db:"id" json:"id"`
+	Title           string         `db:"title" json:"title"`
+	Description     null_v4.String `db:"description" json:"description"`
+	HasTranslations bool           `db:"has_translations" json:"hasTranslations"`
+	Key             string         `db:"key" json:"key"`
+}
+
+type DatasourcesStyledimage struct {
+	ID             int32         `db:"id" json:"id"`
+	DatasourcesID  uuid.NullUUID `db:"datasources_id" json:"datasourcesId"`
+	StyledimagesID uuid.NullUUID `db:"styledimages_id" json:"styledimagesId"`
+}
+
+type DatasourcesTranslation struct {
+	ID            int32          `db:"id" json:"id"`
+	DatasourcesID uuid.NullUUID  `db:"datasources_id" json:"datasourcesId"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
+}
+
 type DirectusActivity struct {
 	ID         int32          `db:"id" json:"id"`
 	Action     string         `db:"action" json:"action"`
@@ -1441,19 +1463,20 @@ type TimedmetadataTranslation struct {
 }
 
 type Timedmetadatum struct {
-	ID          uuid.UUID      `db:"id" json:"id"`
-	Status      string         `db:"status" json:"status"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	Label       string         `db:"label" json:"label"`
-	Type        string         `db:"type" json:"type"`
-	Highlight   bool           `db:"highlight" json:"highlight"`
-	Title       string         `db:"title" json:"title"`
-	Description null_v4.String `db:"description" json:"description"`
-	AssetID     int32          `db:"asset_id" json:"assetId"`
-	Timestamp   time.Time      `db:"timestamp" json:"timestamp"`
+	ID           uuid.UUID      `db:"id" json:"id"`
+	Status       string         `db:"status" json:"status"`
+	UserCreated  uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated  null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated  uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated  null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Label        string         `db:"label" json:"label"`
+	Type         string         `db:"type" json:"type"`
+	Highlight    bool           `db:"highlight" json:"highlight"`
+	Title        null_v4.String `db:"title" json:"title"`
+	Description  null_v4.String `db:"description" json:"description"`
+	AssetID      int32          `db:"asset_id" json:"assetId"`
+	Timestamp    time.Time      `db:"timestamp" json:"timestamp"`
+	DatasourceID uuid.NullUUID  `db:"datasource_id" json:"datasourceId"`
 }
 
 type Usergroup struct {

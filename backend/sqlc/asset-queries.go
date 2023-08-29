@@ -89,13 +89,22 @@ func (q *Queries) GetTimedMetadataForAssets(ctx context.Context, ids []int) ([]c
 		return nil, err
 	}
 	return lo.Map(rows, func(i getTimedMetadataForAssetsRow, _ int) common.TimedMetadata {
+		var title common.LocaleString
+		var description common.LocaleString
+		if i.DatasourceID.Valid {
+			title = toLocaleString(i.DatasourceTitle, i.DatasourceOriginalTitle)
+			description = toLocaleString(i.DatasourceDescription, i.DatasourceOriginalDescription.String)
+		} else {
+			title = toLocaleString(i.Title, i.OriginalTitle.String)
+			description = toLocaleString(i.Description, i.OriginalDescription.String)
+		}
 		return common.TimedMetadata{
 			ID:          i.ID,
 			AssetID:     int(i.AssetID),
 			Type:        i.Type,
 			Timestamp:   i.Timestamp.Hour()*3600 + i.Timestamp.Minute()*60 + i.Timestamp.Second(),
-			Title:       toLocaleString(i.Title, i.OriginalTitle),
-			Description: toLocaleString(i.Description, i.OriginalDescription.String),
+			Title:       title,
+			Description: description,
 		}
 	}), nil
 }
