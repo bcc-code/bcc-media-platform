@@ -16,7 +16,7 @@ CREATE SEQUENCE IF NOT EXISTS "public"."datasources_styledimages_id_seq"
 	NO CYCLE;
 
 ALTER SEQUENCE "public"."datasources_styledimages_id_seq" OWNER TO manager;
-GRANT SELECT, USAGE, UPDATE ON SEQUENCE "public"."datasources_styledimages_id_seq" TO manager, directus, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT, USAGE, UPDATE ON SEQUENCE "public"."datasources_styledimages_id_seq" TO manager, directus, background_worker, onsite_backup; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON SEQUENCE "public"."datasources_styledimages_id_seq"  IS NULL;
 
@@ -34,7 +34,7 @@ CREATE SEQUENCE IF NOT EXISTS "public"."datasources_translations_id_seq"
 	NO CYCLE;
 
 ALTER SEQUENCE "public"."datasources_translations_id_seq" OWNER TO manager;
-GRANT SELECT, USAGE, UPDATE ON SEQUENCE "public"."datasources_translations_id_seq" TO manager, directus, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT, USAGE, UPDATE ON SEQUENCE "public"."datasources_translations_id_seq" TO manager, directus, background_worker, onsite_backup; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON SEQUENCE "public"."datasources_translations_id_seq"  IS NULL;
 
