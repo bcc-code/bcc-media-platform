@@ -89,11 +89,6 @@ COMMENT ON TABLE "public"."datasources"  IS NULL;
 
 --- END CREATE TABLE "public"."datasources" ---
 
---- BEGIN ALTER SEQUENCE "public"."faqs_translations_id_seq" ---
-GRANT USAGE ON SEQUENCE "public"."faqs_translations_id_seq" TO background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON SEQUENCE "public"."faqs_translations_id_seq" TO background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
---- END ALTER SEQUENCE "public"."faqs_translations_id_seq" ---
-
 --- BEGIN CREATE TABLE "public"."datasources_styledimages" ---
 
 CREATE TABLE IF NOT EXISTS "public"."datasources_styledimages" (
