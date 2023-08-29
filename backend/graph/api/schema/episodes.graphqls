@@ -66,6 +66,7 @@ type Chapter {
     id: UUID!
     start: Int!
     title: String!
+    image: String
     description: String
 }
 

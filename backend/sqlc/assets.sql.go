@@ -617,7 +617,7 @@ type getTimedMetadataForAssetsRow struct {
 	ID                  uuid.UUID       `db:"id" json:"id"`
 	AssetID             int32           `db:"asset_id" json:"assetId"`
 	Type                string          `db:"type" json:"type"`
-	OriginalTitle       string          `db:"original_title" json:"originalTitle"`
+	OriginalTitle       null_v4.String  `db:"original_title" json:"originalTitle"`
 	OriginalDescription null_v4.String  `db:"original_description" json:"originalDescription"`
 	Title               json.RawMessage `db:"title" json:"title"`
 	Description         json.RawMessage `db:"description" json:"description"`

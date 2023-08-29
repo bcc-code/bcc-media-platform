@@ -94,7 +94,7 @@ func (q *Queries) GetTimedMetadataForAssets(ctx context.Context, ids []int) ([]c
 			AssetID:     int(i.AssetID),
 			Type:        i.Type,
 			Timestamp:   i.Timestamp.Hour()*3600 + i.Timestamp.Minute()*60 + i.Timestamp.Second(),
-			Title:       toLocaleString(i.Title, i.OriginalTitle),
+			Title:       toLocaleString(i.Title, i.OriginalTitle.String),
 			Description: toLocaleString(i.Description, i.OriginalDescription.String),
 		}
 	}), nil
