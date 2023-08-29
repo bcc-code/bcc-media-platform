@@ -2,7 +2,6 @@ package sqlc
 
 import (
 	"context"
-
 	"github.com/bcc-code/brunstadtv/backend/common"
 	"github.com/samber/lo"
 )
@@ -89,14 +88,16 @@ func (q *Queries) GetTimedMetadataForAssets(ctx context.Context, ids []int) ([]c
 		return nil, err
 	}
 	return lo.Map(rows, func(i getTimedMetadataForAssetsRow, _ int) common.TimedMetadata {
-		var title common.LocaleString
-		var description common.LocaleString
+		title := toLocaleString(i.Title, i.OriginalTitle.String)
+		description := toLocaleString(i.Description, i.OriginalDescription.String)
 		if i.DatasourceID.Valid {
-			title = toLocaleString(i.DatasourceTitle, i.DatasourceOriginalTitle)
-			description = toLocaleString(i.DatasourceDescription, i.DatasourceOriginalDescription.String)
-		} else {
-			title = toLocaleString(i.Title, i.OriginalTitle.String)
-			description = toLocaleString(i.Description, i.OriginalDescription.String)
+			dsTitle := toLocaleString(i.DatasourceTitle, i.DatasourceOriginalTitle)
+			dsDescription := toLocaleString(i.DatasourceDescription, i.DatasourceOriginalDescription.String)
+
+			title = title.Placeholder("{{title}}", dsTitle)
+			title = title.Placeholder("{{description}}", dsDescription)
+			description = description.Placeholder("{{title}}", dsTitle)
+			description = description.Placeholder("{{description}}", dsDescription)
 		}
 		return common.TimedMetadata{
 			ID:          i.ID,

@@ -2,6 +2,7 @@ package common
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/bcc-code/mediabank-bridge/log"
 	"gopkg.in/guregu/null.v4"
@@ -93,4 +94,17 @@ func (localeString LocaleString) Prefix(prefix string) LocaleString {
 		}
 	}
 	return r
+}
+
+// Placeholder replaces the specified placeholder with values from the replacementMap
+func (localeString LocaleString) Placeholder(placeholder string, replacementMap LocaleString) LocaleString {
+	var result = LocaleString{}
+	for lang, value := range localeString {
+		if !value.Valid {
+			continue
+		}
+		replacement := replacementMap.Get([]string{lang})
+		result[lang] = null.StringFrom(strings.Replace(value.String, placeholder, replacement, -1))
+	}
+	return result
 }
