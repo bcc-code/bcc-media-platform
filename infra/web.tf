@@ -51,9 +51,9 @@ resource "google_compute_url_map" "website" {
   project         = google_project.brunstadtv.project_id
   name            = "website-url-map"
   default_service = google_compute_backend_bucket.website.self_link
-  /*
+
   host_rule {
-    hosts = ["brunstad.tv", "www.brunstad.tv"]
+    hosts        = ["brunstad.tv", "www.brunstad.tv"]
     path_matcher = "redirect-to-app"
   }
 
@@ -63,8 +63,7 @@ resource "google_compute_url_map" "website" {
 
     path_rule {
       paths = [
-        "/",
- //       "/*", // We can't currently break /api because tvos is using it.
+        "/*", // We can't currently break /api because tvos is using it.
       ]
 
       url_redirect {
@@ -75,10 +74,20 @@ resource "google_compute_url_map" "website" {
       }
     }
   }
-*/
+
   host_rule {
     hosts        = ["*"]
     path_matcher = "socials"
+  }
+
+  host_rule {
+    hosts        = ["app.biblekids.io"]
+    path_matcher = "biblekids"
+  }
+
+  path_matcher {
+    default_service = "https://www.googleapis.com/compute/v1/projects/btv-platform-prod-2/global/backendBuckets/app-biblekids-io-gcs"
+    name            = "biblekids"
   }
 
   path_matcher {
@@ -90,36 +99,6 @@ resource "google_compute_url_map" "website" {
       service = google_compute_backend_service.rewriter.id
     }
 
-    path_rule {
-      paths = [
-        "/api/*",
-        "/Content/*",
-        "/static/css/videojs-brunstadtv-skin.css",
-        "/static/video.js/video-js.min.css",
-        "/static/video.js/video.min.js",
-        "/static/js/videojs-create-player.js"
-      ]
-      service = google_compute_backend_service.old-api.id
-
-      route_action {
-        url_rewrite {
-          host_rewrite = "old.brunstad.tv"
-        }
-      }
-    }
-
-    path_rule {
-      paths = [
-        "/tvlogin/*",
-      ]
-
-      url_redirect {
-        host_redirect          = "old.brunstad.tv"
-        https_redirect         = true
-        redirect_response_code = "MOVED_PERMANENTLY_DEFAULT"
-        strip_query            = false
-      }
-    }
 
     path_rule {
       paths = [
@@ -144,7 +123,7 @@ resource "google_compute_target_https_proxy" "website" {
   project          = google_project.brunstadtv.project_id
   name             = "website-target-proxy"
   url_map          = google_compute_url_map.website.self_link
-  ssl_certificates = flatten([var.additional_key_path != "" ? [google_compute_ssl_certificate.additional_cert[0].self_link] : [], google_compute_managed_ssl_certificate.website.self_link])
+  ssl_certificates = flatten([var.additional_key_path != "" ? [google_compute_ssl_certificate.additional_cert[0].self_link] : [], google_compute_managed_ssl_certificate.website.self_link, "https://www.googleapis.com/compute/v1/projects/btv-platform-prod-2/global/sslCertificates/app-biblekids-io"])
 }
 
 resource "google_compute_global_forwarding_rule" "default" {
@@ -205,47 +184,3 @@ resource "google_compute_global_forwarding_rule" "website-redirect" {
   port_range = "80"
 }
 
-
-# Rewrite /api to old api
-resource "google_compute_global_network_endpoint_group" "old-api" {
-  project               = google_project.brunstadtv.project_id
-  name                  = "old-api"
-  default_port          = "443"
-  network_endpoint_type = "INTERNET_FQDN_PORT"
-}
-
-resource "google_compute_global_network_endpoint" "old-api-endpoint" {
-  project                       = google_project.brunstadtv.project_id
-  global_network_endpoint_group = google_compute_global_network_endpoint_group.old-api.name
-  fqdn                          = "old.brunstad.tv"
-  port                          = 443
-}
-
-resource "google_compute_backend_service" "old-api" {
-  project                         = google_project.brunstadtv.project_id
-  name                            = "old-api"
-  enable_cdn                      = false
-  timeout_sec                     = 10
-  connection_draining_timeout_sec = 10
-
-  cdn_policy {
-    cache_mode                   = "USE_ORIGIN_HEADERS"
-    client_ttl                   = 0
-    default_ttl                  = 0
-    max_ttl                      = 0
-    signed_url_cache_max_age_sec = 3600
-    serve_while_stale            = 604800 //1 week
-    cache_key_policy {
-      include_host         = false
-      include_protocol     = false
-      include_query_string = true
-    }
-  }
-
-  # custom_request_headers          = ["host: ${google_compute_global_network_endpoint.old-api-endpoint.fqdn}"]
-  # custom_response_headers         = ["X-Cache-Hit: {cdn_cache_status}"]
-
-  backend {
-    group = google_compute_global_network_endpoint_group.old-api.self_link
-  }
-}
