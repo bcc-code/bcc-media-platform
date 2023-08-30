@@ -132,7 +132,7 @@ const load = async () => {
                     sessionId: getSessionId()?.toString() ?? undefined,
                     ageGroup: analytics.getUser()?.ageGroup,
                     metadata: {
-                        contentId: episodeId,
+                        contentId: props.episode.id,
                         title: props.episode.title,
                         episodeTitle: props.episode.title,
                         seasonTitle: props.episode.season?.title,
