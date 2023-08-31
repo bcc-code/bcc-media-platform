@@ -38,6 +38,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/microcosm-cc/bluemonday v1.0.24
 	github.com/mitchellh/mapstructure v1.5.0
+	github.com/orsinium-labs/enum v1.1.0
 	github.com/pressly/goose/v3 v3.13.1
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
@@ -138,7 +139,6 @@ require (
 	github.com/minio/c2goasm v0.0.0-20190812172519-36a3d3bbc4f3 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
-	github.com/orsinium-labs/enum v1.1.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/pierrec/lz4/v4 v4.1.18 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
