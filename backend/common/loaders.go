@@ -32,18 +32,16 @@ type BatchLoaders struct {
 	EpisodeIDFromLegacyProgramIDLoader *loaders.Loader[int, *int]
 	LinkLoader                         *loaders.Loader[int, *Link]
 
-	FilesLoader              *loaders.Loader[int, []*File]
-	StreamsLoader            *loaders.Loader[int, []*Stream]
-	AssetTimedMetadataLoader *loaders.Loader[int, []*TimedMetadata]
+	FilesLoader   *loaders.Loader[int, []*File]
+	StreamsLoader *loaders.Loader[int, []*Stream]
 
-	EventLoader            *loaders.Loader[int, *Event]
-	FAQCategoryLoader      *loaders.Loader[uuid.UUID, *FAQCategory]
-	QuestionLoader         *loaders.Loader[uuid.UUID, *Question]
-	MessageGroupLoader     *loaders.Loader[int, *MessageGroup]
-	RedirectFromCodeLoader *loaders.Loader[string, *Redirect]
-	SurveyLoader           *loaders.Loader[uuid.UUID, *Survey]
-	SurveyQuestionLoader   *loaders.Loader[uuid.UUID, *SurveyQuestion]
-	GameLoader             *loaders.Loader[uuid.UUID, *Game]
+	EventLoader          *loaders.Loader[int, *Event]
+	FAQCategoryLoader    *loaders.Loader[uuid.UUID, *FAQCategory]
+	QuestionLoader       *loaders.Loader[uuid.UUID, *Question]
+	MessageGroupLoader   *loaders.Loader[int, *MessageGroup]
+	SurveyLoader         *loaders.Loader[uuid.UUID, *Survey]
+	SurveyQuestionLoader *loaders.Loader[uuid.UUID, *SurveyQuestion]
+	GameLoader           *loaders.Loader[uuid.UUID, *Game]
 
 	MemberLoader       *loaders.Loader[int, *members.Member]
 	OrganizationLoader *loaders.Loader[uuid.UUID, *members.Organization]
@@ -84,6 +82,10 @@ type BatchLoaders struct {
 	ProfileMyListCollectionID      *loaders.Loader[uuid.UUID, *uuid.UUID]
 
 	PromptLoader *loaders.Loader[uuid.UUID, *Prompt]
+
+	TimedMetadataLoader *loaders.Loader[uuid.UUID, *TimedMetadata]
+	PersonLoader        *loaders.Loader[uuid.UUID, *Person]
+	SongLoader          *loaders.Loader[uuid.UUID, *Song]
 }
 
 // FilteredLoaders contains loaders that will be filtered by permissions.

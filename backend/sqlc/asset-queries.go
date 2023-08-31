@@ -80,32 +80,3 @@ func (q *Queries) GetStreamsForAssets(ctx context.Context, ids []int) ([]common.
 	}
 	return toStreams(streams), nil
 }
-
-// GetTimedMetadataForAssets returns metadata items for assets
-func (q *Queries) GetTimedMetadataForAssets(ctx context.Context, ids []int) ([]common.TimedMetadata, error) {
-	rows, err := q.getTimedMetadataForAssets(ctx, intToInt32(ids))
-	if err != nil {
-		return nil, err
-	}
-	return lo.Map(rows, func(i getTimedMetadataForAssetsRow, _ int) common.TimedMetadata {
-		title := toLocaleString(i.Title, i.OriginalTitle.String)
-		description := toLocaleString(i.Description, i.OriginalDescription.String)
-		if i.DatasourceID.Valid {
-			dsTitle := toLocaleString(i.DatasourceTitle, i.DatasourceOriginalTitle)
-			dsDescription := toLocaleString(i.DatasourceDescription, i.DatasourceOriginalDescription.String)
-
-			title = title.Placeholder("{{title}}", dsTitle)
-			title = title.Placeholder("{{description}}", dsDescription)
-			description = description.Placeholder("{{title}}", dsTitle)
-			description = description.Placeholder("{{description}}", dsDescription)
-		}
-		return common.TimedMetadata{
-			ID:          i.ID,
-			AssetID:     int(i.AssetID),
-			Type:        i.Type,
-			Timestamp:   i.Timestamp.Hour()*3600 + i.Timestamp.Minute()*60 + i.Timestamp.Second(),
-			Title:       title,
-			Description: description,
-		}
-	}), nil
-}

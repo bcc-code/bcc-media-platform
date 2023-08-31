@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/applications"
@@ -147,7 +148,7 @@ func (r *episodeResolver) Chapters(ctx context.Context, obj *model.Episode) ([]*
 	if err != nil || !i.AssetID.Valid {
 		return nil, err
 	}
-	metadataItems, err := r.Loaders.AssetTimedMetadataLoader.Get(ctx, int(i.AssetID.Int64))
+	metadataItems, err := r.Loaders.TimedMetadataLoader.GetMany(ctx, i.TimedMetadataIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -156,10 +157,40 @@ func (r *episodeResolver) Chapters(ctx context.Context, obj *model.Episode) ([]*
 	})
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
+
 	return lo.Map(metadataItems, func(i *common.TimedMetadata, _ int) *model.Chapter {
+		title := i.Title.Get(languages)
+		switch i.ChapterType {
+		case common.ChapterTypeSong:
+			if i.SongID.Valid {
+				song, _ := r.Loaders.SongLoader.Get(ctx, i.SongID.UUID)
+				if song == nil {
+					break
+				}
+				if title == "" {
+					title = song.Title.Get(languages)
+				} else {
+					title = strings.Replace(title, "{{song.title}}", song.Title.Get(languages), -1)
+				}
+			}
+		case common.ChapterTypeSpeech:
+		case common.ChapterTypeTestimony:
+			if i.PersonID.Valid {
+				person, _ := r.Loaders.PersonLoader.Get(ctx, i.PersonID.UUID)
+				if person == nil {
+					break
+				}
+				if title == "" {
+					title = person.Name
+				} else {
+					title = strings.Replace(title, "{{person.name}}", person.Name, -1)
+				}
+			}
+		}
+
 		return &model.Chapter{
 			ID:          i.ID.String(),
-			Title:       i.Title.Get(languages),
+			Title:       title,
 			Description: i.Description.GetValueOrNil(languages),
 			Start:       i.Timestamp,
 		}

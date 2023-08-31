@@ -158,9 +158,6 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		StreamsLoader: loaders.NewListLoader(ctx, queries.GetStreamsForEpisodes, func(row common.Stream) int {
 			return row.EpisodeID
 		}),
-		AssetTimedMetadataLoader: loaders.NewListLoader(ctx, queries.GetTimedMetadataForAssets, func(row common.TimedMetadata) int {
-			return row.AssetID
-		}),
 
 		CollectionLoader: loaders.New(ctx, queries.GetCollections),
 		CollectionItemLoader: loaders.NewListLoader(ctx, queries.GetItemsForCollections, func(row common.CollectionItem) int {
@@ -204,6 +201,16 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		})),
 
 		PromptLoader: loaders.New(ctx, mapDbResponseWith(queries.GetPrompts, promptRowToPrompt), loaders.WithKeyFunc(func(i common.Prompt) uuid.UUID {
+			return i.ID
+		})),
+
+		PersonLoader: loaders.New(ctx, queries.GetPersons, loaders.WithName("person-loader"), loaders.WithKeyFunc(func(i common.Person) uuid.UUID {
+			return i.ID
+		})),
+		SongLoader: loaders.New(ctx, queries.GetSongs, loaders.WithName("song-loader"), loaders.WithKeyFunc(func(i common.Song) uuid.UUID {
+			return i.ID
+		})),
+		TimedMetadataLoader: loaders.New(ctx, queries.GetTimedMetadata, loaders.WithName("timedmetadata-loader"), loaders.WithKeyFunc(func(i common.TimedMetadata) uuid.UUID {
 			return i.ID
 		})),
 

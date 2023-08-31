@@ -309,28 +309,6 @@ type Computeddatum struct {
 	Label       null_v4.String `db:"label" json:"label"`
 }
 
-type Datasource struct {
-	ID              uuid.UUID      `db:"id" json:"id"`
-	Title           string         `db:"title" json:"title"`
-	Description     null_v4.String `db:"description" json:"description"`
-	HasTranslations bool           `db:"has_translations" json:"hasTranslations"`
-	Key             string         `db:"key" json:"key"`
-}
-
-type DatasourcesStyledimage struct {
-	ID             int32         `db:"id" json:"id"`
-	DatasourcesID  uuid.NullUUID `db:"datasources_id" json:"datasourcesId"`
-	StyledimagesID uuid.NullUUID `db:"styledimages_id" json:"styledimagesId"`
-}
-
-type DatasourcesTranslation struct {
-	ID            int32          `db:"id" json:"id"`
-	DatasourcesID uuid.NullUUID  `db:"datasources_id" json:"datasourcesId"`
-	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
-	Title         null_v4.String `db:"title" json:"title"`
-	Description   null_v4.String `db:"description" json:"description"`
-}
-
 type DirectusActivity struct {
 	ID         int32          `db:"id" json:"id"`
 	Action     string         `db:"action" json:"action"`
@@ -678,6 +656,7 @@ type Episode struct {
 	Uuid                     uuid.UUID             `db:"uuid" json:"uuid"`
 	ContentType              null_v4.String        `db:"content_type" json:"contentType"`
 	Audience                 null_v4.String        `db:"audience" json:"audience"`
+	TimedmetadataFromAsset   bool                  `db:"timedmetadata_from_asset" json:"timedmetadataFromAsset"`
 }
 
 type EpisodeAvailability struct {
@@ -1072,6 +1051,11 @@ type PagesTranslation struct {
 	Title         null_v4.String `db:"title" json:"title"`
 }
 
+type Person struct {
+	ID   uuid.UUID `db:"id" json:"id"`
+	Name string    `db:"name" json:"name"`
+}
+
 type Prompt struct {
 	ID             uuid.UUID      `db:"id" json:"id"`
 	Status         string         `db:"status" json:"status"`
@@ -1290,6 +1274,24 @@ type ShowsUsergroup struct {
 	UsergroupsCode string `db:"usergroups_code" json:"usergroupsCode"`
 }
 
+type Song struct {
+	ID           uuid.UUID     `db:"id" json:"id"`
+	CollectionID uuid.NullUUID `db:"collection_id" json:"collectionId"`
+	Title        string        `db:"title" json:"title"`
+}
+
+type Songcollection struct {
+	ID    uuid.UUID      `db:"id" json:"id"`
+	Title null_v4.String `db:"title" json:"title"`
+}
+
+type SongcollectionsTranslation struct {
+	ID                int32          `db:"id" json:"id"`
+	SongcollectionsID uuid.NullUUID  `db:"songcollections_id" json:"songcollectionsId"`
+	LanguagesCode     null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title             null_v4.String `db:"title" json:"title"`
+}
+
 type StatsMembersDatum struct {
 	ID       int32  `db:"id" json:"id"`
 	AgeGroup string `db:"age_group" json:"ageGroup"`
@@ -1463,20 +1465,23 @@ type TimedmetadataTranslation struct {
 }
 
 type Timedmetadatum struct {
-	ID           uuid.UUID      `db:"id" json:"id"`
-	Status       string         `db:"status" json:"status"`
-	UserCreated  uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated  null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated  uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated  null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	Label        string         `db:"label" json:"label"`
-	Type         string         `db:"type" json:"type"`
-	Highlight    bool           `db:"highlight" json:"highlight"`
-	Title        null_v4.String `db:"title" json:"title"`
-	Description  null_v4.String `db:"description" json:"description"`
-	AssetID      int32          `db:"asset_id" json:"assetId"`
-	Timestamp    time.Time      `db:"timestamp" json:"timestamp"`
-	DatasourceID uuid.NullUUID  `db:"datasource_id" json:"datasourceId"`
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Status      string         `db:"status" json:"status"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Label       string         `db:"label" json:"label"`
+	Type        string         `db:"type" json:"type"`
+	Highlight   bool           `db:"highlight" json:"highlight"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+	AssetID     null_v4.Int    `db:"asset_id" json:"assetId"`
+	Timestamp   time.Time      `db:"timestamp" json:"timestamp"`
+	EpisodeID   null_v4.Int    `db:"episode_id" json:"episodeId"`
+	ChapterType null_v4.String `db:"chapter_type" json:"chapterType"`
+	SongID      uuid.NullUUID  `db:"song_id" json:"songId"`
+	PersonID    uuid.NullUUID  `db:"person_id" json:"personId"`
 }
 
 type Usergroup struct {
