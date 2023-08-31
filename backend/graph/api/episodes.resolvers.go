@@ -158,6 +158,10 @@ func (r *episodeResolver) Chapters(ctx context.Context, obj *model.Episode) ([]*
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 
+	r.Loaders.PhraseLoader.LoadMany(ctx, lo.Uniq(lo.Map(metadataItems, func(i *common.TimedMetadata, _ int) string {
+		return i.ChapterType.Value
+	})))
+
 	return lo.Map(metadataItems, func(i *common.TimedMetadata, _ int) *model.Chapter {
 		title := i.Title.Get(languages)
 		phrase, _ := r.Loaders.PhraseLoader.Get(ctx, i.ChapterType.Value)
