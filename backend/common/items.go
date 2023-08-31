@@ -201,7 +201,6 @@ var (
 type TimedMetadata struct {
 	ID          uuid.UUID
 	Type        string
-	ParentID    int
 	Timestamp   int
 	Title       LocaleString `json:"title"`
 	Description LocaleString `json:"description"`

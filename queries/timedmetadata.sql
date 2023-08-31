@@ -1,6 +1,5 @@
 -- name: getTimedMetadata :many
 SELECT md.id,
-       COALESCE(md.asset_id, md.episode_id)::int                 AS parent_id,
        md.type,
        md.chapter_type,
        md.song_id,

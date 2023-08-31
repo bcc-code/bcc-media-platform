@@ -22,7 +22,6 @@ func (q *Queries) GetTimedMetadata(ctx context.Context, ids []uuid.UUID) ([]comm
 		}
 		return common.TimedMetadata{
 			ID:          i.ID,
-			ParentID:    int(i.ParentID),
 			Type:        i.Type,
 			ChapterType: *chapterType,
 			PersonID:    i.PersonID,

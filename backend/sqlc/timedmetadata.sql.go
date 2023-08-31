@@ -17,7 +17,6 @@ import (
 
 const getTimedMetadata = `-- name: getTimedMetadata :many
 SELECT md.id,
-       COALESCE(md.asset_id, md.episode_id)::int                 AS parent_id,
        md.type,
        md.chapter_type,
        md.song_id,
@@ -38,7 +37,6 @@ WHERE md.id = ANY ($1::uuid[])
 
 type getTimedMetadataRow struct {
 	ID                  uuid.UUID       `db:"id" json:"id"`
-	ParentID            int32           `db:"parent_id" json:"parentId"`
 	Type                string          `db:"type" json:"type"`
 	ChapterType         null_v4.String  `db:"chapter_type" json:"chapterType"`
 	SongID              uuid.NullUUID   `db:"song_id" json:"songId"`
@@ -62,7 +60,6 @@ func (q *Queries) getTimedMetadata(ctx context.Context, ids []uuid.UUID) ([]getT
 		var i getTimedMetadataRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.ParentID,
 			&i.Type,
 			&i.ChapterType,
 			&i.SongID,
