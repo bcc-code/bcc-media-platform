@@ -165,38 +165,35 @@ func (r *episodeResolver) Chapters(ctx context.Context, obj *model.Episode) ([]*
 	return lo.Map(metadataItems, func(i *common.TimedMetadata, _ int) *model.Chapter {
 		title := i.Title.Get(languages)
 		phrase, _ := r.Loaders.PhraseLoader.Get(ctx, i.ChapterType.Value)
+		emptyTitle := title == ""
+		if emptyTitle && phrase != nil {
+			title = phrase.Value.Get(languages)
+		}
+
 		switch i.ChapterType {
 		case common.ChapterTypeSong, common.ChapterTypeSingAlong:
-			if !i.SongID.Valid {
-				break
-			}
-			song, _ := r.Loaders.SongLoader.Get(ctx, i.SongID.UUID)
-			if song == nil {
-				break
-			}
-			if title == "" {
-				if phrase != nil {
-					title = phrase.Value.Get(languages) + " - "
+			if i.SongID.Valid {
+				song, _ := r.Loaders.SongLoader.Get(ctx, i.SongID.UUID)
+				if song == nil {
+					break
 				}
-				title += song.Title.Get(languages)
-			} else {
-				title = strings.Replace(title, "{{song.title}}", song.Title.Get(languages), -1)
+				if emptyTitle {
+					title += " - " + song.Title.Get(languages)
+				} else {
+					title = strings.Replace(title, "{{song.title}}", song.Title.Get(languages), -1)
+				}
 			}
 		case common.ChapterTypeSpeech, common.ChapterTypeAppeal, common.ChapterTypeTestimony:
-			if !i.PersonID.Valid {
-				break
-			}
-			person, _ := r.Loaders.PersonLoader.Get(ctx, i.PersonID.UUID)
-			if person == nil {
-				break
-			}
-			if title == "" {
-				if phrase != nil {
-					title = phrase.Value.Get(languages) + " - "
+			if i.PersonID.Valid {
+				person, _ := r.Loaders.PersonLoader.Get(ctx, i.PersonID.UUID)
+				if person == nil {
+					break
 				}
-				title += person.Name
-			} else {
-				title = strings.Replace(title, "{{person.name}}", person.Name, -1)
+				if emptyTitle {
+					title += " - " + person.Name
+				} else {
+					title = strings.Replace(title, "{{person.name}}", person.Name, -1)
+				}
 			}
 		}
 
