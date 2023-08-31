@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -28,6 +29,45 @@ func (q *Queries) getPersons(ctx context.Context, ids []uuid.UUID) ([]Person, er
 	for rows.Next() {
 		var i Person
 		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPhrases = `-- name: getPhrases :many
+SELECT p.key,
+       p.value                                   AS original_value,
+       COALESCE((SELECT json_object_agg(value, languages_code)
+                 FROM phrases_translations
+                 WHERE key = p.key), '{}')::json AS value
+FROM phrases p
+WHERE key = ANY ($1::varchar[])
+`
+
+type getPhrasesRow struct {
+	Key           string          `db:"key" json:"key"`
+	OriginalValue string          `db:"original_value" json:"originalValue"`
+	Value         json.RawMessage `db:"value" json:"value"`
+}
+
+func (q *Queries) getPhrases(ctx context.Context, ids []string) ([]getPhrasesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getPhrases, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getPhrasesRow
+	for rows.Next() {
+		var i getPhrasesRow
+		if err := rows.Scan(&i.Key, &i.OriginalValue, &i.Value); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

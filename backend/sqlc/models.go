@@ -1056,6 +1056,22 @@ type Person struct {
 	Name string    `db:"name" json:"name"`
 }
 
+type Phrase struct {
+	Key         string        `db:"key" json:"key"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	Value       string        `db:"value" json:"value"`
+}
+
+type PhrasesTranslation struct {
+	ID            int32          `db:"id" json:"id"`
+	PhrasesKey    null_v4.String `db:"phrases_key" json:"phrasesKey"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Value         null_v4.String `db:"value" json:"value"`
+}
+
 type Prompt struct {
 	ID             uuid.UUID      `db:"id" json:"id"`
 	Status         string         `db:"status" json:"status"`

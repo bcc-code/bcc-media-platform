@@ -192,6 +192,8 @@ var (
 	ChapterTypeSong      = ChapterType{Value: "song"}
 	ChapterTypeSpeech    = ChapterType{Value: "speech"}
 	ChapterTypeTestimony = ChapterType{Value: "testimony"}
+	ChapterTypeSingAlong = ChapterType{Value: "sing_along"}
+	ChapterTypeAppeal    = ChapterType{Value: "appeal"}
 	ChapterTypes         = enum.New(ChapterTypeSong, ChapterTypeSpeech, ChapterTypeTestimony)
 )
 
@@ -478,4 +480,10 @@ type Song struct {
 type Person struct {
 	ID   uuid.UUID
 	Name string
+}
+
+// Phrase is a key value pair for translations
+type Phrase struct {
+	Key   string
+	Value LocaleString
 }

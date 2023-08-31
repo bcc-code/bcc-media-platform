@@ -213,6 +213,9 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		TimedMetadataLoader: loaders.New(ctx, queries.GetTimedMetadata, loaders.WithName("timedmetadata-loader"), loaders.WithKeyFunc(func(i common.TimedMetadata) uuid.UUID {
 			return i.ID
 		})),
+		PhraseLoader: loaders.New(ctx, queries.GetPhrases, loaders.WithName("phrases-loader"), loaders.WithKeyFunc(func(i common.Phrase) string {
+			return i.Key
+		})),
 
 		FAQCategoryLoader:  loaders.NewLoader(ctx, queries.GetFAQCategories),
 		QuestionLoader:     loaders.NewLoader(ctx, queries.GetQuestions),

@@ -86,6 +86,7 @@ type BatchLoaders struct {
 	TimedMetadataLoader *loaders.Loader[uuid.UUID, *TimedMetadata]
 	PersonLoader        *loaders.Loader[uuid.UUID, *Person]
 	SongLoader          *loaders.Loader[uuid.UUID, *Song]
+	PhraseLoader        *loaders.Loader[string, *Phrase]
 }
 
 // FilteredLoaders contains loaders that will be filtered by permissions.

@@ -35,3 +35,18 @@ func (q *Queries) GetPersons(ctx context.Context, ids []uuid.UUID) ([]common.Per
 		}
 	}), nil
 }
+
+// GetPhrases returns phrases for the specified keys
+func (q *Queries) GetPhrases(ctx context.Context, keys []string) ([]common.Phrase, error) {
+	rows, err := q.getPhrases(ctx, keys)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getPhrasesRow, _ int) common.Phrase {
+		value := toLocaleString(i.Value, i.OriginalValue)
+		return common.Phrase{
+			Key:   i.Key,
+			Value: value,
+		}
+	}), nil
+}
