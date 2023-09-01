@@ -19,6 +19,7 @@ import { setProgress } from "@/utils/episodes"
 import { current as currentLanguage } from "@/services/language"
 import { getSessionId } from "rudder-sdk-js"
 import { analytics } from "@/services/analytics"
+import { useRoute } from "vue-router"
 
 const { isAuthenticated } = useAuth0()
 
@@ -41,6 +42,8 @@ const lanTo3letter: {
     it: "ita",
     da: "dan",
 }
+
+const route = useRoute()
 
 const { data, executeQuery } = useGetMeQuery()
 
@@ -160,7 +163,7 @@ const load = async () => {
         window.dispatchEvent(vodPlayer)
 
         lastProgress = props.episode.progress
-        player.value.currentTime(lastProgress)
+        player.value.currentTime(route.query.t ?? lastProgress)
 
         // player.value.on("play", analytics.track("playback_started", ))
         // player.value.on("ended", analytics.track("playback_ended", undefined))

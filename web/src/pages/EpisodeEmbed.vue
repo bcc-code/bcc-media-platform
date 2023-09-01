@@ -6,6 +6,7 @@ import { onMounted, ref } from "vue"
 import { useGetEpisodeEmbedQuery } from "@/graph/generated"
 import EmbedDownloadables from "@/components/embed/EmbedDownloadables.vue"
 import { current as currentApp } from "@/services/app"
+import { useRoute } from "vue-router"
 
 const props = defineProps<{
     episodeId?: string
@@ -70,11 +71,13 @@ const { data: episode, executeQuery } = useGetEpisodeEmbedQuery({
     },
 })
 
+const route = useRoute()
+
 const load = async () => {
     if (!episodeId.value) {
         return
     }
-    await player.create("embed-video-player", {
+    const p = await player.create("embed-video-player", {
         episodeId: episodeId.value,
         overrides: {
             languagePreferenceDefaults: {
@@ -83,6 +86,9 @@ const load = async () => {
             },
         },
     })
+    if (route.query.t) {
+        p.currentTime(route.query.t)
+    }
     await executeQuery()
 }
 </script>
