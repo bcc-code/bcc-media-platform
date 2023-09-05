@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -180,7 +181,11 @@ func (r *episodeResolver) Chapters(ctx context.Context, obj *model.Episode) ([]*
 				break
 			}
 			if emptyTitle {
-				title += " - " + song.Title.Get(languages)
+				if phrase != nil {
+					title = fmt.Sprintf("%s - %s", phrase.Value.Get(languages), song.Title.Get(languages))
+				} else {
+					title = song.Title.Get(languages)
+				}
 			} else {
 				title = strings.Replace(title, "{{song.title}}", song.Title.Get(languages), -1)
 			}
@@ -193,7 +198,11 @@ func (r *episodeResolver) Chapters(ctx context.Context, obj *model.Episode) ([]*
 				break
 			}
 			if emptyTitle {
-				title += " - " + person.Name
+				if phrase != nil {
+					title = fmt.Sprintf("%s - %s", phrase.Value.Get(languages), person.Name)
+				} else {
+					title = person.Name
+				}
 			} else {
 				title = strings.Replace(title, "{{person.name}}", person.Name, -1)
 			}
