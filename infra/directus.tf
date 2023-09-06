@@ -70,6 +70,11 @@ resource "google_cloud_run_service" "directus" {
           value = google_sql_user.directus.name
         }
 
+        env {
+          name  = "PRESSURE_LIMITER_ENABLED"
+          value = "false"
+        }
+
         dynamic "env" {
           for_each = module.directus_secrets.data
           iterator = v
