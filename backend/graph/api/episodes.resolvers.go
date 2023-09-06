@@ -7,7 +7,9 @@ package graph
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/bcc-code/brunstadtv/backend/applications"
@@ -147,7 +149,7 @@ func (r *episodeResolver) Chapters(ctx context.Context, obj *model.Episode) ([]*
 	if err != nil || !i.AssetID.Valid {
 		return nil, err
 	}
-	metadataItems, err := r.Loaders.AssetTimedMetadataLoader.Get(ctx, int(i.AssetID.Int64))
+	metadataItems, err := r.Loaders.TimedMetadataLoader.GetMany(ctx, i.TimedMetadataIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -156,10 +158,59 @@ func (r *episodeResolver) Chapters(ctx context.Context, obj *model.Episode) ([]*
 	})
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
+
+	r.Loaders.PhraseLoader.LoadMany(ctx, lo.Uniq(lo.Map(metadataItems, func(i *common.TimedMetadata, _ int) string {
+		return i.ChapterType.Value
+	})))
+
 	return lo.Map(metadataItems, func(i *common.TimedMetadata, _ int) *model.Chapter {
+		title := i.Title.Get(languages)
+		phrase, _ := r.Loaders.PhraseLoader.Get(ctx, i.ChapterType.Value)
+		emptyTitle := title == ""
+		if emptyTitle && phrase != nil {
+			title = phrase.Value.Get(languages)
+		}
+
+		switch i.ChapterType {
+		case common.ChapterTypeSong, common.ChapterTypeSingAlong:
+			if !i.SongID.Valid {
+				break
+			}
+			song, _ := r.Loaders.SongLoader.Get(ctx, i.SongID.UUID)
+			if song == nil {
+				break
+			}
+			if emptyTitle {
+				if phrase != nil {
+					title = fmt.Sprintf("%s - %s", phrase.Value.Get(languages), song.Title.Get(languages))
+				} else {
+					title = song.Title.Get(languages)
+				}
+			} else {
+				title = strings.Replace(title, "{{song.title}}", song.Title.Get(languages), -1)
+			}
+		case common.ChapterTypeSpeech, common.ChapterTypeAppeal, common.ChapterTypeTestimony:
+			if !i.PersonID.Valid {
+				break
+			}
+			person, _ := r.Loaders.PersonLoader.Get(ctx, i.PersonID.UUID)
+			if person == nil {
+				break
+			}
+			if emptyTitle {
+				if phrase != nil {
+					title = fmt.Sprintf("%s - %s", phrase.Value.Get(languages), person.Name)
+				} else {
+					title = person.Name
+				}
+			} else {
+				title = strings.Replace(title, "{{person.name}}", person.Name, -1)
+			}
+		}
+
 		return &model.Chapter{
 			ID:          i.ID.String(),
-			Title:       i.Title.Get(languages),
+			Title:       title,
 			Description: i.Description.GetValueOrNil(languages),
 			Start:       i.Timestamp,
 		}

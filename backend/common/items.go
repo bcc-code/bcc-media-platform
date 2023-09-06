@@ -2,6 +2,7 @@ package common
 
 import (
 	"encoding/json"
+	"github.com/orsinium-labs/enum"
 	"time"
 
 	"github.com/google/uuid"
@@ -101,26 +102,28 @@ func (i Season) GetStatus() Status {
 
 // Episode is the definition of the Episode object
 type Episode struct {
-	ID                    int         `json:"id"`
-	UUID                  uuid.UUID   `json:"uuid"`
-	Status                Status      `json:"unlisted"`
-	Type                  string      `json:"type"`
-	PreventPublicIndexing bool        `json:"preventPublicIndexing"`
-	LegacyID              null.Int    `json:"legacyId"`
-	LegacyProgramID       null.Int    `json:"legacyProgramId"`
-	SeasonID              null.Int    `json:"seasonId"`
-	ProductionDateInTitle bool        `json:"publishDateInTitle"`
-	PublishDate           time.Time   `json:"publishDate"`
-	ProductionDate        time.Time   `json:"productionDate"`
-	AvailableFrom         time.Time   `json:"availableFrom"`
-	AvailableTo           time.Time   `json:"availableTo"`
-	Number                null.Int    `json:"number"`
-	Duration              int         `json:"duration"`
-	AgeRating             string      `json:"ageRating"`
-	AssetID               null.Int    `json:"assetId"`
-	Image                 null.String `json:"image"`
-	Images                Images      `json:"images"`
-	TagIDs                []int       `json:"tagIds"`
+	ID                     int         `json:"id"`
+	UUID                   uuid.UUID   `json:"uuid"`
+	Status                 Status      `json:"unlisted"`
+	Type                   string      `json:"type"`
+	PreventPublicIndexing  bool        `json:"preventPublicIndexing"`
+	LegacyID               null.Int    `json:"legacyId"`
+	LegacyProgramID        null.Int    `json:"legacyProgramId"`
+	SeasonID               null.Int    `json:"seasonId"`
+	ProductionDateInTitle  bool        `json:"publishDateInTitle"`
+	PublishDate            time.Time   `json:"publishDate"`
+	ProductionDate         time.Time   `json:"productionDate"`
+	AvailableFrom          time.Time   `json:"availableFrom"`
+	AvailableTo            time.Time   `json:"availableTo"`
+	Number                 null.Int    `json:"number"`
+	Duration               int         `json:"duration"`
+	AgeRating              string      `json:"ageRating"`
+	AssetID                null.Int    `json:"assetId"`
+	Image                  null.String `json:"image"`
+	Images                 Images      `json:"images"`
+	TagIDs                 []int       `json:"tagIds"`
+	TimedMetadataFromAsset bool        `json:"timedMetadataFromAsset"`
+	TimedMetadataIDs       []uuid.UUID `json:"timedMetadataIds"`
 
 	PublicTitle      null.String  `json:"publicTitle"`
 	Title            LocaleString `json:"title"`
@@ -181,14 +184,29 @@ type Stream struct {
 	EncryptionKeyID   null.String `json:"encryptionKeyId"`
 }
 
+// ChapterType is a chapter type
+type ChapterType enum.Member[string]
+
+// Chapter types
+var (
+	ChapterTypeSong      = ChapterType{Value: "song"}
+	ChapterTypeSpeech    = ChapterType{Value: "speech"}
+	ChapterTypeTestimony = ChapterType{Value: "testimony"}
+	ChapterTypeSingAlong = ChapterType{Value: "sing_along"}
+	ChapterTypeAppeal    = ChapterType{Value: "appeal"}
+	ChapterTypes         = enum.New(ChapterTypeSong, ChapterTypeSpeech, ChapterTypeTestimony)
+)
+
 // TimedMetadata item type
 type TimedMetadata struct {
 	ID          uuid.UUID
 	Type        string
-	AssetID     int
 	Timestamp   int
 	Title       LocaleString `json:"title"`
 	Description LocaleString `json:"description"`
+	ChapterType ChapterType
+	PersonID    uuid.NullUUID
+	SongID      uuid.NullUUID
 }
 
 // Page is the definition of the Page object
@@ -449,4 +467,22 @@ type Game struct {
 	Images       Images
 	Url          string
 	RequiresAuth bool
+}
+
+// Song contains some metadata for songs
+type Song struct {
+	ID    uuid.UUID
+	Title LocaleString
+}
+
+// Person contains some metadata for people
+type Person struct {
+	ID   uuid.UUID
+	Name string
+}
+
+// Phrase is a key value pair for translations
+type Phrase struct {
+	Key   string
+	Value LocaleString
 }

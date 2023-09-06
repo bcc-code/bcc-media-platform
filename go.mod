@@ -38,6 +38,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/microcosm-cc/bluemonday v1.0.24
 	github.com/mitchellh/mapstructure v1.5.0
+	github.com/orsinium-labs/enum v1.1.0
 	github.com/pressly/goose/v3 v3.13.1
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
