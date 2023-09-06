@@ -6,6 +6,8 @@
 
 --- BEGIN CREATE SEQUENCE "public"."phrases_translations_id_seq" ---
 
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO onsite_backup;
+
 
 CREATE SEQUENCE IF NOT EXISTS "public"."phrases_translations_id_seq"
     INCREMENT BY 1
@@ -305,6 +307,7 @@ INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field"
 VALUES (402, 'phrases', 'user_created', 'directus_users', NULL, NULL, NULL, NULL, NULL, 'nullify');
 
 --- END SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---
+
 -- +goose Down
 /***********************************************************/
 /*** SCRIPT AUTHOR: Fredrik Vedvik (fredrik@vedvik.tech) ***/
