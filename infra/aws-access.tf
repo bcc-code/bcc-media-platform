@@ -236,6 +236,12 @@ resource "local_sensitive_file" "mediabanken-key" {
   filename = "${var.basepath}/keys/mediabanken.secret.env"
 }
 
+resource "local_sensitive_file" "rclone-key" {
+  content = "AWS_ACCESS_KEY_ID=${aws_iam_access_key.rclone.id}\nAWS_SECRET_ACCESS_KEY=${aws_iam_access_key
+  .rclone.secret}"
+  filename = "${var.basepath}/keys/rclone.secret.env"
+}
+
 ////
 // MediaPackage Policies
 ////
