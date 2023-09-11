@@ -11,6 +11,19 @@ resource "aws_iam_access_key" "mediabanken" {
   user = aws_iam_user.mediabanken.name
 }
 
+resource "aws_iam_user" "rclone" {
+  name = "rclone-${var.env}"
+  path = "/terraform/"
+
+  tags = {
+    Environment = var.env
+  }
+}
+
+resource "aws_iam_access_key" "rclone" {
+  user = aws_iam_user.rclone.name
+}
+
 resource "aws_iam_user" "backgroundjobs" {
   name = "backgroundjobs-${var.env}"
   path = "/terraform/"
@@ -64,7 +77,7 @@ resource "aws_iam_policy" "vod-ingest-bucket-access-rw" {
 
 resource "aws_iam_policy_attachment" "vod-ingest-bucket-rw" {
   name       = "vod-ingest-policy-attachment-${var.env}"
-  users      = [aws_iam_user.mediabanken.name, aws_iam_user.backgroundjobs.name]
+  users      = [aws_iam_user.mediabanken.name, aws_iam_user.backgroundjobs.name, aws_iam_user.rclone.name]
   roles      = [aws_iam_role.mediapackage.name]
   groups     = []
   policy_arn = aws_iam_policy.vod-ingest-bucket-access-rw.arn
@@ -221,6 +234,12 @@ resource "local_sensitive_file" "mediabanken-key" {
   content = "AWS_ACCESS_KEY_ID=${aws_iam_access_key.mediabanken.id}\nAWS_SECRET_ACCESS_KEY=${aws_iam_access_key
   .mediabanken.secret}"
   filename = "${var.basepath}/keys/mediabanken.secret.env"
+}
+
+resource "local_sensitive_file" "rclone-key" {
+  content = "AWS_ACCESS_KEY_ID=${aws_iam_access_key.rclone.id}\nAWS_SECRET_ACCESS_KEY=${aws_iam_access_key
+  .rclone.secret}"
+  filename = "${var.basepath}/keys/rclone.secret.env"
 }
 
 ////
