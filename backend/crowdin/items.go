@@ -23,7 +23,7 @@ func rawMessageToMap(msg json.RawMessage) map[string]string {
 func (c *Client) syncEpisodes(ctx context.Context, options Options) error {
 	return syncCollection(ctx, c, options, NewTranslationHandler(
 		"episodes",
-		c.q.ListSeasonTranslations,
+		c.q.ListEpisodeTranslations,
 		func(t SimpleTranslation) sqlc.UpdateEpisodeTranslationParams {
 			return sqlc.UpdateEpisodeTranslationParams{
 				ItemID:      int32(utils.AsInt(t.ParentID)),
