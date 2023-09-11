@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
 	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
@@ -499,6 +500,10 @@ func toSimple[T any](i T) SimpleTranslation {
 		v = sqlc.OriginalTranslationRow(t)
 	case sqlc.ListFAQCategoryOriginalTranslationsRow:
 		v = sqlc.OriginalTranslationRow(t)
+	}
+
+	if v == nil {
+		log.L.Error().Type("type", i).Msg("Could not convert to simple translation")
 	}
 
 	return SimpleTranslation{
