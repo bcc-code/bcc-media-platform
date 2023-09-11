@@ -500,6 +500,8 @@ func toSimple[T any](i T) SimpleTranslation {
 		v = sqlc.OriginalTranslationRow(t)
 	case sqlc.ListFAQCategoryOriginalTranslationsRow:
 		v = sqlc.OriginalTranslationRow(t)
+	case SimpleTranslation:
+		return t
 	}
 
 	if v == nil {
