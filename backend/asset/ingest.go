@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/guregu/null.v4"
 	"net/url"
 	"path"
@@ -466,8 +467,12 @@ func UpdateIngestStatus(ctx context.Context, services externalServices, _ config
 	defer span.End()
 
 	log.L.Debug().Str("EventType", event.Detail.Event).Msg("Processing event type")
+	if event.Detail.Event == "IngestStarted" {
+		return nil
+	}
 	if event.Detail.Event != "IngestComplete" {
 		// We don't currently want to do anything for the other events
+		log.L.Debug().Str("event", spew.Sdump(event)).Msg("Ignoring event")
 		return nil
 	}
 
