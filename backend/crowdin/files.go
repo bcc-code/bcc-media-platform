@@ -162,7 +162,7 @@ func (c *Client) setString(projectId int, s String) (r String, err error) {
 			Path:  "/context",
 		},
 		{
-			Value: true,
+			Value: s.IsHidden,
 			Op:    "replace",
 			Path:  "/isHidden",
 		},

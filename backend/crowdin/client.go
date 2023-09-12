@@ -135,6 +135,7 @@ func convertTsToStrings(ts []SimpleTranslation, prefix string, contextFactory fu
 				str := String{
 					Identifier: fmt.Sprintf("%s-%s-%s", prefix, t.ParentID, key),
 					Text:       value,
+					IsHidden:   false,
 				}
 
 				if contextFactory != nil {

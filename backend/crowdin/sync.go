@@ -101,6 +101,7 @@ func syncCollection[T any, TUpdate any](
 				l.Debug().Str("source", str.Text).Str("value", s.Text).Msg("Texts are not identical, updating")
 				s.Text = str.Text
 				s.Context = str.Context
+				s.IsHidden = str.IsHidden
 				editStrings = append(editStrings, s)
 			}
 		}
