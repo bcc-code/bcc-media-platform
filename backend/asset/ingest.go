@@ -431,7 +431,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	for _, af := range assetfiles {
 		_, err = queries.InsertAssetFile(ctx, af)
 		if err != nil {
-			return merry.Wrap(err)
+			log.L.Error().Err(err).Str("language", af.AudioLanguageID.String).Msg("failed to insert asset file")
 		}
 	}
 
