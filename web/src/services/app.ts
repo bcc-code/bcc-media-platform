@@ -1,3 +1,3 @@
 import { ref } from "vue"
 
-export const current = ref("btv")
+export const current = ref("bccm-web")
