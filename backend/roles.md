@@ -25,7 +25,7 @@ Roles are called Usergroups in the database. They are also permissive and never 
             - `tvos-early-access`
     - Based on the configuration of the application group. Filter the roles:
         - Example configuration:
-            - `tvos-early-acess`
+            - `tvos-early-access`
             - `ux`
             - `public`
         - Example result (only intersecting roles will apply to the rest of the request):
