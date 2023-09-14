@@ -7,9 +7,6 @@ const props = defineProps<{
     collection: string
 }>()
 
-console.log(props.primaryKey)
-console.log(props.collection)
-
 const api = useApi()
 
 const loading = ref(false)
