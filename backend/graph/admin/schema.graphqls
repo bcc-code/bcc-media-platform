@@ -29,24 +29,29 @@ type CollectionItem {
 }
 
 type ProgressByOrg {
-  name: String!
-  progress: Float!
+    name: String!
+    progress: Float!
 }
 
 type Statistics {
-  lessonProgressGroupedByOrg(
-    lessonID: ID!,
-    ageGroups: [String!]!,
-    orgMaxSize: Int,
-    orgMinSize: Int,
-  ): [ProgressByOrg!]! @goField(forceResolver: true)
+    lessonProgressGroupedByOrg(
+        lessonID: ID!,
+        ageGroups: [String!]!,
+        orgMaxSize: Int,
+        orgMinSize: Int,
+    ): [ProgressByOrg!]! @goField(forceResolver: true)
 }
 
-schema{
-    query: QueryRoot
+type Episodes {
+    importTimedMetadata(episodeId: ID!): Boolean! @goField(forceResolver: true)
 }
 
 type QueryRoot {
     preview: Preview!
     statistics: Statistics!
+    episodes: Episodes!
+}
+
+schema{
+    query: QueryRoot
 }
