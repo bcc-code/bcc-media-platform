@@ -26,7 +26,7 @@ func (q *Queries) GetTimedMetadata(ctx context.Context, ids []uuid.UUID) ([]comm
 			ChapterType: *chapterType,
 			PersonID:    i.PersonID,
 			SongID:      i.SongID,
-			Timestamp:   i.Timestamp.Hour()*3600 + i.Timestamp.Minute()*60 + i.Timestamp.Second(),
+			Timestamp:   float64(i.Seconds),
 			Title:       title,
 			Description: description,
 		}

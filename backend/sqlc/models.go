@@ -1493,11 +1493,11 @@ type Timedmetadatum struct {
 	Title       null_v4.String `db:"title" json:"title"`
 	Description null_v4.String `db:"description" json:"description"`
 	AssetID     null_v4.Int    `db:"asset_id" json:"assetId"`
-	Timestamp   time.Time      `db:"timestamp" json:"timestamp"`
 	EpisodeID   null_v4.Int    `db:"episode_id" json:"episodeId"`
 	ChapterType null_v4.String `db:"chapter_type" json:"chapterType"`
 	SongID      uuid.NullUUID  `db:"song_id" json:"songId"`
 	PersonID    uuid.NullUUID  `db:"person_id" json:"personId"`
+	Seconds     float32        `db:"seconds" json:"seconds"`
 }
 
 type Usergroup struct {

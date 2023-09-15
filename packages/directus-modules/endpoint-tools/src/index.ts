@@ -116,6 +116,46 @@ const endpointConfig: EndpointConfig = {
             )
         })
 
+        router.post("/timedmetadata/import", async (req: any, res: any) => {
+            const userId = getUserId(req)
+            if (userId == null) {
+                res.status(401).send("Unauthenticated")
+                return
+            }
+
+            const { episodeId } = req.body as {
+                episodeId: string
+            }
+
+            try {
+                const body = `query($episodeId: ID!) {
+    episodes {
+        importTimedMetadata(episodeId: $episodeId)
+    }
+}`
+
+                const result = await postQuery(body, {
+                    episodeId,
+                })
+
+                console.log(result.data)
+
+                res.status(200).send(
+                    result.data.data.episodes.importTimedMetadata
+                )
+                return
+            } catch (e) {
+                console.log("Couldn't fetch data from API")
+                console.error(e)
+            }
+
+            res.status(500).send(
+                JSON.stringify({
+                    error: "Couldn't fetch data from API",
+                })
+            )
+        })
+
         router.get("/filters/refresh", async (req, res) => {
             const userId = getUserId(req)
             if (userId == null) {

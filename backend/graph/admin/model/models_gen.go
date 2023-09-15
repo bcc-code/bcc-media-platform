@@ -14,6 +14,10 @@ type CollectionItem struct {
 	Title      string     `json:"title"`
 }
 
+type Episodes struct {
+	ImportTimedMetadata bool `json:"importTimedMetadata"`
+}
+
 type Preview struct {
 	Collection *PreviewCollection `json:"collection"`
 	Asset      *PreviewAsset      `json:"asset"`
