@@ -212,7 +212,7 @@ func (r *episodeResolver) Chapters(ctx context.Context, obj *model.Episode) ([]*
 			ID:          i.ID.String(),
 			Title:       title,
 			Description: i.Description.GetValueOrNil(languages),
-			Start:       i.Timestamp,
+			Start:       int(i.Timestamp),
 		}
 	}), nil
 }
