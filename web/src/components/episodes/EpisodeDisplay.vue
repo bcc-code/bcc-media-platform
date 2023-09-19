@@ -41,9 +41,10 @@
                         >
                     </h1>
                 </div>
-                <div class="text-white mt-2 opacity-70 text-md lg:text-lg">
-                    {{ episode.description }}
-                </div>
+                <div
+                    class="text-white mt-2 opacity-70 text-md lg:text-lg"
+                    v-html="mdToHTML(episode.description)"
+                ></div>
                 <LessonButton
                     v-if="lesson && !episodeComingSoon(episode)"
                     class="mt-4"
@@ -175,6 +176,7 @@ import LessonButton from "../study/LessonButton.vue"
 import router from "@/router"
 import { episodeComingSoon } from "../../utils/items"
 import EmbedDownloadables from "../embed/EmbedDownloadables.vue"
+import { mdToHTML } from "@/services/converter"
 
 const props = defineProps<{
     initialEpisodeId: string
