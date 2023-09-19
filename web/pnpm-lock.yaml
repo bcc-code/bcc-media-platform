@@ -5611,7 +5611,7 @@ packages:
     dev: false
 
   github.com/webcomponents/webcomponentsjs/8a2e40557b177e2cca0def2553f84c8269c8f93e:
-    resolution: {commit: 8a2e40557b177e2cca0def2553f84c8269c8f93e, repo: https://git@github.com/webcomponents/webcomponentsjs.git, type: git}
+    resolution: {tarball: https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e}
     name: webcomponents.js
     version: 0.7.24
     dev: false
