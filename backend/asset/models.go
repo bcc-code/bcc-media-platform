@@ -2,15 +2,15 @@ package asset
 
 // Chapter contains data for a chapter
 type Chapter struct {
-	ChapterType    string
-	Timestamp      float64
-	Label          string
-	Title          string
-	Description    string
-	SongCollection string
-	SongNumber     string
-	Highlight      bool
-	Persons        []string
+	ChapterType    string   `json:"chapter_type"`
+	Timestamp      float64  `json:"timestamp"`
+	Label          string   `json:"label"`
+	Title          string   `json:"title"`
+	Description    string   `json:"description"`
+	SongCollection string   `json:"song_collection"`
+	SongNumber     string   `json:"song_number"`
+	Highlight      bool     `json:"highlight"`
+	Persons        []string `json:"persons"`
 }
 
 // IngestFileMeta is the JSON structure for the ingest JSON file
