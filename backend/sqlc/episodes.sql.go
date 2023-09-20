@@ -382,6 +382,7 @@ SELECT e.id,
        audience,
        content_type,
        timedmetadata_from_asset,
+       assets.encoding_version = 'btv'                                         as downloadable,
        (SELECT array_agg(id)
         FROM timedmetadata md
         WHERE (timedmetadata_from_asset AND md.asset_id = e.asset_id)
@@ -428,6 +429,7 @@ type getEpisodesRow struct {
 	Audience               null_v4.String        `db:"audience" json:"audience"`
 	ContentType            null_v4.String        `db:"content_type" json:"contentType"`
 	TimedmetadataFromAsset bool                  `db:"timedmetadata_from_asset" json:"timedmetadataFromAsset"`
+	Downloadable           bool                  `db:"downloadable" json:"downloadable"`
 	TimedmetadataIds       []uuid.UUID           `db:"timedmetadata_ids" json:"timedmetadataIds"`
 }
 
@@ -469,6 +471,7 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 			&i.Audience,
 			&i.ContentType,
 			&i.TimedmetadataFromAsset,
+			&i.Downloadable,
 			pq.Array(&i.TimedmetadataIds),
 		); err != nil {
 			return nil, err
@@ -590,6 +593,7 @@ SELECT e.id,
        audience,
        content_type,
        timedmetadata_from_asset,
+       assets.encoding_version = 'btv'                                           as downloadable,
        (SELECT array_agg(id) FROM timedmetadata WHERE episode_id = e.id)::uuid[] AS timedmetadata_ids
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
@@ -631,6 +635,7 @@ type listEpisodesRow struct {
 	Audience               null_v4.String        `db:"audience" json:"audience"`
 	ContentType            null_v4.String        `db:"content_type" json:"contentType"`
 	TimedmetadataFromAsset bool                  `db:"timedmetadata_from_asset" json:"timedmetadataFromAsset"`
+	Downloadable           bool                  `db:"downloadable" json:"downloadable"`
 	TimedmetadataIds       []uuid.UUID           `db:"timedmetadata_ids" json:"timedmetadataIds"`
 }
 
@@ -672,6 +677,7 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 			&i.Audience,
 			&i.ContentType,
 			&i.TimedmetadataFromAsset,
+			&i.Downloadable,
 			pq.Array(&i.TimedmetadataIds),
 		); err != nil {
 			return nil, err

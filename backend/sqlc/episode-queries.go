@@ -59,6 +59,7 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			}),
 			TimedMetadataIDs:       e.TimedmetadataIds,
 			TimedMetadataFromAsset: e.TimedmetadataFromAsset,
+			Downloadable:           e.Downloadable,
 		}
 	})
 }
