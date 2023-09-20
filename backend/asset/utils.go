@@ -18,7 +18,7 @@ func getOrInsertSongID(ctx context.Context, queries *sqlc.Queries, collectionKey
 	if songID == uuid.Nil {
 		songID = uuid.New()
 
-		collectionID, err := getOrInsertCollectionID(ctx, queries, collectionKey)
+		collectionID, err := getOrInsertSongCollectionID(ctx, queries, collectionKey)
 		if err != nil {
 			return songID, err
 		}
@@ -35,7 +35,7 @@ func getOrInsertSongID(ctx context.Context, queries *sqlc.Queries, collectionKey
 	return songID, nil
 }
 
-func getOrInsertCollectionID(ctx context.Context, queries *sqlc.Queries, key string) (uuid.UUID, error) {
+func getOrInsertSongCollectionID(ctx context.Context, queries *sqlc.Queries, key string) (uuid.UUID, error) {
 	collectionID, err := queries.GetCollectionIDFromKey(ctx, key)
 	if err != nil {
 		return collectionID, err
