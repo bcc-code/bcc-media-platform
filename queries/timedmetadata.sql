@@ -21,7 +21,7 @@ WHERE md.id = ANY (@ids::uuid[]);
 INSERT INTO timedmetadata (id, status, date_created, date_updated, label, type, highlight,
                            title, asset_id, seconds, description, episode_id, chapter_type, song_id)
 VALUES (@id, @status, NOW(), NOW(), @label, @type, @highlight, @title::varchar,
-        @asset_id::int, @seconds::real, @description::varchar, @episode_id, @chapter_type::varchar, @song_id);
+        @asset_id, @seconds::real, @description::varchar, @episode_id, @chapter_type, @song_id);
 
 -- name: GetAssetTimedMetadata :many
 SELECT t.id,

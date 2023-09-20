@@ -45,7 +45,19 @@ func (r *episodesResolver) ImportTimedMetadata(ctx context.Context, obj *model.E
 		m.AssetID = null_v4.Int{}
 		m.EpisodeID = null_v4.IntFrom(intID)
 
-		err = r.Queries.InsertTimedMetadata(ctx, sqlc.InsertTimedMetadataParams(m))
+		err = r.Queries.InsertTimedMetadata(ctx, sqlc.InsertTimedMetadataParams{
+			ID:          uuid.New(),
+			EpisodeID:   null_v4.IntFrom(intID),
+			Title:       m.Title.String,
+			Description: m.Description.String,
+			Seconds:     m.Seconds,
+			Type:        m.Type,
+			ChapterType: m.ChapterType,
+			Label:       m.Label,
+			Status:      m.Status,
+			Highlight:   m.Highlight,
+			SongID:      m.SongID,
+		})
 		if err != nil {
 			return false, err
 		}

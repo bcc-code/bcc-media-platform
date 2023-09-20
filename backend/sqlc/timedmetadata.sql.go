@@ -110,22 +110,22 @@ const insertTimedMetadata = `-- name: InsertTimedMetadata :exec
 INSERT INTO timedmetadata (id, status, date_created, date_updated, label, type, highlight,
                            title, asset_id, seconds, description, episode_id, chapter_type, song_id)
 VALUES ($1, $2, NOW(), NOW(), $3, $4, $5, $6::varchar,
-        $7::int, $8::real, $9::varchar, $10, $11::varchar, $12)
+        $7, $8::real, $9::varchar, $10, $11, $12)
 `
 
 type InsertTimedMetadataParams struct {
-	ID          uuid.UUID     `db:"id" json:"id"`
-	Status      string        `db:"status" json:"status"`
-	Label       string        `db:"label" json:"label"`
-	Type        string        `db:"type" json:"type"`
-	Highlight   bool          `db:"highlight" json:"highlight"`
-	Title       string        `db:"title" json:"title"`
-	AssetID     int32         `db:"asset_id" json:"assetId"`
-	Seconds     float32       `db:"seconds" json:"seconds"`
-	Description string        `db:"description" json:"description"`
-	EpisodeID   null_v4.Int   `db:"episode_id" json:"episodeId"`
-	ChapterType string        `db:"chapter_type" json:"chapterType"`
-	SongID      uuid.NullUUID `db:"song_id" json:"songId"`
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Status      string         `db:"status" json:"status"`
+	Label       string         `db:"label" json:"label"`
+	Type        string         `db:"type" json:"type"`
+	Highlight   bool           `db:"highlight" json:"highlight"`
+	Title       string         `db:"title" json:"title"`
+	AssetID     null_v4.Int    `db:"asset_id" json:"assetId"`
+	Seconds     float32        `db:"seconds" json:"seconds"`
+	Description string         `db:"description" json:"description"`
+	EpisodeID   null_v4.Int    `db:"episode_id" json:"episodeId"`
+	ChapterType null_v4.String `db:"chapter_type" json:"chapterType"`
+	SongID      uuid.NullUUID  `db:"song_id" json:"songId"`
 }
 
 func (q *Queries) InsertTimedMetadata(ctx context.Context, arg InsertTimedMetadataParams) error {

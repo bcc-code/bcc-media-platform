@@ -285,9 +285,9 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			}
 			timedMetadata := sqlc.InsertTimedMetadataParams{
 				ID:          uuid.New(),
-				ChapterType: t.Value,
+				ChapterType: null.StringFrom(t.Value),
 				Title:       chapter.Title,
-				AssetID:     assetID,
+				AssetID:     null.IntFrom(int64(assetID)),
 				Highlight:   chapter.Highlight,
 				Description: chapter.Description,
 				Status:      string(common.StatusPublished),

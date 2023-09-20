@@ -205,7 +205,7 @@ type TimedMetadata struct {
 	Title       LocaleString `json:"title"`
 	Description LocaleString `json:"description"`
 	ChapterType ChapterType
-	PersonID    uuid.NullUUID
+	PersonIDs   []uuid.UUID
 	SongID      uuid.NullUUID
 }
 
