@@ -3,7 +3,7 @@ SELECT md.id,
        md.type,
        md.chapter_type,
        md.song_id,
-       md.person_id,
+       (SELECT array_agg(p.persons_id) FROM "timedmetadata_persons" p WHERE p.timedmetadata_id = md.id)::uuid[] AS person_ids,
        md.title                                                  AS original_title,
        md.description                                            AS original_description,
        COALESCE((SELECT json_object_agg(ts.languages_code, ts.title)
@@ -18,13 +18,13 @@ FROM timedmetadata md
 WHERE md.id = ANY (@ids::uuid[]);
 
 -- name: InsertTimedMetadata :exec
-INSERT INTO timedmetadata (id, status, user_created, date_created, user_updated, date_updated, label, type, highlight,
-                           title, asset_id, seconds, description, episode_id, chapter_type, song_id, person_id)
-VALUES (@id, @status, @user_created, @date_created, @user_updated, @date_updated, @label, @type, @highlight, @title,
-        @asset_id, @seconds, @description, @episode_id, @chapter_type, @song_id, @person_id);
+INSERT INTO timedmetadata (id, status, date_created, date_updated, label, type, highlight,
+                           title, asset_id, seconds, description, episode_id, chapter_type, song_id)
+VALUES (@id, @status, NOW(), NOW(), @label, @type, @highlight, @title::varchar,
+        @asset_id::int, @seconds::real, @description::varchar, @episode_id, @chapter_type::varchar, @song_id);
 
 -- name: GetAssetTimedMetadata :many
-SELECT id,
+SELECT t.id,
        status,
        user_created,
        date_created,
@@ -40,8 +40,8 @@ SELECT id,
        episode_id,
        chapter_type,
        song_id,
-       person_id
-FROM timedmetadata
+       (SELECT array_agg(p.persons_id) FROM "timedmetadata_persons" p WHERE p.timedmetadata_id = t.id)::uuid[]  AS person_ids
+FROM timedmetadata t
 WHERE asset_id = @asset_id;
 
 -- name: ClearEpisodeTimedMetadata :exec
