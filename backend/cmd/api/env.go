@@ -5,17 +5,17 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/bcc-code/brunstadtv/backend/email"
+	"github.com/bcc-code/bcc-media-platform/backend/email"
 	"os"
 	"strings"
 
 	"github.com/ansel1/merry/v2"
-	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 
-	"github.com/bcc-code/brunstadtv/backend/members"
-	"github.com/bcc-code/brunstadtv/backend/search"
+	"github.com/bcc-code/bcc-media-platform/backend/members"
+	"github.com/bcc-code/bcc-media-platform/backend/search"
 
-	"github.com/bcc-code/brunstadtv/backend/auth0"
+	"github.com/bcc-code/bcc-media-platform/backend/auth0"
 	"github.com/samber/lo"
 )
 

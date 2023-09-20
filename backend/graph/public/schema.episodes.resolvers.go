@@ -7,8 +7,8 @@ package graph
 import (
 	"context"
 
-	"github.com/bcc-code/brunstadtv/backend/graph/public/generated"
-	"github.com/bcc-code/brunstadtv/backend/graph/public/model"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/public/generated"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/public/model"
 )
 
 // Season is the resolver for the season field.

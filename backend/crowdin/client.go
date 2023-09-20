@@ -3,7 +3,7 @@ package crowdin
 import (
 	"context"
 	"fmt"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"strconv"
 	"strings"
 	"time"

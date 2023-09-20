@@ -1,8 +1,8 @@
 package user
 
 import (
-	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/gin-gonic/gin"
 )
 

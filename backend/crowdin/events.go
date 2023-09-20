@@ -3,7 +3,7 @@ package crowdin
 import (
 	"context"
 	"github.com/ansel1/merry/v2"
-	"github.com/bcc-code/brunstadtv/backend/events"
+	"github.com/bcc-code/bcc-media-platform/backend/events"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 )
 

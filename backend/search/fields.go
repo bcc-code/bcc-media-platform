@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	cache "github.com/Code-Hex/go-generics-cache"
-	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/mitchellh/mapstructure"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"

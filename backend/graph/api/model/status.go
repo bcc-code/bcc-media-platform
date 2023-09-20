@@ -1,6 +1,6 @@
 package model
 
-import "github.com/bcc-code/brunstadtv/backend/common"
+import "github.com/bcc-code/bcc-media-platform/backend/common"
 
 type hasStatus interface {
 	GetStatus() common.Status

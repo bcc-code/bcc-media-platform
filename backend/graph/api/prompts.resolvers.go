@@ -7,9 +7,9 @@ package graph
 import (
 	"context"
 
-	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
-	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
-	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
 
 // Survey is the resolver for the survey field.

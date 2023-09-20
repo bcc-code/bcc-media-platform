@@ -1,4 +1,4 @@
-module github.com/bcc-code/brunstadtv
+module github.com/bcc-code/bcc-media-platform
 
 go 1.20
 

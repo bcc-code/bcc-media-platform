@@ -11,11 +11,11 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 	"strconv"
 
-	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/graph/admin/generated"
-	"github.com/bcc-code/brunstadtv/backend/graph/admin/model"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/admin/generated"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/admin/model"
+	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/samber/lo"
 )
 

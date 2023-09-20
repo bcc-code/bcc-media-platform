@@ -4,7 +4,7 @@ package utils
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/remotecache"
+	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
 	"github.com/bsm/redislock"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo/parallel"

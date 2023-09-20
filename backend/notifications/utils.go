@@ -1,8 +1,8 @@
 package notifications
 
 import (
-	"github.com/bcc-code/brunstadtv/backend/members"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/members"
+	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 )
 
 // Utils contains different methods for resolving notifications

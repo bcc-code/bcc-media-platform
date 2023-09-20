@@ -9,10 +9,10 @@ import (
 	"strconv"
 
 	merry "github.com/ansel1/merry/v2"
-	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
-	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
-	"github.com/bcc-code/brunstadtv/backend/items/show"
-	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/items/show"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
 
 // Image is the resolver for the image field.

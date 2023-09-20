@@ -4,13 +4,13 @@ import (
 	"database/sql"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/bcc-code/brunstadtv/backend/crowdin"
-	"github.com/bcc-code/brunstadtv/backend/events"
-	"github.com/bcc-code/brunstadtv/backend/remotecache"
-	"github.com/bcc-code/brunstadtv/backend/scheduler"
-	"github.com/bcc-code/brunstadtv/backend/search"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/bcc-code/brunstadtv/backend/statistics"
+	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
+	"github.com/bcc-code/bcc-media-platform/backend/events"
+	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
+	"github.com/bcc-code/bcc-media-platform/backend/scheduler"
+	"github.com/bcc-code/bcc-media-platform/backend/search"
+	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/statistics"
 )
 
 // ExternalServices used by the Server

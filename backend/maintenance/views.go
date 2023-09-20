@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/ansel1/merry/v2"
-	"github.com/bcc-code/brunstadtv/backend/events"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/events"
+	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"go.opentelemetry.io/otel"

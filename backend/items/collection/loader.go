@@ -3,12 +3,12 @@ package collection
 import (
 	"context"
 	"database/sql"
-	"github.com/bcc-code/brunstadtv/backend/loaders"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/samber/lo/parallel"
 	"sync"
 	"time"
 
-	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"os"
 )
 

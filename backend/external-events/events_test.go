@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	externalevents "github.com/bcc-code/brunstadtv/backend/external-events"
+	externalevents "github.com/bcc-code/bcc-media-platform/backend/external-events"
 	"github.com/stretchr/testify/assert"
 )
 

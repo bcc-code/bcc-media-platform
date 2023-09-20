@@ -2,7 +2,7 @@ package sqlc
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/samber/lo"
 )
 

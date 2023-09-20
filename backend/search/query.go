@@ -2,8 +2,8 @@ package search
 
 import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
-	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/user"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"

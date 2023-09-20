@@ -2,7 +2,7 @@ package graph
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 )
 
 func isLessonLockedByPrevious(ctx context.Context, r *lessonResolver, obj *model.Lesson) (bool, error) {

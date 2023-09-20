@@ -6,7 +6,7 @@ import (
 
 	"cloud.google.com/go/bigquery"
 	"github.com/ansel1/merry/v2"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/google/uuid"
 	"google.golang.org/api/iterator"
 )

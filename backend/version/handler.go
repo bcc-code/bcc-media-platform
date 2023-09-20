@@ -2,7 +2,7 @@ package version
 
 import (
 	"encoding/json"
-	"github.com/bcc-code/brunstadtv/backend/graph/public/model"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/public/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"

@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/bcc-code/brunstadtv/backend/asset/smil"
+	"github.com/bcc-code/bcc-media-platform/backend/asset/smil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,7 +37,7 @@ func TestCalculateDuration(t *testing.T) {
 	}
 
 	for in, out := range testData {
-		a := assetIngestJSONMeta{
+		a := IngestJSONMeta{
 			Duration: in,
 		}
 
@@ -70,7 +70,7 @@ func TestGetLanguagesFromVideoElement(t *testing.T) {
 func TestParseJson(t *testing.T) {
 	bytes, err := os.ReadFile("./testdata/001.json")
 	assert.NoError(t, err)
-	obj := assetIngestJSONMeta{}
+	obj := IngestJSONMeta{}
 	err = json.Unmarshal(bytes, &obj)
 	assert.NoError(t, err)
 }
@@ -78,7 +78,7 @@ func TestParseJson(t *testing.T) {
 func TestParseJson2(t *testing.T) {
 	bytes, err := os.ReadFile("./testdata/002.json")
 	assert.NoError(t, err)
-	obj := assetIngestJSONMeta{}
+	obj := IngestJSONMeta{}
 	err = json.Unmarshal(bytes, &obj)
 	assert.NoError(t, err)
 

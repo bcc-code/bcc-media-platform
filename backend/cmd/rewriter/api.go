@@ -4,7 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"github.com/ansel1/merry/v2"
-	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"io"
 	"net/http"

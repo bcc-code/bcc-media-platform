@@ -2,7 +2,7 @@ package sqlc
 
 import (
 	"encoding/json"
-	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"gopkg.in/guregu/null.v4"
 )
 

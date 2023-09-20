@@ -3,7 +3,7 @@ package memorycache
 import (
 	"context"
 	cache "github.com/Code-Hex/go-generics-cache"
-	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
 
 var memoryCache = cache.New[string, any](cache.AsLRU[string, any]())

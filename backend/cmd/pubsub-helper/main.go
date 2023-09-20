@@ -15,7 +15,7 @@ import (
 	"github.com/google/uuid"
 
 	"cloud.google.com/go/pubsub"
-	"github.com/bcc-code/brunstadtv/backend/events"
+	"github.com/bcc-code/bcc-media-platform/backend/events"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/davecgh/go-spew/spew"
 )

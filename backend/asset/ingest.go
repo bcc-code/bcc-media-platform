@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/guregu/null.v4"
 	"net/url"
@@ -14,18 +14,18 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bcc-code/brunstadtv/backend/pubsub"
+	"github.com/bcc-code/bcc-media-platform/backend/pubsub"
 
-	"github.com/bcc-code/brunstadtv/backend/asset/smil"
-	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/bcc-media-platform/backend/asset/smil"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
-	"github.com/bcc-code/brunstadtv/backend/events"
+	"github.com/bcc-code/bcc-media-platform/backend/events"
 	"github.com/bcc-code/mediabank-bridge/log"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/google/uuid"
@@ -60,27 +60,8 @@ type config interface {
 	GetDeleteIngestFilesFlag() bool
 }
 
-type ingestFileMeta struct {
-	Mime             string `json:"mime"`
-	Path             string `json:"path"`
-	AudioLanguge     string `json:"audiolanguage"`
-	SubtitleLanguage string `json:"subtitlelanguage"`
-	Resolution       string `json:"resolution"`
-}
-
-type assetIngestJSONMeta struct {
-	Duration string           `json:"duration"`
-	Title    string           `json:"title"`
-	ID       string           `json:"id"`
-	SmilFile string           `json:"smil_file"`
-	Files    []ingestFileMeta `json:"files"`
-	BasePath string
-
-	DurationInS int64
-}
-
 // CalculateDuration calculates the asset duration and assigns it to the meta
-func (a *assetIngestJSONMeta) CalculateDuration() {
+func (a *IngestJSONMeta) CalculateDuration() {
 	r := regexp.MustCompile(`([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2}):[0-9]{1,2}`)
 	matches := r.FindStringSubmatch(a.Duration)
 
@@ -169,7 +150,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 	s3client := services.GetS3Client()
 
-	assetMeta := assetIngestJSONMeta{}
+	assetMeta := IngestJSONMeta{}
 	err = readJSONFromS3(ctx, s3client, config.GetIngestBucket(), msg.JSONMetaPath, &assetMeta)
 	if err != nil {
 		return merry.Wrap(err)

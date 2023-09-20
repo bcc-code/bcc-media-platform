@@ -2,8 +2,8 @@ package common
 
 import (
 	"context"
-	"github.com/bcc-code/brunstadtv/backend/loaders"
-	"github.com/bcc-code/brunstadtv/backend/members"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
+	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/google/uuid"
 )
 

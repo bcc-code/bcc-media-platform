@@ -6,8 +6,8 @@ import (
 
 	"cloud.google.com/go/bigquery"
 	"github.com/ansel1/merry/v2"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/samber/lo"
 	"go.opentelemetry.io/otel"

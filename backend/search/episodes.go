@@ -3,7 +3,7 @@ package search
 import (
 	"context"
 	"fmt"
-	"github.com/bcc-code/brunstadtv/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"strconv"
 )
 

@@ -3,8 +3,8 @@ package events
 import (
 	"context"
 	firebase "firebase.google.com/go"
-	"github.com/bcc-code/brunstadtv/backend/sqlc"
-	"github.com/bcc-code/brunstadtv/backend/utils"
+	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/samber/lo"
 	"strconv"
 	"time"

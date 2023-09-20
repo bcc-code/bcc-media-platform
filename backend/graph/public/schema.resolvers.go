@@ -9,10 +9,10 @@ import (
 	"strconv"
 
 	merry "github.com/ansel1/merry/v2"
-	"github.com/bcc-code/brunstadtv/backend/common"
-	"github.com/bcc-code/brunstadtv/backend/graph/public/generated"
-	"github.com/bcc-code/brunstadtv/backend/graph/public/model"
-	"github.com/bcc-code/brunstadtv/backend/version"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/public/generated"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/public/model"
+	"github.com/bcc-code/bcc-media-platform/backend/version"
 )
 
 // Episode is the resolver for the episode field.

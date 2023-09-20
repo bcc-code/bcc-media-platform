@@ -7,8 +7,8 @@ package graph
 import (
 	"context"
 
-	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
-	gqlmodel "github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
+	gqlmodel "github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 )
 
 // Page is the resolver for the page field.

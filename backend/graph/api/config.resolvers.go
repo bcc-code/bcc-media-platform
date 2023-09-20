@@ -8,8 +8,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/bcc-code/brunstadtv/backend/graph/api/generated"
-	"github.com/bcc-code/brunstadtv/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 )
 
 // Global is the resolver for the global field.
