@@ -17,7 +17,7 @@ type Chapter struct {
 type IngestFileMeta struct {
 	Mime             string `json:"mime"`
 	Path             string `json:"path"`
-	AudioLanguge     string `json:"audiolanguage"`
+	AudioLanguage    string `json:"audiolanguage"`
 	SubtitleLanguage string `json:"subtitlelanguage"`
 	Resolution       string `json:"resolution"`
 }

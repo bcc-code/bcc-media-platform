@@ -307,7 +307,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			Type:               "video",
 			MimeType:           m.Mime,
 			AssetID:            assetID,
-			AudioLanguageID:    null.StringFrom(m.AudioLanguge),
+			AudioLanguageID:    null.StringFrom(m.AudioLanguage),
 			SubtitleLanguageID: null.StringFrom(m.SubtitleLanguage),
 			Resolution:         null.StringFrom(m.Resolution),
 			Size:               fileSizeInBytes,
