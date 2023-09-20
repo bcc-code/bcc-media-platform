@@ -267,6 +267,7 @@ type Chapter struct {
 	ID          string  `json:"id"`
 	Start       int     `json:"start"`
 	Title       string  `json:"title"`
+	Image       *string `json:"image,omitempty"`
 	Description *string `json:"description,omitempty"`
 }
 
