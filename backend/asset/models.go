@@ -24,12 +24,13 @@ type IngestFileMeta struct {
 
 // IngestJSONMeta is the JSON structure for the ingest JSON file
 type IngestJSONMeta struct {
-	Duration string           `json:"duration"`
-	Title    string           `json:"title"`
-	ID       string           `json:"id"`
-	SmilFile string           `json:"smil_file"`
-	Files    []IngestFileMeta `json:"files"`
-	BasePath string
-
+	Duration    string `json:"duration"`
 	DurationInS int64
+
+	Title        string           `json:"title"`
+	ID           string           `json:"id"`
+	SmilFile     string           `json:"smil_file"`
+	ChaptersFile string           `json:"chapters_file"`
+	Files        []IngestFileMeta `json:"files"`
+	BasePath     string           `json:"base_path"`
 }
