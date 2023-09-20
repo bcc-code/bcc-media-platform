@@ -131,8 +131,6 @@ type Episode struct {
 	ExtraDescription LocaleString `json:"extraDescription"`
 	NumberInTitle    bool         `json:"numberInTitle"`
 
-	Downloadable bool `json:"downloadable"`
-
 	ContentType null.String `json:"contentType"`
 	Audience    null.String `json:"audience"`
 }

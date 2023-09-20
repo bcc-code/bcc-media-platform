@@ -394,7 +394,6 @@ type Episode struct {
 	Lessons               *LessonPagination      `json:"lessons"`
 	ShareRestriction      ShareRestriction       `json:"shareRestriction"`
 	InMyList              bool                   `json:"inMyList"`
-	Downloadable          bool                   `json:"downloadable"`
 	// Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
 	Next []*Episode `json:"next"`
 }
@@ -1189,6 +1188,7 @@ type Stream struct {
 	AudioLanguages    []string   `json:"audioLanguages"`
 	SubtitleLanguages []string   `json:"subtitleLanguages"`
 	Type              StreamType `json:"type"`
+	Downloadable      bool       `json:"downloadable"`
 }
 
 type StudyTopic struct {

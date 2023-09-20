@@ -267,7 +267,6 @@ type ComplexityRoot struct {
 		Chapters              func(childComplexity int) int
 		Context               func(childComplexity int) int
 		Description           func(childComplexity int) int
-		Downloadable          func(childComplexity int) int
 		Duration              func(childComplexity int) int
 		ExtraDescription      func(childComplexity int) int
 		Files                 func(childComplexity int) int
@@ -819,6 +818,7 @@ type ComplexityRoot struct {
 
 	Stream struct {
 		AudioLanguages    func(childComplexity int) int
+		Downloadable      func(childComplexity int) int
 		ID                func(childComplexity int) int
 		SubtitleLanguages func(childComplexity int) int
 		Type              func(childComplexity int) int
@@ -1016,7 +1016,6 @@ type EpisodeResolver interface {
 	Lessons(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.LessonPagination, error)
 	ShareRestriction(ctx context.Context, obj *model.Episode) (model.ShareRestriction, error)
 	InMyList(ctx context.Context, obj *model.Episode) (bool, error)
-
 	Next(ctx context.Context, obj *model.Episode) ([]*model.Episode, error)
 }
 type EpisodeCalendarEntryResolver interface {
@@ -1965,13 +1964,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.Description(childComplexity), true
-
-	case "Episode.downloadable":
-		if e.complexity.Episode.Downloadable == nil {
-			break
-		}
-
-		return e.complexity.Episode.Downloadable(childComplexity), true
 
 	case "Episode.duration":
 		if e.complexity.Episode.Duration == nil {
@@ -4917,6 +4909,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Stream.AudioLanguages(childComplexity), true
 
+	case "Stream.downloadable":
+		if e.complexity.Stream.Downloadable == nil {
+			break
+		}
+
+		return e.complexity.Stream.Downloadable(childComplexity), true
+
 	case "Stream.id":
 		if e.complexity.Stream.ID == nil {
 			break
@@ -5831,8 +5830,6 @@ type Episode {
     shareRestriction: ShareRestriction! @goField(forceResolver: true)
     inMyList: Boolean! @goField(forceResolver: true)
 
-    downloadable: Boolean!
-
     """
     Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
     """
@@ -5877,6 +5874,7 @@ type Stream {
     audioLanguages: [Language!]!
     subtitleLanguages: [Language!]!
     type: StreamType!
+    downloadable: Boolean!
 }
 `, BuiltIn: false},
 	{Name: "../schema/export.graphqls", Input: `type Export {
@@ -13536,6 +13534,8 @@ func (ec *executionContext) fieldContext_Episode_streams(ctx context.Context, fi
 				return ec.fieldContext_Stream_subtitleLanguages(ctx, field)
 			case "type":
 				return ec.fieldContext_Stream_type(ctx, field)
+			case "downloadable":
+				return ec.fieldContext_Stream_downloadable(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Stream", field.Name)
 		},
@@ -14294,50 +14294,6 @@ func (ec *executionContext) fieldContext_Episode_inMyList(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Episode_downloadable(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Episode_downloadable(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Downloadable, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Episode_downloadable(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Episode",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Episode_next(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_next(ctx, field)
 	if err != nil {
@@ -14445,8 +14401,6 @@ func (ec *executionContext) fieldContext_Episode_next(ctx context.Context, field
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
-			case "downloadable":
-				return ec.fieldContext_Episode_downloadable(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			}
@@ -14877,8 +14831,6 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
-			case "downloadable":
-				return ec.fieldContext_Episode_downloadable(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			}
@@ -15218,8 +15170,6 @@ func (ec *executionContext) fieldContext_EpisodeItem_episode(ctx context.Context
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
-			case "downloadable":
-				return ec.fieldContext_Episode_downloadable(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			}
@@ -15468,8 +15418,6 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
-			case "downloadable":
-				return ec.fieldContext_Episode_downloadable(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			}
@@ -19665,8 +19613,6 @@ func (ec *executionContext) fieldContext_Lesson_defaultEpisode(ctx context.Conte
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
-			case "downloadable":
-				return ec.fieldContext_Episode_downloadable(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			}
@@ -22068,8 +22014,6 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
-			case "downloadable":
-				return ec.fieldContext_Episode_downloadable(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			}
@@ -25150,8 +25094,6 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
-			case "downloadable":
-				return ec.fieldContext_Episode_downloadable(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			}
@@ -27958,8 +27900,6 @@ func (ec *executionContext) fieldContext_Season_defaultEpisode(ctx context.Conte
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
-			case "downloadable":
-				return ec.fieldContext_Episode_downloadable(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			}
@@ -30751,8 +30691,6 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(ctx context.Context
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
-			case "downloadable":
-				return ec.fieldContext_Episode_downloadable(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			}
@@ -32268,6 +32206,50 @@ func (ec *executionContext) fieldContext_Stream_type(ctx context.Context, field 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type StreamType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Stream_downloadable(ctx context.Context, field graphql.CollectedField, obj *model.Stream) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Stream_downloadable(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Downloadable, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Stream_downloadable(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Stream",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -35135,8 +35117,6 @@ func (ec *executionContext) fieldContext_VideoTask_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
-			case "downloadable":
-				return ec.fieldContext_Episode_downloadable(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			}
@@ -40712,11 +40692,6 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "downloadable":
-			out.Values[i] = ec._Episode_downloadable(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "next":
 			field := field
 
@@ -46609,6 +46584,11 @@ func (ec *executionContext) _Stream(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "type":
 			out.Values[i] = ec._Stream_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "downloadable":
+			out.Values[i] = ec._Stream_downloadable(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

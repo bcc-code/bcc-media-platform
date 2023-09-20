@@ -43,7 +43,6 @@ SELECT e.id,
        audience,
        content_type,
        timedmetadata_from_asset,
-       assets.encoding_version = 'btv'                                           as downloadable,
        (SELECT array_agg(id) FROM timedmetadata WHERE episode_id = e.id)::uuid[] AS timedmetadata_ids
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
@@ -102,7 +101,6 @@ SELECT e.id,
        audience,
        content_type,
        timedmetadata_from_asset,
-       assets.encoding_version = 'btv'                                         as downloadable,
        (SELECT array_agg(id)
         FROM timedmetadata md
         WHERE (timedmetadata_from_asset AND md.asset_id = e.asset_id)

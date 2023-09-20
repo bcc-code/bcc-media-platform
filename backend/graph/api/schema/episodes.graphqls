@@ -49,8 +49,6 @@ type Episode {
     shareRestriction: ShareRestriction! @goField(forceResolver: true)
     inMyList: Boolean! @goField(forceResolver: true)
 
-    downloadable: Boolean!
-
     """
     Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
     """
@@ -95,4 +93,5 @@ type Stream {
     audioLanguages: [Language!]!
     subtitleLanguages: [Language!]!
     type: StreamType!
+    downloadable: Boolean!
 }

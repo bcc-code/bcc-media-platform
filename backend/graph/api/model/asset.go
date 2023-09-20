@@ -91,5 +91,6 @@ func StreamFrom(_ context.Context, signer signatureProvider, cdn cdnConfig, stre
 		AudioLanguages:    stream.AudioLanguages,
 		SubtitleLanguages: stream.SubtitleLanguages,
 		Type:              StreamType(stream.Type),
+		Downloadable:      stream.Service == "mediapackage",
 	}, nil
 }
