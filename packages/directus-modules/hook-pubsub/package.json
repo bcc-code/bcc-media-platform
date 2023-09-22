@@ -10,7 +10,7 @@
 	],
 	"directus:extension": {
 		"type": "hook",
-		"path": "../../../cms/extensions/hooks/pubsub/index.js",
+		"path": "../../../cms/extensions/hooks/pubsub/index.cjs",
 		"source": "src/index.ts",
 		"host": "^9.26.0"
 	},
@@ -20,15 +20,15 @@
 		"link": "directus-extension link"
 	},
 	"devDependencies": {
-		"@directus/extensions-sdk": "^9.26.0",
+		"@directus/extensions-sdk": "^10.1.10",
 		"@types/node": "^20.6.3",
 		"@types/uuid": "^9.0.4",
 		"typescript": "^5.2.2"
 	},
 	"dependencies": {
-		"@directus/types": "^9.26.0",
-		"@google-cloud/pubsub": "^3.7.5",
-		"cloudevents": "^7.0.2"
+		"@directus/types": "^10.1.6",
+		"@google-cloud/pubsub": "^4.0.6",
+		"cloudevents": "^8.0.0"
 	},
 	"peerDependencies": {
 		"axios": "^1.4.0"

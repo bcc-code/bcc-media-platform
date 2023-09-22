@@ -10,9 +10,9 @@
     ],
     "directus:extension": {
         "type": "endpoint",
-        "path": "../../../cms/extensions/endpoints/tools/index.js",
+        "path": "../../../cms/extensions/endpoints/tools/index.cjs",
         "source": "src/index.ts",
-        "host": "^9.26.0"
+        "host": "^10.0.0"
     },
     "scripts": {
         "build": "directus-extension build",
@@ -20,7 +20,7 @@
         "link": "directus-extension link"
     },
     "devDependencies": {
-        "@directus/extensions-sdk": "^9.26.0",
+        "@directus/extensions-sdk": "^10.1.10",
         "@types/node": "^20.6.3",
         "typescript": "^5.2.2"
     },
@@ -29,7 +29,7 @@
         "axios": "^1.4.0"
     },
     "dependencies": {
-        "@google-cloud/pubsub": "^3.7.5",
-        "cloudevents": "^7.0.2"
+        "@google-cloud/pubsub": "^4.0.6",
+        "cloudevents": "^8.0.0"
     }
 }
