@@ -18,7 +18,7 @@
 	},
 	"devDependencies": {
 		"@directus/extensions-sdk": "^9.26.0",
-		"typescript": "^5.1.6",
+		"typescript": "^5.2.2",
 		"vue": "^3.3.4"
 	},
 	"dependencies": {

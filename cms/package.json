@@ -10,12 +10,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "directus": "^10.5.2",
+    "directus": "^10.6.2",
     "knex": "^2.5.1",
-    "pg": "^8.11.2"
+    "pg": "^8.11.3"
   },
   "devDependencies": {
-    "@types/js-yaml": "^4.0.5",
+    "@types/js-yaml": "^4.0.6",
     "js-yaml": "^4.1.0",
     "ts-node": "^10.9.1"
   }

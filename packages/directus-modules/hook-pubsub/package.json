@@ -21,13 +21,13 @@
 	},
 	"devDependencies": {
 		"@directus/extensions-sdk": "^9.26.0",
-		"@types/node": "^20.4.9",
-		"@types/uuid": "^9.0.2",
-		"typescript": "^5.1.6"
+		"@types/node": "^20.6.3",
+		"@types/uuid": "^9.0.4",
+		"typescript": "^5.2.2"
 	},
 	"dependencies": {
 		"@directus/types": "^9.26.0",
-		"@google-cloud/pubsub": "^3.7.3",
+		"@google-cloud/pubsub": "^3.7.5",
 		"cloudevents": "^7.0.2"
 	},
 	"peerDependencies": {
