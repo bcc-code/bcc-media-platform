@@ -22,7 +22,7 @@
     },
     "dependencies": {
         "@silvermine/videojs-chromecast": "^1.4.1",
-        "graphql": "^16.6.0",
+        "graphql": "^16.8.1",
         "graphql-request": "^5.2.0",
         "ua-parser-js": "^1.0.34",
         "video.js": "^7.21.4",
