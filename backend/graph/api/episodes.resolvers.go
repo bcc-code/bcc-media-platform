@@ -190,10 +190,11 @@ func (r *episodeResolver) Chapters(ctx context.Context, obj *model.Episode) ([]*
 				title = strings.Replace(title, "{{song.title}}", song.Title.Get(languages), -1)
 			}
 		case common.ChapterTypeSpeech, common.ChapterTypeAppeal, common.ChapterTypeTestimony:
-			if !i.PersonID.Valid {
+			if len(i.PersonIDs) != 1 {
 				break
 			}
-			person, _ := r.Loaders.PersonLoader.Get(ctx, i.PersonID.UUID)
+			personID := i.PersonIDs[0]
+			person, _ := r.Loaders.PersonLoader.Get(ctx, personID)
 			if person == nil {
 				break
 			}

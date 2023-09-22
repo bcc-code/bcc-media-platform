@@ -1291,14 +1291,16 @@ type ShowsUsergroup struct {
 }
 
 type Song struct {
-	ID           uuid.UUID     `db:"id" json:"id"`
-	CollectionID uuid.NullUUID `db:"collection_id" json:"collectionId"`
-	Title        string        `db:"title" json:"title"`
+	ID           uuid.UUID `db:"id" json:"id"`
+	CollectionID uuid.UUID `db:"collection_id" json:"collectionId"`
+	Title        string    `db:"title" json:"title"`
+	Key          string    `db:"key" json:"key"`
 }
 
 type Songcollection struct {
 	ID    uuid.UUID      `db:"id" json:"id"`
 	Title null_v4.String `db:"title" json:"title"`
+	Key   string         `db:"key" json:"key"`
 }
 
 type SongcollectionsTranslation struct {
@@ -1306,6 +1308,13 @@ type SongcollectionsTranslation struct {
 	SongcollectionsID uuid.NullUUID  `db:"songcollections_id" json:"songcollectionsId"`
 	LanguagesCode     null_v4.String `db:"languages_code" json:"languagesCode"`
 	Title             null_v4.String `db:"title" json:"title"`
+}
+
+type SongsTranslation struct {
+	ID            int32     `db:"id" json:"id"`
+	SongsID       uuid.UUID `db:"songs_id" json:"songsId"`
+	LanguagesCode string    `db:"languages_code" json:"languagesCode"`
+	Title         string    `db:"title" json:"title"`
 }
 
 type StatsMembersDatum struct {
@@ -1472,6 +1481,12 @@ type TasksTranslation struct {
 	Description    null_v4.String `db:"description" json:"description"`
 }
 
+type TimedmetadataPerson struct {
+	ID              int32     `db:"id" json:"id"`
+	TimedmetadataID uuid.UUID `db:"timedmetadata_id" json:"timedmetadataId"`
+	PersonsID       uuid.UUID `db:"persons_id" json:"personsId"`
+}
+
 type TimedmetadataTranslation struct {
 	ID              int32          `db:"id" json:"id"`
 	TimedmetadataID uuid.NullUUID  `db:"timedmetadata_id" json:"timedmetadataId"`
@@ -1496,7 +1511,6 @@ type Timedmetadatum struct {
 	EpisodeID   null_v4.Int    `db:"episode_id" json:"episodeId"`
 	ChapterType null_v4.String `db:"chapter_type" json:"chapterType"`
 	SongID      uuid.NullUUID  `db:"song_id" json:"songId"`
-	PersonID    uuid.NullUUID  `db:"person_id" json:"personId"`
 	Seconds     float32        `db:"seconds" json:"seconds"`
 }
 

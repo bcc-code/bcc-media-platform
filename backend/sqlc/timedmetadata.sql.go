@@ -24,7 +24,7 @@ func (q *Queries) ClearEpisodeTimedMetadata(ctx context.Context, episodeID null_
 }
 
 const getAssetTimedMetadata = `-- name: GetAssetTimedMetadata :many
-SELECT id,
+SELECT t.id,
        status,
        user_created,
        date_created,
@@ -40,8 +40,8 @@ SELECT id,
        episode_id,
        chapter_type,
        song_id,
-       person_id
-FROM timedmetadata
+       (SELECT array_agg(p.persons_id) FROM "timedmetadata_persons" p WHERE p.timedmetadata_id = t.id)::uuid[]  AS person_ids
+FROM timedmetadata t
 WHERE asset_id = $1
 `
 
@@ -62,7 +62,7 @@ type GetAssetTimedMetadataRow struct {
 	EpisodeID   null_v4.Int    `db:"episode_id" json:"episodeId"`
 	ChapterType null_v4.String `db:"chapter_type" json:"chapterType"`
 	SongID      uuid.NullUUID  `db:"song_id" json:"songId"`
-	PersonID    uuid.NullUUID  `db:"person_id" json:"personId"`
+	PersonIds   []uuid.UUID    `db:"person_ids" json:"personIds"`
 }
 
 func (q *Queries) GetAssetTimedMetadata(ctx context.Context, assetID null_v4.Int) ([]GetAssetTimedMetadataRow, error) {
@@ -91,7 +91,7 @@ func (q *Queries) GetAssetTimedMetadata(ctx context.Context, assetID null_v4.Int
 			&i.EpisodeID,
 			&i.ChapterType,
 			&i.SongID,
-			&i.PersonID,
+			pq.Array(&i.PersonIds),
 		); err != nil {
 			return nil, err
 		}
@@ -107,40 +107,31 @@ func (q *Queries) GetAssetTimedMetadata(ctx context.Context, assetID null_v4.Int
 }
 
 const insertTimedMetadata = `-- name: InsertTimedMetadata :exec
-INSERT INTO timedmetadata (id, status, user_created, date_created, user_updated, date_updated, label, type, highlight,
-                           title, asset_id, seconds, description, episode_id, chapter_type, song_id, person_id)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-        $11, $12, $13, $14, $15, $16, $17)
+INSERT INTO timedmetadata (id, status, date_created, date_updated, label, type, highlight,
+                           title, asset_id, seconds, description, episode_id, chapter_type, song_id)
+VALUES ($1, $2, NOW(), NOW(), $3, $4, $5, $6::varchar,
+        $7, $8::real, $9::varchar, $10, $11, $12)
 `
 
 type InsertTimedMetadataParams struct {
 	ID          uuid.UUID      `db:"id" json:"id"`
 	Status      string         `db:"status" json:"status"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
 	Label       string         `db:"label" json:"label"`
 	Type        string         `db:"type" json:"type"`
 	Highlight   bool           `db:"highlight" json:"highlight"`
-	Title       null_v4.String `db:"title" json:"title"`
+	Title       string         `db:"title" json:"title"`
 	AssetID     null_v4.Int    `db:"asset_id" json:"assetId"`
 	Seconds     float32        `db:"seconds" json:"seconds"`
-	Description null_v4.String `db:"description" json:"description"`
+	Description string         `db:"description" json:"description"`
 	EpisodeID   null_v4.Int    `db:"episode_id" json:"episodeId"`
 	ChapterType null_v4.String `db:"chapter_type" json:"chapterType"`
 	SongID      uuid.NullUUID  `db:"song_id" json:"songId"`
-	PersonID    uuid.NullUUID  `db:"person_id" json:"personId"`
 }
 
 func (q *Queries) InsertTimedMetadata(ctx context.Context, arg InsertTimedMetadataParams) error {
 	_, err := q.db.ExecContext(ctx, insertTimedMetadata,
 		arg.ID,
 		arg.Status,
-		arg.UserCreated,
-		arg.DateCreated,
-		arg.UserUpdated,
-		arg.DateUpdated,
 		arg.Label,
 		arg.Type,
 		arg.Highlight,
@@ -151,7 +142,6 @@ func (q *Queries) InsertTimedMetadata(ctx context.Context, arg InsertTimedMetada
 		arg.EpisodeID,
 		arg.ChapterType,
 		arg.SongID,
-		arg.PersonID,
 	)
 	return err
 }
@@ -161,7 +151,7 @@ SELECT md.id,
        md.type,
        md.chapter_type,
        md.song_id,
-       md.person_id,
+       (SELECT array_agg(p.persons_id) FROM "timedmetadata_persons" p WHERE p.timedmetadata_id = md.id)::uuid[] AS person_ids,
        md.title                                                  AS original_title,
        md.description                                            AS original_description,
        COALESCE((SELECT json_object_agg(ts.languages_code, ts.title)
@@ -181,7 +171,7 @@ type getTimedMetadataRow struct {
 	Type                string          `db:"type" json:"type"`
 	ChapterType         null_v4.String  `db:"chapter_type" json:"chapterType"`
 	SongID              uuid.NullUUID   `db:"song_id" json:"songId"`
-	PersonID            uuid.NullUUID   `db:"person_id" json:"personId"`
+	PersonIds           []uuid.UUID     `db:"person_ids" json:"personIds"`
 	OriginalTitle       null_v4.String  `db:"original_title" json:"originalTitle"`
 	OriginalDescription null_v4.String  `db:"original_description" json:"originalDescription"`
 	Title               json.RawMessage `db:"title" json:"title"`
@@ -204,7 +194,7 @@ func (q *Queries) getTimedMetadata(ctx context.Context, ids []uuid.UUID) ([]getT
 			&i.Type,
 			&i.ChapterType,
 			&i.SongID,
-			&i.PersonID,
+			pq.Array(&i.PersonIds),
 			&i.OriginalTitle,
 			&i.OriginalDescription,
 			&i.Title,
