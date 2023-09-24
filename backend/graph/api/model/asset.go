@@ -36,7 +36,7 @@ func FileFrom(_ context.Context, signer signatureProvider, cdnDomain string, fil
 		Scheme: "https",
 	}
 
-	policy := sign.NewCannedPolicy(u.String(), time.Now().Add(time.Hour))
+	policy := sign.NewCannedPolicy(u.String(), time.Now().Add(3*time.Hour))
 
 	signed, err := signer.SignWithPolicy(u.String(), policy)
 	if err != nil {
