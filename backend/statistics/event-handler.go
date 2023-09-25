@@ -9,6 +9,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"go.opentelemetry.io/otel"
 )
@@ -81,6 +82,8 @@ func (h *Handler) HandleDirectusEvent(ctx context.Context, collection string, id
 		return h.handleSeason(ctx, intID)
 	case "episodes":
 		return h.handleEpisode(ctx, intID)
+	case "timedmetadata":
+		return h.handleTimedMetadata(ctx, id)
 	default:
 		log.L.Debug().Str("collection", collection).Msg("Cllection not suported. Skipping")
 	}
@@ -120,7 +123,7 @@ func (h *Handler) handleSeason(ctx context.Context, id int) error {
 	}
 
 	if len(seasons) == 0 {
-		// Show was deleted. Not supported yet. Log warning and return nil
+		// Season was deleted. Not supported yet. Log warning and return nil
 		log.L.Warn().Int("season id", id).Msg("Attempting to sync a deleted season. Not implemented")
 		return nil
 	}
@@ -138,12 +141,30 @@ func (h *Handler) handleEpisode(ctx context.Context, id int) error {
 
 	if len(episodes) == 0 {
 		// Show was deleted. Not supported yet. Log warning and return nil
-		log.L.Warn().Int("season id", id).Msg("Attempting to sync a deleted season. Not implemented")
+		log.L.Warn().Int("episode id", id).Msg("Attempting to sync a deleted episode. Not implemented")
 		return nil
 	}
 
 	bqEpisodes := lo.Map(episodes, EpisodeFromCommon)
 	return h.insert(ctx, bqEpisodes, "episodes")
+}
+
+func (h *Handler) handleTimedMetadata(ctx context.Context, id string) error {
+	log.L.Debug().Str("timedMetadata", id).Msg("updating timedMetadata in BQ")
+	tmUuid := utils.AsUuid(id)
+	timedMetadatas, err := h.queries.GetTimedMetadata(ctx, []uuid.UUID{tmUuid})
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	if len(timedMetadatas) == 0 {
+		// Was deleted. Not supported yet. Log warning and return nil
+		log.L.Warn().Str("timed metadata id", id).Msg("Attempting to sync a deleted timed metadata. Not implemented")
+		return nil
+	}
+
+	bqTimedMetadatas := lo.Map(timedMetadatas, TimedMetadataFromCommon)
+	return h.insert(ctx, bqTimedMetadatas, "timedmetadata")
 }
 
 func (h *Handler) HandleAnswerExportToBQ(ctx context.Context) error {

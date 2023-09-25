@@ -163,3 +163,27 @@ func EpisodeFromCommon(e common.Episode, _ int) Episode {
 		ContentType:           nullStr(e.ContentType.Ptr()),
 	}
 }
+
+type TimedMetadata struct {
+	ID          string              `json:"id"`
+	Type        string              `json:"type"`
+	Timestamp   float64             `json:"timestamp"`
+	Title       bigquery.NullString `json:"title"`
+	Description bigquery.NullString `json:"description"`
+	ChapterType bigquery.NullString `json:"chapterType"`
+	PersonIDs   string              `json:"personIds"`
+	SongID      uuid.NullUUID       `json:"songId"`
+}
+
+func TimedMetadataFromCommon(tm common.TimedMetadata, _ int) TimedMetadata {
+	return TimedMetadata{
+		ID:          tm.ID.String(),
+		Type:        tm.Type,
+		Title:       nullStr(tm.Title.GetValueOrNil(statsLanguages)),
+		Description: nullStr(tm.Description.GetValueOrNil(statsLanguages)),
+		Timestamp:   tm.Timestamp,
+		ChapterType: nullStr(&tm.ChapterType.Value),
+		PersonIDs:   asJsonString(tm.PersonIDs),
+		SongID:      tm.SongID,
+	}
+}
