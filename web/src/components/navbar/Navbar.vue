@@ -90,10 +90,10 @@
                                                     {{ l.name }}
                                                 </p>
                                                 <p
-                                                    v-if="l.english"
+                                                    v-if="l.localizedName"
                                                     class="text-gray"
                                                 >
-                                                    {{ l.english }}
+                                                    {{ l.localizedName }}
                                                 </p>
                                             </div>
                                         </MenuItem>
@@ -262,10 +262,10 @@
                                                     {{ l.name }}
                                                 </p>
                                                 <p
-                                                    v-if="l.english"
+                                                    v-if="l.localizedName"
                                                     class="text-gray"
                                                 >
-                                                    {{ l.english }}
+                                                    {{ l.localizedName }}
                                                 </p>
                                             </div>
                                         </MenuItem>

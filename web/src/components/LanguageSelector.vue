@@ -50,8 +50,8 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
                             <p class="text-base">
                                 {{ l.name }}
                             </p>
-                            <p v-if="l.english" class="text-gray">
-                                {{ l.english }}
+                            <p v-if="l.localizedName" class="text-gray">
+                                {{ l.localizedName }}
                             </p>
                         </div>
                     </MenuItem>

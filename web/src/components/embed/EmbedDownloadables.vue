@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { GetEpisodeEmbedQuery } from "@/graph/generated"
-import { getLanguages } from "@/services/language"
+import { Language, getLanguage } from "@/services/language"
 import { computed, ref } from "vue"
 import { DocumentArrowDownIcon } from "@heroicons/vue/24/outline"
 import { analytics } from "@/services/analytics"
@@ -10,18 +10,21 @@ const props = defineProps<{
     showTitle?: boolean
 }>()
 
-const langs = ref(getLanguages("en"))
-
 const languages = computed(() => {
-    const r: string[] = []
+    const langs: Language[] = []
 
     for (const f of props.episode.files) {
-        if (!r.includes(f.audioLanguage)) {
-            r.push(f.audioLanguage)
+        if (!langs.some((l) => l.code == f.audioLanguage)) {
+            langs.push(
+                getLanguage({
+                    languageCode: f.audioLanguage,
+                    currentLanguageCode: "en",
+                })
+            )
         }
     }
 
-    return r.map((i) => langs.value.find((l) => l.code === i)!).filter((i) => i)
+    return langs
 })
 
 const _language = ref<string>("")
