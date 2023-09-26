@@ -2,8 +2,6 @@ package asset
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/davecgh/go-spew/spew"
@@ -157,10 +155,10 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	}
 	assetMeta.CalculateDuration()
 
-	oldAsset, err := queries.NewestPreviousAssetByMediabankenID(ctx, assetMeta.ID)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return err
-	}
+	//oldAsset, err := queries.NewestPreviousAssetByMediabankenID(ctx, assetMeta.ID)
+	//if err != nil && !errors.Is(err, sql.ErrNoRows) {
+	//	return err
+	//}
 
 	log.L.Debug().Msg("Start processing JSON")
 	// Calculate the base path on the ingest S3 bucket
@@ -175,28 +173,28 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	// Prepare to copy the old files. Because the new files get the same destination,
 	// they will replace the copy instructions and we will not unnecessarily copy old files
 	// that will just get replaced
-	log.L.Debug().Msg("Prepare to copy old files")
-	if oldAsset.ID != 0 {
-		res, err := s3client.ListObjectsV2(ctx, &s3.ListObjectsV2Input{
-			Bucket: config.GetStorageBucket(),
-			Prefix: aws.String(oldAsset.MainStoragePath.String),
-		})
-
-		if err != nil {
-			return merry.Wrap(err)
-		}
-
-		for _, x := range res.Contents {
-			key := strings.Replace(*x.Key, oldAsset.MainStoragePath.String, storagePrefix, 1)
-			coi := &s3.CopyObjectInput{
-				Bucket:     config.GetStorageBucket(),
-				Key:        aws.String(key),
-				CopySource: aws.String(path.Join(*config.GetStorageBucket(), *x.Key)),
-			}
-
-			filesToCopy[*coi.Key] = coi
-		}
-	}
+	//log.L.Debug().Msg("Prepare to copy old files")
+	//if oldAsset.ID != 0 {
+	//	res, err := s3client.ListObjectsV2(ctx, &s3.ListObjectsV2Input{
+	//		Bucket: config.GetStorageBucket(),
+	//		Prefix: aws.String(oldAsset.MainStoragePath.String),
+	//	})
+	//
+	//	if err != nil {
+	//		return merry.Wrap(err)
+	//	}
+	//
+	//	for _, x := range res.Contents {
+	//		key := strings.Replace(*x.Key, oldAsset.MainStoragePath.String, storagePrefix, 1)
+	//		coi := &s3.CopyObjectInput{
+	//			Bucket:     config.GetStorageBucket(),
+	//			Key:        aws.String(key),
+	//			CopySource: aws.String(path.Join(*config.GetStorageBucket(), *x.Key)),
+	//		}
+	//
+	//		filesToCopy[*coi.Key] = coi
+	//	}
+	//}
 
 	// Create BASE asset
 	assetID, err := queries.InsertAsset(ctx, sqlc.InsertAssetParams{
