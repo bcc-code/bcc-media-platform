@@ -1291,11 +1291,10 @@ type ShowsUsergroup struct {
 }
 
 type Song struct {
-	ID           uuid.UUID   `db:"id" json:"id"`
-	CollectionID uuid.UUID   `db:"collection_id" json:"collectionId"`
-	Title        string      `db:"title" json:"title"`
-	Key          string      `db:"key" json:"key"`
-	Test         null_v4.Int `db:"test" json:"test"`
+	ID           uuid.UUID `db:"id" json:"id"`
+	CollectionID uuid.UUID `db:"collection_id" json:"collectionId"`
+	Title        string    `db:"title" json:"title"`
+	Key          string    `db:"key" json:"key"`
 }
 
 type Songcollection struct {

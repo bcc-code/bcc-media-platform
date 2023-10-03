@@ -215,7 +215,7 @@ func (q *Queries) getPhrases(ctx context.Context, ids []string) ([]getPhrasesRow
 }
 
 const getSongs = `-- name: getSongs :many
-SELECT id, collection_id, title, key, test
+SELECT id, collection_id, title, key
 FROM songs
 WHERE id = ANY ($1::uuid[])
 `
@@ -234,7 +234,6 @@ func (q *Queries) getSongs(ctx context.Context, ids []uuid.UUID) ([]Song, error)
 			&i.CollectionID,
 			&i.Title,
 			&i.Key,
-			&i.Test,
 		); err != nil {
 			return nil, err
 		}
