@@ -8,6 +8,7 @@ import (
 	"gopkg.in/guregu/null.v4"
 	"net/url"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -271,7 +272,8 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 	if assetMeta.ChaptersFile != "" {
 		var chapters []Chapter
-		err = readJSONFromS3(ctx, s3client, config.GetIngestBucket(), assetMeta.ChaptersFile, &chapters)
+		chaptersPath := filepath.Join(assetMeta.BasePath, assetMeta.ChaptersFile)
+		err = readJSONFromS3(ctx, s3client, config.GetIngestBucket(), chaptersPath, &chapters)
 		if err != nil {
 			return merry.Wrap(err)
 		}
