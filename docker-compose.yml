@@ -12,8 +12,8 @@ services:
     ports:
     - "5432:5432/tcp"
     environment:
-    - POSTGRES_USER=btv
-    - POSTGRES_PASSWORD=btv123
+    - POSTGRES_USER=${PGUSER}
+    - POSTGRES_PASSWORD=${PGPASSWORD}
     - POSTGRES_HOST_AUTH_METHOD=trust
   redis:
     image: redis
