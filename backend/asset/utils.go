@@ -2,6 +2,8 @@ package asset
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -12,10 +14,11 @@ func getOrInsertSongID(ctx context.Context, queries *sqlc.Queries, collectionKey
 		CollectionKey: collectionKey,
 		SongKey:       songKey,
 	})
-	if err != nil {
+	noRows := errors.Is(err, sql.ErrNoRows)
+	if err != nil && !noRows {
 		return songID, err
 	}
-	if songID == uuid.Nil {
+	if songID == uuid.Nil || noRows {
 		songID = uuid.New()
 
 		collectionID, err := getOrInsertSongCollectionID(ctx, queries, collectionKey)
@@ -37,10 +40,11 @@ func getOrInsertSongID(ctx context.Context, queries *sqlc.Queries, collectionKey
 
 func getOrInsertSongCollectionID(ctx context.Context, queries *sqlc.Queries, key string) (uuid.UUID, error) {
 	collectionID, err := queries.GetCollectionIDFromKey(ctx, key)
-	if err != nil {
+	noRows := errors.Is(err, sql.ErrNoRows)
+	if err != nil && !noRows {
 		return collectionID, err
 	}
-	if collectionID == uuid.Nil {
+	if collectionID == uuid.Nil || noRows {
 		collectionID = uuid.New()
 		err = queries.InsertSongCollection(ctx, sqlc.InsertSongCollectionParams{
 			ID:  collectionID,
