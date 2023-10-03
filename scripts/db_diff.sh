@@ -32,8 +32,8 @@ fi
 MIGRATIONNAME=$1
 
 ## IF YOU CHANGE THIS YOU ALSO NEED TO CHANGE ./pg-diff-config.json
-ACTIVEDB=btv
-TEMPDB=btv2
+ACTIVEDB=${LOCALDB}
+TEMPDB=temporary
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 cd $script_dir/../migrations
@@ -52,11 +52,11 @@ if [ -z "${PGPASSWORD:-}" ]; then
 fi
 
 ## RESET THE TEMPDB
-psql -h localhost -U btv -c "DROP DATABASE IF EXISTS $TEMPDB"
-psql -h localhost -U btv -c "CREATE DATABASE $TEMPDB"
+psql -h localhost -U ${PGUSER} -c "DROP DATABASE IF EXISTS $TEMPDB"
+psql -h localhost -U ${PGUSER} -c "CREATE DATABASE $TEMPDB"
 
 ## RUN EXISTING MIGRATIONS ON TEMP DB
-goose postgres "postgres://btv@localhost:5432/${TEMPDB}?sslmode=disable" up
+goose postgres "postgres://${PGUSER}@localhost:5432/${TEMPDB}?sslmode=disable" up
 
 ## COMPARE UP
 pg-diff -c up temp_up
@@ -100,7 +100,7 @@ echo    # (optional) move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
 	echo "Ok, adding entry."
-	psql -h localhost -U btv -c "INSERT INTO goose_db_version (version_id, is_applied, tstamp) VALUES (${NEW_MIGRATION_NO}, true, NOW());"
+	psql -h localhost -U ${PGUSER} -c "INSERT INTO goose_db_version (version_id, is_applied, tstamp) VALUES (${NEW_MIGRATION_NO}, true, NOW());"
 else
 	echo "Skipping"
 fi

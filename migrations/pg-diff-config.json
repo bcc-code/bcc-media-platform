@@ -3,16 +3,16 @@
         "sourceClient": {
             "host": "localhost",
             "port": 5432,
-            "database": "btv",
-            "user": "btv",
-            "applicationName": "btv"
+            "database": "bccm",
+            "user": "bccm",
+            "applicationName": "bccm"
         },
         "targetClient": {
             "host": "localhost",
             "port": 5432,
-            "database": "btv2",
-            "user": "btv",
-            "applicationName": "btv2"
+            "database": "temporary",
+            "user": "bccm",
+            "applicationName": "temporary"
         },
         "compareOptions": {
             "author": "Migrations Script",
@@ -49,16 +49,16 @@
         "sourceClient": {
             "host": "localhost",
             "port": 5432,
-            "database": "btv2",
-            "user": "btv",
-            "applicationName": "btv"
+            "database": "temporary",
+            "user": "bccm",
+            "applicationName": "temporary"
         },
         "targetClient": {
             "host": "localhost",
             "port": 5432,
-            "database": "btv",
-            "user": "btv",
-            "applicationName": "btv2"
+            "database": "bccm",
+            "user": "bccm",
+            "applicationName": "bccm"
         },
         "compareOptions": {
             "author": "Migrations Script",
