@@ -97,6 +97,7 @@
         "title": "Title",
         "subject": "Subject",
         "content": "Content",
+        "faq": "FAQ",
         "describeIssue": "Describe your issue in detail."
     },
     "study": {

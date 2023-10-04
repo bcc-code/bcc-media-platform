@@ -175,6 +175,7 @@ export enum CardSectionSize {
 export type Chapter = {
   description?: Maybe<Scalars['String']>;
   id: Scalars['UUID'];
+  image?: Maybe<Scalars['String']>;
   start: Scalars['Int'];
   title: Scalars['String'];
 };
@@ -1323,6 +1324,7 @@ export enum Status {
 
 export type Stream = {
   audioLanguages: Array<Scalars['Language']>;
+  downloadable: Scalars['Boolean'];
   id: Scalars['ID'];
   subtitleLanguages: Array<Scalars['Language']>;
   type: StreamType;
@@ -1564,6 +1566,11 @@ export type GetEpisodeEmbedQueryVariables = Exact<{
 
 
 export type GetEpisodeEmbedQuery = { episode: { id: string, files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, size: number, resolution?: string | null }> } };
+
+export type GetFaqQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetFaqQuery = { faq: { categories?: { items: Array<{ title: string, questions?: { items: Array<{ question: string, answer: string }> } | null }> } | null } };
 
 export type SendEpisodeFeedbackMutationVariables = Exact<{
   episodeId: Scalars['ID'];
@@ -2219,6 +2226,27 @@ export const GetEpisodeEmbedDocument = gql`
 
 export function useGetEpisodeEmbedQuery(options: Omit<Urql.UseQueryArgs<never, GetEpisodeEmbedQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetEpisodeEmbedQuery>({ query: GetEpisodeEmbedDocument, ...options });
+};
+export const GetFaqDocument = gql`
+    query getFAQ {
+  faq {
+    categories(first: 100) {
+      items {
+        title
+        questions(first: 100) {
+          items {
+            question
+            answer
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+export function useGetFaqQuery(options: Omit<Urql.UseQueryArgs<never, GetFaqQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetFaqQuery>({ query: GetFaqDocument, ...options });
 };
 export const SendEpisodeFeedbackDocument = gql`
     mutation SendEpisodeFeedback($episodeId: ID!, $rating: Int!, $message: String) {

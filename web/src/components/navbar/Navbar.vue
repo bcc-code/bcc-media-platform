@@ -112,7 +112,7 @@
                                     class="flex hover:scale-110 transition rounded-md text-base font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
                                 >
                                     <img
-                                        class="w-8 h-8 rounded rounded-full overflow-hidden stroke-primary"
+                                        class="w-8 h-8 rounded-full overflow-hidden stroke-primary"
                                         v-if="user.picture"
                                         :src="user.picture"
                                     />
@@ -161,6 +161,26 @@
                                                                     : "login")
                                                         )
                                                     }}
+                                                </p>
+                                            </button>
+                                        </MenuItem>
+                                        <MenuItem
+                                            v-slot="{ active }"
+                                            @click="showFAQ = true"
+                                        >
+                                            <button
+                                                :class="[
+                                                    active
+                                                        ? 'bg-violet-500 text-white'
+                                                        : 'text-gray-900',
+                                                    'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
+                                                ]"
+                                            >
+                                                <QuestionIcon
+                                                    class="h-6"
+                                                ></QuestionIcon>
+                                                <p class="ml-2 text-base">
+                                                    {{ $t("support.faq") }}
                                                 </p>
                                             </button>
                                         </MenuItem>
@@ -351,6 +371,26 @@
                                         </MenuItem> -->
                                         <MenuItem
                                             v-slot="{ active }"
+                                            @click="showFAQ = true"
+                                        >
+                                            <button
+                                                :class="[
+                                                    active
+                                                        ? 'bg-violet-500 text-white'
+                                                        : 'text-gray-900',
+                                                    'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
+                                                ]"
+                                            >
+                                                <QuestionIcon
+                                                    class="h-6"
+                                                ></QuestionIcon>
+                                                <p class="ml-2 text-base">
+                                                    {{ $t("support.faq") }}
+                                                </p>
+                                            </button>
+                                        </MenuItem>
+                                        <MenuItem
+                                            v-slot="{ active }"
                                             v-if="authenticated"
                                             @click="showContactForm = true"
                                         >
@@ -394,6 +434,7 @@
             </div>
         </div>
         <ContactForm v-model:show="showContactForm" />
+        <FAQ v-model:show="showFAQ" />
     </Disclosure>
 </template>
 <script lang="ts" setup>
@@ -421,6 +462,7 @@ import SearchInput from "../SearchInput.vue"
 import { useSearch } from "@/utils/search"
 import { useGetCalendarStatusQuery, useGetMeQuery } from "@/graph/generated"
 import ContactForm from "@/components/support/ContactForm.vue"
+import FAQ from "../support/FAQ.vue"
 
 const { data: meQuery, fetching, executeQuery } = useGetMeQuery()
 
@@ -492,4 +534,6 @@ const { data } = useGetCalendarStatusQuery({
         day: new Date(),
     },
 })
+
+const showFAQ = ref(false)
 </script>

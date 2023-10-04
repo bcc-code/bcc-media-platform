@@ -1,0 +1,15 @@
+query getFAQ {
+    faq {
+        categories(first: 100) {
+            items {
+                title
+                questions(first: 100) {
+                    items {
+                        question
+                        answer
+                    }
+                }
+            }
+        }
+    }
+}
