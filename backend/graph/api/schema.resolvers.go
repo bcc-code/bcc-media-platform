@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"gopkg.in/guregu/null.v4"
 	"net/url"
 	"strconv"
 	"time"
@@ -234,6 +235,8 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string, context *mod
 	if context != nil {
 		ginCtx.Set(episodeContextKey, common.EpisodeContext{
 			CollectionID: utils.AsNullInt(context.CollectionID),
+			Cursor:       null.StringFromPtr(context.Cursor),
+			Shuffle:      null.BoolFromPtr(context.Shuffle),
 		})
 	}
 	if intID, err := strconv.ParseInt(id, 10, 64); err == nil {
