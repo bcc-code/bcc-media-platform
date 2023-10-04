@@ -10,7 +10,6 @@ import (
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
 	"math/rand"
-	"strconv"
 )
 
 func (r *episodeResolver) getEpisodeContext(ctx context.Context, episodeID string) (common.EpisodeContext, error) {
@@ -80,45 +79,40 @@ func (r *episodeResolver) getEpisodeQueue(ctx context.Context, episodeID string)
 	return episodeIDs, nil
 }
 
-func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string) (*utils.Cursor, error) {
+func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string) (*utils.Cursor[int], error) {
 	episodeContext, err := r.getEpisodeContext(ctx, episodeID)
 	if err != nil {
 		return nil, err
 	}
-	var cursor *utils.Cursor
+	var cursor *utils.Cursor[int]
 	if episodeContext.Cursor.Valid {
-		cursor, err = utils.ParseCursor(episodeContext.Cursor.String)
+		cursor, err = utils.ParseCursor[int](episodeContext.Cursor.String)
 		if err != nil {
 			return nil, err
 		}
-		cursor = cursor.CursorFor(episodeID)
+		cursor = cursor.CursorFor(utils.AsInt(episodeID))
 	}
 	if cursor == nil {
 		episodeIDs, err := r.getEpisodeQueue(ctx, episodeID)
 		if err != nil {
 			return nil, err
 		}
-		ids := lo.Map(episodeIDs, func(i int, _ int) string { return strconv.Itoa(i) })
 		if episodeContext.Shuffle.Valid && episodeContext.Shuffle.Bool {
-			ids = lo.Shuffle(ids)
+			episodeIDs = lo.Shuffle(episodeIDs)
 		}
-		cursor = utils.ToCursor(ids, episodeID)
+		cursor = utils.ToCursor(episodeIDs, utils.AsInt(episodeID))
 	}
 	return cursor, nil
 }
 
 func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string) ([]int, error) {
-	episodeIDs, err := r.getEpisodeQueue(ctx, episodeID)
+	cursor, err := r.getEpisodeCursor(ctx, episodeID)
 	if err != nil {
 		return nil, err
 	}
-	// Get the index and try to get the next episodeID in the array
-	index := lo.IndexOf(episodeIDs, utils.AsInt(episodeID))
-	if index < 0 {
-		return nil, nil
-	}
-	// If the episode is the last episode in the show, look for alternative episodes
-	if index >= len(episodeIDs)-1 {
+
+	next := cursor.NextCursor()
+	if next == nil {
 		ids, err := r.getNextFromShowCollection(ctx, episodeID)
 		if err != nil {
 			return nil, err
@@ -128,7 +122,7 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string)
 		}
 		return r.getRelatedEpisodes(ctx, episodeID)
 	}
-	return []int{episodeIDs[index+1]}, nil
+	return []int{next.Current()}, nil
 }
 
 func (r *episodeResolver) getNextFromShowCollection(ctx context.Context, episodeID string) ([]int, error) {
