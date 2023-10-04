@@ -43,6 +43,8 @@ type LegacyIDLookup {
 
 input EpisodeContext {
     collectionId: String
+    shuffle: Boolean
+    cursor: String
 }
 
 type RedirectLink {
