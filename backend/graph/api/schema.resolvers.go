@@ -7,7 +7,6 @@ package graph
 import (
 	"context"
 	"fmt"
-	"gopkg.in/guregu/null.v4"
 	"net/url"
 	"strconv"
 	"time"
@@ -29,6 +28,7 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/samber/lo"
+	null "gopkg.in/guregu/null.v4"
 )
 
 // Application is the resolver for the application field.

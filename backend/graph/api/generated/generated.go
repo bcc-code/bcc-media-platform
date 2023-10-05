@@ -280,7 +280,7 @@ type ComplexityRoot struct {
 		LegacyProgramID       func(childComplexity int) int
 		Lessons               func(childComplexity int, first *int, offset *int) int
 		Locked                func(childComplexity int) int
-		Next                  func(childComplexity int) int
+		Next                  func(childComplexity int, limit *int) int
 		Number                func(childComplexity int) int
 		ProductionDate        func(childComplexity int) int
 		ProductionDateInTitle func(childComplexity int) int
@@ -1017,7 +1017,7 @@ type EpisodeResolver interface {
 	Lessons(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.LessonPagination, error)
 	ShareRestriction(ctx context.Context, obj *model.Episode) (model.ShareRestriction, error)
 	InMyList(ctx context.Context, obj *model.Episode) (bool, error)
-	Next(ctx context.Context, obj *model.Episode) ([]*model.Episode, error)
+	Next(ctx context.Context, obj *model.Episode, limit *int) ([]*model.Episode, error)
 	Cursor(ctx context.Context, obj *model.Episode) (string, error)
 }
 type EpisodeCalendarEntryResolver interface {
@@ -2073,7 +2073,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Episode.Next(childComplexity), true
+		args, err := ec.field_Episode_next_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Episode.Next(childComplexity, args["limit"].(*int)), true
 
 	case "Episode.number":
 		if e.complexity.Episode.Number == nil {
@@ -5842,7 +5847,7 @@ type Episode {
     """
     Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
     """
-    next: [Episode!]! @goField(forceResolver: true)
+    next(limit: Int): [Episode!]! @goField(forceResolver: true)
     cursor: String! @goField(forceResolver: true)
 }
 
@@ -7030,6 +7035,21 @@ func (ec *executionContext) field_Episode_lessons_args(ctx context.Context, rawA
 		}
 	}
 	args["offset"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Episode_next_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg0
 	return args, nil
 }
 
@@ -14320,7 +14340,7 @@ func (ec *executionContext) _Episode_next(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Episode().Next(rctx, obj)
+		return ec.resolvers.Episode().Next(rctx, obj, fc.Args["limit"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14420,6 +14440,17 @@ func (ec *executionContext) fieldContext_Episode_next(ctx context.Context, field
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Episode_next_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }

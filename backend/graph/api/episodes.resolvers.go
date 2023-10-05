@@ -393,8 +393,8 @@ func (r *episodeResolver) InMyList(ctx context.Context, obj *model.Episode) (boo
 }
 
 // Next is the resolver for the next field.
-func (r *episodeResolver) Next(ctx context.Context, obj *model.Episode) ([]*model.Episode, error) {
-	next, err := r.getNextEpisodes(ctx, obj.ID)
+func (r *episodeResolver) Next(ctx context.Context, obj *model.Episode, limit *int) ([]*model.Episode, error) {
+	next, err := r.getNextEpisodes(ctx, obj.ID, limit)
 	if err != nil {
 		return nil, err
 	}

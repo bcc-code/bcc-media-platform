@@ -80,32 +80,34 @@ func (r *episodeResolver) getEpisodeQueue(ctx context.Context, episodeID string)
 }
 
 func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string) (*utils.Cursor[int], error) {
-	episodeContext, err := r.getEpisodeContext(ctx, episodeID)
-	if err != nil {
-		return nil, err
-	}
-	var cursor *utils.Cursor[int]
-	if episodeContext.Cursor.Valid {
-		cursor, err = utils.ParseCursor[int](episodeContext.Cursor.String)
+	return utils.GetOrSetContextWithLock(ctx, "cursor-lock-"+episodeID, func() (*utils.Cursor[int], error) {
+		episodeContext, err := r.getEpisodeContext(ctx, episodeID)
 		if err != nil {
 			return nil, err
 		}
-		cursor = cursor.CursorFor(utils.AsInt(episodeID))
-	}
-	if cursor == nil {
-		episodeIDs, err := r.getEpisodeQueue(ctx, episodeID)
-		if err != nil {
-			return nil, err
+		var cursor *utils.Cursor[int]
+		if episodeContext.Cursor.Valid {
+			cursor, err = utils.ParseCursor[int](episodeContext.Cursor.String)
+			if err != nil {
+				return nil, err
+			}
+			cursor = cursor.CursorFor(utils.AsInt(episodeID))
 		}
-		if episodeContext.Shuffle.Valid && episodeContext.Shuffle.Bool {
-			episodeIDs = lo.Shuffle(episodeIDs)
+		if cursor == nil {
+			episodeIDs, err := r.getEpisodeQueue(ctx, episodeID)
+			if err != nil {
+				return nil, err
+			}
+			if episodeContext.Shuffle.Valid && episodeContext.Shuffle.Bool {
+				episodeIDs = lo.Shuffle(episodeIDs)
+			}
+			cursor = utils.ToCursor(episodeIDs, utils.AsInt(episodeID))
 		}
-		cursor = utils.ToCursor(episodeIDs, utils.AsInt(episodeID))
-	}
-	return cursor, nil
+		return cursor, nil
+	})
 }
 
-func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string) ([]int, error) {
+func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string, limit *int) ([]int, error) {
 	cursor, err := r.getEpisodeCursor(ctx, episodeID)
 	if err != nil {
 		return nil, err
@@ -122,7 +124,13 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string)
 		}
 		return r.getRelatedEpisodes(ctx, episodeID)
 	}
-	return []int{next.Current()}, nil
+
+	l := 1
+	if limit != nil {
+		l = *limit
+	}
+
+	return cursor.NextKeys(l), nil
 }
 
 func (r *episodeResolver) getNextFromShowCollection(ctx context.Context, episodeID string) ([]int, error) {

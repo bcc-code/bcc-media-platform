@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"sync"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/gin-gonic/gin"
@@ -29,4 +30,42 @@ func GinContextToContextMiddleware() gin.HandlerFunc {
 		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	}
+}
+
+// GetOrSetContextWithLock gets or sets a value in the context with a lock
+func GetOrSetContextWithLock[T any](ctx context.Context, key string, factory func() (*T, error)) (*T, error) {
+	ginCtx, err := GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	v, ok := ginCtx.Get(key)
+	if ok {
+		r, ok := v.(*T)
+		if !ok {
+			return nil, merry.Errorf("could not cast value to type %T", r)
+		}
+		return r, nil
+	}
+	lock, ok := ginCtx.Get("context-lock-" + key)
+	if !ok {
+		lock = &sync.Mutex{}
+		ginCtx.Set("context-lock-"+key, lock)
+	}
+	lock.(*sync.Mutex).Lock()
+	defer lock.(*sync.Mutex).Unlock()
+
+	v, ok = ginCtx.Get(key)
+	if ok {
+		r, ok := v.(*T)
+		if !ok {
+			return nil, merry.Errorf("could not cast value to type %T", r)
+		}
+		return r, nil
+	}
+	r, err := factory()
+	if err != nil {
+		return nil, err
+	}
+	ginCtx.Set(key, r)
+	return r, nil
 }
