@@ -12,6 +12,14 @@ interface Pagination {
     offset: Int!
 }
 
+interface Item {
+    id: ID!
+    title: String!
+    description: String
+    image(style: ImageStyle): String
+}
+
+
 scalar Language
 scalar Date
 scalar UUID

@@ -151,6 +151,9 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		EpisodeIDFromLegacyIDLoader:        loaders.NewConversionLoader(ctx, queries.GetEpisodeIDsForLegacyIDs, loaders.WithName("episode-legacyid")),
 		LinkLoader:                         loaders.New(ctx, queries.GetLinks),
 		EventLoader:                        loaders.New(ctx, queries.GetEvents),
+		PlaylistLoader: loaders.New(ctx, queries.GetPlaylists, loaders.WithName("playlist-loader"), loaders.WithKeyFunc(func(i common.Playlist) uuid.UUID {
+			return i.ID
+		})),
 
 		FilesLoader: loaders.NewListLoader(ctx, queries.GetFilesForEpisodes, func(row common.File) int {
 			return row.EpisodeID

@@ -30,6 +30,8 @@ func preloadLoaders(ctx context.Context, loaders *common.BatchLoaders, entries [
 			loaders.StudyTopicLoader.Load(ctx, utils.AsUuid(e.ID))
 		case "links":
 			loaders.LinkLoader.Load(ctx, utils.AsInt(e.ID))
+		case "playlists":
+			loaders.PlaylistLoader.Load(ctx, utils.AsUuid(e.ID))
 		}
 	}
 }
@@ -192,6 +194,16 @@ func mapCollectionEntriesToSectionItems(ctx context.Context, ls *common.BatchLoa
 				continue
 			}
 			item = model.GameSectionItemFrom(ctx, i, e.Sort, imageStyle)
+		case "playlists":
+			i, err := ls.PlaylistLoader.Get(ctx, utils.AsUuid(e.ID))
+			if err != nil {
+				return nil, err
+			}
+			if i == nil {
+				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				continue
+			}
+			item = model.PlaylistSectionItemFrom(ctx, i, e.Sort, imageStyle)
 		}
 		if item != nil {
 			items = append(items, item)

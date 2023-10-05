@@ -31,6 +31,7 @@ type BatchLoaders struct {
 	EpisodeIDFromLegacyIDLoader        *loaders.Loader[int, *int]
 	EpisodeIDFromLegacyProgramIDLoader *loaders.Loader[int, *int]
 	LinkLoader                         *loaders.Loader[int, *Link]
+	PlaylistLoader                     *loaders.Loader[uuid.UUID, *Playlist]
 
 	FilesLoader   *loaders.Loader[int, []*File]
 	StreamsLoader *loaders.Loader[int, []*Stream]

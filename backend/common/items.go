@@ -486,3 +486,12 @@ type Phrase struct {
 	Key   string
 	Value LocaleString
 }
+
+// Playlist is a collection of items
+type Playlist struct {
+	ID           uuid.UUID
+	CollectionID null.Int
+	Title        LocaleString
+	Description  LocaleString
+	Images       Images
+}

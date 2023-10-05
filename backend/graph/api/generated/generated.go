@@ -67,6 +67,7 @@ type ResolverRoot interface {
 	MessageSection() MessageSectionResolver
 	MutationRoot() MutationRootResolver
 	Page() PageResolver
+	Playlist() PlaylistResolver
 	PosterGridSection() PosterGridSectionResolver
 	PosterSection() PosterSectionResolver
 	PosterTask() PosterTaskResolver
@@ -579,6 +580,21 @@ type ComplexityRoot struct {
 		Page     func(childComplexity int) int
 		Sort     func(childComplexity int) int
 		Title    func(childComplexity int) int
+	}
+
+	Playlist struct {
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Image       func(childComplexity int, style *model.ImageStyle) int
+		Items       func(childComplexity int, first *int, offset *int) int
+		Title       func(childComplexity int) int
+	}
+
+	PlaylistItemPagination struct {
+		First  func(childComplexity int) int
+		Items  func(childComplexity int) int
+		Offset func(childComplexity int) int
+		Total  func(childComplexity int) int
 	}
 
 	PosterGridSection struct {
@@ -1104,6 +1120,10 @@ type PageResolver interface {
 	Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error)
 
 	Sections(ctx context.Context, obj *model.Page, first *int, offset *int) (*model.SectionPagination, error)
+}
+type PlaylistResolver interface {
+	Image(ctx context.Context, obj *model.Playlist, style *model.ImageStyle) (*string, error)
+	Items(ctx context.Context, obj *model.Playlist, first *int, offset *int) (*model.PlaylistItemPagination, error)
 }
 type PosterGridSectionResolver interface {
 	Items(ctx context.Context, obj *model.PosterGridSection, first *int, offset *int) (*model.SectionItemPagination, error)
@@ -3636,6 +3656,79 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PageItem.Title(childComplexity), true
 
+	case "Playlist.description":
+		if e.complexity.Playlist.Description == nil {
+			break
+		}
+
+		return e.complexity.Playlist.Description(childComplexity), true
+
+	case "Playlist.id":
+		if e.complexity.Playlist.ID == nil {
+			break
+		}
+
+		return e.complexity.Playlist.ID(childComplexity), true
+
+	case "Playlist.image":
+		if e.complexity.Playlist.Image == nil {
+			break
+		}
+
+		args, err := ec.field_Playlist_image_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Playlist.Image(childComplexity, args["style"].(*model.ImageStyle)), true
+
+	case "Playlist.items":
+		if e.complexity.Playlist.Items == nil {
+			break
+		}
+
+		args, err := ec.field_Playlist_items_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Playlist.Items(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+
+	case "Playlist.title":
+		if e.complexity.Playlist.Title == nil {
+			break
+		}
+
+		return e.complexity.Playlist.Title(childComplexity), true
+
+	case "PlaylistItemPagination.first":
+		if e.complexity.PlaylistItemPagination.First == nil {
+			break
+		}
+
+		return e.complexity.PlaylistItemPagination.First(childComplexity), true
+
+	case "PlaylistItemPagination.items":
+		if e.complexity.PlaylistItemPagination.Items == nil {
+			break
+		}
+
+		return e.complexity.PlaylistItemPagination.Items(childComplexity), true
+
+	case "PlaylistItemPagination.offset":
+		if e.complexity.PlaylistItemPagination.Offset == nil {
+			break
+		}
+
+		return e.complexity.PlaylistItemPagination.Offset(childComplexity), true
+
+	case "PlaylistItemPagination.total":
+		if e.complexity.PlaylistItemPagination.Total == nil {
+			break
+		}
+
+		return e.complexity.PlaylistItemPagination.Total(childComplexity), true
+
 	case "PosterGridSection.description":
 		if e.complexity.PosterGridSection.Description == nil {
 			break
@@ -5792,7 +5885,7 @@ enum ShareRestriction {
     public
 }
 
-type Episode {
+type Episode implements Item & PlaylistItem {
     id: ID!
     uuid: String!
     status: Status!
@@ -5926,7 +6019,7 @@ type FAQ {
         id: ID!
     ): Question! @goField(forceResolver: true)
 }`, BuiltIn: false},
-	{Name: "../schema/games.graphqls", Input: `type Game {
+	{Name: "../schema/games.graphqls", Input: `type Game implements Item {
     id: ID!
     title: String!
     description: String
@@ -6057,6 +6150,28 @@ type ContextCollection {
     ): SectionItemPagination @goField(forceResolver: true)
 }
 `, BuiltIn: false},
+	{Name: "../schema/playlists.graphqls", Input: `type Playlist {
+    id: ID!
+    title: String!
+    description: String
+    image(style: ImageStyle): String @goField(forceResolver: true)
+    items(first: Int, offset: Int): PlaylistItemPagination! @goField(forceResolver: true)
+}
+
+type PlaylistItemPagination implements Pagination {
+    total: Int!
+    first: Int!
+    offset: Int!
+    items: [PlaylistItem!]!
+}
+
+interface PlaylistItem implements Item {
+    id: ID!
+    title: String!
+    description: String
+    image(style: ImageStyle): String
+}
+`, BuiltIn: false},
 	{Name: "../schema/profiles.graphqls", Input: `type Profile {
     id: ID!
     name: String!
@@ -6091,6 +6206,14 @@ interface Pagination {
     first: Int!
     offset: Int!
 }
+
+interface Item {
+    id: ID!
+    title: String!
+    description: String
+    image(style: ImageStyle): String
+}
+
 
 scalar Language
 scalar Date
@@ -6286,7 +6409,7 @@ type SearchResult {
     result: [SearchResultItem!]!
 }
 `, BuiltIn: false},
-	{Name: "../schema/seasons.graphqls", Input: `type Season {
+	{Name: "../schema/seasons.graphqls", Input: `type Season implements Item {
     id: ID!
     legacyID: ID
     status: Status!
@@ -6500,7 +6623,7 @@ type PageDetailsSection implements Section {
     description: String
 }
 
-union SectionItemType = Show | Season | Episode | Page | Link | StudyTopic | Game
+union SectionItemType = Show | Season | Episode | Page | Link | StudyTopic | Game | Playlist
 
 type SectionItem {
     id: ID!
@@ -6523,7 +6646,7 @@ type SectionItemPagination implements Pagination {
     series
 }
 
-type Show {
+type Show implements Item {
     id: ID!
     legacyID: ID
     status: Status!
@@ -7769,6 +7892,45 @@ func (ec *executionContext) field_Page_image_args(ctx context.Context, rawArgs m
 }
 
 func (ec *executionContext) field_Page_sections_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Playlist_image_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.ImageStyle
+	if tmp, ok := rawArgs["style"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("style"))
+		arg0, err = ec.unmarshalOImageStyle2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐImageStyle(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["style"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Playlist_items_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *int
@@ -23629,6 +23791,428 @@ func (ec *executionContext) fieldContext_PageItem_page(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Playlist_id(ctx context.Context, field graphql.CollectedField, obj *model.Playlist) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Playlist_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Playlist_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Playlist",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Playlist_title(ctx context.Context, field graphql.CollectedField, obj *model.Playlist) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Playlist_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Playlist_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Playlist",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Playlist_description(ctx context.Context, field graphql.CollectedField, obj *model.Playlist) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Playlist_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Playlist_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Playlist",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Playlist_image(ctx context.Context, field graphql.CollectedField, obj *model.Playlist) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Playlist_image(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Playlist().Image(rctx, obj, fc.Args["style"].(*model.ImageStyle))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Playlist_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Playlist",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Playlist_image_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Playlist_items(ctx context.Context, field graphql.CollectedField, obj *model.Playlist) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Playlist_items(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Playlist().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PlaylistItemPagination)
+	fc.Result = res
+	return ec.marshalNPlaylistItemPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPlaylistItemPagination(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Playlist_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Playlist",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_PlaylistItemPagination_total(ctx, field)
+			case "first":
+				return ec.fieldContext_PlaylistItemPagination_first(ctx, field)
+			case "offset":
+				return ec.fieldContext_PlaylistItemPagination_offset(ctx, field)
+			case "items":
+				return ec.fieldContext_PlaylistItemPagination_items(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PlaylistItemPagination", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Playlist_items_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlaylistItemPagination_total(ctx context.Context, field graphql.CollectedField, obj *model.PlaylistItemPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlaylistItemPagination_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlaylistItemPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlaylistItemPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlaylistItemPagination_first(ctx context.Context, field graphql.CollectedField, obj *model.PlaylistItemPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlaylistItemPagination_first(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.First, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlaylistItemPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlaylistItemPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlaylistItemPagination_offset(ctx context.Context, field graphql.CollectedField, obj *model.PlaylistItemPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlaylistItemPagination_offset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Offset, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlaylistItemPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlaylistItemPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlaylistItemPagination_items(ctx context.Context, field graphql.CollectedField, obj *model.PlaylistItemPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlaylistItemPagination_items(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Items, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]model.PlaylistItem)
+	fc.Result = res
+	return ec.marshalNPlaylistItem2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPlaylistItemᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlaylistItemPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlaylistItemPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PosterGridSection_id(ctx context.Context, field graphql.CollectedField, obj *model.PosterGridSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PosterGridSection_id(ctx, field)
 	if err != nil {
@@ -37679,6 +38263,48 @@ func (ec *executionContext) _GridSection(ctx context.Context, sel ast.SelectionS
 	}
 }
 
+func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj model.Item) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.Episode:
+		return ec._Episode(ctx, sel, &obj)
+	case *model.Episode:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Episode(ctx, sel, obj)
+	case model.Game:
+		return ec._Game(ctx, sel, &obj)
+	case *model.Game:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Game(ctx, sel, obj)
+	case model.PlaylistItem:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PlaylistItem(ctx, sel, obj)
+	case model.Season:
+		return ec._Season(ctx, sel, &obj)
+	case *model.Season:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Season(ctx, sel, obj)
+	case model.Show:
+		return ec._Show(ctx, sel, &obj)
+	case *model.Show:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Show(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _ItemSection(ctx context.Context, sel ast.SelectionSet, obj model.ItemSection) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -37823,6 +38449,13 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._LinkPagination(ctx, sel, obj)
+	case model.PlaylistItemPagination:
+		return ec._PlaylistItemPagination(ctx, sel, &obj)
+	case *model.PlaylistItemPagination:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PlaylistItemPagination(ctx, sel, obj)
 	case model.SeasonPagination:
 		return ec._SeasonPagination(ctx, sel, &obj)
 	case *model.SeasonPagination:
@@ -37872,6 +38505,22 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._UserCollectionEntryPagination(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _PlaylistItem(ctx context.Context, sel ast.SelectionSet, obj model.PlaylistItem) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.Episode:
+		return ec._Episode(ctx, sel, &obj)
+	case *model.Episode:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Episode(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -38100,6 +38749,13 @@ func (ec *executionContext) _SectionItemType(ctx context.Context, sel ast.Select
 			return graphql.Null
 		}
 		return ec._Game(ctx, sel, obj)
+	case model.Playlist:
+		return ec._Playlist(ctx, sel, &obj)
+	case *model.Playlist:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Playlist(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -40073,7 +40729,7 @@ func (ec *executionContext) _Device(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
-var episodeImplementors = []string{"Episode", "SectionItemType", "UserCollectionEntryItem"}
+var episodeImplementors = []string{"Episode", "Item", "PlaylistItem", "SectionItemType", "UserCollectionEntryItem"}
 
 func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, obj *model.Episode) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, episodeImplementors)
@@ -41735,7 +42391,7 @@ func (ec *executionContext) _File(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
-var gameImplementors = []string{"Game", "SectionItemType"}
+var gameImplementors = []string{"Game", "Item", "SectionItemType"}
 
 func (ec *executionContext) _Game(ctx context.Context, sel ast.SelectionSet, obj *model.Game) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, gameImplementors)
@@ -43732,6 +44388,175 @@ func (ec *executionContext) _PageItem(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var playlistImplementors = []string{"Playlist", "SectionItemType"}
+
+func (ec *executionContext) _Playlist(ctx context.Context, sel ast.SelectionSet, obj *model.Playlist) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, playlistImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Playlist")
+		case "id":
+			out.Values[i] = ec._Playlist_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "title":
+			out.Values[i] = ec._Playlist_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "description":
+			out.Values[i] = ec._Playlist_description(ctx, field, obj)
+		case "image":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Playlist_image(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "items":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Playlist_items(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var playlistItemPaginationImplementors = []string{"PlaylistItemPagination", "Pagination"}
+
+func (ec *executionContext) _PlaylistItemPagination(ctx context.Context, sel ast.SelectionSet, obj *model.PlaylistItemPagination) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, playlistItemPaginationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PlaylistItemPagination")
+		case "total":
+			out.Values[i] = ec._PlaylistItemPagination_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "first":
+			out.Values[i] = ec._PlaylistItemPagination_first(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "offset":
+			out.Values[i] = ec._PlaylistItemPagination_offset(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "items":
+			out.Values[i] = ec._PlaylistItemPagination_items(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var posterGridSectionImplementors = []string{"PosterGridSection", "Section", "ItemSection", "GridSection"}
 
 func (ec *executionContext) _PosterGridSection(ctx context.Context, sel ast.SelectionSet, obj *model.PosterGridSection) graphql.Marshaler {
@@ -45071,7 +45896,7 @@ func (ec *executionContext) _SearchResult(ctx context.Context, sel ast.Selection
 	return out
 }
 
-var seasonImplementors = []string{"Season", "EpisodeContextUnion", "SectionItemType"}
+var seasonImplementors = []string{"Season", "EpisodeContextUnion", "Item", "SectionItemType"}
 
 func (ec *executionContext) _Season(ctx context.Context, sel ast.SelectionSet, obj *model.Season) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, seasonImplementors)
@@ -45902,7 +46727,7 @@ func (ec *executionContext) _SectionPagination(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var showImplementors = []string{"Show", "SectionItemType", "UserCollectionEntryItem"}
+var showImplementors = []string{"Show", "SectionItemType", "Item", "UserCollectionEntryItem"}
 
 func (ec *executionContext) _Show(ctx context.Context, sel ast.SelectionSet, obj *model.Show) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, showImplementors)
@@ -49420,6 +50245,74 @@ func (ec *executionContext) marshalNPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑme
 		return graphql.Null
 	}
 	return ec._Page(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPlaylistItem2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPlaylistItem(ctx context.Context, sel ast.SelectionSet, v model.PlaylistItem) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PlaylistItem(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPlaylistItem2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPlaylistItemᚄ(ctx context.Context, sel ast.SelectionSet, v []model.PlaylistItem) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNPlaylistItem2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPlaylistItem(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNPlaylistItemPagination2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPlaylistItemPagination(ctx context.Context, sel ast.SelectionSet, v model.PlaylistItemPagination) graphql.Marshaler {
+	return ec._PlaylistItemPagination(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPlaylistItemPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPlaylistItemPagination(ctx context.Context, sel ast.SelectionSet, v *model.PlaylistItemPagination) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PlaylistItemPagination(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNProfile2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐProfile(ctx context.Context, sel ast.SelectionSet, v model.Profile) graphql.Marshaler {

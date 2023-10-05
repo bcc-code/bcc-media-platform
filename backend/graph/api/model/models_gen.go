@@ -43,6 +43,14 @@ type GridSection interface {
 	GetItems() *SectionItemPagination
 }
 
+type Item interface {
+	IsItem()
+	GetID() string
+	GetTitle() string
+	GetDescription() *string
+	GetImage() *string
+}
+
 type ItemSection interface {
 	IsSection()
 	IsItemSection()
@@ -58,6 +66,15 @@ type Pagination interface {
 	GetTotal() int
 	GetFirst() int
 	GetOffset() int
+}
+
+type PlaylistItem interface {
+	IsItem()
+	IsPlaylistItem()
+	GetID() string
+	GetTitle() string
+	GetDescription() *string
+	GetImage() *string
 }
 
 type Prompt interface {
@@ -398,6 +415,14 @@ type Episode struct {
 	Next []*Episode `json:"next"`
 }
 
+func (Episode) IsItem()                      {}
+func (this Episode) GetID() string           { return this.ID }
+func (this Episode) GetTitle() string        { return this.Title }
+func (this Episode) GetDescription() *string { return &this.Description }
+func (this Episode) GetImage() *string       { return this.Image }
+
+func (Episode) IsPlaylistItem() {}
+
 func (Episode) IsSectionItemType() {}
 
 func (Episode) IsUserCollectionEntryItem() {}
@@ -569,6 +594,12 @@ type Game struct {
 	URL         string  `json:"url"`
 	Image       *string `json:"image,omitempty"`
 }
+
+func (Game) IsItem()                      {}
+func (this Game) GetID() string           { return this.ID }
+func (this Game) GetTitle() string        { return this.Title }
+func (this Game) GetDescription() *string { return this.Description }
+func (this Game) GetImage() *string       { return this.Image }
 
 func (Game) IsSectionItemType() {}
 
@@ -833,6 +864,28 @@ func (this PageItem) GetImages() []*Image {
 	return interfaceSlice
 }
 
+type Playlist struct {
+	ID          string                  `json:"id"`
+	Title       string                  `json:"title"`
+	Description *string                 `json:"description,omitempty"`
+	Image       *string                 `json:"image,omitempty"`
+	Items       *PlaylistItemPagination `json:"items"`
+}
+
+func (Playlist) IsSectionItemType() {}
+
+type PlaylistItemPagination struct {
+	Total  int            `json:"total"`
+	First  int            `json:"first"`
+	Offset int            `json:"offset"`
+	Items  []PlaylistItem `json:"items"`
+}
+
+func (PlaylistItemPagination) IsPagination()       {}
+func (this PlaylistItemPagination) GetTotal() int  { return this.Total }
+func (this PlaylistItemPagination) GetFirst() int  { return this.First }
+func (this PlaylistItemPagination) GetOffset() int { return this.Offset }
+
 type PosterGridSection struct {
 	ID          string                 `json:"id"`
 	Metadata    *ItemSectionMetadata   `json:"metadata,omitempty"`
@@ -959,6 +1012,12 @@ type Season struct {
 }
 
 func (Season) IsEpisodeContextUnion() {}
+
+func (Season) IsItem()                      {}
+func (this Season) GetID() string           { return this.ID }
+func (this Season) GetTitle() string        { return this.Title }
+func (this Season) GetDescription() *string { return &this.Description }
+func (this Season) GetImage() *string       { return this.Image }
 
 func (Season) IsSectionItemType() {}
 
@@ -1096,6 +1155,12 @@ type Show struct {
 }
 
 func (Show) IsSectionItemType() {}
+
+func (Show) IsItem()                      {}
+func (this Show) GetID() string           { return this.ID }
+func (this Show) GetTitle() string        { return this.Title }
+func (this Show) GetDescription() *string { return &this.Description }
+func (this Show) GetImage() *string       { return this.Image }
 
 func (Show) IsUserCollectionEntryItem() {}
 
