@@ -495,3 +495,8 @@ type Playlist struct {
 	Description  LocaleString
 	Images       Images
 }
+
+// GetKey returns the key for this item
+func (i Playlist) GetKey() uuid.UUID {
+	return i.ID
+}

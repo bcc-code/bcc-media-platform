@@ -461,3 +461,31 @@ INSERT INTO games_translations (games_id, languages_code, title, description)
 VALUES (@item_id, @language, @title, @description)
 ON CONFLICT (games_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
                                                      description = EXCLUDED.description;
+
+-- name: ListPlaylistOriginalTranslations :many
+SELECT items.id, json_build_object('title', items.title, 'description', items.description) as values
+FROM playlists items
+WHERE status = ANY ('{published,unlisted}');
+
+-- name: ListPlaylistTranslations :many
+WITH items AS (SELECT i.id
+               FROM playlists i
+               WHERE i.status = ANY ('{published,unlisted}'))
+SELECT ts.id,
+       playlists_id                                                        as parent_id,
+       languages_code                                                      as language,
+       json_build_object('title', ts.title, 'description', ts.description) as values
+FROM playlists_translations ts
+         JOIN items i ON i.id = ts.playlists_id
+WHERE ts.languages_code = @language::varchar;
+
+-- name: ClearPlaylistTranslations :exec
+DELETE
+FROM playlists_translations ts
+WHERE ts.playlists_id = ANY ($1::uuid[]);
+
+-- name: UpdatePlaylistTranslation :exec
+INSERT INTO playlists_translations (playlists_id, languages_code, title, description)
+VALUES (@item_id, @language, @title, @description)
+ON CONFLICT (playlists_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
+                                                         description = EXCLUDED.description;

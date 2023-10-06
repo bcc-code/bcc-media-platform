@@ -3,6 +3,7 @@ package search
 import (
 	"context"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
+	"github.com/google/uuid"
 	"strconv"
 	"strings"
 
@@ -33,6 +34,8 @@ func (service *Service) Reindex(ctx context.Context) error {
 	service.loaders.SeasonPermissionLoader.ClearAll()
 	service.loaders.EpisodeLoader.ClearAll()
 	service.loaders.EpisodePermissionLoader.ClearAll()
+	service.loaders.PlaylistLoader.ClearAll()
+	service.loaders.PlaylistPermissionLoader.ClearAll()
 
 	// Makes it possible to filter in query, which fields you are searching on
 	// Also configures hits per page
@@ -167,6 +170,17 @@ func (service *Service) indexEpisode(ctx context.Context, id int) error {
 		return err
 	}
 	return indexObject[int, common.Episode](ctx, service, *i, p, service.episodeToSearchItem)
+}
+
+func (service *Service) indexPlaylists(ctx context.Context, id uuid.UUID) error {
+	return indexCollection[uuid.UUID, common.Playlist](
+		ctx,
+		service.index,
+		service.loaders.PlaylistLoader,
+		service.loaders.PlaylistPermissionLoader,
+		service.queries.ListPlaylists,
+		service.playlistToSearchItem,
+	)
 }
 
 type indexable[k comparable] interface {

@@ -104,6 +104,17 @@ func (q *Queries) ClearPageTranslations(ctx context.Context, dollar_1 []int32) e
 	return err
 }
 
+const clearPlaylistTranslations = `-- name: ClearPlaylistTranslations :exec
+DELETE
+FROM playlists_translations ts
+WHERE ts.playlists_id = ANY ($1::uuid[])
+`
+
+func (q *Queries) ClearPlaylistTranslations(ctx context.Context, dollar_1 []uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearPlaylistTranslations, pq.Array(dollar_1))
+	return err
+}
+
 const clearQuestionAlternativeTranslations = `-- name: ClearQuestionAlternativeTranslations :exec
 DELETE
 FROM questionalternatives_translations ts
@@ -887,6 +898,88 @@ func (q *Queries) ListPageTranslations(ctx context.Context, language string) ([]
 	return items, nil
 }
 
+const listPlaylistOriginalTranslations = `-- name: ListPlaylistOriginalTranslations :many
+SELECT items.id, json_build_object('title', items.title, 'description', items.description) as values
+FROM playlists items
+WHERE status = ANY ('{published,unlisted}')
+`
+
+type ListPlaylistOriginalTranslationsRow struct {
+	ID     uuid.UUID       `db:"id" json:"id"`
+	Values json.RawMessage `db:"values" json:"values"`
+}
+
+func (q *Queries) ListPlaylistOriginalTranslations(ctx context.Context) ([]ListPlaylistOriginalTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listPlaylistOriginalTranslations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListPlaylistOriginalTranslationsRow
+	for rows.Next() {
+		var i ListPlaylistOriginalTranslationsRow
+		if err := rows.Scan(&i.ID, &i.Values); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPlaylistTranslations = `-- name: ListPlaylistTranslations :many
+WITH items AS (SELECT i.id
+               FROM playlists i
+               WHERE i.status = ANY ('{published,unlisted}'))
+SELECT ts.id,
+       playlists_id                                                        as parent_id,
+       languages_code                                                      as language,
+       json_build_object('title', ts.title, 'description', ts.description) as values
+FROM playlists_translations ts
+         JOIN items i ON i.id = ts.playlists_id
+WHERE ts.languages_code = $1::varchar
+`
+
+type ListPlaylistTranslationsRow struct {
+	ID       int32           `db:"id" json:"id"`
+	ParentID uuid.UUID       `db:"parent_id" json:"parentId"`
+	Language string          `db:"language" json:"language"`
+	Values   json.RawMessage `db:"values" json:"values"`
+}
+
+func (q *Queries) ListPlaylistTranslations(ctx context.Context, language string) ([]ListPlaylistTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listPlaylistTranslations, language)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListPlaylistTranslationsRow
+	for rows.Next() {
+		var i ListPlaylistTranslationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentID,
+			&i.Language,
+			&i.Values,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listQuestionAlternativesOriginalTranslations = `-- name: ListQuestionAlternativesOriginalTranslations :many
 SELECT items.id,
        json_build_object('title', items.title) as values
@@ -1629,6 +1722,30 @@ type UpdatePageTranslationParams struct {
 
 func (q *Queries) UpdatePageTranslation(ctx context.Context, arg UpdatePageTranslationParams) error {
 	_, err := q.db.ExecContext(ctx, updatePageTranslation,
+		arg.ItemID,
+		arg.Language,
+		arg.Title,
+		arg.Description,
+	)
+	return err
+}
+
+const updatePlaylistTranslation = `-- name: UpdatePlaylistTranslation :exec
+INSERT INTO playlists_translations (playlists_id, languages_code, title, description)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (playlists_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
+                                                         description = EXCLUDED.description
+`
+
+type UpdatePlaylistTranslationParams struct {
+	ItemID      uuid.UUID      `db:"item_id" json:"itemId"`
+	Language    string         `db:"language" json:"language"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) UpdatePlaylistTranslation(ctx context.Context, arg UpdatePlaylistTranslationParams) error {
+	_, err := q.db.ExecContext(ctx, updatePlaylistTranslation,
 		arg.ItemID,
 		arg.Language,
 		arg.Title,

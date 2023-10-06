@@ -74,3 +74,63 @@ func (q *Queries) getPlaylists(ctx context.Context, ids []uuid.UUID) ([]getPlayl
 	}
 	return items, nil
 }
+
+const listPlaylists = `-- name: listPlaylists :many
+SELECT p.id,
+       p.collection_id,
+       p.title                                             AS original_title,
+       p.description                                       AS original_description,
+       (SELECT json_object_agg(ts.languages_code, ts.title)
+        FROM playlists_translations ts
+        WHERE ts.playlists_id = p.id)                      AS title,
+       (SELECT json_object_agg(ts.languages_code, ts.description)
+        FROM playlists_translations ts
+        WHERE ts.playlists_id = p.id)                      AS description,
+       (SELECT json_agg((SELECT img.style, img.language, df.filename_disk
+                         FROM playlists_styledimages simg
+                                  JOIN styledimages img ON img.id = simg.styledimages_id
+                                  JOIN directus_files df on img.file = df.id
+                         WHERE simg.playlists_id = p.id))) AS images
+FROM public.playlists p
+`
+
+type listPlaylistsRow struct {
+	ID                  uuid.UUID       `db:"id" json:"id"`
+	CollectionID        null_v4.Int     `db:"collection_id" json:"collectionId"`
+	OriginalTitle       string          `db:"original_title" json:"originalTitle"`
+	OriginalDescription null_v4.String  `db:"original_description" json:"originalDescription"`
+	Title               json.RawMessage `db:"title" json:"title"`
+	Description         json.RawMessage `db:"description" json:"description"`
+	Images              json.RawMessage `db:"images" json:"images"`
+}
+
+func (q *Queries) listPlaylists(ctx context.Context) ([]listPlaylistsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listPlaylists)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []listPlaylistsRow
+	for rows.Next() {
+		var i listPlaylistsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CollectionID,
+			&i.OriginalTitle,
+			&i.OriginalDescription,
+			&i.Title,
+			&i.Description,
+			&i.Images,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

@@ -6,6 +6,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 )
 
@@ -29,14 +30,16 @@ func (object *searchObject) assignVisibility(v common.Visibility) {
 }
 
 type batchLoaders struct {
-	ShowLoader    *loaders.Loader[int, *common.Show]
-	SeasonLoader  *loaders.Loader[int, *common.Season]
-	EpisodeLoader *loaders.Loader[int, *common.Episode]
-	TagLoader     *loaders.Loader[int, *common.Tag]
+	ShowLoader     *loaders.Loader[int, *common.Show]
+	SeasonLoader   *loaders.Loader[int, *common.Season]
+	EpisodeLoader  *loaders.Loader[int, *common.Episode]
+	PlaylistLoader *loaders.Loader[uuid.UUID, *common.Playlist]
+	TagLoader      *loaders.Loader[int, *common.Tag]
 	// Permissions
-	ShowPermissionLoader    *loaders.Loader[int, *common.Permissions[int]]
-	SeasonPermissionLoader  *loaders.Loader[int, *common.Permissions[int]]
-	EpisodePermissionLoader *loaders.Loader[int, *common.Permissions[int]]
+	ShowPermissionLoader     *loaders.Loader[int, *common.Permissions[int]]
+	SeasonPermissionLoader   *loaders.Loader[int, *common.Permissions[int]]
+	EpisodePermissionLoader  *loaders.Loader[int, *common.Permissions[int]]
+	PlaylistPermissionLoader *loaders.Loader[uuid.UUID, *common.Permissions[uuid.UUID]]
 }
 
 // Config contains configuration options for the service

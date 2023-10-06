@@ -392,13 +392,14 @@ COMMENT ON SEQUENCE "public"."playlists_translations_id_seq" IS NULL;
 CREATE TABLE IF NOT EXISTS "public"."playlists_translations"
 (
     "id"             int4         NOT NULL DEFAULT nextval('playlists_translations_id_seq'::regclass),
-    "playlists_id"   uuid         NULL,
-    "languages_code" varchar(255) NULL,
+    "playlists_id"   uuid         NOT NULL,
+    "languages_code" varchar(255) NOT NULL,
     "title"          text         NULL,
     "description"    text         NULL,
     CONSTRAINT "playlists_translations_pkey" PRIMARY KEY (id),
     CONSTRAINT "playlists_translations_languages_code_foreign" FOREIGN KEY (languages_code) REFERENCES languages (code) ON DELETE SET NULL,
-    CONSTRAINT "playlists_translations_playlists_id_foreign" FOREIGN KEY (playlists_id) REFERENCES playlists (id) ON DELETE SET NULL
+    CONSTRAINT "playlists_translations_playlists_id_foreign" FOREIGN KEY (playlists_id) REFERENCES playlists (id) ON DELETE SET NULL,
+    CONSTRAINT "playlists_translations_unique" UNIQUE (playlists_id, languages_code)
 );
 
 GRANT SELECT ON TABLE "public"."playlists_translations" TO directus, background_worker, api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -757,208 +758,6 @@ VALUES (418, 'playlists_usergroups', 'playlists_id', 'playlists', 'roles', NULL,
 /***    CREATED ON: 2023-10-05T11:10:50.745Z             ***/
 /***********************************************************/
 
---- BEGIN DROP TABLE "public"."playlists_styledimages" ---
-
-DROP TABLE IF EXISTS "public"."playlists_styledimages";
-
---- END DROP TABLE "public"."playlists_styledimages" ---
-
---- BEGIN DROP TABLE "public"."playlists" ---
-
-DROP TABLE IF EXISTS "public"."playlists";
-
---- END DROP TABLE "public"."playlists" ---
-
---- BEGIN SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
-
-UPDATE "public"."directus_collections"
-SET "sort" = NULL
-WHERE "collection" = 'songs_translations';
-
-UPDATE "public"."directus_collections"
-SET "sort" = NULL
-WHERE "collection" = 'timedmetadata_persons';
-
-DELETE
-FROM "public"."directus_collections"
-WHERE "collection" = 'playlists';
-
-DELETE
-FROM "public"."directus_collections"
-WHERE "collection" = 'playlists_styledimages';
-
---- END SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
-
---- BEGIN SYNCHRONIZE TABLE "public"."directus_fields" RECORDS ---
-
-UPDATE "public"."directus_fields"
-SET "options" = '{
-  "choices": [
-    {
-      "text": "Page",
-      "value": "page"
-    },
-    {
-      "text": "Show",
-      "value": "show"
-    },
-    {
-      "text": "Episode",
-      "value": "episode"
-    },
-    {
-      "text": "Link",
-      "value": "link"
-    }
-  ]
-}'
-WHERE "id" = 346;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1351;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1352;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1353;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1354;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1355;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1356;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1358;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1360;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1363;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1357;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1359;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1361;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1362;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1364;
-
---- END SYNCHRONIZE TABLE "public"."directus_fields" RECORDS ---
-
---- BEGIN SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---
-
-UPDATE "public"."directus_relations"
-SET "one_allowed_collections" = 'episodes,links,pages,seasons,shows,studytopics,games'
-WHERE "id" = 214;
-
-DELETE
-FROM "public"."directus_relations"
-WHERE "id" = 409;
-
-DELETE
-FROM "public"."directus_relations"
-WHERE "id" = 410;
-
-DELETE
-FROM "public"."directus_relations"
-WHERE "id" = 411;
-
-DELETE
-FROM "public"."directus_relations"
-WHERE "id" = 412;
-
-DELETE
-FROM "public"."directus_relations"
-WHERE "id" = 413;
-
-DELETE
-FROM "public"."directus_relations"
-WHERE "id" = 414;
-
---- END SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---
-
-
---- BEGIN DROP TABLE "public"."playlists_translations" ---
-
-DROP TABLE IF EXISTS "public"."playlists_translations";
-
---- END DROP TABLE "public"."playlists_translations" ---
-
---- BEGIN SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
-
-DELETE
-FROM "public"."directus_collections"
-WHERE "collection" = 'playlists_translations';
-
---- END SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
-
---- BEGIN SYNCHRONIZE TABLE "public"."directus_fields" RECORDS ---
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1365;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1368;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1366;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1367;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1369;
-
-DELETE
-FROM "public"."directus_fields"
-WHERE "id" = 1370;
-
---- END SYNCHRONIZE TABLE "public"."directus_fields" RECORDS ---
-
---- BEGIN SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---
-
-DELETE
-FROM "public"."directus_relations"
-WHERE "id" = 415;
-
-DELETE
-FROM "public"."directus_relations"
-WHERE "id" = 416;
-
---- END SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---
-
 
 --- BEGIN ALTER MATERIALIZED VIEW "public"."filter_dataset" ---
 
@@ -1113,5 +912,208 @@ WHERE "id" = 417;
 DELETE
 FROM "public"."directus_relations"
 WHERE "id" = 418;
+
+--- END SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---
+
+
+--- BEGIN DROP TABLE "public"."playlists_translations" ---
+
+DROP TABLE IF EXISTS "public"."playlists_translations";
+
+--- END DROP TABLE "public"."playlists_translations" ---
+
+--- BEGIN SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
+
+DELETE
+FROM "public"."directus_collections"
+WHERE "collection" = 'playlists_translations';
+
+--- END SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
+
+--- BEGIN SYNCHRONIZE TABLE "public"."directus_fields" RECORDS ---
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1365;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1368;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1366;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1367;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1369;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1370;
+
+--- END SYNCHRONIZE TABLE "public"."directus_fields" RECORDS ---
+
+--- BEGIN SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---
+
+DELETE
+FROM "public"."directus_relations"
+WHERE "id" = 415;
+
+DELETE
+FROM "public"."directus_relations"
+WHERE "id" = 416;
+
+--- END SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---
+
+
+--- BEGIN DROP TABLE "public"."playlists_styledimages" ---
+
+DROP TABLE IF EXISTS "public"."playlists_styledimages";
+
+--- END DROP TABLE "public"."playlists_styledimages" ---
+
+--- BEGIN DROP TABLE "public"."playlists" ---
+
+DROP TABLE IF EXISTS "public"."playlists";
+
+--- END DROP TABLE "public"."playlists" ---
+
+--- BEGIN SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
+
+UPDATE "public"."directus_collections"
+SET "sort" = NULL
+WHERE "collection" = 'songs_translations';
+
+UPDATE "public"."directus_collections"
+SET "sort" = NULL
+WHERE "collection" = 'timedmetadata_persons';
+
+DELETE
+FROM "public"."directus_collections"
+WHERE "collection" = 'playlists';
+
+DELETE
+FROM "public"."directus_collections"
+WHERE "collection" = 'playlists_styledimages';
+
+--- END SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
+
+--- BEGIN SYNCHRONIZE TABLE "public"."directus_fields" RECORDS ---
+
+UPDATE "public"."directus_fields"
+SET "options" = '{
+  "choices": [
+    {
+      "text": "Page",
+      "value": "page"
+    },
+    {
+      "text": "Show",
+      "value": "show"
+    },
+    {
+      "text": "Episode",
+      "value": "episode"
+    },
+    {
+      "text": "Link",
+      "value": "link"
+    }
+  ]
+}'
+WHERE "id" = 346;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1351;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1352;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1353;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1354;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1355;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1356;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1358;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1360;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1363;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1357;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1359;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1361;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1362;
+
+DELETE
+FROM "public"."directus_fields"
+WHERE "id" = 1364;
+
+--- END SYNCHRONIZE TABLE "public"."directus_fields" RECORDS ---
+
+--- BEGIN SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---
+
+UPDATE "public"."directus_relations"
+SET "one_allowed_collections" = 'episodes,links,pages,seasons,shows,studytopics,games'
+WHERE "id" = 214;
+
+DELETE
+FROM "public"."directus_relations"
+WHERE "id" = 409;
+
+DELETE
+FROM "public"."directus_relations"
+WHERE "id" = 410;
+
+DELETE
+FROM "public"."directus_relations"
+WHERE "id" = 411;
+
+DELETE
+FROM "public"."directus_relations"
+WHERE "id" = 412;
+
+DELETE
+FROM "public"."directus_relations"
+WHERE "id" = 413;
+
+DELETE
+FROM "public"."directus_relations"
+WHERE "id" = 414;
 
 --- END SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---

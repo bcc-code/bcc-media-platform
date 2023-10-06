@@ -1092,8 +1092,8 @@ type PlaylistsStyledimage struct {
 
 type PlaylistsTranslation struct {
 	ID            int32          `db:"id" json:"id"`
-	PlaylistsID   uuid.NullUUID  `db:"playlists_id" json:"playlistsId"`
-	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	PlaylistsID   uuid.UUID      `db:"playlists_id" json:"playlistsId"`
+	LanguagesCode string         `db:"languages_code" json:"languagesCode"`
 	Title         null_v4.String `db:"title" json:"title"`
 	Description   null_v4.String `db:"description" json:"description"`
 }
