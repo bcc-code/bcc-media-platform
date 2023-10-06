@@ -95,6 +95,11 @@ func (service *Service) Reindex(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	log.L.Debug().Str("collection", "episodes").Msg("Indexing")
+	err = service.indexPlaylists(ctx, index)
+	if err != nil {
+		return err
+	}
 
 	res, err = service.algoliaClient.MoveIndex(tempIndexName, indexName)
 	if err != nil {
@@ -172,10 +177,10 @@ func (service *Service) indexEpisode(ctx context.Context, id int) error {
 	return indexObject[int, common.Episode](ctx, service, *i, p, service.episodeToSearchItem)
 }
 
-func (service *Service) indexPlaylists(ctx context.Context, id uuid.UUID) error {
+func (service *Service) indexPlaylists(ctx context.Context, index *search.Index) error {
 	return indexCollection[uuid.UUID, common.Playlist](
 		ctx,
-		service.index,
+		index,
 		service.loaders.PlaylistLoader,
 		service.loaders.PlaylistPermissionLoader,
 		service.queries.ListPlaylists,
