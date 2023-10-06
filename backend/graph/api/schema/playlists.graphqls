@@ -1,4 +1,4 @@
-type Playlist implements Item {
+type Playlist implements CollectionItem {
     id: ID!
     title: String!
     description: String
@@ -13,7 +13,7 @@ type PlaylistItemPagination implements Pagination {
     items: [PlaylistItem!]!
 }
 
-interface PlaylistItem implements Item {
+interface PlaylistItem implements CollectionItem {
     id: ID!
     title: String
     description: String

@@ -12,7 +12,7 @@ interface Pagination {
     offset: Int!
 }
 
-interface Item {
+interface CollectionItem {
     id: ID!
     title: String
     description: String

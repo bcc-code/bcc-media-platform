@@ -9,10 +9,10 @@ import (
 	"github.com/samber/lo"
 )
 
-func collectionEntriesToModels(ctx context.Context, ls *common.BatchLoaders, entries []collection.Entry) ([]model.Item, error) {
+func collectionEntriesToModels(ctx context.Context, ls *common.BatchLoaders, entries []collection.Entry) ([]model.CollectionItem, error) {
 	preloadEntryLoaders(ctx, ls, entries)
 
-	var items []model.Item
+	var items []model.CollectionItem
 	for _, e := range entries {
 		switch e.Collection {
 		case common.CollectionShows:

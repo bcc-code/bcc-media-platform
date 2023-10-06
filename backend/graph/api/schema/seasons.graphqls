@@ -1,4 +1,4 @@
-type Season implements Item {
+type Season implements CollectionItem {
     id: ID!
     legacyID: ID
     status: Status!

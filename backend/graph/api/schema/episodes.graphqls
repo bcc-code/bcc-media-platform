@@ -11,7 +11,7 @@ enum ShareRestriction {
     public
 }
 
-type Episode implements Item & PlaylistItem {
+type Episode implements CollectionItem & PlaylistItem {
     id: ID!
     uuid: String!
     status: Status!

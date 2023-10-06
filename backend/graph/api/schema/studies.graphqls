@@ -1,4 +1,4 @@
-type StudyTopic implements Item {
+type StudyTopic implements CollectionItem {
     id: ID!
     title: String!
     description: String!
