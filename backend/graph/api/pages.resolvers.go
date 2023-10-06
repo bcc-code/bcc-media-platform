@@ -16,21 +16,6 @@ import (
 )
 
 // Items is the resolver for the items field.
-func (r *collectionResolver) Items(ctx context.Context, obj *model.Collection, first *int, offset *int) (*model.CollectionItemPagination, error) {
-	pagination, err := collectionItemResolverFromCollection(ctx, r.Resolver, obj.ID, first, offset)
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.CollectionItemPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  pagination.Items,
-	}, nil
-}
-
-// Items is the resolver for the items field.
 func (r *contextCollectionResolver) Items(ctx context.Context, obj *model.ContextCollection, first *int, offset *int) (*model.SectionItemPagination, error) {
 	pagination, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), &common.Section{
 		Style:        "default",
@@ -86,9 +71,6 @@ func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int
 	}, nil
 }
 
-// Collection returns generated.CollectionResolver implementation.
-func (r *Resolver) Collection() generated.CollectionResolver { return &collectionResolver{r} }
-
 // ContextCollection returns generated.ContextCollectionResolver implementation.
 func (r *Resolver) ContextCollection() generated.ContextCollectionResolver {
 	return &contextCollectionResolver{r}
@@ -97,6 +79,5 @@ func (r *Resolver) ContextCollection() generated.ContextCollectionResolver {
 // Page returns generated.PageResolver implementation.
 func (r *Resolver) Page() generated.PageResolver { return &pageResolver{r} }
 
-type collectionResolver struct{ *Resolver }
 type contextCollectionResolver struct{ *Resolver }
 type pageResolver struct{ *Resolver }

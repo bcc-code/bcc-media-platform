@@ -102,20 +102,6 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 	return episode
 }
 
-// EpisodeItemFrom converts a common.Episode into a GQL Episode Item
-func EpisodeItemFrom(ctx context.Context, e *common.Episode, sort int) *EpisodeItem {
-	episode := EpisodeFrom(ctx, e)
-
-	return &EpisodeItem{
-		ID:       episode.ID,
-		Title:    episode.Title,
-		Episode:  episode,
-		ImageURL: episode.ImageURL,
-		Images:   episode.Images,
-		Sort:     sort,
-	}
-}
-
 // EpisodeSectionItemFrom returns a SectionItem
 func EpisodeSectionItemFrom(ctx context.Context, s *common.Episode, sort int, sectionStyle string, numberInTitle bool) *SectionItem {
 	ginCtx, _ := utils.GinCtx(ctx)

@@ -272,64 +272,6 @@ func sectionCollectionEntryResolver(
 	}, nil
 }
 
-func collectionEntryResolver(ctx context.Context, ls *common.BatchLoaders, filteredLoaders *common.FilteredLoaders, collectionId int, first *int, offset *int) (*utils.PaginationResult[model.CollectionItem], error) {
-	entries, err := collection.GetCollectionEntries(ctx, ls, filteredLoaders, collectionId)
-	if err != nil {
-		return nil, err
-	}
-
-	pagination := utils.Paginate(entries, first, offset, nil)
-
-	preloadEntryLoaders(ctx, ls, pagination.Items)
-
-	var items []model.CollectionItem
-	for _, e := range pagination.Items {
-		var item model.CollectionItem
-		switch e.Collection {
-		case common.CollectionPages:
-			i, err := ls.PageLoader.Get(ctx, utils.AsInt(e.ID))
-			if err != nil {
-				return nil, err
-			}
-			item = model.PageItemFrom(ctx, i, e.Sort)
-		case common.CollectionShows:
-			i, err := ls.ShowLoader.Get(ctx, utils.AsInt(e.ID))
-			if err != nil {
-				return nil, err
-			}
-			item = model.ShowItemFrom(ctx, i, e.Sort)
-		case common.CollectionSeasons:
-			i, err := ls.SeasonLoader.Get(ctx, utils.AsInt(e.ID))
-			if err != nil {
-				return nil, err
-			}
-			item = model.SeasonItemFrom(ctx, i, e.Sort)
-		case common.CollectionEpisodes:
-			i, err := ls.EpisodeLoader.Get(ctx, utils.AsInt(e.ID))
-			if err != nil {
-				return nil, err
-			}
-			item = model.EpisodeItemFrom(ctx, i, e.Sort)
-		}
-		if item != nil {
-			items = append(items, item)
-		}
-	}
-
-	return &utils.PaginationResult[model.CollectionItem]{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  items,
-	}, nil
-}
-
-func collectionItemResolverFromCollection(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*utils.PaginationResult[model.CollectionItem], error) {
-	int64ID, _ := strconv.ParseInt(id, 10, 32)
-
-	return collectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), int(int64ID), first, offset)
-}
-
 func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*model.SectionItemPagination, error) {
 	int64ID, _ := strconv.ParseInt(id, 10, 32)
 

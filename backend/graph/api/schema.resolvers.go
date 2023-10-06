@@ -279,28 +279,6 @@ func (r *queryRootResolver) Playlist(ctx context.Context, id string) (*model.Pla
 	}, uid, model.PlaylistFrom)
 }
 
-// Collection is the resolver for the collection field.
-func (r *queryRootResolver) Collection(ctx context.Context, id *string, slug *string) (*model.Collection, error) {
-	var key string
-	if slug != nil {
-		intID, err := r.Loaders.CollectionIDFromSlugLoader.Get(ctx, *slug)
-		if err != nil {
-			return nil, err
-		}
-		if intID == nil {
-			return nil, merry.New("code invalid", merry.WithUserMessage("Invalid slug specified"))
-		}
-		key = strconv.Itoa(*intID)
-	} else if id != nil {
-		key = *id
-	} else {
-		return nil, merry.New("No options specified", merry.WithUserMessage("Specify either ID or slug"))
-	}
-	return resolverForIntID(ctx, &itemLoaders[int, common.Collection]{
-		Item: r.Loaders.CollectionLoader,
-	}, key, model.CollectionFrom)
-}
-
 // Search is the resolver for the search field.
 func (r *queryRootResolver) Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error) {
 	return searchResolver(r, ctx, queryString, first, offset, typeArg, minScore)

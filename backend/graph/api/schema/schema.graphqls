@@ -98,12 +98,6 @@ type QueryRoot{
 
     playlist(id: ID!): Playlist!
 
-    @deprecated(reason: "Use other endpoints")
-    collection(
-        id: ID
-        slug: String
-    ): Collection!
-
     search(
         queryString: String!
         first: Int
