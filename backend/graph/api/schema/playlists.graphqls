@@ -1,4 +1,4 @@
-type Playlist {
+type Playlist implements Item {
     id: ID!
     title: String!
     description: String

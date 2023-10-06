@@ -51,7 +51,7 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string)
 			return nil, err
 		}
 		items = lo.Filter(items, func(i *common.CollectionItem, _ int) bool {
-			return i.Type == common.TypeEpisode
+			return i.Type == common.CollectionEpisodes
 		})
 		episodeIDs = lo.Map(items, func(i *common.CollectionItem, _ int) int {
 			return utils.AsInt(i.ItemID)
@@ -116,7 +116,7 @@ func (r *episodeResolver) getNextFromShowCollection(ctx context.Context, episode
 		return nil, err
 	}
 	episodeEntries := lo.Filter(entries, func(i collection.Entry, _ int) bool {
-		return i.Collection == common.TypeEpisode && i.ID != episodeID
+		return i.Collection == common.CollectionEpisodes && i.ID != episodeID
 	})
 	if len(episodeEntries) <= 0 {
 		return nil, nil

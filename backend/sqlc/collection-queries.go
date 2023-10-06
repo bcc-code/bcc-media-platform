@@ -45,11 +45,15 @@ func (q *Queries) GetCollections(ctx context.Context, ids []int) ([]common.Colle
 
 func mapToCollectionItems(items []CollectionsEntry) []common.CollectionItem {
 	return lo.Map(items, func(i CollectionsEntry, _ int) common.CollectionItem {
+		c := common.Collections.Parse(i.Collection.ValueOrZero())
+		if c == nil {
+			c = &common.CollectionUnknown
+		}
 		return common.CollectionItem{
 			ID:           int(i.ID),
 			Sort:         int(i.Sort.ValueOrZero()),
 			CollectionID: int(i.CollectionsID),
-			Type:         common.ItemCollection(i.Collection.ValueOrZero()),
+			Type:         *c,
 			ItemID:       i.Item.ValueOrZero(),
 		}
 	})

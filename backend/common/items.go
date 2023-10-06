@@ -17,15 +17,31 @@ const (
 )
 
 // ItemCollection is what type of item current struct is
-type ItemCollection string
+type ItemCollection enum.Member[string]
 
 // Types of items
 var (
-	TypeShow    = ItemCollection("shows")
-	TypeSeason  = ItemCollection("seasons")
-	TypeEpisode = ItemCollection("episodes")
-	TypePage    = ItemCollection("pages")
-	TypeSection = ItemCollection("sections")
+	CollectionUnknown     = ItemCollection{"unknown"}
+	CollectionShows       = ItemCollection{"shows"}
+	CollectionSeasons     = ItemCollection{"seasons"}
+	CollectionEpisodes    = ItemCollection{"episodes"}
+	CollectionPages       = ItemCollection{"pages"}
+	CollectionSections    = ItemCollection{"sections"}
+	CollectionGames       = ItemCollection{"games"}
+	CollectionLinks       = ItemCollection{"links"}
+	CollectionPlaylists   = ItemCollection{"playlists"}
+	CollectionStudyTopics = ItemCollection{"studytopics"}
+	Collections           = enum.New(
+		CollectionUnknown,
+		CollectionShows,
+		CollectionSeasons,
+		CollectionEpisodes,
+		CollectionPages,
+		CollectionSections,
+		CollectionGames,
+		CollectionLinks,
+		CollectionPlaylists,
+	)
 )
 
 // Show is the definition of the Show object

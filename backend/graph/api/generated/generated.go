@@ -6164,7 +6164,7 @@ type ContextCollection {
     ): SectionItemPagination @goField(forceResolver: true)
 }
 `, BuiltIn: false},
-	{Name: "../schema/playlists.graphqls", Input: `type Playlist {
+	{Name: "../schema/playlists.graphqls", Input: `type Playlist implements Item {
     id: ID!
     title: String!
     description: String
@@ -38379,6 +38379,13 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Game(ctx, sel, obj)
+	case model.Playlist:
+		return ec._Playlist(ctx, sel, &obj)
+	case *model.Playlist:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Playlist(ctx, sel, obj)
 	case model.PlaylistItem:
 		if obj == nil {
 			return graphql.Null
@@ -44486,7 +44493,7 @@ func (ec *executionContext) _PageItem(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var playlistImplementors = []string{"Playlist", "SectionItemType"}
+var playlistImplementors = []string{"Playlist", "Item", "SectionItemType"}
 
 func (ec *executionContext) _Playlist(ctx context.Context, sel ast.SelectionSet, obj *model.Playlist) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, playlistImplementors)

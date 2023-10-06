@@ -129,7 +129,6 @@ func (q *Queries) GetPermissionsForSections(ctx context.Context, ids []int) ([]c
 	return lo.Map(rows, func(i getPermissionsForSectionsRow, _ int) common.Permissions[int] {
 		return common.Permissions[int]{
 			ItemID: int(i.ID),
-			Type:   common.TypeSection,
 			Availability: common.Availability{
 				Published: true,
 				From:      from,

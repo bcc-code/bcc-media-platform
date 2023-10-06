@@ -107,7 +107,6 @@ func (q *Queries) GetPermissionsForSeasons(ctx context.Context, ids []int) ([]co
 	return lo.Map(items, func(i getPermissionsForSeasonsRow, _ int) common.Permissions[int] {
 		return common.Permissions[int]{
 			ItemID: int(i.ID),
-			Type:   common.TypeSeason,
 			Availability: common.Availability{
 				Unlisted:  i.Unlisted,
 				Published: i.Published,

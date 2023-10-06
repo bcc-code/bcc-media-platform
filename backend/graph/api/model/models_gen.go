@@ -872,6 +872,12 @@ type Playlist struct {
 	Items       *PlaylistItemPagination `json:"items"`
 }
 
+func (Playlist) IsItem()                      {}
+func (this Playlist) GetID() string           { return this.ID }
+func (this Playlist) GetTitle() string        { return this.Title }
+func (this Playlist) GetDescription() *string { return this.Description }
+func (this Playlist) GetImage() *string       { return this.Image }
+
 func (Playlist) IsSectionItemType() {}
 
 type PlaylistItemPagination struct {

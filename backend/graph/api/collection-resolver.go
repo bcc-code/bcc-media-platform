@@ -13,25 +13,27 @@ import (
 	"strconv"
 )
 
-func preloadLoaders(ctx context.Context, loaders *common.BatchLoaders, entries []collection.Entry) {
+func preloadEntryLoaders(ctx context.Context, loaders *common.BatchLoaders, entries []collection.Entry) {
 	for _, e := range entries {
 		switch e.Collection {
-		case "shows":
+		case common.CollectionShows:
 			loaders.ShowLoader.Load(ctx, utils.AsInt(e.ID))
-		case "seasons":
+		case common.CollectionSeasons:
 			loaders.SeasonLoader.Load(ctx, utils.AsInt(e.ID))
-		case "episodes":
+		case common.CollectionEpisodes:
 			loaders.EpisodeLoader.Load(ctx, utils.AsInt(e.ID))
-		case "pages":
+		case common.CollectionPages:
 			loaders.PageLoader.Load(ctx, utils.AsInt(e.ID))
-		case "sections":
+		case common.CollectionSections:
 			loaders.SectionLoader.Load(ctx, utils.AsInt(e.ID))
-		case "studytopics":
+		case common.CollectionStudyTopics:
 			loaders.StudyTopicLoader.Load(ctx, utils.AsUuid(e.ID))
-		case "links":
+		case common.CollectionLinks:
 			loaders.LinkLoader.Load(ctx, utils.AsInt(e.ID))
-		case "playlists":
+		case common.CollectionPlaylists:
 			loaders.PlaylistLoader.Load(ctx, utils.AsUuid(e.ID))
+		case common.CollectionGames:
+			loaders.GameLoader.Load(ctx, utils.AsUuid(e.ID))
 		}
 	}
 }
@@ -57,7 +59,7 @@ func filterWithIds(col *common.Collection, entries []collection.Entry, ids []*in
 	var newEntries []collection.Entry
 	for _, id := range utils.PointerArrayToArray(ids) {
 		entry, found := lo.Find(entries, func(e collection.Entry) bool {
-			return e.Collection == "episodes" && e.ID == strconv.Itoa(id)
+			return e.Collection == common.CollectionEpisodes && e.ID == strconv.Itoa(id)
 		})
 		if found {
 			newEntries = append(newEntries, entry)
@@ -124,83 +126,83 @@ func mapCollectionEntriesToSectionItems(ctx context.Context, ls *common.BatchLoa
 	for _, e := range entries {
 		var item *model.SectionItem
 		switch e.Collection {
-		case "pages":
+		case common.CollectionPages:
 			i, err := ls.PageLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			if i == nil {
-				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				log.L.Debug().Str("id", e.ID).Str("type", e.Collection.Value).Msg("Item with id not found")
 				continue
 			}
 			item = model.PageSectionItemFrom(ctx, i, e.Sort, imageStyle)
-		case "shows":
+		case common.CollectionShows:
 			i, err := ls.ShowLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			if i == nil {
-				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				log.L.Debug().Str("id", e.ID).Str("type", e.Collection.Value).Msg("Item with id not found")
 				continue
 			}
 			item = model.ShowSectionItemFrom(ctx, i, e.Sort, imageStyle)
-		case "seasons":
+		case common.CollectionSeasons:
 			i, err := ls.SeasonLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			if i == nil {
-				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				log.L.Debug().Str("id", e.ID).Str("type", e.Collection.Value).Msg("Item with id not found")
 				continue
 			}
 			item = model.SeasonSectionItemFrom(ctx, i, e.Sort, imageStyle)
-		case "episodes":
+		case common.CollectionEpisodes:
 			i, err := ls.EpisodeLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			if i == nil {
-				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				log.L.Debug().Str("id", e.ID).Str("type", e.Collection.Value).Msg("Item with id not found")
 				continue
 			}
 			item = model.EpisodeSectionItemFrom(ctx, i, e.Sort, imageStyle, numberInTitle)
-		case "links":
+		case common.CollectionLinks:
 			i, err := ls.LinkLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			if i == nil {
-				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				log.L.Debug().Str("id", e.ID).Str("type", e.Collection.Value).Msg("Item with id not found")
 				continue
 			}
 			item = model.LinkSectionItemFrom(ctx, i, e.Sort, imageStyle)
-		case "studytopics":
+		case common.CollectionStudyTopics:
 			i, err := ls.StudyTopicLoader.Get(ctx, utils.AsUuid(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			if i == nil {
-				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				log.L.Debug().Str("id", e.ID).Str("type", e.Collection.Value).Msg("Item with id not found")
 				continue
 			}
 			item = model.StudyTopicSectionItemFrom(ctx, i, e.Sort, imageStyle)
-		case "games":
+		case common.CollectionGames:
 			i, err := ls.GameLoader.Get(ctx, utils.AsUuid(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			if i == nil {
-				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				log.L.Debug().Str("id", e.ID).Str("type", e.Collection.Value).Msg("Item with id not found")
 				continue
 			}
 			item = model.GameSectionItemFrom(ctx, i, e.Sort, imageStyle)
-		case "playlists":
+		case common.CollectionPlaylists:
 			i, err := ls.PlaylistLoader.Get(ctx, utils.AsUuid(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			if i == nil {
-				log.L.Debug().Str("id", e.ID).Str("type", string(e.Collection)).Msg("Item with id not found")
+				log.L.Debug().Str("id", e.ID).Str("type", e.Collection.Value).Msg("Item with id not found")
 				continue
 			}
 			item = model.PlaylistSectionItemFrom(ctx, i, e.Sort, imageStyle)
@@ -255,7 +257,7 @@ func sectionCollectionEntryResolver(
 
 	imageStyle := sectionStyleToImageStyle(section.Style)
 
-	preloadLoaders(ctx, ls, pagination.Items)
+	preloadEntryLoaders(ctx, ls, pagination.Items)
 
 	items, err := mapCollectionEntriesToSectionItems(ctx, ls, pagination.Items, imageStyle, col.NumberInTitles)
 	if err != nil {
@@ -278,31 +280,31 @@ func collectionEntryResolver(ctx context.Context, ls *common.BatchLoaders, filte
 
 	pagination := utils.Paginate(entries, first, offset, nil)
 
-	preloadLoaders(ctx, ls, pagination.Items)
+	preloadEntryLoaders(ctx, ls, pagination.Items)
 
 	var items []model.CollectionItem
 	for _, e := range pagination.Items {
 		var item model.CollectionItem
 		switch e.Collection {
-		case "pages":
+		case common.CollectionPages:
 			i, err := ls.PageLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			item = model.PageItemFrom(ctx, i, e.Sort)
-		case "shows":
+		case common.CollectionShows:
 			i, err := ls.ShowLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			item = model.ShowItemFrom(ctx, i, e.Sort)
-		case "seasons":
+		case common.CollectionSeasons:
 			i, err := ls.SeasonLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err
 			}
 			item = model.SeasonItemFrom(ctx, i, e.Sort)
-		case "episodes":
+		case common.CollectionEpisodes:
 			i, err := ls.EpisodeLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
 				return nil, err

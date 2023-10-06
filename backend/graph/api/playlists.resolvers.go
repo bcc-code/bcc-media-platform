@@ -6,20 +6,35 @@ package graph
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
 
 // Image is the resolver for the image field.
 func (r *playlistResolver) Image(ctx context.Context, obj *model.Playlist, style *model.ImageStyle) (*string, error) {
-	panic(fmt.Errorf("not implemented: Image - image"))
+	i, err := r.Loaders.PlaylistLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	return imageOrFallback(ctx, i.Images, style), nil
 }
 
 // Items is the resolver for the items field.
 func (r *playlistResolver) Items(ctx context.Context, obj *model.Playlist, first *int, offset *int) (*model.PlaylistItemPagination, error) {
-	panic(fmt.Errorf("not implemented: Items - items"))
+	i, err := r.Loaders.PlaylistLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	if !i.CollectionID.Valid {
+		return &model.PlaylistItemPagination{
+			Total:  0,
+			First:  0,
+			Offset: 0,
+			Items:  nil,
+		}, nil
+	}
+	return r.getPlaylistItemsPage(ctx, int(i.CollectionID.Int64), first, offset)
 }
 
 // Playlist returns generated.PlaylistResolver implementation.

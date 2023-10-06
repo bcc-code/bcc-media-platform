@@ -386,7 +386,7 @@ func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqle
 		liteEntries := lo.Map(entries, func(e collection.Entry, _ int) collectionEntry {
 			return collectionEntry{
 				ID:   e.ID,
-				Type: string(e.Collection),
+				Type: e.Collection.Value,
 			}
 		})
 		liteEntriesJSON, _ := json.Marshal(liteEntries)
