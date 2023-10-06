@@ -266,6 +266,19 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string, context *mod
 	}, id, model.EpisodeFrom)
 }
 
+// Playlist is the resolver for the playlist field.
+func (r *queryRootResolver) Playlist(ctx context.Context, id string) (*model.Playlist, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	// ignoring permissions as items in the playlist is also checked for permissions,@
+	// and it won't show up in lists if the user does not have access
+	return resolverFor(ctx, &itemLoaders[uuid.UUID, common.Playlist]{
+		Item: r.Loaders.PlaylistLoader,
+	}, uid, model.PlaylistFrom)
+}
+
 // Collection is the resolver for the collection field.
 func (r *queryRootResolver) Collection(ctx context.Context, id *string, slug *string) (*model.Collection, error) {
 	var key string

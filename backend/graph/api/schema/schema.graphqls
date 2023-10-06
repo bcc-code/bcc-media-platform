@@ -97,6 +97,8 @@ type QueryRoot{
         context: EpisodeContext
     ): Episode!
 
+    playlist(id: ID!): Playlist!
+
     collection(
         id: ID
         slug: String
