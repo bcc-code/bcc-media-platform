@@ -531,11 +531,12 @@ COMMENT ON SEQUENCE "public"."playlists_usergroups_id_seq" IS NULL;
 CREATE TABLE IF NOT EXISTS "public"."playlists_usergroups"
 (
     "id"              int4         NOT NULL DEFAULT nextval('playlists_usergroups_id_seq'::regclass),
-    "playlists_id"    uuid         NULL,
-    "usergroups_code" varchar(255) NULL,
+    "playlists_id"    uuid         NOT NULL,
+    "usergroups_code" varchar(255) NOT NULL,
     CONSTRAINT "playlists_usergroups_pkey" PRIMARY KEY (id),
     CONSTRAINT "playlists_usergroups_usergroups_code_foreign" FOREIGN KEY (usergroups_code) REFERENCES usergroups (code) ON DELETE CASCADE,
-    CONSTRAINT "playlists_usergroups_playlists_id_foreign" FOREIGN KEY (playlists_id) REFERENCES playlists (id) ON DELETE CASCADE
+    CONSTRAINT "playlists_usergroups_playlists_id_foreign" FOREIGN KEY (playlists_id) REFERENCES playlists (id) ON DELETE CASCADE,
+    CONSTRAINT "playlists_usergroups_unique" UNIQUE (playlists_id, usergroups_code)
 );
 
 GRANT SELECT ON TABLE "public"."playlists_usergroups" TO directus, api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!

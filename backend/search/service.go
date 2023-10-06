@@ -8,6 +8,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
+	"github.com/samber/lo"
 )
 
 const indexName = "global"
@@ -70,7 +71,10 @@ func New(queries *sqlc.Queries, config Config) *Service {
 		ShowLoader:    loaders.NewLoader(ctx, queries.GetShows),
 		SeasonLoader:  loaders.NewLoader(ctx, queries.GetSeasons),
 		EpisodeLoader: loaders.NewLoader(ctx, queries.GetEpisodes),
-		TagLoader:     loaders.NewLoader(ctx, service.queries.GetTags),
+		PlaylistLoader: loaders.New(ctx, queries.GetPlaylists, loaders.WithKeyFunc(func(i common.Playlist) uuid.UUID {
+			return i.ID
+		})),
+		TagLoader: loaders.NewLoader(ctx, service.queries.GetTags),
 		// Permissions
 		ShowPermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForShows, func(i common.Permissions[int]) int {
 			return i.ItemID
@@ -79,6 +83,21 @@ func New(queries *sqlc.Queries, config Config) *Service {
 			return i.ItemID
 		}),
 		EpisodePermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForEpisodes, func(i common.Permissions[int]) int {
+			return i.ItemID
+		}),
+		PlaylistPermissionLoader: loaders.NewCustomLoader[uuid.UUID, common.Permissions[uuid.UUID]](ctx, func(ctx context.Context, ids []uuid.UUID) ([]common.Permissions[uuid.UUID], error) {
+			rows, err := queries.GetRolesForPlaylists(ctx, ids)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(rows, func(i sqlc.GetRolesForPlaylistsRow, _ int) common.Permissions[uuid.UUID] {
+				return common.Permissions[uuid.UUID]{
+					Roles: common.Roles{
+						Access: i.Roles,
+					},
+				}
+			}), nil
+		}, func(i common.Permissions[uuid.UUID]) uuid.UUID {
 			return i.ItemID
 		}),
 	}

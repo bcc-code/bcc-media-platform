@@ -34,3 +34,9 @@ SELECT p.id,
                                   JOIN directus_files df on img.file = df.id
                          WHERE simg.playlists_id = p.id))) AS images
 FROM public.playlists p;
+
+-- name: GetRolesForPlaylists :many
+SELECT roles.playlists_id, array_agg(roles.usergroups_code)::varchar[] AS roles
+FROM playlists_usergroups roles
+WHERE roles.playlists_id = ANY (@ids::uuid[])
+GROUP BY roles.playlists_id;

@@ -14,6 +14,41 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const getRolesForPlaylists = `-- name: GetRolesForPlaylists :many
+SELECT roles.playlists_id, array_agg(roles.usergroups_code)::varchar[] AS roles
+FROM playlists_usergroups roles
+WHERE roles.playlists_id = ANY ($1::uuid[])
+GROUP BY roles.playlists_id
+`
+
+type GetRolesForPlaylistsRow struct {
+	PlaylistsID uuid.UUID `db:"playlists_id" json:"playlistsId"`
+	Roles       []string  `db:"roles" json:"roles"`
+}
+
+func (q *Queries) GetRolesForPlaylists(ctx context.Context, ids []uuid.UUID) ([]GetRolesForPlaylistsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getRolesForPlaylists, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetRolesForPlaylistsRow
+	for rows.Next() {
+		var i GetRolesForPlaylistsRow
+		if err := rows.Scan(&i.PlaylistsID, pq.Array(&i.Roles)); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getPlaylists = `-- name: getPlaylists :many
 SELECT p.id,
        p.collection_id,

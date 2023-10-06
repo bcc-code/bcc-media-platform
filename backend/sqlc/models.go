@@ -1099,9 +1099,9 @@ type PlaylistsTranslation struct {
 }
 
 type PlaylistsUsergroup struct {
-	ID             int32          `db:"id" json:"id"`
-	PlaylistsID    uuid.NullUUID  `db:"playlists_id" json:"playlistsId"`
-	UsergroupsCode null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
+	ID             int32     `db:"id" json:"id"`
+	PlaylistsID    uuid.UUID `db:"playlists_id" json:"playlistsId"`
+	UsergroupsCode string    `db:"usergroups_code" json:"usergroupsCode"`
 }
 
 type Prompt struct {
