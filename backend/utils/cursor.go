@@ -61,7 +61,17 @@ func (c *Cursor[K]) NextKeys(limit int) []K {
 	if c.CurrentIndex >= len(c.Keys)-1 {
 		return nil
 	}
-	return c.Keys[c.CurrentIndex+1 : lo.Min[int]([]int{c.CurrentIndex + 1 + limit, len(c.Keys)})]
+
+	from := c.CurrentIndex + 1
+
+	to := lo.Min[int](
+		[]int{
+			c.CurrentIndex + 1 + limit,
+			len(c.Keys),
+		},
+	)
+
+	return c.Keys[from:to]
 }
 
 // Next returns the next key
