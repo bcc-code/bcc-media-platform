@@ -384,7 +384,7 @@ func (c *Client) syncFAQs(ctx context.Context, options Options) error {
 
 func (c *Client) syncFAQCategories(ctx context.Context, options Options) error {
 	return syncCollection(ctx, c, options, NewTranslationHandler(
-		"faqs",
+		"faqcategories",
 		func(ctx context.Context, language string) ([]SimpleTranslation, error) {
 			if language == "no" {
 				ts, err := c.q.ListFAQCategoryOriginalTranslations(ctx)
@@ -410,7 +410,7 @@ func (c *Client) syncFAQCategories(ctx context.Context, options Options) error {
 
 func (c *Client) syncGames(ctx context.Context, options Options) error {
 	return syncCollection(ctx, c, options, NewTranslationHandler(
-		"faqs",
+		"games",
 		func(ctx context.Context, language string) ([]SimpleTranslation, error) {
 			if language == "no" {
 				ts, err := c.q.ListGameOriginalTranslations(ctx)
