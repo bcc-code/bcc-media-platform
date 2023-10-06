@@ -33,6 +33,7 @@ type EpisodeContextUnion interface {
 
 type GridSection interface {
 	IsSection()
+	IsItem()
 	IsItemSection()
 	IsGridSection()
 	GetID() string
@@ -46,13 +47,13 @@ type GridSection interface {
 type Item interface {
 	IsItem()
 	GetID() string
-	GetTitle() string
+	GetTitle() *string
 	GetDescription() *string
-	GetImage() *string
 }
 
 type ItemSection interface {
 	IsSection()
+	IsItem()
 	IsItemSection()
 	GetID() string
 	GetMetadata() *ItemSectionMetadata
@@ -72,7 +73,7 @@ type PlaylistItem interface {
 	IsItem()
 	IsPlaylistItem()
 	GetID() string
-	GetTitle() string
+	GetTitle() *string
 	GetDescription() *string
 	GetImage() *string
 }
@@ -99,6 +100,7 @@ type SearchResultItem interface {
 }
 
 type Section interface {
+	IsItem()
 	IsSection()
 	GetID() string
 	GetTitle() *string
@@ -178,6 +180,8 @@ func (this AchievementSection) GetID() string           { return this.ID }
 func (this AchievementSection) GetTitle() *string       { return this.Title }
 func (this AchievementSection) GetDescription() *string { return this.Description }
 
+func (AchievementSection) IsItem() {}
+
 type AddToCollectionResult struct {
 	EntryID    string          `json:"entryId"`
 	Collection *UserCollection `json:"collection"`
@@ -254,6 +258,8 @@ func (this CardListSection) GetID() string           { return this.ID }
 func (this CardListSection) GetTitle() *string       { return this.Title }
 func (this CardListSection) GetDescription() *string { return this.Description }
 
+func (CardListSection) IsItem() {}
+
 func (CardListSection) IsItemSection() {}
 
 func (this CardListSection) GetMetadata() *ItemSectionMetadata { return this.Metadata }
@@ -273,6 +279,8 @@ func (CardSection) IsSection()                   {}
 func (this CardSection) GetID() string           { return this.ID }
 func (this CardSection) GetTitle() *string       { return this.Title }
 func (this CardSection) GetDescription() *string { return this.Description }
+
+func (CardSection) IsItem() {}
 
 func (CardSection) IsItemSection() {}
 
@@ -336,6 +344,8 @@ func (this DefaultGridSection) GetID() string           { return this.ID }
 func (this DefaultGridSection) GetTitle() *string       { return this.Title }
 func (this DefaultGridSection) GetDescription() *string { return this.Description }
 
+func (DefaultGridSection) IsItem() {}
+
 func (DefaultGridSection) IsItemSection() {}
 
 func (this DefaultGridSection) GetMetadata() *ItemSectionMetadata { return this.Metadata }
@@ -359,6 +369,8 @@ func (DefaultSection) IsSection()                   {}
 func (this DefaultSection) GetID() string           { return this.ID }
 func (this DefaultSection) GetTitle() *string       { return this.Title }
 func (this DefaultSection) GetDescription() *string { return this.Description }
+
+func (DefaultSection) IsItem() {}
 
 func (DefaultSection) IsItemSection() {}
 
@@ -417,11 +429,12 @@ type Episode struct {
 
 func (Episode) IsItem()                      {}
 func (this Episode) GetID() string           { return this.ID }
-func (this Episode) GetTitle() string        { return this.Title }
+func (this Episode) GetTitle() *string       { return &this.Title }
 func (this Episode) GetDescription() *string { return &this.Description }
-func (this Episode) GetImage() *string       { return this.Image }
 
 func (Episode) IsPlaylistItem() {}
+
+func (this Episode) GetImage() *string { return this.Image }
 
 func (Episode) IsSectionItemType() {}
 
@@ -570,6 +583,8 @@ func (this FeaturedSection) GetID() string           { return this.ID }
 func (this FeaturedSection) GetTitle() *string       { return this.Title }
 func (this FeaturedSection) GetDescription() *string { return this.Description }
 
+func (FeaturedSection) IsItem() {}
+
 func (FeaturedSection) IsItemSection() {}
 
 func (this FeaturedSection) GetMetadata() *ItemSectionMetadata { return this.Metadata }
@@ -597,9 +612,8 @@ type Game struct {
 
 func (Game) IsItem()                      {}
 func (this Game) GetID() string           { return this.ID }
-func (this Game) GetTitle() string        { return this.Title }
+func (this Game) GetTitle() *string       { return &this.Title }
 func (this Game) GetDescription() *string { return this.Description }
-func (this Game) GetImage() *string       { return this.Image }
 
 func (Game) IsSectionItemType() {}
 
@@ -621,6 +635,8 @@ func (IconGridSection) IsSection()                   {}
 func (this IconGridSection) GetID() string           { return this.ID }
 func (this IconGridSection) GetTitle() *string       { return this.Title }
 func (this IconGridSection) GetDescription() *string { return this.Description }
+
+func (IconGridSection) IsItem() {}
 
 func (IconGridSection) IsItemSection() {}
 
@@ -644,6 +660,8 @@ func (IconSection) IsSection()                   {}
 func (this IconSection) GetID() string           { return this.ID }
 func (this IconSection) GetTitle() *string       { return this.Title }
 func (this IconSection) GetDescription() *string { return this.Description }
+
+func (IconSection) IsItem() {}
 
 func (IconSection) IsItemSection() {}
 
@@ -677,6 +695,8 @@ func (LabelSection) IsSection()                   {}
 func (this LabelSection) GetID() string           { return this.ID }
 func (this LabelSection) GetTitle() *string       { return this.Title }
 func (this LabelSection) GetDescription() *string { return this.Description }
+
+func (LabelSection) IsItem() {}
 
 func (LabelSection) IsItemSection() {}
 
@@ -780,6 +800,8 @@ func (this ListSection) GetID() string           { return this.ID }
 func (this ListSection) GetTitle() *string       { return this.Title }
 func (this ListSection) GetDescription() *string { return this.Description }
 
+func (ListSection) IsItem() {}
+
 func (ListSection) IsItemSection() {}
 
 func (this ListSection) GetMetadata() *ItemSectionMetadata { return this.Metadata }
@@ -804,6 +826,8 @@ func (MessageSection) IsSection()                   {}
 func (this MessageSection) GetID() string           { return this.ID }
 func (this MessageSection) GetTitle() *string       { return this.Title }
 func (this MessageSection) GetDescription() *string { return this.Description }
+
+func (MessageSection) IsItem() {}
 
 type MessageStyle struct {
 	Text       string `json:"text"`
@@ -838,6 +862,8 @@ func (PageDetailsSection) IsSection()                   {}
 func (this PageDetailsSection) GetID() string           { return this.ID }
 func (this PageDetailsSection) GetTitle() *string       { return this.Title }
 func (this PageDetailsSection) GetDescription() *string { return this.Description }
+
+func (PageDetailsSection) IsItem() {}
 
 type PageItem struct {
 	ID       string   `json:"id"`
@@ -874,9 +900,8 @@ type Playlist struct {
 
 func (Playlist) IsItem()                      {}
 func (this Playlist) GetID() string           { return this.ID }
-func (this Playlist) GetTitle() string        { return this.Title }
+func (this Playlist) GetTitle() *string       { return &this.Title }
 func (this Playlist) GetDescription() *string { return this.Description }
-func (this Playlist) GetImage() *string       { return this.Image }
 
 func (Playlist) IsSectionItemType() {}
 
@@ -906,6 +931,8 @@ func (this PosterGridSection) GetID() string           { return this.ID }
 func (this PosterGridSection) GetTitle() *string       { return this.Title }
 func (this PosterGridSection) GetDescription() *string { return this.Description }
 
+func (PosterGridSection) IsItem() {}
+
 func (PosterGridSection) IsItemSection() {}
 
 func (this PosterGridSection) GetMetadata() *ItemSectionMetadata { return this.Metadata }
@@ -929,6 +956,8 @@ func (PosterSection) IsSection()                   {}
 func (this PosterSection) GetID() string           { return this.ID }
 func (this PosterSection) GetTitle() *string       { return this.Title }
 func (this PosterSection) GetDescription() *string { return this.Description }
+
+func (PosterSection) IsItem() {}
 
 func (PosterSection) IsItemSection() {}
 
@@ -1021,9 +1050,8 @@ func (Season) IsEpisodeContextUnion() {}
 
 func (Season) IsItem()                      {}
 func (this Season) GetID() string           { return this.ID }
-func (this Season) GetTitle() string        { return this.Title }
+func (this Season) GetTitle() *string       { return &this.Title }
 func (this Season) GetDescription() *string { return &this.Description }
-func (this Season) GetImage() *string       { return this.Image }
 
 func (Season) IsSectionItemType() {}
 
@@ -1164,9 +1192,8 @@ func (Show) IsSectionItemType() {}
 
 func (Show) IsItem()                      {}
 func (this Show) GetID() string           { return this.ID }
-func (this Show) GetTitle() string        { return this.Title }
+func (this Show) GetTitle() *string       { return &this.Title }
 func (this Show) GetDescription() *string { return &this.Description }
-func (this Show) GetImage() *string       { return this.Image }
 
 func (Show) IsUserCollectionEntryItem() {}
 
@@ -1276,6 +1303,11 @@ type StudyTopic struct {
 }
 
 func (StudyTopic) IsSectionItemType() {}
+
+func (StudyTopic) IsItem()                      {}
+func (this StudyTopic) GetID() string           { return this.ID }
+func (this StudyTopic) GetTitle() *string       { return &this.Title }
+func (this StudyTopic) GetDescription() *string { return &this.Description }
 
 type Survey struct {
 	ID          string                    `json:"id"`
@@ -1428,6 +1460,8 @@ func (WebSection) IsSection()                   {}
 func (this WebSection) GetID() string           { return this.ID }
 func (this WebSection) GetTitle() *string       { return this.Title }
 func (this WebSection) GetDescription() *string { return this.Description }
+
+func (WebSection) IsItem() {}
 
 type CardSectionSize string
 

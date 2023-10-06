@@ -14,11 +14,10 @@ interface Pagination {
 
 interface Item {
     id: ID!
-    title: String!
+    title: String
     description: String
-    image(style: ImageStyle): String
+    #image(style: ImageStyle): String
 }
-
 
 scalar Language
 scalar Date
