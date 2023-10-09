@@ -115,6 +115,8 @@ type Progress struct {
 // EpisodeContext contains context for episode
 type EpisodeContext struct {
 	CollectionID null.Int
+	Cursor       null.String
+	Shuffle      null.Bool
 }
 
 // Identifier contains basic data for identifying an item in a list

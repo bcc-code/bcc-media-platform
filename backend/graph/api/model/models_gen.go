@@ -397,7 +397,8 @@ type Episode struct {
 	ShareRestriction      ShareRestriction       `json:"shareRestriction"`
 	InMyList              bool                   `json:"inMyList"`
 	// Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
-	Next []*Episode `json:"next"`
+	Next   []*Episode `json:"next"`
+	Cursor string     `json:"cursor"`
 }
 
 func (Episode) IsCollectionItem()            {}
@@ -434,6 +435,8 @@ func (this EpisodeCalendarEntry) GetEnd() string         { return this.End }
 
 type EpisodeContext struct {
 	CollectionID *string `json:"collectionId,omitempty"`
+	Shuffle      *bool   `json:"shuffle,omitempty"`
+	Cursor       *string `json:"cursor,omitempty"`
 }
 
 type EpisodePagination struct {

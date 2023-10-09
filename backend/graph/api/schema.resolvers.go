@@ -28,6 +28,7 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/samber/lo"
+	null "gopkg.in/guregu/null.v4"
 )
 
 // Application is the resolver for the application field.
@@ -232,10 +233,11 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Seaso
 func (r *queryRootResolver) Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error) {
 	ginCtx, _ := utils.GinCtx(ctx)
 	if context != nil {
-		eCtx := common.EpisodeContext{
+		ginCtx.Set(episodeContextKey, common.EpisodeContext{
 			CollectionID: utils.AsNullInt(context.CollectionID),
-		}
-		ginCtx.Set(episodeContextKey, eCtx)
+			Cursor:       null.StringFromPtr(context.Cursor),
+			Shuffle:      null.BoolFromPtr(context.Shuffle),
+		})
 	}
 	if intID, err := strconv.ParseInt(id, 10, 64); err == nil {
 		e, err := r.GetLoaders().EpisodeLoader.Get(ctx, int(intID))
