@@ -35,14 +35,13 @@ func (r *episodeResolver) getEpisodeContext(ctx context.Context, episodeID strin
 	return episodeContext, nil
 }
 
-func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string) ([]int, error) {
+func (r *episodeResolver) getEpisodeQueue(ctx context.Context, episodeID string) ([]int, error) {
 	episodeContext, err := r.getEpisodeContext(ctx, episodeID)
 	if err != nil {
 		return nil, err
 	}
 
 	var episodeIDs []int
-
 	// If the EpisodeContext has a valid CollectionID, use the collectionID to retrieve episodeIDs
 	// else, use the episodes in the season (if any)
 	if episodeContext.CollectionID.Valid {
@@ -77,14 +76,45 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string)
 			return append(a, utils.PointerArrayToArray(b)...)
 		}, []int{})
 	}
+	return episodeIDs, nil
+}
 
-	// Get the index and try to get the next episodeID in the array
-	index := lo.IndexOf(episodeIDs, utils.AsInt(episodeID))
-	if index < 0 {
-		return nil, nil
+func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string) (*utils.Cursor[int], error) {
+	return utils.GetOrSetContextWithLock(ctx, "cursor-lock-"+episodeID, func() (*utils.Cursor[int], error) {
+		episodeContext, err := r.getEpisodeContext(ctx, episodeID)
+		if err != nil {
+			return nil, err
+		}
+		var cursor *utils.Cursor[int]
+		if episodeContext.Cursor.Valid {
+			cursor, err = utils.ParseCursor[int](episodeContext.Cursor.String)
+			if err != nil {
+				return nil, err
+			}
+			cursor = cursor.CursorFor(utils.AsInt(episodeID))
+		}
+		if cursor == nil {
+			episodeIDs, err := r.getEpisodeQueue(ctx, episodeID)
+			if err != nil {
+				return nil, err
+			}
+			if episodeContext.Shuffle.Valid && episodeContext.Shuffle.Bool {
+				episodeIDs = lo.Shuffle(episodeIDs)
+			}
+			cursor = utils.ToCursor(episodeIDs, utils.AsInt(episodeID))
+		}
+		return cursor, nil
+	})
+}
+
+func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string, limit *int) ([]int, error) {
+	cursor, err := r.getEpisodeCursor(ctx, episodeID)
+	if err != nil {
+		return nil, err
 	}
-	// If the episode is the last episode in the show, look for alternative episodes
-	if index >= len(episodeIDs)-1 {
+
+	next := cursor.NextCursor()
+	if next == nil {
 		ids, err := r.getNextFromShowCollection(ctx, episodeID)
 		if err != nil {
 			return nil, err
@@ -94,7 +124,13 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string)
 		}
 		return r.getRelatedEpisodes(ctx, episodeID)
 	}
-	return []int{episodeIDs[index+1]}, nil
+
+	l := 1
+	if limit != nil {
+		l = *limit
+	}
+
+	return cursor.NextKeys(l), nil
 }
 
 func (r *episodeResolver) getNextFromShowCollection(ctx context.Context, episodeID string) ([]int, error) {
