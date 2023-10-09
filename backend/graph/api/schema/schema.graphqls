@@ -14,7 +14,7 @@ interface Pagination {
 
 interface CollectionItem {
     id: ID!
-    title: String
+    title: String!
     description: String
     #image(style: ImageStyle): String
 }

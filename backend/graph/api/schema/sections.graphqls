@@ -7,7 +7,7 @@ type ItemSectionMetadata {
     prependLiveElement: Boolean!
 }
 
-interface Section implements CollectionItem {
+interface Section {
     id: ID!
     title: String
     description: String
@@ -34,7 +34,7 @@ enum GridSectionSize {
     half
 }
 
-interface ItemSection implements Section & CollectionItem {
+interface ItemSection implements Section {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -42,16 +42,7 @@ interface ItemSection implements Section & CollectionItem {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type PosterSection implements Section & CollectionItem & ItemSection {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    size: SectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
-}
-
-type FeaturedSection implements Section & CollectionItem & ItemSection {
+type PosterSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -60,7 +51,7 @@ type FeaturedSection implements Section & CollectionItem & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type DefaultSection implements Section & CollectionItem & ItemSection {
+type FeaturedSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -69,7 +60,16 @@ type DefaultSection implements Section & CollectionItem & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type CardSection implements Section & CollectionItem & ItemSection {
+type DefaultSection implements Section & ItemSection {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    size: SectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type CardSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -78,7 +78,7 @@ type CardSection implements Section & CollectionItem & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type ListSection implements Section & CollectionItem & ItemSection {
+type ListSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -87,7 +87,7 @@ type ListSection implements Section & CollectionItem & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type CardListSection implements Section & CollectionItem & ItemSection {
+type CardListSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -96,7 +96,7 @@ type CardListSection implements Section & CollectionItem & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-interface GridSection implements Section & CollectionItem & ItemSection {
+interface GridSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -105,7 +105,7 @@ interface GridSection implements Section & CollectionItem & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type DefaultGridSection implements Section & CollectionItem & ItemSection & GridSection {
+type DefaultGridSection implements Section & ItemSection & GridSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -114,7 +114,7 @@ type DefaultGridSection implements Section & CollectionItem & ItemSection & Grid
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type PosterGridSection implements Section & CollectionItem & ItemSection & GridSection {
+type PosterGridSection implements Section & ItemSection & GridSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -123,7 +123,7 @@ type PosterGridSection implements Section & CollectionItem & ItemSection & GridS
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type IconGridSection implements Section & CollectionItem & ItemSection & GridSection {
+type IconGridSection implements Section & ItemSection & GridSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -132,7 +132,7 @@ type IconGridSection implements Section & CollectionItem & ItemSection & GridSec
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type IconSection implements Section & CollectionItem & ItemSection {
+type IconSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -140,7 +140,7 @@ type IconSection implements Section & CollectionItem & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type LabelSection implements Section & CollectionItem & ItemSection {
+type LabelSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -148,7 +148,7 @@ type LabelSection implements Section & CollectionItem & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type MessageSection implements Section & CollectionItem {
+type MessageSection implements Section {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -156,7 +156,7 @@ type MessageSection implements Section & CollectionItem {
     messages: [Message!] @goField(forceResolver: true)
 }
 
-type WebSection implements Section & CollectionItem {
+type WebSection implements Section {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -168,13 +168,13 @@ type WebSection implements Section & CollectionItem {
     authentication: Boolean!
 }
 
-type AchievementSection implements Section & CollectionItem {
+type AchievementSection implements Section {
     id: ID!
     title: String
     description: String
 }
 
-type PageDetailsSection implements Section & CollectionItem {
+type PageDetailsSection implements Section {
     id: ID!
     title: String
     description: String

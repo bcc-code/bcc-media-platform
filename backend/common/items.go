@@ -26,7 +26,6 @@ var (
 	CollectionSeasons     = ItemCollection{"seasons"}
 	CollectionEpisodes    = ItemCollection{"episodes"}
 	CollectionPages       = ItemCollection{"pages"}
-	CollectionSections    = ItemCollection{"sections"}
 	CollectionGames       = ItemCollection{"games"}
 	CollectionLinks       = ItemCollection{"links"}
 	CollectionPlaylists   = ItemCollection{"playlists"}
@@ -37,7 +36,6 @@ var (
 		CollectionSeasons,
 		CollectionEpisodes,
 		CollectionPages,
-		CollectionSections,
 		CollectionGames,
 		CollectionLinks,
 		CollectionPlaylists,

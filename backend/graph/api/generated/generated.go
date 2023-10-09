@@ -5847,7 +5847,7 @@ type PlaylistItemPagination implements Pagination {
 
 interface PlaylistItem implements CollectionItem {
     id: ID!
-    title: String
+    title: String!
     description: String
     image(style: ImageStyle): String
 }
@@ -5889,7 +5889,7 @@ interface Pagination {
 
 interface CollectionItem {
     id: ID!
-    title: String
+    title: String!
     description: String
     #image(style: ImageStyle): String
 }
@@ -6128,7 +6128,7 @@ type SeasonPagination implements Pagination {
     prependLiveElement: Boolean!
 }
 
-interface Section implements CollectionItem {
+interface Section {
     id: ID!
     title: String
     description: String
@@ -6155,7 +6155,7 @@ enum GridSectionSize {
     half
 }
 
-interface ItemSection implements Section & CollectionItem {
+interface ItemSection implements Section {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -6163,16 +6163,7 @@ interface ItemSection implements Section & CollectionItem {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type PosterSection implements Section & CollectionItem & ItemSection {
-    id: ID!
-    metadata: ItemSectionMetadata
-    title: String
-    description: String
-    size: SectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
-}
-
-type FeaturedSection implements Section & CollectionItem & ItemSection {
+type PosterSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -6181,7 +6172,7 @@ type FeaturedSection implements Section & CollectionItem & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type DefaultSection implements Section & CollectionItem & ItemSection {
+type FeaturedSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -6190,7 +6181,16 @@ type DefaultSection implements Section & CollectionItem & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type CardSection implements Section & CollectionItem & ItemSection {
+type DefaultSection implements Section & ItemSection {
+    id: ID!
+    metadata: ItemSectionMetadata
+    title: String
+    description: String
+    size: SectionSize!
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type CardSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -6199,7 +6199,7 @@ type CardSection implements Section & CollectionItem & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type ListSection implements Section & CollectionItem & ItemSection {
+type ListSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -6208,7 +6208,7 @@ type ListSection implements Section & CollectionItem & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type CardListSection implements Section & CollectionItem & ItemSection {
+type CardListSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -6217,7 +6217,7 @@ type CardListSection implements Section & CollectionItem & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-interface GridSection implements Section & CollectionItem & ItemSection {
+interface GridSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -6226,7 +6226,7 @@ interface GridSection implements Section & CollectionItem & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type DefaultGridSection implements Section & CollectionItem & ItemSection & GridSection {
+type DefaultGridSection implements Section & ItemSection & GridSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -6235,7 +6235,7 @@ type DefaultGridSection implements Section & CollectionItem & ItemSection & Grid
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type PosterGridSection implements Section & CollectionItem & ItemSection & GridSection {
+type PosterGridSection implements Section & ItemSection & GridSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -6244,7 +6244,7 @@ type PosterGridSection implements Section & CollectionItem & ItemSection & GridS
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type IconGridSection implements Section & CollectionItem & ItemSection & GridSection {
+type IconGridSection implements Section & ItemSection & GridSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -6253,7 +6253,7 @@ type IconGridSection implements Section & CollectionItem & ItemSection & GridSec
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type IconSection implements Section & CollectionItem & ItemSection {
+type IconSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -6261,7 +6261,7 @@ type IconSection implements Section & CollectionItem & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type LabelSection implements Section & CollectionItem & ItemSection {
+type LabelSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -6269,7 +6269,7 @@ type LabelSection implements Section & CollectionItem & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type MessageSection implements Section & CollectionItem {
+type MessageSection implements Section {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -6277,7 +6277,7 @@ type MessageSection implements Section & CollectionItem {
     messages: [Message!] @goField(forceResolver: true)
 }
 
-type WebSection implements Section & CollectionItem {
+type WebSection implements Section {
     id: ID!
     metadata: ItemSectionMetadata
     title: String
@@ -6289,13 +6289,13 @@ type WebSection implements Section & CollectionItem {
     authentication: Boolean!
 }
 
-type AchievementSection implements Section & CollectionItem {
+type AchievementSection implements Section {
     id: ID!
     title: String
     description: String
 }
 
-type PageDetailsSection implements Section & CollectionItem {
+type PageDetailsSection implements Section {
     id: ID!
     title: String
     description: String
@@ -36430,126 +36430,6 @@ func (ec *executionContext) _CollectionItem(ctx context.Context, sel ast.Selecti
 			return graphql.Null
 		}
 		return ec._Season(ctx, sel, obj)
-	case model.Section:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Section(ctx, sel, obj)
-	case model.ItemSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ItemSection(ctx, sel, obj)
-	case model.PosterSection:
-		return ec._PosterSection(ctx, sel, &obj)
-	case *model.PosterSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._PosterSection(ctx, sel, obj)
-	case model.FeaturedSection:
-		return ec._FeaturedSection(ctx, sel, &obj)
-	case *model.FeaturedSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._FeaturedSection(ctx, sel, obj)
-	case model.DefaultSection:
-		return ec._DefaultSection(ctx, sel, &obj)
-	case *model.DefaultSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._DefaultSection(ctx, sel, obj)
-	case model.CardSection:
-		return ec._CardSection(ctx, sel, &obj)
-	case *model.CardSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._CardSection(ctx, sel, obj)
-	case model.ListSection:
-		return ec._ListSection(ctx, sel, &obj)
-	case *model.ListSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ListSection(ctx, sel, obj)
-	case model.CardListSection:
-		return ec._CardListSection(ctx, sel, &obj)
-	case *model.CardListSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._CardListSection(ctx, sel, obj)
-	case model.GridSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._GridSection(ctx, sel, obj)
-	case model.DefaultGridSection:
-		return ec._DefaultGridSection(ctx, sel, &obj)
-	case *model.DefaultGridSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._DefaultGridSection(ctx, sel, obj)
-	case model.PosterGridSection:
-		return ec._PosterGridSection(ctx, sel, &obj)
-	case *model.PosterGridSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._PosterGridSection(ctx, sel, obj)
-	case model.IconGridSection:
-		return ec._IconGridSection(ctx, sel, &obj)
-	case *model.IconGridSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._IconGridSection(ctx, sel, obj)
-	case model.IconSection:
-		return ec._IconSection(ctx, sel, &obj)
-	case *model.IconSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._IconSection(ctx, sel, obj)
-	case model.LabelSection:
-		return ec._LabelSection(ctx, sel, &obj)
-	case *model.LabelSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._LabelSection(ctx, sel, obj)
-	case model.MessageSection:
-		return ec._MessageSection(ctx, sel, &obj)
-	case *model.MessageSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._MessageSection(ctx, sel, obj)
-	case model.WebSection:
-		return ec._WebSection(ctx, sel, &obj)
-	case *model.WebSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._WebSection(ctx, sel, obj)
-	case model.AchievementSection:
-		return ec._AchievementSection(ctx, sel, &obj)
-	case *model.AchievementSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._AchievementSection(ctx, sel, obj)
-	case model.PageDetailsSection:
-		return ec._PageDetailsSection(ctx, sel, &obj)
-	case *model.PageDetailsSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._PageDetailsSection(ctx, sel, obj)
 	case model.Show:
 		return ec._Show(ctx, sel, &obj)
 	case *model.Show:
@@ -37510,7 +37390,7 @@ func (ec *executionContext) _AchievementPagination(ctx context.Context, sel ast.
 	return out
 }
 
-var achievementSectionImplementors = []string{"AchievementSection", "Section", "CollectionItem"}
+var achievementSectionImplementors = []string{"AchievementSection", "Section"}
 
 func (ec *executionContext) _AchievementSection(ctx context.Context, sel ast.SelectionSet, obj *model.AchievementSection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, achievementSectionImplementors)
@@ -38287,7 +38167,7 @@ func (ec *executionContext) _CalendarPeriod(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var cardListSectionImplementors = []string{"CardListSection", "Section", "CollectionItem", "ItemSection"}
+var cardListSectionImplementors = []string{"CardListSection", "Section", "ItemSection"}
 
 func (ec *executionContext) _CardListSection(ctx context.Context, sel ast.SelectionSet, obj *model.CardListSection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, cardListSectionImplementors)
@@ -38373,7 +38253,7 @@ func (ec *executionContext) _CardListSection(ctx context.Context, sel ast.Select
 	return out
 }
 
-var cardSectionImplementors = []string{"CardSection", "Section", "CollectionItem", "ItemSection"}
+var cardSectionImplementors = []string{"CardSection", "Section", "ItemSection"}
 
 func (ec *executionContext) _CardSection(ctx context.Context, sel ast.SelectionSet, obj *model.CardSection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, cardSectionImplementors)
@@ -38695,7 +38575,7 @@ func (ec *executionContext) _ContextCollection(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var defaultGridSectionImplementors = []string{"DefaultGridSection", "Section", "CollectionItem", "ItemSection", "GridSection"}
+var defaultGridSectionImplementors = []string{"DefaultGridSection", "Section", "ItemSection", "GridSection"}
 
 func (ec *executionContext) _DefaultGridSection(ctx context.Context, sel ast.SelectionSet, obj *model.DefaultGridSection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, defaultGridSectionImplementors)
@@ -38781,7 +38661,7 @@ func (ec *executionContext) _DefaultGridSection(ctx context.Context, sel ast.Sel
 	return out
 }
 
-var defaultSectionImplementors = []string{"DefaultSection", "Section", "CollectionItem", "ItemSection"}
+var defaultSectionImplementors = []string{"DefaultSection", "Section", "ItemSection"}
 
 func (ec *executionContext) _DefaultSection(ctx context.Context, sel ast.SelectionSet, obj *model.DefaultSection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, defaultSectionImplementors)
@@ -40394,7 +40274,7 @@ func (ec *executionContext) _FAQCategoryPagination(ctx context.Context, sel ast.
 	return out
 }
 
-var featuredSectionImplementors = []string{"FeaturedSection", "Section", "CollectionItem", "ItemSection"}
+var featuredSectionImplementors = []string{"FeaturedSection", "Section", "ItemSection"}
 
 func (ec *executionContext) _FeaturedSection(ctx context.Context, sel ast.SelectionSet, obj *model.FeaturedSection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, featuredSectionImplementors)
@@ -40676,7 +40556,7 @@ func (ec *executionContext) _GlobalConfig(ctx context.Context, sel ast.Selection
 	return out
 }
 
-var iconGridSectionImplementors = []string{"IconGridSection", "Section", "CollectionItem", "ItemSection", "GridSection"}
+var iconGridSectionImplementors = []string{"IconGridSection", "Section", "ItemSection", "GridSection"}
 
 func (ec *executionContext) _IconGridSection(ctx context.Context, sel ast.SelectionSet, obj *model.IconGridSection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, iconGridSectionImplementors)
@@ -40762,7 +40642,7 @@ func (ec *executionContext) _IconGridSection(ctx context.Context, sel ast.Select
 	return out
 }
 
-var iconSectionImplementors = []string{"IconSection", "Section", "CollectionItem", "ItemSection"}
+var iconSectionImplementors = []string{"IconSection", "Section", "ItemSection"}
 
 func (ec *executionContext) _IconSection(ctx context.Context, sel ast.SelectionSet, obj *model.IconSection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, iconSectionImplementors)
@@ -40951,7 +40831,7 @@ func (ec *executionContext) _ItemSectionMetadata(ctx context.Context, sel ast.Se
 	return out
 }
 
-var labelSectionImplementors = []string{"LabelSection", "Section", "CollectionItem", "ItemSection"}
+var labelSectionImplementors = []string{"LabelSection", "Section", "ItemSection"}
 
 func (ec *executionContext) _LabelSection(ctx context.Context, sel ast.SelectionSet, obj *model.LabelSection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, labelSectionImplementors)
@@ -41896,7 +41776,7 @@ func (ec *executionContext) _LinkTask(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var listSectionImplementors = []string{"ListSection", "Section", "CollectionItem", "ItemSection"}
+var listSectionImplementors = []string{"ListSection", "Section", "ItemSection"}
 
 func (ec *executionContext) _ListSection(ctx context.Context, sel ast.SelectionSet, obj *model.ListSection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, listSectionImplementors)
@@ -42031,7 +41911,7 @@ func (ec *executionContext) _Message(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
-var messageSectionImplementors = []string{"MessageSection", "Section", "CollectionItem"}
+var messageSectionImplementors = []string{"MessageSection", "Section"}
 
 func (ec *executionContext) _MessageSection(ctx context.Context, sel ast.SelectionSet, obj *model.MessageSection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, messageSectionImplementors)
@@ -42441,7 +42321,7 @@ func (ec *executionContext) _Page(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
-var pageDetailsSectionImplementors = []string{"PageDetailsSection", "Section", "CollectionItem"}
+var pageDetailsSectionImplementors = []string{"PageDetailsSection", "Section"}
 
 func (ec *executionContext) _PageDetailsSection(ctx context.Context, sel ast.SelectionSet, obj *model.PageDetailsSection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, pageDetailsSectionImplementors)
@@ -42653,7 +42533,7 @@ func (ec *executionContext) _PlaylistItemPagination(ctx context.Context, sel ast
 	return out
 }
 
-var posterGridSectionImplementors = []string{"PosterGridSection", "Section", "CollectionItem", "ItemSection", "GridSection"}
+var posterGridSectionImplementors = []string{"PosterGridSection", "Section", "ItemSection", "GridSection"}
 
 func (ec *executionContext) _PosterGridSection(ctx context.Context, sel ast.SelectionSet, obj *model.PosterGridSection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, posterGridSectionImplementors)
@@ -42739,7 +42619,7 @@ func (ec *executionContext) _PosterGridSection(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var posterSectionImplementors = []string{"PosterSection", "Section", "CollectionItem", "ItemSection"}
+var posterSectionImplementors = []string{"PosterSection", "Section", "ItemSection"}
 
 func (ec *executionContext) _PosterSection(ctx context.Context, sel ast.SelectionSet, obj *model.PosterSection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, posterSectionImplementors)
@@ -46581,7 +46461,7 @@ func (ec *executionContext) _VideoTask(ctx context.Context, sel ast.SelectionSet
 	return out
 }
 
-var webSectionImplementors = []string{"WebSection", "Section", "CollectionItem"}
+var webSectionImplementors = []string{"WebSection", "Section"}
 
 func (ec *executionContext) _WebSection(ctx context.Context, sel ast.SelectionSet, obj *model.WebSection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, webSectionImplementors)

@@ -20,8 +20,6 @@ func preloadEntryLoaders(ctx context.Context, loaders *common.BatchLoaders, entr
 			loaders.EpisodeLoader.Load(ctx, utils.AsInt(e.ID))
 		case common.CollectionPages:
 			loaders.PageLoader.Load(ctx, utils.AsInt(e.ID))
-		case common.CollectionSections:
-			loaders.SectionLoader.Load(ctx, utils.AsInt(e.ID))
 		case common.CollectionStudyTopics:
 			loaders.StudyTopicLoader.Load(ctx, utils.AsUuid(e.ID))
 		case common.CollectionLinks:
@@ -85,15 +83,6 @@ func collectionEntriesToModels(ctx context.Context, ls *common.BatchLoaders, ent
 				continue
 			}
 			items = append(items, model.GameFrom(ctx, i))
-		case common.CollectionSections:
-			i, err := ls.SectionLoader.Get(ctx, utils.AsInt(e.ID))
-			if err != nil {
-				return nil, err
-			}
-			if i == nil {
-				continue
-			}
-			items = append(items, model.SectionFrom(ctx, i))
 		case common.CollectionStudyTopics:
 			i, err := ls.StudyTopicLoader.Get(ctx, utils.AsUuid(e.ID))
 			if err != nil {
