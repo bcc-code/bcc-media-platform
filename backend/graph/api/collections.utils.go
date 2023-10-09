@@ -9,6 +9,31 @@ import (
 	"github.com/samber/lo"
 )
 
+func preloadEntryLoaders(ctx context.Context, loaders *common.BatchLoaders, entries []collection.Entry) {
+	for _, e := range entries {
+		switch e.Collection {
+		case common.CollectionShows:
+			loaders.ShowLoader.Load(ctx, utils.AsInt(e.ID))
+		case common.CollectionSeasons:
+			loaders.SeasonLoader.Load(ctx, utils.AsInt(e.ID))
+		case common.CollectionEpisodes:
+			loaders.EpisodeLoader.Load(ctx, utils.AsInt(e.ID))
+		case common.CollectionPages:
+			loaders.PageLoader.Load(ctx, utils.AsInt(e.ID))
+		case common.CollectionSections:
+			loaders.SectionLoader.Load(ctx, utils.AsInt(e.ID))
+		case common.CollectionStudyTopics:
+			loaders.StudyTopicLoader.Load(ctx, utils.AsUuid(e.ID))
+		case common.CollectionLinks:
+			loaders.LinkLoader.Load(ctx, utils.AsInt(e.ID))
+		case common.CollectionPlaylists:
+			loaders.PlaylistLoader.Load(ctx, utils.AsUuid(e.ID))
+		case common.CollectionGames:
+			loaders.GameLoader.Load(ctx, utils.AsUuid(e.ID))
+		}
+	}
+}
+
 func collectionEntriesToModels(ctx context.Context, ls *common.BatchLoaders, entries []collection.Entry) ([]model.CollectionItem, error) {
 	preloadEntryLoaders(ctx, ls, entries)
 
@@ -112,6 +137,9 @@ func (r *Resolver) getEntriesFromCollection(ctx context.Context, collectionID in
 	return entries, nil
 }
 
+// getItemsPageAs returns a pagination result of items of type T
+// returns only the items and no additional metadata like sort or other relational data
+// it will also filter out items that don't conform to the interface or type T
 func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, first, offset *int, collections ...common.ItemCollection) (*utils.PaginationResult[T], error) {
 	entries, err := r.getEntriesFromCollection(ctx, collectionID)
 	if err != nil {
