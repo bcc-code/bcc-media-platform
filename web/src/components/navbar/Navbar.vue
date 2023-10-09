@@ -113,7 +113,7 @@
                                 >
                                     <img
                                         class="w-8 h-8 rounded-full overflow-hidden stroke-primary"
-                                        v-if="user.picture"
+                                        v-if="user?.picture"
                                         :src="user.picture"
                                     />
                                     <ProfileIcon
@@ -301,7 +301,7 @@
                                 >
                                     <img
                                         class="w-8 h-8 rounded-full overflow-hidden stroke-primary"
-                                        v-if="authenticated && user.picture"
+                                        v-if="authenticated && user?.picture"
                                         :src="user.picture"
                                     />
                                     <ProfileIcon
