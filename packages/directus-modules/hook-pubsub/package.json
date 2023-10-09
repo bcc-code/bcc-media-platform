@@ -20,9 +20,9 @@
 		"link": "directus-extension link"
 	},
 	"devDependencies": {
-		"@directus/extensions-sdk": "^10.1.10",
-		"@types/node": "^20.6.3",
-		"@types/uuid": "^9.0.4",
+		"@directus/extensions-sdk": "^10.1.11",
+		"@types/node": "^20.8.3",
+		"@types/uuid": "^9.0.5",
 		"typescript": "^5.2.2"
 	},
 	"dependencies": {
