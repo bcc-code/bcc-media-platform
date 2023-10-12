@@ -268,26 +268,17 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string, context *mod
 	}, id, model.EpisodeFrom)
 }
 
-// Collection is the resolver for the collection field.
-func (r *queryRootResolver) Collection(ctx context.Context, id *string, slug *string) (*model.Collection, error) {
-	var key string
-	if slug != nil {
-		intID, err := r.Loaders.CollectionIDFromSlugLoader.Get(ctx, *slug)
-		if err != nil {
-			return nil, err
-		}
-		if intID == nil {
-			return nil, merry.New("code invalid", merry.WithUserMessage("Invalid slug specified"))
-		}
-		key = strconv.Itoa(*intID)
-	} else if id != nil {
-		key = *id
-	} else {
-		return nil, merry.New("No options specified", merry.WithUserMessage("Specify either ID or slug"))
+// Playlist is the resolver for the playlist field.
+func (r *queryRootResolver) Playlist(ctx context.Context, id string) (*model.Playlist, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
 	}
-	return resolverForIntID(ctx, &itemLoaders[int, common.Collection]{
-		Item: r.Loaders.CollectionLoader,
-	}, key, model.CollectionFrom)
+	// ignoring permissions as items in the playlist is also checked for permissions,@
+	// and it won't show up in lists if the user does not have access
+	return resolverFor(ctx, &itemLoaders[uuid.UUID, common.Playlist]{
+		Item: r.Loaders.PlaylistLoader,
+	}, uid, model.PlaylistFrom)
 }
 
 // Search is the resolver for the search field.

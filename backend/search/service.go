@@ -6,7 +6,9 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/google/uuid"
 	_ "github.com/lib/pq"
+	"github.com/samber/lo"
 )
 
 const indexName = "global"
@@ -29,14 +31,16 @@ func (object *searchObject) assignVisibility(v common.Visibility) {
 }
 
 type batchLoaders struct {
-	ShowLoader    *loaders.Loader[int, *common.Show]
-	SeasonLoader  *loaders.Loader[int, *common.Season]
-	EpisodeLoader *loaders.Loader[int, *common.Episode]
-	TagLoader     *loaders.Loader[int, *common.Tag]
+	ShowLoader     *loaders.Loader[int, *common.Show]
+	SeasonLoader   *loaders.Loader[int, *common.Season]
+	EpisodeLoader  *loaders.Loader[int, *common.Episode]
+	PlaylistLoader *loaders.Loader[uuid.UUID, *common.Playlist]
+	TagLoader      *loaders.Loader[int, *common.Tag]
 	// Permissions
-	ShowPermissionLoader    *loaders.Loader[int, *common.Permissions[int]]
-	SeasonPermissionLoader  *loaders.Loader[int, *common.Permissions[int]]
-	EpisodePermissionLoader *loaders.Loader[int, *common.Permissions[int]]
+	ShowPermissionLoader     *loaders.Loader[int, *common.Permissions[int]]
+	SeasonPermissionLoader   *loaders.Loader[int, *common.Permissions[int]]
+	EpisodePermissionLoader  *loaders.Loader[int, *common.Permissions[int]]
+	PlaylistPermissionLoader *loaders.Loader[uuid.UUID, *common.Permissions[uuid.UUID]]
 }
 
 // Config contains configuration options for the service
@@ -67,7 +71,10 @@ func New(queries *sqlc.Queries, config Config) *Service {
 		ShowLoader:    loaders.NewLoader(ctx, queries.GetShows),
 		SeasonLoader:  loaders.NewLoader(ctx, queries.GetSeasons),
 		EpisodeLoader: loaders.NewLoader(ctx, queries.GetEpisodes),
-		TagLoader:     loaders.NewLoader(ctx, service.queries.GetTags),
+		PlaylistLoader: loaders.New(ctx, queries.GetPlaylists, loaders.WithKeyFunc(func(i common.Playlist) uuid.UUID {
+			return i.ID
+		})),
+		TagLoader: loaders.NewLoader(ctx, service.queries.GetTags),
 		// Permissions
 		ShowPermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForShows, func(i common.Permissions[int]) int {
 			return i.ItemID
@@ -76,6 +83,21 @@ func New(queries *sqlc.Queries, config Config) *Service {
 			return i.ItemID
 		}),
 		EpisodePermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForEpisodes, func(i common.Permissions[int]) int {
+			return i.ItemID
+		}),
+		PlaylistPermissionLoader: loaders.NewCustomLoader[uuid.UUID, common.Permissions[uuid.UUID]](ctx, func(ctx context.Context, ids []uuid.UUID) ([]common.Permissions[uuid.UUID], error) {
+			rows, err := queries.GetRolesForPlaylists(ctx, ids)
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(rows, func(i sqlc.GetRolesForPlaylistsRow, _ int) common.Permissions[uuid.UUID] {
+				return common.Permissions[uuid.UUID]{
+					Roles: common.Roles{
+						Access: i.Roles,
+					},
+				}
+			}), nil
+		}, func(i common.Permissions[uuid.UUID]) uuid.UUID {
 			return i.ItemID
 		}),
 	}

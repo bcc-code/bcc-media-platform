@@ -99,9 +99,13 @@ func GetCollectionEntries(ctx context.Context, ls *common.BatchLoaders, filtered
 			return nil, err
 		}
 		return lo.Map(itemIds, func(id common.Identifier, index int) Entry {
+			c := common.Collections.Parse(id.Collection)
+			if c == nil {
+				c = &common.CollectionEpisodes
+			}
 			return Entry{
 				ID:         id.ID,
-				Collection: common.ItemCollection(id.Collection),
+				Collection: *c,
 				Sort:       index,
 			}
 		}), nil

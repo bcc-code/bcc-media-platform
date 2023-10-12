@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="btv@localhost" uuid="191915dc-9a84-4b00-9bc7-1ba72ae4b2df">
+    <data-source source="LOCAL" name="bccm@localhost" uuid="191915dc-9a84-4b00-9bc7-1ba72ae4b2df">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/btv</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/bccm</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
     <data-source source="LOCAL" name=":memory:" uuid="b5b36365-a3d4-42ce-b5be-5ad906af5949">

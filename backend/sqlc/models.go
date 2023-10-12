@@ -1072,6 +1072,38 @@ type PhrasesTranslation struct {
 	Value         null_v4.String `db:"value" json:"value"`
 }
 
+type Playlist struct {
+	ID           uuid.UUID      `db:"id" json:"id"`
+	Status       string         `db:"status" json:"status"`
+	UserCreated  uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated  null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated  uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated  null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Title        string         `db:"title" json:"title"`
+	Description  null_v4.String `db:"description" json:"description"`
+	CollectionID null_v4.Int    `db:"collection_id" json:"collectionId"`
+}
+
+type PlaylistsStyledimage struct {
+	ID             int32         `db:"id" json:"id"`
+	PlaylistsID    uuid.NullUUID `db:"playlists_id" json:"playlistsId"`
+	StyledimagesID uuid.NullUUID `db:"styledimages_id" json:"styledimagesId"`
+}
+
+type PlaylistsTranslation struct {
+	ID            int32          `db:"id" json:"id"`
+	PlaylistsID   uuid.UUID      `db:"playlists_id" json:"playlistsId"`
+	LanguagesCode string         `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
+}
+
+type PlaylistsUsergroup struct {
+	ID             int32     `db:"id" json:"id"`
+	PlaylistsID    uuid.UUID `db:"playlists_id" json:"playlistsId"`
+	UsergroupsCode string    `db:"usergroups_code" json:"usergroupsCode"`
+}
+
 type Prompt struct {
 	ID             uuid.UUID      `db:"id" json:"id"`
 	Status         string         `db:"status" json:"status"`

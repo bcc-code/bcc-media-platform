@@ -209,6 +209,20 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 	}
 }
 
+// LinkFrom returns link from common.Link
+func LinkFrom(ctx context.Context, s *common.Link) *Link {
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+
+	return &Link{
+		ID:          strconv.Itoa(s.ID),
+		URL:         s.URL,
+		Title:       s.Title.Get(languages),
+		Description: s.Description.GetValueOrNil(languages),
+		Type:        LinkType(s.Type),
+	}
+}
+
 // LinkSectionItemFrom creates a sectionitem from a link
 func LinkSectionItemFrom(ctx context.Context, s *common.Link, sort int, sectionStyle string) *SectionItem {
 	ginCtx, _ := utils.GinCtx(ctx)

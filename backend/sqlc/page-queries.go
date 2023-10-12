@@ -62,7 +62,6 @@ func (q *Queries) GetPermissionsForPages(ctx context.Context, ids []int) ([]comm
 	return lo.Map(items, func(row getPermissionsForPagesRow, _ int) common.Permissions[int] {
 		return common.Permissions[int]{
 			ItemID: int(row.ID),
-			Type:   common.TypePage,
 			Availability: common.Availability{
 				Published: row.Published,
 				From:      from,

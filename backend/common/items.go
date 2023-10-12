@@ -17,15 +17,29 @@ const (
 )
 
 // ItemCollection is what type of item current struct is
-type ItemCollection string
+type ItemCollection enum.Member[string]
 
 // Types of items
 var (
-	TypeShow    = ItemCollection("shows")
-	TypeSeason  = ItemCollection("seasons")
-	TypeEpisode = ItemCollection("episodes")
-	TypePage    = ItemCollection("pages")
-	TypeSection = ItemCollection("sections")
+	CollectionUnknown     = ItemCollection{"unknown"}
+	CollectionShows       = ItemCollection{"shows"}
+	CollectionSeasons     = ItemCollection{"seasons"}
+	CollectionEpisodes    = ItemCollection{"episodes"}
+	CollectionPages       = ItemCollection{"pages"}
+	CollectionGames       = ItemCollection{"games"}
+	CollectionLinks       = ItemCollection{"links"}
+	CollectionPlaylists   = ItemCollection{"playlists"}
+	CollectionStudyTopics = ItemCollection{"studytopics"}
+	Collections           = enum.New(
+		CollectionUnknown,
+		CollectionShows,
+		CollectionSeasons,
+		CollectionEpisodes,
+		CollectionPages,
+		CollectionGames,
+		CollectionLinks,
+		CollectionPlaylists,
+	)
 )
 
 // Show is the definition of the Show object
@@ -485,4 +499,18 @@ type Person struct {
 type Phrase struct {
 	Key   string
 	Value LocaleString
+}
+
+// Playlist is a collection of items
+type Playlist struct {
+	ID           uuid.UUID
+	CollectionID null.Int
+	Title        LocaleString
+	Description  LocaleString
+	Images       Images
+}
+
+// GetKey returns the key for this item
+func (i Playlist) GetKey() uuid.UUID {
+	return i.ID
 }

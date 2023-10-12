@@ -50,10 +50,6 @@ func (q *Queries) getCollectionEntriesForCollections(ctx context.Context, dollar
 }
 
 const getCollectionEntriesForCollectionsWithRoles = `-- name: getCollectionEntriesForCollectionsWithRoles :many
-WITH game_roles AS (SELECT r.games_id,
-                           array_agg(r.usergroups_code) AS roles
-                    FROM games_usergroups r
-                    GROUP BY r.games_id)
 SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
 FROM collections_entries ce
          LEFT JOIN episode_roles er ON ce.collection = 'episodes' AND er.id::varchar = ce.item
@@ -62,24 +58,20 @@ FROM collections_entries ce
          LEFT JOIN season_availability sa ON ce.collection = 'seasons' AND sa.id::varchar = ce.item
          LEFT JOIN show_roles shr ON ce.collection = 'shows' AND shr.id::varchar = ce.item
          LEFT JOIN show_availability sha ON ce.collection = 'shows' AND sha.id::varchar = ce.item
-         LEFT JOIN game_roles gr ON ce.collection = 'games' AND gr.games_id::varchar = ce.item
+         LEFT JOIN games_usergroups gr ON ce.collection = 'games' AND gr.games_id::varchar = ce.item
+         LEFT JOIN playlists_usergroups pr ON ce.collection = 'playlists' AND pr.playlists_id::varchar = ce.item
 WHERE ce.collections_id = ANY ($1::int[])
-  AND (ce.collection != 'episodes' OR (
-        ea.published
-        AND ea.available_to > now()
-        AND er.roles && $2::varchar[] AND ea.available_from < now()
-    ))
-  AND (ce.collection != 'seasons' OR (
-        sa.published
-        AND sa.available_to > now()
-        AND sr.roles && $2::varchar[] AND sa.available_from < now()
-    ))
-  AND (ce.collection != 'shows' OR (
-        sha.published
-        AND sha.available_to > now()
-        AND shr.roles && $2::varchar[] AND sha.available_from < now()
-    ))
-  AND (ce.collection != 'games' OR (gr.roles && $2::varchar[]))
+  AND (
+        (ce.collection = 'episodes' AND ea.published AND ea.available_to > now() AND er.roles && $2::varchar[] AND
+         ea.available_from < now()) OR
+        (ce.collection = 'seasons' AND sa.published AND sa.available_to > now() AND sr.roles && $2::varchar[] AND
+         sa.available_from < now()) OR
+        (ce.collection = 'shows' AND sha.published AND sha.available_to > now() AND shr.roles && $2::varchar[] AND
+         sha.available_from < now()) OR
+        (ce.collection = 'games' AND gr.usergroups_code = ANY ($2::varchar[])) OR
+        (ce.collection = 'playlists' AND pr.usergroups_code = ANY ($2::varchar[])) OR
+        (ce.collection NOT IN ('episodes', 'seasons', 'shows', 'games', 'playlists'))
+    )
 ORDER BY ce.sort
 `
 

@@ -140,7 +140,6 @@ func (q *Queries) GetPermissionsForEpisodes(ctx context.Context, ids []int) ([]c
 	return lo.Map(items, func(i getPermissionsForEpisodesRow, _ int) common.Permissions[int] {
 		return common.Permissions[int]{
 			ItemID: int(i.ID),
-			Type:   common.TypeEpisode,
 			Availability: common.Availability{
 				Unlisted:    i.Unlisted,
 				Published:   i.Published,

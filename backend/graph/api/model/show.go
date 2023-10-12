@@ -48,20 +48,6 @@ func ShowFrom(ctx context.Context, s *common.Show) *Show {
 	}
 }
 
-// ShowItemFrom returns a ShowItem from a sql row
-func ShowItemFrom(ctx context.Context, s *common.Show, sort int) *ShowItem {
-	show := ShowFrom(ctx, s)
-
-	return &ShowItem{
-		ID:       show.ID,
-		Show:     show,
-		Title:    show.Title,
-		ImageURL: show.ImageURL,
-		Images:   show.Images,
-		Sort:     sort,
-	}
-}
-
 // ShowSectionItemFrom returns a SectionItem from a sql row
 func ShowSectionItemFrom(ctx context.Context, s *common.Show, sort int, sectionStyle string) *SectionItem {
 	ginCtx, _ := utils.GinCtx(ctx)
