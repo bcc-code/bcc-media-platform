@@ -45,15 +45,15 @@ func (r *episodeResolver) getEpisodeQueue(ctx context.Context, episodeID string)
 	// If the EpisodeContext has a valid CollectionID, use the collectionID to retrieve episodeIDs
 	// else, use the episodes in the season (if any)
 	if episodeContext.CollectionID.Valid {
-		items, err := r.GetFilteredLoaders(ctx).CollectionItemsLoader.Get(ctx, int(episodeContext.CollectionID.Int64))
+		items, err := collection.GetCollectionEntries(ctx, r.Loaders, r.GetFilteredLoaders(ctx), int(episodeContext.CollectionID.Int64))
 		if err != nil {
 			return nil, err
 		}
-		items = lo.Filter(items, func(i *common.CollectionItem, _ int) bool {
-			return i.Type == common.CollectionEpisodes
+		items = lo.Filter(items, func(i collection.Entry, _ int) bool {
+			return i.Collection == common.CollectionEpisodes
 		})
-		episodeIDs = lo.Map(items, func(i *common.CollectionItem, _ int) int {
-			return utils.AsInt(i.ItemID)
+		episodeIDs = lo.Map(items, func(i collection.Entry, _ int) int {
+			return utils.AsInt(i.ID)
 		})
 	} else {
 		episode, err := r.Loaders.EpisodeLoader.Get(ctx, utils.AsInt(episodeID))
