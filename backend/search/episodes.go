@@ -21,24 +21,23 @@ func (service *Service) episodeToSearchItem(ctx context.Context, episode common.
 		if err != nil {
 			return searchItem{}, err
 		}
-		if season == nil {
-			return searchItem{}, fmt.Errorf("episode %d has a seasonID, but the season does not exist", episode.ID)
-		}
-		shID := season.ShowID
-		showID = &shID
-		show, err := service.loaders.ShowLoader.Load(ctx, shID)()
-		if err != nil {
-			return searchItem{}, err
-		}
+		if season != nil {
+			shID := season.ShowID
+			showID = &shID
+			show, err := service.loaders.ShowLoader.Load(ctx, shID)()
+			if err != nil {
+				return searchItem{}, err
+			}
 
-		showID = &show.ID
-		showTitle = &show.Title
-		seasonID = &season.ID
-		seasonTitle = &season.Title
+			showID = &show.ID
+			showTitle = &show.Title
+			seasonID = &season.ID
+			seasonTitle = &season.Title
 
-		if episode.Number.Valid {
-			headerString := fmt.Sprintf("S%d:E%d", season.Number, episode.Number.Int64)
-			header = &headerString
+			if episode.Number.Valid {
+				headerString := fmt.Sprintf("S%d:E%d", season.Number, episode.Number.Int64)
+				header = &headerString
+			}
 		}
 	}
 
