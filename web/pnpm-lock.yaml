@@ -33,8 +33,8 @@ dependencies:
     specifier: 1.0.4
     version: 1.0.4(graphql@16.8.1)(vue@3.3.4)
   bccm-video-player:
-    specifier: 1.4.0-test
-    version: 1.4.0-test
+    specifier: 1.5.2
+    version: 1.5.2
   graphql:
     specifier: ^16.8.1
     version: 16.8.1
@@ -1895,12 +1895,12 @@ packages:
       vue: 3.3.4
     dev: false
 
-  /@silvermine/videojs-chromecast@1.4.1(video.js@7.21.4):
+  /@silvermine/videojs-chromecast@1.4.1(video.js@7.21.5):
     resolution: {integrity: sha512-tXeikkWoNC3WIl2WSkIag1CLMbGsgn+26LM4LoB4qx0TQ8mkg7pgpldCTkvXxLVaDluQ/uEm2uxrgrMmjOc6sw==}
     peerDependencies:
       video.js: '>= 6 < 9'
     dependencies:
-      video.js: 7.21.4
+      video.js: 7.21.5
       webcomponents.js: github.com/webcomponents/webcomponentsjs/8a2e40557b177e2cca0def2553f84c8269c8f93e
     dev: false
 
@@ -2016,7 +2016,7 @@ packages:
       wonka: 6.3.1
     dev: false
 
-  /@videojs/http-streaming@2.16.2(video.js@7.21.4):
+  /@videojs/http-streaming@2.16.2(video.js@7.21.5):
     resolution: {integrity: sha512-etPTUdCFu7gUWc+1XcbiPr+lrhOcBu3rV5OL1M+3PDW89zskScAkkcdqYzP4pFodBPye/ydamQoTDScOnElw5A==}
     engines: {node: '>=8', npm: '>=5'}
     peerDependencies:
@@ -2029,7 +2029,7 @@ packages:
       m3u8-parser: 4.8.0
       mpd-parser: 0.22.1
       mux.js: 6.0.1
-      video.js: 7.21.4
+      video.js: 7.21.5
     dev: false
 
   /@videojs/vhs-utils@3.0.5:
@@ -2528,19 +2528,19 @@ packages:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
     dev: true
 
-  /bccm-video-player@1.4.0-test:
-    resolution: {integrity: sha512-qRDLNKmmsHB9VFbL1CE8OgmGKaZ8h+mhcZg2cqAK0nlH5QH3N9OL0iiUnnzQKq91NRQfBxJwJc9KTVjNv+B20g==}
+  /bccm-video-player@1.5.2:
+    resolution: {integrity: sha512-SRVUly2XmDltatzECXyUUejyOywtK7vwvL05uOgQVpXwlQFL/8HADFXRH8Rq7dUuOjYCFe/49hi3fIgHnNcP+Q==}
     dependencies:
-      '@silvermine/videojs-chromecast': 1.4.1(video.js@7.21.4)
+      '@silvermine/videojs-chromecast': 1.4.1(video.js@7.21.5)
       graphql: 16.8.1
       graphql-request: 5.2.0(graphql@16.8.1)
-      ua-parser-js: 1.0.34
-      video.js: 7.21.4
-      videojs-contrib-quality-levels: 2.2.1(video.js@7.21.4)
+      ua-parser-js: 1.0.36
+      video.js: 7.21.5
+      videojs-contrib-quality-levels: 2.2.1(video.js@7.21.5)
       videojs-event-tracking: 1.0.3
-      videojs-mux: 4.15.0
-      youbora-adapter-videojs: 6.8.12
-      youboralib: 6.8.46
+      videojs-mux: 4.16.2
+      youbora-adapter-videojs: 6.8.14
+      youboralib: 6.8.50
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -4167,8 +4167,8 @@ packages:
     resolution: {integrity: sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==}
     dev: true
 
-  /mux-embed@4.24.0:
-    resolution: {integrity: sha512-78FLZMCjH7FnyaMfd/XCiJXe3NlAzPD8G8XyLfhpSn5WQkbRCDyKy+pSJ43MlXYnDkabF34L8OiU5nH/2j4riA==}
+  /mux-embed@4.28.1:
+    resolution: {integrity: sha512-fDJK0Dn3nSqRkLj5LUyjVmFGJt4cWq0/WFq75eP+PMF1cU3lemgKkBVYkTTzx3TUDTuebW+1LZ80r9OTcSa+wQ==}
     dev: false
 
   /mux.js@6.0.1:
@@ -5149,8 +5149,8 @@ packages:
     resolution: {integrity: sha512-cJMeh/eOILyGu0ejgTKB95yKT3zOenSe9UGE3vj6WfiOwgGYnmATUsnDixMFvdU+rNMvWih83hrUP8VwhF9yXQ==}
     dev: true
 
-  /ua-parser-js@1.0.34:
-    resolution: {integrity: sha512-K9mwJm/DaB6mRLZfw6q8IMXipcrmuT6yfhYmwhAkuh+81sChuYstYA+znlgaflUPaYUa3odxKPKGw6Vw/lANew==}
+  /ua-parser-js@1.0.36:
+    resolution: {integrity: sha512-znuyCIXzl8ciS3+y3fHJI/2OhQIXbXw9MWC/o3qwyR+RGppjZHrM27CGFSKCJXi2Kctiz537iOu2KnXs1lMQhw==}
     dev: false
 
   /ufo@1.1.2:
@@ -5230,11 +5230,11 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
-  /video.js@7.21.4:
-    resolution: {integrity: sha512-R5e57M/5uqxQMQpFpybNbd8GtiRwFJPqkHjrhv0QTJ2tqnesbjETbck5kU5dhFr1FevsJRFhjBG4hAnvRGnXbw==}
+  /video.js@7.21.5:
+    resolution: {integrity: sha512-WRq86tXZKrThA9mK+IR+v4tIQVVvnb5LhvL71fD2AX7TxVOPdaeK1X/wyuUruBqWaOG3w2sZXoMY6HF2Jlo9qA==}
     dependencies:
       '@babel/runtime': 7.21.0
-      '@videojs/http-streaming': 2.16.2(video.js@7.21.4)
+      '@videojs/http-streaming': 2.16.2(video.js@7.21.5)
       '@videojs/vhs-utils': 3.0.5
       '@videojs/xhr': 2.6.0
       aes-decrypter: 3.1.3
@@ -5245,36 +5245,36 @@ packages:
       mux.js: 6.0.1
       safe-json-parse: 4.0.0
       videojs-font: 3.2.0
-      videojs-vtt.js: 0.15.4
+      videojs-vtt.js: 0.15.5
     dev: false
 
-  /videojs-contrib-quality-levels@2.2.1(video.js@7.21.4):
+  /videojs-contrib-quality-levels@2.2.1(video.js@7.21.5):
     resolution: {integrity: sha512-cnF6OGGgoC/2nUrbdz54nzPm3BpEZQzMTpyekiX6AXs8imATX2sHbrUz97xXVSHITldk/+d7ZAUrdQYJJTyuug==}
     peerDependencies:
       video.js: ^6 || ^7 || ^8
     dependencies:
       global: 4.4.0
-      video.js: 7.21.4
+      video.js: 7.21.5
     dev: false
 
   /videojs-event-tracking@1.0.3:
     resolution: {integrity: sha512-qiTE4knaC8j8aa/mt3y4jdSXaQ9lH9DS9KKU2o4PBxrCrXXNLcb5IVxUuZCE+wyeDjaSbCIMav+BXKLL8K68vA==}
     dependencies:
-      video.js: 7.21.4
+      video.js: 7.21.5
     dev: false
 
   /videojs-font@3.2.0:
     resolution: {integrity: sha512-g8vHMKK2/JGorSfqAZQUmYYNnXmfec4MLhwtEFS+mMs2IDY398GLysy6BH6K+aS1KMNu/xWZ8Sue/X/mdQPliA==}
     dev: false
 
-  /videojs-mux@4.15.0:
-    resolution: {integrity: sha512-TRnK22t4aKJpep0wcWINq1H2I6bf5JQ2y3vwT2tr1/QiRxc6kugwlXoxwRka7nHUWZWPnoBNxKl0cPWPeKh5NQ==}
+  /videojs-mux@4.16.2:
+    resolution: {integrity: sha512-ml41O2WZkHncbAcMVeS8e216GNCQjHlzspAxTgoBSgm1dwCrFO0nk4jZWQa/92vcvbqfAh9i8cubXscLm5R3XA==}
     dependencies:
-      mux-embed: 4.24.0
+      mux-embed: 4.28.1
     dev: false
 
-  /videojs-vtt.js@0.15.4:
-    resolution: {integrity: sha512-r6IhM325fcLb1D6pgsMkTQT1PpFdUdYZa1iqk7wJEu+QlibBwATPfPc9Bg8Jiym0GE5yP1AG2rMLu+QMVWkYtA==}
+  /videojs-vtt.js@0.15.5:
+    resolution: {integrity: sha512-yZbBxvA7QMYn15Lr/ZfhhLPrNpI/RmCSCqgIff57GC2gIrV5YfyzLfLyZMj0NnZSAz8syB4N0nHXpZg9MyrMOQ==}
     dependencies:
       global: 4.4.0
     dev: false
@@ -5619,18 +5619,18 @@ packages:
   /youbora-adapter-freewheel@6.8.2:
     resolution: {integrity: sha512-7fNsMqe5ciQ3GA1YiqSZmoKWDtmAQjLAfBpVZkdlTp0/J0t4oeTKt0E5uk2EhVusnBdzkn33OW48Kujl+eNwCA==}
     dependencies:
-      youboralib: 6.8.46
+      youboralib: 6.8.50
     dev: false
 
-  /youbora-adapter-videojs@6.8.12:
-    resolution: {integrity: sha512-Dp+b2kFXDBtWOH3GUdPFA2p3bqaykc+bUMFKn8xPdzbCQRStSoxIKGuUek20UkksyV7Vo6f/5JYXavFekE/73Q==}
+  /youbora-adapter-videojs@6.8.14:
+    resolution: {integrity: sha512-bM24fy346FfVq+ujq8P9mV7KyqrPhleuUljSt32A0ZdbC3iDYlIgTHECnvAp+qAe+NHacib4Rc3ZNnbjJXPzEw==}
     dependencies:
       youbora-adapter-freewheel: 6.8.2
-      youboralib: 6.8.46
+      youboralib: 6.8.50
     dev: false
 
-  /youboralib@6.8.46:
-    resolution: {integrity: sha512-Olwwv3e3f1MXxr8ilOQ4hnwmlSO9UFrrQfA9YNR/szHCNCoaBArlbWxVmZESam4+elx5vxmmT35xRY7BYzymSA==}
+  /youboralib@6.8.50:
+    resolution: {integrity: sha512-Y/ZsHA2eqG2FeYV691gLjC6QhWoan+da4r/t4DvfCd4a6l+s08eFip709ZwFjFDxavPhPYlcqqn+7aycay2kbQ==}
     dev: false
 
   github.com/webcomponents/webcomponentsjs/8a2e40557b177e2cca0def2553f84c8269c8f93e:

@@ -1,20 +1,24 @@
-import { ApiClient } from "./client";
+import { ApiClient } from "./client"
 import { gql, GraphQLClient } from "graphql-request"
 
-export const getEpisodeStreams = async (episodeID: string, client?: ApiClient) => {
+export const getEpisodeStreams = async (
+    episodeID: string,
+    client?: ApiClient
+) => {
     client ??= ApiClient.default
     const query = gql`
-    query getEpisode($ID: ID!) {
-        episode(id: $ID) {
-            image
-            streams {
-                audioLanguages
-                subtitleLanguages
-                url
-                type
+        query getEpisode($ID: ID!) {
+            episode(id: $ID) {
+                image
+                streams {
+                    audioLanguages
+                    subtitleLanguages
+                    url
+                    type
+                }
             }
         }
-    }`
+    `
 
     const token = await client.getToken()
 
@@ -23,22 +27,25 @@ export const getEpisodeStreams = async (episodeID: string, client?: ApiClient) =
     if (token) {
         headers["Authorization"] = "Bearer " + token
     }
+    if (client.application) {
+        headers["X-Application"] = client.application
+    }
 
-    const c = new GraphQLClient(client.endpoint, {headers})
+    const c = new GraphQLClient(client.endpoint, { headers })
 
     const response = await c.request<{
         episode: {
-            image: string;
+            image: string
             streams: {
-                audioLanguages: string[];
-                subtitleLanguages: string[];
-                url: string;
-                type: "hls_cmaf" | "dash" | "hls_ts";
+                audioLanguages: string[]
+                subtitleLanguages: string[]
+                url: string
+                type: "hls_cmaf" | "dash" | "hls_ts"
             }[]
         }
     }>(query, {
         ID: episodeID,
     })
 
-    return response.episode;
+    return response.episode
 }

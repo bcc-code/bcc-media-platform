@@ -1,16 +1,19 @@
 export type ApiClientOptions = {
     tokenFactory: (() => Promise<string | null>) | null
     endpoint: string
+    application?: string
 }
 
 export class ApiClient {
-    public endpoint: string;
-    
-    private _tokens: null | (() => Promise<string | null>);
+    public endpoint: string
+    public application?: string
 
-    constructor({tokenFactory, endpoint}: ApiClientOptions) {
-        this._tokens = tokenFactory;
-        this.endpoint = endpoint;
+    private _tokens: null | (() => Promise<string | null>)
+
+    constructor({ tokenFactory, endpoint, application }: ApiClientOptions) {
+        this._tokens = tokenFactory
+        this.endpoint = endpoint
+        this.application = application
     }
 
     public getToken() {
@@ -23,5 +26,5 @@ export class ApiClient {
         }
         return ApiClient._default
     }
-    private static _default: ApiClient | null = null;
+    private static _default: ApiClient | null = null
 }
