@@ -148,7 +148,7 @@ const load = async () => {
         }
 
         player.value?.dispose()
-        player.value = await playerFactory.create("video-player", {
+        player.value = await playerFactory.value.create("video-player", {
             episodeId: episodeId,
             overrides: options,
         })

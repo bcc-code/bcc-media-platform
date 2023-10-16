@@ -77,7 +77,7 @@ const load = async () => {
     if (!episodeId.value) {
         return
     }
-    const p = await player.create("embed-video-player", {
+    const p = await player.value.create("embed-video-player", {
         episodeId: episodeId.value,
         overrides: {
             languagePreferenceDefaults: {
