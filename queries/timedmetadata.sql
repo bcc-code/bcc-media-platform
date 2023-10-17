@@ -42,7 +42,8 @@ SELECT t.id,
        song_id,
        (SELECT array_agg(p.persons_id) FROM "timedmetadata_persons" p WHERE p.timedmetadata_id = t.id)::uuid[]  AS person_ids
 FROM timedmetadata t
-WHERE asset_id = @asset_id;
+WHERE asset_id = @asset_id
+ORDER BY seconds;
 
 -- name: ClearEpisodeTimedMetadata :exec
 DELETE FROM timedmetadata WHERE episode_id = @episode_id;

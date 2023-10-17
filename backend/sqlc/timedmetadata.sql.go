@@ -43,6 +43,7 @@ SELECT t.id,
        (SELECT array_agg(p.persons_id) FROM "timedmetadata_persons" p WHERE p.timedmetadata_id = t.id)::uuid[]  AS person_ids
 FROM timedmetadata t
 WHERE asset_id = $1
+ORDER BY seconds
 `
 
 type GetAssetTimedMetadataRow struct {
