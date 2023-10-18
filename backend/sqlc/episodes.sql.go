@@ -382,10 +382,10 @@ SELECT e.id,
        audience,
        content_type,
        timedmetadata_from_asset,
-       (SELECT array_agg(id)
+       (SELECT array_agg(id ORDER BY seconds)
         FROM timedmetadata md
         WHERE (timedmetadata_from_asset AND md.asset_id = e.asset_id)
-           OR (NOT timedmetadata_from_asset AND md.episode_id = e.id) ORDER BY seconds)::uuid[] AS timedmetadata_ids
+           OR (NOT timedmetadata_from_asset AND md.episode_id = e.id))::uuid[] AS timedmetadata_ids
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
@@ -572,28 +572,28 @@ SELECT e.id,
        e.publish_date,
        e.production_date,
        e.public_title,
-       s.episode_number_in_title                                                 AS number_in_title,
-       COALESCE(e.prevent_public_indexing, false)::bool                          as prevent_public_indexing,
-       ea.available_from::timestamp without time zone                            AS available_from,
-       ea.available_to::timestamp without time zone                              AS available_to,
-       COALESCE(e.publish_date_in_title, false)::bool                            AS publish_date_in_title,
-       fs.filename_disk                                                          as image_file_name,
+       s.episode_number_in_title                                               AS number_in_title,
+       COALESCE(e.prevent_public_indexing, false)::bool                        as prevent_public_indexing,
+       ea.available_from::timestamp without time zone                          AS available_from,
+       ea.available_to::timestamp without time zone                            AS available_to,
+       COALESCE(e.publish_date_in_title, false)::bool                          AS publish_date_in_title,
+       fs.filename_disk                                                        as image_file_name,
        e.season_id,
        e.type,
-       COALESCE(img.json, '[]')                                                  as images,
+       COALESCE(img.json, '[]')                                                as images,
        ts.title,
        ts.description,
        ts.extra_description,
-       tags.tags::int[]                                                          AS tag_ids,
-       assets.duration                                                           as duration,
-       COALESCE(e.agerating_code, s.agerating_code, 'A')                         as agerating,
+       tags.tags::int[]                                                        AS tag_ids,
+       assets.duration                                                         as duration,
+       COALESCE(e.agerating_code, s.agerating_code, 'A')                       as agerating,
        audience,
        content_type,
        timedmetadata_from_asset,
-       (SELECT array_agg(id)
+       (SELECT array_agg(id ORDER BY seconds)
         FROM timedmetadata md
         WHERE (timedmetadata_from_asset AND md.asset_id = e.asset_id)
-           OR (NOT timedmetadata_from_asset AND md.episode_id = e.id) ORDER BY seconds)::uuid[] AS timedmetadata_ids
+           OR (NOT timedmetadata_from_asset AND md.episode_id = e.id))::uuid[] AS timedmetadata_ids
 FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
