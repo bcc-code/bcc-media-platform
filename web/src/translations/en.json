@@ -5,6 +5,7 @@
         "logout": "Logout",
         "stayLoggedOut": "Stay logged out",
         "cancel": "Cancel",
+        "accept": "Accept",
         "submit": "Submit",
         "back": "Back",
         "next": "Next",
@@ -148,6 +149,9 @@
         "contactUs": "Contact us",
         "downloadApp": "Download our app",
         "termsOfUse": "Terms of Use"
+    },
+    "terms": {
+        "byDownloadingYouAcceptTerms": "By downloading this video, you accept our [terms of use](https://bcc.no/en/terms-of-use) and [privacy policy](https://bcc.no/en/privacy-policy)."
     },
     "share": {
         "title": "Share",

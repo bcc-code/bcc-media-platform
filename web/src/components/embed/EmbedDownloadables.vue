@@ -4,6 +4,8 @@ import { Language, getLanguage } from "@/services/language"
 import { computed, ref } from "vue"
 import { DocumentArrowDownIcon } from "@heroicons/vue/24/outline"
 import { analytics } from "@/services/analytics"
+import ModalBase from "../study/ModalBase.vue"
+import { mdToHTML } from "@/services/converter"
 
 const props = defineProps<{
     episode: GetEpisodeEmbedQuery["episode"]
@@ -75,11 +77,14 @@ const fileSize = (bytes: number) => {
     return bytes.toFixed(1) + " " + units[u]
 }
 
+const showTerms = ref(false)
+
 const progress = ref(0)
 
 const downloading = ref(false)
 
 const downloadFile = () => {
+    showTerms.value = false
     if (!file.value) {
         return
     }
@@ -204,7 +209,7 @@ const downloadFile = () => {
                     :class="{
                         'opacity-50 cursor-not-allowed': downloading,
                     }"
-                    @click="downloadFile()"
+                    @click="showTerms = true"
                     :disabled="downloading"
                 >
                     <!-- <span class="my-auto">{{ $t("buttons.download") }}</span> -->
@@ -224,5 +229,45 @@ const downloadFile = () => {
                 </div>
             </div>
         </TransitionGroup>
+        <ModalBase v-model:visible="showTerms">
+            <div class="bg-background rounded-lg p-4 flex flex-col">
+                <div>
+                    <h3>{{ $t("footer.termsOfUse") }}</h3>
+                    <div
+                        class="terms"
+                        v-html="
+                            mdToHTML($t('terms.byDownloadingYouAcceptTerms'))
+                        "
+                    ></div>
+                </div>
+                <div class="flex gap-2 ml-auto">
+                    <button
+                        class="bg-primary-light px-4 py-2 rounded-md"
+                        :class="{
+                            'opacity-50 cursor-not-allowed': downloading,
+                        }"
+                        @click="showTerms = false"
+                        :disabled="downloading"
+                    >
+                        <span class="my-auto">{{ $t("buttons.cancel") }}</span>
+                    </button>
+                    <button
+                        class="bg-primary px-4 py-2 rounded-md"
+                        :class="{
+                            'opacity-50 cursor-not-allowed': downloading,
+                        }"
+                        @click="downloadFile"
+                        :disabled="downloading"
+                    >
+                        <span class="my-auto">{{ $t("buttons.accept") }}</span>
+                    </button>
+                </div>
+            </div>
+        </ModalBase>
     </section>
 </template>
+<style>
+div.terms a {
+    color: var(--color-tint-1);
+}
+</style>
