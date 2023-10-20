@@ -205,6 +205,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		EncodingVersion: null.StringFrom("btv"),
 		MainStoragePath: null.StringFrom(storagePrefix),
 		Status:          null.StringFrom(string(common.StatusDraft)),
+		Source:          null.StringFrom(assetMeta.Source),
 	})
 	if err != nil {
 		return merry.Wrap(err)

@@ -42,8 +42,8 @@ func (q *Queries) DeletePath(ctx context.Context, path null_v4.String) error {
 
 const insertAsset = `-- name: InsertAsset :one
 INSERT INTO assets (duration, encoding_version, legacy_id, main_storage_path,
-                    mediabanken_id, name, status, aws_arn, date_updated, date_created)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(),
+                    mediabanken_id, name, status, aws_arn, source, date_updated, date_created)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(),
         NOW())
 RETURNING id
 `
@@ -57,6 +57,7 @@ type InsertAssetParams struct {
 	Name            string         `db:"name" json:"name"`
 	Status          null_v4.String `db:"status" json:"status"`
 	AwsArn          null_v4.String `db:"aws_arn" json:"awsArn"`
+	Source          null_v4.String `db:"source" json:"source"`
 }
 
 func (q *Queries) InsertAsset(ctx context.Context, arg InsertAssetParams) (int32, error) {
@@ -69,6 +70,7 @@ func (q *Queries) InsertAsset(ctx context.Context, arg InsertAssetParams) (int32
 		arg.Name,
 		arg.Status,
 		arg.AwsArn,
+		arg.Source,
 	)
 	var id int32
 	err := row.Scan(&id)
@@ -186,7 +188,7 @@ func (q *Queries) InsertAssetStreamSubtitleLanguage(ctx context.Context, arg Ins
 }
 
 const listAssets = `-- name: ListAssets :many
-SELECT date_created, date_updated, duration, encoding_version, id, legacy_id, main_storage_path, mediabanken_id, name, status, user_created, user_updated, aws_arn
+SELECT date_created, date_updated, duration, encoding_version, id, legacy_id, main_storage_path, mediabanken_id, name, status, user_created, user_updated, aws_arn, source
 FROM assets
 `
 
@@ -213,6 +215,7 @@ func (q *Queries) ListAssets(ctx context.Context) ([]Asset, error) {
 			&i.UserCreated,
 			&i.UserUpdated,
 			&i.AwsArn,
+			&i.Source,
 		); err != nil {
 			return nil, err
 		}
@@ -228,7 +231,7 @@ func (q *Queries) ListAssets(ctx context.Context) ([]Asset, error) {
 }
 
 const newestPreviousAssetByMediabankenID = `-- name: NewestPreviousAssetByMediabankenID :one
-SELECT date_created, date_updated, duration, encoding_version, id, legacy_id, main_storage_path, mediabanken_id, name, status, user_created, user_updated, aws_arn
+SELECT date_created, date_updated, duration, encoding_version, id, legacy_id, main_storage_path, mediabanken_id, name, status, user_created, user_updated, aws_arn, source
 FROM assets
 WHERE mediabanken_id = $1::varchar
 ORDER BY date_created DESC
@@ -252,6 +255,7 @@ func (q *Queries) NewestPreviousAssetByMediabankenID(ctx context.Context, mediab
 		&i.UserCreated,
 		&i.UserUpdated,
 		&i.AwsArn,
+		&i.Source,
 	)
 	return i, err
 }

@@ -78,8 +78,8 @@ LIMIT 1;
 
 -- name: InsertAsset :one
 INSERT INTO assets (duration, encoding_version, legacy_id, main_storage_path,
-                    mediabanken_id, name, status, aws_arn, date_updated, date_created)
-VALUES (@duration, @encoding_version, @legacy_id, @main_storage_path, @mediabanken_id, @name, @status, @aws_arn, NOW(),
+                    mediabanken_id, name, status, aws_arn, source, date_updated, date_created)
+VALUES (@duration, @encoding_version, @legacy_id, @main_storage_path, @mediabanken_id, @name, @status, @aws_arn, @source, NOW(),
         NOW())
 RETURNING id;
 

@@ -33,4 +33,5 @@ type IngestJSONMeta struct {
 	ChaptersFile string           `json:"chapters_file"`
 	Files        []IngestFileMeta `json:"files"`
 	BasePath     string           `json:"base_path"`
+	Source       string           `json:"source"`
 }

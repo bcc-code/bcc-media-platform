@@ -137,6 +137,7 @@ type Asset struct {
 	UserCreated     uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	UserUpdated     uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 	AwsArn          null_v4.String `db:"aws_arn" json:"awsArn"`
+	Source          null_v4.String `db:"source" json:"source"`
 }
 
 type Assetfile struct {
