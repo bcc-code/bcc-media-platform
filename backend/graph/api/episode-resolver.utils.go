@@ -11,12 +11,15 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"go.opentelemetry.io/otel"
 	"gopkg.in/guregu/null.v4"
 	"math/rand"
 	"strconv"
 )
 
 func (r *episodeResolver) getEpisodeContext(ctx context.Context, episodeID string) (common.EpisodeContext, error) {
+	ctx, span := otel.Tracer("episode-resolver").Start(ctx, "getEpisodeContext")
+	defer span.End()
 	ginCtx, _ := utils.GinCtx(ctx)
 	episodeContext, ok := ginCtx.Value(episodeContextKey).(common.EpisodeContext)
 
@@ -40,6 +43,8 @@ func (r *episodeResolver) getEpisodeContext(ctx context.Context, episodeID strin
 }
 
 func (r *episodeResolver) getEpisodeQueue(ctx context.Context, episodeID string) ([]int, error) {
+	ctx, span := otel.Tracer("episode-resolver").Start(ctx, "getEpisodeQueue")
+	defer span.End()
 	episodeContext, err := r.getEpisodeContext(ctx, episodeID)
 	if err != nil {
 		return nil, err
@@ -84,6 +89,8 @@ func (r *episodeResolver) getEpisodeQueue(ctx context.Context, episodeID string)
 }
 
 func (r *Resolver) episodeIDResolver(ctx context.Context, id string) (string, error) {
+	ctx, span := otel.Tracer("episode-resolver").Start(ctx, "episodeIDResolver")
+	defer span.End()
 	if intID, err := strconv.ParseInt(id, 10, 64); err == nil {
 		e, err := r.GetLoaders().EpisodeLoader.Get(ctx, int(intID))
 		if err != nil {
@@ -112,6 +119,8 @@ func (r *Resolver) episodeIDResolver(ctx context.Context, id string) (string, er
 }
 
 func (r *episodeResolver) getRootEpisodeID(ctx context.Context) (string, error) {
+	ctx, span := otel.Tracer("episode-resolver").Start(ctx, "getRootEpisodeID")
+	defer span.End()
 	opCtx := graphql.GetRootFieldContext(ctx)
 	arg := opCtx.Field.Arguments.ForName("id")
 	if arg != nil {
@@ -121,6 +130,8 @@ func (r *episodeResolver) getRootEpisodeID(ctx context.Context) (string, error) 
 }
 
 func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string) (*utils.Cursor[int], error) {
+	ctx, span := otel.Tracer("episode-resolver").Start(ctx, "getEpisodeCursor")
+	defer span.End()
 	return utils.GetOrSetContextWithLock(ctx, "cursor-lock-"+episodeID, func() (*utils.Cursor[int], error) {
 		intID := utils.AsInt(episodeID)
 		episodeContext, err := r.getEpisodeContext(ctx, episodeID)
@@ -162,6 +173,8 @@ func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string
 }
 
 func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string, limit *int) ([]int, error) {
+	ctx, span := otel.Tracer("episode-resolver").Start(ctx, "getNextEpisodes")
+	defer span.End()
 	cursor, err := r.getEpisodeCursor(ctx, episodeID)
 	if err != nil {
 		return nil, err
@@ -188,6 +201,8 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string,
 }
 
 func (r *episodeResolver) getNextFromShowCollection(ctx context.Context, episodeID string) ([]int, error) {
+	ctx, span := otel.Tracer("episode-resolver").Start(ctx, "getNextFromShowCollection")
+	defer span.End()
 	intID := utils.AsInt(episodeID)
 	episode, err := r.Loaders.EpisodeLoader.Get(ctx, intID)
 	if err != nil || !episode.SeasonID.Valid {
@@ -218,6 +233,8 @@ func (r *episodeResolver) getNextFromShowCollection(ctx context.Context, episode
 }
 
 func (r *episodeResolver) getRelatedEpisodes(ctx context.Context, episodeID string) ([]int, error) {
+	ctx, span := otel.Tracer("episode-resolver").Start(ctx, "getRelatedEpisodes")
+	defer span.End()
 	intID := utils.AsInt(episodeID)
 	episode, err := r.Loaders.EpisodeLoader.Get(ctx, intID)
 	if err != nil {

@@ -217,30 +217,6 @@ func resolverForIntID[t any, r any](ctx context.Context, loaders *itemLoaders[in
 	return resolverFor(ctx, loaders, int(intID), converter)
 }
 
-func itemsResolverFor[k comparable, kr comparable, t any, r any](ctx context.Context, ls *itemLoaders[k, t], listLoader *loaders.Loader[kr, []*k], id kr, converter func(context.Context, *t) r) ([]r, error) {
-	ctx, span := otel.Tracer("resolver").Start(ctx, "items")
-	defer span.End()
-	itemIds, err := listLoader.Get(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	ids := lo.Map(lo.Filter(itemIds, func(i *k, _ int) bool {
-		if ls.Permissions != nil {
-			return user.ValidateAccess(ctx, ls.Permissions, *i, user.CheckConditions{
-				FromDate: true,
-			}) == nil
-		}
-		return true
-	}), func(i *k, _ int) k {
-		return *i
-	})
-
-	items, err := ls.Item.GetMany(ctx, ids)
-
-	return utils.MapWithCtx(ctx, items, converter), err
-}
-
 func imageOrFallback(ctx context.Context, images common.Images, style *model.ImageStyle, fallbacks ...common.Images) *string {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
