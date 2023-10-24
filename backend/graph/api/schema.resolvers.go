@@ -239,33 +239,14 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string, context *mod
 			Shuffle:      null.BoolFromPtr(context.Shuffle),
 		})
 	}
-	if intID, err := strconv.ParseInt(id, 10, 64); err == nil {
-		e, err := r.GetLoaders().EpisodeLoader.Get(ctx, int(intID))
-		if err != nil {
-			return nil, err
-		}
-		u := user.GetFromCtx(ginCtx)
-		if e == nil || (e.Unlisted() && u.Anonymous) {
-			return nil, ErrItemNotFound
-		}
-	} else {
-		uuidValue, err := uuid.Parse(id)
-		if err != nil {
-			return nil, ErrItemNotFound
-		}
-		eid, err := r.GetLoaders().EpisodeIDFromUuidLoader.Get(ctx, uuidValue)
-		if err != nil {
-			return nil, err
-		}
-		if eid == nil {
-			return nil, ErrItemNotFound
-		}
-		id = fmt.Sprint(*eid)
+	episodeID, err := r.episodeIDResolver(ctx, id)
+	if err != nil {
+		return nil, err
 	}
 	return resolverForIntID(ctx, &itemLoaders[int, common.Episode]{
 		Item:        r.Loaders.EpisodeLoader,
 		Permissions: r.Loaders.EpisodePermissionLoader,
-	}, id, model.EpisodeFrom)
+	}, episodeID, model.EpisodeFrom)
 }
 
 // Playlist is the resolver for the playlist field.

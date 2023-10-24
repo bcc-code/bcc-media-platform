@@ -3,13 +3,17 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/items/collection"
+	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
 	"math/rand"
+	"strconv"
 )
 
 func (r *episodeResolver) getEpisodeContext(ctx context.Context, episodeID string) (common.EpisodeContext, error) {
@@ -79,8 +83,46 @@ func (r *episodeResolver) getEpisodeQueue(ctx context.Context, episodeID string)
 	return episodeIDs, nil
 }
 
+func (r *Resolver) episodeIDResolver(ctx context.Context, id string) (string, error) {
+	if intID, err := strconv.ParseInt(id, 10, 64); err == nil {
+		e, err := r.GetLoaders().EpisodeLoader.Get(ctx, int(intID))
+		if err != nil {
+			return "", err
+		}
+		ginCtx, _ := utils.GinCtx(ctx)
+		u := user.GetFromCtx(ginCtx)
+		if e == nil || (e.Unlisted() && u.Anonymous) {
+			return "", ErrItemNotFound
+		}
+		return id, nil
+	} else {
+		uuidValue, err := uuid.Parse(id)
+		if err != nil {
+			return "", ErrItemNotFound
+		}
+		eid, err := r.GetLoaders().EpisodeIDFromUuidLoader.Get(ctx, uuidValue)
+		if err != nil {
+			return "", err
+		}
+		if eid == nil {
+			return "", ErrItemNotFound
+		}
+		return strconv.Itoa(*eid), nil
+	}
+}
+
+func (r *episodeResolver) getRootEpisodeID(ctx context.Context) (string, error) {
+	opCtx := graphql.GetRootFieldContext(ctx)
+	arg := opCtx.Field.Field.Arguments.ForName("id")
+	if arg != nil {
+		return r.episodeIDResolver(ctx, arg.Value.Raw)
+	}
+	return "", fmt.Errorf("no root episode found")
+}
+
 func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string) (*utils.Cursor[int], error) {
 	return utils.GetOrSetContextWithLock(ctx, "cursor-lock-"+episodeID, func() (*utils.Cursor[int], error) {
+		intID := utils.AsInt(episodeID)
 		episodeContext, err := r.getEpisodeContext(ctx, episodeID)
 		if err != nil {
 			return nil, err
@@ -91,7 +133,17 @@ func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string
 			if err != nil {
 				return nil, err
 			}
-			cursor = cursor.CursorFor(utils.AsInt(episodeID))
+			cursor = cursor.CursorFor(intID)
+		}
+		if cursor == nil {
+			rootID, err := r.getRootEpisodeID(ctx)
+			if err == nil && rootID != episodeID {
+				cursor, err = r.getEpisodeCursor(ctx, rootID)
+				if err != nil {
+					return nil, err
+				}
+				cursor = cursor.CursorFor(intID)
+			}
 		}
 		if cursor == nil {
 			episodeIDs, err := r.getEpisodeQueue(ctx, episodeID)
@@ -99,9 +151,11 @@ func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string
 				return nil, err
 			}
 			if episodeContext.Shuffle.Valid && episodeContext.Shuffle.Bool {
-				episodeIDs = lo.Shuffle(episodeIDs)
+				episodeIDs = append([]int{intID}, lo.Shuffle(lo.Filter(episodeIDs, func(id int, _ int) bool {
+					return id != intID
+				}))...)
 			}
-			cursor = utils.ToCursor(episodeIDs, utils.AsInt(episodeID))
+			cursor = utils.ToCursor(episodeIDs, intID)
 		}
 		return cursor, nil
 	})
