@@ -113,7 +113,7 @@ func (r *Resolver) episodeIDResolver(ctx context.Context, id string) (string, er
 
 func (r *episodeResolver) getRootEpisodeID(ctx context.Context) (string, error) {
 	opCtx := graphql.GetRootFieldContext(ctx)
-	arg := opCtx.Field.Field.Arguments.ForName("id")
+	arg := opCtx.Field.Arguments.ForName("id")
 	if arg != nil {
 		return r.episodeIDResolver(ctx, arg.Value.Raw)
 	}
