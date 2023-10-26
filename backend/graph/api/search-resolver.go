@@ -16,8 +16,10 @@ func gqlShowFromSearchResultItem(i common.SearchResultItem) model.ShowSearchItem
 		legacyID = &str
 	}
 
+	id := strconv.Itoa(i.ID)
+
 	return model.ShowSearchItem{
-		ID:          strconv.Itoa(i.ID),
+		ID:          id,
 		LegacyID:    legacyID,
 		Collection:  i.Collection,
 		Title:       i.Title,

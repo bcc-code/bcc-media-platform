@@ -23,6 +23,7 @@ import (
 // NewExecutableSchema creates an ExecutableSchema from the ResolverRoot interface.
 func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
 	return &executableSchema{
+		schema:     cfg.Schema,
 		resolvers:  cfg.Resolvers,
 		directives: cfg.Directives,
 		complexity: cfg.Complexity,
@@ -30,6 +31,7 @@ func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
 }
 
 type Config struct {
+	Schema     *ast.Schema
 	Resolvers  ResolverRoot
 	Directives DirectiveRoot
 	Complexity ComplexityRoot
@@ -79,6 +81,7 @@ type ResolverRoot interface {
 	SectionItem() SectionItemResolver
 	Show() ShowResolver
 	ShowCalendarEntry() ShowCalendarEntryResolver
+	ShowSearchItem() ShowSearchItemResolver
 	SimpleCalendarEntry() SimpleCalendarEntryResolver
 	StudyTopic() StudyTopicResolver
 	Survey() SurveyResolver
@@ -770,6 +773,7 @@ type ComplexityRoot struct {
 		ID          func(childComplexity int) int
 		Image       func(childComplexity int) int
 		LegacyID    func(childComplexity int) int
+		Show        func(childComplexity int) int
 		Title       func(childComplexity int) int
 		URL         func(childComplexity int) int
 	}
@@ -1155,6 +1159,9 @@ type ShowCalendarEntryResolver interface {
 
 	Show(ctx context.Context, obj *model.ShowCalendarEntry) (*model.Show, error)
 }
+type ShowSearchItemResolver interface {
+	Show(ctx context.Context, obj *model.ShowSearchItem) (*model.Show, error)
+}
 type SimpleCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *model.SimpleCalendarEntry) (*model.Event, error)
 }
@@ -1191,12 +1198,16 @@ type VideoTaskResolver interface {
 }
 
 type executableSchema struct {
+	schema     *ast.Schema
 	resolvers  ResolverRoot
 	directives DirectiveRoot
 	complexity ComplexityRoot
 }
 
 func (e *executableSchema) Schema() *ast.Schema {
+	if e.schema != nil {
+		return e.schema
+	}
 	return parsedSchema
 }
 
@@ -4678,6 +4689,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ShowSearchItem.LegacyID(childComplexity), true
 
+	case "ShowSearchItem.show":
+		if e.complexity.ShowSearchItem.Show == nil {
+			break
+		}
+
+		return e.complexity.ShowSearchItem.Show(childComplexity), true
+
 	case "ShowSearchItem.title":
 		if e.complexity.ShowSearchItem.Title == nil {
 			break
@@ -5399,14 +5417,14 @@ func (ec *executionContext) introspectSchema() (*introspection.Schema, error) {
 	if ec.DisableIntrospection {
 		return nil, errors.New("introspection disabled")
 	}
-	return introspection.WrapSchema(parsedSchema), nil
+	return introspection.WrapSchema(ec.Schema()), nil
 }
 
 func (ec *executionContext) introspectType(name string) (*introspection.Type, error) {
 	if ec.DisableIntrospection {
 		return nil, errors.New("introspection disabled")
 	}
-	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
+	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
 var sources = []*ast.Source{
@@ -6079,6 +6097,7 @@ type ShowSearchItem implements SearchResultItem {
     highlight: String
     image: String
     url: String!
+    show: Show! @goField(forceResolver: true)
 }
 
 type SearchResult {
@@ -30502,6 +30521,78 @@ func (ec *executionContext) fieldContext_ShowSearchItem_url(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _ShowSearchItem_show(ctx context.Context, field graphql.CollectedField, obj *model.ShowSearchItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShowSearchItem_show(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ShowSearchItem().Show(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Show)
+	fc.Result = res
+	return ec.marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShowSearchItem_show(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShowSearchItem",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Show_id(ctx, field)
+			case "legacyID":
+				return ec.fieldContext_Show_legacyID(ctx, field)
+			case "status":
+				return ec.fieldContext_Show_status(ctx, field)
+			case "type":
+				return ec.fieldContext_Show_type(ctx, field)
+			case "title":
+				return ec.fieldContext_Show_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Show_description(ctx, field)
+			case "image":
+				return ec.fieldContext_Show_image(ctx, field)
+			case "imageUrl":
+				return ec.fieldContext_Show_imageUrl(ctx, field)
+			case "images":
+				return ec.fieldContext_Show_images(ctx, field)
+			case "episodeCount":
+				return ec.fieldContext_Show_episodeCount(ctx, field)
+			case "seasonCount":
+				return ec.fieldContext_Show_seasonCount(ctx, field)
+			case "seasons":
+				return ec.fieldContext_Show_seasons(ctx, field)
+			case "defaultEpisode":
+				return ec.fieldContext_Show_defaultEpisode(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Show", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SimpleCalendarEntry_id(ctx context.Context, field graphql.CollectedField, obj *model.SimpleCalendarEntry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SimpleCalendarEntry_id(ctx, field)
 	if err != nil {
@@ -45088,19 +45179,19 @@ func (ec *executionContext) _ShowSearchItem(ctx context.Context, sel ast.Selecti
 		case "id":
 			out.Values[i] = ec._ShowSearchItem_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "legacyID":
 			out.Values[i] = ec._ShowSearchItem_legacyID(ctx, field, obj)
 		case "collection":
 			out.Values[i] = ec._ShowSearchItem_collection(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "title":
 			out.Values[i] = ec._ShowSearchItem_title(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "header":
 			out.Values[i] = ec._ShowSearchItem_header(ctx, field, obj)
@@ -45113,8 +45204,44 @@ func (ec *executionContext) _ShowSearchItem(ctx context.Context, sel ast.Selecti
 		case "url":
 			out.Values[i] = ec._ShowSearchItem_url(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "show":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ShowSearchItem_show(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

@@ -1095,6 +1095,7 @@ type ShowSearchItem struct {
 	Highlight   *string `json:"highlight,omitempty"`
 	Image       *string `json:"image,omitempty"`
 	URL         string  `json:"url"`
+	Show        *Show   `json:"show"`
 }
 
 func (ShowSearchItem) IsSearchResultItem()          {}
