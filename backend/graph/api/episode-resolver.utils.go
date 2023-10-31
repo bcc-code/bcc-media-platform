@@ -268,7 +268,7 @@ func (r *episodeResolver) getRelatedEpisodeIDs(ctx context.Context, episodeID st
 	}, []int{})
 	// Uncomment if we want all episodes to be treated equally.
 	// Keep it commented out to weigh episode with more common tags higher.
-	episodeIDs = lo.Uniq(episodeIDs)
+	//episodeIDs = lo.Uniq(episodeIDs)
 	episodeIDs = lo.Filter(episodeIDs, func(i int, _ int) bool {
 		return i != intID
 	})
