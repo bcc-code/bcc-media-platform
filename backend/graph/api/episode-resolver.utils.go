@@ -184,7 +184,7 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string,
 		l = *limit
 	}
 
-	keys := cursor.NextKeys(l)
+	keys := cursor.NextKeys(1)
 	if len(keys) < l {
 		appendIDs := func(ids []int) {
 			ids = lo.Shuffle(ids)
