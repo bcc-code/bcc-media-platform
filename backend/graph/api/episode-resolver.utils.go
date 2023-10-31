@@ -171,6 +171,16 @@ func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string
 	})
 }
 
+func appendNextEpisodeIDs(keys []int, ids []int) []int {
+	ids = lo.Shuffle(ids)
+	for _, id := range ids {
+		if !lo.Contains(keys, id) {
+			keys = append(keys, id)
+		}
+	}
+	return keys
+}
+
 func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string, limit *int) ([]int, error) {
 	ctx, span := otel.Tracer("episode-resolver").Start(ctx, "getNextEpisodes")
 	defer span.End()
@@ -186,25 +196,13 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string,
 
 	keys := cursor.NextKeys(1)
 	if len(keys) < l {
-		appendIDs := func(ids []int) {
-			ids = lo.Shuffle(ids)
-			for _, id := range ids {
-				if !lo.Contains(keys, id) {
-					keys = append(keys, id)
-				}
-				if len(keys) >= l {
-					return
-				}
-			}
-		}
-
 		var ids []int
 		ids, err = r.getNextEpisodeIDsFromShowCollection(ctx, episodeID)
 		if err != nil {
 			return nil, err
 		}
 
-		appendIDs(ids)
+		keys = appendNextEpisodeIDs(keys, ids)
 		if len(keys) >= l {
 			return keys, nil
 		}
@@ -214,7 +212,7 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string,
 			return nil, err
 		}
 
-		appendIDs(ids)
+		keys = appendNextEpisodeIDs(keys, ids)
 		if len(keys) >= l {
 			return keys, nil
 		}
