@@ -422,9 +422,10 @@ WITH episodes AS (SELECT e.id
                   FROM episodes e
                            LEFT JOIN seasons s ON s.id = e.season_id
                            LEFT JOIN shows sh ON sh.id = s.show_id
-                  WHERE e.status = ANY ('{published,unlisted}')
-                    AND s.status = ANY ('{published,unlisted}')
-                    AND sh.status = ANY ('{published,unlisted}'))
+                  WHERE e.translations_required
+                    AND e.status = ANY ('{published,unlisted}')
+                    AND (e.season_id IS NULL OR (s.status = ANY ('{published,unlisted}')
+                      AND sh.status = ANY ('{published,unlisted}'))))
 SELECT et.id,
        episodes_id                                                   as parent_id,
        languages_code                                                as language,
@@ -853,7 +854,8 @@ func (q *Queries) ListLinkTranslations(ctx context.Context, language string) ([]
 const listPageTranslations = `-- name: ListPageTranslations :many
 WITH pages AS (SELECT s.id
                FROM pages s
-               WHERE s.status = ANY ('{published,unlisted}'))
+               WHERE s.translations_required
+                 AND s.status = ANY ('{published,unlisted}'))
 SELECT st.id,
        pages_id                                                      as parent_id,
        languages_code                                                as language,
@@ -1019,8 +1021,9 @@ func (q *Queries) ListQuestionAlternativesOriginalTranslations(ctx context.Conte
 const listSeasonTranslations = `-- name: ListSeasonTranslations :many
 WITH seasons AS (SELECT s.id
                  FROM seasons s
-                          LEFT JOIN shows sh ON sh.id = s.show_id
-                 WHERE s.status = ANY ('{published,unlisted}')
+                          JOIN shows sh ON sh.id = s.show_id
+                 WHERE s.translations_required
+                   AND s.status = ANY ('{published,unlisted}')
                    AND sh.status = ANY ('{published,unlisted}'))
 SELECT et.id,
        seasons_id                                                    as parent_id,
@@ -1069,7 +1072,8 @@ func (q *Queries) ListSeasonTranslations(ctx context.Context, language string) (
 const listSectionTranslations = `-- name: ListSectionTranslations :many
 WITH sections AS (SELECT s.id
                   FROM sections s
-                  WHERE s.status = 'published'
+                  WHERE s.translations_required
+                    AND s.status = 'published'
                     AND s.show_title = true)
 SELECT st.id,
        sections_id                                                   as parent_id,
@@ -1118,7 +1122,8 @@ func (q *Queries) ListSectionTranslations(ctx context.Context, language string) 
 const listShowTranslations = `-- name: ListShowTranslations :many
 WITH shows AS (SELECT s.id
                FROM shows s
-               WHERE s.status = ANY ('{published,unlisted}'))
+               WHERE s.translations_required
+                 AND s.status = ANY ('{published,unlisted}'))
 SELECT et.id,
        shows_id                                                      as parent_id,
        languages_code                                                as language,
