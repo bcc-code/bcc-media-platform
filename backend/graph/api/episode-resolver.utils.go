@@ -13,7 +13,6 @@ import (
 	"github.com/samber/lo"
 	"go.opentelemetry.io/otel"
 	"gopkg.in/guregu/null.v4"
-	"math/rand"
 	"strconv"
 )
 
@@ -172,6 +171,16 @@ func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string
 	})
 }
 
+func appendShuffledKeys[K comparable](keys []K, ids []K) []K {
+	ids = lo.Shuffle(ids)
+	for _, id := range ids {
+		if !lo.Contains(keys, id) {
+			keys = append(keys, id)
+		}
+	}
+	return keys
+}
+
 func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string, limit *int) ([]int, error) {
 	ctx, span := otel.Tracer("episode-resolver").Start(ctx, "getNextEpisodes")
 	defer span.End()
@@ -180,28 +189,39 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string,
 		return nil, err
 	}
 
-	next := cursor.NextCursor()
-	if next == nil {
-		ids, err := r.getNextFromShowCollection(ctx, episodeID)
-		if err != nil {
-			return nil, err
-		}
-		if len(ids) > 0 {
-			return ids, nil
-		}
-		return r.getRelatedEpisodes(ctx, episodeID)
-	}
-
 	l := 1
 	if limit != nil {
 		l = *limit
 	}
 
-	return cursor.NextKeys(l), nil
+	keys := cursor.NextKeys(1)
+	if len(keys) < l {
+		var ids []int
+		ids, err = r.getNextEpisodeIDsFromShowCollection(ctx, episodeID)
+		if err != nil {
+			return nil, err
+		}
+
+		keys = appendShuffledKeys(keys, ids)
+		if len(keys) >= l {
+			return keys, nil
+		}
+
+		ids, err = r.getRelatedEpisodeIDs(ctx, episodeID)
+		if err != nil {
+			return nil, err
+		}
+
+		keys = appendShuffledKeys(keys, ids)
+		if len(keys) >= l {
+			return keys, nil
+		}
+	}
+	return keys, nil
 }
 
-func (r *episodeResolver) getNextFromShowCollection(ctx context.Context, episodeID string) ([]int, error) {
-	ctx, span := otel.Tracer("episode-resolver").Start(ctx, "getNextFromShowCollection")
+func (r *episodeResolver) getNextEpisodeIDsFromShowCollection(ctx context.Context, episodeID string) ([]int, error) {
+	ctx, span := otel.Tracer("episode-resolver").Start(ctx, "getNextEpisodeIDsFromShowCollection")
 	defer span.End()
 	intID := utils.AsInt(episodeID)
 	episode, err := r.Loaders.EpisodeLoader.Get(ctx, intID)
@@ -220,20 +240,17 @@ func (r *episodeResolver) getNextFromShowCollection(ctx context.Context, episode
 	if err != nil {
 		return nil, err
 	}
-	episodeEntries := lo.Filter(entries, func(i collection.Entry, _ int) bool {
-		return i.Collection == common.CollectionEpisodes && i.ID != episodeID
-	})
-	if len(episodeEntries) <= 0 {
-		return nil, nil
+	var episodeIDs []int
+	for _, i := range entries {
+		if i.Collection == common.CollectionEpisodes && i.ID != episodeID {
+			episodeIDs = append(episodeIDs, utils.AsInt(i.ID))
+		}
 	}
-	randomIndex := rand.Intn(len(episodeEntries))
-	return []int{
-		utils.AsInt(episodeEntries[randomIndex].ID),
-	}, nil
+	return episodeIDs, nil
 }
 
-func (r *episodeResolver) getRelatedEpisodes(ctx context.Context, episodeID string) ([]int, error) {
-	ctx, span := otel.Tracer("episode-resolver").Start(ctx, "getRelatedEpisodes")
+func (r *episodeResolver) getRelatedEpisodeIDs(ctx context.Context, episodeID string) ([]int, error) {
+	ctx, span := otel.Tracer("episode-resolver").Start(ctx, "getRelatedEpisodeIDs")
 	defer span.End()
 	intID := utils.AsInt(episodeID)
 	episode, err := r.Loaders.EpisodeLoader.Get(ctx, intID)
@@ -256,8 +273,7 @@ func (r *episodeResolver) getRelatedEpisodes(ctx context.Context, episodeID stri
 	if len(episodeIDs) <= 0 {
 		return nil, nil
 	}
-	randomIndex := rand.Intn(len(episodeIDs))
-	return []int{episodeIDs[randomIndex]}, nil
+	return episodeIDs, nil
 }
 
 func (r *episodeResolver) getTitleFromContext(ctx context.Context, obj *model.Episode) (string, error) {
