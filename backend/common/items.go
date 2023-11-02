@@ -208,7 +208,9 @@ var (
 	ChapterTypeTestimony = ChapterType{Value: "testimony"}
 	ChapterTypeSingAlong = ChapterType{Value: "sing_along"}
 	ChapterTypeAppeal    = ChapterType{Value: "appeal"}
-	ChapterTypes         = enum.New(ChapterTypeSong, ChapterTypeSpeech, ChapterTypeTestimony)
+	ChapterTypeOther     = ChapterType{Value: "other"}
+	ChapterTypes         = enum.New(ChapterTypeSong, ChapterTypeSpeech, ChapterTypeTestimony,
+		ChapterTypeSingAlong, ChapterTypeAppeal, ChapterTypeOther)
 )
 
 // TimedMetadata item type
