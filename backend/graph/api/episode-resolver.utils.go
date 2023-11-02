@@ -204,7 +204,7 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string,
 
 		keys = appendShuffledKeys(keys, ids)
 		if len(keys) >= l {
-			return keys, nil
+			return keys[:l], nil
 		}
 
 		ids, err = r.getRelatedEpisodeIDs(ctx, episodeID)
@@ -214,7 +214,7 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string,
 
 		keys = appendShuffledKeys(keys, ids)
 		if len(keys) >= l {
-			return keys, nil
+			return keys[:l], nil
 		}
 	}
 	return keys, nil
