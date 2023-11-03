@@ -171,11 +171,14 @@ func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string
 	})
 }
 
-func appendShuffledKeys[K comparable](keys []K, ids []K) []K {
+func appendShuffledKeys[K comparable](keys []K, ids []K, maxLength int) []K {
 	ids = lo.Shuffle(ids)
 	for _, id := range ids {
 		if !lo.Contains(keys, id) {
 			keys = append(keys, id)
+		}
+		if len(keys) >= maxLength {
+			break
 		}
 	}
 	return keys
@@ -202,7 +205,7 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string,
 			return nil, err
 		}
 
-		keys = appendShuffledKeys(keys, ids)
+		keys = appendShuffledKeys(keys, ids, l)
 		if len(keys) >= l {
 			return keys[:l], nil
 		}
@@ -212,7 +215,7 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string,
 			return nil, err
 		}
 
-		keys = appendShuffledKeys(keys, ids)
+		keys = appendShuffledKeys(keys, ids, l)
 		if len(keys) >= l {
 			return keys[:l], nil
 		}
