@@ -5943,6 +5943,7 @@ type LegacyIDLookup {
 
 input EpisodeContext {
     collectionId: String
+    playlistId: String
     shuffle: Boolean
     cursor: String
 }
@@ -36327,7 +36328,7 @@ func (ec *executionContext) unmarshalInputEpisodeContext(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"collectionId", "shuffle", "cursor"}
+	fieldsInOrder := [...]string{"collectionId", "playlistId", "shuffle", "cursor"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -36343,6 +36344,15 @@ func (ec *executionContext) unmarshalInputEpisodeContext(ctx context.Context, ob
 				return it, err
 			}
 			it.CollectionID = data
+		case "playlistId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("playlistId"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PlaylistID = data
 		case "shuffle":
 			var err error
 

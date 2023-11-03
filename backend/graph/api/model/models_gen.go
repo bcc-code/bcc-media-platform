@@ -422,6 +422,7 @@ func (this EpisodeCalendarEntry) GetEnd() string         { return this.End }
 
 type EpisodeContext struct {
 	CollectionID *string `json:"collectionId,omitempty"`
+	PlaylistID   *string `json:"playlistId,omitempty"`
 	Shuffle      *bool   `json:"shuffle,omitempty"`
 	Cursor       *string `json:"cursor,omitempty"`
 }

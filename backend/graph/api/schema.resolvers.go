@@ -233,8 +233,18 @@ func (r *queryRootResolver) Season(ctx context.Context, id string) (*model.Seaso
 func (r *queryRootResolver) Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error) {
 	ginCtx, _ := utils.GinCtx(ctx)
 	if context != nil {
+		var collectionID null.Int
+		if context.PlaylistID != nil {
+			playlist, err := r.Loaders.PlaylistLoader.Get(ctx, utils.AsUuid(*context.PlaylistID))
+			if err == nil && playlist != nil {
+				collectionID = playlist.CollectionID
+			}
+		}
+		if !collectionID.Valid {
+			collectionID = utils.AsNullInt(context.CollectionID)
+		}
 		ginCtx.Set(episodeContextKey, common.EpisodeContext{
-			CollectionID: utils.AsNullInt(context.CollectionID),
+			CollectionID: collectionID,
 			Cursor:       null.StringFromPtr(context.Cursor),
 			Shuffle:      null.BoolFromPtr(context.Shuffle),
 		})
