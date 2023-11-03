@@ -237,8 +237,10 @@ func indexCollection[k comparable, t indexable[k]](
 			return err
 		}
 
-		item.assignVisibility(perm.Availability)
-		item.assignRoles(perm.Roles)
+		if perm != nil {
+			item.assignVisibility(perm.Availability)
+			item.assignRoles(perm.Roles)
+		}
 
 		searchItems = append(searchItems, item.toSearchObject())
 		err = pushItems(false)
