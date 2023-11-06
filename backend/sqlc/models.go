@@ -41,13 +41,14 @@ type AchievementconditionsStudytopic struct {
 }
 
 type Achievementgroup struct {
-	ID          uuid.UUID      `db:"id" json:"id"`
-	Status      string         `db:"status" json:"status"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	Title       null_v4.String `db:"title" json:"title"`
+	ID                   uuid.UUID      `db:"id" json:"id"`
+	Status               string         `db:"status" json:"status"`
+	UserCreated          uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated          null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated          uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated          null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Title                null_v4.String `db:"title" json:"title"`
+	TranslationsRequired bool           `db:"translations_required" json:"translationsRequired"`
 }
 
 type AchievementgroupsTranslation struct {
@@ -343,6 +344,7 @@ type DirectusCollection struct {
 	Group                 null_v4.String        `db:"group" json:"group"`
 	Collapse              string                `db:"collapse" json:"collapse"`
 	PreviewUrl            null_v4.String        `db:"preview_url" json:"previewUrl"`
+	Versioning            bool                  `db:"versioning" json:"versioning"`
 }
 
 type DirectusDashboard struct {
@@ -353,6 +355,11 @@ type DirectusDashboard struct {
 	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
 	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	Color       null_v4.String `db:"color" json:"color"`
+}
+
+type DirectusExtension struct {
+	Name    string `db:"name" json:"name"`
+	Enabled bool   `db:"enabled" json:"enabled"`
 }
 
 type DirectusField struct {
@@ -521,6 +528,7 @@ type DirectusRevision struct {
 	Data       pqtype.NullRawMessage `db:"data" json:"data"`
 	Delta      pqtype.NullRawMessage `db:"delta" json:"delta"`
 	Parent     null_v4.Int           `db:"parent" json:"parent"`
+	Version    uuid.NullUUID         `db:"version" json:"version"`
 }
 
 type DirectusRole struct {
@@ -548,7 +556,7 @@ type DirectusSetting struct {
 	ID                    int32                 `db:"id" json:"id"`
 	ProjectName           string                `db:"project_name" json:"projectName"`
 	ProjectUrl            null_v4.String        `db:"project_url" json:"projectUrl"`
-	ProjectColor          null_v4.String        `db:"project_color" json:"projectColor"`
+	ProjectColor          string                `db:"project_color" json:"projectColor"`
 	ProjectLogo           uuid.NullUUID         `db:"project_logo" json:"projectLogo"`
 	PublicForeground      uuid.NullUUID         `db:"public_foreground" json:"publicForeground"`
 	PublicBackground      uuid.NullUUID         `db:"public_background" json:"publicBackground"`
@@ -565,13 +573,19 @@ type DirectusSetting struct {
 	ProjectDescriptor     null_v4.String        `db:"project_descriptor" json:"projectDescriptor"`
 	DefaultLanguage       string                `db:"default_language" json:"defaultLanguage"`
 	CustomAspectRatios    pqtype.NullRawMessage `db:"custom_aspect_ratios" json:"customAspectRatios"`
+	PublicFavicon         uuid.NullUUID         `db:"public_favicon" json:"publicFavicon"`
+	DefaultAppearance     string                `db:"default_appearance" json:"defaultAppearance"`
+	DefaultThemeLight     null_v4.String        `db:"default_theme_light" json:"defaultThemeLight"`
+	ThemeLightOverrides   pqtype.NullRawMessage `db:"theme_light_overrides" json:"themeLightOverrides"`
+	DefaultThemeDark      null_v4.String        `db:"default_theme_dark" json:"defaultThemeDark"`
+	ThemeDarkOverrides    pqtype.NullRawMessage `db:"theme_dark_overrides" json:"themeDarkOverrides"`
 }
 
 type DirectusShare struct {
 	ID          uuid.UUID      `db:"id" json:"id"`
 	Name        null_v4.String `db:"name" json:"name"`
-	Collection  null_v4.String `db:"collection" json:"collection"`
-	Item        null_v4.String `db:"item" json:"item"`
+	Collection  string         `db:"collection" json:"collection"`
+	Item        string         `db:"item" json:"item"`
 	Role        uuid.NullUUID  `db:"role" json:"role"`
 	Password    null_v4.String `db:"password" json:"password"`
 	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
@@ -590,28 +604,45 @@ type DirectusTranslation struct {
 }
 
 type DirectusUser struct {
-	ID                 uuid.UUID             `db:"id" json:"id"`
-	FirstName          null_v4.String        `db:"first_name" json:"firstName"`
-	LastName           null_v4.String        `db:"last_name" json:"lastName"`
-	Email              null_v4.String        `db:"email" json:"email"`
-	Password           null_v4.String        `db:"password" json:"password"`
-	Location           null_v4.String        `db:"location" json:"location"`
-	Title              null_v4.String        `db:"title" json:"title"`
-	Description        null_v4.String        `db:"description" json:"description"`
-	Tags               pqtype.NullRawMessage `db:"tags" json:"tags"`
-	Avatar             uuid.NullUUID         `db:"avatar" json:"avatar"`
-	Language           null_v4.String        `db:"language" json:"language"`
-	Theme              null_v4.String        `db:"theme" json:"theme"`
-	TfaSecret          null_v4.String        `db:"tfa_secret" json:"tfaSecret"`
-	Status             string                `db:"status" json:"status"`
-	Role               uuid.NullUUID         `db:"role" json:"role"`
-	Token              null_v4.String        `db:"token" json:"token"`
-	LastAccess         null_v4.Time          `db:"last_access" json:"lastAccess"`
-	LastPage           null_v4.String        `db:"last_page" json:"lastPage"`
-	Provider           string                `db:"provider" json:"provider"`
-	ExternalIdentifier null_v4.String        `db:"external_identifier" json:"externalIdentifier"`
-	AuthData           pqtype.NullRawMessage `db:"auth_data" json:"authData"`
-	EmailNotifications sql.NullBool          `db:"email_notifications" json:"emailNotifications"`
+	ID                  uuid.UUID             `db:"id" json:"id"`
+	FirstName           null_v4.String        `db:"first_name" json:"firstName"`
+	LastName            null_v4.String        `db:"last_name" json:"lastName"`
+	Email               null_v4.String        `db:"email" json:"email"`
+	Password            null_v4.String        `db:"password" json:"password"`
+	Location            null_v4.String        `db:"location" json:"location"`
+	Title               null_v4.String        `db:"title" json:"title"`
+	Description         null_v4.String        `db:"description" json:"description"`
+	Tags                pqtype.NullRawMessage `db:"tags" json:"tags"`
+	Avatar              uuid.NullUUID         `db:"avatar" json:"avatar"`
+	Language            null_v4.String        `db:"language" json:"language"`
+	TfaSecret           null_v4.String        `db:"tfa_secret" json:"tfaSecret"`
+	Status              string                `db:"status" json:"status"`
+	Role                uuid.NullUUID         `db:"role" json:"role"`
+	Token               null_v4.String        `db:"token" json:"token"`
+	LastAccess          null_v4.Time          `db:"last_access" json:"lastAccess"`
+	LastPage            null_v4.String        `db:"last_page" json:"lastPage"`
+	Provider            string                `db:"provider" json:"provider"`
+	ExternalIdentifier  null_v4.String        `db:"external_identifier" json:"externalIdentifier"`
+	AuthData            pqtype.NullRawMessage `db:"auth_data" json:"authData"`
+	EmailNotifications  sql.NullBool          `db:"email_notifications" json:"emailNotifications"`
+	Appearance          null_v4.String        `db:"appearance" json:"appearance"`
+	ThemeDark           null_v4.String        `db:"theme_dark" json:"themeDark"`
+	ThemeLight          null_v4.String        `db:"theme_light" json:"themeLight"`
+	ThemeLightOverrides pqtype.NullRawMessage `db:"theme_light_overrides" json:"themeLightOverrides"`
+	ThemeDarkOverrides  pqtype.NullRawMessage `db:"theme_dark_overrides" json:"themeDarkOverrides"`
+}
+
+type DirectusVersion struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Key         string         `db:"key" json:"key"`
+	Name        null_v4.String `db:"name" json:"name"`
+	Collection  string         `db:"collection" json:"collection"`
+	Item        string         `db:"item" json:"item"`
+	Hash        null_v4.String `db:"hash" json:"hash"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 }
 
 type DirectusWebhook struct {
@@ -658,6 +689,7 @@ type Episode struct {
 	ContentType              null_v4.String        `db:"content_type" json:"contentType"`
 	Audience                 null_v4.String        `db:"audience" json:"audience"`
 	TimedmetadataFromAsset   bool                  `db:"timedmetadata_from_asset" json:"timedmetadataFromAsset"`
+	TranslationsRequired     bool                  `db:"translations_required" json:"translationsRequired"`
 }
 
 type EpisodeAvailability struct {
@@ -742,16 +774,17 @@ type EventsTranslation struct {
 }
 
 type Faq struct {
-	ID          uuid.UUID     `db:"id" json:"id"`
-	Status      string        `db:"status" json:"status"`
-	Sort        null_v4.Int   `db:"sort" json:"sort"`
-	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
-	Question    string        `db:"question" json:"question"`
-	Answer      string        `db:"answer" json:"answer"`
-	CategoryID  uuid.UUID     `db:"category_id" json:"categoryId"`
+	ID                   uuid.UUID     `db:"id" json:"id"`
+	Status               string        `db:"status" json:"status"`
+	Sort                 null_v4.Int   `db:"sort" json:"sort"`
+	UserCreated          uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated          null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated          uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated          null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	Question             string        `db:"question" json:"question"`
+	Answer               string        `db:"answer" json:"answer"`
+	CategoryID           uuid.UUID     `db:"category_id" json:"categoryId"`
+	TranslationsRequired bool          `db:"translations_required" json:"translationsRequired"`
 }
 
 type FaqcategoriesTranslation struct {
@@ -806,15 +839,16 @@ type FilterDataset struct {
 }
 
 type Game struct {
-	ID          uuid.UUID      `db:"id" json:"id"`
-	Status      string         `db:"status" json:"status"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	Title       string         `db:"title" json:"title"`
-	Description null_v4.String `db:"description" json:"description"`
-	LinkID      int32          `db:"link_id" json:"linkId"`
+	ID                   uuid.UUID      `db:"id" json:"id"`
+	Status               string         `db:"status" json:"status"`
+	UserCreated          uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated          null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated          uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated          null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Title                string         `db:"title" json:"title"`
+	Description          null_v4.String `db:"description" json:"description"`
+	LinkID               int32          `db:"link_id" json:"linkId"`
+	TranslationsRequired bool           `db:"translations_required" json:"translationsRequired"`
 }
 
 type GamesStyledimage struct {
@@ -877,16 +911,17 @@ type Language struct {
 }
 
 type Lesson struct {
-	ID          uuid.UUID      `db:"id" json:"id"`
-	Status      string         `db:"status" json:"status"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	Title       string         `db:"title" json:"title"`
-	TopicID     uuid.UUID      `db:"topic_id" json:"topicId"`
-	Sort        null_v4.Int    `db:"sort" json:"sort"`
-	Description null_v4.String `db:"description" json:"description"`
+	ID                   uuid.UUID      `db:"id" json:"id"`
+	Status               string         `db:"status" json:"status"`
+	UserCreated          uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated          null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated          uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated          null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Title                string         `db:"title" json:"title"`
+	TopicID              uuid.UUID      `db:"topic_id" json:"topicId"`
+	Sort                 null_v4.Int    `db:"sort" json:"sort"`
+	Description          null_v4.String `db:"description" json:"description"`
+	TranslationsRequired sql.NullBool   `db:"translations_required" json:"translationsRequired"`
 }
 
 type LessonsImage struct {
@@ -925,6 +960,7 @@ type Link struct {
 	ComputeddatagroupID    uuid.NullUUID  `db:"computeddatagroup_id" json:"computeddatagroupId"`
 	Label                  null_v4.String `db:"label" json:"label"`
 	RequiresAuthentication bool           `db:"requires_authentication" json:"requiresAuthentication"`
+	TranslationsRequired   bool           `db:"translations_required" json:"translationsRequired"`
 }
 
 type LinksTranslation struct {
@@ -1016,12 +1052,13 @@ type NotificationsTarget struct {
 }
 
 type Notificationtemplate struct {
-	ID          uuid.UUID      `db:"id" json:"id"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	Label       null_v4.String `db:"label" json:"label"`
+	ID                   uuid.UUID      `db:"id" json:"id"`
+	UserCreated          uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated          null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated          uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated          null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Label                null_v4.String `db:"label" json:"label"`
+	TranslationsRequired bool           `db:"translations_required" json:"translationsRequired"`
 }
 
 type NotificationtemplatesTranslation struct {
@@ -1033,15 +1070,16 @@ type NotificationtemplatesTranslation struct {
 }
 
 type Page struct {
-	Code        null_v4.String `db:"code" json:"code"`
-	DateCreated time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated time.Time      `db:"date_updated" json:"dateUpdated"`
-	ID          int32          `db:"id" json:"id"`
-	Sort        null_v4.Int    `db:"sort" json:"sort"`
-	Status      string         `db:"status" json:"status"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	Label       null_v4.String `db:"label" json:"label"`
+	Code                 null_v4.String `db:"code" json:"code"`
+	DateCreated          time.Time      `db:"date_created" json:"dateCreated"`
+	DateUpdated          time.Time      `db:"date_updated" json:"dateUpdated"`
+	ID                   int32          `db:"id" json:"id"`
+	Sort                 null_v4.Int    `db:"sort" json:"sort"`
+	Status               string         `db:"status" json:"status"`
+	UserCreated          uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	UserUpdated          uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	Label                null_v4.String `db:"label" json:"label"`
+	TranslationsRequired bool           `db:"translations_required" json:"translationsRequired"`
 }
 
 type PagesTranslation struct {
@@ -1074,15 +1112,16 @@ type PhrasesTranslation struct {
 }
 
 type Playlist struct {
-	ID           uuid.UUID      `db:"id" json:"id"`
-	Status       string         `db:"status" json:"status"`
-	UserCreated  uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated  null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated  uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated  null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	Title        string         `db:"title" json:"title"`
-	Description  null_v4.String `db:"description" json:"description"`
-	CollectionID null_v4.Int    `db:"collection_id" json:"collectionId"`
+	ID                   uuid.UUID      `db:"id" json:"id"`
+	Status               string         `db:"status" json:"status"`
+	UserCreated          uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated          null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated          uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated          null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Title                string         `db:"title" json:"title"`
+	Description          null_v4.String `db:"description" json:"description"`
+	CollectionID         null_v4.Int    `db:"collection_id" json:"collectionId"`
+	TranslationsRequired bool           `db:"translations_required" json:"translationsRequired"`
 }
 
 type PlaylistsStyledimage struct {
@@ -1182,6 +1221,7 @@ type Season struct {
 	PublicTitle          null_v4.String `db:"public_title" json:"publicTitle"`
 	EpisodeNumberInTitle sql.NullBool   `db:"episode_number_in_title" json:"episodeNumberInTitle"`
 	Uuid                 uuid.UUID      `db:"uuid" json:"uuid"`
+	TranslationsRequired bool           `db:"translations_required" json:"translationsRequired"`
 }
 
 type SeasonAvailability struct {
@@ -1222,28 +1262,29 @@ type SeasonsUsergroup struct {
 }
 
 type Section struct {
-	CollectionID        null_v4.Int     `db:"collection_id" json:"collectionId"`
-	DateCreated         time.Time       `db:"date_created" json:"dateCreated"`
-	DateUpdated         time.Time       `db:"date_updated" json:"dateUpdated"`
-	ID                  int32           `db:"id" json:"id"`
-	Status              string          `db:"status" json:"status"`
-	UserCreated         uuid.NullUUID   `db:"user_created" json:"userCreated"`
-	UserUpdated         uuid.NullUUID   `db:"user_updated" json:"userUpdated"`
-	PageID              null_v4.Int     `db:"page_id" json:"pageId"`
-	Sort                null_v4.Int     `db:"sort" json:"sort"`
-	Style               null_v4.String  `db:"style" json:"style"`
-	Size                null_v4.String  `db:"size" json:"size"`
-	GridSize            null_v4.String  `db:"grid_size" json:"gridSize"`
-	Type                null_v4.String  `db:"type" json:"type"`
-	ShowTitle           sql.NullBool    `db:"show_title" json:"showTitle"`
-	MessageID           null_v4.Int     `db:"message_id" json:"messageId"`
-	NeedsAuthentication sql.NullBool    `db:"needs_authentication" json:"needsAuthentication"`
-	EmbedUrl            null_v4.String  `db:"embed_url" json:"embedUrl"`
-	SecondaryTitles     sql.NullBool    `db:"secondary_titles" json:"secondaryTitles"`
-	UseContext          sql.NullBool    `db:"use_context" json:"useContext"`
-	EmbedAspectRatio    sql.NullFloat64 `db:"embed_aspect_ratio" json:"embedAspectRatio"`
-	EmbedHeight         null_v4.Int     `db:"embed_height" json:"embedHeight"`
-	PrependLiveElement  sql.NullBool    `db:"prepend_live_element" json:"prependLiveElement"`
+	CollectionID         null_v4.Int     `db:"collection_id" json:"collectionId"`
+	DateCreated          time.Time       `db:"date_created" json:"dateCreated"`
+	DateUpdated          time.Time       `db:"date_updated" json:"dateUpdated"`
+	ID                   int32           `db:"id" json:"id"`
+	Status               string          `db:"status" json:"status"`
+	UserCreated          uuid.NullUUID   `db:"user_created" json:"userCreated"`
+	UserUpdated          uuid.NullUUID   `db:"user_updated" json:"userUpdated"`
+	PageID               null_v4.Int     `db:"page_id" json:"pageId"`
+	Sort                 null_v4.Int     `db:"sort" json:"sort"`
+	Style                null_v4.String  `db:"style" json:"style"`
+	Size                 null_v4.String  `db:"size" json:"size"`
+	GridSize             null_v4.String  `db:"grid_size" json:"gridSize"`
+	Type                 null_v4.String  `db:"type" json:"type"`
+	ShowTitle            sql.NullBool    `db:"show_title" json:"showTitle"`
+	MessageID            null_v4.Int     `db:"message_id" json:"messageId"`
+	NeedsAuthentication  sql.NullBool    `db:"needs_authentication" json:"needsAuthentication"`
+	EmbedUrl             null_v4.String  `db:"embed_url" json:"embedUrl"`
+	SecondaryTitles      sql.NullBool    `db:"secondary_titles" json:"secondaryTitles"`
+	UseContext           sql.NullBool    `db:"use_context" json:"useContext"`
+	EmbedAspectRatio     sql.NullFloat64 `db:"embed_aspect_ratio" json:"embedAspectRatio"`
+	EmbedHeight          null_v4.Int     `db:"embed_height" json:"embedHeight"`
+	PrependLiveElement   sql.NullBool    `db:"prepend_live_element" json:"prependLiveElement"`
+	TranslationsRequired bool            `db:"translations_required" json:"translationsRequired"`
 }
 
 type SectionsTranslation struct {
@@ -1282,6 +1323,7 @@ type Show struct {
 	PublicTitle             null_v4.String `db:"public_title" json:"publicTitle"`
 	Uuid                    uuid.UUID      `db:"uuid" json:"uuid"`
 	RelatedCollectionID     null_v4.Int    `db:"related_collection_id" json:"relatedCollectionId"`
+	TranslationsRequired    sql.NullBool   `db:"translations_required" json:"translationsRequired"`
 }
 
 type ShowAvailability struct {
@@ -1369,14 +1411,15 @@ type StatsOrgCount struct {
 }
 
 type Studytopic struct {
-	ID          uuid.UUID      `db:"id" json:"id"`
-	Status      string         `db:"status" json:"status"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	Title       string         `db:"title" json:"title"`
-	Description null_v4.String `db:"description" json:"description"`
+	ID                   uuid.UUID      `db:"id" json:"id"`
+	Status               string         `db:"status" json:"status"`
+	UserCreated          uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated          null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated          uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated          null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Title                string         `db:"title" json:"title"`
+	Description          null_v4.String `db:"description" json:"description"`
+	TranslationsRequired bool           `db:"translations_required" json:"translationsRequired"`
 }
 
 type StudytopicsImage struct {
@@ -1407,14 +1450,15 @@ type Styledimage struct {
 }
 
 type Survey struct {
-	ID          uuid.UUID      `db:"id" json:"id"`
-	Status      string         `db:"status" json:"status"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	Description null_v4.String `db:"description" json:"description"`
-	Title       string         `db:"title" json:"title"`
+	ID                   uuid.UUID      `db:"id" json:"id"`
+	Status               string         `db:"status" json:"status"`
+	UserCreated          uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated          null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated          uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated          null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Description          null_v4.String `db:"description" json:"description"`
+	Title                string         `db:"title" json:"title"`
+	TranslationsRequired bool           `db:"translations_required" json:"translationsRequired"`
 }
 
 type Surveyquestion struct {
@@ -1496,6 +1540,7 @@ type Task struct {
 	Description             null_v4.String `db:"description" json:"description"`
 	LinkID                  null_v4.Int    `db:"link_id" json:"linkId"`
 	CompetitionMode         sql.NullBool   `db:"competition_mode" json:"competitionMode"`
+	TranslationsRequired    bool           `db:"translations_required" json:"translationsRequired"`
 }
 
 type TasksImage struct {
