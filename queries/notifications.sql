@@ -23,6 +23,7 @@ SELECT n.id,
        n.schedule_at,
        n.send_started,
        n.send_completed,
+       n.high_priority,
        ti.targets                     AS target_ids
 FROM notifications n
          LEFT JOIN notificationtemplates t ON n.template_id = t.id

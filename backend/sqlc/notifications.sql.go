@@ -61,6 +61,7 @@ SELECT n.id,
        n.schedule_at,
        n.send_started,
        n.send_completed,
+       n.high_priority,
        ti.targets                     AS target_ids
 FROM notifications n
          LEFT JOIN notificationtemplates t ON n.template_id = t.id
@@ -81,6 +82,7 @@ type getNotificationsRow struct {
 	ScheduleAt    null_v4.Time    `db:"schedule_at" json:"scheduleAt"`
 	SendStarted   null_v4.Time    `db:"send_started" json:"sendStarted"`
 	SendCompleted null_v4.Time    `db:"send_completed" json:"sendCompleted"`
+	HighPriority  bool            `db:"high_priority" json:"highPriority"`
 	TargetIds     []uuid.UUID     `db:"target_ids" json:"targetIds"`
 }
 
@@ -104,6 +106,7 @@ func (q *Queries) getNotifications(ctx context.Context, dollar_1 []uuid.UUID) ([
 			&i.ScheduleAt,
 			&i.SendStarted,
 			&i.SendCompleted,
+			&i.HighPriority,
 			pq.Array(&i.TargetIds),
 		); err != nil {
 			return nil, err

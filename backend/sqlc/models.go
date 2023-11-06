@@ -1043,6 +1043,7 @@ type Notification struct {
 	Action        null_v4.String `db:"action" json:"action"`
 	DeepLink      null_v4.String `db:"deep_link" json:"deepLink"`
 	TemplateID    uuid.NullUUID  `db:"template_id" json:"templateId"`
+	HighPriority  bool           `db:"high_priority" json:"highPriority"`
 }
 
 type NotificationsTarget struct {
