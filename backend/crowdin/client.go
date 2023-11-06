@@ -332,6 +332,10 @@ func (c *Client) Sync(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
+		err = c.syncPlaylists(ctx, options)
+		if err != nil {
+			return err
+		}
 	}
 	log.L.Debug().Msg("Translation sync: Done")
 	return nil
