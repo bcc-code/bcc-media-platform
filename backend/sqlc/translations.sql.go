@@ -243,7 +243,9 @@ func (q *Queries) ListAchievementGroupOriginalTranslations(ctx context.Context) 
 
 const listAchievementGroupTranslations = `-- name: ListAchievementGroupTranslations :many
 WITH items AS (SELECT i.id
-               FROM achievementgroups i)
+               FROM achievementgroups i
+               WHERE i.translations_required
+                 AND i.status = ANY ('{published,unlisted}'))
 SELECT ts.id,
        achievementgroups_id                                          as parent_id,
        languages_code                                                as language,
@@ -292,7 +294,9 @@ const listAchievementOriginalTranslations = `-- name: ListAchievementOriginalTra
 SELECT items.id,
        json_build_object('title', items.title, 'description', items.description) as values
 FROM achievements items
-WHERE status = ANY ('{published,unlisted}')
+         JOIN achievementgroups g ON g.id = items.group_id
+WHERE g.translations_required
+  AND items.status = ANY ('{published,unlisted}')
 `
 
 type ListAchievementOriginalTranslationsRow struct {
@@ -325,7 +329,10 @@ func (q *Queries) ListAchievementOriginalTranslations(ctx context.Context) ([]Li
 
 const listAchievementTranslations = `-- name: ListAchievementTranslations :many
 WITH items AS (SELECT i.id
-               FROM achievements i)
+               FROM achievements i
+                        JOIN achievementgroups g ON g.id = i.group_id
+               WHERE g.translations_required
+                 AND g.status = ANY ('{published,unlisted}'))
 SELECT ts.id,
        achievements_id                                               as parent_id,
        languages_code                                                as language,
@@ -372,7 +379,10 @@ func (q *Queries) ListAchievementTranslations(ctx context.Context, language stri
 
 const listAlternativeTranslations = `-- name: ListAlternativeTranslations :many
 WITH items AS (SELECT i.id
-               FROM questionalternatives i)
+               FROM questionalternatives i
+                        JOIN tasks t ON t.id = i.task_id
+               WHERE t.translations_required
+                 AND t.status = ANY ('{published,unlisted}'))
 SELECT ts.id,
        questionalternatives_id           as parent_id,
        languages_code                    as language,
@@ -422,9 +432,10 @@ WITH episodes AS (SELECT e.id
                   FROM episodes e
                            LEFT JOIN seasons s ON s.id = e.season_id
                            LEFT JOIN shows sh ON sh.id = s.show_id
-                  WHERE e.status = ANY ('{published,unlisted}')
-                    AND s.status = ANY ('{published,unlisted}')
-                    AND sh.status = ANY ('{published,unlisted}'))
+                  WHERE e.translations_required
+                    AND e.status = ANY ('{published,unlisted}')
+                    AND (e.season_id IS NULL OR (s.status = ANY ('{published,unlisted}')
+                      AND sh.status = ANY ('{published,unlisted}'))))
 SELECT et.id,
        episodes_id                                                   as parent_id,
        languages_code                                                as language,
@@ -555,7 +566,8 @@ const listFAQOriginalTranslations = `-- name: ListFAQOriginalTranslations :many
 
 SELECT items.id, json_build_object('question', items.question, 'answer', items.answer) as values
 FROM faqs items
-WHERE status = ANY ('{published,unlisted}')
+WHERE items.translations_required
+  AND status = ANY ('{published,unlisted}')
 `
 
 type ListFAQOriginalTranslationsRow struct {
@@ -592,7 +604,8 @@ func (q *Queries) ListFAQOriginalTranslations(ctx context.Context) ([]ListFAQOri
 const listFAQTranslations = `-- name: ListFAQTranslations :many
 WITH items AS (SELECT i.id
                FROM faqs i
-               WHERE i.status = ANY ('{published,unlisted}'))
+               WHERE i.translations_required
+                 AND i.status = ANY ('{published,unlisted}'))
 SELECT ts.id,
        faqs_id                                                         as parent_id,
        languages_code                                                  as language,
@@ -640,7 +653,8 @@ func (q *Queries) ListFAQTranslations(ctx context.Context, language string) ([]L
 const listGameOriginalTranslations = `-- name: ListGameOriginalTranslations :many
 SELECT items.id, json_build_object('title', items.title, 'description', items.description) as values
 FROM games items
-WHERE status = ANY ('{published,unlisted}')
+WHERE items.translations_required
+  AND status = ANY ('{published,unlisted}')
 `
 
 type ListGameOriginalTranslationsRow struct {
@@ -674,7 +688,8 @@ func (q *Queries) ListGameOriginalTranslations(ctx context.Context) ([]ListGameO
 const listGameTranslations = `-- name: ListGameTranslations :many
 WITH items AS (SELECT i.id
                FROM games i
-               WHERE i.status = ANY ('{published,unlisted}'))
+               WHERE i.translations_required
+                 AND i.status = ANY ('{published,unlisted}'))
 SELECT ts.id,
        games_id                                                            as parent_id,
        languages_code                                                      as language,
@@ -723,7 +738,8 @@ const listLessonOriginalTranslations = `-- name: ListLessonOriginalTranslations 
 SELECT items.id,
        json_build_object('title', items.title, 'description', items.description) as values
 FROM lessons items
-WHERE status = ANY ('{published,unlisted}')
+WHERE items.translations_required
+  AND status = ANY ('{published,unlisted}')
 `
 
 type ListLessonOriginalTranslationsRow struct {
@@ -757,7 +773,8 @@ func (q *Queries) ListLessonOriginalTranslations(ctx context.Context) ([]ListLes
 const listLessonTranslations = `-- name: ListLessonTranslations :many
 WITH lessons AS (SELECT s.id
                  FROM lessons s
-                 WHERE s.status = ANY ('{published,unlisted}'))
+                 WHERE s.translations_required
+                   AND s.status = ANY ('{published,unlisted}'))
 SELECT st.id,
        lessons_id                                                    as parent_id,
        languages_code                                                as language,
@@ -805,7 +822,8 @@ func (q *Queries) ListLessonTranslations(ctx context.Context, language string) (
 const listLinkTranslations = `-- name: ListLinkTranslations :many
 WITH links AS (SELECT s.id
                FROM links s
-               WHERE s.status = ANY ('{published,unlisted}'))
+               WHERE s.translations_required
+                 AND s.status = ANY ('{published,unlisted}'))
 SELECT st.id,
        links_id                                                      as parent_id,
        languages_code                                                as language,
@@ -853,7 +871,8 @@ func (q *Queries) ListLinkTranslations(ctx context.Context, language string) ([]
 const listPageTranslations = `-- name: ListPageTranslations :many
 WITH pages AS (SELECT s.id
                FROM pages s
-               WHERE s.status = ANY ('{published,unlisted}'))
+               WHERE s.translations_required
+                 AND s.status = ANY ('{published,unlisted}'))
 SELECT st.id,
        pages_id                                                      as parent_id,
        languages_code                                                as language,
@@ -901,7 +920,8 @@ func (q *Queries) ListPageTranslations(ctx context.Context, language string) ([]
 const listPlaylistOriginalTranslations = `-- name: ListPlaylistOriginalTranslations :many
 SELECT items.id, json_build_object('title', items.title, 'description', items.description) as values
 FROM playlists items
-WHERE status = ANY ('{published,unlisted}')
+WHERE items.translations_required
+  AND status = ANY ('{published,unlisted}')
 `
 
 type ListPlaylistOriginalTranslationsRow struct {
@@ -935,7 +955,8 @@ func (q *Queries) ListPlaylistOriginalTranslations(ctx context.Context) ([]ListP
 const listPlaylistTranslations = `-- name: ListPlaylistTranslations :many
 WITH items AS (SELECT i.id
                FROM playlists i
-               WHERE i.status = ANY ('{published,unlisted}'))
+               WHERE i.translations_required
+                 AND i.status = ANY ('{published,unlisted}'))
 SELECT ts.id,
        playlists_id                                                        as parent_id,
        languages_code                                                      as language,
@@ -985,7 +1006,8 @@ SELECT items.id,
        json_build_object('title', items.title) as values
 FROM questionalternatives items
          JOIN tasks t ON t.id = items.task_id
-WHERE t.status = ANY ('{published,unlisted}')
+WHERE t.translations_required
+  AND t.status = ANY ('{published,unlisted}')
 `
 
 type ListQuestionAlternativesOriginalTranslationsRow struct {
@@ -1019,8 +1041,9 @@ func (q *Queries) ListQuestionAlternativesOriginalTranslations(ctx context.Conte
 const listSeasonTranslations = `-- name: ListSeasonTranslations :many
 WITH seasons AS (SELECT s.id
                  FROM seasons s
-                          LEFT JOIN shows sh ON sh.id = s.show_id
-                 WHERE s.status = ANY ('{published,unlisted}')
+                          JOIN shows sh ON sh.id = s.show_id
+                 WHERE s.translations_required
+                   AND s.status = ANY ('{published,unlisted}')
                    AND sh.status = ANY ('{published,unlisted}'))
 SELECT et.id,
        seasons_id                                                    as parent_id,
@@ -1069,7 +1092,8 @@ func (q *Queries) ListSeasonTranslations(ctx context.Context, language string) (
 const listSectionTranslations = `-- name: ListSectionTranslations :many
 WITH sections AS (SELECT s.id
                   FROM sections s
-                  WHERE s.status = 'published'
+                  WHERE s.translations_required
+                    AND s.status = 'published'
                     AND s.show_title = true)
 SELECT st.id,
        sections_id                                                   as parent_id,
@@ -1118,7 +1142,8 @@ func (q *Queries) ListSectionTranslations(ctx context.Context, language string) 
 const listShowTranslations = `-- name: ListShowTranslations :many
 WITH shows AS (SELECT s.id
                FROM shows s
-               WHERE s.status = ANY ('{published,unlisted}'))
+               WHERE s.translations_required
+                 AND s.status = ANY ('{published,unlisted}'))
 SELECT et.id,
        shows_id                                                      as parent_id,
        languages_code                                                as language,
@@ -1167,7 +1192,8 @@ const listStudyTopicOriginalTranslations = `-- name: ListStudyTopicOriginalTrans
 SELECT items.id,
        json_build_object('title', items.title, 'description', items.description) as values
 FROM studytopics items
-WHERE status = ANY ('{published,unlisted}')
+WHERE items.translations_required
+  AND status = ANY ('{published,unlisted}')
 `
 
 type ListStudyTopicOriginalTranslationsRow struct {
@@ -1201,7 +1227,8 @@ func (q *Queries) ListStudyTopicOriginalTranslations(ctx context.Context) ([]Lis
 const listStudyTopicTranslations = `-- name: ListStudyTopicTranslations :many
 WITH items AS (SELECT i.id
                FROM studytopics i
-               WHERE i.status = ANY ('{published,unlisted}'))
+               WHERE i.translations_required
+                 AND i.status = ANY ('{published,unlisted}'))
 SELECT ts.id,
        studytopics_id                                                as parent_id,
        languages_code                                                as language,
@@ -1251,7 +1278,8 @@ const listSurveyOriginalTranslations = `-- name: ListSurveyOriginalTranslations 
 SELECT items.id,
        json_build_object('title', items.title, 'description', items.description) as values
 FROM surveys items
-WHERE status = ANY ('{published,unlisted}')
+WHERE items.translations_required
+  AND status = ANY ('{published,unlisted}')
 `
 
 type ListSurveyOriginalTranslationsRow struct {
@@ -1290,6 +1318,9 @@ SELECT items.id,
        json_build_object('title', items.title, 'description', items.description, 'placeholder',
                          items.placeholder) as values
 FROM surveyquestions items
+         JOIN surveys s ON s.id = items.survey_id
+WHERE s.translations_required
+  AND s.status = ANY ('{published,unlisted}')
 `
 
 type ListSurveyQuestionOriginalTranslationsRow struct {
@@ -1328,7 +1359,8 @@ SELECT ts.id,
 FROM surveyquestions_translations ts
          JOIN surveyquestions items ON items.id = ts.surveyquestions_id
          JOIN surveys s ON s.id = items.survey_id AND s.status = ANY ('{published,unlisted}')
-WHERE ts.languages_code = $1::varchar
+WHERE s.translations_required
+  AND ts.languages_code = $1::varchar
 `
 
 type ListSurveyQuestionTranslationsRow struct {
@@ -1369,7 +1401,8 @@ func (q *Queries) ListSurveyQuestionTranslations(ctx context.Context, language s
 const listSurveyTranslations = `-- name: ListSurveyTranslations :many
 WITH items AS (SELECT i.id
                FROM surveys i
-               WHERE i.status = ANY ('{published,unlisted}'))
+               WHERE i.translations_required
+                 AND i.status = ANY ('{published,unlisted}'))
 SELECT ts.id,
        surveys_id                                                    as parent_id,
        languages_code                                                as language,
@@ -1418,7 +1451,8 @@ const listTaskOriginalTranslations = `-- name: ListTaskOriginalTranslations :man
 SELECT items.id,
        json_build_object('title', items.title, 'description', items.description) as values
 FROM tasks items
-WHERE status = ANY ('{published,unlisted}')
+WHERE items.translations_required
+  AND status = ANY ('{published,unlisted}')
 `
 
 type ListTaskOriginalTranslationsRow struct {
@@ -1452,7 +1486,8 @@ func (q *Queries) ListTaskOriginalTranslations(ctx context.Context) ([]ListTaskO
 const listTaskTranslations = `-- name: ListTaskTranslations :many
 WITH items AS (SELECT i.id
                FROM tasks i
-               WHERE i.status = ANY ('{published,unlisted}'))
+               WHERE i.translations_required
+                 AND i.status = ANY ('{published,unlisted}'))
 SELECT ts.id,
        tasks_id                                                      as parent_id,
        languages_code                                                as language,
