@@ -921,7 +921,7 @@ type Lesson struct {
 	TopicID              uuid.UUID      `db:"topic_id" json:"topicId"`
 	Sort                 null_v4.Int    `db:"sort" json:"sort"`
 	Description          null_v4.String `db:"description" json:"description"`
-	TranslationsRequired sql.NullBool   `db:"translations_required" json:"translationsRequired"`
+	TranslationsRequired bool           `db:"translations_required" json:"translationsRequired"`
 }
 
 type LessonsImage struct {
@@ -1324,7 +1324,7 @@ type Show struct {
 	PublicTitle             null_v4.String `db:"public_title" json:"publicTitle"`
 	Uuid                    uuid.UUID      `db:"uuid" json:"uuid"`
 	RelatedCollectionID     null_v4.Int    `db:"related_collection_id" json:"relatedCollectionId"`
-	TranslationsRequired    sql.NullBool   `db:"translations_required" json:"translationsRequired"`
+	TranslationsRequired    bool           `db:"translations_required" json:"translationsRequired"`
 }
 
 type ShowAvailability struct {
