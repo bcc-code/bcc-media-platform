@@ -119,9 +119,22 @@ func (s *Service) SendNotificationToDevices(ctx context.Context, devices []commo
 		}
 	}
 
+	//apnsHeaders := map[string]string{}
+	androidPriority := "normal"
+	if notification.HighPriority {
+		androidPriority = "high"
+		//apnsHeaders["apns-priority"] = "5"
+	}
+
 	for _, d := range devices {
 		messages = append(messages, &messaging.Message{
 			Data: data,
+			//APNS: &messaging.APNSConfig{
+			//	Headers: apnsHeaders,
+			//},
+			Android: &messaging.AndroidConfig{
+				Priority: androidPriority,
+			},
 			Notification: &messaging.Notification{
 				Title:    notification.Title.Get(d.Languages),
 				Body:     notification.Description.Get(d.Languages),

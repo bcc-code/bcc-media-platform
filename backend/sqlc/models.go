@@ -344,6 +344,7 @@ type DirectusCollection struct {
 	Group                 null_v4.String        `db:"group" json:"group"`
 	Collapse              string                `db:"collapse" json:"collapse"`
 	PreviewUrl            null_v4.String        `db:"preview_url" json:"previewUrl"`
+	Versioning            bool                  `db:"versioning" json:"versioning"`
 }
 
 type DirectusDashboard struct {
@@ -354,6 +355,11 @@ type DirectusDashboard struct {
 	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
 	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	Color       null_v4.String `db:"color" json:"color"`
+}
+
+type DirectusExtension struct {
+	Name    string `db:"name" json:"name"`
+	Enabled bool   `db:"enabled" json:"enabled"`
 }
 
 type DirectusField struct {
@@ -522,6 +528,7 @@ type DirectusRevision struct {
 	Data       pqtype.NullRawMessage `db:"data" json:"data"`
 	Delta      pqtype.NullRawMessage `db:"delta" json:"delta"`
 	Parent     null_v4.Int           `db:"parent" json:"parent"`
+	Version    uuid.NullUUID         `db:"version" json:"version"`
 }
 
 type DirectusRole struct {
@@ -549,7 +556,7 @@ type DirectusSetting struct {
 	ID                    int32                 `db:"id" json:"id"`
 	ProjectName           string                `db:"project_name" json:"projectName"`
 	ProjectUrl            null_v4.String        `db:"project_url" json:"projectUrl"`
-	ProjectColor          null_v4.String        `db:"project_color" json:"projectColor"`
+	ProjectColor          string                `db:"project_color" json:"projectColor"`
 	ProjectLogo           uuid.NullUUID         `db:"project_logo" json:"projectLogo"`
 	PublicForeground      uuid.NullUUID         `db:"public_foreground" json:"publicForeground"`
 	PublicBackground      uuid.NullUUID         `db:"public_background" json:"publicBackground"`
@@ -566,13 +573,19 @@ type DirectusSetting struct {
 	ProjectDescriptor     null_v4.String        `db:"project_descriptor" json:"projectDescriptor"`
 	DefaultLanguage       string                `db:"default_language" json:"defaultLanguage"`
 	CustomAspectRatios    pqtype.NullRawMessage `db:"custom_aspect_ratios" json:"customAspectRatios"`
+	PublicFavicon         uuid.NullUUID         `db:"public_favicon" json:"publicFavicon"`
+	DefaultAppearance     string                `db:"default_appearance" json:"defaultAppearance"`
+	DefaultThemeLight     null_v4.String        `db:"default_theme_light" json:"defaultThemeLight"`
+	ThemeLightOverrides   pqtype.NullRawMessage `db:"theme_light_overrides" json:"themeLightOverrides"`
+	DefaultThemeDark      null_v4.String        `db:"default_theme_dark" json:"defaultThemeDark"`
+	ThemeDarkOverrides    pqtype.NullRawMessage `db:"theme_dark_overrides" json:"themeDarkOverrides"`
 }
 
 type DirectusShare struct {
 	ID          uuid.UUID      `db:"id" json:"id"`
 	Name        null_v4.String `db:"name" json:"name"`
-	Collection  null_v4.String `db:"collection" json:"collection"`
-	Item        null_v4.String `db:"item" json:"item"`
+	Collection  string         `db:"collection" json:"collection"`
+	Item        string         `db:"item" json:"item"`
 	Role        uuid.NullUUID  `db:"role" json:"role"`
 	Password    null_v4.String `db:"password" json:"password"`
 	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
@@ -591,28 +604,45 @@ type DirectusTranslation struct {
 }
 
 type DirectusUser struct {
-	ID                 uuid.UUID             `db:"id" json:"id"`
-	FirstName          null_v4.String        `db:"first_name" json:"firstName"`
-	LastName           null_v4.String        `db:"last_name" json:"lastName"`
-	Email              null_v4.String        `db:"email" json:"email"`
-	Password           null_v4.String        `db:"password" json:"password"`
-	Location           null_v4.String        `db:"location" json:"location"`
-	Title              null_v4.String        `db:"title" json:"title"`
-	Description        null_v4.String        `db:"description" json:"description"`
-	Tags               pqtype.NullRawMessage `db:"tags" json:"tags"`
-	Avatar             uuid.NullUUID         `db:"avatar" json:"avatar"`
-	Language           null_v4.String        `db:"language" json:"language"`
-	Theme              null_v4.String        `db:"theme" json:"theme"`
-	TfaSecret          null_v4.String        `db:"tfa_secret" json:"tfaSecret"`
-	Status             string                `db:"status" json:"status"`
-	Role               uuid.NullUUID         `db:"role" json:"role"`
-	Token              null_v4.String        `db:"token" json:"token"`
-	LastAccess         null_v4.Time          `db:"last_access" json:"lastAccess"`
-	LastPage           null_v4.String        `db:"last_page" json:"lastPage"`
-	Provider           string                `db:"provider" json:"provider"`
-	ExternalIdentifier null_v4.String        `db:"external_identifier" json:"externalIdentifier"`
-	AuthData           pqtype.NullRawMessage `db:"auth_data" json:"authData"`
-	EmailNotifications sql.NullBool          `db:"email_notifications" json:"emailNotifications"`
+	ID                  uuid.UUID             `db:"id" json:"id"`
+	FirstName           null_v4.String        `db:"first_name" json:"firstName"`
+	LastName            null_v4.String        `db:"last_name" json:"lastName"`
+	Email               null_v4.String        `db:"email" json:"email"`
+	Password            null_v4.String        `db:"password" json:"password"`
+	Location            null_v4.String        `db:"location" json:"location"`
+	Title               null_v4.String        `db:"title" json:"title"`
+	Description         null_v4.String        `db:"description" json:"description"`
+	Tags                pqtype.NullRawMessage `db:"tags" json:"tags"`
+	Avatar              uuid.NullUUID         `db:"avatar" json:"avatar"`
+	Language            null_v4.String        `db:"language" json:"language"`
+	TfaSecret           null_v4.String        `db:"tfa_secret" json:"tfaSecret"`
+	Status              string                `db:"status" json:"status"`
+	Role                uuid.NullUUID         `db:"role" json:"role"`
+	Token               null_v4.String        `db:"token" json:"token"`
+	LastAccess          null_v4.Time          `db:"last_access" json:"lastAccess"`
+	LastPage            null_v4.String        `db:"last_page" json:"lastPage"`
+	Provider            string                `db:"provider" json:"provider"`
+	ExternalIdentifier  null_v4.String        `db:"external_identifier" json:"externalIdentifier"`
+	AuthData            pqtype.NullRawMessage `db:"auth_data" json:"authData"`
+	EmailNotifications  sql.NullBool          `db:"email_notifications" json:"emailNotifications"`
+	Appearance          null_v4.String        `db:"appearance" json:"appearance"`
+	ThemeDark           null_v4.String        `db:"theme_dark" json:"themeDark"`
+	ThemeLight          null_v4.String        `db:"theme_light" json:"themeLight"`
+	ThemeLightOverrides pqtype.NullRawMessage `db:"theme_light_overrides" json:"themeLightOverrides"`
+	ThemeDarkOverrides  pqtype.NullRawMessage `db:"theme_dark_overrides" json:"themeDarkOverrides"`
+}
+
+type DirectusVersion struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Key         string         `db:"key" json:"key"`
+	Name        null_v4.String `db:"name" json:"name"`
+	Collection  string         `db:"collection" json:"collection"`
+	Item        string         `db:"item" json:"item"`
+	Hash        null_v4.String `db:"hash" json:"hash"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 }
 
 type DirectusWebhook struct {
@@ -1013,6 +1043,7 @@ type Notification struct {
 	Action        null_v4.String `db:"action" json:"action"`
 	DeepLink      null_v4.String `db:"deep_link" json:"deepLink"`
 	TemplateID    uuid.NullUUID  `db:"template_id" json:"templateId"`
+	HighPriority  bool           `db:"high_priority" json:"highPriority"`
 }
 
 type NotificationsTarget struct {

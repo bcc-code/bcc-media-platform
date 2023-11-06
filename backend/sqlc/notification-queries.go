@@ -36,6 +36,7 @@ func (q *Queries) GetNotifications(ctx context.Context, ids []uuid.UUID) ([]comm
 			DeepLink:      n.DeepLink,
 			ScheduleAt:    n.ScheduleAt,
 			TargetIDs:     n.TargetIds,
+			HighPriority:  n.HighPriority,
 		}
 	}), nil
 }

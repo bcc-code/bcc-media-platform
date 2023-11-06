@@ -90,6 +90,7 @@ type Notification struct {
 	SendCompleted null.Time              `json:"sendCompleted"`
 	DeepLink      null.String            `json:"deepLink"`
 	Action        null.String            `json:"action"`
+	HighPriority  bool                   `json:"highPriority"`
 	TargetIDs     []uuid.UUID            `json:"targetIds"`
 }
 

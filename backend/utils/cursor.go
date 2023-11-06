@@ -41,6 +41,9 @@ func ParseCursor[K comparable](cursorString string) (*Cursor[K], error) {
 
 // CursorFor returns the cursor for the specified string
 func (c *Cursor[K]) CursorFor(id K) *Cursor[K] {
+	if len(c.Keys) == 0 {
+		return nil
+	}
 	index := lo.IndexOf(c.Keys, id)
 	if index < 0 {
 		return nil
