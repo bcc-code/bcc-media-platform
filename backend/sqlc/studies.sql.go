@@ -463,8 +463,8 @@ type getEpisodesForLessonsParams struct {
 }
 
 type getEpisodesForLessonsRow struct {
-	ID       null_v4.String `db:"id" json:"id"`
-	ParentID uuid.NullUUID  `db:"parent_id" json:"parentId"`
+	ID       string    `db:"id" json:"id"`
+	ParentID uuid.UUID `db:"parent_id" json:"parentId"`
 }
 
 func (q *Queries) getEpisodesForLessons(ctx context.Context, arg getEpisodesForLessonsParams) ([]getEpisodesForLessonsRow, error) {
@@ -566,13 +566,13 @@ ORDER BY rl.sort
 `
 
 type getLessonsForItemsInCollectionParams struct {
-	Collection null_v4.String `db:"collection" json:"collection"`
-	Column2    []string       `db:"column_2" json:"column2"`
+	Collection string   `db:"collection" json:"collection"`
+	Column2    []string `db:"column_2" json:"column2"`
 }
 
 type getLessonsForItemsInCollectionRow struct {
-	ID       uuid.NullUUID  `db:"id" json:"id"`
-	ParentID null_v4.String `db:"parent_id" json:"parentId"`
+	ID       uuid.UUID `db:"id" json:"id"`
+	ParentID string    `db:"parent_id" json:"parentId"`
 }
 
 func (q *Queries) getLessonsForItemsInCollection(ctx context.Context, arg getLessonsForItemsInCollectionParams) ([]getLessonsForItemsInCollectionRow, error) {
@@ -644,8 +644,8 @@ ORDER BY rl.sort
 `
 
 type getLinksForLessonsRow struct {
-	ID       null_v4.String `db:"id" json:"id"`
-	ParentID uuid.NullUUID  `db:"parent_id" json:"parentId"`
+	ID       string    `db:"id" json:"id"`
+	ParentID uuid.UUID `db:"parent_id" json:"parentId"`
 }
 
 func (q *Queries) getLinksForLessons(ctx context.Context, dollar_1 []uuid.UUID) ([]getLinksForLessonsRow, error) {

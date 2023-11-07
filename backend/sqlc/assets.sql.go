@@ -158,8 +158,8 @@ RETURNING id
 `
 
 type InsertAssetStreamAudioLanguageParams struct {
-	AssetstreamsID null_v4.Int    `db:"assetstreams_id" json:"assetstreamsId"`
-	LanguagesCode  null_v4.String `db:"languages_code" json:"languagesCode"`
+	AssetstreamsID int32  `db:"assetstreams_id" json:"assetstreamsId"`
+	LanguagesCode  string `db:"languages_code" json:"languagesCode"`
 }
 
 func (q *Queries) InsertAssetStreamAudioLanguage(ctx context.Context, arg InsertAssetStreamAudioLanguageParams) (int32, error) {
@@ -176,8 +176,8 @@ RETURNING id
 `
 
 type InsertAssetStreamSubtitleLanguageParams struct {
-	AssetstreamsID null_v4.Int    `db:"assetstreams_id" json:"assetstreamsId"`
-	LanguagesCode  null_v4.String `db:"languages_code" json:"languagesCode"`
+	AssetstreamsID int32  `db:"assetstreams_id" json:"assetstreamsId"`
+	LanguagesCode  string `db:"languages_code" json:"languagesCode"`
 }
 
 func (q *Queries) InsertAssetStreamSubtitleLanguage(ctx context.Context, arg InsertAssetStreamSubtitleLanguageParams) (int32, error) {
