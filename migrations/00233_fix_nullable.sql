@@ -6,12 +6,20 @@
 
 --- BEGIN ALTER TABLE "public"."lessons" ---
 
+UPDATE "public"."lessons"
+    SET "translations_required" = true
+    WHERE "translations_required" IS NULL;
+
 ALTER TABLE IF EXISTS "public"."lessons"
 	ALTER COLUMN "translations_required" SET NOT NULL;
 
 --- END ALTER TABLE "public"."lessons" ---
 
 --- BEGIN ALTER TABLE "public"."shows" ---
+
+UPDATE "public"."shows"
+    SET "translations_required" = true
+    WHERE "translations_required" IS NULL;
 
 ALTER TABLE IF EXISTS "public"."shows"
 	ALTER COLUMN "translations_required" SET NOT NULL;
