@@ -203,7 +203,7 @@ func (rq *RoleQueries) GetLessonIDsWithRoles(ctx context.Context, ids []uuid.UUI
 // GetLessonIDsForEpisodes returns lessons for episodes
 func (rq *RoleQueries) GetLessonIDsForEpisodes(ctx context.Context, ids []int) ([]loaders.Relation[uuid.UUID, int], error) {
 	rows, err := rq.queries.getLessonsForItemsInCollection(ctx, getLessonsForItemsInCollectionParams{
-		Collection: null.StringFrom("episodes"),
+		Collection: "episodes",
 		Column2: lo.Map(ids, func(i int, _ int) string {
 			return strconv.Itoa(i)
 		}),
@@ -212,9 +212,9 @@ func (rq *RoleQueries) GetLessonIDsForEpisodes(ctx context.Context, ids []int) (
 		return nil, err
 	}
 	return lo.Map(rows, func(i getLessonsForItemsInCollectionRow, _ int) loaders.Relation[uuid.UUID, int] {
-		p, _ := strconv.ParseInt(i.ParentID.String, 10, 64)
+		p, _ := strconv.ParseInt(i.ParentID, 10, 64)
 		return relation[uuid.UUID, int]{
-			ID:       i.ID.UUID,
+			ID:       i.ID,
 			ParentID: int(p),
 		}
 	}), nil
@@ -223,7 +223,7 @@ func (rq *RoleQueries) GetLessonIDsForEpisodes(ctx context.Context, ids []int) (
 // GetLessonIDsForLinks returns lessons for episodes
 func (rq *RoleQueries) GetLessonIDsForLinks(ctx context.Context, ids []int) ([]loaders.Relation[uuid.UUID, int], error) {
 	rows, err := rq.queries.getLessonsForItemsInCollection(ctx, getLessonsForItemsInCollectionParams{
-		Collection: null.StringFrom("links"),
+		Collection: "links",
 		Column2: lo.Map(ids, func(i int, _ int) string {
 			return strconv.Itoa(i)
 		}),
@@ -232,9 +232,9 @@ func (rq *RoleQueries) GetLessonIDsForLinks(ctx context.Context, ids []int) ([]l
 		return nil, err
 	}
 	return lo.Map(rows, func(i getLessonsForItemsInCollectionRow, _ int) loaders.Relation[uuid.UUID, int] {
-		p, _ := strconv.ParseInt(i.ParentID.String, 10, 64)
+		p, _ := strconv.ParseInt(i.ParentID, 10, 64)
 		return relation[uuid.UUID, int]{
-			ID:       i.ID.UUID,
+			ID:       i.ID,
 			ParentID: int(p),
 		}
 	}), nil
@@ -250,10 +250,10 @@ func (rq *RoleQueries) GetEpisodeIDsForLessons(ctx context.Context, ids []uuid.U
 		return nil, err
 	}
 	return lo.Map(rows, func(i getEpisodesForLessonsRow, _ int) loaders.Relation[int, uuid.UUID] {
-		p, _ := strconv.ParseInt(i.ID.String, 10, 64)
+		p, _ := strconv.ParseInt(i.ID, 10, 64)
 		return relation[int, uuid.UUID]{
 			ID:       int(p),
-			ParentID: i.ParentID.UUID,
+			ParentID: i.ParentID,
 		}
 	}), nil
 }
@@ -265,10 +265,10 @@ func (rq *RoleQueries) GetLinkIDsForLessons(ctx context.Context, ids []uuid.UUID
 		return nil, err
 	}
 	return lo.Map(rows, func(i getLinksForLessonsRow, _ int) loaders.Relation[int, uuid.UUID] {
-		p, _ := strconv.ParseInt(i.ID.String, 10, 64)
+		p, _ := strconv.ParseInt(i.ID, 10, 64)
 		return relation[int, uuid.UUID]{
 			ID:       int(p),
-			ParentID: i.ParentID.UUID,
+			ParentID: i.ParentID,
 		}
 	}), nil
 }
