@@ -72,6 +72,8 @@ ALTER TABLE IF EXISTS "public"."events_translations"
 
 DROP INDEX IF EXISTS events_translations_events_id_languages_code_index;
 
+DELETE FROM "public"."events_translations" WHERE events_id IS NULL;
+
 ALTER TABLE IF EXISTS "public"."events_translations"
     ALTER COLUMN "events_id" SET NOT NULL;
 
@@ -141,6 +143,8 @@ ALTER TABLE IF EXISTS "public"."collections_entries"
 ALTER TABLE IF EXISTS "public"."messages_messagetemplates"
     DROP CONSTRAINT IF EXISTS "messages_messagetemplates_messages_id_foreign";
 
+DELETE FROM messages_messagetemplates WHERE messages_id IS NULL;
+
 ALTER TABLE IF EXISTS "public"."messages_messagetemplates"
     ALTER COLUMN "messages_id" SET NOT NULL;
 
@@ -166,6 +170,8 @@ COMMENT ON CONSTRAINT "messages_messagetemplates_messagetemplates_id_foreign" ON
 
 ALTER TABLE IF EXISTS "public"."collections_translations"
     DROP CONSTRAINT IF EXISTS "collections_translations_collections_id_foreign";
+
+DELETE FROM collections_translations WHERE collections_id IS NULL;
 
 ALTER TABLE IF EXISTS "public"."collections_translations"
     ALTER COLUMN "collections_id" SET NOT NULL;
@@ -388,6 +394,8 @@ COMMENT ON INDEX "public"."prompts_translations_prompts_id_languages_code_uindex
 ALTER TABLE IF EXISTS "public"."prompts_targets"
     DROP CONSTRAINT IF EXISTS "prompts_targets_prompts_id_foreign";
 
+DELETE FROM prompts_targets WHERE prompts_id IS NULL;
+
 ALTER TABLE IF EXISTS "public"."prompts_targets"
     ALTER COLUMN "prompts_id" SET NOT NULL;
 
@@ -561,6 +569,8 @@ COMMENT ON CONSTRAINT "timedmetadata_translations_timedmetadata_id_foreign" ON "
 ALTER TABLE IF EXISTS "public"."games_styledimages"
     DROP CONSTRAINT IF EXISTS "games_styledimages_games_id_foreign";
 
+DELETE FROM games_styledimages WHERE games_id IS NULL;
+
 ALTER TABLE IF EXISTS "public"."games_styledimages"
     ALTER COLUMN "games_id" SET NOT NULL;
 
@@ -603,6 +613,8 @@ ALTER TABLE IF EXISTS "public"."messagetemplates_translations"
     DROP CONSTRAINT IF EXISTS "messagetemplates_translations_messagetemplates_id_foreign";
 
 DROP INDEX IF EXISTS messagetemplates_translations_messagetemplates_id_languages_cod;
+
+DELETE FROM messagetemplates_translations WHERE messagetemplates_id IS NULL;
 
 ALTER TABLE IF EXISTS "public"."messagetemplates_translations"
     ALTER COLUMN "messagetemplates_id" SET NOT NULL;
