@@ -449,8 +449,8 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 			for _, l := range audioLanguages {
 				_, err = queries.InsertAssetStreamAudioLanguage(ctx, sqlc.InsertAssetStreamAudioLanguageParams{
-					AssetstreamsID: null.IntFrom(int64(streamID)),
-					LanguagesCode:  null.StringFrom(l),
+					AssetstreamsID: streamID,
+					LanguagesCode:  l,
 				})
 				if err != nil {
 					return merry.Wrap(err)
@@ -459,8 +459,8 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 			for _, l := range subLanguages {
 				_, err = queries.InsertAssetStreamSubtitleLanguage(ctx, sqlc.InsertAssetStreamSubtitleLanguageParams{
-					AssetstreamsID: null.IntFrom(int64(streamID)),
-					LanguagesCode:  null.StringFrom(l),
+					AssetstreamsID: streamID,
+					LanguagesCode:  l,
 				})
 				if err != nil {
 					return merry.Wrap(err)
