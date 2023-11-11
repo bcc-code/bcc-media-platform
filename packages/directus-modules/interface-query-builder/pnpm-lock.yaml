@@ -12,7 +12,7 @@ dependencies:
 devDependencies:
   '@directus/extensions-sdk':
     specifier: 9.14.1
-    version: 9.14.1(@types/express@4.17.18)(@types/geojson@7946.0.11)(@types/pino@7.0.5)(axios@1.5.1)(express@4.18.2)(geojson@0.5.0)(knex-schema-inspector@3.0.1)(knex@3.0.1)(pino@8.15.7)(typescript@4.9.5)(vue-i18n@9.5.0)(vue-router@4.2.5)(vue@3.3.4)
+    version: 9.14.1(@types/express@4.17.18)(@types/geojson@7946.0.11)(@types/pino@7.0.5)(axios@1.6.1)(express@4.18.2)(geojson@0.5.0)(knex-schema-inspector@3.0.1)(knex@3.0.1)(pino@8.15.7)(typescript@4.9.5)(vue-i18n@9.5.0)(vue-router@4.2.5)(vue@3.3.4)
   typescript:
     specifier: ^4.9.5
     version: 4.9.5
@@ -66,12 +66,12 @@ packages:
       to-fast-properties: 2.0.0
     dev: true
 
-  /@directus/extensions-sdk@9.14.1(@types/express@4.17.18)(@types/geojson@7946.0.11)(@types/pino@7.0.5)(axios@1.5.1)(express@4.18.2)(geojson@0.5.0)(knex-schema-inspector@3.0.1)(knex@3.0.1)(pino@8.15.7)(typescript@4.9.5)(vue-i18n@9.5.0)(vue-router@4.2.5)(vue@3.3.4):
+  /@directus/extensions-sdk@9.14.1(@types/express@4.17.18)(@types/geojson@7946.0.11)(@types/pino@7.0.5)(axios@1.6.1)(express@4.18.2)(geojson@0.5.0)(knex-schema-inspector@3.0.1)(knex@3.0.1)(pino@8.15.7)(typescript@4.9.5)(vue-i18n@9.5.0)(vue-router@4.2.5)(vue@3.3.4):
     resolution: {integrity: sha512-uj96n5qY188DU0bTUnjnV2gVt/YzqBBR3uS5JWCnudJKYKSptvqkmfATG2wD5bpGGIng8D+aj31yAHbVJhM1Iw==}
     engines: {node: '>=12.20.0'}
     hasBin: true
     dependencies:
-      '@directus/shared': 9.14.1(@types/express@4.17.18)(@types/geojson@7946.0.11)(@types/pino@7.0.5)(axios@1.5.1)(express@4.18.2)(geojson@0.5.0)(knex-schema-inspector@3.0.1)(knex@3.0.1)(pino@8.15.7)(vue-i18n@9.5.0)(vue-router@4.2.5)(vue@3.3.4)
+      '@directus/shared': 9.14.1(@types/express@4.17.18)(@types/geojson@7946.0.11)(@types/pino@7.0.5)(axios@1.6.1)(express@4.18.2)(geojson@0.5.0)(knex-schema-inspector@3.0.1)(knex@3.0.1)(pino@8.15.7)(vue-i18n@9.5.0)(vue-router@4.2.5)(vue@3.3.4)
       '@rollup/plugin-commonjs': 21.1.0(rollup@2.79.1)
       '@rollup/plugin-json': 4.1.0(rollup@2.79.1)
       '@rollup/plugin-node-resolve': 13.3.0(rollup@2.79.1)
@@ -104,7 +104,7 @@ packages:
       - vue-router
     dev: true
 
-  /@directus/shared@9.14.1(@types/express@4.17.18)(@types/geojson@7946.0.11)(@types/pino@7.0.5)(axios@1.5.1)(express@4.18.2)(geojson@0.5.0)(knex-schema-inspector@3.0.1)(knex@3.0.1)(pino@8.15.7)(vue-i18n@9.5.0)(vue-router@4.2.5)(vue@3.3.4):
+  /@directus/shared@9.14.1(@types/express@4.17.18)(@types/geojson@7946.0.11)(@types/pino@7.0.5)(axios@1.6.1)(express@4.18.2)(geojson@0.5.0)(knex-schema-inspector@3.0.1)(knex@3.0.1)(pino@8.15.7)(vue-i18n@9.5.0)(vue-router@4.2.5)(vue@3.3.4):
     resolution: {integrity: sha512-m37bcJjmeFda3S6zxi7mMLT54a9QzgjGBPSzLlV6djIlFBMCX9bkkHi8UBZPHUmehASFDLDnCcFJjyyXjYQ4Mw==}
     peerDependencies:
       '@types/express': '*'
@@ -123,7 +123,7 @@ packages:
       '@types/express': 4.17.18
       '@types/geojson': 7946.0.11
       '@types/pino': 7.0.5
-      axios: 1.5.1
+      axios: 1.6.1
       date-fns: 2.24.0
       express: 4.18.2
       fs-extra: 10.0.0
@@ -552,8 +552,8 @@ packages:
     engines: {node: '>=8.0.0'}
     dev: true
 
-  /axios@1.5.1:
-    resolution: {integrity: sha512-Q28iYCWzNHjAm+yEAot5QaAMxhMghWLFVf7rRdwhUI+c2jix2DUXjAHXVi+s1ibs3mjPO/cCgbA++3BjD0vP/A==}
+  /axios@1.6.1:
+    resolution: {integrity: sha512-vfBmhDpKafglh0EldBEbVuoe7DyAavGSLWhuSm5ZSEKQnHhBf0xAAwybbNH1IkrJNGnS/VG4I5yxig1pCEXE4g==}
     dependencies:
       follow-redirects: 1.15.3
       form-data: 4.0.0
