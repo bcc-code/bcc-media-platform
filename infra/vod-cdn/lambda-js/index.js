@@ -69,7 +69,10 @@ exports.handler = (event, context, callback) => {
             let bodyReadTime = Date.now() - bodyReadStart
             let bodyModificationStart = Date.now()
             data.split("\n").forEach((elem) => {
-
+                if (elem.startsWith("#EXT-X-I-FRAME-STREAM-INF")) {
+                    // Debug. Remove I-Frame playlists
+                    return;
+                }
                 if (elem.startsWith("#")) {
                     if (elem.indexOf("URI") != -1) { //URI component inline
                         var uriComponents = elem.substring(elem.indexOf("URI")).split("\"");
