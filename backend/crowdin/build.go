@@ -3,15 +3,16 @@ package crowdin
 import (
 	"archive/zip"
 	"context"
+	"encoding/csv"
 	"fmt"
-	"github.com/bcc-code/mediabank-bridge/log"
-	"github.com/gocarina/gocsv"
-	"github.com/samber/lo"
 	"io"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/samber/lo"
 )
 
 //// List retrieves all translations
@@ -165,17 +166,20 @@ func GetTranslationsFromZip(zipFile string) ([]Translation, error) {
 			continue
 		}
 
-		csvMap, err := gocsv.CSVToMap(fileReader)
-		if err != nil {
-			log.L.Error().Err(err).Msg("Failed to read file")
-			continue
-		}
 		path := strings.Split(file.Name, "/")
 		language := languageCode(path[0])
-		for key, value := range csvMap {
-			if value == "" {
+
+		csvReader := csv.NewReader(fileReader)
+		values, err := csvReader.ReadAll()
+		if err != nil {
+			return nil, err
+		}
+		for _, vs := range values {
+			if len(vs) != 2 {
 				continue
 			}
+			key := vs[0]
+			value := vs[1]
 
 			collection, id, field := partsFromIdentifier(key)
 

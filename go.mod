@@ -32,7 +32,6 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/glebarez/go-sqlite v1.21.2
 	github.com/go-resty/resty/v2 v2.10.0
-	github.com/gocarina/gocsv v0.0.0-20230616125104-99d496ca653d
 	github.com/goodsign/monday v1.0.1
 	github.com/google/uuid v1.3.1
 	github.com/graph-gophers/dataloader/v7 v7.1.0
