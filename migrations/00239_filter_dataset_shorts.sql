@@ -6,10 +6,7 @@
 
 --- BEGIN ALTER TABLE "public"."mediaitems_translations" ---
 
-ALTER TABLE IF EXISTS "public"."mediaitems_translations"
-    ADD CONSTRAINT "mediaitems_translations_pk" UNIQUE (mediaitems_id, languages_code);
-
-COMMENT ON CONSTRAINT "mediaitems_translations_pk" ON "public"."mediaitems_translations" IS NULL;
+DROP INDEX IF EXISTS mediaitems_translations_pk;
 
 CREATE UNIQUE INDEX mediaitems_translations_pk ON public.mediaitems_translations USING btree (mediaitems_id, languages_code);
 

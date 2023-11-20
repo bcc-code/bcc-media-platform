@@ -5,6 +5,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
+	"time"
+
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/items/collection"
@@ -16,9 +20,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
-	"sort"
-	"strings"
-	"time"
 )
 
 var roleLoaders = loaders.NewCollection[string, *common.FilteredLoaders](time.Minute)
@@ -77,6 +78,12 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 			}, cache.WithExpiration(time.Minute*5))
 		},
 		SurveyQuestionsLoader: loaders.NewRelationLoader(ctx, rq.GetSurveyQuestionIDsForSurveyIDs, loaders.WithName("survey-questions-loader")),
+
+		ShortIDsLoader: func(ctx context.Context) ([]uuid.UUID, error) {
+			return memorycache.GetOrSet(ctx, fmt.Sprintf("shortIDs:roles:%s", key), func(ctx context.Context) ([]uuid.UUID, error) {
+				return queries.ListShortIDsForRoles(ctx, roles)
+			}, cache.WithExpiration(time.Minute*5))
+		},
 	}
 
 	// Canceling the context on delete stops janitors nested inside the loaders as well.
@@ -162,6 +169,13 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 			return row.EpisodeID
 		}),
 
+		AssetFilesLoader: loaders.NewListLoader(ctx, queries.GetFilesForAssets, func(row common.File) int {
+			return row.AssetID
+		}),
+		AssetStreamsLoader: loaders.NewListLoader(ctx, queries.GetStreamsForAssets, func(row common.Stream) int {
+			return row.AssetID
+		}),
+
 		CollectionLoader: loaders.New(ctx, queries.GetCollections),
 		CollectionItemLoader: loaders.NewListLoader(ctx, queries.GetItemsForCollections, func(row common.CollectionItem) int {
 			return row.CollectionID
@@ -225,6 +239,9 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		MessageGroupLoader: loaders.NewLoader(ctx, queries.GetMessageGroups),
 
 		GameLoader: loaders.New(ctx, queries.GetGames, loaders.WithKeyFunc(func(i common.Game) uuid.UUID {
+			return i.ID
+		})),
+		ShortLoader: loaders.New(ctx, queries.GetShorts, loaders.WithKeyFunc(func(i common.Short) uuid.UUID {
 			return i.ID
 		})),
 

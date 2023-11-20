@@ -1041,6 +1041,24 @@ func (this SectionPagination) GetTotal() int  { return this.Total }
 func (this SectionPagination) GetFirst() int  { return this.First }
 func (this SectionPagination) GetOffset() int { return this.Offset }
 
+type Short struct {
+	ID          string    `json:"id"`
+	Title       string    `json:"title"`
+	Description *string   `json:"description,omitempty"`
+	Image       *string   `json:"image,omitempty"`
+	Streams     []*Stream `json:"streams"`
+	Files       []*File   `json:"files"`
+}
+
+func (Short) IsCollectionItem()            {}
+func (this Short) GetID() string           { return this.ID }
+func (this Short) GetTitle() string        { return this.Title }
+func (this Short) GetDescription() *string { return this.Description }
+
+func (Short) IsPlaylistItem() {}
+
+func (this Short) GetImage() *string { return this.Image }
+
 type Show struct {
 	ID           string            `json:"id"`
 	LegacyID     *string           `json:"legacyID,omitempty"`

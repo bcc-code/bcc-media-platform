@@ -2,8 +2,9 @@ package common
 
 import (
 	"encoding/json"
-	"github.com/orsinium-labs/enum"
 	"time"
+
+	"github.com/orsinium-labs/enum"
 
 	"github.com/google/uuid"
 
@@ -223,6 +224,18 @@ type TimedMetadata struct {
 	ChapterType ChapterType
 	PersonIDs   []uuid.UUID
 	SongID      uuid.NullUUID
+}
+
+// Short item type
+type Short struct {
+	ID          uuid.UUID
+	AssetID     null.Int
+	Title       LocaleString
+	Description LocaleString
+	Images      Images
+	EpisodeID   null.Int
+	StartsAt    null.Float
+	EndsAt      null.Float
 }
 
 // Page is the definition of the Page object

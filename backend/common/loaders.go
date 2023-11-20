@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/google/uuid"
@@ -36,6 +37,9 @@ type BatchLoaders struct {
 	FilesLoader   *loaders.Loader[int, []*File]
 	StreamsLoader *loaders.Loader[int, []*Stream]
 
+	AssetFilesLoader   *loaders.Loader[int, []*File]
+	AssetStreamsLoader *loaders.Loader[int, []*Stream]
+
 	EventLoader          *loaders.Loader[int, *Event]
 	FAQCategoryLoader    *loaders.Loader[uuid.UUID, *FAQCategory]
 	QuestionLoader       *loaders.Loader[uuid.UUID, *Question]
@@ -43,6 +47,7 @@ type BatchLoaders struct {
 	SurveyLoader         *loaders.Loader[uuid.UUID, *Survey]
 	SurveyQuestionLoader *loaders.Loader[uuid.UUID, *SurveyQuestion]
 	GameLoader           *loaders.Loader[uuid.UUID, *Game]
+	ShortLoader          *loaders.Loader[uuid.UUID, *Short]
 
 	MemberLoader       *loaders.Loader[int, *members.Member]
 	OrganizationLoader *loaders.Loader[uuid.UUID, *members.Organization]
@@ -124,6 +129,7 @@ type FilteredLoaders struct {
 	// Lists
 	PromptIDsLoader      func(ctx context.Context) ([]uuid.UUID, error)
 	FAQCategoryIDsLoader func(ctx context.Context) ([]uuid.UUID, error)
+	ShortIDsLoader       func(ctx context.Context) ([]uuid.UUID, error)
 }
 
 // ProfileLoaders contains loaders per profile

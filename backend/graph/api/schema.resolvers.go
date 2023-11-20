@@ -282,6 +282,28 @@ func (r *queryRootResolver) Game(ctx context.Context, id string) (*model.Game, e
 	return uuidItemLoader(ctx, r.Loaders.GameLoader, model.GameFrom, id)
 }
 
+// Shorts is the resolver for the shorts field.
+func (r *queryRootResolver) Shorts(ctx context.Context) ([]*model.Short, error) {
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+	shortIDs, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
+	if err != nil {
+		return nil, err
+	}
+	shorts, err := r.GetLoaders().ShortLoader.GetMany(ctx, shortIDs)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(shorts, func(i *common.Short, _ int) *model.Short {
+		return &model.Short{
+			ID:          i.ID.String(),
+			Title:       i.Title.Get(languages),
+			Description: i.Description.GetValueOrNil(languages),
+			Image:       i.Images.GetDefault(languages, common.ImageStyleDefault),
+		}
+	}), nil
+}
+
 // PendingAchievements is the resolver for the pendingAchievements field.
 func (r *queryRootResolver) PendingAchievements(ctx context.Context) ([]*model.Achievement, error) {
 	p, err := getProfile(ctx)
