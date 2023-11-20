@@ -626,6 +626,7 @@ type ComplexityRoot struct {
 		Search              func(childComplexity int, queryString string, first *int, offset *int, typeArg *string, minScore *int) int
 		Season              func(childComplexity int, id string) int
 		Section             func(childComplexity int, id string, timestamp *string) int
+		Short               func(childComplexity int, id string) int
 		Shorts              func(childComplexity int, cursor *string, limit *int) int
 		Show                func(childComplexity int, id string) int
 		StudyLesson         func(childComplexity int, id string) int
@@ -1117,6 +1118,7 @@ type QueryRootResolver interface {
 	Playlist(ctx context.Context, id string) (*model.Playlist, error)
 	Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error)
 	Game(ctx context.Context, id string) (*model.Game, error)
+	Short(ctx context.Context, id string) (*model.Short, error)
 	Shorts(ctx context.Context, cursor *string, limit *int) (*model.ShortsPagination, error)
 	PendingAchievements(ctx context.Context) ([]*model.Achievement, error)
 	Achievement(ctx context.Context, id string) (*model.Achievement, error)
@@ -3971,6 +3973,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.QueryRoot.Section(childComplexity, args["id"].(string), args["timestamp"].(*string)), true
 
+	case "QueryRoot.short":
+		if e.complexity.QueryRoot.Short == nil {
+			break
+		}
+
+		args, err := ec.field_QueryRoot_short_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.QueryRoot.Short(childComplexity, args["id"].(string)), true
+
 	case "QueryRoot.shorts":
 		if e.complexity.QueryRoot.Shorts == nil {
 			break
@@ -6108,6 +6122,8 @@ type QueryRoot{
         id: UUID!
     ): Game!
 
+    short(id: UUID!): Short!
+
     shorts(cursor: String, limit: Int): ShortsPagination!
 
     pendingAchievements: [Achievement!]!
@@ -8119,6 +8135,21 @@ func (ec *executionContext) field_QueryRoot_section_args(ctx context.Context, ra
 		}
 	}
 	args["timestamp"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_QueryRoot_short_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNUUID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -24849,6 +24880,75 @@ func (ec *executionContext) fieldContext_QueryRoot_game(ctx context.Context, fie
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_QueryRoot_game_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QueryRoot_short(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_short(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().Short(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Short)
+	fc.Result = res
+	return ec.marshalNShort2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShort(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_short(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Short_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Short_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Short_description(ctx, field)
+			case "image":
+				return ec.fieldContext_Short_image(ctx, field)
+			case "streams":
+				return ec.fieldContext_Short_streams(ctx, field)
+			case "files":
+				return ec.fieldContext_Short_files(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Short", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_QueryRoot_short_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -43900,6 +44000,28 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "short":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_short(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "shorts":
 			field := field
 
@@ -49613,6 +49735,10 @@ func (ec *executionContext) unmarshalNShareRestriction2githubᚗcomᚋbccᚑcode
 
 func (ec *executionContext) marshalNShareRestriction2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShareRestriction(ctx context.Context, sel ast.SelectionSet, v model.ShareRestriction) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) marshalNShort2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShort(ctx context.Context, sel ast.SelectionSet, v model.Short) graphql.Marshaler {
+	return ec._Short(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNShort2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShortᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Short) graphql.Marshaler {

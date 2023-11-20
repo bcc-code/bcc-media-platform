@@ -113,6 +113,8 @@ type QueryRoot{
         id: UUID!
     ): Game!
 
+    short(id: UUID!): Short!
+
     shorts(cursor: String, limit: Int): ShortsPagination!
 
     pendingAchievements: [Achievement!]!

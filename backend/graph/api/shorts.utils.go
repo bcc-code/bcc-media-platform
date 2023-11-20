@@ -12,8 +12,6 @@ import (
 )
 
 func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*model.ShortsPagination, error) {
-	ginCtx, _ := utils.GinCtx(ctx)
-	languages := user.GetLanguagesFromCtx(ginCtx)
 	var err error
 	var c *utils.Cursor[uuid.UUID]
 	if cursor != nil {
@@ -72,12 +70,18 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*
 		Cursor:     currentCursorString,
 		NextCursor: nextCursorString,
 		Shorts: lo.Map(shorts, func(i *common.Short, _ int) *model.Short {
-			return &model.Short{
-				ID:          i.ID.String(),
-				Title:       i.Title.Get(languages),
-				Description: i.Description.GetValueOrNil(languages),
-				Image:       i.Images.GetDefault(languages, common.ImageStyleDefault),
-			}
+			return shortToShort(ctx, i)
 		}),
 	}, nil
+}
+
+func shortToShort(ctx context.Context, short *common.Short) *model.Short {
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+	return &model.Short{
+		ID:          short.ID.String(),
+		Title:       short.Title.Get(languages),
+		Description: short.Description.GetValueOrNil(languages),
+		Image:       short.Images.GetDefault(languages, common.ImageStyleDefault),
+	}
 }
