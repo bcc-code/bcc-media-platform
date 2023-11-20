@@ -935,6 +935,40 @@ type MaterializedViewsMetum struct {
 	LastRefreshed null_v4.Time `db:"last_refreshed" json:"lastRefreshed"`
 }
 
+type Mediaitem struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Status      string         `db:"status" json:"status"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Label       string         `db:"label" json:"label"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+	Type        string         `db:"type" json:"type"`
+	AssetID     null_v4.Int    `db:"asset_id" json:"assetId"`
+}
+
+type MediaitemsStyledimage struct {
+	ID             int32         `db:"id" json:"id"`
+	MediaitemsID   uuid.NullUUID `db:"mediaitems_id" json:"mediaitemsId"`
+	StyledimagesID uuid.NullUUID `db:"styledimages_id" json:"styledimagesId"`
+}
+
+type MediaitemsTag struct {
+	ID           int32         `db:"id" json:"id"`
+	MediaitemsID uuid.NullUUID `db:"mediaitems_id" json:"mediaitemsId"`
+	TagsID       null_v4.Int   `db:"tags_id" json:"tagsId"`
+}
+
+type MediaitemsTranslation struct {
+	ID            int32          `db:"id" json:"id"`
+	MediaitemsID  uuid.NullUUID  `db:"mediaitems_id" json:"mediaitemsId"`
+	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	Title         null_v4.String `db:"title" json:"title"`
+	Description   null_v4.String `db:"description" json:"description"`
+}
+
 type Message struct {
 	ID          int32          `db:"id" json:"id"`
 	Status      string         `db:"status" json:"status"`
@@ -1240,6 +1274,22 @@ type SectionsUsergroup struct {
 	ID             int32  `db:"id" json:"id"`
 	SectionsID     int32  `db:"sections_id" json:"sectionsId"`
 	UsergroupsCode string `db:"usergroups_code" json:"usergroupsCode"`
+}
+
+type Short struct {
+	ID          uuid.UUID     `db:"id" json:"id"`
+	Status      string        `db:"status" json:"status"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	MediaitemID uuid.NullUUID `db:"mediaitem_id" json:"mediaitemId"`
+}
+
+type ShortsUsergroup struct {
+	ID             int32          `db:"id" json:"id"`
+	ShortsID       uuid.NullUUID  `db:"shorts_id" json:"shortsId"`
+	UsergroupsCode null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
 }
 
 type Show struct {

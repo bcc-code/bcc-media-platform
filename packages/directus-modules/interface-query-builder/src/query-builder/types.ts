@@ -95,7 +95,15 @@ export const fields: Field[] = [
 			{
 				title: "Shows",
 				value: "shows"
-			}
+			},
+            {
+                title: "Playlists",
+                value: "playlists",
+            },
+            {
+                title: "Shorts",
+                value: "shorts"
+            }
 		],
 		supportedOperators: ["==", "!="]
 	},
