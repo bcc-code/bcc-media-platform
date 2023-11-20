@@ -626,7 +626,7 @@ type ComplexityRoot struct {
 		Search              func(childComplexity int, queryString string, first *int, offset *int, typeArg *string, minScore *int) int
 		Season              func(childComplexity int, id string) int
 		Section             func(childComplexity int, id string, timestamp *string) int
-		Shorts              func(childComplexity int) int
+		Shorts              func(childComplexity int, cursor *string, limit *int) int
 		Show                func(childComplexity int, id string) int
 		StudyLesson         func(childComplexity int, id string) int
 		StudyTopic          func(childComplexity int, id string) int
@@ -748,6 +748,12 @@ type ComplexityRoot struct {
 		Image       func(childComplexity int, style *model.ImageStyle) int
 		Streams     func(childComplexity int) int
 		Title       func(childComplexity int) int
+	}
+
+	ShortsPagination struct {
+		Cursor     func(childComplexity int) int
+		NextCursor func(childComplexity int) int
+		Shorts     func(childComplexity int) int
 	}
 
 	Show struct {
@@ -1111,7 +1117,7 @@ type QueryRootResolver interface {
 	Playlist(ctx context.Context, id string) (*model.Playlist, error)
 	Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error)
 	Game(ctx context.Context, id string) (*model.Game, error)
-	Shorts(ctx context.Context) ([]*model.Short, error)
+	Shorts(ctx context.Context, cursor *string, limit *int) (*model.ShortsPagination, error)
 	PendingAchievements(ctx context.Context) ([]*model.Achievement, error)
 	Achievement(ctx context.Context, id string) (*model.Achievement, error)
 	AchievementGroup(ctx context.Context, id string) (*model.AchievementGroup, error)
@@ -3970,7 +3976,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.QueryRoot.Shorts(childComplexity), true
+		args, err := ec.field_QueryRoot_shorts_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.QueryRoot.Shorts(childComplexity, args["cursor"].(*string), args["limit"].(*int)), true
 
 	case "QueryRoot.show":
 		if e.complexity.QueryRoot.Show == nil {
@@ -4559,6 +4570,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Short.Title(childComplexity), true
+
+	case "ShortsPagination.cursor":
+		if e.complexity.ShortsPagination.Cursor == nil {
+			break
+		}
+
+		return e.complexity.ShortsPagination.Cursor(childComplexity), true
+
+	case "ShortsPagination.nextCursor":
+		if e.complexity.ShortsPagination.NextCursor == nil {
+			break
+		}
+
+		return e.complexity.ShortsPagination.NextCursor(childComplexity), true
+
+	case "ShortsPagination.shorts":
+		if e.complexity.ShortsPagination.Shorts == nil {
+			break
+		}
+
+		return e.complexity.ShortsPagination.Shorts(childComplexity), true
 
 	case "Show.defaultEpisode":
 		if e.complexity.Show.DefaultEpisode == nil {
@@ -6076,7 +6108,7 @@ type QueryRoot{
         id: UUID!
     ): Game!
 
-    shorts: [Short!]!
+    shorts(cursor: String, limit: Int): ShortsPagination!
 
     pendingAchievements: [Achievement!]!
 
@@ -6418,6 +6450,12 @@ type SectionItemPagination implements Pagination {
     image(style: ImageStyle): String
     streams: [Stream!]! @goField(forceResolver: true)
     files: [File!]! @goField(forceResolver: true)
+}
+
+type ShortsPagination {
+    cursor: String!
+    nextCursor: String!
+    shorts: [Short!]!
 }
 `, BuiltIn: false},
 	{Name: "../schema/shows.graphqls", Input: `enum ShowType {
@@ -8081,6 +8119,30 @@ func (ec *executionContext) field_QueryRoot_section_args(ctx context.Context, ra
 		}
 	}
 	args["timestamp"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_QueryRoot_shorts_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["cursor"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["cursor"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
 	return args, nil
 }
 
@@ -24807,7 +24869,7 @@ func (ec *executionContext) _QueryRoot_shorts(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().Shorts(rctx)
+		return ec.resolvers.QueryRoot().Shorts(rctx, fc.Args["cursor"].(*string), fc.Args["limit"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24819,9 +24881,9 @@ func (ec *executionContext) _QueryRoot_shorts(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Short)
+	res := resTmp.(*model.ShortsPagination)
 	fc.Result = res
-	return ec.marshalNShort2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShortᚄ(ctx, field.Selections, res)
+	return ec.marshalNShortsPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShortsPagination(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_shorts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -24832,21 +24894,26 @@ func (ec *executionContext) fieldContext_QueryRoot_shorts(ctx context.Context, f
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Short_id(ctx, field)
-			case "title":
-				return ec.fieldContext_Short_title(ctx, field)
-			case "description":
-				return ec.fieldContext_Short_description(ctx, field)
-			case "image":
-				return ec.fieldContext_Short_image(ctx, field)
-			case "streams":
-				return ec.fieldContext_Short_streams(ctx, field)
-			case "files":
-				return ec.fieldContext_Short_files(ctx, field)
+			case "cursor":
+				return ec.fieldContext_ShortsPagination_cursor(ctx, field)
+			case "nextCursor":
+				return ec.fieldContext_ShortsPagination_nextCursor(ctx, field)
+			case "shorts":
+				return ec.fieldContext_ShortsPagination_shorts(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Short", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ShortsPagination", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_QueryRoot_shorts_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -29574,6 +29641,152 @@ func (ec *executionContext) fieldContext_Short_files(ctx context.Context, field 
 				return ec.fieldContext_File_resolution(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type File", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShortsPagination_cursor(ctx context.Context, field graphql.CollectedField, obj *model.ShortsPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShortsPagination_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShortsPagination_cursor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShortsPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShortsPagination_nextCursor(ctx context.Context, field graphql.CollectedField, obj *model.ShortsPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShortsPagination_nextCursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NextCursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShortsPagination_nextCursor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShortsPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShortsPagination_shorts(ctx context.Context, field graphql.CollectedField, obj *model.ShortsPagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShortsPagination_shorts(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Shorts, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Short)
+	fc.Result = res
+	return ec.marshalNShort2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShortᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShortsPagination_shorts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShortsPagination",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Short_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Short_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Short_description(ctx, field)
+			case "image":
+				return ec.fieldContext_Short_image(ctx, field)
+			case "streams":
+				return ec.fieldContext_Short_streams(ctx, field)
+			case "files":
+				return ec.fieldContext_Short_files(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Short", field.Name)
 		},
 	}
 	return fc, nil
@@ -45354,6 +45567,55 @@ func (ec *executionContext) _Short(ctx context.Context, sel ast.SelectionSet, ob
 	return out
 }
 
+var shortsPaginationImplementors = []string{"ShortsPagination"}
+
+func (ec *executionContext) _ShortsPagination(ctx context.Context, sel ast.SelectionSet, obj *model.ShortsPagination) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, shortsPaginationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ShortsPagination")
+		case "cursor":
+			out.Values[i] = ec._ShortsPagination_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nextCursor":
+			out.Values[i] = ec._ShortsPagination_nextCursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "shorts":
+			out.Values[i] = ec._ShortsPagination_shorts(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var showImplementors = []string{"Show", "SectionItemType", "CollectionItem", "UserCollectionEntryItem"}
 
 func (ec *executionContext) _Show(ctx context.Context, sel ast.SelectionSet, obj *model.Show) graphql.Marshaler {
@@ -49405,6 +49667,20 @@ func (ec *executionContext) marshalNShort2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑm
 		return graphql.Null
 	}
 	return ec._Short(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNShortsPagination2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShortsPagination(ctx context.Context, sel ast.SelectionSet, v model.ShortsPagination) graphql.Marshaler {
+	return ec._ShortsPagination(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNShortsPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShortsPagination(ctx context.Context, sel ast.SelectionSet, v *model.ShortsPagination) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ShortsPagination(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNShow2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v model.Show) graphql.Marshaler {

@@ -1059,6 +1059,12 @@ func (Short) IsPlaylistItem() {}
 
 func (this Short) GetImage() *string { return this.Image }
 
+type ShortsPagination struct {
+	Cursor     string   `json:"cursor"`
+	NextCursor string   `json:"nextCursor"`
+	Shorts     []*Short `json:"shorts"`
+}
+
 type Show struct {
 	ID           string            `json:"id"`
 	LegacyID     *string           `json:"legacyID,omitempty"`

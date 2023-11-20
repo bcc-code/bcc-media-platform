@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/base64"
 	"encoding/json"
+
 	"github.com/samber/lo"
 )
 
@@ -113,6 +114,14 @@ func (c *Cursor[K]) PreviousCursor() *Cursor[K] {
 		Keys:         c.Keys,
 		CurrentIndex: c.CurrentIndex - 1,
 	}
+}
+
+// Position returns the key at the position or nil
+func (c *Cursor[K]) Position(index int) *K {
+	if index < 0 || index >= len(c.Keys) {
+		return nil
+	}
+	return &c.Keys[index]
 }
 
 // ToCursor returns a cursor for the specified ids
