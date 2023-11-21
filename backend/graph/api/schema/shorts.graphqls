@@ -8,10 +8,10 @@ type Short implements CollectionItem & PlaylistItem {
     source: SubclipSource @goField(forceResolver: true)
 }
 
-union SubclipItem = Episode
+union SubclipSourceItem = Episode
 
 type SubclipSource {
-    item: SubclipItem!
+    item: SubclipSourceItem!
     start: Float
     end: Float
 }
