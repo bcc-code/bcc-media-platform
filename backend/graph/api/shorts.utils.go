@@ -37,6 +37,21 @@ func (r *Resolver) getShuffledShortIDsCursor(ctx context.Context, p *common.Prof
 	return utils.NewCursor(ids), nil
 }
 
+func (r *Resolver) clearShortsProgress(ctx context.Context, p *common.Profile) error {
+	shortIDs, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
+	if err != nil {
+		return err
+	}
+	err = r.GetQueries().RemoveProgressForVideoIDs(ctx, sqlc.RemoveProgressForVideoIDsParams{
+		ProfileID: p.ID,
+		ItemIds:   shortIDs,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*model.ShortsPagination, error) {
 	p, err := getProfile(ctx)
 	if err != nil && !errors.Is(err, ErrProfileNotSet) {
@@ -67,10 +82,7 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*
 			nextCursor = c.CursorFor(*nextKey)
 		} else {
 			if p != nil {
-				err = r.GetQueries().RemoveProgressForVideoIDs(ctx, sqlc.RemoveProgressForVideoIDsParams{
-					ProfileID: p.ID,
-					ItemIds:   c.Keys,
-				})
+				err = r.clearShortsProgress(ctx, p)
 				if err != nil {
 					return nil, err
 				}
