@@ -11,6 +11,18 @@ import (
 	"github.com/samber/lo"
 )
 
+func (r *Resolver) getShuffledShortIDsCursor(ctx context.Context) (*utils.Cursor[uuid.UUID], error) {
+	shortIDs, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
+	if err != nil {
+		return nil, err
+	}
+	// because we are shuffling, we need to copy the array to avoid editing the pointer value
+	arr := make([]uuid.UUID, len(shortIDs))
+	copy(arr, shortIDs)
+	ids := lo.Shuffle(arr)
+	return utils.NewCursor(ids), nil
+}
+
 func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*model.ShortsPagination, error) {
 	var err error
 	var c *utils.Cursor[uuid.UUID]
@@ -20,14 +32,10 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*
 			return nil, err
 		}
 	} else {
-		shortIDs, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
+		c, err = r.getShuffledShortIDsCursor(ctx)
 		if err != nil {
 			return nil, err
 		}
-		arr := make([]uuid.UUID, len(shortIDs))
-		copy(arr, shortIDs)
-		ids := lo.Shuffle(arr)
-		c = utils.ToCursor(ids, shortIDs[0])
 	}
 	l := 10
 	if limit != nil {
@@ -35,18 +43,16 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*
 	}
 	var nextCursor *utils.Cursor[uuid.UUID]
 	{
+		// if the cursor doesn't have enough to satisfy the length of the limit, the next cursor is a new random one
+		// TODO: implement filling the required number of IDs instead of giving up and generating a new from scratch.
 		nextKey := c.Position(c.CurrentIndex + l)
 		if nextKey != nil {
 			nextCursor = c.CursorFor(*nextKey)
 		} else {
-			shortIDs, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
+			nextCursor, err = r.getShuffledShortIDsCursor(ctx)
 			if err != nil {
 				return nil, err
 			}
-			arr := make([]uuid.UUID, len(shortIDs))
-			copy(arr, shortIDs)
-			ids := lo.Shuffle(arr)
-			nextCursor = utils.ToCursor(ids, ids[0])
 		}
 	}
 

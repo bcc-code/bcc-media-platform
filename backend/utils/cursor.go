@@ -132,3 +132,11 @@ func ToCursor[K comparable](ids []K, id K) *Cursor[K] {
 		CurrentIndex: index,
 	}
 }
+
+// NewCursor returns a new cursor for the specified ids
+func NewCursor[K comparable](ids []K) *Cursor[K] {
+	return &Cursor[K]{
+		Keys:         ids,
+		CurrentIndex: 0,
+	}
+}
