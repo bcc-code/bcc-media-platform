@@ -99,6 +99,10 @@ type SectionItemType interface {
 	IsSectionItemType()
 }
 
+type SubclipItem interface {
+	IsSubclipItem()
+}
+
 type SurveyQuestion interface {
 	IsSurveyQuestion()
 	GetID() string
@@ -398,6 +402,8 @@ func (Episode) IsPlaylistItem() {}
 func (this Episode) GetImage() *string { return this.Image }
 
 func (Episode) IsSectionItemType() {}
+
+func (Episode) IsSubclipItem() {}
 
 func (Episode) IsUserCollectionEntryItem() {}
 
@@ -1042,13 +1048,13 @@ func (this SectionPagination) GetFirst() int  { return this.First }
 func (this SectionPagination) GetOffset() int { return this.Offset }
 
 type Short struct {
-	ID          string          `json:"id"`
-	Title       string          `json:"title"`
-	Description *string         `json:"description,omitempty"`
-	Image       *string         `json:"image,omitempty"`
-	Streams     []*Stream       `json:"streams"`
-	Files       []*File         `json:"files"`
-	Relation    *ShortsRelation `json:"relation"`
+	ID          string         `json:"id"`
+	Title       string         `json:"title"`
+	Description *string        `json:"description,omitempty"`
+	Image       *string        `json:"image,omitempty"`
+	Streams     []*Stream      `json:"streams"`
+	Files       []*File        `json:"files"`
+	Source      *SubclipSource `json:"source,omitempty"`
 }
 
 func (Short) IsCollectionItem()            {}
@@ -1064,13 +1070,6 @@ type ShortsPagination struct {
 	Cursor     string   `json:"cursor"`
 	NextCursor string   `json:"nextCursor"`
 	Shorts     []*Short `json:"shorts"`
-}
-
-type ShortsRelation struct {
-	Type  ShortsRelationType `json:"type"`
-	Key   string             `json:"key"`
-	Start *float64           `json:"start,omitempty"`
-	End   *float64           `json:"end,omitempty"`
 }
 
 type Show struct {
@@ -1187,6 +1186,12 @@ func (StudyTopic) IsCollectionItem()            {}
 func (this StudyTopic) GetID() string           { return this.ID }
 func (this StudyTopic) GetTitle() string        { return this.Title }
 func (this StudyTopic) GetDescription() *string { return &this.Description }
+
+type SubclipSource struct {
+	Item  SubclipItem `json:"item"`
+	Start *float64    `json:"start,omitempty"`
+	End   *float64    `json:"end,omitempty"`
+}
 
 type Survey struct {
 	ID          string                    `json:"id"`
@@ -1673,47 +1678,6 @@ func (e *ShareRestriction) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ShareRestriction) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type ShortsRelationType string
-
-const (
-	ShortsRelationTypeEpisode ShortsRelationType = "episode"
-	ShortsRelationTypeURL     ShortsRelationType = "url"
-)
-
-var AllShortsRelationType = []ShortsRelationType{
-	ShortsRelationTypeEpisode,
-	ShortsRelationTypeURL,
-}
-
-func (e ShortsRelationType) IsValid() bool {
-	switch e {
-	case ShortsRelationTypeEpisode, ShortsRelationTypeURL:
-		return true
-	}
-	return false
-}
-
-func (e ShortsRelationType) String() string {
-	return string(e)
-}
-
-func (e *ShortsRelationType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = ShortsRelationType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ShortsRelationType", str)
-	}
-	return nil
-}
-
-func (e ShortsRelationType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

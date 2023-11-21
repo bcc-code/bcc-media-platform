@@ -71,18 +71,21 @@ func (r *shortResolver) Files(ctx context.Context, obj *model.Short) ([]*model.F
 	return out, nil
 }
 
-// Relation is the resolver for the relation field.
-func (r *shortResolver) Relation(ctx context.Context, obj *model.Short) (*model.ShortsRelation, error) {
-	s, err := r.GetLoaders().ShortLoader.Get(ctx, utils.AsUuid(obj.ID))
+// Source is the resolver for the source field.
+func (r *shortResolver) Source(ctx context.Context, obj *model.Short) (*model.SubclipSource, error) {
+	s, err := r.Loaders.ShortLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
 	}
 	if s.EpisodeID.Valid {
-		return &model.ShortsRelation{
-			Type:  model.ShortsRelationTypeEpisode,
-			Key:   strconv.Itoa(int(s.EpisodeID.Int64)),
-			Start: s.StartsAt.Ptr(),
+		ep, err := r.QueryRoot().Episode(ctx, strconv.Itoa(int(s.EpisodeID.Int64)), nil)
+		if err != nil {
+			return nil, nil
+		}
+		return &model.SubclipSource{
+			Item:  ep,
 			End:   s.EndsAt.Ptr(),
+			Start: s.StartsAt.Ptr(),
 		}, nil
 	}
 	return nil, nil

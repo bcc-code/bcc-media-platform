@@ -748,7 +748,7 @@ type ComplexityRoot struct {
 		Files       func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Image       func(childComplexity int, style *model.ImageStyle) int
-		Relation    func(childComplexity int) int
+		Source      func(childComplexity int) int
 		Streams     func(childComplexity int) int
 		Title       func(childComplexity int) int
 	}
@@ -757,13 +757,6 @@ type ComplexityRoot struct {
 		Cursor     func(childComplexity int) int
 		NextCursor func(childComplexity int) int
 		Shorts     func(childComplexity int) int
-	}
-
-	ShortsRelation struct {
-		End   func(childComplexity int) int
-		Key   func(childComplexity int) int
-		Start func(childComplexity int) int
-		Type  func(childComplexity int) int
 	}
 
 	Show struct {
@@ -832,6 +825,12 @@ type ComplexityRoot struct {
 		Lessons       func(childComplexity int, first *int, offset *int) int
 		Progress      func(childComplexity int) int
 		Title         func(childComplexity int) int
+	}
+
+	SubclipSource struct {
+		End   func(childComplexity int) int
+		Item  func(childComplexity int) int
+		Start func(childComplexity int) int
 	}
 
 	Survey struct {
@@ -1178,7 +1177,7 @@ type ShortResolver interface {
 	Image(ctx context.Context, obj *model.Short, style *model.ImageStyle) (*string, error)
 	Streams(ctx context.Context, obj *model.Short) ([]*model.Stream, error)
 	Files(ctx context.Context, obj *model.Short) ([]*model.File, error)
-	Relation(ctx context.Context, obj *model.Short) (*model.ShortsRelation, error)
+	Source(ctx context.Context, obj *model.Short) (*model.SubclipSource, error)
 }
 type ShowResolver interface {
 	Image(ctx context.Context, obj *model.Show, style *model.ImageStyle) (*string, error)
@@ -4595,12 +4594,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Short.Image(childComplexity, args["style"].(*model.ImageStyle)), true
 
-	case "Short.relation":
-		if e.complexity.Short.Relation == nil {
+	case "Short.source":
+		if e.complexity.Short.Source == nil {
 			break
 		}
 
-		return e.complexity.Short.Relation(childComplexity), true
+		return e.complexity.Short.Source(childComplexity), true
 
 	case "Short.streams":
 		if e.complexity.Short.Streams == nil {
@@ -4636,34 +4635,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ShortsPagination.Shorts(childComplexity), true
-
-	case "ShortsRelation.end":
-		if e.complexity.ShortsRelation.End == nil {
-			break
-		}
-
-		return e.complexity.ShortsRelation.End(childComplexity), true
-
-	case "ShortsRelation.key":
-		if e.complexity.ShortsRelation.Key == nil {
-			break
-		}
-
-		return e.complexity.ShortsRelation.Key(childComplexity), true
-
-	case "ShortsRelation.start":
-		if e.complexity.ShortsRelation.Start == nil {
-			break
-		}
-
-		return e.complexity.ShortsRelation.Start(childComplexity), true
-
-	case "ShortsRelation.type":
-		if e.complexity.ShortsRelation.Type == nil {
-			break
-		}
-
-		return e.complexity.ShortsRelation.Type(childComplexity), true
 
 	case "Show.defaultEpisode":
 		if e.complexity.Show.DefaultEpisode == nil {
@@ -5034,6 +5005,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.StudyTopic.Title(childComplexity), true
+
+	case "SubclipSource.end":
+		if e.complexity.SubclipSource.End == nil {
+			break
+		}
+
+		return e.complexity.SubclipSource.End(childComplexity), true
+
+	case "SubclipSource.item":
+		if e.complexity.SubclipSource.Item == nil {
+			break
+		}
+
+		return e.complexity.SubclipSource.Item(childComplexity), true
+
+	case "SubclipSource.start":
+		if e.complexity.SubclipSource.Start == nil {
+			break
+		}
+
+		return e.complexity.SubclipSource.Start(childComplexity), true
 
 	case "Survey.description":
 		if e.complexity.Survey.Description == nil {
@@ -6527,17 +6519,13 @@ type SectionItemPagination implements Pagination {
     image(style: ImageStyle): String @goField(forceResolver: true)
     streams: [Stream!]! @goField(forceResolver: true)
     files: [File!]! @goField(forceResolver: true)
-    relation: ShortsRelation! @goField(forceResolver: true)
+    source: SubclipSource @goField(forceResolver: true)
 }
 
-enum ShortsRelationType {
-    episode,
-    url,
-}
+union SubclipItem = Episode
 
-type ShortsRelation {
-    type: ShortsRelationType!
-    key: String!
+type SubclipSource {
+    item: SubclipItem!
     start: Float
     end: Float
 }
@@ -21626,8 +21614,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setShortProgress(ctx conte
 				return ec.fieldContext_Short_streams(ctx, field)
 			case "files":
 				return ec.fieldContext_Short_files(ctx, field)
-			case "relation":
-				return ec.fieldContext_Short_relation(ctx, field)
+			case "source":
+				return ec.fieldContext_Short_source(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Short", field.Name)
 		},
@@ -25115,8 +25103,8 @@ func (ec *executionContext) fieldContext_QueryRoot_short(ctx context.Context, fi
 				return ec.fieldContext_Short_streams(ctx, field)
 			case "files":
 				return ec.fieldContext_Short_files(ctx, field)
-			case "relation":
-				return ec.fieldContext_Short_relation(ctx, field)
+			case "source":
+				return ec.fieldContext_Short_source(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Short", field.Name)
 		},
@@ -29926,8 +29914,8 @@ func (ec *executionContext) fieldContext_Short_files(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Short_relation(ctx context.Context, field graphql.CollectedField, obj *model.Short) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Short_relation(ctx, field)
+func (ec *executionContext) _Short_source(ctx context.Context, field graphql.CollectedField, obj *model.Short) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Short_source(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -29940,24 +29928,21 @@ func (ec *executionContext) _Short_relation(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Short().Relation(rctx, obj)
+		return ec.resolvers.Short().Source(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.ShortsRelation)
+	res := resTmp.(*model.SubclipSource)
 	fc.Result = res
-	return ec.marshalNShortsRelation2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShortsRelation(ctx, field.Selections, res)
+	return ec.marshalOSubclipSource2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubclipSource(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Short_relation(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Short_source(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Short",
 		Field:      field,
@@ -29965,16 +29950,14 @@ func (ec *executionContext) fieldContext_Short_relation(ctx context.Context, fie
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "type":
-				return ec.fieldContext_ShortsRelation_type(ctx, field)
-			case "key":
-				return ec.fieldContext_ShortsRelation_key(ctx, field)
+			case "item":
+				return ec.fieldContext_SubclipSource_item(ctx, field)
 			case "start":
-				return ec.fieldContext_ShortsRelation_start(ctx, field)
+				return ec.fieldContext_SubclipSource_start(ctx, field)
 			case "end":
-				return ec.fieldContext_ShortsRelation_end(ctx, field)
+				return ec.fieldContext_SubclipSource_end(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ShortsRelation", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SubclipSource", field.Name)
 		},
 	}
 	return fc, nil
@@ -30119,180 +30102,10 @@ func (ec *executionContext) fieldContext_ShortsPagination_shorts(ctx context.Con
 				return ec.fieldContext_Short_streams(ctx, field)
 			case "files":
 				return ec.fieldContext_Short_files(ctx, field)
-			case "relation":
-				return ec.fieldContext_Short_relation(ctx, field)
+			case "source":
+				return ec.fieldContext_Short_source(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Short", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ShortsRelation_type(ctx context.Context, field graphql.CollectedField, obj *model.ShortsRelation) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ShortsRelation_type(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.ShortsRelationType)
-	fc.Result = res
-	return ec.marshalNShortsRelationType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShortsRelationType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ShortsRelation_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ShortsRelation",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ShortsRelationType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ShortsRelation_key(ctx context.Context, field graphql.CollectedField, obj *model.ShortsRelation) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ShortsRelation_key(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Key, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ShortsRelation_key(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ShortsRelation",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ShortsRelation_start(ctx context.Context, field graphql.CollectedField, obj *model.ShortsRelation) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ShortsRelation_start(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Start, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*float64)
-	fc.Result = res
-	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ShortsRelation_start(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ShortsRelation",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ShortsRelation_end(ctx context.Context, field graphql.CollectedField, obj *model.ShortsRelation) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ShortsRelation_end(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.End, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*float64)
-	fc.Result = res
-	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ShortsRelation_end(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ShortsRelation",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -32723,6 +32536,132 @@ func (ec *executionContext) fieldContext_StudyTopic_progress(ctx context.Context
 				return ec.fieldContext_LessonsProgress_completed(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type LessonsProgress", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SubclipSource_item(ctx context.Context, field graphql.CollectedField, obj *model.SubclipSource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SubclipSource_item(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Item, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.SubclipItem)
+	fc.Result = res
+	return ec.marshalNSubclipItem2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubclipItem(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SubclipSource_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SubclipSource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type SubclipItem does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SubclipSource_start(ctx context.Context, field graphql.CollectedField, obj *model.SubclipSource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SubclipSource_start(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Start, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SubclipSource_start(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SubclipSource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SubclipSource_end(ctx context.Context, field graphql.CollectedField, obj *model.SubclipSource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SubclipSource_end(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.End, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SubclipSource_end(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SubclipSource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -38240,6 +38179,22 @@ func (ec *executionContext) _SectionItemType(ctx context.Context, sel ast.Select
 	}
 }
 
+func (ec *executionContext) _SubclipItem(ctx context.Context, sel ast.SelectionSet, obj model.SubclipItem) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.Episode:
+		return ec._Episode(ctx, sel, &obj)
+	case *model.Episode:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Episode(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _SurveyQuestion(ctx context.Context, sel ast.SelectionSet, obj model.SurveyQuestion) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -40080,7 +40035,7 @@ func (ec *executionContext) _Device(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
-var episodeImplementors = []string{"Episode", "CollectionItem", "PlaylistItem", "SectionItemType", "UserCollectionEntryItem"}
+var episodeImplementors = []string{"Episode", "CollectionItem", "PlaylistItem", "SectionItemType", "SubclipItem", "UserCollectionEntryItem"}
 
 func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, obj *model.Episode) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, episodeImplementors)
@@ -46110,7 +46065,7 @@ func (ec *executionContext) _Short(ctx context.Context, sel ast.SelectionSet, ob
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "relation":
+		case "source":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -46119,10 +46074,7 @@ func (ec *executionContext) _Short(ctx context.Context, sel ast.SelectionSet, ob
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Short_relation(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
+				res = ec._Short_source(ctx, field, obj)
 				return res
 			}
 
@@ -46195,54 +46147,6 @@ func (ec *executionContext) _ShortsPagination(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var shortsRelationImplementors = []string{"ShortsRelation"}
-
-func (ec *executionContext) _ShortsRelation(ctx context.Context, sel ast.SelectionSet, obj *model.ShortsRelation) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, shortsRelationImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ShortsRelation")
-		case "type":
-			out.Values[i] = ec._ShortsRelation_type(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "key":
-			out.Values[i] = ec._ShortsRelation_key(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "start":
-			out.Values[i] = ec._ShortsRelation_start(ctx, field, obj)
-		case "end":
-			out.Values[i] = ec._ShortsRelation_end(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -47126,6 +47030,49 @@ func (ec *executionContext) _StudyTopic(ctx context.Context, sel ast.SelectionSe
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var subclipSourceImplementors = []string{"SubclipSource"}
+
+func (ec *executionContext) _SubclipSource(ctx context.Context, sel ast.SelectionSet, obj *model.SubclipSource) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, subclipSourceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SubclipSource")
+		case "item":
+			out.Values[i] = ec._SubclipSource_item(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "start":
+			out.Values[i] = ec._SubclipSource_start(ctx, field, obj)
+		case "end":
+			out.Values[i] = ec._SubclipSource_end(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -50337,30 +50284,6 @@ func (ec *executionContext) marshalNShortsPagination2ᚖgithubᚗcomᚋbccᚑcod
 	return ec._ShortsPagination(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNShortsRelation2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShortsRelation(ctx context.Context, sel ast.SelectionSet, v model.ShortsRelation) graphql.Marshaler {
-	return ec._ShortsRelation(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNShortsRelation2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShortsRelation(ctx context.Context, sel ast.SelectionSet, v *model.ShortsRelation) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._ShortsRelation(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNShortsRelationType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShortsRelationType(ctx context.Context, v interface{}) (model.ShortsRelationType, error) {
-	var res model.ShortsRelationType
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNShortsRelationType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShortsRelationType(ctx context.Context, sel ast.SelectionSet, v model.ShortsRelationType) graphql.Marshaler {
-	return v
-}
-
 func (ec *executionContext) marshalNShow2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx context.Context, sel ast.SelectionSet, v model.Show) graphql.Marshaler {
 	return ec._Show(ctx, sel, &v)
 }
@@ -50518,6 +50441,16 @@ func (ec *executionContext) marshalNStudyTopic2ᚖgithubᚗcomᚋbccᚑcodeᚋbc
 		return graphql.Null
 	}
 	return ec._StudyTopic(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSubclipItem2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubclipItem(ctx context.Context, sel ast.SelectionSet, v model.SubclipItem) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SubclipItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNSurvey2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSurvey(ctx context.Context, sel ast.SelectionSet, v model.Survey) graphql.Marshaler {
@@ -51401,6 +51334,13 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOSubclipSource2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubclipSource(ctx context.Context, sel ast.SelectionSet, v *model.SubclipSource) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SubclipSource(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {
