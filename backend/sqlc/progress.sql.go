@@ -236,6 +236,22 @@ func (q *Queries) getProgressForProfile(ctx context.Context, arg getProgressForP
 	return items, nil
 }
 
+const removeProgressForShortIDs = `-- name: removeProgressForShortIDs :exec
+DELETE FROM users.progress p
+WHERE p.profile_id = $1
+  AND p.episode_id = ANY ($2::int[])
+`
+
+type removeProgressForShortIDsParams struct {
+	ProfileID  uuid.UUID `db:"profile_id" json:"profileId"`
+	EpisodeIds []int32   `db:"episode_ids" json:"episodeIds"`
+}
+
+func (q *Queries) removeProgressForShortIDs(ctx context.Context, arg removeProgressForShortIDsParams) error {
+	_, err := q.db.ExecContext(ctx, removeProgressForShortIDs, arg.ProfileID, pq.Array(arg.EpisodeIds))
+	return err
+}
+
 const saveProgress = `-- name: saveProgress :exec
 INSERT INTO "users"."progress" (profile_id, episode_id, show_id, progress, duration, watched, watched_at, updated_at,
                                 context)

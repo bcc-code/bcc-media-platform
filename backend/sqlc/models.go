@@ -1705,3 +1705,14 @@ type UsersUser struct {
 	Gender        string      `db:"gender" json:"gender"`
 	FirstName     string      `db:"first_name" json:"firstName"`
 }
+
+type UsersVideoProgress struct {
+	ProfileID uuid.UUID             `db:"profile_id" json:"profileId"`
+	ItemID    uuid.UUID             `db:"item_id" json:"itemId"`
+	Progress  float32               `db:"progress" json:"progress"`
+	Duration  float32               `db:"duration" json:"duration"`
+	Watched   int32                 `db:"watched" json:"watched"`
+	UpdatedAt time.Time             `db:"updated_at" json:"updatedAt"`
+	Context   pqtype.NullRawMessage `db:"context" json:"context"`
+	WatchedAt null_v4.Time          `db:"watched_at" json:"watchedAt"`
+}

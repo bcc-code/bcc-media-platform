@@ -64,3 +64,8 @@ WHERE p.profile_id = @profile_id
   AND ep.status = 'published'
   AND p.show_id = ANY (@show_ids::int[])
 ORDER BY p.show_id, p.updated_at DESC;
+
+-- name: removeProgressForShortIDs :exec
+DELETE FROM users.progress p
+WHERE p.profile_id = @profile_id
+  AND p.episode_id = ANY (@episode_ids::int[]);
