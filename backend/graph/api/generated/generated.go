@@ -533,6 +533,7 @@ type ComplexityRoot struct {
 		SendVerificationEmail      func(childComplexity int) int
 		SetDevicePushToken         func(childComplexity int, token string, languages []string) int
 		SetEpisodeProgress         func(childComplexity int, id string, progress *int, duration *int, context *model.EpisodeContext) int
+		SetShortProgress           func(childComplexity int, id string, progress *float64, duration *float64) int
 		UpdateEpisodeFeedback      func(childComplexity int, id string, message *string, rating *int) int
 		UpdateSurveyQuestionAnswer func(childComplexity int, key string, answer string) int
 		UpdateTaskMessage          func(childComplexity int, id string, message string) int
@@ -1071,6 +1072,7 @@ type MessageSectionResolver interface {
 type MutationRootResolver interface {
 	SetDevicePushToken(ctx context.Context, token string, languages []string) (*model.Device, error)
 	SetEpisodeProgress(ctx context.Context, id string, progress *int, duration *int, context *model.EpisodeContext) (*model.Episode, error)
+	SetShortProgress(ctx context.Context, id string, progress *float64, duration *float64) (*model.Short, error)
 	SendSupportEmail(ctx context.Context, title string, content string, html string, options *model.EmailOptions) (bool, error)
 	CompleteTask(ctx context.Context, id string, selectedAlternatives []string) (bool, error)
 	LockLessonAnswers(ctx context.Context, id string) (bool, error)
@@ -3386,6 +3388,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MutationRoot.SetEpisodeProgress(childComplexity, args["id"].(string), args["progress"].(*int), args["duration"].(*int), args["context"].(*model.EpisodeContext)), true
+
+	case "MutationRoot.setShortProgress":
+		if e.complexity.MutationRoot.SetShortProgress == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_setShortProgress_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.SetShortProgress(childComplexity, args["id"].(string), args["progress"].(*float64), args["duration"].(*float64)), true
 
 	case "MutationRoot.updateEpisodeFeedback":
 		if e.complexity.MutationRoot.UpdateEpisodeFeedback == nil {
@@ -5890,6 +5904,8 @@ type Message {
     setDevicePushToken(token: String!, languages: [String!]!): Device
     setEpisodeProgress(id: ID!, progress: Int, duration: Int, context: EpisodeContext): Episode!
 
+    setShortProgress(id: UUID!, progress: Float, duration: Float): Short!
+
     sendSupportEmail(title: String!, content: String!, html: String!, options: EmailOptions): Boolean!
 
     completeTask(
@@ -7593,6 +7609,39 @@ func (ec *executionContext) field_MutationRoot_setEpisodeProgress_args(ctx conte
 		}
 	}
 	args["context"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_MutationRoot_setShortProgress_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNUUID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 *float64
+	if tmp, ok := rawArgs["progress"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("progress"))
+		arg1, err = ec.unmarshalOFloat2ᚖfloat64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["progress"] = arg1
+	var arg2 *float64
+	if tmp, ok := rawArgs["duration"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("duration"))
+		arg2, err = ec.unmarshalOFloat2ᚖfloat64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["duration"] = arg2
 	return args, nil
 }
 
@@ -21463,6 +21512,75 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_MutationRoot_setEpisodeProgress_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_setShortProgress(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_setShortProgress(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().SetShortProgress(rctx, fc.Args["id"].(string), fc.Args["progress"].(*float64), fc.Args["duration"].(*float64))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Short)
+	fc.Result = res
+	return ec.marshalNShort2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShort(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_setShortProgress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Short_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Short_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Short_description(ctx, field)
+			case "image":
+				return ec.fieldContext_Short_image(ctx, field)
+			case "streams":
+				return ec.fieldContext_Short_streams(ctx, field)
+			case "files":
+				return ec.fieldContext_Short_files(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Short", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_setShortProgress_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -42948,6 +43066,13 @@ func (ec *executionContext) _MutationRoot(ctx context.Context, sel ast.Selection
 		case "setEpisodeProgress":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._MutationRoot_setEpisodeProgress(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "setShortProgress":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_setShortProgress(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

@@ -15,6 +15,94 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const getProgressedVideoIDs = `-- name: GetProgressedVideoIDs :many
+SELECT p.item_id
+FROM "users"."video_progress" p
+WHERE p.profile_id = $1::uuid
+  AND p.item_id = ANY ($2::uuid[])
+`
+
+type GetProgressedVideoIDsParams struct {
+	ProfileID uuid.UUID   `db:"profile_id" json:"profileId"`
+	ItemIds   []uuid.UUID `db:"item_ids" json:"itemIds"`
+}
+
+func (q *Queries) GetProgressedVideoIDs(ctx context.Context, arg GetProgressedVideoIDsParams) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getProgressedVideoIDs, arg.ProfileID, pq.Array(arg.ItemIds))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var item_id uuid.UUID
+		if err := rows.Scan(&item_id); err != nil {
+			return nil, err
+		}
+		items = append(items, item_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const removeProgressForVideoIDs = `-- name: RemoveProgressForVideoIDs :exec
+DELETE
+FROM users.video_progress p
+WHERE p.profile_id = $1
+  AND p.item_id = ANY ($2::uuid[])
+`
+
+type RemoveProgressForVideoIDsParams struct {
+	ProfileID uuid.UUID   `db:"profile_id" json:"profileId"`
+	ItemIds   []uuid.UUID `db:"item_ids" json:"itemIds"`
+}
+
+func (q *Queries) RemoveProgressForVideoIDs(ctx context.Context, arg RemoveProgressForVideoIDsParams) error {
+	_, err := q.db.ExecContext(ctx, removeProgressForVideoIDs, arg.ProfileID, pq.Array(arg.ItemIds))
+	return err
+}
+
+const saveVideoProgress = `-- name: SaveVideoProgress :exec
+INSERT INTO "users"."video_progress" (profile_id, item_id, progress, duration, watched, watched_at, updated_at,
+                                      context)
+VALUES ($1::uuid, $2::uuid, $3::float4, $4::float4, $5, $6, NOW(),
+        $7)
+ON CONFLICT (profile_id, item_id) DO UPDATE SET progress   = EXCLUDED.progress,
+                                                updated_at = NOW(),
+                                                watched    = EXCLUDED.watched,
+                                                watched_at = EXCLUDED.watched_at,
+                                                duration   = EXCLUDED.duration,
+                                                context    = EXCLUDED.context
+`
+
+type SaveVideoProgressParams struct {
+	ProfileID uuid.UUID             `db:"profile_id" json:"profileId"`
+	ItemID    uuid.UUID             `db:"item_id" json:"itemId"`
+	Progress  float32               `db:"progress" json:"progress"`
+	Duration  float32               `db:"duration" json:"duration"`
+	Watched   int32                 `db:"watched" json:"watched"`
+	WatchedAt null_v4.Time          `db:"watched_at" json:"watchedAt"`
+	Context   pqtype.NullRawMessage `db:"context" json:"context"`
+}
+
+func (q *Queries) SaveVideoProgress(ctx context.Context, arg SaveVideoProgressParams) error {
+	_, err := q.db.ExecContext(ctx, saveVideoProgress,
+		arg.ProfileID,
+		arg.ItemID,
+		arg.Progress,
+		arg.Duration,
+		arg.Watched,
+		arg.WatchedAt,
+		arg.Context,
+	)
+	return err
+}
+
 const deleteProgress = `-- name: deleteProgress :exec
 UPDATE "users"."progress" p
 SET progress   = 0,
@@ -234,22 +322,6 @@ func (q *Queries) getProgressForProfile(ctx context.Context, arg getProgressForP
 		return nil, err
 	}
 	return items, nil
-}
-
-const removeProgressForShortIDs = `-- name: removeProgressForShortIDs :exec
-DELETE FROM users.progress p
-WHERE p.profile_id = $1
-  AND p.episode_id = ANY ($2::int[])
-`
-
-type removeProgressForShortIDsParams struct {
-	ProfileID  uuid.UUID `db:"profile_id" json:"profileId"`
-	EpisodeIds []int32   `db:"episode_ids" json:"episodeIds"`
-}
-
-func (q *Queries) removeProgressForShortIDs(ctx context.Context, arg removeProgressForShortIDsParams) error {
-	_, err := q.db.ExecContext(ctx, removeProgressForShortIDs, arg.ProfileID, pq.Array(arg.EpisodeIds))
-	return err
 }
 
 const saveProgress = `-- name: saveProgress :exec

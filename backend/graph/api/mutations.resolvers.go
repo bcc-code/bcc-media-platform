@@ -165,6 +165,40 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 	return e, err
 }
 
+// SetShortProgress is the resolver for the setShortProgress field.
+func (r *mutationRootResolver) SetShortProgress(ctx context.Context, id string, progress *float64, duration *float64) (*model.Short, error) {
+	p, err := getProfile(ctx)
+	if err != nil {
+		return nil, err
+	}
+	s, err := r.QueryRoot().Short(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if progress != nil {
+		d := 0.0
+		if duration != nil {
+			d = *duration
+		}
+		err = r.GetQueries().SaveVideoProgress(ctx, sqlc.SaveVideoProgressParams{
+			ProfileID: p.ID,
+			Progress:  float32(*progress),
+			Duration:  float32(d),
+			ItemID:    utils.AsUuid(s.ID),
+			Watched:   0,
+		})
+	} else {
+		err = r.GetQueries().RemoveProgressForVideoIDs(ctx, sqlc.RemoveProgressForVideoIDsParams{
+			ProfileID: p.ID,
+			ItemIds:   []uuid.UUID{utils.AsUuid(s.ID)},
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+
 // SendSupportEmail is the resolver for the sendSupportEmail field.
 func (r *mutationRootResolver) SendSupportEmail(ctx context.Context, title string, content string, html string, options *model.EmailOptions) (bool, error) {
 	ginCtx, err := utils.GinCtx(ctx)

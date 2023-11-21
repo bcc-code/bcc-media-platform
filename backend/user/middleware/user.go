@@ -3,6 +3,11 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
@@ -17,10 +22,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"go.opentelemetry.io/otel"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
 )
 
 const explicitRolesHeader = "x-explicit-roles"
@@ -197,7 +198,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 					return i.OrgUid
 				}))
 				if err != nil {
-					return nil, err
+					log.L.Error().Err(err).Send()
 				}
 				for _, org := range organizations {
 					if org != nil && org.Type == "Church" {

@@ -65,7 +65,26 @@ WHERE p.profile_id = @profile_id
   AND p.show_id = ANY (@show_ids::int[])
 ORDER BY p.show_id, p.updated_at DESC;
 
--- name: removeProgressForShortIDs :exec
-DELETE FROM users.progress p
+-- name: GetProgressedVideoIDs :many
+SELECT p.item_id
+FROM "users"."video_progress" p
+WHERE p.profile_id = @profile_id::uuid
+  AND p.item_id = ANY (@item_ids::uuid[]);
+
+-- name: RemoveProgressForVideoIDs :exec
+DELETE
+FROM users.video_progress p
 WHERE p.profile_id = @profile_id
-  AND p.episode_id = ANY (@episode_ids::int[]);
+  AND p.item_id = ANY (@item_ids::uuid[]);
+
+-- name: SaveVideoProgress :exec
+INSERT INTO "users"."video_progress" (profile_id, item_id, progress, duration, watched, watched_at, updated_at,
+                                      context)
+VALUES (@profile_id::uuid, @item_id::uuid, @progress::float4, @duration::float4, @watched, @watched_at, NOW(),
+        @context)
+ON CONFLICT (profile_id, item_id) DO UPDATE SET progress   = EXCLUDED.progress,
+                                                updated_at = NOW(),
+                                                watched    = EXCLUDED.watched,
+                                                watched_at = EXCLUDED.watched_at,
+                                                duration   = EXCLUDED.duration,
+                                                context    = EXCLUDED.context;

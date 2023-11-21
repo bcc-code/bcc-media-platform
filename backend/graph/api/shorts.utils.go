@@ -2,16 +2,18 @@ package graph
 
 import (
 	"context"
+	"errors"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
-func (r *Resolver) getShuffledShortIDsCursor(ctx context.Context) (*utils.Cursor[uuid.UUID], error) {
+func (r *Resolver) getShuffledShortIDsCursor(ctx context.Context, p *common.Profile) (*utils.Cursor[uuid.UUID], error) {
 	shortIDs, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
 	if err != nil {
 		return nil, err
@@ -19,12 +21,27 @@ func (r *Resolver) getShuffledShortIDsCursor(ctx context.Context) (*utils.Cursor
 	// because we are shuffling, we need to copy the array to avoid editing the pointer value
 	arr := make([]uuid.UUID, len(shortIDs))
 	copy(arr, shortIDs)
+	if p != nil {
+		ids, err := r.GetQueries().GetProgressedVideoIDs(ctx, sqlc.GetProgressedVideoIDsParams{
+			ProfileID: p.ID,
+			ItemIds:   shortIDs,
+		})
+		if err != nil {
+			return nil, err
+		}
+		arr = lo.Filter(arr, func(i uuid.UUID, _ int) bool {
+			return !lo.Contains(ids, i)
+		})
+	}
 	ids := lo.Shuffle(arr)
 	return utils.NewCursor(ids), nil
 }
 
 func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*model.ShortsPagination, error) {
-	var err error
+	p, err := getProfile(ctx)
+	if err != nil && !errors.Is(err, ErrProfileNotSet) {
+		return nil, err
+	}
 	var c *utils.Cursor[uuid.UUID]
 	if cursor != nil {
 		c, err = utils.ParseCursor[uuid.UUID](*cursor)
@@ -32,7 +49,7 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*
 			return nil, err
 		}
 	} else {
-		c, err = r.getShuffledShortIDsCursor(ctx)
+		c, err = r.getShuffledShortIDsCursor(ctx, p)
 		if err != nil {
 			return nil, err
 		}
@@ -49,14 +66,24 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*
 		if nextKey != nil {
 			nextCursor = c.CursorFor(*nextKey)
 		} else {
-			nextCursor, err = r.getShuffledShortIDsCursor(ctx)
+			if p != nil {
+				err = r.GetQueries().RemoveProgressForVideoIDs(ctx, sqlc.RemoveProgressForVideoIDsParams{
+					ProfileID: p.ID,
+					ItemIds:   c.Keys,
+				})
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			nextCursor, err = r.getShuffledShortIDsCursor(ctx, p)
 			if err != nil {
 				return nil, err
 			}
 		}
 	}
 
-	keys := c.NextKeys(l)
+	keys := c.GetKeys(l)
 
 	shorts, err := r.GetLoaders().ShortLoader.GetMany(ctx, keys)
 	if err != nil {

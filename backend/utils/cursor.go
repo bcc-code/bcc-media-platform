@@ -60,6 +60,24 @@ func (c *Cursor[K]) Current() K {
 	return c.Keys[c.CurrentIndex]
 }
 
+// GetKeys returns keys starting from the current index
+func (c *Cursor[K]) GetKeys(limit int) []K {
+	if c.CurrentIndex >= len(c.Keys) {
+		return nil
+	}
+
+	from := c.CurrentIndex
+
+	to := lo.Min[int](
+		[]int{
+			c.CurrentIndex + limit,
+			len(c.Keys),
+		},
+	)
+
+	return c.Keys[from:to]
+}
+
 // NextKeys returns the next keys with this specified limit
 func (c *Cursor[K]) NextKeys(limit int) []K {
 	if c.CurrentIndex >= len(c.Keys)-1 {
