@@ -41,11 +41,7 @@ func (r *Resolver) addItemToCollection(ctx context.Context, itemType string, ite
 		if err != nil {
 			return nil, err
 		}
-		i, err := r.Loaders.ShortLoader.Get(ctx, utils.AsUuid(gql.ID))
-		if err != nil {
-			return nil, err
-		}
-		uid = i.ID
+		uid = utils.AsUuid(gql.ID)
 	default:
 		return nil, common.ErrItemNotFound
 	}
