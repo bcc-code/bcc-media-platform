@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS "public"."mediaitems"
     CONSTRAINT "mediaitems_asset_id_foreign" FOREIGN KEY (asset_id) REFERENCES assets (id)
 );
 
-GRANT SELECT ON TABLE "public"."mediaitems" TO directus, api, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."mediaitems" TO directus, api, background_worker, onsite_backup; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."mediaitems" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."mediaitems" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT DELETE ON TABLE "public"."mediaitems" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS "public"."mediaitems_translations"
     CONSTRAINT "mediaitems_translations_mediaitems_id_foreign" FOREIGN KEY (mediaitems_id) REFERENCES mediaitems (id) ON DELETE SET NULL
 );
 
-GRANT SELECT ON TABLE "public"."mediaitems_translations" TO directus, api, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."mediaitems_translations" TO directus, api, background_worker, onsite_backup; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."mediaitems_translations" TO background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."mediaitems_translations" TO background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT DELETE ON TABLE "public"."mediaitems_translations" TO background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -221,7 +221,7 @@ CREATE TABLE IF NOT EXISTS "public"."shorts"
     CONSTRAINT "shorts_mediaitem_id_foreign" FOREIGN KEY (mediaitem_id) REFERENCES mediaitems (id) ON DELETE SET NULL
 );
 
-GRANT SELECT ON TABLE "public"."shorts" TO directus, api, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."shorts" TO directus, api, background_worker, onsite_backup; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."shorts" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."shorts" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT DELETE ON TABLE "public"."shorts" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -276,7 +276,7 @@ CREATE TABLE IF NOT EXISTS "public"."shorts_usergroups"
     CONSTRAINT "shorts_usergroups_shorts_id_foreign" FOREIGN KEY (shorts_id) REFERENCES shorts (id) ON DELETE CASCADE
 );
 
-GRANT SELECT ON TABLE "public"."shorts_usergroups" TO directus, api, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."shorts_usergroups" TO directus, api, background_worker, onsite_backup; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."shorts_usergroups" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."shorts_usergroups" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT DELETE ON TABLE "public"."shorts_usergroups" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -316,7 +316,7 @@ CREATE TABLE IF NOT EXISTS "public"."mediaitems_tags"
     CONSTRAINT "mediaitems_tags_mediaitems_id_foreign" FOREIGN KEY (mediaitems_id) REFERENCES mediaitems (id) ON DELETE SET NULL
 );
 
-GRANT SELECT ON TABLE "public"."mediaitems_tags" TO directus, api, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."mediaitems_tags" TO directus, api, background_worker, onsite_backup; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."mediaitems_tags" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."mediaitems_tags" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT DELETE ON TABLE "public"."mediaitems_tags" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -356,7 +356,7 @@ CREATE TABLE IF NOT EXISTS "public"."mediaitems_styledimages"
     CONSTRAINT "mediaitems_styledimages_mediaitems_id_foreign" FOREIGN KEY (mediaitems_id) REFERENCES mediaitems (id) ON DELETE CASCADE
 );
 
-GRANT SELECT ON TABLE "public"."mediaitems_styledimages" TO directus, api, background_worker; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
+GRANT SELECT ON TABLE "public"."mediaitems_styledimages" TO directus, api, background_worker, onsite_backup; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT INSERT ON TABLE "public"."mediaitems_styledimages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."mediaitems_styledimages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT DELETE ON TABLE "public"."mediaitems_styledimages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
