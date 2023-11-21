@@ -64,3 +64,27 @@ WHERE p.profile_id = @profile_id
   AND ep.status = 'published'
   AND p.show_id = ANY (@show_ids::int[])
 ORDER BY p.show_id, p.updated_at DESC;
+
+-- name: GetProgressedMediaIDs :many
+SELECT p.item_id
+FROM "users"."media_progress" p
+WHERE p.profile_id = @profile_id::uuid
+  AND p.item_id = ANY (@item_ids::uuid[]);
+
+-- name: RemoveProgressForMediaIDs :exec
+DELETE
+FROM users.media_progress p
+WHERE p.profile_id = @profile_id
+  AND p.item_id = ANY (@item_ids::uuid[]);
+
+-- name: SaveMediaProgress :exec
+INSERT INTO "users"."media_progress" (profile_id, item_id, progress, duration, watched, watched_at, updated_at,
+                                      context)
+VALUES (@profile_id::uuid, @item_id::uuid, @progress::float4, @duration::float4, @watched, @watched_at, NOW(),
+        @context)
+ON CONFLICT (profile_id, item_id) DO UPDATE SET progress   = EXCLUDED.progress,
+                                                updated_at = NOW(),
+                                                watched    = EXCLUDED.watched,
+                                                watched_at = EXCLUDED.watched_at,
+                                                duration   = EXCLUDED.duration,
+                                                context    = EXCLUDED.context;

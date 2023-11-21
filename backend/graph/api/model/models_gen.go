@@ -99,6 +99,10 @@ type SectionItemType interface {
 	IsSectionItemType()
 }
 
+type SubclipItem interface {
+	IsSubclipItem()
+}
+
 type SurveyQuestion interface {
 	IsSurveyQuestion()
 	GetID() string
@@ -398,6 +402,8 @@ func (Episode) IsPlaylistItem() {}
 func (this Episode) GetImage() *string { return this.Image }
 
 func (Episode) IsSectionItemType() {}
+
+func (Episode) IsSubclipItem() {}
 
 func (Episode) IsUserCollectionEntryItem() {}
 
@@ -1041,6 +1047,31 @@ func (this SectionPagination) GetTotal() int  { return this.Total }
 func (this SectionPagination) GetFirst() int  { return this.First }
 func (this SectionPagination) GetOffset() int { return this.Offset }
 
+type Short struct {
+	ID          string         `json:"id"`
+	Title       string         `json:"title"`
+	Description *string        `json:"description,omitempty"`
+	Image       *string        `json:"image,omitempty"`
+	Streams     []*Stream      `json:"streams"`
+	Files       []*File        `json:"files"`
+	Source      *SubclipSource `json:"source,omitempty"`
+}
+
+func (Short) IsCollectionItem()            {}
+func (this Short) GetID() string           { return this.ID }
+func (this Short) GetTitle() string        { return this.Title }
+func (this Short) GetDescription() *string { return this.Description }
+
+func (Short) IsPlaylistItem() {}
+
+func (this Short) GetImage() *string { return this.Image }
+
+type ShortsPagination struct {
+	Cursor     string   `json:"cursor"`
+	NextCursor string   `json:"nextCursor"`
+	Shorts     []*Short `json:"shorts"`
+}
+
 type Show struct {
 	ID           string            `json:"id"`
 	LegacyID     *string           `json:"legacyID,omitempty"`
@@ -1155,6 +1186,12 @@ func (StudyTopic) IsCollectionItem()            {}
 func (this StudyTopic) GetID() string           { return this.ID }
 func (this StudyTopic) GetTitle() string        { return this.Title }
 func (this StudyTopic) GetDescription() *string { return &this.Description }
+
+type SubclipSource struct {
+	Item  SubclipItem `json:"item"`
+	Start *float64    `json:"start,omitempty"`
+	End   *float64    `json:"end,omitempty"`
+}
 
 type Survey struct {
 	ID          string                    `json:"id"`

@@ -282,6 +282,31 @@ func (r *queryRootResolver) Game(ctx context.Context, id string) (*model.Game, e
 	return uuidItemLoader(ctx, r.Loaders.GameLoader, model.GameFrom, id)
 }
 
+// Short is the resolver for the short field.
+func (r *queryRootResolver) Short(ctx context.Context, id string) (*model.Short, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	shortIDs, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if !lo.Contains(shortIDs, uid) {
+		return nil, ErrItemNotFound
+	}
+	short, err := r.Loaders.ShortLoader.Get(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+	return shortToShort(ctx, short), nil
+}
+
+// Shorts is the resolver for the shorts field.
+func (r *queryRootResolver) Shorts(ctx context.Context, cursor *string, limit *int) (*model.ShortsPagination, error) {
+	return r.getShorts(ctx, cursor, limit)
+}
+
 // PendingAchievements is the resolver for the pendingAchievements field.
 func (r *queryRootResolver) PendingAchievements(ctx context.Context) ([]*model.Achievement, error) {
 	p, err := getProfile(ctx)

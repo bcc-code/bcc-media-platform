@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/base64"
 	"encoding/json"
+
 	"github.com/samber/lo"
 )
 
@@ -57,6 +58,24 @@ func (c *Cursor[K]) CursorFor(id K) *Cursor[K] {
 // Current returns the current key
 func (c *Cursor[K]) Current() K {
 	return c.Keys[c.CurrentIndex]
+}
+
+// GetKeys returns keys starting from the current index
+func (c *Cursor[K]) GetKeys(limit int) []K {
+	if c.CurrentIndex >= len(c.Keys) {
+		return nil
+	}
+
+	from := c.CurrentIndex
+
+	to := lo.Min[int](
+		[]int{
+			c.CurrentIndex + limit,
+			len(c.Keys),
+		},
+	)
+
+	return c.Keys[from:to]
 }
 
 // NextKeys returns the next keys with this specified limit
@@ -115,11 +134,27 @@ func (c *Cursor[K]) PreviousCursor() *Cursor[K] {
 	}
 }
 
+// Position returns the key at the position or nil
+func (c *Cursor[K]) Position(index int) *K {
+	if index < 0 || index >= len(c.Keys) {
+		return nil
+	}
+	return &c.Keys[index]
+}
+
 // ToCursor returns a cursor for the specified ids
 func ToCursor[K comparable](ids []K, id K) *Cursor[K] {
 	index := lo.IndexOf(ids, id)
 	return &Cursor[K]{
 		Keys:         ids,
 		CurrentIndex: index,
+	}
+}
+
+// NewCursor returns a new cursor for the specified ids
+func NewCursor[K comparable](ids []K) *Cursor[K] {
+	return &Cursor[K]{
+		Keys:         ids,
+		CurrentIndex: 0,
 	}
 }
