@@ -8,6 +8,7 @@ WHERE s.status = 'published'
 
 -- name: getShorts :many
 SELECT s.id,
+       mi.id AS media_id,
        mi.asset_id,
        mi.title,
        mi.description,
@@ -20,3 +21,8 @@ SELECT s.id,
 FROM shorts s
          JOIN mediaitems_view mi ON mi.id = s.mediaitem_id
 WHERE s.id = ANY (@ids::uuid[]);
+
+-- name: getMediaIDForShorts :many
+SELECT sh.id, sh.mediaitem_id
+FROM "public"."shorts" sh
+WHERE sh.id = ANY (@ids::uuid[]);

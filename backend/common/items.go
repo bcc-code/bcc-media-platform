@@ -229,6 +229,7 @@ type TimedMetadata struct {
 // Short item type
 type Short struct {
 	ID          uuid.UUID
+	MediaID     uuid.UUID
 	AssetID     null.Int
 	Title       LocaleString
 	Description LocaleString

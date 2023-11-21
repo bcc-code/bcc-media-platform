@@ -47,8 +47,43 @@ func (q *Queries) ListShortIDsForRoles(ctx context.Context, roles []string) ([]u
 	return items, nil
 }
 
+const getMediaIDForShorts = `-- name: getMediaIDForShorts :many
+SELECT sh.id, sh.mediaitem_id
+FROM "public"."shorts" sh
+WHERE sh.id = ANY ($1::uuid[])
+`
+
+type getMediaIDForShortsRow struct {
+	ID          uuid.UUID     `db:"id" json:"id"`
+	MediaitemID uuid.NullUUID `db:"mediaitem_id" json:"mediaitemId"`
+}
+
+func (q *Queries) getMediaIDForShorts(ctx context.Context, ids []uuid.UUID) ([]getMediaIDForShortsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getMediaIDForShorts, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getMediaIDForShortsRow
+	for rows.Next() {
+		var i getMediaIDForShortsRow
+		if err := rows.Scan(&i.ID, &i.MediaitemID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getShorts = `-- name: getShorts :many
 SELECT s.id,
+       mi.id AS media_id,
        mi.asset_id,
        mi.title,
        mi.description,
@@ -65,6 +100,7 @@ WHERE s.id = ANY ($1::uuid[])
 
 type getShortsRow struct {
 	ID                  uuid.UUID       `db:"id" json:"id"`
+	MediaID             uuid.UUID       `db:"media_id" json:"mediaId"`
 	AssetID             null_v4.Int     `db:"asset_id" json:"assetId"`
 	Title               json.RawMessage `db:"title" json:"title"`
 	Description         json.RawMessage `db:"description" json:"description"`
@@ -87,6 +123,7 @@ func (q *Queries) getShorts(ctx context.Context, ids []uuid.UUID) ([]getShortsRo
 		var i getShortsRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.MediaID,
 			&i.AssetID,
 			&i.Title,
 			&i.Description,

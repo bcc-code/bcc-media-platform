@@ -22,7 +22,7 @@ func (r *Resolver) getShuffledShortIDsCursor(ctx context.Context, p *common.Prof
 	arr := make([]uuid.UUID, len(shortIDs))
 	copy(arr, shortIDs)
 	if p != nil {
-		ids, err := r.GetQueries().GetProgressedVideoIDs(ctx, sqlc.GetProgressedVideoIDsParams{
+		ids, err := r.GetQueries().GetProgressedMediaIDs(ctx, sqlc.GetProgressedMediaIDsParams{
 			ProfileID: p.ID,
 			ItemIds:   shortIDs,
 		})
@@ -37,14 +37,23 @@ func (r *Resolver) getShuffledShortIDsCursor(ctx context.Context, p *common.Prof
 	return utils.NewCursor(ids), nil
 }
 
+func (r *Resolver) shortIDsToMediaIDs(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
+	res, err := r.GetLoaders().ShortsMediaIDLoader.GetMany(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	return utils.PointerArrayToArray(res), nil
+}
+
 func (r *Resolver) clearShortsProgress(ctx context.Context, p *common.Profile) error {
 	shortIDs, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
 	if err != nil {
 		return err
 	}
-	err = r.GetQueries().RemoveProgressForVideoIDs(ctx, sqlc.RemoveProgressForVideoIDsParams{
+	mediaIDs, err := r.shortIDsToMediaIDs(ctx, shortIDs)
+	err = r.GetQueries().RemoveProgressForMediaIDs(ctx, sqlc.RemoveProgressForMediaIDsParams{
 		ProfileID: p.ID,
-		ItemIds:   shortIDs,
+		ItemIds:   mediaIDs,
 	})
 	if err != nil {
 		return err
@@ -60,38 +69,33 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*
 	var c *utils.Cursor[uuid.UUID]
 	if cursor != nil {
 		c, err = utils.ParseCursor[uuid.UUID](*cursor)
-		if err != nil {
-			return nil, err
-		}
 	} else {
 		c, err = r.getShuffledShortIDsCursor(ctx, p)
-		if err != nil {
-			return nil, err
-		}
+	}
+	if err != nil {
+		return nil, err
 	}
 	l := 10
 	if limit != nil {
 		l = *limit
 	}
 	var nextCursor *utils.Cursor[uuid.UUID]
-	{
-		// if the cursor doesn't have enough to satisfy the length of the limit, the next cursor is a new random one
-		// TODO: implement filling the required number of IDs instead of giving up and generating a new from scratch.
-		nextKey := c.Position(c.CurrentIndex + l)
-		if nextKey != nil {
-			nextCursor = c.CursorFor(*nextKey)
-		} else {
-			if p != nil {
-				err = r.clearShortsProgress(ctx, p)
-				if err != nil {
-					return nil, err
-				}
-			}
-
-			nextCursor, err = r.getShuffledShortIDsCursor(ctx, p)
+	// if the cursor doesn't have enough to satisfy the length of the limit, the next cursor is a new random one
+	// TODO: implement filling the required number of IDs instead of giving up and generating a new from scratch.
+	nextKey := c.Position(c.CurrentIndex + l)
+	if nextKey != nil {
+		nextCursor = c.CursorFor(*nextKey)
+	} else {
+		if p != nil {
+			err = r.clearShortsProgress(ctx, p)
 			if err != nil {
 				return nil, err
 			}
+		}
+
+		nextCursor, err = r.getShuffledShortIDsCursor(ctx, p)
+		if err != nil {
+			return nil, err
 		}
 	}
 

@@ -48,6 +48,7 @@ type BatchLoaders struct {
 	SurveyQuestionLoader *loaders.Loader[uuid.UUID, *SurveyQuestion]
 	GameLoader           *loaders.Loader[uuid.UUID, *Game]
 	ShortLoader          *loaders.Loader[uuid.UUID, *Short]
+	ShortsMediaIDLoader  *loaders.Loader[uuid.UUID, *uuid.UUID]
 
 	MemberLoader       *loaders.Loader[int, *members.Member]
 	OrganizationLoader *loaders.Loader[uuid.UUID, *members.Organization]

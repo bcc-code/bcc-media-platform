@@ -1647,6 +1647,17 @@ type UsersDevice struct {
 	Languages []string  `db:"languages" json:"languages"`
 }
 
+type UsersMediaProgress struct {
+	ProfileID uuid.UUID             `db:"profile_id" json:"profileId"`
+	ItemID    uuid.UUID             `db:"item_id" json:"itemId"`
+	Progress  float32               `db:"progress" json:"progress"`
+	Duration  float32               `db:"duration" json:"duration"`
+	Watched   int32                 `db:"watched" json:"watched"`
+	UpdatedAt time.Time             `db:"updated_at" json:"updatedAt"`
+	Context   pqtype.NullRawMessage `db:"context" json:"context"`
+	WatchedAt null_v4.Time          `db:"watched_at" json:"watchedAt"`
+}
+
 type UsersMessage struct {
 	ID        string                `db:"id" json:"id"`
 	Message   string                `db:"message" json:"message"`
@@ -1704,15 +1715,4 @@ type UsersUser struct {
 	EmailVerified bool        `db:"email_verified" json:"emailVerified"`
 	Gender        string      `db:"gender" json:"gender"`
 	FirstName     string      `db:"first_name" json:"firstName"`
-}
-
-type UsersVideoProgress struct {
-	ProfileID uuid.UUID             `db:"profile_id" json:"profileId"`
-	ItemID    uuid.UUID             `db:"item_id" json:"itemId"`
-	Progress  float32               `db:"progress" json:"progress"`
-	Duration  float32               `db:"duration" json:"duration"`
-	Watched   int32                 `db:"watched" json:"watched"`
-	UpdatedAt time.Time             `db:"updated_at" json:"updatedAt"`
-	Context   pqtype.NullRawMessage `db:"context" json:"context"`
-	WatchedAt null_v4.Time          `db:"watched_at" json:"watchedAt"`
 }

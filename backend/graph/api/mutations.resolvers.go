@@ -175,22 +175,26 @@ func (r *mutationRootResolver) SetShortProgress(ctx context.Context, id string, 
 	if err != nil {
 		return nil, err
 	}
+	short, err := r.GetLoaders().ShortLoader.Get(ctx, utils.AsUuid(s.ID))
+	if err != nil {
+		return nil, err
+	}
 	if progress != nil {
 		d := 0.0
 		if duration != nil {
 			d = *duration
 		}
-		err = r.GetQueries().SaveVideoProgress(ctx, sqlc.SaveVideoProgressParams{
+		err = r.GetQueries().SaveMediaProgress(ctx, sqlc.SaveMediaProgressParams{
 			ProfileID: p.ID,
 			Progress:  float32(*progress),
 			Duration:  float32(d),
-			ItemID:    utils.AsUuid(s.ID),
+			ItemID:    short.MediaID,
 			Watched:   0,
 		})
 	} else {
-		err = r.GetQueries().RemoveProgressForVideoIDs(ctx, sqlc.RemoveProgressForVideoIDsParams{
+		err = r.GetQueries().RemoveProgressForMediaIDs(ctx, sqlc.RemoveProgressForMediaIDsParams{
 			ProfileID: p.ID,
-			ItemIds:   []uuid.UUID{utils.AsUuid(s.ID)},
+			ItemIds:   []uuid.UUID{short.MediaID},
 		})
 	}
 	if err != nil {

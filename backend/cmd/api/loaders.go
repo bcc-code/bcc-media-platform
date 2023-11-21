@@ -244,6 +244,7 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		ShortLoader: loaders.New(ctx, queries.GetShorts, loaders.WithKeyFunc(func(i common.Short) uuid.UUID {
 			return i.ID
 		})),
+		ShortsMediaIDLoader: loaders.NewConversionLoader(ctx, queries.GetMediaIDsForShortIDs, loaders.WithName("shorts-media-id")),
 
 		// User Data
 		StudyTopicLoader:  loaders.New(ctx, queries.GetTopics),
