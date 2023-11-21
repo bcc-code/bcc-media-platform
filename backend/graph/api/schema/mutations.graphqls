@@ -26,6 +26,7 @@ type MutationRoot {
 
     addEpisodeToMyList(episodeId: ID!): AddToCollectionResult!
     addShowToMyList(showId: ID!): AddToCollectionResult!
+    addShortToMyList(shortId: ID!): AddToCollectionResult!
 
     removeEntryFromMyList(entryId: UUID!): UserCollection!
 

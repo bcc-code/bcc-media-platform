@@ -99,8 +99,8 @@ type SectionItemType interface {
 	IsSectionItemType()
 }
 
-type SubclipItem interface {
-	IsSubclipItem()
+type SubclipSourceItem interface {
+	IsSubclipSourceItem()
 }
 
 type SurveyQuestion interface {
@@ -403,7 +403,7 @@ func (this Episode) GetImage() *string { return this.Image }
 
 func (Episode) IsSectionItemType() {}
 
-func (Episode) IsSubclipItem() {}
+func (Episode) IsSubclipSourceItem() {}
 
 func (Episode) IsUserCollectionEntryItem() {}
 
@@ -1055,6 +1055,7 @@ type Short struct {
 	Streams     []*Stream      `json:"streams"`
 	Files       []*File        `json:"files"`
 	Source      *SubclipSource `json:"source,omitempty"`
+	InMyList    bool           `json:"inMyList"`
 }
 
 func (Short) IsCollectionItem()            {}
@@ -1065,6 +1066,8 @@ func (this Short) GetDescription() *string { return this.Description }
 func (Short) IsPlaylistItem() {}
 
 func (this Short) GetImage() *string { return this.Image }
+
+func (Short) IsUserCollectionEntryItem() {}
 
 type ShortsPagination struct {
 	Cursor     string   `json:"cursor"`
@@ -1188,9 +1191,9 @@ func (this StudyTopic) GetTitle() string        { return this.Title }
 func (this StudyTopic) GetDescription() *string { return &this.Description }
 
 type SubclipSource struct {
-	Item  SubclipItem `json:"item"`
-	Start *float64    `json:"start,omitempty"`
-	End   *float64    `json:"end,omitempty"`
+	Item  SubclipSourceItem `json:"item"`
+	Start *float64          `json:"start,omitempty"`
+	End   *float64          `json:"end,omitempty"`
 }
 
 type Survey struct {

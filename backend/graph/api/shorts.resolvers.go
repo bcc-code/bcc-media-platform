@@ -11,6 +11,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
+	"github.com/samber/lo"
 )
 
 // Image is the resolver for the image field.
@@ -89,6 +90,33 @@ func (r *shortResolver) Source(ctx context.Context, obj *model.Short) (*model.Su
 		}, nil
 	}
 	return nil, nil
+}
+
+// InMyList is the resolver for the inMyList field.
+func (r *shortResolver) InMyList(ctx context.Context, obj *model.Short) (bool, error) {
+	myList, err := r.QueryRoot().MyList(ctx)
+	if err != nil {
+		return false, nil
+	}
+	list, err := r.Loaders.UserCollectionEntryIDsLoader.Get(ctx, utils.AsUuid(myList.ID))
+	if err != nil {
+		return false, err
+	}
+	entryIDs := utils.PointerArrayToArray(list)
+	chunks := lo.Chunk(entryIDs, 20)
+	uid := utils.AsUuid(obj.ID)
+	for _, chunk := range chunks {
+		entries, err := r.Loaders.UserCollectionEntryLoader.GetMany(ctx, chunk)
+		if err != nil {
+			return false, err
+		}
+		for _, entry := range entries {
+			if entry.ItemID == uid {
+				return true, nil
+			}
+		}
+	}
+	return false, nil
 }
 
 // Short returns generated.ShortResolver implementation.

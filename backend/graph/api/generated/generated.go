@@ -521,6 +521,7 @@ type ComplexityRoot struct {
 
 	MutationRoot struct {
 		AddEpisodeToMyList         func(childComplexity int, episodeID string) int
+		AddShortToMyList           func(childComplexity int, shortID string) int
 		AddShowToMyList            func(childComplexity int, showID string) int
 		AnswerSurveyQuestion       func(childComplexity int, id string, answer string) int
 		CompleteTask               func(childComplexity int, id string, selectedAlternatives []string) int
@@ -748,6 +749,7 @@ type ComplexityRoot struct {
 		Files       func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Image       func(childComplexity int, style *model.ImageStyle) int
+		InMyList    func(childComplexity int) int
 		Source      func(childComplexity int) int
 		Streams     func(childComplexity int) int
 		Title       func(childComplexity int) int
@@ -1092,6 +1094,7 @@ type MutationRootResolver interface {
 	UpdateSurveyQuestionAnswer(ctx context.Context, key string, answer string) (*model.AnswerSurveyQuestionResult, error)
 	AddEpisodeToMyList(ctx context.Context, episodeID string) (*model.AddToCollectionResult, error)
 	AddShowToMyList(ctx context.Context, showID string) (*model.AddToCollectionResult, error)
+	AddShortToMyList(ctx context.Context, shortID string) (*model.AddToCollectionResult, error)
 	RemoveEntryFromMyList(ctx context.Context, entryID string) (*model.UserCollection, error)
 	UpdateUserMetadata(ctx context.Context, birthData model.BirthOptions, nameData model.NameOptions) (bool, error)
 	SendVerificationEmail(ctx context.Context) (bool, error)
@@ -1178,6 +1181,7 @@ type ShortResolver interface {
 	Streams(ctx context.Context, obj *model.Short) ([]*model.Stream, error)
 	Files(ctx context.Context, obj *model.Short) ([]*model.File, error)
 	Source(ctx context.Context, obj *model.Short) (*model.SubclipSource, error)
+	InMyList(ctx context.Context, obj *model.Short) (bool, error)
 }
 type ShowResolver interface {
 	Image(ctx context.Context, obj *model.Show, style *model.ImageStyle) (*string, error)
@@ -3258,6 +3262,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MutationRoot.AddEpisodeToMyList(childComplexity, args["episodeId"].(string)), true
 
+	case "MutationRoot.addShortToMyList":
+		if e.complexity.MutationRoot.AddShortToMyList == nil {
+			break
+		}
+
+		args, err := ec.field_MutationRoot_addShortToMyList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.MutationRoot.AddShortToMyList(childComplexity, args["shortId"].(string)), true
+
 	case "MutationRoot.addShowToMyList":
 		if e.complexity.MutationRoot.AddShowToMyList == nil {
 			break
@@ -4593,6 +4609,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Short.Image(childComplexity, args["style"].(*model.ImageStyle)), true
+
+	case "Short.inMyList":
+		if e.complexity.Short.InMyList == nil {
+			break
+		}
+
+		return e.complexity.Short.InMyList(childComplexity), true
 
 	case "Short.source":
 		if e.complexity.Short.Source == nil {
@@ -5964,6 +5987,7 @@ type Message {
 
     addEpisodeToMyList(episodeId: ID!): AddToCollectionResult!
     addShowToMyList(showId: ID!): AddToCollectionResult!
+    addShortToMyList(shortId: ID!): AddToCollectionResult!
 
     removeEntryFromMyList(entryId: UUID!): UserCollection!
 
@@ -6520,12 +6544,13 @@ type SectionItemPagination implements Pagination {
     streams: [Stream!]! @goField(forceResolver: true)
     files: [File!]! @goField(forceResolver: true)
     source: SubclipSource @goField(forceResolver: true)
+    inMyList: Boolean! @goField(forceResolver: true)
 }
 
-union SubclipItem = Episode
+union SubclipSourceItem = Episode
 
 type SubclipSource {
-    item: SubclipItem!
+    item: SubclipSourceItem!
     start: Float
     end: Float
 }
@@ -6754,7 +6779,7 @@ type UserCollection {
     entries(first: Int, offset: Int): UserCollectionEntryPagination! @goField(forceResolver: true)
 }
 
-union UserCollectionEntryItem = Show | Episode
+union UserCollectionEntryItem = Show | Episode | Short
 
 type UserCollectionEntry {
     id: UUID!
@@ -7381,6 +7406,21 @@ func (ec *executionContext) field_MutationRoot_addEpisodeToMyList_args(ctx conte
 		}
 	}
 	args["episodeId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_MutationRoot_addShortToMyList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["shortId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shortId"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["shortId"] = arg0
 	return args, nil
 }
 
@@ -21616,6 +21656,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setShortProgress(ctx conte
 				return ec.fieldContext_Short_files(ctx, field)
 			case "source":
 				return ec.fieldContext_Short_source(ctx, field)
+			case "inMyList":
+				return ec.fieldContext_Short_inMyList(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Short", field.Name)
 		},
@@ -22312,6 +22354,67 @@ func (ec *executionContext) fieldContext_MutationRoot_addShowToMyList(ctx contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_MutationRoot_addShowToMyList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MutationRoot_addShortToMyList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_addShortToMyList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.MutationRoot().AddShortToMyList(rctx, fc.Args["shortId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.AddToCollectionResult)
+	fc.Result = res
+	return ec.marshalNAddToCollectionResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐAddToCollectionResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_addShortToMyList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "entryId":
+				return ec.fieldContext_AddToCollectionResult_entryId(ctx, field)
+			case "collection":
+				return ec.fieldContext_AddToCollectionResult_collection(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AddToCollectionResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_MutationRoot_addShortToMyList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -25105,6 +25208,8 @@ func (ec *executionContext) fieldContext_QueryRoot_short(ctx context.Context, fi
 				return ec.fieldContext_Short_files(ctx, field)
 			case "source":
 				return ec.fieldContext_Short_source(ctx, field)
+			case "inMyList":
+				return ec.fieldContext_Short_inMyList(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Short", field.Name)
 		},
@@ -29963,6 +30068,50 @@ func (ec *executionContext) fieldContext_Short_source(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Short_inMyList(ctx context.Context, field graphql.CollectedField, obj *model.Short) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Short_inMyList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Short().InMyList(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Short_inMyList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Short",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ShortsPagination_cursor(ctx context.Context, field graphql.CollectedField, obj *model.ShortsPagination) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ShortsPagination_cursor(ctx, field)
 	if err != nil {
@@ -30104,6 +30253,8 @@ func (ec *executionContext) fieldContext_ShortsPagination_shorts(ctx context.Con
 				return ec.fieldContext_Short_files(ctx, field)
 			case "source":
 				return ec.fieldContext_Short_source(ctx, field)
+			case "inMyList":
+				return ec.fieldContext_Short_inMyList(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Short", field.Name)
 		},
@@ -32567,9 +32718,9 @@ func (ec *executionContext) _SubclipSource_item(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.SubclipItem)
+	res := resTmp.(model.SubclipSourceItem)
 	fc.Result = res
-	return ec.marshalNSubclipItem2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubclipItem(ctx, field.Selections, res)
+	return ec.marshalNSubclipSourceItem2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubclipSourceItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SubclipSource_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -32579,7 +32730,7 @@ func (ec *executionContext) fieldContext_SubclipSource_item(ctx context.Context,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type SubclipItem does not have child fields")
+			return nil, errors.New("field of type SubclipSourceItem does not have child fields")
 		},
 	}
 	return fc, nil
@@ -38179,7 +38330,7 @@ func (ec *executionContext) _SectionItemType(ctx context.Context, sel ast.Select
 	}
 }
 
-func (ec *executionContext) _SubclipItem(ctx context.Context, sel ast.SelectionSet, obj model.SubclipItem) graphql.Marshaler {
+func (ec *executionContext) _SubclipSourceItem(ctx context.Context, sel ast.SelectionSet, obj model.SubclipSourceItem) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
@@ -38287,6 +38438,13 @@ func (ec *executionContext) _UserCollectionEntryItem(ctx context.Context, sel as
 			return graphql.Null
 		}
 		return ec._Episode(ctx, sel, obj)
+	case model.Short:
+		return ec._Short(ctx, sel, &obj)
+	case *model.Short:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Short(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -40035,7 +40193,7 @@ func (ec *executionContext) _Device(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
-var episodeImplementors = []string{"Episode", "CollectionItem", "PlaylistItem", "SectionItemType", "SubclipItem", "UserCollectionEntryItem"}
+var episodeImplementors = []string{"Episode", "CollectionItem", "PlaylistItem", "SectionItemType", "SubclipSourceItem", "UserCollectionEntryItem"}
 
 func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, obj *model.Episode) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, episodeImplementors)
@@ -43403,6 +43561,13 @@ func (ec *executionContext) _MutationRoot(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "addShortToMyList":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_addShortToMyList(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "removeEntryFromMyList":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._MutationRoot_removeEntryFromMyList(ctx, field)
@@ -45937,7 +46102,7 @@ func (ec *executionContext) _SectionPagination(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var shortImplementors = []string{"Short", "CollectionItem", "PlaylistItem"}
+var shortImplementors = []string{"Short", "CollectionItem", "PlaylistItem", "UserCollectionEntryItem"}
 
 func (ec *executionContext) _Short(ctx context.Context, sel ast.SelectionSet, obj *model.Short) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, shortImplementors)
@@ -46075,6 +46240,42 @@ func (ec *executionContext) _Short(ctx context.Context, sel ast.SelectionSet, ob
 					}
 				}()
 				res = ec._Short_source(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "inMyList":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Short_inMyList(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -50443,14 +50644,14 @@ func (ec *executionContext) marshalNStudyTopic2ᚖgithubᚗcomᚋbccᚑcodeᚋbc
 	return ec._StudyTopic(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSubclipItem2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubclipItem(ctx context.Context, sel ast.SelectionSet, v model.SubclipItem) graphql.Marshaler {
+func (ec *executionContext) marshalNSubclipSourceItem2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubclipSourceItem(ctx context.Context, sel ast.SelectionSet, v model.SubclipSourceItem) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SubclipItem(ctx, sel, v)
+	return ec._SubclipSourceItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNSurvey2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSurvey(ctx context.Context, sel ast.SelectionSet, v model.Survey) graphql.Marshaler {

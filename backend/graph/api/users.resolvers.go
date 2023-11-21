@@ -87,6 +87,8 @@ func (r *userCollectionEntryResolver) Item(ctx context.Context, obj *model.UserC
 			return &model.Episode{}, nil
 		}
 		return r.QueryRoot().Episode(ctx, strconv.Itoa(*id), nil)
+	case "short":
+		return r.QueryRoot().Short(ctx, e.ItemID.String())
 	}
 	return nil, common.ErrItemNotFound
 }

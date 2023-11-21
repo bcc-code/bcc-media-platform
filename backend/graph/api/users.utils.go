@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
@@ -35,6 +36,16 @@ func (r *Resolver) addItemToCollection(ctx context.Context, itemType string, ite
 			return nil, err
 		}
 		uid = i.UUID
+	case "short":
+		gql, err := r.QueryRoot().Short(ctx, itemID)
+		if err != nil {
+			return nil, err
+		}
+		i, err := r.Loaders.ShortLoader.Get(ctx, utils.AsUuid(gql.ID))
+		if err != nil {
+			return nil, err
+		}
+		uid = i.ID
 	default:
 		return nil, common.ErrItemNotFound
 	}
