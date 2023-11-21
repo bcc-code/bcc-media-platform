@@ -12,6 +12,15 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
 
+// Image is the resolver for the image field.
+func (r *shortResolver) Image(ctx context.Context, obj *model.Short, style *model.ImageStyle) (*string, error) {
+	e, err := r.GetLoaders().ShortLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	return imageOrFallback(ctx, e.Images, style), nil
+}
+
 // Streams is the resolver for the streams field.
 func (r *shortResolver) Streams(ctx context.Context, obj *model.Short) ([]*model.Stream, error) {
 	short, err := r.Loaders.ShortLoader.Get(ctx, utils.AsUuid(obj.ID))

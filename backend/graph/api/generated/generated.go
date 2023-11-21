@@ -1165,6 +1165,7 @@ type SectionItemResolver interface {
 	Image(ctx context.Context, obj *model.SectionItem) (*string, error)
 }
 type ShortResolver interface {
+	Image(ctx context.Context, obj *model.Short, style *model.ImageStyle) (*string, error)
 	Streams(ctx context.Context, obj *model.Short) ([]*model.Stream, error)
 	Files(ctx context.Context, obj *model.Short) ([]*model.File, error)
 }
@@ -6463,7 +6464,7 @@ type SectionItemPagination implements Pagination {
     id: ID!
     title: String!
     description: String
-    image(style: ImageStyle): String
+    image(style: ImageStyle): String @goField(forceResolver: true)
     streams: [Stream!]! @goField(forceResolver: true)
     files: [File!]! @goField(forceResolver: true)
 }
@@ -29588,7 +29589,7 @@ func (ec *executionContext) _Short_image(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Image, nil
+		return ec.resolvers.Short().Image(rctx, obj, fc.Args["style"].(*model.ImageStyle))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -29606,8 +29607,8 @@ func (ec *executionContext) fieldContext_Short_image(ctx context.Context, field 
 	fc = &graphql.FieldContext{
 		Object:     "Short",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -45593,7 +45594,38 @@ func (ec *executionContext) _Short(ctx context.Context, sel ast.SelectionSet, ob
 		case "description":
 			out.Values[i] = ec._Short_description(ctx, field, obj)
 		case "image":
-			out.Values[i] = ec._Short_image(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Short_image(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "streams":
 			field := field
 

@@ -88,6 +88,5 @@ func shortToShort(ctx context.Context, short *common.Short) *model.Short {
 		ID:          short.ID.String(),
 		Title:       short.Title.Get(languages),
 		Description: short.Description.GetValueOrNil(languages),
-		Image:       short.Images.GetDefault(languages, common.ImageStyleDefault),
 	}
 }
