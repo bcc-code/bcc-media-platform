@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
@@ -68,6 +69,23 @@ func (r *shortResolver) Files(ctx context.Context, obj *model.Short) ([]*model.F
 		out = append(out, model.FileFrom(ctx, r.URLSigner, r.Resolver.APIConfig.GetFilesCDNDomain(), f))
 	}
 	return out, nil
+}
+
+// Relation is the resolver for the relation field.
+func (r *shortResolver) Relation(ctx context.Context, obj *model.Short) (*model.ShortsRelation, error) {
+	s, err := r.GetLoaders().ShortLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	if s.EpisodeID.Valid {
+		return &model.ShortsRelation{
+			Type:  model.ShortsRelationTypeEpisode,
+			Key:   strconv.Itoa(int(s.EpisodeID.Int64)),
+			Start: s.StartsAt.Ptr(),
+			End:   s.EndsAt.Ptr(),
+		}, nil
+	}
+	return nil, nil
 }
 
 // Short returns generated.ShortResolver implementation.

@@ -5,6 +5,19 @@ type Short implements CollectionItem & PlaylistItem {
     image(style: ImageStyle): String @goField(forceResolver: true)
     streams: [Stream!]! @goField(forceResolver: true)
     files: [File!]! @goField(forceResolver: true)
+    relation: ShortsRelation! @goField(forceResolver: true)
+}
+
+enum ShortsRelationType {
+    episode,
+    url,
+}
+
+type ShortsRelation {
+    type: ShortsRelationType!
+    key: String!
+    start: Float
+    end: Float
 }
 
 type ShortsPagination {
