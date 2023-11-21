@@ -367,29 +367,7 @@ func (r *episodeResolver) ShareRestriction(ctx context.Context, obj *model.Episo
 
 // InMyList is the resolver for the inMyList field.
 func (r *episodeResolver) InMyList(ctx context.Context, obj *model.Episode) (bool, error) {
-	myList, err := r.QueryRoot().MyList(ctx)
-	if err != nil {
-		return false, nil
-	}
-	list, err := r.Loaders.UserCollectionEntryIDsLoader.Get(ctx, utils.AsUuid(myList.ID))
-	if err != nil {
-		return false, err
-	}
-	entryIDs := utils.PointerArrayToArray(list)
-	chunks := lo.Chunk(entryIDs, 20)
-	uid := utils.AsUuid(obj.UUID)
-	for _, chunk := range chunks {
-		entries, err := r.Loaders.UserCollectionEntryLoader.GetMany(ctx, chunk)
-		if err != nil {
-			return false, err
-		}
-		for _, entry := range entries {
-			if entry.ItemID == uid {
-				return true, nil
-			}
-		}
-	}
-	return false, nil
+	return r.isInMyList(ctx, utils.AsUuid(obj.UUID))
 }
 
 // Next is the resolver for the next field.
