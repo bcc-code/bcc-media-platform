@@ -1,4 +1,4 @@
-type Short implements CollectionItem & PlaylistItem {
+type Short implements CollectionItem & PlaylistItem & MediaItem {
     id: ID!
     title: String!
     description: String
