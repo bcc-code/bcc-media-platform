@@ -91,6 +91,11 @@ func (r *shortResolver) Source(ctx context.Context, obj *model.Short) (*model.Su
 	return nil, nil
 }
 
+// InMyList is the resolver for the inMyList field.
+func (r *shortResolver) InMyList(ctx context.Context, obj *model.Short) (bool, error) {
+	return r.isInMyList(ctx, utils.AsUuid(obj.ID))
+}
+
 // Short returns generated.ShortResolver implementation.
 func (r *Resolver) Short() generated.ShortResolver { return &shortResolver{r} }
 

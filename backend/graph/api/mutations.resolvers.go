@@ -518,6 +518,20 @@ func (r *mutationRootResolver) AddShowToMyList(ctx context.Context, showID strin
 	}, nil
 }
 
+// AddShortToMyList is the resolver for the addShortToMyList field.
+func (r *mutationRootResolver) AddShortToMyList(ctx context.Context, shortID string) (*model.AddToCollectionResult, error) {
+	e, err := r.addItemToCollection(ctx, "short", shortID)
+	if err != nil {
+		return nil, err
+	}
+	return &model.AddToCollectionResult{
+		Collection: &model.UserCollection{
+			ID: e.CollectionID.String(),
+		},
+		EntryID: e.ID.String(),
+	}, nil
+}
+
 // RemoveEntryFromMyList is the resolver for the removeEntryFromMyList field.
 func (r *mutationRootResolver) RemoveEntryFromMyList(ctx context.Context, entryID string) (*model.UserCollection, error) {
 	myList, err := r.QueryRoot().MyList(ctx)
