@@ -20,7 +20,7 @@
     "download": {
         "resolution": "Oppløsning",
         "language": "Språk",
-        "progress": ""
+        "progress": "Fremdrift"
     },
     "error": {
         "couldntSendYourMessage": "Kunne ikke sende meldingen din",
@@ -146,7 +146,7 @@
         "headOffice": "Hovedkontor",
         "contactUs": "Kontakt oss",
         "downloadApp": "Last ned vår app",
-        "termsOfUse": ""
+        "termsOfUse": "Vilkår for bruk"
     },
     "share": {
         "title": "Del",

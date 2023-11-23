@@ -146,7 +146,7 @@
         "headOffice": "Sediul central",
         "contactUs": "Contactează-ne",
         "downloadApp": "Descarcă aplicația noastră",
-        "termsOfUse": ""
+        "termsOfUse": "Termeni de utilizare"
     },
     "share": {
         "title": "Distribuie",
@@ -184,11 +184,11 @@
         "local": "Adunare locală",
         "mediaResponsible": "Responsabil media",
         "other": "Altele",
-        "confirmSend": "",
-        "title": "",
-        "description": "",
-        "receitTitle": "",
-        "confirmAgenda": "",
-        "receitDescription": ""
+        "confirmSend": "Să trimiți cererea de materiale?",
+        "title": "Cerere pentru materiale",
+        "description": "Formular pentru cerere de materiale audio, foto și video de la BCC Media",
+        "receitTitle": "Cerere primită",
+        "confirmAgenda": "Confirm că materialul va fi utilizat numai în scopul convenit.",
+        "receitDescription": "Echipa noastră vă va contacta în termen de 7 zile lucrătoare. Un răspuns automat a fost trimis pe adresa ta de e-mail."
     }
 }

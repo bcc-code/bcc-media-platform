@@ -49,7 +49,7 @@
     },
     "notFound": {
         "title": "Niet gevonden",
-        "description": "Misschien bent u niet ingelogd of mist u bepaalde rechten.",
+        "description": "Misschien ben je niet ingelogd of mis je bepaalde rechten.",
         "returnHome": "Ga naar de homepagina"
     },
     "common": {
@@ -133,7 +133,7 @@
     },
     "cookies": {
         "title": "Deze website maakt gebruik van cookies",
-        "description": "Wij gebruiken cookies om uw surfervaring op deze website gemakkelijker te maken. Door gebruik te maken van deze website verleent u toestemming voor het gebruik hiervan.",
+        "description": "Wij gebruiken cookies om je ervaring op deze website gemakkelijker te maken. Door gebruik te maken van deze website verleen je toestemming voor het opslaan van cookies.",
         "necessary": "Noodzakelijk",
         "preferences": "Voorkeuren",
         "statistics": "Statistieken",
@@ -146,7 +146,7 @@
         "headOffice": "Hoofdkantoor",
         "contactUs": "Contact",
         "downloadApp": "Download onze app",
-        "termsOfUse": ""
+        "termsOfUse": "Gebruiksvoorwaarden"
     },
     "share": {
         "title": "Deel",

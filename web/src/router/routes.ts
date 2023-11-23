@@ -71,6 +71,13 @@ export default [
                 component: () => import("@/pages/EpisodeRedirect.vue"),
                 props: true,
             },
+            {
+                name: "shorts",
+                path: "/shorts/:shortId",
+                alias: "/short/:shortId",
+                props: true,
+                component: () => import("@/pages/shorts/Shorts.vue"),
+            },
         ],
     },
     {

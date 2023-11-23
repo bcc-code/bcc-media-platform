@@ -146,7 +146,7 @@
         "headOffice": "Sedež podjetja",
         "contactUs": "Kontaktiraj nas",
         "downloadApp": "Prenesi našo aplikacijo",
-        "termsOfUse": ""
+        "termsOfUse": "Pogoji uporabe"
     },
     "share": {
         "title": "Deli",
@@ -172,7 +172,7 @@
         "role": "Tvoja vloga",
         "what": "Zahtevano gradivo",
         "how": "Kako bo gradivo uporabljeno?",
-        "howDescription": "",
+        "howDescription": "Pokaži delno/vse, urejeno ...",
         "where": "Kje bo gradivo uporabljeno?",
         "when": "Kdaj bo gradivo uporabljeno?",
         "clear": "Počisti",
@@ -180,8 +180,8 @@
         "editor": "Urednik",
         "director": "Direktor",
         "producer": "Producent",
-        "eventCamp": "Event/camp",
-        "local": "Lokalno srečanje",
+        "eventCamp": "Dogodek/camp",
+        "local": "Lokalno zborovanje",
         "mediaResponsible": "Odgovorni mediji",
         "other": "Ostalo",
         "confirmSend": "Pošlji prošnjo za gradivo?",

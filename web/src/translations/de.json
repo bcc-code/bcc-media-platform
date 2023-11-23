@@ -18,9 +18,9 @@
         "join": "Beitreten"
     },
     "download": {
-        "resolution": "",
-        "language": "",
-        "progress": ""
+        "resolution": "Auflösung",
+        "language": "Sprache",
+        "progress": "Fortschritt"
     },
     "error": {
         "couldntSendYourMessage": "Deine Nachricht konnte nicht gesendet werden",
@@ -146,7 +146,7 @@
         "headOffice": "Direktion",
         "contactUs": "Kontaktiere uns",
         "downloadApp": "Lade unsere App herunter",
-        "termsOfUse": ""
+        "termsOfUse": "Nutzungsbedingungen"
     },
     "share": {
         "title": "Teilen",
@@ -167,28 +167,28 @@
     "sending": "Sendung",
     "defaultInputPlaceholder": "Schreibe hier...",
     "requests": {
-        "name": "",
-        "email": "",
-        "role": "",
-        "what": "",
-        "how": "",
-        "howDescription": "",
-        "where": "",
-        "when": "",
-        "clear": "",
+        "name": "Dein Name",
+        "email": "E-Mail",
+        "role": "Deine Rolle",
+        "what": "Anzuforderndes Material",
+        "how": "Wie soll das Material verwendet werden?",
+        "howDescription": "Teilweise/vollständig abgebildet, bearbeitet...",
+        "where": "Wo wird das Material verwendet?",
+        "when": "Wann wird das Material verwendet?",
+        "clear": "Entfernen",
         "send": "Senden",
-        "editor": "",
-        "director": "",
-        "producer": "",
-        "eventCamp": "",
-        "local": "",
-        "mediaResponsible": "",
-        "other": "",
-        "confirmSend": "",
-        "title": "",
-        "description": "",
-        "receitTitle": "",
-        "confirmAgenda": "",
-        "receitDescription": ""
+        "editor": "Herausgeber",
+        "director": "Regisseur",
+        "producer": "Produzent",
+        "eventCamp": "Veranstaltung/Camp",
+        "local": "Lokales Zusammensein",
+        "mediaResponsible": "Medienverantwortlicher",
+        "other": "Andere",
+        "confirmSend": "Materialanfrage senden?",
+        "title": "Materialanfrage",
+        "description": "Formular zur Anforderung von Audio-, Bild- und Videomaterial bei BCC Media",
+        "receitTitle": "Anfrage erhalten",
+        "confirmAgenda": "Ich versichere, dass das Material nur für den vereinbarten Zweck verwendet wird.",
+        "receitDescription": "Unser Team wird sich innerhalb von 7 Werktagen mit dir in Verbindung setzen. Eine automatische Antwort wurde an deine E-Mail gesendet."
     }
 }
