@@ -5781,7 +5781,7 @@ enum ShareRestriction {
     public
 }
 
-type Episode implements CollectionItem & PlaylistItem {
+type Episode implements CollectionItem & PlaylistItem & MediaItem {
     id: ID!
     uuid: String!
     status: Status!
@@ -6103,6 +6103,15 @@ interface CollectionItem {
     title: String!
     description: String
     #image(style: ImageStyle): String
+}
+
+interface MediaItem {
+    id: ID!
+    streams: [Stream!]!
+    files: [File!]!
+    title: String!
+    image(style: ImageStyle): String
+    #duration: Int!
 }
 
 scalar Language
@@ -6536,7 +6545,7 @@ type SectionItemPagination implements Pagination {
     items: [SectionItem!]!
 }
 `, BuiltIn: false},
-	{Name: "../schema/shorts.graphqls", Input: `type Short implements CollectionItem & PlaylistItem {
+	{Name: "../schema/shorts.graphqls", Input: `type Short implements CollectionItem & PlaylistItem & MediaItem {
     id: ID!
     title: String!
     description: String
@@ -37965,6 +37974,29 @@ func (ec *executionContext) _ItemSection(ctx context.Context, sel ast.SelectionS
 	}
 }
 
+func (ec *executionContext) _MediaItem(ctx context.Context, sel ast.SelectionSet, obj model.MediaItem) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.Episode:
+		return ec._Episode(ctx, sel, &obj)
+	case *model.Episode:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Episode(ctx, sel, obj)
+	case model.Short:
+		return ec._Short(ctx, sel, &obj)
+	case *model.Short:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Short(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSet, obj model.Pagination) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -40193,7 +40225,7 @@ func (ec *executionContext) _Device(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
-var episodeImplementors = []string{"Episode", "CollectionItem", "PlaylistItem", "SectionItemType", "SubclipSourceItem", "UserCollectionEntryItem"}
+var episodeImplementors = []string{"Episode", "CollectionItem", "PlaylistItem", "MediaItem", "SectionItemType", "SubclipSourceItem", "UserCollectionEntryItem"}
 
 func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, obj *model.Episode) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, episodeImplementors)
@@ -46102,7 +46134,7 @@ func (ec *executionContext) _SectionPagination(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var shortImplementors = []string{"Short", "CollectionItem", "PlaylistItem", "UserCollectionEntryItem"}
+var shortImplementors = []string{"Short", "CollectionItem", "PlaylistItem", "MediaItem", "UserCollectionEntryItem"}
 
 func (ec *executionContext) _Short(ctx context.Context, sel ast.SelectionSet, obj *model.Short) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, shortImplementors)

@@ -51,6 +51,15 @@ type ItemSection interface {
 	GetItems() *SectionItemPagination
 }
 
+type MediaItem interface {
+	IsMediaItem()
+	GetID() string
+	GetStreams() []*Stream
+	GetFiles() []*File
+	GetTitle() string
+	GetImage() *string
+}
+
 type Pagination interface {
 	IsPagination()
 	GetTotal() int
@@ -400,6 +409,29 @@ func (this Episode) GetDescription() *string { return &this.Description }
 func (Episode) IsPlaylistItem() {}
 
 func (this Episode) GetImage() *string { return this.Image }
+
+func (Episode) IsMediaItem() {}
+
+func (this Episode) GetStreams() []*Stream {
+	if this.Streams == nil {
+		return nil
+	}
+	interfaceSlice := make([]*Stream, 0, len(this.Streams))
+	for _, concrete := range this.Streams {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+func (this Episode) GetFiles() []*File {
+	if this.Files == nil {
+		return nil
+	}
+	interfaceSlice := make([]*File, 0, len(this.Files))
+	for _, concrete := range this.Files {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
 
 func (Episode) IsSectionItemType() {}
 
@@ -1066,6 +1098,29 @@ func (this Short) GetDescription() *string { return this.Description }
 func (Short) IsPlaylistItem() {}
 
 func (this Short) GetImage() *string { return this.Image }
+
+func (Short) IsMediaItem() {}
+
+func (this Short) GetStreams() []*Stream {
+	if this.Streams == nil {
+		return nil
+	}
+	interfaceSlice := make([]*Stream, 0, len(this.Streams))
+	for _, concrete := range this.Streams {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+func (this Short) GetFiles() []*File {
+	if this.Files == nil {
+		return nil
+	}
+	interfaceSlice := make([]*File, 0, len(this.Files))
+	for _, concrete := range this.Files {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
 
 func (Short) IsUserCollectionEntryItem() {}
 

@@ -19,6 +19,15 @@ interface CollectionItem {
     #image(style: ImageStyle): String
 }
 
+interface MediaItem {
+    id: ID!
+    streams: [Stream!]!
+    files: [File!]!
+    title: String!
+    image(style: ImageStyle): String
+    #duration: Int!
+}
+
 scalar Language
 scalar Date
 scalar UUID
