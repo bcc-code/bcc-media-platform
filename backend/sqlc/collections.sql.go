@@ -58,30 +58,59 @@ FROM collections_entries ce
          LEFT JOIN season_availability sa ON ce.collection = 'seasons' AND sa.id::varchar = ce.item
          LEFT JOIN show_roles shr ON ce.collection = 'shows' AND shr.id::varchar = ce.item
          LEFT JOIN show_availability sha ON ce.collection = 'shows' AND sha.id::varchar = ce.item
-         LEFT JOIN games_usergroups gr ON ce.collection = 'games' AND gr.games_id::varchar = ce.item
-         LEFT JOIN playlists_usergroups pr ON ce.collection = 'playlists' AND pr.playlists_id::varchar = ce.item
+         LEFT JOIN (SELECT gr.games_id::varchar, array_agg(gr.usergroups_code)::varchar[] roles
+                    FROM games_usergroups gr
+                    GROUP BY gr.games_id) gr ON ce.collection = 'games' AND gr.games_id::varchar = ce.item
+         LEFT JOIN (SELECT pr.playlists_id::varchar, array_agg(pr.usergroups_code)::varchar[] roles
+                    FROM playlists_usergroups pr
+                    GROUP BY pr.playlists_id) pr ON ce.collection = 'playlists' AND pr.playlists_id = ce.item
 WHERE ce.collections_id = ANY ($1::int[])
   AND (
-        (ce.collection = 'episodes' AND ea.published AND ea.available_to > now() AND er.roles && $2::varchar[] AND
-         ea.available_from < now()) OR
-        (ce.collection = 'seasons' AND sa.published AND sa.available_to > now() AND sr.roles && $2::varchar[] AND
-         sa.available_from < now()) OR
-        (ce.collection = 'shows' AND sha.published AND sha.available_to > now() AND shr.roles && $2::varchar[] AND
-         sha.available_from < now()) OR
-        (ce.collection = 'games' AND gr.usergroups_code = ANY ($2::varchar[])) OR
-        (ce.collection = 'playlists' AND pr.usergroups_code = ANY ($2::varchar[])) OR
-        (ce.collection NOT IN ('episodes', 'seasons', 'shows', 'games', 'playlists'))
-    )
+        (ce.collection = 'episodes'
+            AND ea.published
+            AND ea.available_to
+             > now()
+            AND er.roles && $2::varchar[]
+            AND
+         ea.available_from
+             < now())
+        OR
+        (ce.collection = 'seasons'
+            AND sa.published
+            AND sa.available_to
+             > now()
+            AND sr.roles && $2::varchar[]
+            AND
+         sa.available_from
+             < now())
+        OR
+        (ce.collection = 'shows'
+            AND sha.published
+            AND sha.available_to
+             > now()
+            AND shr.roles && $2::varchar[]
+            AND
+         sha.available_from
+             < now())
+        OR
+        (ce.collection = 'games'
+             AND gr.roles && $2::varchar[]
+            OR
+         (ce.collection = 'playlists'
+              AND pr.roles && $2::varchar[]
+             OR
+          (ce.collection NOT IN ('episodes', 'seasons', 'shows', 'games', 'playlists'))
+             )))
 ORDER BY ce.sort
 `
 
 type getCollectionEntriesForCollectionsWithRolesParams struct {
-	Collectionids []int32  `db:"collectionids" json:"collectionids"`
-	Roles         []string `db:"roles" json:"roles"`
+	Ids   []int32  `db:"ids" json:"ids"`
+	Roles []string `db:"roles" json:"roles"`
 }
 
 func (q *Queries) getCollectionEntriesForCollectionsWithRoles(ctx context.Context, arg getCollectionEntriesForCollectionsWithRolesParams) ([]CollectionsEntry, error) {
-	rows, err := q.db.QueryContext(ctx, getCollectionEntriesForCollectionsWithRoles, pq.Array(arg.Collectionids), pq.Array(arg.Roles))
+	rows, err := q.db.QueryContext(ctx, getCollectionEntriesForCollectionsWithRoles, pq.Array(arg.Ids), pq.Array(arg.Roles))
 	if err != nil {
 		return nil, err
 	}
