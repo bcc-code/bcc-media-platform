@@ -18,24 +18,40 @@ const capFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-export function getLanguage({ languageCode, currentLanguageCode }: { languageCode: string, currentLanguageCode: string }): Language {
+export function getLanguage({
+    languageCode,
+    currentLanguageCode,
+}: {
+    languageCode: string
+    currentLanguageCode: string
+}): Language {
     if (typeof Intl.DisplayNames === "undefined") {
-        return { code: languageCode, name: languageCode, localizedName: undefined }
+        return {
+            code: languageCode,
+            name: languageCode,
+            localizedName: undefined,
+        }
     }
     const nativeDisplayName = new Intl.DisplayNames([languageCode], {
         type: "language",
     })
-    const baseLanguageDisplayNames = new Intl.DisplayNames([currentLanguageCode], {
-        type: "language",
-    })
+    const baseLanguageDisplayNames = new Intl.DisplayNames(
+        [currentLanguageCode],
+        {
+            type: "language",
+        }
+    )
 
     return {
         code: languageCode,
-        name: capFirstLetter(nativeDisplayName.of(languageCode) ?? languageCode),
-        localizedName: capFirstLetter(baseLanguageDisplayNames.of(languageCode) ?? languageCode),
+        name: capFirstLetter(
+            nativeDisplayName.of(languageCode) ?? languageCode
+        ),
+        localizedName: capFirstLetter(
+            baseLanguageDisplayNames.of(languageCode) ?? languageCode
+        ),
     }
 }
-
 
 export function getSupportedLanguages(currentLanguageCode: string) {
     return SUPPORT_LOCALES.map((languageCode) => {

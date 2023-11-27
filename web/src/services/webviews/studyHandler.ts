@@ -10,8 +10,13 @@ class WebViewStudyHandler {
     }
 
     tasksCompleted() {
-        this.webView.communication.callHandler(this.handlerName, "tasks_completed")
+        this.webView.communication.callHandler(
+            this.handlerName,
+            "tasks_completed"
+        )
     }
 }
 
-export const webViewStudy = currentWebView ? new WebViewStudyHandler(currentWebView) : null;
+export const webViewStudy = currentWebView
+    ? new WebViewStudyHandler(currentWebView)
+    : null
