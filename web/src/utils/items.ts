@@ -49,7 +49,7 @@ export const goToPage = (code: string) => {
 
 export const goToStudyTopic = async (id: string) => {
     // TODO: nothing is as permanent as a temporary solution lol
-    // although things can be improved :) 
+    // although things can be improved :)
     const result = await client
         .query<
             GetDefaultEpisodeForTopicQuery,
@@ -71,7 +71,7 @@ export const goToStudyTopic = async (id: string) => {
 
 export const goToShow = async (id: string) => {
     // TODO: nothing is as permanent as a temporary solution lol
-    // although things can be improved :) 
+    // although things can be improved :)
     const result = await client
         .query<
             GetDefaultEpisodeForShowQuery,

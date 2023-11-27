@@ -27,20 +27,34 @@ class MainWebViewHandler {
     }
 
     push(path: string): Promise<any> {
-        var promise = this.webView.communication.callHandler(this.handlerName, "push", path)
+        var promise = this.webView.communication.callHandler(
+            this.handlerName,
+            "push",
+            path
+        )
         return !promise?.then ? null : promise
     }
 
     getAccessToken(): Promise<string | null> {
-        return this.webView.communication.callHandler(this.handlerName, "get_access_token")
+        return this.webView.communication.callHandler(
+            this.handlerName,
+            "get_access_token"
+        )
     }
 
     getLocale(): Promise<string | null> {
-        return this.webView.communication.callHandler(this.handlerName, "get_locale")
+        return this.webView.communication.callHandler(
+            this.handlerName,
+            "get_locale"
+        )
     }
 
     shareImage(url: string): Promise<boolean | null> {
-        return this.webView.communication.callHandler(this.handlerName, "share_image", url)
+        return this.webView.communication.callHandler(
+            this.handlerName,
+            "share_image",
+            url
+        )
     }
 
     hapticFeedback(
@@ -69,4 +83,6 @@ export const openInBrowser = (url: string) => {
     window.location.assign(newUrl)
 }
 
-export const webViewMain = currentWebView ? new MainWebViewHandler(currentWebView) : null;
+export const webViewMain = currentWebView
+    ? new MainWebViewHandler(currentWebView)
+    : null
