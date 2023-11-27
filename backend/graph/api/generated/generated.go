@@ -6795,7 +6795,7 @@ type UserCollectionEntry {
     #    sort: Int!
     #    updatedAt: Date!
     #    createdAt: Date!
-    item: UserCollectionEntryItem! @goField(forceResolver: true)
+    item: UserCollectionEntryItem @goField(forceResolver: true)
 }
 
 type UserCollectionEntryPagination implements Pagination {
@@ -34822,14 +34822,11 @@ func (ec *executionContext) _UserCollectionEntry_item(ctx context.Context, field
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(model.UserCollectionEntryItem)
 	fc.Result = res
-	return ec.marshalNUserCollectionEntryItem2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntryItem(ctx, field.Selections, res)
+	return ec.marshalOUserCollectionEntryItem2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntryItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserCollectionEntry_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -48078,9 +48075,6 @@ func (ec *executionContext) _UserCollectionEntry(ctx context.Context, sel ast.Se
 					}
 				}()
 				res = ec._UserCollectionEntry_item(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
 				return res
 			}
 
@@ -50947,16 +50941,6 @@ func (ec *executionContext) marshalNUserCollectionEntry2ᚖgithubᚗcomᚋbccᚑ
 	return ec._UserCollectionEntry(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUserCollectionEntryItem2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntryItem(ctx context.Context, sel ast.SelectionSet, v model.UserCollectionEntryItem) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._UserCollectionEntryItem(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNUserCollectionEntryPagination2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntryPagination(ctx context.Context, sel ast.SelectionSet, v model.UserCollectionEntryPagination) graphql.Marshaler {
 	return ec._UserCollectionEntryPagination(ctx, sel, &v)
 }
@@ -51574,6 +51558,13 @@ func (ec *executionContext) marshalOSubclipSource2ᚖgithubᚗcomᚋbccᚑcode�
 		return graphql.Null
 	}
 	return ec._SubclipSource(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOUserCollectionEntryItem2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntryItem(ctx context.Context, sel ast.SelectionSet, v model.UserCollectionEntryItem) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._UserCollectionEntryItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

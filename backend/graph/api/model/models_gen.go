@@ -1357,7 +1357,7 @@ type UserCollection struct {
 
 type UserCollectionEntry struct {
 	ID   string                  `json:"id"`
-	Item UserCollectionEntryItem `json:"item"`
+	Item UserCollectionEntryItem `json:"item,omitempty"`
 }
 
 type UserCollectionEntryPagination struct {
