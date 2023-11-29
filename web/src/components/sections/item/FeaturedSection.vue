@@ -15,13 +15,13 @@
                     :src="i.image"
                     size-source="width"
                     :ratio="9 / 16"
-                    class="lg:hidden rounded rounded-xl h-full object-cover"
+                    class="lg:hidden rounded-xl h-full object-cover"
                 />
                 <Image
                     :src="i.image"
                     size-source="width"
                     :ratio="5 / 11"
-                    class="hidden lg:block rounded rounded-xl h-full object-cover"
+                    class="hidden lg:block rounded-xl h-full object-cover"
                 />
                 <div
                     class="lg:hidden absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent pt-8"

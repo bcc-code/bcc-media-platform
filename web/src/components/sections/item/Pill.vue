@@ -1,6 +1,6 @@
 <template>
     <div
-        class="rounded rounded-xl text-sm px-2 z-10 font-medium"
+        class="rounded-xl text-sm px-2 z-10 font-medium"
         :class="color ?? 'bg-slate-800'"
     >
         <slot></slot>

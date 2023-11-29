@@ -27,13 +27,13 @@
                                 :src="undefined"
                                 size-source="width"
                                 :ratio="9 / 16"
-                                class="lg:hidden rounded rounded-xl h-full object-cover"
+                                class="lg:hidden rounded-xl h-full object-cover"
                             />
                             <Image
                                 :src="undefined"
                                 size-source="width"
                                 :ratio="5 / 11"
-                                class="hidden lg:block rounded rounded-xl h-full object-cover"
+                                class="hidden lg:block rounded-xl h-full object-cover"
                             />
                             <div
                                 class="absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent pt-8"
@@ -108,7 +108,7 @@
                 >
                     <SwiperSlide v-for="i in 6" class="relative"
                         ><div
-                            class="flex flex-col rounded rounded-md mt-1 cursor-pointer hover:opacity-90 transition"
+                            class="flex flex-col rounded-md mt-1 cursor-pointer hover:opacity-90 transition"
                         >
                             <div
                                 class="relative w-full aspect-[9/16] mb-1 rounded-md overflow-hidden"

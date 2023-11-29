@@ -19,13 +19,9 @@
 </template>
 <script lang="ts" setup>
 import { Section } from "../types"
-
 import SectionTitle from "./SectionTitle.vue"
-import { computed, onMounted, ref } from "vue"
-import { getImageSize } from "@/utils/images"
-import Image from "@/components/Image.vue"
+import { computed } from "vue"
 import StudyTopicCardLarge from "./cards/StudyTopicCardLarge.vue"
-import { StudyTopicSectionItemFragment } from "@/graph/generated"
 
 const props = defineProps<{
     item: Section & { __typename: "CardSection" }

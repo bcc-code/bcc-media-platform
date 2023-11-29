@@ -6,7 +6,7 @@
         <div class="flex gap-2">
             <div
                 v-for="(i, index) in item.items.items"
-                class="bg-slate-800 px-3 py-0.5 border border-1 border-slate-700 rounded rounded-full cursor-pointer"
+                class="bg-slate-800 px-3 py-0.5 border border-1 border-slate-700 rounded-full cursor-pointer"
                 @click="$emit('clickItem', index)"
             >
                 <p class="text-lg">{{ i.title }}</p>

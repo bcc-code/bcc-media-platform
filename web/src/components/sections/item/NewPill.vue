@@ -1,6 +1,6 @@
 <template>
     <div
-        class="bg-red rounded rounded-xl text-sm px-2 z-10 font-medium"
+        class="bg-red rounded-xl text-sm px-2 z-10 font-medium"
         v-if="newString"
     >
         {{ newString }}
