@@ -5,19 +5,21 @@
         ref="imageContainer"
     >
         <img
-            ref="image"
             class="object-cover w-full transition"
             :class="[!loaded ? 'opacity-0' : 'opacity-100']"
             :height="effectiveHeight"
             :width="effectiveWidth"
             :loading="loading"
             :draggable="draggable"
+            @load="loaded = true"
+            :src="effectiveSrc"
         />
     </div>
 </template>
+
 <script lang="ts" setup>
 import { getImageSize } from "@/utils/images"
-import { computed, onMounted, ref } from "vue"
+import { computed, onMounted, ref, onBeforeUnmount } from "vue"
 
 const props = defineProps<{
     src?: string | null
@@ -29,37 +31,32 @@ const props = defineProps<{
 
 const loaded = ref(false)
 
-const image = ref(null as HTMLImageElement | null)
 const imageContainer = ref(null as HTMLDivElement | null)
 const parentDimensions = ref({
     height: 100,
     width: 100,
 })
 
+const handleResize = () => {
+    const dimensions = {
+        height: 100,
+        width: 100,
+    }
+    const parent = imageContainer.value
+    if (parent) {
+        dimensions.height = parent.clientHeight
+        dimensions.width = parent.clientWidth
+    }
+    parentDimensions.value = dimensions
+}
+
 onMounted(() => {
-    setTimeout(() => {
-        const dimensions = {
-            height: 100,
-            width: 100,
-        }
-        const parent = imageContainer.value
-        if (parent) {
-            dimensions.height = parent.clientHeight
-            dimensions.width = parent.clientWidth
-        }
-        parentDimensions.value = dimensions
-        const i = image.value
-        if (!i) {
-            return
-        }
-        i.onerror = () => {}
-        i.onload = () => {
-            loaded.value = true
-        }
-        if (props.src) {
-            i.src = effectiveSrc.value
-        }
-    }, 50)
+    handleResize()
+    window.addEventListener("resize", handleResize)
+})
+
+onBeforeUnmount(() => {
+    window.removeEventListener("resize", handleResize)
 })
 
 const effectiveSrc = computed(() => {
