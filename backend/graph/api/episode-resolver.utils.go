@@ -3,6 +3,8 @@ package graph
 import (
 	"context"
 	"fmt"
+	"strconv"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
@@ -13,7 +15,6 @@ import (
 	"github.com/samber/lo"
 	"go.opentelemetry.io/otel"
 	"gopkg.in/guregu/null.v4"
-	"strconv"
 )
 
 func (r *episodeResolver) getEpisodeContext(ctx context.Context, episodeID string) (common.EpisodeContext, error) {
@@ -197,7 +198,7 @@ func (r *episodeResolver) getNextEpisodes(ctx context.Context, episodeID string,
 		l = *limit
 	}
 
-	keys := cursor.NextKeys(1)
+	keys := cursor.NextKeys(5)
 	if len(keys) < l {
 		var ids []int
 		ids, err = r.getNextEpisodeIDsFromShowCollection(ctx, episodeID)
