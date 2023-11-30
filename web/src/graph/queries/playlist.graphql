@@ -1,6 +1,6 @@
 query getPlaylistEpisode($id: ID!) {
     playlist(id: $id) {
-        items(first: 10) {
+        items {
             items {
                 __typename
                 ... on Episode {

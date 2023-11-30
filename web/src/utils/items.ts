@@ -58,6 +58,7 @@ export const goToPlaylist = async (playlistId: string) => {
                     episodeId: i.id,
                 },
             })
+            return
         }
     }
 }

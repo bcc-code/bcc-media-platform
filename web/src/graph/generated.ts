@@ -2450,7 +2450,7 @@ export function useGetSectionsForPageQuery(options: Omit<Urql.UseQueryArgs<never
 export const GetPlaylistEpisodeDocument = gql`
     query getPlaylistEpisode($id: ID!) {
   playlist(id: $id) {
-    items(first: 10) {
+    items {
       items {
         __typename
         ... on Episode {
