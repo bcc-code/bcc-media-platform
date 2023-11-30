@@ -45,6 +45,12 @@ export default [
                 props: true,
             },
             {
+                name: "playlist-episode",
+                path: "playlist/:playlistId/:episodeId",
+                component: () => import("@/pages/episode/Episode.vue"),
+                props: true,
+            },
+            {
                 name: "calendar",
                 path: "/calendar",
                 component: () => import("@/pages/calendar/Calendar.vue"),

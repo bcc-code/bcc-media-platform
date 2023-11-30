@@ -8,6 +8,10 @@ import {
     GetDefaultEpisodeForShowQuery,
     GetDefaultEpisodeForShowQueryVariables,
     GetDefaultEpisodeForShowDocument,
+    useGetPlaylistEpisodeQuery,
+    GetPlaylistEpisodeQuery,
+    GetPlaylistEpisodeQueryVariables,
+    GetPlaylistEpisodeDocument,
 } from "@/graph/generated"
 import router from "@/router"
 import { analytics, Page } from "@/services/analytics"
@@ -35,6 +39,26 @@ export const goToEpisode = (
                 episodeId,
             },
         })
+    }
+}
+
+export const goToPlaylist = async (playlistId: string) => {
+    const result = await client
+        .query<GetPlaylistEpisodeQuery, GetPlaylistEpisodeQueryVariables>(
+            GetPlaylistEpisodeDocument,
+            { id: playlistId }
+        )
+        .toPromise()
+    for (const i of result.data?.playlist.items.items ?? []) {
+        if (i.__typename === "Episode") {
+            router.push({
+                name: "playlist-episode",
+                params: {
+                    playlistId,
+                    episodeId: i.id,
+                },
+            })
+        }
     }
 }
 
@@ -129,6 +153,9 @@ export const goToSectionItem = async (
             break
         case "StudyTopic":
             await goToStudyTopic(item.item.item.id)
+            break
+        case "Playlist":
+            await goToPlaylist(item.item.item.id)
             break
     }
 }

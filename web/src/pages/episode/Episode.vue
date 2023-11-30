@@ -5,7 +5,7 @@
             :initial-episode-id="episodeId"
             :context="context"
             @episode="setEpisode"
-        ></EpisodeDisplay>
+        />
     </div>
 </template>
 <script lang="ts" setup>
@@ -20,6 +20,7 @@ import { usePage } from "@/utils/page"
 const props = defineProps<{
     episodeId: string
     collection?: string
+    playlistId?: string
 }>()
 
 const router = useRouter()
@@ -28,6 +29,7 @@ const autoPlay = ref(false)
 
 const context = computed(() => ({
     collectionId: props.collection,
+    playlistId: props.playlistId,
 }))
 
 const setEpisode = (episode: GetEpisodeQuery["episode"]) => {

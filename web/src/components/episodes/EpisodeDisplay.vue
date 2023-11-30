@@ -262,7 +262,7 @@ const load = async () => {
     if (r.data.value?.episode) {
         episode.value = r.data.value.episode
 
-        if (!context.value?.collectionId) {
+        if (!context.value?.collectionId && !context.value?.playlistId) {
             if (episode.value.season?.id) {
                 seasonId.value = episode.value.season.id
                 await nextTick()
