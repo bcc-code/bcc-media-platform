@@ -3,15 +3,16 @@ package asset
 import (
 	"context"
 	"fmt"
-	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
-	"github.com/davecgh/go-spew/spew"
-	"gopkg.in/guregu/null.v4"
 	"net/url"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/davecgh/go-spew/spew"
+	"gopkg.in/guregu/null.v4"
 
 	"github.com/bcc-code/bcc-media-platform/backend/pubsub"
 
@@ -384,7 +385,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	}
 
 	// This will copy the objects in parallel and return upon completion of all tasks
-	copyErrors := copyObjects(ctx, *s3client, filesToCopy)
+	copyErrors := copyObjects(ctx, *s3client, config.GetIngestBucket(), filesToCopy)
 	if len(copyErrors) > 0 {
 		log.L.Error().Errs("copyErrors", copyErrors).Msg("Errors while copying files")
 		return merry.Wrap(ErrDuringCopy)
