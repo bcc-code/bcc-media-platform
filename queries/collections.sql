@@ -37,6 +37,10 @@ FROM collections_entries ce
          LEFT JOIN (SELECT pr.playlists_id::varchar, array_agg(pr.usergroups_code)::varchar[] roles
                     FROM playlists_usergroups pr
                     GROUP BY pr.playlists_id) pr ON ce.collection = 'playlists' AND pr.playlists_id = ce.item
+         LEFT JOIN (SELECT s.page_id::varchar, array_agg(DISTINCT (ug.usergroups_code)) roles
+                    FROM sections_usergroups ug
+                             JOIN sections s ON s.id = ug.sections_id
+                    GROUP BY s.page_id) pageroles ON ce.collection = 'pages' AND pageroles.page_id = ce.item
 WHERE ce.collections_id = ANY (@ids::int[])
   AND (
         (ce.collection = 'episodes'
@@ -66,14 +70,13 @@ WHERE ce.collections_id = ANY (@ids::int[])
          sha.available_from
              < now())
         OR
-        (ce.collection = 'games'
-             AND gr.roles && @roles::varchar[]
-            OR
-         (ce.collection = 'playlists'
-              AND pr.roles && @roles::varchar[]
-             OR
-          (ce.collection NOT IN ('episodes', 'seasons', 'shows', 'games', 'playlists'))
-             )))
+        (ce.collection = 'games' AND gr.roles && @roles::varchar[])
+        OR
+        (ce.collection = 'playlists' AND pr.roles && @roles::varchar[])
+        OR
+        (ce.collection = 'pages' AND pageroles.roles && @roles::varchar[])
+        OR
+        (ce.collection NOT IN ('episodes', 'seasons', 'shows', 'games', 'playlists', 'pages')))
 ORDER BY ce.sort;
 
 -- name: getCollectionIDsForCodes :many
