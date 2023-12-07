@@ -19,7 +19,13 @@
                     class="absolute animate-pulse top-1 rounded-full right-0 w-2 h-2 bg-red-hover"
                 ></div>
             </div>
-            <h1 class="my-auto text-center">
+            <h1
+                class="text-base leading-6 text-center my-auto"
+                :class="{
+                    'font-bold text-tint-1': isExactActive,
+                    'font-light text-label-3': !isExactActive,
+                }"
+            >
                 <slot></slot>
             </h1>
         </div>
