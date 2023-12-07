@@ -106,13 +106,15 @@ func multiPartCopy(ctx context.Context, svc s3.Client, sourceBucket *string, cop
 	ctx, cancelFn := context.WithTimeout(ctx, 10*time.Minute)
 	defer cancelFn()
 
+	sourceKey := strings.Replace(*copyInput.CopySource, *sourceBucket+"/", "", 1)
+
 	// 1. Get the size of the file
-	fileSize, err := getFileSize(ctx, svc, sourceBucket, copyInput.CopySource)
+	fileSize, err := getFileSize(ctx, svc, sourceBucket, &sourceKey)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("bucket", *copyInput.Bucket).
-			Str("source path", *copyInput.CopySource).
+			Str("source path", sourceKey).
 			Str("dst path", *copyInput.Key).
 			Msg("Getting file size failed")
 
