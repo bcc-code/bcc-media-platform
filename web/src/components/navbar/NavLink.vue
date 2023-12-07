@@ -26,7 +26,7 @@
                     'font-light text-label-3': !isExactActive,
                 }"
             >
-                <slot :selected="isExactActive"></slot>
+                <slot></slot>
             </h1>
         </div>
     </router-link>
