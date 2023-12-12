@@ -9,10 +9,18 @@ import (
 
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	gqlmodel "github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
 
 // Page is the resolver for the page field.
 func (r *applicationResolver) Page(ctx context.Context, obj *gqlmodel.Application) (*gqlmodel.Page, error) {
+	featureFlags := utils.GetFeatureFlags(ctx)
+	if f, ok := featureFlags.Get("application-page"); ok && f != "" {
+		page, err := r.QueryRoot().Page(ctx, &f, nil)
+		if err == nil {
+			return page, nil
+		}
+	}
 	if obj.Page != nil {
 		return r.QueryRoot().Page(ctx, &obj.Page.ID, nil)
 	}
