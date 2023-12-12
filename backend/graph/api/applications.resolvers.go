@@ -16,7 +16,7 @@ import (
 func (r *applicationResolver) Page(ctx context.Context, obj *gqlmodel.Application) (*gqlmodel.Page, error) {
 	featureFlags := utils.GetFeatureFlags(ctx)
 	if f, ok := featureFlags.Get("application-page"); ok && f != "" {
-		page, err := r.QueryRoot().Page(ctx, &f, nil)
+		page, err := r.QueryRoot().Page(ctx, nil, &f)
 		if err == nil {
 			return page, nil
 		}
