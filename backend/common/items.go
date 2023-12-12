@@ -40,6 +40,7 @@ var (
 		CollectionGames,
 		CollectionLinks,
 		CollectionPlaylists,
+		CollectionStudyTopics,
 	)
 )
 
