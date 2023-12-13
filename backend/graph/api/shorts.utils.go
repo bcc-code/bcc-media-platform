@@ -15,6 +15,8 @@ import (
 
 func (r *Resolver) getShuffledShortIDsCursor(ctx context.Context, p *common.Profile) (*utils.Cursor[uuid.UUID], error) {
 	shortIDs, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
+	mediaIDLoader := r.GetLoaders().ShortsMediaIDLoader
+	mediaIDLoader.LoadMany(ctx, shortIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -22,15 +24,28 @@ func (r *Resolver) getShuffledShortIDsCursor(ctx context.Context, p *common.Prof
 	arr := make([]uuid.UUID, len(shortIDs))
 	copy(arr, shortIDs)
 	if p != nil {
-		ids, err := r.GetQueries().GetProgressedMediaIDs(ctx, sqlc.GetProgressedMediaIDsParams{
+		mappedIDs := map[uuid.UUID]uuid.UUID{}
+		var mIDs []uuid.UUID
+		for _, sID := range arr {
+			mID, err := mediaIDLoader.Get(ctx, sID)
+			if err != nil {
+				return nil, err
+			}
+			if mID == nil {
+				continue
+			}
+			mappedIDs[sID] = *mID
+			mIDs = append(mIDs, *mID)
+		}
+		mediaIDs, err := r.GetQueries().GetProgressedMediaIDs(ctx, sqlc.GetProgressedMediaIDsParams{
 			ProfileID: p.ID,
-			ItemIds:   shortIDs,
+			ItemIds:   mIDs,
 		})
 		if err != nil {
 			return nil, err
 		}
 		arr = lo.Filter(arr, func(i uuid.UUID, _ int) bool {
-			return !lo.Contains(ids, i)
+			return !lo.Contains(mediaIDs, mappedIDs[i])
 		})
 	}
 	ids := lo.Shuffle(arr)
