@@ -3,10 +3,12 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+	"time"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
-	"time"
 )
 
 func mapToEvents(items []getEventsRow) []common.Event {
@@ -42,6 +44,20 @@ func (q *Queries) ListEvents(ctx context.Context) ([]common.Event, error) {
 	return mapToEvents(lo.Map(items, func(i listEventsRow, _ int) getEventsRow {
 		return getEventsRow(i)
 	})), nil
+}
+
+// GetEntryIDsForEventIDs returns the calendar entry ids for the specified event ids
+func (q *Queries) GetEntryIDsForEventIDs(ctx context.Context, ids []int) ([]loaders.Relation[int, int], error) {
+	rows, err := q.getCalendarEntryIDsForEvents(ctx, intToInt32(ids))
+	if err != nil {
+		return nil, nil
+	}
+	return lo.Map(rows, func(r getCalendarEntryIDsForEventsRow, _ int) loaders.Relation[int, int] {
+		return relation[int, int]{
+			ID:       int(r.ID),
+			ParentID: int(r.ParentID.Int64),
+		}
+	}), nil
 }
 
 // GetEventsForPeriod returns events for the specific period

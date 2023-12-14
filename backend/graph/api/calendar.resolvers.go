@@ -8,10 +8,48 @@ import (
 	"context"
 	"time"
 
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
+
+// Events is the resolver for the events field.
+func (r *calendarResolver) Events(ctx context.Context, obj *model.Calendar, from *string, to *string) ([]*model.Event, error) {
+	_, err := getProfile(ctx)
+	if err != nil {
+		return nil, err
+	}
+	events, err := memorycache.GetOrSet(ctx, "events", func(ctx context.Context) ([]common.Event, error) {
+		return r.Queries.ListEvents(ctx)
+	})
+	if err != nil {
+		return nil, err
+	}
+	fromTime := time.Now().Add(time.Hour * (24 * 30) * -1)
+	toTime := time.Now().Add(time.Hour * (24 * 365))
+	if from != nil {
+		fromTime, err = time.Parse(time.RFC3339, *from)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if to != nil {
+		toTime, err = time.Parse(time.RFC3339, *to)
+		if err != nil {
+			return nil, err
+		}
+	}
+	var filteredEvents []*common.Event
+	for _, event := range events {
+		e := event
+		if event.End.After(fromTime) && event.Start.Before(toTime) {
+			filteredEvents = append(filteredEvents, &e)
+		}
+	}
+	return utils.MapWithCtx(ctx, filteredEvents, model.EventFrom), nil
+}
 
 // Period is the resolver for the period field.
 func (r *calendarResolver) Period(ctx context.Context, obj *model.Calendar, from string, to string) (*model.CalendarPeriod, error) {
@@ -89,6 +127,19 @@ func (r *episodeCalendarEntryResolver) Description(ctx context.Context, obj *mod
 func (r *episodeCalendarEntryResolver) Episode(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.Episode, error) {
 	e, _ := r.QueryRoot().Episode(ctx, obj.Episode.ID, nil)
 	return e, nil
+}
+
+// Entries is the resolver for the entries field.
+func (r *eventResolver) Entries(ctx context.Context, obj *model.Event) ([]model.CalendarEntry, error) {
+	ids, err := r.GetLoaders().EventEntriesLoader.Get(ctx, utils.AsInt(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+	entries, err := r.GetFilteredLoaders(ctx).CalendarEntryLoader.GetMany(ctx, utils.PointerArrayToArray(ids))
+	if err != nil {
+		return nil, err
+	}
+	return utils.MapWithCtx(ctx, entries, model.CalendarEntryFrom), nil
 }
 
 // Event is the resolver for the event field.
@@ -182,6 +233,9 @@ func (r *Resolver) EpisodeCalendarEntry() generated.EpisodeCalendarEntryResolver
 	return &episodeCalendarEntryResolver{r}
 }
 
+// Event returns generated.EventResolver implementation.
+func (r *Resolver) Event() generated.EventResolver { return &eventResolver{r} }
+
 // SeasonCalendarEntry returns generated.SeasonCalendarEntryResolver implementation.
 func (r *Resolver) SeasonCalendarEntry() generated.SeasonCalendarEntryResolver {
 	return &seasonCalendarEntryResolver{r}
@@ -199,6 +253,7 @@ func (r *Resolver) SimpleCalendarEntry() generated.SimpleCalendarEntryResolver {
 
 type calendarResolver struct{ *Resolver }
 type episodeCalendarEntryResolver struct{ *Resolver }
+type eventResolver struct{ *Resolver }
 type seasonCalendarEntryResolver struct{ *Resolver }
 type showCalendarEntryResolver struct{ *Resolver }
 type simpleCalendarEntryResolver struct{ *Resolver }

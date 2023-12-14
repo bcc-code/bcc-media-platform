@@ -40,7 +40,9 @@ type BatchLoaders struct {
 	AssetFilesLoader   *loaders.Loader[int, []*File]
 	AssetStreamsLoader *loaders.Loader[int, []*Stream]
 
-	EventLoader          *loaders.Loader[int, *Event]
+	EventLoader        *loaders.Loader[int, *Event]
+	EventEntriesLoader *loaders.Loader[int, []*int]
+
 	FAQCategoryLoader    *loaders.Loader[uuid.UUID, *FAQCategory]
 	QuestionLoader       *loaders.Loader[uuid.UUID, *Question]
 	MessageGroupLoader   *loaders.Loader[int, *MessageGroup]

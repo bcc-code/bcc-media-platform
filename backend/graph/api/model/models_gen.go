@@ -229,6 +229,7 @@ type BirthOptions struct {
 }
 
 type Calendar struct {
+	Events []*Event        `json:"events"`
 	Period *CalendarPeriod `json:"period"`
 	Day    *CalendarDay    `json:"day"`
 }
@@ -510,11 +511,12 @@ func (this EpisodeSearchItem) GetImage() *string       { return this.Image }
 func (this EpisodeSearchItem) GetURL() string          { return this.URL }
 
 type Event struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
-	Start string `json:"start"`
-	End   string `json:"end"`
-	Image string `json:"image"`
+	ID      string          `json:"id"`
+	Title   string          `json:"title"`
+	Start   string          `json:"start"`
+	End     string          `json:"end"`
+	Image   string          `json:"image"`
+	Entries []CalendarEntry `json:"entries"`
 }
 
 type Export struct {

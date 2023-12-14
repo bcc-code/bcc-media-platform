@@ -14,6 +14,7 @@ type Event {
     start: String!
     end: String!
     image: String!
+    entries: [CalendarEntry!]! @goField(forceResolver: true)
 }
 
 interface CalendarEntry {
@@ -66,6 +67,7 @@ type ShowCalendarEntry implements CalendarEntry {
 }
 
 type Calendar {
+    events(from: Date, to: Date): [Event!]! @goField(forceResolver: true)
     period(
         from: Date!,
         to: Date!
