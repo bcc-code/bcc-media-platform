@@ -7,21 +7,27 @@ import (
 
 // FeatureFlag is a feature flag
 type FeatureFlag struct {
-	Key   string
-	Value string
+	Key     string
+	Variant string
 }
 
 // FeatureFlags is a list of feature flags
 type FeatureFlags []FeatureFlag
 
-// Get returns a flag for unleash
-func (f FeatureFlags) Get(key string) (string, bool) {
+// GetVariant returns a flag for unleash
+func (f FeatureFlags) GetVariant(key string) (string, bool) {
 	for _, flag := range f {
 		if flag.Key == key {
-			return flag.Value, true
+			return flag.Variant, true
 		}
 	}
 	return "", false
+}
+
+// Has returns true if a flag is present
+func (f FeatureFlags) Has(key string) bool {
+	_, ok := f.GetVariant(key)
+	return ok
 }
 
 const featureFlagsKey = "feature-flags"
@@ -48,7 +54,7 @@ func GetFeatureFlags(ctx context.Context) FeatureFlags {
 			Key: featureFlag[0],
 		}
 		if len(featureFlag) > 1 {
-			ff.Value = featureFlag[1]
+			ff.Variant = featureFlag[1]
 		}
 		featureFlags = append(featureFlags, ff)
 	}
