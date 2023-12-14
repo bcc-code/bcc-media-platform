@@ -1,7 +1,7 @@
 <template>
     <p v-if="episode.ageRating && (episode.ageRating !== 'A' || showA)">
         <span
-            class="border border-[#CCDDFF19] bg-[#1D2838] px-1 rounded-xl font-medium"
+            class="border border-[#CCDDFF19] text-white px-1 rounded-xl text-style-caption-2 lg:text-style-caption-1"
         >
             {{ episode.ageRating }}
         </span>
