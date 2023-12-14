@@ -15,26 +15,30 @@
         <div class="flex flex-col">
             <div class="bg-primary-light p-4 w-full">
                 <div class="flex">
-                    <h1 class="text-lg lg:text-xl font-medium">
+                    <h1
+                        class="text-style-title-2 lg:text-style-headline-2 text-customWhite"
+                    >
                         {{ episode.title }}
                     </h1>
                     <div class="ml-auto">
                         <SharePopover :episode="episode"></SharePopover>
                     </div>
                 </div>
-                <div class="flex">
+                <div class="flex pt-2">
                     <h1 class="my-auto flex gap-1">
                         <AgeRating
                             :episode="episode"
                             :show-a="true"
-                            class="mr-1"
+                            class="mr-1 text-style-caption-2 lg:text-style-caption-1 mt-0.5"
                         />
-                        <span v-if="episode.season" class="text-primary">{{
-                            episode.season.show.title
-                        }}</span>
+                        <span
+                            v-if="episode.season"
+                            class="text-primary text-style-caption-1 lg:text-style-body-2"
+                            >{{ episode.season.show.title }}</span
+                        >
                         <span
                             v-if="episode.productionDateInTitle"
-                            class="text-gray ml-1"
+                            class="text-label-4 text-style-caption-2 lg:text-style-caption-1 ml-1 mt-0.5"
                             >{{
                                 new Date(episode.productionDate).toDateString()
                             }}</span
@@ -42,9 +46,10 @@
                     </h1>
                 </div>
                 <div
-                    class="text-white mt-2 opacity-70 text-md lg:text-lg"
+                    class="text-label-3 mt-4 text-style-body-2 lg:text-style-body-2"
                     v-html="mdToHTML(episode.description)"
                 ></div>
+                <!-- class="text-white mt-2 opacity-70 text-md lg:text-lg" -->
                 <LessonButton
                     v-if="lesson && !episodeComingSoon(episode)"
                     class="mt-4"
