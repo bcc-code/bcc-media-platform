@@ -95,71 +95,29 @@ func (q *Queries) getCalendarEntries(ctx context.Context, arg getCalendarEntries
 	return items, nil
 }
 
-const getCalendarEntriesForEvents = `-- name: getCalendarEntriesForEvents :many
-WITH t AS (SELECT ts.calendarentries_id,
-                  json_object_agg(ts.languages_code, ts.title)       AS title,
-                  json_object_agg(ts.languages_code, ts.description) AS description
-           FROM calendarentries_translations ts
-           GROUP BY ts.calendarentries_id)
-SELECT e.id,
-       e.event_id,
-       e.link_type,
-       e.start,
-       e.end,
-       ea.id AS episode_id,
-       se.id AS season_id,
-       sh.id AS show_id,
-       t.title,
-       t.description
+const getCalendarEntryIDsForEvents = `-- name: getCalendarEntryIDsForEvents :many
+SELECT e.id, e.event_id as parent_id
 FROM calendarentries e
-         LEFT JOIN episode_roles er ON er.id = e.episode_id AND er.roles && $2::varchar[]
-         LEFT JOIN episode_availability ea ON ea.id = er.id AND ea.published
-         LEFT JOIN seasons se ON se.id = e.season_id AND se.status = 'published'
-         LEFT JOIN shows sh ON sh.id = e.show_id AND sh.status = 'published'
-         LEFT JOIN t ON e.id = t.calendarentries_id
 WHERE e.status = 'published'
   AND e.event_id = ANY ($1::int[])
+ORDER BY e.start
 `
 
-type getCalendarEntriesForEventsParams struct {
-	Column1 []int32  `db:"column_1" json:"column1"`
-	Column2 []string `db:"column_2" json:"column2"`
+type getCalendarEntryIDsForEventsRow struct {
+	ID       int32       `db:"id" json:"id"`
+	ParentID null_v4.Int `db:"parent_id" json:"parentId"`
 }
 
-type getCalendarEntriesForEventsRow struct {
-	ID          int32                 `db:"id" json:"id"`
-	EventID     null_v4.Int           `db:"event_id" json:"eventId"`
-	LinkType    null_v4.String        `db:"link_type" json:"linkType"`
-	Start       time.Time             `db:"start" json:"start"`
-	End         time.Time             `db:"end" json:"end"`
-	EpisodeID   null_v4.Int           `db:"episode_id" json:"episodeId"`
-	SeasonID    null_v4.Int           `db:"season_id" json:"seasonId"`
-	ShowID      null_v4.Int           `db:"show_id" json:"showId"`
-	Title       pqtype.NullRawMessage `db:"title" json:"title"`
-	Description pqtype.NullRawMessage `db:"description" json:"description"`
-}
-
-func (q *Queries) getCalendarEntriesForEvents(ctx context.Context, arg getCalendarEntriesForEventsParams) ([]getCalendarEntriesForEventsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getCalendarEntriesForEvents, pq.Array(arg.Column1), pq.Array(arg.Column2))
+func (q *Queries) getCalendarEntryIDsForEvents(ctx context.Context, ids []int32) ([]getCalendarEntryIDsForEventsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCalendarEntryIDsForEvents, pq.Array(ids))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []getCalendarEntriesForEventsRow
+	var items []getCalendarEntryIDsForEventsRow
 	for rows.Next() {
-		var i getCalendarEntriesForEventsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.EventID,
-			&i.LinkType,
-			&i.Start,
-			&i.End,
-			&i.EpisodeID,
-			&i.SeasonID,
-			&i.ShowID,
-			&i.Title,
-			&i.Description,
-		); err != nil {
+		var i getCalendarEntryIDsForEventsRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -382,7 +340,8 @@ SELECT e.id,
        t.title
 FROM events e
          LEFT JOIN t ON e.id = t.events_id
-WHERE e.status = 'published'
+WHERE e.status = 'published' AND e.end >= now() - '1 year'::interval
+ORDER BY e.start
 `
 
 type listEventsRow struct {

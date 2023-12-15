@@ -54,6 +54,7 @@ type ResolverRoot interface {
 	Episode() EpisodeResolver
 	EpisodeCalendarEntry() EpisodeCalendarEntryResolver
 	EpisodeSearchItem() EpisodeSearchItemResolver
+	Event() EventResolver
 	FAQ() FAQResolver
 	FAQCategory() FAQCategoryResolver
 	FeaturedSection() FeaturedSectionResolver
@@ -174,6 +175,7 @@ type ComplexityRoot struct {
 
 	Calendar struct {
 		Day    func(childComplexity int, day string) int
+		Events func(childComplexity int, from *string, to *string) int
 		Period func(childComplexity int, from string, to string) int
 	}
 
@@ -329,11 +331,12 @@ type ComplexityRoot struct {
 	}
 
 	Event struct {
-		End   func(childComplexity int) int
-		ID    func(childComplexity int) int
-		Image func(childComplexity int) int
-		Start func(childComplexity int) int
-		Title func(childComplexity int) int
+		End     func(childComplexity int) int
+		Entries func(childComplexity int) int
+		ID      func(childComplexity int) int
+		Image   func(childComplexity int) int
+		Start   func(childComplexity int) int
+		Title   func(childComplexity int) int
 	}
 
 	Export struct {
@@ -968,6 +971,7 @@ type ApplicationResolver interface {
 	GamesPage(ctx context.Context, obj *model.Application) (*model.Page, error)
 }
 type CalendarResolver interface {
+	Events(ctx context.Context, obj *model.Calendar, from *string, to *string) ([]*model.Event, error)
 	Period(ctx context.Context, obj *model.Calendar, from string, to string) (*model.CalendarPeriod, error)
 	Day(ctx context.Context, obj *model.Calendar, day string) (*model.CalendarDay, error)
 }
@@ -1026,6 +1030,9 @@ type EpisodeSearchItemResolver interface {
 	Show(ctx context.Context, obj *model.EpisodeSearchItem) (*model.Show, error)
 
 	Season(ctx context.Context, obj *model.EpisodeSearchItem) (*model.Season, error)
+}
+type EventResolver interface {
+	Entries(ctx context.Context, obj *model.Event) ([]model.CalendarEntry, error)
 }
 type FAQResolver interface {
 	Categories(ctx context.Context, obj *model.Faq, first *int, offset *int) (*model.FAQCategoryPagination, error)
@@ -1558,6 +1565,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Calendar.Day(childComplexity, args["day"].(string)), true
+
+	case "Calendar.events":
+		if e.complexity.Calendar.Events == nil {
+			break
+		}
+
+		args, err := ec.field_Calendar_events_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Calendar.Events(childComplexity, args["from"].(*string), args["to"].(*string)), true
 
 	case "Calendar.period":
 		if e.complexity.Calendar.Period == nil {
@@ -2369,6 +2388,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Event.End(childComplexity), true
+
+	case "Event.entries":
+		if e.complexity.Event.Entries == nil {
+			break
+		}
+
+		return e.complexity.Event.Entries(childComplexity), true
 
 	case "Event.id":
 		if e.complexity.Event.ID == nil {
@@ -5681,6 +5707,7 @@ type Event {
     start: String!
     end: String!
     image: String!
+    entries: [CalendarEntry!]! @goField(forceResolver: true)
 }
 
 interface CalendarEntry {
@@ -5733,6 +5760,7 @@ type ShowCalendarEntry implements CalendarEntry {
 }
 
 type Calendar {
+    events(from: Date, to: Date): [Event!]! @goField(forceResolver: true)
     period(
         from: Date!,
         to: Date!
@@ -6848,6 +6876,30 @@ func (ec *executionContext) field_Calendar_day_args(ctx context.Context, rawArgs
 		}
 	}
 	args["day"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Calendar_events_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["from"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("from"))
+		arg0, err = ec.unmarshalODate2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["from"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["to"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("to"))
+		arg1, err = ec.unmarshalODate2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["to"] = arg1
 	return args, nil
 }
 
@@ -10510,6 +10562,75 @@ func (ec *executionContext) fieldContext_Application_gamesPage(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Calendar_events(ctx context.Context, field graphql.CollectedField, obj *model.Calendar) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Calendar_events(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Calendar().Events(rctx, obj, fc.Args["from"].(*string), fc.Args["to"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Event)
+	fc.Result = res
+	return ec.marshalNEvent2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEventᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Calendar_events(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Calendar",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Event_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Event_title(ctx, field)
+			case "start":
+				return ec.fieldContext_Event_start(ctx, field)
+			case "end":
+				return ec.fieldContext_Event_end(ctx, field)
+			case "image":
+				return ec.fieldContext_Event_image(ctx, field)
+			case "entries":
+				return ec.fieldContext_Event_entries(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Calendar_events_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Calendar_period(ctx context.Context, field graphql.CollectedField, obj *model.Calendar) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Calendar_period(ctx, field)
 	if err != nil {
@@ -10681,6 +10802,8 @@ func (ec *executionContext) fieldContext_CalendarDay_events(ctx context.Context,
 				return ec.fieldContext_Event_end(ctx, field)
 			case "image":
 				return ec.fieldContext_Event_image(ctx, field)
+			case "entries":
+				return ec.fieldContext_Event_entries(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
 		},
@@ -10825,6 +10948,8 @@ func (ec *executionContext) fieldContext_CalendarPeriod_events(ctx context.Conte
 				return ec.fieldContext_Event_end(ctx, field)
 			case "image":
 				return ec.fieldContext_Event_image(ctx, field)
+			case "entries":
+				return ec.fieldContext_Event_entries(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
 		},
@@ -14409,6 +14534,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_event(ctx context.
 				return ec.fieldContext_Event_end(ctx, field)
 			case "image":
 				return ec.fieldContext_Event_image(ctx, field)
+			case "entries":
+				return ec.fieldContext_Event_entries(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
 		},
@@ -16028,6 +16155,50 @@ func (ec *executionContext) fieldContext_Event_image(ctx context.Context, field 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Event_entries(ctx context.Context, field graphql.CollectedField, obj *model.Event) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Event_entries(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Event().Entries(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]model.CalendarEntry)
+	fc.Result = res
+	return ec.marshalNCalendarEntry2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntryᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Event_entries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Event",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -25753,6 +25924,8 @@ func (ec *executionContext) fieldContext_QueryRoot_calendar(ctx context.Context,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "events":
+				return ec.fieldContext_Calendar_events(ctx, field)
 			case "period":
 				return ec.fieldContext_Calendar_period(ctx, field)
 			case "day":
@@ -25810,6 +25983,8 @@ func (ec *executionContext) fieldContext_QueryRoot_event(ctx context.Context, fi
 				return ec.fieldContext_Event_end(ctx, field)
 			case "image":
 				return ec.fieldContext_Event_image(ctx, field)
+			case "entries":
+				return ec.fieldContext_Event_entries(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
 		},
@@ -28059,6 +28234,8 @@ func (ec *executionContext) fieldContext_SeasonCalendarEntry_event(ctx context.C
 				return ec.fieldContext_Event_end(ctx, field)
 			case "image":
 				return ec.fieldContext_Event_image(ctx, field)
+			case "entries":
+				return ec.fieldContext_Event_entries(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
 		},
@@ -31036,6 +31213,8 @@ func (ec *executionContext) fieldContext_ShowCalendarEntry_event(ctx context.Con
 				return ec.fieldContext_Event_end(ctx, field)
 			case "image":
 				return ec.fieldContext_Event_image(ctx, field)
+			case "entries":
+				return ec.fieldContext_Event_entries(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
 		},
@@ -31831,6 +32010,8 @@ func (ec *executionContext) fieldContext_SimpleCalendarEntry_event(ctx context.C
 				return ec.fieldContext_Event_end(ctx, field)
 			case "image":
 				return ec.fieldContext_Event_image(ctx, field)
+			case "entries":
+				return ec.fieldContext_Event_entries(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Event", field.Name)
 		},
@@ -39415,6 +39596,42 @@ func (ec *executionContext) _Calendar(ctx context.Context, sel ast.SelectionSet,
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Calendar")
+		case "events":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Calendar_events(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "period":
 			field := field
 
@@ -41346,28 +41563,64 @@ func (ec *executionContext) _Event(ctx context.Context, sel ast.SelectionSet, ob
 		case "id":
 			out.Values[i] = ec._Event_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "title":
 			out.Values[i] = ec._Event_title(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "start":
 			out.Values[i] = ec._Event_start(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "end":
 			out.Values[i] = ec._Event_end(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "image":
 			out.Values[i] = ec._Event_image(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "entries":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Event_entries(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
