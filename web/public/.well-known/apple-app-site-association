@@ -3,7 +3,8 @@
       "details": [
         {
           "appIDs": [
-            "KJ6LCYQ3A8.tv.brunstad.app"
+            "KJ6LCYQ3A8.tv.brunstad.app",
+            "6734NUF6AV.tv.brunstad.app"
           ],
           "components": [
             {
@@ -38,7 +39,8 @@
     },
     "webcredentials": {
       "apps": [
-        "KJ6LCYQ3A8.tv.brunstad.app"
+        "KJ6LCYQ3A8.tv.brunstad.app",
+        "6734NUF6AV.tv.brunstad.app"
       ]
     }
   }
