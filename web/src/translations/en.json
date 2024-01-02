@@ -195,5 +195,8 @@
         "receitTitle": "Request received",
         "confirmAgenda": "I confirm that the material will only be used for the agreed purpose.",
         "receitDescription": "Our team will contact you within 7 working days. An automatic reply has been sent to your email."
+    },
+    "shorts": {
+        "watchOnOurApp": "Download the mobile app to watch shorts."
     }
 }
