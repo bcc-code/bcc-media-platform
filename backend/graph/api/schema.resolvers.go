@@ -415,10 +415,12 @@ func (r *queryRootResolver) Me(ctx context.Context) (*model.User, error) {
 
 	usr := user.GetFromCtx(gc)
 
+	roles := user.GetRolesFromCtx(gc)
+
 	u := &model.User{
 		Anonymous:   usr.IsAnonymous(),
 		BccMember:   usr.IsActiveBCC(),
-		Roles:       usr.Roles,
+		Roles:       roles,
 		DisplayName: usr.DisplayName,
 		FirstName:   usr.FirstName,
 		Analytics:   &model.Analytics{},
