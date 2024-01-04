@@ -73,7 +73,7 @@ func getFeatureFlagRolesFromContext(ctx *gin.Context) []string {
 	featureFlags := utils.GetFeatureFlags(ctx)
 
 	for _, flag := range featureFlags.List() {
-		roles = append(roles, "feature-flag-"+flag)
+		roles = append(roles, "feature-flag:"+flag)
 	}
 
 	return roles
