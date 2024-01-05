@@ -1,8 +1,9 @@
 package common
 
 import (
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // Profile is the entry point for most user-specific content

@@ -1,8 +1,9 @@
 package utils
 
 import (
-	"context"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 // FeatureFlag is a feature flag
@@ -30,21 +31,30 @@ func (f FeatureFlags) Has(key string) bool {
 	return ok
 }
 
+// List returns a list of flags
+func (f FeatureFlags) List() []string {
+	var flags []string
+	for _, flag := range f {
+		r := flag.Key
+		if flag.Variant != "" {
+			r += ":" + flag.Variant
+		}
+		flags = append(flags, r)
+	}
+	return flags
+}
+
 const featureFlagsKey = "feature-flags"
 
 // GetFeatureFlags returns flags for unleash
-func GetFeatureFlags(ctx context.Context) FeatureFlags {
-	ginCtx, err := GinCtx(ctx)
-	if err != nil {
-		return nil
-	}
-	flags, ok := ginCtx.Get(featureFlagsKey)
+func GetFeatureFlags(ctx *gin.Context) FeatureFlags {
+	flags, ok := ctx.Get(featureFlagsKey)
 	if ok {
 		return flags.(FeatureFlags)
 	}
 
 	var featureFlags FeatureFlags
-	featureFlagsString := ginCtx.GetHeader("x-feature-flags")
+	featureFlagsString := ctx.GetHeader("x-feature-flags")
 	for _, flag := range strings.Split(featureFlagsString, ",") {
 		if flag == "" {
 			continue
@@ -59,7 +69,7 @@ func GetFeatureFlags(ctx context.Context) FeatureFlags {
 		featureFlags = append(featureFlags, ff)
 	}
 
-	ginCtx.Set(featureFlagsKey, featureFlags)
+	ctx.Set(featureFlagsKey, featureFlags)
 
 	return featureFlags
 }

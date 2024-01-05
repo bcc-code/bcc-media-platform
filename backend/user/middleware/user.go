@@ -68,6 +68,17 @@ func getExplicitRolesFromContext(ctx *gin.Context, queries *sqlc.Queries) []stri
 	return result
 }
 
+func getFeatureFlagRolesFromContext(ctx *gin.Context) []string {
+	var roles []string
+	featureFlags := utils.GetFeatureFlags(ctx)
+
+	for _, flag := range featureFlags.List() {
+		roles = append(roles, "feature-flag:"+flag)
+	}
+
+	return roles
+}
+
 // NewUserMiddleware returns a gin middleware that ingests a populated User struct
 // into the gin context
 func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, ls *common.BatchLoaders, auth0Client *auth0.Client) func(*gin.Context) {
@@ -80,6 +91,11 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 		explicitRoles := getExplicitRolesFromContext(ctx, queries)
 		if len(explicitRoles) > 0 {
 			roles = append(roles, explicitRoles...)
+		}
+
+		featureRoles := getFeatureFlagRolesFromContext(ctx)
+		if len(featureRoles) > 0 {
+			roles = append(roles, featureRoles...)
 		}
 
 		authed := ctx.GetBool(auth0.CtxAuthenticated)
