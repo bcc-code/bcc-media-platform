@@ -18,23 +18,6 @@ func (u *Utils) ResolveTargets(ctx context.Context, targetIDs []uuid.UUID) ([]co
 		return nil, err
 	}
 
-	var devices []common.Device
-	for _, t := range targetRows {
-		target := common.Target(t)
-		switch t.Type {
-		case "usergroups":
-			ds, err := u.getTokensForTarget(ctx, target)
-			if err != nil {
-				return nil, err
-			}
-			log.L.Debug().Int("deviceCount", len(ds)).Msg("Resolved target, retrieved devices")
-			devices = append(devices, ds...)
-		}
-	}
-	return devices, nil
-}
-
-func (u *Utils) getTokensForTarget(ctx context.Context, target common.Target) ([]common.Device, error) {
 	apps, err := u.queries.ListApplications(ctx)
 	if err != nil {
 		return nil, err
@@ -43,14 +26,15 @@ func (u *Utils) getTokensForTarget(ctx context.Context, target common.Target) ([
 		return i.Default
 	})
 
-	profileIDs, err := targets.ResolveProfileIDs(ctx, u.queries, defaultApp.GroupID, target)
-	if err != nil {
-		return nil, err
-	}
-
-	devices, err := u.queries.GetDevices(ctx, profileIDs)
-	if err != nil {
-		return nil, err
+	var devices []common.Device
+	for _, t := range targetRows {
+		target := common.Target(t)
+		ds, err := targets.ResolveDevices(ctx, u.queries, defaultApp.GroupID, target)
+		if err != nil {
+			return nil, err
+		}
+		log.L.Debug().Int("deviceCount", len(ds)).Msg("Resolved target, retrieved devices")
+		devices = append(devices, ds...)
 	}
 	return devices, nil
 }
