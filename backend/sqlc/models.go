@@ -1517,9 +1517,10 @@ type TagsTranslation struct {
 }
 
 type Target struct {
-	ID    uuid.UUID      `db:"id" json:"id"`
-	Label null_v4.String `db:"label" json:"label"`
-	Type  string         `db:"type" json:"type"`
+	ID                 uuid.UUID      `db:"id" json:"id"`
+	Label              null_v4.String `db:"label" json:"label"`
+	Type               string         `db:"type" json:"type"`
+	ApplicationgroupID uuid.NullUUID  `db:"applicationgroup_id" json:"applicationgroupId"`
 }
 
 type TargetsUsergroup struct {

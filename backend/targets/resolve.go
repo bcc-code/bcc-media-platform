@@ -20,13 +20,13 @@ func ResolveUserIDs(ctx context.Context, queries *sqlc.Queries, target common.Ta
 }
 
 // ResolveProfileIDs resolves a target to specific profileIDs
-func ResolveProfileIDs(ctx context.Context, queries *sqlc.Queries, applicationGroupID uuid.UUID, target common.Target) ([]uuid.UUID, error) {
+func ResolveProfileIDs(ctx context.Context, queries *sqlc.Queries, target common.Target) ([]uuid.UUID, error) {
 	userIDs, err := ResolveUserIDs(ctx, queries, target)
 	if err != nil {
 		return nil, err
 	}
 
-	profiles, err := queries.ApplicationQueries(applicationGroupID).GetProfilesForUserIDs(ctx, userIDs)
+	profiles, err := queries.ApplicationQueries(target.ApplicationGroupID).GetProfilesForUserIDs(ctx, userIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -37,8 +37,8 @@ func ResolveProfileIDs(ctx context.Context, queries *sqlc.Queries, applicationGr
 }
 
 // ResolveDevices resolves a target to specific devices
-func ResolveDevices(ctx context.Context, queries *sqlc.Queries, applicationGroupID uuid.UUID, target common.Target) ([]common.Device, error) {
-	profileIDs, err := ResolveProfileIDs(ctx, queries, applicationGroupID, target)
+func ResolveDevices(ctx context.Context, queries *sqlc.Queries, target common.Target) ([]common.Device, error) {
+	profileIDs, err := ResolveProfileIDs(ctx, queries, target)
 	if err != nil {
 		return nil, err
 	}

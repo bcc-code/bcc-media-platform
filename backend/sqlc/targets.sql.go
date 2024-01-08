@@ -15,7 +15,8 @@ import (
 const getMemberIDs = `-- name: GetMemberIDs :many
 SELECT u.id
 FROM users.users u
-WHERE $1::bool = true OR u.active_bcc
+WHERE $1::bool = true
+   OR u.active_bcc
 `
 
 func (q *Queries) GetMemberIDs(ctx context.Context, everyone bool) ([]string, error) {
@@ -46,17 +47,20 @@ WITH groups AS (SELECT targets_id, array_agg(usergroups_code)::varchar[] as code
                 FROM targets_usergroups
                 GROUP BY targets_id)
 SELECT t.id,
+       coalesce(t.applicationgroup_id,
+                (SELECT a.group_id FROM applications a WHERE a.default LIMIT 1))::uuid AS application_group_id,
        t.type,
-       g.codes AS group_codes
+       g.codes                                                                         AS group_codes
 FROM targets t
          LEFT JOIN groups g ON g.targets_id = t.id
 WHERE id = ANY ($1::uuid[])
 `
 
 type GetTargetsRow struct {
-	ID         uuid.UUID `db:"id" json:"id"`
-	Type       string    `db:"type" json:"type"`
-	GroupCodes []string  `db:"group_codes" json:"groupCodes"`
+	ID                 uuid.UUID `db:"id" json:"id"`
+	ApplicationGroupID uuid.UUID `db:"application_group_id" json:"applicationGroupId"`
+	Type               string    `db:"type" json:"type"`
+	GroupCodes         []string  `db:"group_codes" json:"groupCodes"`
 }
 
 func (q *Queries) GetTargets(ctx context.Context, dollar_1 []uuid.UUID) ([]GetTargetsRow, error) {
@@ -68,7 +72,12 @@ func (q *Queries) GetTargets(ctx context.Context, dollar_1 []uuid.UUID) ([]GetTa
 	var items []GetTargetsRow
 	for rows.Next() {
 		var i GetTargetsRow
-		if err := rows.Scan(&i.ID, &i.Type, pq.Array(&i.GroupCodes)); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.ApplicationGroupID,
+			&i.Type,
+			pq.Array(&i.GroupCodes),
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

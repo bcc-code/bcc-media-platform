@@ -96,9 +96,10 @@ type Notification struct {
 
 // Target specific groups
 type Target struct {
-	ID         uuid.UUID
-	Type       string
-	GroupCodes []string
+	ID                 uuid.UUID
+	ApplicationGroupID uuid.UUID
+	Type               string
+	GroupCodes         []string
 }
 
 // Progress contains basic data for progress

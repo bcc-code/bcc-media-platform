@@ -7,7 +7,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/targets"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
-	"github.com/samber/lo"
 )
 
 // ResolveTargets resolves targetIDs to device tokens
@@ -18,18 +17,10 @@ func (u *Utils) ResolveTargets(ctx context.Context, targetIDs []uuid.UUID) ([]co
 		return nil, err
 	}
 
-	apps, err := u.queries.ListApplications(ctx)
-	if err != nil {
-		return nil, err
-	}
-	defaultApp, _ := lo.Find(apps, func(i common.Application) bool {
-		return i.Default
-	})
-
 	var devices []common.Device
 	for _, t := range targetRows {
 		target := common.Target(t)
-		ds, err := targets.ResolveDevices(ctx, u.queries, defaultApp.GroupID, target)
+		ds, err := targets.ResolveDevices(ctx, u.queries, target)
 		if err != nil {
 			return nil, err
 		}
