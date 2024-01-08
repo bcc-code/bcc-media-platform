@@ -110,13 +110,14 @@ type Application struct {
 }
 
 type Applicationgroup struct {
-	ID           uuid.UUID      `db:"id" json:"id"`
-	UserCreated  uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated  null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated  uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated  null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	Label        string         `db:"label" json:"label"`
-	SupportEmail null_v4.String `db:"support_email" json:"supportEmail"`
+	ID                uuid.UUID      `db:"id" json:"id"`
+	UserCreated       uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated       null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated       uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated       null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Label             string         `db:"label" json:"label"`
+	SupportEmail      null_v4.String `db:"support_email" json:"supportEmail"`
+	FirebaseProjectID null_v4.String `db:"firebase_project_id" json:"firebaseProjectId"`
 }
 
 type ApplicationgroupsUsergroup struct {

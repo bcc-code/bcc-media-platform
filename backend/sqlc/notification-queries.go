@@ -38,6 +38,7 @@ func (q *Queries) GetNotifications(ctx context.Context, ids []uuid.UUID) ([]comm
 			ScheduleAt:         n.ScheduleAt,
 			TargetIDs:          n.TargetIds,
 			HighPriority:       n.HighPriority,
+			FirebaseProjectID:  n.FirebaseProjectID,
 			ApplicationGroupID: n.ApplicationGroupID,
 		}
 	}), nil

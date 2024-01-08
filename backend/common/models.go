@@ -92,7 +92,10 @@ type Notification struct {
 	Action             null.String            `json:"action"`
 	HighPriority       bool                   `json:"highPriority"`
 	TargetIDs          []uuid.UUID            `json:"targetIds"`
-	ApplicationGroupID uuid.UUID              `json:"applicationGroupId"`
+	ApplicationGroupID uuid.UUID
+
+	// inherited from the application group
+	FirebaseProjectID null.String `json:"firebaseProjectId"`
 }
 
 // Target specific groups

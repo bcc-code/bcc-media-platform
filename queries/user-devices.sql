@@ -18,6 +18,12 @@ FROM users.devices d
 WHERE d.updated_at > (NOW() - interval '6 months')
 ORDER BY updated_at DESC;
 
+-- name: ListDevicesInApplicationGroup :many
+SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages
+FROM users.devices d
+         JOIN users.profiles p ON p.id = d.profile_id
+WHERE p.applicationgroup_id = @group_id::uuid;
+
 -- name: DeleteDevices :exec
 DELETE
 FROM users.devices d
