@@ -58,7 +58,7 @@ func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string,
 				continue
 			}
 
-			var service *push.Service
+			service := h.push
 			if n.FirebaseProjectID.Valid {
 				service, err = push.NewService(ctx, n.FirebaseProjectID.String, h.queries)
 				if err != nil {
