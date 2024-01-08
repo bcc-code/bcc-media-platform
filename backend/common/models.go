@@ -80,26 +80,26 @@ type GlobalConfig struct {
 
 // Notification contains notification data
 type Notification struct {
-	ID            uuid.UUID
-	Status        Status
-	Title         LocaleString           `json:"title"`
-	Description   LocaleString           `json:"description"`
-	Images        LocaleMap[null.String] `json:"images"`
-	ScheduleAt    null.Time              `json:"scheduleAt"`
-	SendStarted   null.Time              `json:"sendStarted"`
-	SendCompleted null.Time              `json:"sendCompleted"`
-	DeepLink      null.String            `json:"deepLink"`
-	Action        null.String            `json:"action"`
-	HighPriority  bool                   `json:"highPriority"`
-	TargetIDs     []uuid.UUID            `json:"targetIds"`
+	ID                 uuid.UUID
+	Status             Status
+	Title              LocaleString           `json:"title"`
+	Description        LocaleString           `json:"description"`
+	Images             LocaleMap[null.String] `json:"images"`
+	ScheduleAt         null.Time              `json:"scheduleAt"`
+	SendStarted        null.Time              `json:"sendStarted"`
+	SendCompleted      null.Time              `json:"sendCompleted"`
+	DeepLink           null.String            `json:"deepLink"`
+	Action             null.String            `json:"action"`
+	HighPriority       bool                   `json:"highPriority"`
+	TargetIDs          []uuid.UUID            `json:"targetIds"`
+	ApplicationGroupID uuid.UUID              `json:"applicationGroupId"`
 }
 
 // Target specific groups
 type Target struct {
-	ID                 uuid.UUID
-	ApplicationGroupID uuid.UUID
-	Type               string
-	GroupCodes         []string
+	ID         uuid.UUID
+	Type       string
+	GroupCodes []string
 }
 
 // Progress contains basic data for progress

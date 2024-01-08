@@ -24,7 +24,9 @@ SELECT n.id,
        n.send_started,
        n.send_completed,
        n.high_priority,
-       ti.targets                     AS target_ids
+       ti.targets                     AS target_ids,
+       coalesce(t.applicationgroup_id,
+                (SELECT a.group_id FROM applications a WHERE a.default LIMIT 1))::uuid AS application_group_id
 FROM notifications n
          LEFT JOIN notificationtemplates t ON n.template_id = t.id
          LEFT JOIN ts ON ts.notificationtemplates_id = t.id

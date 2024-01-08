@@ -3,8 +3,6 @@ WITH groups AS (SELECT targets_id, array_agg(usergroups_code)::varchar[] as code
                 FROM targets_usergroups
                 GROUP BY targets_id)
 SELECT t.id,
-       coalesce(t.applicationgroup_id,
-                (SELECT a.group_id FROM applications a WHERE a.default LIMIT 1))::uuid AS application_group_id,
        t.type,
        g.codes                                                                         AS group_codes
 FROM targets t
