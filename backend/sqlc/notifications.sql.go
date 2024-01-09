@@ -53,23 +53,24 @@ WITH ts AS (SELECT ts.notificationtemplates_id,
                     GROUP BY notifications_id)
 SELECT n.id,
        n.status,
-       COALESCE(ts.title, '{}')       AS title,
-       COALESCE(ts.description, '{}') AS description,
-       COALESCE(img.json, '[]')       AS images,
+       COALESCE(ts.title, '{}')                                                               AS title,
+       COALESCE(ts.description, '{}')                                                         AS description,
+       COALESCE(img.json, '[]')                                                               AS images,
        n.action,
        n.deep_link,
        n.schedule_at,
        n.send_started,
        n.send_completed,
        n.high_priority,
-       ti.targets                     AS target_ids,
-       coalesce(t.applicationgroup_id,
-                (SELECT a.group_id FROM applications a WHERE a.default LIMIT 1))::uuid AS application_group_id
+       ti.targets                                                                             AS target_ids,
+       coalesce(ag.id, (SELECT a.group_id FROM applications a WHERE a.default LIMIT 1))::uuid AS application_group_id,
+       ag.firebase_project_id
 FROM notifications n
          LEFT JOIN notificationtemplates t ON n.template_id = t.id
          LEFT JOIN ts ON ts.notificationtemplates_id = t.id
          LEFT JOIN images img ON img.item_id = t.id
          LEFT JOIN target_ids ti ON ti.notifications_id = n.id
+         LEFT JOIN applicationgroups ag ON ag.id = n.applicationgroup_id
 WHERE n.id = ANY ($1::uuid[])
 `
 
@@ -87,6 +88,7 @@ type getNotificationsRow struct {
 	HighPriority       bool            `db:"high_priority" json:"highPriority"`
 	TargetIds          []uuid.UUID     `db:"target_ids" json:"targetIds"`
 	ApplicationGroupID uuid.UUID       `db:"application_group_id" json:"applicationGroupId"`
+	FirebaseProjectID  null_v4.String  `db:"firebase_project_id" json:"firebaseProjectId"`
 }
 
 func (q *Queries) getNotifications(ctx context.Context, dollar_1 []uuid.UUID) ([]getNotificationsRow, error) {
@@ -112,6 +114,7 @@ func (q *Queries) getNotifications(ctx context.Context, dollar_1 []uuid.UUID) ([
 			&i.HighPriority,
 			pq.Array(&i.TargetIds),
 			&i.ApplicationGroupID,
+			&i.FirebaseProjectID,
 		); err != nil {
 			return nil, err
 		}

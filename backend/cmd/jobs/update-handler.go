@@ -13,6 +13,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
 
 type modelHandler struct {
@@ -57,21 +58,36 @@ func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string,
 				continue
 			}
 
+			service := h.push
+			if n.FirebaseProjectID.Valid {
+				service, err = push.NewService(ctx, n.FirebaseProjectID.String, h.queries)
+				if err != nil {
+					return err
+				}
+			}
+
 			log.L.Debug().Msg("Marking notification as send started.")
 			err = h.queries.NotificationMarkSendStarted(ctx, id)
 			if err != nil {
 				return err
 			}
+			var devices []common.Device
 			if len(n.TargetIDs) > 0 {
-				var devices []common.Device
 				devices, err = h.notificationUtils.ResolveTargets(ctx, n.ApplicationGroupID, n.TargetIDs)
 				if err != nil {
 					return err
 				}
-				err = h.push.SendNotificationToDevices(ctx, devices, n)
 			} else {
-				err = h.push.PushNotificationToEveryone(ctx, n)
+				var rows []sqlc.ListDevicesInApplicationGroupRow
+				rows, err = h.queries.ListDevicesInApplicationGroup(ctx, n.ApplicationGroupID)
+				if err != nil {
+					return err
+				}
+				devices = lo.Map(rows, func(r sqlc.ListDevicesInApplicationGroupRow, _ int) common.Device {
+					return common.Device(r)
+				})
 			}
+			err = service.SendNotificationToDevices(ctx, devices, n)
 			if err != nil {
 				return err
 			}

@@ -24,6 +24,50 @@ func (q *Queries) DeleteDevices(ctx context.Context, tokens []string) error {
 	return err
 }
 
+const listDevicesInApplicationGroup = `-- name: ListDevicesInApplicationGroup :many
+SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages
+FROM users.devices d
+         JOIN users.profiles p ON p.id = d.profile_id
+WHERE p.applicationgroup_id = $1::uuid
+`
+
+type ListDevicesInApplicationGroupRow struct {
+	Token     string    `db:"token" json:"token"`
+	ProfileID uuid.UUID `db:"profile_id" json:"profileId"`
+	UpdatedAt time.Time `db:"updated_at" json:"updatedAt"`
+	Name      string    `db:"name" json:"name"`
+	Languages []string  `db:"languages" json:"languages"`
+}
+
+func (q *Queries) ListDevicesInApplicationGroup(ctx context.Context, groupID uuid.UUID) ([]ListDevicesInApplicationGroupRow, error) {
+	rows, err := q.db.QueryContext(ctx, listDevicesInApplicationGroup, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListDevicesInApplicationGroupRow
+	for rows.Next() {
+		var i ListDevicesInApplicationGroupRow
+		if err := rows.Scan(
+			&i.Token,
+			&i.ProfileID,
+			&i.UpdatedAt,
+			&i.Name,
+			pq.Array(&i.Languages),
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getDevicesForProfiles = `-- name: getDevicesForProfiles :many
 SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages
 FROM users.devices d
