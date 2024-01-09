@@ -62,7 +62,9 @@ SELECT n.id,
        n.send_started,
        n.send_completed,
        n.high_priority,
-       ti.targets                     AS target_ids
+       ti.targets                     AS target_ids,
+       coalesce(t.applicationgroup_id,
+                (SELECT a.group_id FROM applications a WHERE a.default LIMIT 1))::uuid AS application_group_id
 FROM notifications n
          LEFT JOIN notificationtemplates t ON n.template_id = t.id
          LEFT JOIN ts ON ts.notificationtemplates_id = t.id
@@ -72,18 +74,19 @@ WHERE n.id = ANY ($1::uuid[])
 `
 
 type getNotificationsRow struct {
-	ID            uuid.UUID       `db:"id" json:"id"`
-	Status        string          `db:"status" json:"status"`
-	Title         json.RawMessage `db:"title" json:"title"`
-	Description   json.RawMessage `db:"description" json:"description"`
-	Images        json.RawMessage `db:"images" json:"images"`
-	Action        null_v4.String  `db:"action" json:"action"`
-	DeepLink      null_v4.String  `db:"deep_link" json:"deepLink"`
-	ScheduleAt    null_v4.Time    `db:"schedule_at" json:"scheduleAt"`
-	SendStarted   null_v4.Time    `db:"send_started" json:"sendStarted"`
-	SendCompleted null_v4.Time    `db:"send_completed" json:"sendCompleted"`
-	HighPriority  bool            `db:"high_priority" json:"highPriority"`
-	TargetIds     []uuid.UUID     `db:"target_ids" json:"targetIds"`
+	ID                 uuid.UUID       `db:"id" json:"id"`
+	Status             string          `db:"status" json:"status"`
+	Title              json.RawMessage `db:"title" json:"title"`
+	Description        json.RawMessage `db:"description" json:"description"`
+	Images             json.RawMessage `db:"images" json:"images"`
+	Action             null_v4.String  `db:"action" json:"action"`
+	DeepLink           null_v4.String  `db:"deep_link" json:"deepLink"`
+	ScheduleAt         null_v4.Time    `db:"schedule_at" json:"scheduleAt"`
+	SendStarted        null_v4.Time    `db:"send_started" json:"sendStarted"`
+	SendCompleted      null_v4.Time    `db:"send_completed" json:"sendCompleted"`
+	HighPriority       bool            `db:"high_priority" json:"highPriority"`
+	TargetIds          []uuid.UUID     `db:"target_ids" json:"targetIds"`
+	ApplicationGroupID uuid.UUID       `db:"application_group_id" json:"applicationGroupId"`
 }
 
 func (q *Queries) getNotifications(ctx context.Context, dollar_1 []uuid.UUID) ([]getNotificationsRow, error) {
@@ -108,6 +111,7 @@ func (q *Queries) getNotifications(ctx context.Context, dollar_1 []uuid.UUID) ([
 			&i.SendCompleted,
 			&i.HighPriority,
 			pq.Array(&i.TargetIds),
+			&i.ApplicationGroupID,
 		); err != nil {
 			return nil, err
 		}

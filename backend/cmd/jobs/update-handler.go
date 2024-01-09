@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"time"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/bcc-code/bcc-media-platform/backend/notifications"
@@ -11,7 +13,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
-	"time"
 )
 
 type modelHandler struct {
@@ -63,7 +64,7 @@ func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string,
 			}
 			if len(n.TargetIDs) > 0 {
 				var devices []common.Device
-				devices, err = h.notificationUtils.ResolveTargets(ctx, n.TargetIDs)
+				devices, err = h.notificationUtils.ResolveTargets(ctx, n.ApplicationGroupID, n.TargetIDs)
 				if err != nil {
 					return err
 				}

@@ -43,3 +43,6 @@ ON CONFLICT (id) DO UPDATE SET email          = excluded.email,
                                age_group      = excluded.age_group,
                                gender         = excluded.gender,
                                updated_at     = NOW();
+
+-- name: GetUserIDsWithRoles :many
+SELECT id FROM users.users WHERE roles && @roles::varchar[];

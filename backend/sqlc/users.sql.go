@@ -93,6 +93,33 @@ func (q *Queries) GetRolesWithCode(ctx context.Context, dollar_1 []string) ([]Ge
 	return items, nil
 }
 
+const getUserIDsWithRoles = `-- name: GetUserIDsWithRoles :many
+SELECT id FROM users.users WHERE roles && $1::varchar[]
+`
+
+func (q *Queries) GetUserIDsWithRoles(ctx context.Context, roles []string) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getUserIDsWithRoles, pq.Array(roles))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const upsertUser = `-- name: UpsertUser :exec
 INSERT INTO users.users (id, email, email_verified, first_name, display_name, age, church_ids, active_bcc, roles,
                          age_group, gender, updated_at)

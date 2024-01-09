@@ -3,6 +3,7 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -25,18 +26,19 @@ func (q *Queries) GetNotifications(ctx context.Context, ids []uuid.UUID) ([]comm
 		_ = json.Unmarshal(n.Images, &images)
 
 		return common.Notification{
-			ID:            n.ID,
-			Status:        common.StatusFrom(n.Status),
-			Title:         title,
-			Description:   description,
-			Images:        images,
-			SendStarted:   n.SendStarted,
-			SendCompleted: n.SendCompleted,
-			Action:        n.Action,
-			DeepLink:      n.DeepLink,
-			ScheduleAt:    n.ScheduleAt,
-			TargetIDs:     n.TargetIds,
-			HighPriority:  n.HighPriority,
+			ID:                 n.ID,
+			Status:             common.StatusFrom(n.Status),
+			Title:              title,
+			Description:        description,
+			Images:             images,
+			SendStarted:        n.SendStarted,
+			SendCompleted:      n.SendCompleted,
+			Action:             n.Action,
+			DeepLink:           n.DeepLink,
+			ScheduleAt:         n.ScheduleAt,
+			TargetIDs:          n.TargetIds,
+			HighPriority:       n.HighPriority,
+			ApplicationGroupID: n.ApplicationGroupID,
 		}
 	}), nil
 }
