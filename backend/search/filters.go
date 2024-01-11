@@ -11,6 +11,10 @@ import (
 func (service *Service) getFiltersForRoles(roles []string, documentType *string) (string, error) {
 	now := time.Now().Unix()
 
+	roles = lo.Filter(roles, func(role string, _ int) bool {
+		return !strings.Contains(role, ":")
+	})
+
 	filters := []string{
 		strings.Join(lo.Map(roles, func(role string, _ int) string {
 			return fmt.Sprintf("%s:%s", rolesField, role)
