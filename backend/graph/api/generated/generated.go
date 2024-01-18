@@ -846,11 +846,12 @@ type ComplexityRoot struct {
 	}
 
 	SurveyPrompt struct {
-		From   func(childComplexity int) int
-		ID     func(childComplexity int) int
-		Survey func(childComplexity int) int
-		Title  func(childComplexity int) int
-		To     func(childComplexity int) int
+		From           func(childComplexity int) int
+		ID             func(childComplexity int) int
+		SecondaryTitle func(childComplexity int) int
+		Survey         func(childComplexity int) int
+		Title          func(childComplexity int) int
+		To             func(childComplexity int) int
 	}
 
 	SurveyQuestionPagination struct {
@@ -5123,6 +5124,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SurveyPrompt.ID(childComplexity), true
 
+	case "SurveyPrompt.secondaryTitle":
+		if e.complexity.SurveyPrompt.SecondaryTitle == nil {
+			break
+		}
+
+		return e.complexity.SurveyPrompt.SecondaryTitle(childComplexity), true
+
 	case "SurveyPrompt.survey":
 		if e.complexity.SurveyPrompt.Survey == nil {
 			break
@@ -6100,6 +6108,7 @@ interface PlaylistItem implements CollectionItem {
 interface Prompt {
     id: UUID!
     title: String!
+    secondaryTitle: String
     from: Date!
     to: Date!
 }
@@ -6107,6 +6116,7 @@ interface Prompt {
 type SurveyPrompt implements Prompt {
     id: UUID!
     title: String!
+    secondaryTitle: String
     from: Date!
     to: Date!
     survey: Survey! @goField(forceResolver: true)
@@ -33290,6 +33300,47 @@ func (ec *executionContext) fieldContext_SurveyPrompt_title(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _SurveyPrompt_secondaryTitle(ctx context.Context, field graphql.CollectedField, obj *model.SurveyPrompt) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyPrompt_secondaryTitle(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SecondaryTitle, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyPrompt_secondaryTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyPrompt",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SurveyPrompt_from(ctx context.Context, field graphql.CollectedField, obj *model.SurveyPrompt) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SurveyPrompt_from(ctx, field)
 	if err != nil {
@@ -47682,6 +47733,8 @@ func (ec *executionContext) _SurveyPrompt(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "secondaryTitle":
+			out.Values[i] = ec._SurveyPrompt_secondaryTitle(ctx, field, obj)
 		case "from":
 			out.Values[i] = ec._SurveyPrompt_from(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

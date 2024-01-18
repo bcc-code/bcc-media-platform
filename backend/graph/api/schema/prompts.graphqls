@@ -2,6 +2,7 @@
 interface Prompt {
     id: UUID!
     title: String!
+    secondaryTitle: String
     from: Date!
     to: Date!
 }
@@ -9,6 +10,7 @@ interface Prompt {
 type SurveyPrompt implements Prompt {
     id: UUID!
     title: String!
+    secondaryTitle: String
     from: Date!
     to: Date!
     survey: Survey! @goField(forceResolver: true)

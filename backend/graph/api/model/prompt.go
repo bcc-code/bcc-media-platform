@@ -2,10 +2,11 @@ package model
 
 import (
 	"context"
+	"time"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
-	"time"
 )
 
 func PromptFrom(ctx context.Context, i *common.Prompt) Prompt {
@@ -20,10 +21,11 @@ func PromptFrom(ctx context.Context, i *common.Prompt) Prompt {
 	switch i.Type {
 	case "survey":
 		return &SurveyPrompt{
-			ID:    i.ID.String(),
-			Title: title,
-			From:  from,
-			To:    to,
+			ID:             i.ID.String(),
+			Title:          title,
+			SecondaryTitle: i.SecondaryTitle.GetValueOrNil(languages),
+			From:           from,
+			To:             to,
 			Survey: &Survey{
 				ID: i.SurveyID.UUID.String(),
 			},
@@ -31,10 +33,11 @@ func PromptFrom(ctx context.Context, i *common.Prompt) Prompt {
 	}
 
 	return &SurveyPrompt{
-		ID:    i.ID.String(),
-		Title: title,
-		From:  from,
-		To:    to,
+		ID:             i.ID.String(),
+		Title:          title,
+		SecondaryTitle: i.SecondaryTitle.GetValueOrNil(languages),
+		From:           from,
+		To:             to,
 		Survey: &Survey{
 			ID: i.SurveyID.UUID.String(),
 		},

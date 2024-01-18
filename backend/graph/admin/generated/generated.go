@@ -23,6 +23,7 @@ import (
 // NewExecutableSchema creates an ExecutableSchema from the ResolverRoot interface.
 func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
 	return &executableSchema{
+		schema:     cfg.Schema,
 		resolvers:  cfg.Resolvers,
 		directives: cfg.Directives,
 		complexity: cfg.Complexity,
@@ -30,6 +31,7 @@ func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
 }
 
 type Config struct {
+	Schema     *ast.Schema
 	Resolvers  ResolverRoot
 	Directives DirectiveRoot
 	Complexity ComplexityRoot
@@ -103,12 +105,16 @@ type StatisticsResolver interface {
 }
 
 type executableSchema struct {
+	schema     *ast.Schema
 	resolvers  ResolverRoot
 	directives DirectiveRoot
 	complexity ComplexityRoot
 }
 
 func (e *executableSchema) Schema() *ast.Schema {
+	if e.schema != nil {
+		return e.schema
+	}
 	return parsedSchema
 }
 
@@ -320,14 +326,14 @@ func (ec *executionContext) introspectSchema() (*introspection.Schema, error) {
 	if ec.DisableIntrospection {
 		return nil, errors.New("introspection disabled")
 	}
-	return introspection.WrapSchema(parsedSchema), nil
+	return introspection.WrapSchema(ec.Schema()), nil
 }
 
 func (ec *executionContext) introspectType(name string) (*introspection.Type, error) {
 	if ec.DisableIntrospection {
 		return nil, errors.New("introspection disabled")
 	}
-	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
+	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
 var sources = []*ast.Source{
@@ -564,7 +570,7 @@ func (ec *executionContext) _CollectionItem_collection(ctx context.Context, fiel
 	}
 	res := resTmp.(model.Collection)
 	fc.Result = res
-	return ec.marshalNCollection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐCollection(ctx, field.Selections, res)
+	return ec.marshalNCollection2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐCollection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CollectionItem_collection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -751,7 +757,7 @@ func (ec *executionContext) _Preview_collection(ctx context.Context, field graph
 	}
 	res := resTmp.(*model.PreviewCollection)
 	fc.Result = res
-	return ec.marshalNPreviewCollection2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐPreviewCollection(ctx, field.Selections, res)
+	return ec.marshalNPreviewCollection2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐPreviewCollection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Preview_collection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -810,7 +816,7 @@ func (ec *executionContext) _Preview_asset(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*model.PreviewAsset)
 	fc.Result = res
-	return ec.marshalNPreviewAsset2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐPreviewAsset(ctx, field.Selections, res)
+	return ec.marshalNPreviewAsset2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐPreviewAsset(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Preview_asset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -959,7 +965,7 @@ func (ec *executionContext) _PreviewCollection_items(ctx context.Context, field 
 	}
 	res := resTmp.([]*model.CollectionItem)
 	fc.Result = res
-	return ec.marshalNCollectionItem2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐCollectionItemᚄ(ctx, field.Selections, res)
+	return ec.marshalNCollectionItem2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐCollectionItemᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_PreviewCollection_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1099,7 +1105,7 @@ func (ec *executionContext) _QueryRoot_preview(ctx context.Context, field graphq
 	}
 	res := resTmp.(*model.Preview)
 	fc.Result = res
-	return ec.marshalNPreview2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐPreview(ctx, field.Selections, res)
+	return ec.marshalNPreview2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐPreview(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_preview(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1149,7 +1155,7 @@ func (ec *executionContext) _QueryRoot_statistics(ctx context.Context, field gra
 	}
 	res := resTmp.(*model.Statistics)
 	fc.Result = res
-	return ec.marshalNStatistics2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐStatistics(ctx, field.Selections, res)
+	return ec.marshalNStatistics2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐStatistics(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_statistics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1197,7 +1203,7 @@ func (ec *executionContext) _QueryRoot_episodes(ctx context.Context, field graph
 	}
 	res := resTmp.(*model.Episodes)
 	fc.Result = res
-	return ec.marshalNEpisodes2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodes(ctx, field.Selections, res)
+	return ec.marshalNEpisodes2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodes(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QueryRoot_episodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1374,7 +1380,7 @@ func (ec *executionContext) _Statistics_lessonProgressGroupedByOrg(ctx context.C
 	}
 	res := resTmp.([]*model.ProgressByOrg)
 	fc.Result = res
-	return ec.marshalNProgressByOrg2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐProgressByOrgᚄ(ctx, field.Selections, res)
+	return ec.marshalNProgressByOrg2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐProgressByOrgᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Statistics_lessonProgressGroupedByOrg(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4067,17 +4073,17 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNCollection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐCollection(ctx context.Context, v interface{}) (model.Collection, error) {
+func (ec *executionContext) unmarshalNCollection2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐCollection(ctx context.Context, v interface{}) (model.Collection, error) {
 	var res model.Collection
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCollection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐCollection(ctx context.Context, sel ast.SelectionSet, v model.Collection) graphql.Marshaler {
+func (ec *executionContext) marshalNCollection2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐCollection(ctx context.Context, sel ast.SelectionSet, v model.Collection) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNCollectionItem2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐCollectionItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.CollectionItem) graphql.Marshaler {
+func (ec *executionContext) marshalNCollectionItem2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐCollectionItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.CollectionItem) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4101,7 +4107,7 @@ func (ec *executionContext) marshalNCollectionItem2ᚕᚖgithubᚗcomᚋbccᚑco
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNCollectionItem2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐCollectionItem(ctx, sel, v[i])
+			ret[i] = ec.marshalNCollectionItem2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐCollectionItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4121,7 +4127,7 @@ func (ec *executionContext) marshalNCollectionItem2ᚕᚖgithubᚗcomᚋbccᚑco
 	return ret
 }
 
-func (ec *executionContext) marshalNCollectionItem2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐCollectionItem(ctx context.Context, sel ast.SelectionSet, v *model.CollectionItem) graphql.Marshaler {
+func (ec *executionContext) marshalNCollectionItem2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐCollectionItem(ctx context.Context, sel ast.SelectionSet, v *model.CollectionItem) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4131,11 +4137,11 @@ func (ec *executionContext) marshalNCollectionItem2ᚖgithubᚗcomᚋbccᚑcode�
 	return ec._CollectionItem(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNEpisodes2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodes(ctx context.Context, sel ast.SelectionSet, v model.Episodes) graphql.Marshaler {
+func (ec *executionContext) marshalNEpisodes2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodes(ctx context.Context, sel ast.SelectionSet, v model.Episodes) graphql.Marshaler {
 	return ec._Episodes(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNEpisodes2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodes(ctx context.Context, sel ast.SelectionSet, v *model.Episodes) graphql.Marshaler {
+func (ec *executionContext) marshalNEpisodes2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodes(ctx context.Context, sel ast.SelectionSet, v *model.Episodes) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4175,11 +4181,11 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) marshalNPreview2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐPreview(ctx context.Context, sel ast.SelectionSet, v model.Preview) graphql.Marshaler {
+func (ec *executionContext) marshalNPreview2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐPreview(ctx context.Context, sel ast.SelectionSet, v model.Preview) graphql.Marshaler {
 	return ec._Preview(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPreview2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐPreview(ctx context.Context, sel ast.SelectionSet, v *model.Preview) graphql.Marshaler {
+func (ec *executionContext) marshalNPreview2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐPreview(ctx context.Context, sel ast.SelectionSet, v *model.Preview) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4189,11 +4195,11 @@ func (ec *executionContext) marshalNPreview2ᚖgithubᚗcomᚋbccᚑcodeᚋbruns
 	return ec._Preview(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPreviewAsset2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐPreviewAsset(ctx context.Context, sel ast.SelectionSet, v model.PreviewAsset) graphql.Marshaler {
+func (ec *executionContext) marshalNPreviewAsset2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐPreviewAsset(ctx context.Context, sel ast.SelectionSet, v model.PreviewAsset) graphql.Marshaler {
 	return ec._PreviewAsset(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPreviewAsset2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐPreviewAsset(ctx context.Context, sel ast.SelectionSet, v *model.PreviewAsset) graphql.Marshaler {
+func (ec *executionContext) marshalNPreviewAsset2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐPreviewAsset(ctx context.Context, sel ast.SelectionSet, v *model.PreviewAsset) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4203,11 +4209,11 @@ func (ec *executionContext) marshalNPreviewAsset2ᚖgithubᚗcomᚋbccᚑcodeᚋ
 	return ec._PreviewAsset(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPreviewCollection2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐPreviewCollection(ctx context.Context, sel ast.SelectionSet, v model.PreviewCollection) graphql.Marshaler {
+func (ec *executionContext) marshalNPreviewCollection2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐPreviewCollection(ctx context.Context, sel ast.SelectionSet, v model.PreviewCollection) graphql.Marshaler {
 	return ec._PreviewCollection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPreviewCollection2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐPreviewCollection(ctx context.Context, sel ast.SelectionSet, v *model.PreviewCollection) graphql.Marshaler {
+func (ec *executionContext) marshalNPreviewCollection2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐPreviewCollection(ctx context.Context, sel ast.SelectionSet, v *model.PreviewCollection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4217,7 +4223,7 @@ func (ec *executionContext) marshalNPreviewCollection2ᚖgithubᚗcomᚋbccᚑco
 	return ec._PreviewCollection(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNProgressByOrg2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐProgressByOrgᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ProgressByOrg) graphql.Marshaler {
+func (ec *executionContext) marshalNProgressByOrg2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐProgressByOrgᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ProgressByOrg) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4241,7 +4247,7 @@ func (ec *executionContext) marshalNProgressByOrg2ᚕᚖgithubᚗcomᚋbccᚑcod
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNProgressByOrg2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐProgressByOrg(ctx, sel, v[i])
+			ret[i] = ec.marshalNProgressByOrg2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐProgressByOrg(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4261,7 +4267,7 @@ func (ec *executionContext) marshalNProgressByOrg2ᚕᚖgithubᚗcomᚋbccᚑcod
 	return ret
 }
 
-func (ec *executionContext) marshalNProgressByOrg2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐProgressByOrg(ctx context.Context, sel ast.SelectionSet, v *model.ProgressByOrg) graphql.Marshaler {
+func (ec *executionContext) marshalNProgressByOrg2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐProgressByOrg(ctx context.Context, sel ast.SelectionSet, v *model.ProgressByOrg) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4271,11 +4277,11 @@ func (ec *executionContext) marshalNProgressByOrg2ᚖgithubᚗcomᚋbccᚑcode�
 	return ec._ProgressByOrg(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNStatistics2githubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐStatistics(ctx context.Context, sel ast.SelectionSet, v model.Statistics) graphql.Marshaler {
+func (ec *executionContext) marshalNStatistics2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐStatistics(ctx context.Context, sel ast.SelectionSet, v model.Statistics) graphql.Marshaler {
 	return ec._Statistics(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNStatistics2ᚖgithubᚗcomᚋbccᚑcodeᚋbrunstadtvᚋbackendᚋgraphᚋadminᚋmodelᚐStatistics(ctx context.Context, sel ast.SelectionSet, v *model.Statistics) graphql.Marshaler {
+func (ec *executionContext) marshalNStatistics2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐStatistics(ctx context.Context, sel ast.SelectionSet, v *model.Statistics) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
