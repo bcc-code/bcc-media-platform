@@ -48,7 +48,7 @@ devDependencies:
     version: 7.3.53
   '@vitejs/plugin-vue':
     specifier: ^3.2.0
-    version: 3.2.0(vite@3.2.7)(vue@3.3.4)
+    version: 3.2.0(vite@3.2.8)(vue@3.3.4)
   postcss:
     specifier: ^8.4.31
     version: 8.4.31
@@ -62,8 +62,8 @@ devDependencies:
     specifier: ^4.9.5
     version: 4.9.5
   vite:
-    specifier: ^3.2.7
-    version: 3.2.7(@types/node@18.18.4)(sass@1.69.0)
+    specifier: ^3.2.8
+    version: 3.2.8(@types/node@18.18.4)(sass@1.69.0)
   vue:
     specifier: ^3.3.4
     version: 3.3.4
@@ -143,7 +143,7 @@ packages:
       video.js: '>= 6 < 9'
     dependencies:
       video.js: 7.21.5
-      webcomponents.js: github.com/webcomponents/webcomponentsjs/8a2e40557b177e2cca0def2553f84c8269c8f93e
+      webcomponents.js: git/github.com+webcomponents/webcomponentsjs/8a2e40557b177e2cca0def2553f84c8269c8f93e
     dev: false
 
   /@types/node@18.18.4:
@@ -191,14 +191,14 @@ packages:
       is-function: 1.0.2
     dev: false
 
-  /@vitejs/plugin-vue@3.2.0(vite@3.2.7)(vue@3.3.4):
+  /@vitejs/plugin-vue@3.2.0(vite@3.2.8)(vue@3.3.4):
     resolution: {integrity: sha512-E0tnaL4fr+qkdCNxJ+Xd0yM31UwMkQje76fsDVBBUCoGOUPexu2VDUYHL8P4CwV+zMvWw6nlRw19OnRKmYAJpw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: ^3.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 3.2.7(@types/node@18.18.4)(sass@1.69.0)
+      vite: 3.2.8(@types/node@18.18.4)(sass@1.69.0)
       vue: 3.3.4
     dev: true
 
@@ -1014,8 +1014,8 @@ packages:
       global: 4.4.0
     dev: false
 
-  /vite@3.2.7(@types/node@18.18.4)(sass@1.69.0):
-    resolution: {integrity: sha512-29pdXjk49xAP0QBr0xXqu2s5jiQIXNvE/xwd0vUizYT2Hzqe4BksNNoWllFVXJf4eLZ+UlVQmXfB4lWrc+t18g==}
+  /vite@3.2.8(@types/node@18.18.4)(sass@1.69.0):
+    resolution: {integrity: sha512-EtQU16PLIJpAZol2cTLttNP1mX6L0SyI0pgQB1VOoWeQnMSvtiwovV3D6NcjN8CZQWWyESD2v5NGnpz5RvgOZA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
@@ -1102,8 +1102,8 @@ packages:
     resolution: {integrity: sha512-Y/ZsHA2eqG2FeYV691gLjC6QhWoan+da4r/t4DvfCd4a6l+s08eFip709ZwFjFDxavPhPYlcqqn+7aycay2kbQ==}
     dev: false
 
-  github.com/webcomponents/webcomponentsjs/8a2e40557b177e2cca0def2553f84c8269c8f93e:
-    resolution: {tarball: https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e}
+  git/github.com+webcomponents/webcomponentsjs/8a2e40557b177e2cca0def2553f84c8269c8f93e:
+    resolution: {commit: 8a2e40557b177e2cca0def2553f84c8269c8f93e, repo: git@github.com:webcomponents/webcomponentsjs.git, type: git}
     name: webcomponents.js
     version: 0.7.24
     dev: false
