@@ -35,7 +35,7 @@ require (
 	github.com/goodsign/monday v1.0.1
 	github.com/google/uuid v1.3.1
 	github.com/graph-gophers/dataloader/v7 v7.1.0
-	github.com/lestrrat-go/jwx/v2 v2.0.14
+	github.com/lestrrat-go/jwx/v2 v2.0.19
 	github.com/lib/pq v1.10.9
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/mitchellh/mapstructure v1.5.0
