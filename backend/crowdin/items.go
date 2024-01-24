@@ -511,6 +511,10 @@ func toSimple[T any](i T) SimpleTranslation {
 		v = sqlc.Int32TranslationRow(t)
 	case sqlc.ListShowTranslationsRow:
 		v = sqlc.Int32TranslationRow(t)
+	case sqlc.ListEventTranslationsRow:
+		v = sqlc.Int32TranslationRow(t)
+	case sqlc.ListCalendarEntryTranslationsRow:
+		v = sqlc.Int32TranslationRow(t)
 	case sqlc.ListSectionTranslationsRow:
 		v = sqlc.Int32TranslationRow(t)
 	case sqlc.ListPageTranslationsRow:
