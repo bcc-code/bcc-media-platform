@@ -8,6 +8,7 @@ import (
 	"context"
 	"time"
 
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
@@ -23,7 +24,7 @@ func (r *calendarResolver) Events(ctx context.Context, obj *model.Calendar, from
 	}
 	events, err := memorycache.GetOrSet(ctx, "events", func(ctx context.Context) ([]common.Event, error) {
 		return r.Queries.ListEvents(ctx)
-	})
+	}, cache.WithExpiration(time.Minute))
 	if err != nil {
 		return nil, err
 	}
