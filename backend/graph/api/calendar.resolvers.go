@@ -27,7 +27,7 @@ func (r *calendarResolver) Events(ctx context.Context, obj *model.Calendar, from
 	if err != nil {
 		return nil, err
 	}
-	fromTime := time.Now().Add(time.Hour * (24 * 30) * -1)
+	fromTime := time.Now().Add(time.Hour * (24 * 7) * -1)
 	toTime := time.Now().Add(time.Hour * (24 * 365))
 	if from != nil {
 		fromTime, err = time.Parse(time.RFC3339, *from)
