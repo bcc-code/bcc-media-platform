@@ -2,6 +2,7 @@ package push
 
 import (
 	"context"
+
 	"firebase.google.com/go"
 	"firebase.google.com/go/messaging"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -90,7 +91,7 @@ func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Messag
 			if messaging.IsRegistrationTokenNotRegistered(t.Error) {
 				unregisterTokens = append(unregisterTokens, t.Token)
 			} else {
-				log.L.Warn().Err(err).Send()
+				log.L.Warn().Err(t.Error).Send()
 			}
 		}
 	})
