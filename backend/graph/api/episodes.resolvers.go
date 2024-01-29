@@ -101,19 +101,47 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 		return nil, err
 	}
 
-	intID, _ := strconv.ParseInt(obj.ID, 10, 32)
-	streams, err := r.Resolver.Loaders.StreamsLoader.Get(ctx, int(intID))
+	e, err := r.GetLoaders().EpisodeLoader.Get(ctx, utils.AsInt(obj.ID))
 	if err != nil {
 		return nil, err
 	}
 
-	for _, s := range streams {
-		stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s)
+	r.GetLoaders().AssetStreamsLoader.LoadMany(ctx, lo.Values(e.Assets))
+
+	if e.AssetID.Valid {
+		r.GetLoaders().AssetStreamsLoader.Load(ctx, int(e.AssetID.Int64))
+
+		streams, err := r.Resolver.Loaders.AssetStreamsLoader.Get(ctx, int(e.AssetID.Int64))
 		if err != nil {
 			return nil, err
 		}
 
-		out = append(out, stream)
+		for _, s := range streams {
+			stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s)
+			if err != nil {
+				return nil, err
+			}
+
+			out = append(out, stream)
+		}
+	}
+
+	for lang, assetID := range e.Assets {
+		languageKey := lang
+		streams, err := r.GetLoaders().AssetStreamsLoader.Get(ctx, assetID)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, s := range streams {
+			stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s)
+			if err != nil {
+				return nil, err
+			}
+
+			stream.VideoLanguage = &languageKey
+			out = append(out, stream)
+		}
 	}
 
 	return out, nil

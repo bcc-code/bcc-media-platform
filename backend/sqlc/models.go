@@ -674,6 +674,13 @@ type EpisodeRole struct {
 	RolesEarlyaccess interface{} `db:"roles_earlyaccess" json:"rolesEarlyaccess"`
 }
 
+type EpisodesAsset struct {
+	ID         int32       `db:"id" json:"id"`
+	EpisodesID null_v4.Int `db:"episodes_id" json:"episodesId"`
+	AssetsID   null_v4.Int `db:"assets_id" json:"assetsId"`
+	Language   string      `db:"language" json:"language"`
+}
+
 type EpisodesTag struct {
 	EpisodesID int32 `db:"episodes_id" json:"episodesId"`
 	ID         int32 `db:"id" json:"id"`
