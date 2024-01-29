@@ -74,6 +74,7 @@ type Chapter {
 type File {
     id: ID!
     url: String!
+    videoLanguage: Language
     audioLanguage: Language!
     subtitleLanguage: Language
     size: Int!
@@ -91,6 +92,7 @@ enum StreamType {
 type Stream {
     id: ID!
     url: String!
+    videoLanguage: Language
     audioLanguages: [Language!]!
     subtitleLanguages: [Language!]!
     type: StreamType!

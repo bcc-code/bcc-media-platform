@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/google/uuid"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -21,6 +22,9 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 		_ = json.Unmarshal(e.Title.RawMessage, &title)
 		_ = json.Unmarshal(e.Description.RawMessage, &description)
 		_ = json.Unmarshal(e.ExtraDescription.RawMessage, &extraDescription)
+
+		var assetIDs common.LocaleMap[int]
+		_ = json.Unmarshal(e.Assets.RawMessage, &assetIDs)
 
 		var image null.String
 		if e.ImageFileName.Valid {
@@ -48,6 +52,7 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			Number:                e.EpisodeNumber,
 			SeasonID:              e.SeasonID,
 			AssetID:               e.AssetID,
+			Assets:                assetIDs,
 			Image:                 image,
 			Images:                q.getImages(e.Images),
 			AgeRating:             e.Agerating,

@@ -381,6 +381,7 @@ type ComplexityRoot struct {
 		Size             func(childComplexity int) int
 		SubtitleLanguage func(childComplexity int) int
 		URL              func(childComplexity int) int
+		VideoLanguage    func(childComplexity int) int
 	}
 
 	Game struct {
@@ -819,6 +820,7 @@ type ComplexityRoot struct {
 		SubtitleLanguages func(childComplexity int) int
 		Type              func(childComplexity int) int
 		URL               func(childComplexity int) int
+		VideoLanguage     func(childComplexity int) int
 	}
 
 	StudyTopic struct {
@@ -2631,6 +2633,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.File.URL(childComplexity), true
+
+	case "File.videoLanguage":
+		if e.complexity.File.VideoLanguage == nil {
+			break
+		}
+
+		return e.complexity.File.VideoLanguage(childComplexity), true
 
 	case "Game.description":
 		if e.complexity.Game.Description == nil {
@@ -4990,6 +4999,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Stream.URL(childComplexity), true
 
+	case "Stream.videoLanguage":
+		if e.complexity.Stream.VideoLanguage == nil {
+			break
+		}
+
+		return e.complexity.Stream.VideoLanguage(childComplexity), true
+
 	case "StudyTopic.defaultLesson":
 		if e.complexity.StudyTopic.DefaultLesson == nil {
 			break
@@ -5880,6 +5896,7 @@ type Chapter {
 type File {
     id: ID!
     url: String!
+    videoLanguage: Language
     audioLanguage: Language!
     subtitleLanguage: Language
     size: Int!
@@ -5897,6 +5914,7 @@ enum StreamType {
 type Stream {
     id: ID!
     url: String!
+    videoLanguage: Language
     audioLanguages: [Language!]!
     subtitleLanguages: [Language!]!
     type: StreamType!
@@ -13515,6 +13533,8 @@ func (ec *executionContext) fieldContext_Episode_streams(ctx context.Context, fi
 				return ec.fieldContext_Stream_id(ctx, field)
 			case "url":
 				return ec.fieldContext_Stream_url(ctx, field)
+			case "videoLanguage":
+				return ec.fieldContext_Stream_videoLanguage(ctx, field)
 			case "audioLanguages":
 				return ec.fieldContext_Stream_audioLanguages(ctx, field)
 			case "subtitleLanguages":
@@ -13573,6 +13593,8 @@ func (ec *executionContext) fieldContext_Episode_files(ctx context.Context, fiel
 				return ec.fieldContext_File_id(ctx, field)
 			case "url":
 				return ec.fieldContext_File_url(ctx, field)
+			case "videoLanguage":
+				return ec.fieldContext_File_videoLanguage(ctx, field)
 			case "audioLanguage":
 				return ec.fieldContext_File_audioLanguage(ctx, field)
 			case "subtitleLanguage":
@@ -17199,6 +17221,47 @@ func (ec *executionContext) fieldContext_File_url(ctx context.Context, field gra
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _File_videoLanguage(ctx context.Context, field graphql.CollectedField, obj *model.File) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_File_videoLanguage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VideoLanguage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOLanguage2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_File_videoLanguage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "File",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Language does not have child fields")
 		},
 	}
 	return fc, nil
@@ -30138,6 +30201,8 @@ func (ec *executionContext) fieldContext_Short_streams(ctx context.Context, fiel
 				return ec.fieldContext_Stream_id(ctx, field)
 			case "url":
 				return ec.fieldContext_Stream_url(ctx, field)
+			case "videoLanguage":
+				return ec.fieldContext_Stream_videoLanguage(ctx, field)
 			case "audioLanguages":
 				return ec.fieldContext_Stream_audioLanguages(ctx, field)
 			case "subtitleLanguages":
@@ -30196,6 +30261,8 @@ func (ec *executionContext) fieldContext_Short_files(ctx context.Context, field 
 				return ec.fieldContext_File_id(ctx, field)
 			case "url":
 				return ec.fieldContext_File_url(ctx, field)
+			case "videoLanguage":
+				return ec.fieldContext_File_videoLanguage(ctx, field)
 			case "audioLanguage":
 				return ec.fieldContext_File_audioLanguage(ctx, field)
 			case "subtitleLanguage":
@@ -32288,6 +32355,47 @@ func (ec *executionContext) fieldContext_Stream_url(ctx context.Context, field g
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Stream_videoLanguage(ctx context.Context, field graphql.CollectedField, obj *model.Stream) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Stream_videoLanguage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VideoLanguage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOLanguage2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Stream_videoLanguage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Stream",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Language does not have child fields")
 		},
 	}
 	return fc, nil
@@ -42116,6 +42224,8 @@ func (ec *executionContext) _File(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "videoLanguage":
+			out.Values[i] = ec._File_videoLanguage(ctx, field, obj)
 		case "audioLanguage":
 			out.Values[i] = ec._File_audioLanguage(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -47349,6 +47459,8 @@ func (ec *executionContext) _Stream(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "videoLanguage":
+			out.Values[i] = ec._Stream_videoLanguage(ctx, field, obj)
 		case "audioLanguages":
 			out.Values[i] = ec._Stream_audioLanguages(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
