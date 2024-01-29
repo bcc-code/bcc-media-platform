@@ -7,6 +7,7 @@ import (
 
 	"cloud.google.com/go/bigquery"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/google/uuid"
 )
 
@@ -185,5 +186,39 @@ func TimedMetadataFromCommon(tm common.TimedMetadata, _ int) TimedMetadata {
 		ChapterType: nullStr(&tm.ChapterType.Value),
 		PersonIDs:   asJsonString(tm.PersonIDs),
 		SongID:      tm.SongID,
+	}
+}
+
+type MediaItem struct {
+	ID            string               `json:"id"`
+	UserCreated   string               `json:"userCreated"`
+	DateCreated   time.Time            `json:"dateCreated"`
+	UserUpdated   string               `json:"userUpdated"`
+	DateUpdated   time.Time            `json:"dateUpdated"`
+	Label         string               `json:"label"`
+	Title         bigquery.NullString  `json:"title"`
+	Description   bigquery.NullString  `json:"description"`
+	Type          string               `json:"type"`
+	AssetID       string               `json:"assetId"`
+	ParentEpisode bigquery.NullInt64   `json:"parentEpisode"`
+	ParentStarts  bigquery.NullFloat64 `json:"parentStarts"`
+	ParentEnds    bigquery.NullFloat64 `json:"parentEnds"`
+}
+
+func MediaItemFromDb(mi sqlc.Mediaitem, _ int) MediaItem {
+	return MediaItem{
+		ID:            mi.ID.String(),
+		UserCreated:   mi.UserCreated.UUID.String(),
+		DateCreated:   mi.DateCreated.Time,
+		UserUpdated:   mi.UserUpdated.UUID.String(),
+		DateUpdated:   mi.DateUpdated.Time,
+		Label:         mi.Label,
+		Title:         nullStr(mi.Title.Ptr()),
+		Description:   nullStr(mi.Description.Ptr()),
+		Type:          mi.Type,
+		AssetID:       fmt.Sprint(mi.AssetID),
+		ParentEpisode: bigquery.NullInt64(mi.ParentEpisodeID.NullInt64),
+		ParentStarts:  bigquery.NullFloat64(mi.ParentStartsAt),
+		ParentEnds:    bigquery.NullFloat64(mi.ParentEndsAt),
 	}
 }
