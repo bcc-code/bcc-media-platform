@@ -102,26 +102,31 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 	}
 
 	e, err := r.GetLoaders().EpisodeLoader.Get(ctx, utils.AsInt(obj.ID))
+	r.GetLoaders().AssetStreamsLoader.LoadMany(ctx, lo.Values(e.Assets))
+	r.GetLoaders().AssetStreamsLoader.Load(ctx, e.ID)
 
-	streams, err := r.Resolver.Loaders.StreamsLoader.Get(ctx, e.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, s := range streams {
-		stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s)
+	if e.AssetID.Valid {
+		streams, err := r.Resolver.Loaders.AssetStreamsLoader.Get(ctx, int(e.AssetID.Int64))
 		if err != nil {
 			return nil, err
 		}
 
-		out = append(out, stream)
-	}
+		for _, s := range streams {
+			stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s)
+			if err != nil {
+				return nil, err
+			}
 
-	r.GetLoaders().AssetStreamsLoader.LoadMany(ctx, lo.Values(e.Assets))
+			out = append(out, stream)
+		}
+	}
 
 	for lang, assetID := range e.Assets {
 		languageKey := lang
-		streams, err = r.GetLoaders().AssetStreamsLoader.Get(ctx, assetID)
+		streams, err := r.GetLoaders().AssetStreamsLoader.Get(ctx, assetID)
+		if err != nil {
+			return nil, err
+		}
 
 		for _, s := range streams {
 			stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s)
