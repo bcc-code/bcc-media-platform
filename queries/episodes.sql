@@ -9,6 +9,10 @@ WITH ts AS (SELECT episodes_id,
                      array_agg(tags_id) AS tags
               FROM episodes_tags
               GROUP BY episodes_id),
+     asset_ids AS (SELECT episodes_id,
+                          json_object_agg(language, assets_id) AS ids
+                   FROM episodes_assets
+                   GROUP BY episodes_id),
      images AS (WITH images AS (SELECT episode_id, style, language, filename_disk
                                 FROM images img
                                          JOIN directus_files df on img.file = df.id)
@@ -21,6 +25,7 @@ SELECT e.id,
        e.legacy_id,
        e.legacy_program_id,
        e.asset_id,
+       asset_ids.ids                                                           AS assets,
        e.episode_number,
        e.publish_date,
        e.production_date,
@@ -51,6 +56,7 @@ FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
          LEFT JOIN images img ON img.episode_id = e.id
+         LEFT JOIN asset_ids ON asset_ids.episodes_id = e.id
          LEFT JOIN assets ON e.asset_id = assets.id
          LEFT JOIN seasons s ON e.season_id = s.id
          LEFT JOIN shows sh ON s.show_id = sh.id
@@ -69,6 +75,10 @@ WITH ts AS (SELECT episodes_id,
                      array_agg(tags_id) AS tags
               FROM episodes_tags
               GROUP BY episodes_id),
+     asset_ids AS (SELECT episodes_id,
+                          json_object_agg(language, assets_id) AS ids
+                   FROM episodes_assets
+                   GROUP BY episodes_id),
      images AS (WITH images AS (SELECT episode_id, style, language, filename_disk
                                 FROM images img
                                          JOIN directus_files df on img.file = df.id
@@ -82,6 +92,7 @@ SELECT e.id,
        e.legacy_id,
        e.legacy_program_id,
        e.asset_id,
+       asset_ids.ids                                                           AS assets,
        e.episode_number,
        e.publish_date,
        e.production_date,
@@ -112,6 +123,7 @@ FROM episodes e
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN tags ON tags.episodes_id = e.id
          LEFT JOIN images img ON img.episode_id = e.id
+         LEFT JOIN asset_ids ON asset_ids.episodes_id = e.id
          LEFT JOIN assets ON e.asset_id = assets.id
          LEFT JOIN seasons s ON e.season_id = s.id
          LEFT JOIN shows sh ON s.show_id = sh.id
@@ -137,8 +149,8 @@ WHERE season_id = ANY ($1::int[])
   AND access.published
   AND access.available_to > now()
   AND (
-        (roles.roles && $2::varchar[] AND access.available_from < now()) OR
-        (roles.roles_earlyaccess && $2::varchar[])
+    (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+    (roles.roles_earlyaccess && $2::varchar[])
     )
 ORDER BY e.episode_number;
 
@@ -151,8 +163,8 @@ WHERE e.id = ANY ($1::int[])
   AND access.published
   AND access.available_to > now()
   AND (
-        (roles.roles && $2::varchar[] AND access.available_from < now()) OR
-        (roles.roles_earlyaccess && $2::varchar[])
+    (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+    (roles.roles_earlyaccess && $2::varchar[])
     );
 
 -- name: getEpisodeUUIDsWithRoles :many
@@ -164,8 +176,8 @@ WHERE e.uuid = ANY ($1::uuid[])
   AND access.published
   AND access.available_to > now()
   AND (
-        (roles.roles && $2::varchar[] AND access.available_from < now()) OR
-        (roles.roles_earlyaccess && $2::varchar[])
+    (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+    (roles.roles_earlyaccess && $2::varchar[])
     );
 
 -- name: getEpisodeIDsForLegacyProgramIDs :many
@@ -207,6 +219,6 @@ WHERE t.tags_id = ANY (@tag_ids::int[])
   AND access.published
   AND access.available_to > now()
   AND (
-        (roles.roles && @roles::varchar[] AND access.available_from < now()) OR
-        (roles.roles_earlyaccess && @roles::varchar[])
+    (roles.roles && @roles::varchar[] AND access.available_from < now()) OR
+    (roles.roles_earlyaccess && @roles::varchar[])
     );

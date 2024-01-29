@@ -572,6 +572,7 @@ func (this FeaturedSection) GetItems() *SectionItemPagination { return this.Item
 type File struct {
 	ID               string  `json:"id"`
 	URL              string  `json:"url"`
+	VideoLanguage    *string `json:"videoLanguage,omitempty"`
 	AudioLanguage    string  `json:"audioLanguage"`
 	SubtitleLanguage *string `json:"subtitleLanguage,omitempty"`
 	Size             int     `json:"size"`
@@ -1222,6 +1223,7 @@ func (this SimpleCalendarEntry) GetEnd() string         { return this.End }
 type Stream struct {
 	ID                string     `json:"id"`
 	URL               string     `json:"url"`
+	VideoLanguage     *string    `json:"videoLanguage,omitempty"`
 	AudioLanguages    []string   `json:"audioLanguages"`
 	SubtitleLanguages []string   `json:"subtitleLanguages"`
 	Type              StreamType `json:"type"`
