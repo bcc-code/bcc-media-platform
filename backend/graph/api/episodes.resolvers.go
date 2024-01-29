@@ -107,9 +107,10 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 	}
 
 	r.GetLoaders().AssetStreamsLoader.LoadMany(ctx, lo.Values(e.Assets))
-	r.GetLoaders().AssetStreamsLoader.Load(ctx, e.ID)
 
 	if e.AssetID.Valid {
+		r.GetLoaders().AssetStreamsLoader.Load(ctx, int(e.AssetID.Int64))
+
 		streams, err := r.Resolver.Loaders.AssetStreamsLoader.Get(ctx, int(e.AssetID.Int64))
 		if err != nil {
 			return nil, err
