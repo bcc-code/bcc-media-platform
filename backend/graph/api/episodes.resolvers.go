@@ -102,6 +102,10 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 	}
 
 	e, err := r.GetLoaders().EpisodeLoader.Get(ctx, utils.AsInt(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+
 	r.GetLoaders().AssetStreamsLoader.LoadMany(ctx, lo.Values(e.Assets))
 	r.GetLoaders().AssetStreamsLoader.Load(ctx, e.ID)
 
