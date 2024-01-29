@@ -84,6 +84,8 @@ func (h *Handler) HandleDirectusEvent(ctx context.Context, collection string, id
 		return h.handleEpisode(ctx, intID)
 	case "timedmetadata":
 		return h.handleTimedMetadata(ctx, id)
+	case "mediaitem":
+		return h.handleMediaitem(ctx, id)
 	default:
 		log.L.Debug().Str("collection", collection).Msg("Cllection not suported. Skipping")
 	}
@@ -165,6 +167,17 @@ func (h *Handler) handleTimedMetadata(ctx context.Context, id string) error {
 
 	bqTimedMetadatas := lo.Map(timedMetadatas, TimedMetadataFromCommon)
 	return h.insert(ctx, bqTimedMetadatas, "timedmetadata")
+}
+
+func (h *Handler) handleMediaitem(ctx context.Context, id string) error {
+	log.L.Debug().Str("mediaitem", id).Msg("updating mediaitem in BQ")
+	miUuid := utils.AsUuid(id)
+	mediaItem, err := h.queries.GetMediaItemByID(ctx, miUuid)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	return h.insert(ctx, MediaItemFromDb(mediaItem, 0), "timedmetadata")
 }
 
 func (h *Handler) HandleAnswerExportToBQ(ctx context.Context) error {
