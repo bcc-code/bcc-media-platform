@@ -177,7 +177,7 @@ func (h *Handler) handleMediaitem(ctx context.Context, id string) error {
 		return merry.Wrap(err)
 	}
 
-	return h.insert(ctx, MediaItemFromDb(mediaItem, 0), "timedmetadata")
+	return h.insert(ctx, MediaItemFromDb(mediaItem, 0), "mediaitem")
 }
 
 func (h *Handler) HandleAnswerExportToBQ(ctx context.Context) error {
