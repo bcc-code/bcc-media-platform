@@ -79,6 +79,54 @@ VALUES (@item_id, @language, @title, @description)
 ON CONFLICT (shows_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
                                                      description = EXCLUDED.description;
 
+-- name: ListEventTranslations :many
+WITH events AS (SELECT s.id
+                FROM events s
+                WHERE s.status = ANY ('{published,unlisted}'))
+SELECT et.id,
+       events_id                                                     as parent_id,
+       languages_code                                                as language,
+       json_build_object('title', title, 'description', description) as values
+FROM events_translations et
+         JOIN events e ON e.id = et.events_id
+WHERE et.languages_code = @language::varchar;
+
+-- name: ClearEventTranslations :exec
+DELETE
+FROM events_translations
+WHERE events_id = ANY ($1::int[])
+  AND languages_code != 'no';
+
+-- name: UpdateEventTranslation :exec
+INSERT INTO events_translations (events_id, languages_code, title, description)
+VALUES (@item_id, @language, @title, @description)
+ON CONFLICT (events_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
+                                                      description = EXCLUDED.description;
+
+-- name: ListCalendarEntryTranslations :many
+WITH calendarentries AS (SELECT s.id
+                         FROM calendarentries s
+                         WHERE s.status = ANY ('{published,unlisted}'))
+SELECT et.id,
+       calendarentries_id                                            as parent_id,
+       languages_code                                                as language,
+       json_build_object('title', title, 'description', description) as values
+FROM calendarentries_translations et
+         JOIN events e ON e.id = et.calendarentries_id
+WHERE et.languages_code = @language::varchar;
+
+-- name: ClearCalendarEntryTranslations :exec
+DELETE
+FROM calendarentries_translations
+WHERE calendarentries_id = ANY ($1::int[])
+  AND languages_code != 'no';
+
+-- name: UpdateCalendarEntryTranslation :exec
+INSERT INTO calendarentries_translations (calendarentries_id, languages_code, title, description)
+VALUES (@item_id, @language, @title, @description)
+ON CONFLICT (calendarentries_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
+                                                               description = EXCLUDED.description;
+
 -- name: ListSectionTranslations :many
 WITH sections AS (SELECT s.id
                   FROM sections s

@@ -3,6 +3,7 @@ package crowdin
 import (
 	"context"
 	"encoding/json"
+
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
@@ -67,6 +68,40 @@ func (c *Client) syncShows(ctx context.Context, options Options) error {
 			}
 		},
 		c.q.UpdateShowTranslation,
+		nil,
+	))
+}
+
+func (c *Client) syncEvents(ctx context.Context, options Options) error {
+	return syncCollection(ctx, c, options, NewTranslationHandler(
+		"events",
+		c.q.ListEventTranslations,
+		func(t SimpleTranslation) sqlc.UpdateEventTranslationParams {
+			return sqlc.UpdateEventTranslationParams{
+				ItemID:      int32(utils.AsInt(t.ParentID)),
+				Language:    t.Language,
+				Title:       null.StringFrom(t.Values["title"]),
+				Description: null.StringFrom(t.Values["description"]),
+			}
+		},
+		c.q.UpdateEventTranslation,
+		nil,
+	))
+}
+
+func (c *Client) syncCalendarEntries(ctx context.Context, options Options) error {
+	return syncCollection(ctx, c, options, NewTranslationHandler(
+		"calendarentries",
+		c.q.ListCalendarEntryTranslations,
+		func(t SimpleTranslation) sqlc.UpdateCalendarEntryTranslationParams {
+			return sqlc.UpdateCalendarEntryTranslationParams{
+				ItemID:      int32(utils.AsInt(t.ParentID)),
+				Language:    t.Language,
+				Title:       null.StringFrom(t.Values["title"]),
+				Description: null.StringFrom(t.Values["description"]),
+			}
+		},
+		c.q.UpdateCalendarEntryTranslation,
 		nil,
 	))
 }
@@ -475,6 +510,10 @@ func toSimple[T any](i T) SimpleTranslation {
 	case sqlc.ListSeasonTranslationsRow:
 		v = sqlc.Int32TranslationRow(t)
 	case sqlc.ListShowTranslationsRow:
+		v = sqlc.Int32TranslationRow(t)
+	case sqlc.ListEventTranslationsRow:
+		v = sqlc.Int32TranslationRow(t)
+	case sqlc.ListCalendarEntryTranslationsRow:
 		v = sqlc.Int32TranslationRow(t)
 	case sqlc.ListSectionTranslationsRow:
 		v = sqlc.Int32TranslationRow(t)

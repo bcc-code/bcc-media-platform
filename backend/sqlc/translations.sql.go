@@ -36,6 +36,18 @@ func (q *Queries) ClearAchievementTranslations(ctx context.Context, dollar_1 []u
 	return err
 }
 
+const clearCalendarEntryTranslations = `-- name: ClearCalendarEntryTranslations :exec
+DELETE
+FROM calendarentries_translations
+WHERE calendarentries_id = ANY ($1::int[])
+  AND languages_code != 'no'
+`
+
+func (q *Queries) ClearCalendarEntryTranslations(ctx context.Context, dollar_1 []int32) error {
+	_, err := q.db.ExecContext(ctx, clearCalendarEntryTranslations, pq.Array(dollar_1))
+	return err
+}
+
 const clearEpisodeTranslations = `-- name: ClearEpisodeTranslations :exec
 DELETE
 FROM episodes_translations
@@ -45,6 +57,18 @@ WHERE episodes_id = ANY ($1::int[])
 
 func (q *Queries) ClearEpisodeTranslations(ctx context.Context, episodeIds []int32) error {
 	_, err := q.db.ExecContext(ctx, clearEpisodeTranslations, pq.Array(episodeIds))
+	return err
+}
+
+const clearEventTranslations = `-- name: ClearEventTranslations :exec
+DELETE
+FROM events_translations
+WHERE events_id = ANY ($1::int[])
+  AND languages_code != 'no'
+`
+
+func (q *Queries) ClearEventTranslations(ctx context.Context, dollar_1 []int32) error {
+	_, err := q.db.ExecContext(ctx, clearEventTranslations, pq.Array(dollar_1))
 	return err
 }
 
@@ -427,6 +451,54 @@ func (q *Queries) ListAlternativeTranslations(ctx context.Context, language stri
 	return items, nil
 }
 
+const listCalendarEntryTranslations = `-- name: ListCalendarEntryTranslations :many
+WITH calendarentries AS (SELECT s.id
+                         FROM calendarentries s
+                         WHERE s.status = ANY ('{published,unlisted}'))
+SELECT et.id,
+       calendarentries_id                                            as parent_id,
+       languages_code                                                as language,
+       json_build_object('title', title, 'description', description) as values
+FROM calendarentries_translations et
+         JOIN events e ON e.id = et.calendarentries_id
+WHERE et.languages_code = $1::varchar
+`
+
+type ListCalendarEntryTranslationsRow struct {
+	ID       int32           `db:"id" json:"id"`
+	ParentID int32           `db:"parent_id" json:"parentId"`
+	Language string          `db:"language" json:"language"`
+	Values   json.RawMessage `db:"values" json:"values"`
+}
+
+func (q *Queries) ListCalendarEntryTranslations(ctx context.Context, language string) ([]ListCalendarEntryTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listCalendarEntryTranslations, language)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListCalendarEntryTranslationsRow
+	for rows.Next() {
+		var i ListCalendarEntryTranslationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentID,
+			&i.Language,
+			&i.Values,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listEpisodeTranslations = `-- name: ListEpisodeTranslations :many
 WITH episodes AS (SELECT e.id
                   FROM episodes e
@@ -461,6 +533,54 @@ func (q *Queries) ListEpisodeTranslations(ctx context.Context, language string) 
 	var items []ListEpisodeTranslationsRow
 	for rows.Next() {
 		var i ListEpisodeTranslationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentID,
+			&i.Language,
+			&i.Values,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listEventTranslations = `-- name: ListEventTranslations :many
+WITH events AS (SELECT s.id
+                FROM events s
+                WHERE s.status = ANY ('{published,unlisted}'))
+SELECT et.id,
+       events_id                                                     as parent_id,
+       languages_code                                                as language,
+       json_build_object('title', title, 'description', description) as values
+FROM events_translations et
+         JOIN events e ON e.id = et.events_id
+WHERE et.languages_code = $1::varchar
+`
+
+type ListEventTranslationsRow struct {
+	ID       int32           `db:"id" json:"id"`
+	ParentID int32           `db:"parent_id" json:"parentId"`
+	Language string          `db:"language" json:"language"`
+	Values   json.RawMessage `db:"values" json:"values"`
+}
+
+func (q *Queries) ListEventTranslations(ctx context.Context, language string) ([]ListEventTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listEventTranslations, language)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListEventTranslationsRow
+	for rows.Next() {
+		var i ListEventTranslationsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.ParentID,
@@ -1597,6 +1717,30 @@ func (q *Queries) UpdateAlternativeTranslation(ctx context.Context, arg UpdateAl
 	return err
 }
 
+const updateCalendarEntryTranslation = `-- name: UpdateCalendarEntryTranslation :exec
+INSERT INTO calendarentries_translations (calendarentries_id, languages_code, title, description)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (calendarentries_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
+                                                               description = EXCLUDED.description
+`
+
+type UpdateCalendarEntryTranslationParams struct {
+	ItemID      int32          `db:"item_id" json:"itemId"`
+	Language    string         `db:"language" json:"language"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) UpdateCalendarEntryTranslation(ctx context.Context, arg UpdateCalendarEntryTranslationParams) error {
+	_, err := q.db.ExecContext(ctx, updateCalendarEntryTranslation,
+		arg.ItemID,
+		arg.Language,
+		arg.Title,
+		arg.Description,
+	)
+	return err
+}
+
 const updateEpisodeTranslation = `-- name: UpdateEpisodeTranslation :exec
 INSERT INTO episodes_translations (episodes_id, languages_code, title, description)
 VALUES ($1, $2, $3, $4)
@@ -1613,6 +1757,30 @@ type UpdateEpisodeTranslationParams struct {
 
 func (q *Queries) UpdateEpisodeTranslation(ctx context.Context, arg UpdateEpisodeTranslationParams) error {
 	_, err := q.db.ExecContext(ctx, updateEpisodeTranslation,
+		arg.ItemID,
+		arg.Language,
+		arg.Title,
+		arg.Description,
+	)
+	return err
+}
+
+const updateEventTranslation = `-- name: UpdateEventTranslation :exec
+INSERT INTO events_translations (events_id, languages_code, title, description)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (events_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
+                                                      description = EXCLUDED.description
+`
+
+type UpdateEventTranslationParams struct {
+	ItemID      int32          `db:"item_id" json:"itemId"`
+	Language    string         `db:"language" json:"language"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) UpdateEventTranslation(ctx context.Context, arg UpdateEventTranslationParams) error {
+	_, err := q.db.ExecContext(ctx, updateEventTranslation,
 		arg.ItemID,
 		arg.Language,
 		arg.Title,
