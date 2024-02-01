@@ -5,6 +5,7 @@
         "logout": "Odjava",
         "stayLoggedOut": "Ostani odjavljen",
         "cancel": "Prekliči",
+        "accept": "Sprejmi",
         "submit": "Oddaj",
         "back": "Nazaj",
         "next": "Sledi",
@@ -77,7 +78,9 @@
         }
     },
     "live": {
-        "now": "Zdaj"
+        "now": "Zdaj",
+        "title": "Nova aplikacija za prenos v živo",
+        "description": ""
     },
     "calendar": {
         "noScheduledEvents": "Ni načrtovanih dogodkov",
@@ -97,6 +100,7 @@
         "title": "Naslov",
         "subject": "Predmet",
         "content": "Vsebina",
+        "faq": "FAQ",
         "describeIssue": "Podrobno opiši težavo."
     },
     "study": {
@@ -148,6 +152,9 @@
         "downloadApp": "Prenesi našo aplikacijo",
         "termsOfUse": "Pogoji uporabe"
     },
+    "terms": {
+        "byDownloadingYouAcceptTerms": ""
+    },
     "share": {
         "title": "Deli",
         "copied": "Kopirano v odlagališče",
@@ -190,5 +197,8 @@
         "receitTitle": "Prošnja prejeta",
         "confirmAgenda": "Strinjam se, da bo gradivo uporabljeno samo za dogovorjen namen.",
         "receitDescription": "Naša ekipa te bo kontaktirala v roku 7 delovnih dni. Avtomatsko sporočilo je bilo poslano na tvoj mail."
+    },
+    "shorts": {
+        "watchOnOurApp": ""
     }
 }

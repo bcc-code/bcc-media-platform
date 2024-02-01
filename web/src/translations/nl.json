@@ -5,6 +5,7 @@
         "logout": "Uitloggen",
         "stayLoggedOut": "Uitgelogd blijven",
         "cancel": "Annuleren",
+        "accept": "Accepteren",
         "submit": "Indienen",
         "back": "Terug",
         "next": "Volgende",
@@ -77,7 +78,9 @@
         }
     },
     "live": {
-        "now": "Nu"
+        "now": "Nu",
+        "title": "Nieuwe livestream app",
+        "description": ""
     },
     "calendar": {
         "noScheduledEvents": "Geen geplande evenementen",
@@ -97,6 +100,7 @@
         "title": "Titel",
         "subject": "Onderwerp",
         "content": "Inhoud",
+        "faq": "FAQ",
         "describeIssue": "Beschrijf je probleem in detail."
     },
     "study": {
@@ -148,6 +152,9 @@
         "downloadApp": "Download onze app",
         "termsOfUse": "Gebruiksvoorwaarden"
     },
+    "terms": {
+        "byDownloadingYouAcceptTerms": ""
+    },
     "share": {
         "title": "Deel",
         "copied": "Gekopieerd naar klembord",
@@ -190,5 +197,8 @@
         "receitTitle": "Aanvraag ontvangen",
         "confirmAgenda": "Ik bevestig dat het materiaal alleen gebruikt wordt voor het afgesproken doel.",
         "receitDescription": "Ons team zal binnen 7 werkdagen contact met je opnemen. Een automatische bevestiging is naar je email-adres gestuurd."
+    },
+    "shorts": {
+        "watchOnOurApp": ""
     }
 }

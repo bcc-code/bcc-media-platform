@@ -5,6 +5,7 @@
         "logout": "Kijelentkezés",
         "stayLoggedOut": "Kijelentkezve maradni",
         "cancel": "Mégse",
+        "accept": "Jóváhagyás",
         "submit": "Megerősítés",
         "back": "Vissza",
         "next": "Következő",
@@ -77,7 +78,9 @@
         }
     },
     "live": {
-        "now": "Most"
+        "now": "Most",
+        "title": "Új élő közvetítés alkalmazás",
+        "description": ""
     },
     "calendar": {
         "noScheduledEvents": "Nincs tervezett esemény",
@@ -97,6 +100,7 @@
         "title": "Cím",
         "subject": "Tárgy",
         "content": "Tartalom",
+        "faq": "GYIK",
         "describeIssue": "Írd le részletesen a problémát."
     },
     "study": {
@@ -148,6 +152,9 @@
         "downloadApp": "Alkalmazásunk letöltése",
         "termsOfUse": "Használati feltételek"
     },
+    "terms": {
+        "byDownloadingYouAcceptTerms": ""
+    },
     "share": {
         "title": "Megosztás",
         "copied": "Vágólapra másolva",
@@ -190,5 +197,8 @@
         "receitTitle": "A kérelem beérkezett",
         "confirmAgenda": "Megerősítem, hogy az anyagot csak a megállapodás szerinti célra használom fel.",
         "receitDescription": "Csapatunk 7 munkanapon belül felveszi veled a kapcsolatot. Automatikus választ küldtünk az e-mail címedre."
+    },
+    "shorts": {
+        "watchOnOurApp": ""
     }
 }

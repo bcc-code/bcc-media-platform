@@ -5,6 +5,7 @@
         "logout": "Logg ut",
         "stayLoggedOut": "Forbli utlogget",
         "cancel": "Avbryt",
+        "accept": "Godta",
         "submit": "Send inn",
         "back": "Tilbake",
         "next": "Neste",
@@ -77,7 +78,9 @@
         }
     },
     "live": {
-        "now": "Nå"
+        "now": "Nå",
+        "title": "Ny app for direktesending",
+        "description": ""
     },
     "calendar": {
         "noScheduledEvents": "Ingen planlagte sendinger",
@@ -97,6 +100,7 @@
         "title": "Tittel",
         "subject": "Emne",
         "content": "Innhold",
+        "faq": "FAQ",
         "describeIssue": "Beskriv problemet ditt i detalj."
     },
     "study": {
@@ -148,6 +152,9 @@
         "downloadApp": "Last ned vår app",
         "termsOfUse": "Vilkår for bruk"
     },
+    "terms": {
+        "byDownloadingYouAcceptTerms": ""
+    },
     "share": {
         "title": "Del",
         "copied": "Lenke kopiert til utklippstavle",
@@ -190,5 +197,8 @@
         "receitTitle": "Forespørsel mottatt",
         "confirmAgenda": "Jeg bekrefter at materiale kun skal brukes til avtalt formål.",
         "receitDescription": "Vårt team vil kontakte deg innen 7 arbeidsdager. Et automatisk svar er sendt til din e-post."
+    },
+    "shorts": {
+        "watchOnOurApp": ""
     }
 }

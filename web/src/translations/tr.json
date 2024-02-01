@@ -5,6 +5,7 @@
         "logout": "Çıkış Yap",
         "stayLoggedOut": "Oturumu dışı kal",
         "cancel": "İptal",
+        "accept": "Kabul et",
         "submit": "Gönder",
         "back": "Geri",
         "next": "Sonraki",
@@ -77,7 +78,9 @@
         }
     },
     "live": {
-        "now": "Şimdi"
+        "now": "Şimdi",
+        "title": "",
+        "description": ""
     },
     "calendar": {
         "noScheduledEvents": "Planlanmış etkinlik yok",
@@ -97,6 +100,7 @@
         "title": "Başlık",
         "subject": "Konu",
         "content": "İçerik",
+        "faq": "SSS",
         "describeIssue": "Sorununuzu ayrıntılı olarak açıklayın."
     },
     "study": {
@@ -148,6 +152,9 @@
         "downloadApp": "Uygulamamızı indirin",
         "termsOfUse": ""
     },
+    "terms": {
+        "byDownloadingYouAcceptTerms": ""
+    },
     "share": {
         "title": "Paylaş",
         "copied": "Panoya kopyalandı",
@@ -190,5 +197,8 @@
         "receitTitle": "",
         "confirmAgenda": "",
         "receitDescription": ""
+    },
+    "shorts": {
+        "watchOnOurApp": ""
     }
 }

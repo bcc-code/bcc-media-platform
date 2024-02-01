@@ -5,6 +5,7 @@
         "logout": "Se déconnecter",
         "stayLoggedOut": "Rester déconnecté",
         "cancel": "Annuler",
+        "accept": "Accepter",
         "submit": "Envoyer",
         "back": "Retour",
         "next": "Suivant",
@@ -77,7 +78,9 @@
         }
     },
     "live": {
-        "now": "Maintenant"
+        "now": "Maintenant",
+        "title": "Nouvelle application de diffusion en direct",
+        "description": ""
     },
     "calendar": {
         "noScheduledEvents": "Aucun événement prévu",
@@ -97,6 +100,7 @@
         "title": "Titre",
         "subject": "Objet",
         "content": "Contenu",
+        "faq": "FAQ",
         "describeIssue": "Décris ton problème de manière détaillée."
     },
     "study": {
@@ -148,6 +152,9 @@
         "downloadApp": "Télécharge notre application",
         "termsOfUse": "Conditions d'utilisation"
     },
+    "terms": {
+        "byDownloadingYouAcceptTerms": ""
+    },
     "share": {
         "title": "Partager",
         "copied": "Copié dans le presse-papiers",
@@ -190,5 +197,8 @@
         "receitTitle": "Demande reçue",
         "confirmAgenda": "Je confirme que le matériel ne sera utilisé qu'aux fins convenues.",
         "receitDescription": "Notre équipe te contactera dans les 7 jours ouvrables. Une réponse automatique a été envoyée à ton adresse e-mail."
+    },
+    "shorts": {
+        "watchOnOurApp": ""
     }
 }

@@ -78,7 +78,9 @@
         }
     },
     "live": {
-        "now": "Now"
+        "now": "Now",
+        "title": "New livestream app",
+        "description": "We're sorry! You are no longer able to watch livestreams on this website. Click the link to go to the new solution!"
     },
     "calendar": {
         "noScheduledEvents": "No scheduled events",

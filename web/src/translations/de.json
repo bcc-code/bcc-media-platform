@@ -5,6 +5,7 @@
         "logout": "Ausloggen",
         "stayLoggedOut": "Abgemeldet bleiben",
         "cancel": "Abbrechen",
+        "accept": "Akzeptieren",
         "submit": "Bestätige",
         "back": "Zurück",
         "next": "Weiter",
@@ -77,7 +78,9 @@
         }
     },
     "live": {
-        "now": "Jetzt"
+        "now": "Jetzt",
+        "title": "Neue Livestream-App",
+        "description": ""
     },
     "calendar": {
         "noScheduledEvents": "Keine geplanten Veranstaltungen",
@@ -97,6 +100,7 @@
         "title": "Titel",
         "subject": "Thema",
         "content": "Inhalt",
+        "faq": "FAQ",
         "describeIssue": "Beschreibe dein Problem im Detail."
     },
     "study": {
@@ -148,6 +152,9 @@
         "downloadApp": "Lade unsere App herunter",
         "termsOfUse": "Nutzungsbedingungen"
     },
+    "terms": {
+        "byDownloadingYouAcceptTerms": ""
+    },
     "share": {
         "title": "Teilen",
         "copied": "Link in Zwischenablage kopiert",
@@ -190,5 +197,8 @@
         "receitTitle": "Anfrage erhalten",
         "confirmAgenda": "Ich versichere, dass das Material nur für den vereinbarten Zweck verwendet wird.",
         "receitDescription": "Unser Team wird sich innerhalb von 7 Werktagen mit dir in Verbindung setzen. Eine automatische Antwort wurde an deine E-Mail gesendet."
+    },
+    "shorts": {
+        "watchOnOurApp": ""
     }
 }

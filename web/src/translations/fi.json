@@ -5,6 +5,7 @@
         "logout": "Kirjaudu ulos",
         "stayLoggedOut": "Pysy uloskirjautuneena",
         "cancel": "Peru",
+        "accept": "Hyväksy",
         "submit": "Lähetä",
         "back": "Takaisin",
         "next": "Seuraava",
@@ -77,7 +78,9 @@
         }
     },
     "live": {
-        "now": "Nyt"
+        "now": "Nyt",
+        "title": "Uusi suoratoistosovellus",
+        "description": ""
     },
     "calendar": {
         "noScheduledEvents": "Ei suunniteltuja tapahtumia",
@@ -97,6 +100,7 @@
         "title": "Otsikko",
         "subject": "Aihe",
         "content": "Sisältö",
+        "faq": "UKK",
         "describeIssue": "Selitä asiasi huolellisesti."
     },
     "study": {
@@ -148,6 +152,9 @@
         "downloadApp": "Lataa sovelluksemme",
         "termsOfUse": "Käyttöehdot"
     },
+    "terms": {
+        "byDownloadingYouAcceptTerms": ""
+    },
     "share": {
         "title": "Jaa",
         "copied": "Kopioitu leikepöydälle",
@@ -190,5 +197,8 @@
         "receitTitle": "Pyyntö vastaanotettu",
         "confirmAgenda": "Vahvistan, että aineistoa tullaan käyttämään vain sovittuun tarkoitukseen.",
         "receitDescription": "Otamme sinuun yhteyttä 7 päivän kuluessa. Sähköpostiisi tulee myös automaattinen vastaus."
+    },
+    "shorts": {
+        "watchOnOurApp": ""
     }
 }

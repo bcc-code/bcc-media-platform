@@ -5,6 +5,7 @@
         "logout": "Log ud",
         "stayLoggedOut": "Forbliv logget ud",
         "cancel": "Annuller",
+        "accept": "Godkend",
         "submit": "Indsend",
         "back": "Tilbage",
         "next": "Næste",
@@ -77,7 +78,9 @@
         }
     },
     "live": {
-        "now": "Nu"
+        "now": "Nu",
+        "title": "Ny livestreaming app",
+        "description": ""
     },
     "calendar": {
         "noScheduledEvents": "Ingen planlagte begivenheder",
@@ -97,6 +100,7 @@
         "title": "Titel ",
         "subject": "Emne",
         "content": "Indhold",
+        "faq": "FAQ",
         "describeIssue": "Beskriv dit problem i detaljer."
     },
     "study": {
@@ -148,6 +152,9 @@
         "downloadApp": "Download vores app",
         "termsOfUse": "Betingelser for brug"
     },
+    "terms": {
+        "byDownloadingYouAcceptTerms": ""
+    },
     "share": {
         "title": "Del",
         "copied": "Kopieret til udklipsholder",
@@ -190,5 +197,8 @@
         "receitTitle": "Ansøgning modtaget",
         "confirmAgenda": "Jeg bekræfter at materialet kun vil blive brugt til det aftalte formål",
         "receitDescription": "Vores team vil kontakte dig inden for 7 arbejdsdage. Et automatisk svar er blevet sendt til din e-mail."
+    },
+    "shorts": {
+        "watchOnOurApp": ""
     }
 }

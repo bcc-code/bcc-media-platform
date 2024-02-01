@@ -5,6 +5,7 @@
         "logout": "Cerrar sesión",
         "stayLoggedOut": "Permanecer desconectado",
         "cancel": "Cancelar",
+        "accept": "Aceptar",
         "submit": "Enviar",
         "back": "Atrás",
         "next": "Siguiente",
@@ -77,7 +78,9 @@
         }
     },
     "live": {
-        "now": "Ahora"
+        "now": "Ahora",
+        "title": "Nueva aplicación de transmisión en vivo",
+        "description": ""
     },
     "calendar": {
         "noScheduledEvents": "Sin eventos programados",
@@ -97,6 +100,7 @@
         "title": "Título",
         "subject": "Tema",
         "content": "Contenido",
+        "faq": "Preguntas frecuentes",
         "describeIssue": "Describe el problema en detalle."
     },
     "study": {
@@ -148,6 +152,9 @@
         "downloadApp": "Descarga nuestra aplicación",
         "termsOfUse": "Condiciones de uso"
     },
+    "terms": {
+        "byDownloadingYouAcceptTerms": ""
+    },
     "share": {
         "title": "Compartir",
         "copied": "Copiada al portapapeles",
@@ -190,5 +197,8 @@
         "receitTitle": "Solicitud recibida",
         "confirmAgenda": "Confirmo que el material sólo se utilizará para el fin acordado.",
         "receitDescription": "Nuestro equipo se pondrá en contacto con usted en un plazo de 7 días laborables. Se ha enviado una respuesta automática a su correo electrónico."
+    },
+    "shorts": {
+        "watchOnOurApp": ""
     }
 }

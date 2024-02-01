@@ -5,6 +5,7 @@
         "logout": "Deconectare",
         "stayLoggedOut": "Rămâneți deconectat",
         "cancel": "Anulare",
+        "accept": "Accept",
         "submit": "Trimite",
         "back": "Înapoi",
         "next": "Urmează",
@@ -33,7 +34,7 @@
     "page": {
         "home": "Acasă",
         "search": "Căutare",
-        "live": "În direct",
+        "live": "Direct",
         "calendar": "Calendar",
         "faq": "Întrebări frecvente",
         "notFound": "Pagina nu a fost găsită",
@@ -77,7 +78,9 @@
         }
     },
     "live": {
-        "now": "Acum"
+        "now": "Acum",
+        "title": "Aplicație nouă pentru transmisiuni în direct",
+        "description": ""
     },
     "calendar": {
         "noScheduledEvents": "Nu sunt evenimente programate",
@@ -97,6 +100,7 @@
         "title": "Titlu",
         "subject": "Subiect",
         "content": "Conţinut",
+        "faq": "Întrebări frecvente",
         "describeIssue": "Descrie problema in detaliu."
     },
     "study": {
@@ -148,6 +152,9 @@
         "downloadApp": "Descarcă aplicația noastră",
         "termsOfUse": "Termeni de utilizare"
     },
+    "terms": {
+        "byDownloadingYouAcceptTerms": ""
+    },
     "share": {
         "title": "Distribuie",
         "copied": "S-a copiat în memorie",
@@ -190,5 +197,8 @@
         "receitTitle": "Cerere primită",
         "confirmAgenda": "Confirm că materialul va fi utilizat numai în scopul convenit.",
         "receitDescription": "Echipa noastră vă va contacta în termen de 7 zile lucrătoare. Un răspuns automat a fost trimis pe adresa ta de e-mail."
+    },
+    "shorts": {
+        "watchOnOurApp": ""
     }
 }

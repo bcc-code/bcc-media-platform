@@ -5,6 +5,7 @@
         "logout": "Wyloguj",
         "stayLoggedOut": "Pozostań wylogowany",
         "cancel": "Anuluj",
+        "accept": "Akceptuję",
         "submit": "Wyślij",
         "back": "Wstecz",
         "next": "Następne",
@@ -77,7 +78,9 @@
         }
     },
     "live": {
-        "now": "Teraz"
+        "now": "Teraz",
+        "title": "",
+        "description": ""
     },
     "calendar": {
         "noScheduledEvents": "Brak zaplanowanych wydarzeń",
@@ -97,6 +100,7 @@
         "title": "Tytuł",
         "subject": "Temat",
         "content": "Treść",
+        "faq": "FAQ",
         "describeIssue": "Opisz problem ze szczegółami."
     },
     "study": {
@@ -148,6 +152,9 @@
         "downloadApp": "Pobierz naszą aplikację",
         "termsOfUse": "Warunki użytkowania"
     },
+    "terms": {
+        "byDownloadingYouAcceptTerms": ""
+    },
     "share": {
         "title": "Udostępnij",
         "copied": "Skopiowano do schowka",
@@ -190,5 +197,8 @@
         "receitTitle": "Prośba otrzymana",
         "confirmAgenda": "Potwierdzam, że materiały będą wykorzystywane wyłącznie w uzgodnionym celu.",
         "receitDescription": "Nasz zespół skontaktuje się z Tobą w ciągu 7 dni roboczych. Na Twój adres e-mail została wysłana automatyczna odpowiedź."
+    },
+    "shorts": {
+        "watchOnOurApp": ""
     }
 }
