@@ -180,7 +180,7 @@ type PageDetailsSection implements Section {
     description: String
 }
 
-union SectionItemType = Show | Season | Episode | Page | Link | StudyTopic | Game | Playlist
+union SectionItemType = Show | Season | Episode | Page | Link | StudyTopic | Game | Playlist | Short
 
 type SectionItem {
     id: ID!

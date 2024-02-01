@@ -6583,7 +6583,7 @@ type PageDetailsSection implements Section {
     description: String
 }
 
-union SectionItemType = Show | Season | Episode | Page | Link | StudyTopic | Game | Playlist
+union SectionItemType = Show | Season | Episode | Page | Link | StudyTopic | Game | Playlist | Short
 
 type SectionItem {
     id: ID!
@@ -38694,6 +38694,13 @@ func (ec *executionContext) _SectionItemType(ctx context.Context, sel ast.Select
 			return graphql.Null
 		}
 		return ec._Playlist(ctx, sel, obj)
+	case model.Short:
+		return ec._Short(ctx, sel, &obj)
+	case *model.Short:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Short(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -46545,7 +46552,7 @@ func (ec *executionContext) _SectionPagination(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var shortImplementors = []string{"Short", "CollectionItem", "PlaylistItem", "MediaItem", "UserCollectionEntryItem"}
+var shortImplementors = []string{"Short", "SectionItemType", "CollectionItem", "PlaylistItem", "MediaItem", "UserCollectionEntryItem"}
 
 func (ec *executionContext) _Short(ctx context.Context, sel ast.SelectionSet, obj *model.Short) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, shortImplementors)
