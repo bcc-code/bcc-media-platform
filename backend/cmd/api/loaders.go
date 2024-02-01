@@ -188,19 +188,19 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		// Permissions
 		ShowPermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForShows, func(i common.Permissions[int]) int {
 			return i.ItemID
-		}, loaders.WithName("show-permission")),
+		}, loaders.WithName("show-permission"), loaders.WithMemoryCache(time.Second*15)),
 		SeasonPermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForSeasons, func(i common.Permissions[int]) int {
 			return i.ItemID
-		}, loaders.WithName("season-permission")),
+		}, loaders.WithName("season-permission"), loaders.WithMemoryCache(time.Second*15)),
 		EpisodePermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForEpisodes, func(i common.Permissions[int]) int {
 			return i.ItemID
-		}, loaders.WithName("episode-permission")),
+		}, loaders.WithName("episode-permission"), loaders.WithMemoryCache(time.Second*15)),
 		PagePermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForPages, func(i common.Permissions[int]) int {
 			return i.ItemID
-		}, loaders.WithName("page-permission")),
+		}, loaders.WithName("page-permission"), loaders.WithMemoryCache(time.Second*15)),
 		SectionPermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForSections, func(i common.Permissions[int]) int {
 			return i.ItemID
-		}, loaders.WithName("section-permission")),
+		}, loaders.WithName("section-permission"), loaders.WithMemoryCache(time.Second*15)),
 
 		MemberLoader: loaders.New(ctx, membersClient.GetMembersByIDs, loaders.WithKeyFunc(func(i members.Member) int {
 			return i.PersonID
