@@ -113,17 +113,16 @@ func (q *Queries) getPages(ctx context.Context, dollar_1 []int32) ([]getPagesRow
 }
 
 const getPermissionsForPages = `-- name: getPermissionsForPages :many
-WITH r AS (SELECT id                            AS page_id,
-                  (SELECT array_agg(DISTINCT eu.usergroups_code) AS array_agg
-                   FROM sections_usergroups eu) AS roles
-           FROM pages)
 SELECT p.id::int              AS id,
        p.status = 'published' AS published,
        roles.roles::varchar[] AS roles
 FROM pages p
-         LEFT JOIN r roles ON roles.page_id = p.id
-WHERE p.id = ANY ($1::int[])
-  AND p.status = 'published'
+         LEFT JOIN (SELECT s.page_id, array_agg(DISTINCT (su.usergroups_code)) roles
+                    FROM sections_usergroups su
+                             JOIN sections s ON s.id = su.sections_id
+                    GROUP BY s.page_id) roles ON roles.page_id = p.id
+WHERE p.status = 'published'
+  AND p.id = ANY ($1::int[])
 `
 
 type getPermissionsForPagesRow struct {
@@ -132,8 +131,8 @@ type getPermissionsForPagesRow struct {
 	Roles     []string `db:"roles" json:"roles"`
 }
 
-func (q *Queries) getPermissionsForPages(ctx context.Context, dollar_1 []int32) ([]getPermissionsForPagesRow, error) {
-	rows, err := q.db.QueryContext(ctx, getPermissionsForPages, pq.Array(dollar_1))
+func (q *Queries) getPermissionsForPages(ctx context.Context, ids []int32) ([]getPermissionsForPagesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getPermissionsForPages, pq.Array(ids))
 	if err != nil {
 		return nil, err
 	}

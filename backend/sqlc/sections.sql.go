@@ -84,27 +84,27 @@ func (q *Queries) getLinks(ctx context.Context, dollar_1 []int32) ([]getLinksRow
 }
 
 const getPermissionsForSections = `-- name: getPermissionsForSections :many
-WITH u AS (SELECT ug.sections_id,
-                  array_agg(ug.usergroups_code) AS roles
-           FROM sections_usergroups ug
-           GROUP BY ug.sections_id)
-SELECT s.id,
-       u.roles::varchar[] AS roles
+SELECT s.id::int              AS id,
+       s.status = 'published' AS published,
+       roles.roles::varchar[] AS roles
 FROM sections s
-         JOIN pages p ON s.page_id = p.id
-         LEFT JOIN u ON u.sections_id = s.id
-WHERE s.id = ANY ($1::int[])
+         JOIN pages p ON p.id = s.page_id
+         LEFT JOIN (SELECT su.sections_id, array_agg(DISTINCT (su.usergroups_code)) roles
+                    FROM sections_usergroups su
+                    GROUP BY su.sections_id) roles ON roles.sections_id = s.id
+WHERE p.status = 'published'
   AND s.status = 'published'
-  AND p.status = 'published'
+  AND s.id = ANY ($1::int[])
 `
 
 type getPermissionsForSectionsRow struct {
-	ID    int32    `db:"id" json:"id"`
-	Roles []string `db:"roles" json:"roles"`
+	ID        int32    `db:"id" json:"id"`
+	Published bool     `db:"published" json:"published"`
+	Roles     []string `db:"roles" json:"roles"`
 }
 
-func (q *Queries) getPermissionsForSections(ctx context.Context, dollar_1 []int32) ([]getPermissionsForSectionsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getPermissionsForSections, pq.Array(dollar_1))
+func (q *Queries) getPermissionsForSections(ctx context.Context, ids []int32) ([]getPermissionsForSectionsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getPermissionsForSections, pq.Array(ids))
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (q *Queries) getPermissionsForSections(ctx context.Context, dollar_1 []int3
 	var items []getPermissionsForSectionsRow
 	for rows.Next() {
 		var i getPermissionsForSectionsRow
-		if err := rows.Scan(&i.ID, pq.Array(&i.Roles)); err != nil {
+		if err := rows.Scan(&i.ID, &i.Published, pq.Array(&i.Roles)); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -223,14 +223,14 @@ WITH t AS (SELECT ts.sections_id,
            FROM sections_translations ts
            GROUP BY ts.sections_id)
 SELECT s.id,
-       p.id::int                          AS page_id,
+       p.id::int                                AS page_id,
        s.type,
        s.style,
        s.size,
        s.grid_size,
        s.show_title,
        s.sort,
-       s.status::text = 'published'::text AS published,
+       s.status::text = 'published'::text       AS published,
        s.collection_id,
        s.message_id,
        s.embed_url,

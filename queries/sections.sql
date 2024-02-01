@@ -5,14 +5,14 @@ WITH t AS (SELECT ts.sections_id,
            FROM sections_translations ts
            GROUP BY ts.sections_id)
 SELECT s.id,
-       p.id::int                          AS page_id,
+       p.id::int                                AS page_id,
        s.type,
        s.style,
        s.size,
        s.grid_size,
        s.show_title,
        s.sort,
-       s.status::text = 'published'::text AS published,
+       s.status::text = 'published'::text       AS published,
        s.collection_id,
        s.message_id,
        s.embed_url,
@@ -61,18 +61,17 @@ WHERE p.id = ANY ($1::int[])
 ORDER BY s.sort;
 
 -- name: getPermissionsForSections :many
-WITH u AS (SELECT ug.sections_id,
-                  array_agg(ug.usergroups_code) AS roles
-           FROM sections_usergroups ug
-           GROUP BY ug.sections_id)
-SELECT s.id,
-       u.roles::varchar[] AS roles
+SELECT s.id::int              AS id,
+       s.status = 'published' AS published,
+       roles.roles::varchar[] AS roles
 FROM sections s
-         JOIN pages p ON s.page_id = p.id
-         LEFT JOIN u ON u.sections_id = s.id
-WHERE s.id = ANY ($1::int[])
+         JOIN pages p ON p.id = s.page_id
+         LEFT JOIN (SELECT su.sections_id, array_agg(DISTINCT (su.usergroups_code)) roles
+                    FROM sections_usergroups su
+                    GROUP BY su.sections_id) roles ON roles.sections_id = s.id
+WHERE p.status = 'published'
   AND s.status = 'published'
-  AND p.status = 'published';
+  AND s.id = ANY (@ids::int[]);
 
 -- name: getLinks :many
 WITH ts AS (SELECT links_id,
