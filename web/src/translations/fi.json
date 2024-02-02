@@ -16,7 +16,8 @@
         "send": "Lähetä",
         "start": "Alkaa",
         "skip": "Ohita",
-        "join": "Liity"
+        "join": "Liity",
+        "open": "Avaa"
     },
     "download": {
         "resolution": "Kuvatarkkuus",

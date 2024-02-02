@@ -16,7 +16,8 @@
         "send": "Gönder",
         "start": "Başlat",
         "skip": "",
-        "join": ""
+        "join": "",
+        "open": ""
     },
     "download": {
         "resolution": "",

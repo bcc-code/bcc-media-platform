@@ -16,7 +16,8 @@
         "send": "Invia",
         "start": "Avvia",
         "skip": "Salta",
-        "join": "Partecipa"
+        "join": "Partecipa",
+        "open": ""
     },
     "download": {
         "resolution": "",

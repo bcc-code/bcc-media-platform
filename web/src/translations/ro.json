@@ -16,7 +16,8 @@
         "send": "Trimite",
         "start": "Începe",
         "skip": "Sări peste",
-        "join": "Alătură-te"
+        "join": "Alătură-te",
+        "open": "Deschide"
     },
     "download": {
         "resolution": "Rezoluție",
@@ -80,7 +81,7 @@
     "live": {
         "now": "Acum",
         "title": "Aplicație nouă pentru transmisiuni în direct",
-        "description": ""
+        "description": "Ne pare rău! Nu mai poți viziona transmisiuni în direct pe acest site. Faceți clic pe link pentru a accesa noua soluție!"
     },
     "calendar": {
         "noScheduledEvents": "Nu sunt evenimente programate",
@@ -153,7 +154,7 @@
         "termsOfUse": "Termeni de utilizare"
     },
     "terms": {
-        "byDownloadingYouAcceptTerms": ""
+        "byDownloadingYouAcceptTerms": "Prin descărcarea acestui video, accepți [termenii de utilizare](https://bcc.media/terms-of-use) și [politica de confidențialitate](https://bcc.media/privacy)."
     },
     "share": {
         "title": "Distribuie",
@@ -199,6 +200,6 @@
         "receitDescription": "Echipa noastră vă va contacta în termen de 7 zile lucrătoare. Un răspuns automat a fost trimis pe adresa ta de e-mail."
     },
     "shorts": {
-        "watchOnOurApp": ""
+        "watchOnOurApp": "Descarcă aplicația mobilă pentru a viziona scurtmetraje."
     }
 }

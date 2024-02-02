@@ -16,7 +16,8 @@
         "send": "Send",
         "start": "Start",
         "skip": "Skip",
-        "join": "Join"
+        "join": "Join",
+        "open": "Open"
     },
     "download": {
         "resolution": "Resolution",
