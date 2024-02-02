@@ -16,7 +16,8 @@
         "send": "Verzenden",
         "start": "Start",
         "skip": "Skip",
-        "join": "Meedoen"
+        "join": "Meedoen",
+        "open": "Open"
     },
     "download": {
         "resolution": "Oplossing",
@@ -80,7 +81,7 @@
     "live": {
         "now": "Nu",
         "title": "Nieuwe livestream app",
-        "description": ""
+        "description": "Het spijt ons! Je kunt geen livestreams meer bekijken op deze website. Klik op de link om naar de nieuwe omgeving te gaan!"
     },
     "calendar": {
         "noScheduledEvents": "Geen geplande evenementen",
@@ -153,7 +154,7 @@
         "termsOfUse": "Gebruiksvoorwaarden"
     },
     "terms": {
-        "byDownloadingYouAcceptTerms": ""
+        "byDownloadingYouAcceptTerms": "Door deze video te downloaden, accepteer je onze [gebruiksvoorwaarden](https://bcc.media/terms-of-use/) en ons [privacybeleid](https://bcc.media/privacy) - beiden alleen nog in Noors en Engels beschikbaar -."
     },
     "share": {
         "title": "Deel",
@@ -199,6 +200,6 @@
         "receitDescription": "Ons team zal binnen 7 werkdagen contact met je opnemen. Een automatische bevestiging is naar je email-adres gestuurd."
     },
     "shorts": {
-        "watchOnOurApp": ""
+        "watchOnOurApp": "Download de mobiele app om korte films te bekijken."
     }
 }

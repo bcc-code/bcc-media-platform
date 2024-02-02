@@ -16,7 +16,8 @@
         "send": "Send",
         "start": "Start",
         "skip": "Spring over",
-        "join": "Deltag"
+        "join": "Deltag",
+        "open": "Åben"
     },
     "download": {
         "resolution": "Opløsning",
@@ -80,7 +81,7 @@
     "live": {
         "now": "Nu",
         "title": "Ny livestreaming app",
-        "description": ""
+        "description": "Beklager! Du kan ikke længere se livestreams på denne hjemmeside. Klik på linket for at gå til den nye løsning."
     },
     "calendar": {
         "noScheduledEvents": "Ingen planlagte begivenheder",
@@ -153,7 +154,7 @@
         "termsOfUse": "Betingelser for brug"
     },
     "terms": {
-        "byDownloadingYouAcceptTerms": ""
+        "byDownloadingYouAcceptTerms": "Ved at downloade denne video accepterer du vores [vilkår for brug] (https://bcc.media/terms-of-use/) og [privatlivspolitik] (https://bcc.media/privacy)."
     },
     "share": {
         "title": "Del",
@@ -199,6 +200,6 @@
         "receitDescription": "Vores team vil kontakte dig inden for 7 arbejdsdage. Et automatisk svar er blevet sendt til din e-mail."
     },
     "shorts": {
-        "watchOnOurApp": ""
+        "watchOnOurApp": "Download mobilappen for at se shorts."
     }
 }

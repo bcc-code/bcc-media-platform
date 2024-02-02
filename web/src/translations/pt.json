@@ -16,7 +16,8 @@
         "send": "Enviar",
         "start": "Começar",
         "skip": "Pular",
-        "join": "Partícipe"
+        "join": "Partícipe",
+        "open": "Abrir"
     },
     "download": {
         "resolution": "Resolução",

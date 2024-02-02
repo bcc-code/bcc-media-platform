@@ -16,7 +16,8 @@
         "send": "",
         "start": "",
         "skip": "",
-        "join": ""
+        "join": "",
+        "open": ""
     },
     "download": {
         "resolution": "",

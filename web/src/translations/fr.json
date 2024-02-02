@@ -16,7 +16,8 @@
         "send": "Envoyer",
         "start": "Démarrer",
         "skip": "Sauter",
-        "join": "Rejoindre"
+        "join": "Rejoindre",
+        "open": "Ouvrir"
     },
     "download": {
         "resolution": "Résolution",
@@ -80,7 +81,7 @@
     "live": {
         "now": "Maintenant",
         "title": "Nouvelle application de diffusion en direct",
-        "description": ""
+        "description": "Nous sommes désolés! Vous ne pouvez plus regarder les diffusions en direct sur ce site Web. Cliquez sur le lien pour accéder à la nouvelle solution !"
     },
     "calendar": {
         "noScheduledEvents": "Aucun événement prévu",
@@ -153,7 +154,7 @@
         "termsOfUse": "Conditions d'utilisation"
     },
     "terms": {
-        "byDownloadingYouAcceptTerms": ""
+        "byDownloadingYouAcceptTerms": "En téléchargeant cette vidéo, vous acceptez nos [conditions d'utilisation](https://bcc.media/terms-of-use/) et notre [politique de confidentialité](https://bcc.media/privacy)."
     },
     "share": {
         "title": "Partager",
@@ -199,6 +200,6 @@
         "receitDescription": "Notre équipe te contactera dans les 7 jours ouvrables. Une réponse automatique a été envoyée à ton adresse e-mail."
     },
     "shorts": {
-        "watchOnOurApp": ""
+        "watchOnOurApp": "Téléchargez l'application mobile pour regarder les courts métrages."
     }
 }

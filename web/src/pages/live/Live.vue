@@ -17,6 +17,12 @@ const openLive = () => {
                 {{ $t("live.title") }}
             </h3>
             <p>{{ $t("live.description") }}</p>
+            <button
+                @click="openLive"
+                class="p-4 bg-primary text-xl hover:bg-primary-hover rounded-lg border border-gray transition duration-75 hover:-translate-y-0.5"
+            >
+                {{ $t("buttons.open") }}
+            </button>
         </div>
     </section>
 </template>

@@ -16,7 +16,8 @@
         "send": "Pošlji",
         "start": "Začetek",
         "skip": "Preskoči",
-        "join": "Pridruži se"
+        "join": "Pridruži se",
+        "open": "Odpri"
     },
     "download": {
         "resolution": "Resolucija",
@@ -80,7 +81,7 @@
     "live": {
         "now": "Zdaj",
         "title": "Nova aplikacija za prenos v živo",
-        "description": ""
+        "description": "Na žalost na tem spletnem mestu ne moreš več gledati prenosov v živo. Klikni na povezavo za dostop do nove rešitve!"
     },
     "calendar": {
         "noScheduledEvents": "Ni načrtovanih dogodkov",
@@ -153,7 +154,7 @@
         "termsOfUse": "Pogoji uporabe"
     },
     "terms": {
-        "byDownloadingYouAcceptTerms": ""
+        "byDownloadingYouAcceptTerms": "S prenosom tega videoposnetka se strinjaš z našimi [pogoji uporabe](https://bcc.media/terms-of-use/) in [politiko zasebnosti](https://bcc.media/privacy)."
     },
     "share": {
         "title": "Deli",
@@ -199,6 +200,6 @@
         "receitDescription": "Naša ekipa te bo kontaktirala v roku 7 delovnih dni. Avtomatsko sporočilo je bilo poslano na tvoj mail."
     },
     "shorts": {
-        "watchOnOurApp": ""
+        "watchOnOurApp": "Za ogled kratkih filmov prenesi mobilno aplikacijo."
     }
 }

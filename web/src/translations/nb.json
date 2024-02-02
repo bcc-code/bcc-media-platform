@@ -16,7 +16,8 @@
         "send": "Send",
         "start": "Start",
         "skip": "Hopp over",
-        "join": "Bli med"
+        "join": "Bli med",
+        "open": "Åpne"
     },
     "download": {
         "resolution": "Oppløsning",
@@ -80,7 +81,7 @@
     "live": {
         "now": "Nå",
         "title": "Ny app for direktesending",
-        "description": ""
+        "description": "Vi beklager! Du kan ikke lenger se direktesendinger på dette nettstedet. Klikk på lenken for å gå til den nye løsningen!"
     },
     "calendar": {
         "noScheduledEvents": "Ingen planlagte sendinger",
@@ -153,7 +154,7 @@
         "termsOfUse": "Vilkår for bruk"
     },
     "terms": {
-        "byDownloadingYouAcceptTerms": ""
+        "byDownloadingYouAcceptTerms": "Ved å laste ned denne videoen godtar du våre [vilkår for bruk](https://bcc.media/terms-of-use) og [personvernregler](https://bcc.media/privacy)."
     },
     "share": {
         "title": "Del",
@@ -199,6 +200,6 @@
         "receitDescription": "Vårt team vil kontakte deg innen 7 arbeidsdager. Et automatisk svar er sendt til din e-post."
     },
     "shorts": {
-        "watchOnOurApp": ""
+        "watchOnOurApp": "Last ned mobilappen for å se shorts."
     }
 }

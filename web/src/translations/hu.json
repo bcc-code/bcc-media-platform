@@ -16,7 +16,8 @@
         "send": "Küldés",
         "start": "Kezdés",
         "skip": "Átugrás",
-        "join": "Csatlakozás"
+        "join": "Csatlakozás",
+        "open": "Megnyitás"
     },
     "download": {
         "resolution": "Felbontás",

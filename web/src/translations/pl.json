@@ -16,7 +16,8 @@
         "send": "Wyślij",
         "start": "Start",
         "skip": "Pomiń",
-        "join": "Dołącz"
+        "join": "Dołącz",
+        "open": "Otwórz"
     },
     "download": {
         "resolution": "Rozdzielczość",
