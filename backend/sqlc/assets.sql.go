@@ -116,9 +116,9 @@ func (q *Queries) InsertAssetFile(ctx context.Context, arg InsertAssetFileParams
 
 const insertAssetStream = `-- name: InsertAssetStream :one
 INSERT INTO assetstreams (asset_id, encryption_key_id, extra_metadata, legacy_videourl_id, path, service, status, type,
-                          url, date_updated, date_created)
+                          url, configuration_id, date_updated, date_created)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,
-        NOW(), NOW())
+        $10, NOW(), NOW())
 RETURNING id
 `
 
@@ -132,6 +132,7 @@ type InsertAssetStreamParams struct {
 	Status           string                `db:"status" json:"status"`
 	Type             string                `db:"type" json:"type"`
 	Url              string                `db:"url" json:"url"`
+	ConfigurationID  null_v4.String        `db:"configuration_id" json:"configurationId"`
 }
 
 func (q *Queries) InsertAssetStream(ctx context.Context, arg InsertAssetStreamParams) (int32, error) {
@@ -145,6 +146,7 @@ func (q *Queries) InsertAssetStream(ctx context.Context, arg InsertAssetStreamPa
 		arg.Status,
 		arg.Type,
 		arg.Url,
+		arg.ConfigurationID,
 	)
 	var id int32
 	err := row.Scan(&id)
@@ -439,7 +441,7 @@ WITH audiolang AS (SELECT s.id, array_agg(al.languages_code) langs
                  WHERE al.languages_code IS NOT NULL
                  GROUP BY s.id)
 SELECT 0::int as                        episodes_id,
-       s.asset_id, s.date_created, s.date_updated, s.encryption_key_id, s.extra_metadata, s.id, s.legacy_videourl_id, s.path, s.service, s.status, s.type, s.url, s.user_created, s.user_updated,
+       s.asset_id, s.date_created, s.date_updated, s.encryption_key_id, s.extra_metadata, s.id, s.legacy_videourl_id, s.path, s.service, s.status, s.type, s.url, s.user_created, s.user_updated, s.configuration_id,
        COALESCE(al.langs, '{}')::text[] audio_languages,
        COALESCE(sl.langs, '{}')::text[] subtitle_languages
 FROM assets a
@@ -465,6 +467,7 @@ type getStreamsForAssetsRow struct {
 	Url               string                `db:"url" json:"url"`
 	UserCreated       uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated       uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	ConfigurationID   null_v4.String        `db:"configuration_id" json:"configurationId"`
 	AudioLanguages    []string              `db:"audio_languages" json:"audioLanguages"`
 	SubtitleLanguages []string              `db:"subtitle_languages" json:"subtitleLanguages"`
 }
@@ -494,6 +497,7 @@ func (q *Queries) getStreamsForAssets(ctx context.Context, dollar_1 []int32) ([]
 			&i.Url,
 			&i.UserCreated,
 			&i.UserUpdated,
+			&i.ConfigurationID,
 			pq.Array(&i.AudioLanguages),
 			pq.Array(&i.SubtitleLanguages),
 		); err != nil {
@@ -526,7 +530,7 @@ WITH audiolang AS (SELECT s.id, array_agg(al.languages_code) langs
                  WHERE al.languages_code IS NOT NULL
                  GROUP BY s.id)
 SELECT e.id AS                          episodes_id,
-       s.asset_id, s.date_created, s.date_updated, s.encryption_key_id, s.extra_metadata, s.id, s.legacy_videourl_id, s.path, s.service, s.status, s.type, s.url, s.user_created, s.user_updated,
+       s.asset_id, s.date_created, s.date_updated, s.encryption_key_id, s.extra_metadata, s.id, s.legacy_videourl_id, s.path, s.service, s.status, s.type, s.url, s.user_created, s.user_updated, s.configuration_id,
        COALESCE(al.langs, '{}')::text[] audio_languages,
        COALESCE(sl.langs, '{}')::text[] subtitle_languages
 FROM episodes e
@@ -553,6 +557,7 @@ type getStreamsForEpisodesRow struct {
 	Url               string                `db:"url" json:"url"`
 	UserCreated       uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated       uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	ConfigurationID   null_v4.String        `db:"configuration_id" json:"configurationId"`
 	AudioLanguages    []string              `db:"audio_languages" json:"audioLanguages"`
 	SubtitleLanguages []string              `db:"subtitle_languages" json:"subtitleLanguages"`
 }
@@ -582,6 +587,7 @@ func (q *Queries) getStreamsForEpisodes(ctx context.Context, dollar_1 []int32) (
 			&i.Url,
 			&i.UserCreated,
 			&i.UserUpdated,
+			&i.ConfigurationID,
 			pq.Array(&i.AudioLanguages),
 			pq.Array(&i.SubtitleLanguages),
 		); err != nil {

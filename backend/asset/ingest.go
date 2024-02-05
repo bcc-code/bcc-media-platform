@@ -436,11 +436,12 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 			}
 
 			stream := sqlc.InsertAssetStreamParams{
-				Type:    streamType,
-				Url:     *e.Url,
-				Path:    streamURL.Path,
-				Service: "mediapackage",
-				AssetID: assetID,
+				Type:            streamType,
+				Url:             *e.Url,
+				Path:            streamURL.Path,
+				Service:         "mediapackage",
+				AssetID:         assetID,
+				ConfigurationID: null.StringFromPtr(e.PackagingConfigurationId),
 			}
 
 			streamID, err := queries.InsertAssetStream(ctx, stream)

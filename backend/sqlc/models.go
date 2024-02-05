@@ -176,6 +176,7 @@ type Assetstream struct {
 	Url              string                `db:"url" json:"url"`
 	UserCreated      uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated      uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	ConfigurationID  null_v4.String        `db:"configuration_id" json:"configurationId"`
 }
 
 type AssetstreamsAudioLanguage struct {

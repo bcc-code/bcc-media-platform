@@ -109,9 +109,9 @@ RETURNING id;
 
 -- name: InsertAssetStream :one
 INSERT INTO assetstreams (asset_id, encryption_key_id, extra_metadata, legacy_videourl_id, path, service, status, type,
-                          url, date_updated, date_created)
+                          url, configuration_id, date_updated, date_created)
 VALUES (@asset_id, @encryption_key_id, @extra_metadata, @legacy_videourl_id, @path, @service, @status, @type, @url,
-        NOW(), NOW())
+        @configuration_id, NOW(), NOW())
 RETURNING id;
 
 -- name: InsertAssetStreamAudioLanguage :one
