@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"strconv"
+	"strings"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/admin/generated"
@@ -96,6 +97,10 @@ func (r *previewResolver) Asset(ctx context.Context, obj *model.Preview, id stri
 	if err != nil || len(streams) == 0 {
 		return nil, err
 	}
+
+	streams = lo.Filter(streams, func(s common.Stream, _ int) bool {
+		return !strings.Contains(s.Url, common.IgnoreEpisodeAssetEndpoint)
+	})
 
 	stream, found := lo.Find(streams, func(s common.Stream) bool {
 		return s.Type == "hls_cmaf"
