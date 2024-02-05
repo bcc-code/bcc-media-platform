@@ -216,7 +216,7 @@ func MediaItemFromDb(mi sqlc.Mediaitem, _ int) MediaItem {
 		Title:         nullStr(mi.Title.Ptr()),
 		Description:   nullStr(mi.Description.Ptr()),
 		Type:          mi.Type,
-		AssetID:       fmt.Sprint(mi.AssetID),
+		AssetID:       fmt.Sprint(mi.AssetID.Int64),
 		ParentEpisode: bigquery.NullInt64(mi.ParentEpisodeID.NullInt64),
 		ParentStarts:  bigquery.NullFloat64(mi.ParentStartsAt),
 		ParentEnds:    bigquery.NullFloat64(mi.ParentEndsAt),
