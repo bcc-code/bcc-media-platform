@@ -191,18 +191,18 @@ func TimedMetadataFromCommon(tm common.TimedMetadata, _ int) TimedMetadata {
 
 type MediaItem struct {
 	ID            string               `json:"id"`
-	UserCreated   string               `json:"userCreated"`
-	DateCreated   time.Time            `json:"dateCreated"`
-	UserUpdated   string               `json:"userUpdated"`
-	DateUpdated   time.Time            `json:"dateUpdated"`
+	UserCreated   string               `json:"userCreated" bigquery:"user_created"`
+	DateCreated   time.Time            `json:"dateCreated" bigquery:"date_created"`
+	UserUpdated   string               `json:"userUpdated" bigquery:"user_updated"`
+	DateUpdated   time.Time            `json:"dateUpdated" bigquery:"date_updated"`
 	Label         string               `json:"label"`
 	Title         bigquery.NullString  `json:"title"`
 	Description   bigquery.NullString  `json:"description"`
 	Type          string               `json:"type"`
-	AssetID       string               `json:"assetId"`
-	ParentEpisode bigquery.NullInt64   `json:"parentEpisode"`
-	ParentStarts  bigquery.NullFloat64 `json:"parentStarts"`
-	ParentEnds    bigquery.NullFloat64 `json:"parentEnds"`
+	AssetID       string               `json:"assetId" bigquery:"asset_id"`
+	ParentEpisode bigquery.NullInt64   `json:"parentEpisode" bigquery:"parent_episode"`
+	ParentStarts  bigquery.NullFloat64 `json:"parentStarts" bigquery:"parent_starts"`
+	ParentEnds    bigquery.NullFloat64 `json:"parentEnds" bigquery:"parent_ends"`
 }
 
 func MediaItemFromDb(mi sqlc.Mediaitem, _ int) MediaItem {
