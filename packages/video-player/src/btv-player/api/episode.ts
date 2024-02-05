@@ -15,6 +15,7 @@ export const getEpisodeStreams = async (
                     subtitleLanguages
                     url
                     type
+                    videoLanguage
                 }
             }
         }
@@ -39,6 +40,7 @@ export const getEpisodeStreams = async (
             streams: {
                 audioLanguages: string[]
                 subtitleLanguages: string[]
+                videoLanguage: string
                 url: string
                 type: "hls_cmaf" | "dash" | "hls_ts"
             }[]

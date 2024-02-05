@@ -46,7 +46,7 @@
                     </h1>
                 </div>
                 <div
-                    class="text-label-3 mt-4 text-style-body-2 lg:text-style-body-2"
+                    class="text-label-3 mt-4 text-style-body-2 lg:text-style-body-2 [&_a]:text-tint-1 [&_a]:underline"
                     v-html="mdToHTML(episode.description)"
                 ></div>
                 <!-- class="text-white mt-2 opacity-70 text-md lg:text-lg" -->
