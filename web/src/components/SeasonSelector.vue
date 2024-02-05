@@ -2,7 +2,7 @@
     <Listbox as="div" v-model="selectedItem" class="mb-2 font-medium">
         <div class="relative mt-1">
             <ListboxButton
-                class="relative w-full border-0 cursor-default rounded-md border py-2 pl-3 pr-10 text-left shadow-sm sm:text-sm"
+                class="relative w-full border-0 cursor-default rounded-md border py-2 pl-3 pr-10 text-left shadow-sm text-style-button-2"
             >
                 <span class="flex items-center">
                     <span class="block truncate uppercase">{{
@@ -20,7 +20,7 @@
                 leave-to-class="opacity-0"
             >
                 <ListboxOptions
-                    class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-slate-900 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                    class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-slate-900 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none text-style-button-2"
                 >
                     <ListboxOption
                         as="template"

@@ -20,7 +20,7 @@
                 ></div>
             </div>
             <h1
-                class="text-base leading-6 text-center my-auto"
+                class="text-base leading-6 text-center my-auto text-style-button-2"
                 :class="{
                     'font-bold text-tint-1': isExactActive,
                     'font-light text-label-3': !isExactActive,

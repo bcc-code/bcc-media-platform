@@ -32,6 +32,7 @@ checkRedirect()
 /* width */
 ::-webkit-scrollbar {
     width: 10px;
+    background: var(--color-background-1);
 }
 
 /* Track */
@@ -42,13 +43,13 @@ checkRedirect()
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    background: #888;
+    background: var(--color-label-4);
     width: 5px;
     border-radius: 10px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: var(--color-label-3);
 }
 </style>

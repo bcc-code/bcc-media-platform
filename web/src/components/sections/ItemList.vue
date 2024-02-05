@@ -45,14 +45,14 @@
                     class="w-2/3 ml-4"
                     :class="episodeComingSoon(i) ? 'opacity-50' : ''"
                 >
-                    <h1 class="text-sm font-light lg:text-lg line-clamp-2">
+                    <h1 class="text-style-title-3 line-clamp-2">
                         <span v-if="viewEpisodeNumber && i.number"
                             >{{ i.number }}. </span
                         >{{ i.title }}
                     </h1>
                     <AgeRating :episode="i" />
                     <div
-                        class="hidden lg:flex mt-1.5 line-clamp-2 text-sm opacity-70"
+                        class="hidden lg:flex mt-1.5 line-clamp-2 text-style-body-2 opacity-70"
                     >
                         {{ i.description }}
                     </div>

@@ -59,12 +59,12 @@
                 />
             </div>
             <div class="flex flex-col gap-2 mt-4">
-                <div class="flex gap-4 p-2 font-semibold">
+                <div class="flex gap-4 p-2 font-semibold text-style-button-2">
                     <button
                         v-if="
                             episode.context?.__typename === 'ContextCollection'
                         "
-                        class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
+                        class="bg-primary-light uppercase border-separator-on-light border px-3 py-1 rounded-full transition duration-100"
                         :class="[
                             effectiveView === 'context'
                                 ? 'opacity-100 border-opacity-40 '
@@ -76,7 +76,7 @@
                     </button>
                     <button
                         v-else-if="seasonId"
-                        class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
+                        class="bg-primary-light uppercase border-separator-on-light border px-3 py-1 rounded-full transition duration-100"
                         :class="[
                             effectiveView === 'episodes'
                                 ? 'opacity-100 border-opacity-40 '
@@ -110,7 +110,7 @@
                         {{ $t("buttons.download") }}
                     </button>
                 </div>
-                <hr class="border-gray border-opacity-70" />
+                <hr class="border-separator-on-light" />
                 <div>
                     <Transition name="slide-fade" mode="out-in">
                         <EpisodeDetails
