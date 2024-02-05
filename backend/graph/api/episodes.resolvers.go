@@ -145,7 +145,7 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 	}
 
 	out = lo.Filter(out, func(s *model.Stream, _ int) bool {
-		return !strings.Contains(s.URL, "7c011f242c6f4875a52e400061ef784a")
+		return !strings.Contains(s.URL, common.IgnoreEpisodeAssetEndpoint)
 	})
 
 	return out, nil
