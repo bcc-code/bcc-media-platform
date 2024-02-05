@@ -84,7 +84,7 @@ func (h *Handler) HandleDirectusEvent(ctx context.Context, collection string, id
 		return h.handleEpisode(ctx, intID)
 	case "timedmetadata":
 		return h.handleTimedMetadata(ctx, id)
-	case "mediaitem":
+	case "mediaitems":
 		return h.handleMediaitem(ctx, id)
 	default:
 		log.L.Debug().Str("collection", collection).Msg("Cllection not suported. Skipping")
