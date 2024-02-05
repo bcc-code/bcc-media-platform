@@ -86,8 +86,9 @@ const load = async () => {
             },
         },
     })
-    if (route.query.t) {
-        p.currentTime(route.query.t)
+    const queryTime = parseInt((route.query.t as string | undefined) ?? "", 10)
+    if (route.query.t && p && !isNaN(queryTime)) {
+        p.currentTime(queryTime)
     }
     await executeQuery()
 }
