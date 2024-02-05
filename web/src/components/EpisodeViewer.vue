@@ -159,6 +159,9 @@ const load = async () => {
             overrides: options,
         })
 
+        if (player.value == null) {
+            return
+        }
         setupVideoLanguageMenu(player.value)
 
         // create a event when player is created
@@ -171,7 +174,11 @@ const load = async () => {
         window.dispatchEvent(vodPlayer)
 
         lastProgress = props.episode.progress
-        player.value.currentTime(route.query.t ?? lastProgress)
+        const queryTime = parseInt(route.query.t as string, 10)
+        const seekTo = queryTime ?? lastProgress
+        if (seekTo && !isNaN(seekTo)) {
+            player.value.currentTime(seekTo)
+        }
 
         // player.value.on("play", analytics.track("playback_started", ))
         // player.value.on("ended", analytics.track("playback_ended", undefined))
