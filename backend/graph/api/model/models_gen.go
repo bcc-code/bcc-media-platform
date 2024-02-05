@@ -1094,6 +1094,8 @@ type Short struct {
 	InMyList    bool           `json:"inMyList"`
 }
 
+func (Short) IsSectionItemType() {}
+
 func (Short) IsCollectionItem()            {}
 func (this Short) GetID() string           { return this.ID }
 func (this Short) GetTitle() string        { return this.Title }

@@ -41,42 +41,49 @@ FROM collections_entries ce
                     FROM sections_usergroups ug
                              JOIN sections s ON s.id = ug.sections_id
                     GROUP BY s.page_id) pageroles ON ce.collection = 'pages' AND pageroles.page_id = ce.item
+         LEFT JOIN (SELECT shortsr.shorts_id::varchar, array_agg(shortsr.usergroups_code)::varchar[] roles
+                    FROM shorts_usergroups shortsr
+                    GROUP BY shortsr.shorts_id::varchar) shortsr
+                   ON ce.collection = 'shorts' AND shortsr.shorts_id = ce.item
+
 WHERE ce.collections_id = ANY (@ids::int[])
   AND (
-        (ce.collection = 'episodes'
-            AND ea.published
-            AND ea.available_to
-             > now()
-            AND er.roles && @roles::varchar[]
-            AND
-         ea.available_from
-             < now())
+    (ce.collection = 'episodes'
+        AND ea.published
+        AND ea.available_to
+         > now()
+        AND er.roles && @roles::varchar[]
+        AND
+     ea.available_from
+         < now())
         OR
-        (ce.collection = 'seasons'
-            AND sa.published
-            AND sa.available_to
-             > now()
-            AND sr.roles && @roles::varchar[]
-            AND
-         sa.available_from
-             < now())
+    (ce.collection = 'seasons'
+        AND sa.published
+        AND sa.available_to
+         > now()
+        AND sr.roles && @roles::varchar[]
+        AND
+     sa.available_from
+         < now())
         OR
-        (ce.collection = 'shows'
-            AND sha.published
-            AND sha.available_to
-             > now()
-            AND shr.roles && @roles::varchar[]
-            AND
-         sha.available_from
-             < now())
+    (ce.collection = 'shows'
+        AND sha.published
+        AND sha.available_to
+         > now()
+        AND shr.roles && @roles::varchar[]
+        AND
+     sha.available_from
+         < now())
         OR
-        (ce.collection = 'games' AND gr.roles && @roles::varchar[])
+    (ce.collection = 'games' AND gr.roles && @roles::varchar[])
         OR
-        (ce.collection = 'playlists' AND pr.roles && @roles::varchar[])
+    (ce.collection = 'playlists' AND pr.roles && @roles::varchar[])
         OR
-        (ce.collection = 'pages' AND pageroles.roles && @roles::varchar[])
+    (ce.collection = 'pages' AND pageroles.roles && @roles::varchar[])
         OR
-        (ce.collection NOT IN ('episodes', 'seasons', 'shows', 'games', 'playlists', 'pages')))
+    (ce.collection = 'shorts' AND shortsr.roles && @roles::varchar[])
+        OR
+    (ce.collection NOT IN ('episodes', 'seasons', 'shows', 'games', 'playlists', 'pages', 'shorts')))
 ORDER BY ce.sort;
 
 -- name: getCollectionIDsForCodes :many

@@ -48,6 +48,7 @@ const (
 	CollectionSeasons  Collection = "seasons"
 	CollectionEpisodes Collection = "episodes"
 	CollectionGames    Collection = "games"
+	CollectionShorts   Collection = "shorts"
 )
 
 var AllCollection = []Collection{
@@ -55,11 +56,12 @@ var AllCollection = []Collection{
 	CollectionSeasons,
 	CollectionEpisodes,
 	CollectionGames,
+	CollectionShorts,
 }
 
 func (e Collection) IsValid() bool {
 	switch e {
-	case CollectionShows, CollectionSeasons, CollectionEpisodes, CollectionGames:
+	case CollectionShows, CollectionSeasons, CollectionEpisodes, CollectionGames, CollectionShorts:
 		return true
 	}
 	return false

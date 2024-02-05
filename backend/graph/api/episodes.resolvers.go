@@ -337,7 +337,7 @@ func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, 
 	}
 
 	if collectionId != nil {
-		page, err := sectionCollectionEntryResolver(ctx, r.Loaders, r.FilteredLoaders(ctx), &common.Section{
+		page, err := r.sectionCollectionEntryResolver(ctx, &common.Section{
 			CollectionID: null.IntFrom(int64(*collectionId)),
 			Style:        "default",
 		}, first, offset)
