@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/items/collection"
@@ -28,6 +29,8 @@ func preloadEntryLoaders(ctx context.Context, loaders *common.BatchLoaders, entr
 			loaders.PlaylistLoader.Load(ctx, utils.AsUuid(e.ID))
 		case common.CollectionGames:
 			loaders.GameLoader.Load(ctx, utils.AsUuid(e.ID))
+		case common.CollectionShorts:
+			loaders.ShortLoader.Load(ctx, utils.AsUuid(e.ID))
 		}
 	}
 }
@@ -92,6 +95,15 @@ func collectionEntriesToModels(ctx context.Context, ls *common.BatchLoaders, ent
 				continue
 			}
 			items = append(items, model.StudyTopicFrom(ctx, i))
+		case common.CollectionShorts:
+			i, err := ls.ShortLoader.Get(ctx, utils.AsUuid(e.ID))
+			if err != nil {
+				return nil, err
+			}
+			if i == nil {
+				continue
+			}
+			items = append(items, model.ShortFrom(ctx, i))
 		}
 	}
 	return items, nil
