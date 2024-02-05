@@ -45,6 +45,12 @@ fragment LessonProgressOverview on Lesson {
     }
 }
 
+fragment Stream on Stream {
+    url
+    videoLanguage
+    type
+}
+
 query getEpisode($episodeId: ID!, $context: EpisodeContext) {
     episode(id: $episodeId, context: $context) {
         ...SimpleEpisode
@@ -58,6 +64,9 @@ query getEpisode($episodeId: ID!, $context: EpisodeContext) {
         availableFrom
         availableTo
         shareRestriction
+        streams {
+            ...Stream
+        }
         files {
             id
             url

@@ -29,13 +29,14 @@
         "@types/showdown": "^2.0.2",
         "@urql/exchange-auth": "2.0.0",
         "@urql/vue": "1.0.4",
-        "bccm-video-player": "1.5.2",
+        "bccm-video-player": "1.5.3",
         "bccm-video-player-legacy": "npm:bccm-video-player@1.4.0-test",
         "graphql": "^16.8.1",
         "graphql-tag": "^2.12.6",
         "rudder-sdk-js": "^2.42.4",
         "showdown": "^2.1.0",
         "swiper": "^9.4.1",
+        "video.js": "^7.21.5",
         "vue": "^3.3.4",
         "vue-i18n": "^9.5.0",
         "vue-router": "^4.2.5",
@@ -61,6 +62,7 @@
         "ts-node": "^10.9.1",
         "typescript": "^5.2.2",
         "vite": "^4.4.11",
-        "vue-tsc": "^1.8.18"
+        "vue-tsc": "^1.8.18",
+        "@types/video.js": "^7.3.53"
     }
 }

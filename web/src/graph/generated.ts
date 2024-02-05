@@ -104,12 +104,19 @@ export type BirthOptions = {
 
 export type Calendar = {
   day: CalendarDay;
+  events: Array<Event>;
   period: CalendarPeriod;
 };
 
 
 export type CalendarDayArgs = {
   day: Scalars['Date'];
+};
+
+
+export type CalendarEventsArgs = {
+  from?: InputMaybe<Scalars['Date']>;
+  to?: InputMaybe<Scalars['Date']>;
 };
 
 
@@ -369,6 +376,7 @@ export enum EpisodeType {
 
 export type Event = {
   end: Scalars['String'];
+  entries: Array<CalendarEntry>;
   id: Scalars['ID'];
   image: Scalars['String'];
   start: Scalars['String'];
@@ -445,6 +453,7 @@ export type File = {
   size: Scalars['Int'];
   subtitleLanguage?: Maybe<Scalars['Language']>;
   url: Scalars['String'];
+  videoLanguage?: Maybe<Scalars['Language']>;
 };
 
 export type Game = CollectionItem & {
@@ -969,6 +978,7 @@ export type Profile = {
 export type Prompt = {
   from: Scalars['Date'];
   id: Scalars['UUID'];
+  secondaryTitle?: Maybe<Scalars['String']>;
   title: Scalars['String'];
   to: Scalars['Date'];
 };
@@ -1381,6 +1391,7 @@ export type Stream = {
   subtitleLanguages: Array<Scalars['Language']>;
   type: StreamType;
   url: Scalars['String'];
+  videoLanguage?: Maybe<Scalars['Language']>;
 };
 
 export enum StreamType {
@@ -1439,6 +1450,7 @@ export type SurveyQuestionsArgs = {
 export type SurveyPrompt = Prompt & {
   from: Scalars['Date'];
   id: Scalars['UUID'];
+  secondaryTitle?: Maybe<Scalars['String']>;
   survey: Survey;
   title: Scalars['String'];
   to: Scalars['Date'];
@@ -1595,13 +1607,18 @@ export type LessonProgressOverviewFragment = { id: string, progress: { total: nu
 
 export type LessonProgressOverviewFragmentVariables = Exact<{ [key: string]: never; }>;
 
+export type StreamFragment = { url: string, videoLanguage?: any | null, type: StreamType };
+
+
+export type StreamFragmentVariables = Exact<{ [key: string]: never; }>;
+
 export type GetEpisodeQueryVariables = Exact<{
   episodeId: Scalars['ID'];
   context?: InputMaybe<EpisodeContext>;
 }>;
 
 
-export type GetEpisodeQuery = { episode: { description: string, number?: number | null, progress?: number | null, locked: boolean, ageRating: string, productionDate: any, productionDateInTitle: boolean, availableFrom: any, availableTo: any, shareRestriction: ShareRestriction, id: string, uuid: string, title: string, image?: string | null, publishDate: any, duration: number, files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, size: number, resolution?: string | null }>, next: Array<{ id: string }>, lessons: { items: Array<{ id: string, progress: { total: number, completed: number } }> }, context?: { __typename: 'ContextCollection', id: string, slug?: string | null, items?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Game' } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Playlist', id: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null } | { __typename: 'Season', id: string } | null, relatedItems?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Game' } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Playlist', id: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null, season?: { id: string, title: string, number: number, description: string, show: { id: string, title: string, type: ShowType, description: string, seasons: { items: Array<{ id: string, title: string, number: number }> } } } | null } };
+export type GetEpisodeQuery = { episode: { description: string, number?: number | null, progress?: number | null, locked: boolean, ageRating: string, productionDate: any, productionDateInTitle: boolean, availableFrom: any, availableTo: any, shareRestriction: ShareRestriction, id: string, uuid: string, title: string, image?: string | null, publishDate: any, duration: number, streams: Array<{ url: string, videoLanguage?: any | null, type: StreamType }>, files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, size: number, resolution?: string | null }>, next: Array<{ id: string }>, lessons: { items: Array<{ id: string, progress: { total: number, completed: number } }> }, context?: { __typename: 'ContextCollection', id: string, slug?: string | null, items?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Game' } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Playlist', id: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null } | { __typename: 'Season', id: string } | null, relatedItems?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Game' } | { __typename: 'Link' } | { __typename: 'Page', id: string, code: string } | { __typename: 'Playlist', id: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null, season?: { id: string, title: string, number: number, description: string, show: { id: string, title: string, type: ShowType, description: string, seasons: { items: Array<{ id: string, title: string, number: number }> } } } | null } };
 
 export type UpdateEpisodeProgressMutationVariables = Exact<{
   episodeId: Scalars['ID'];
@@ -1869,6 +1886,13 @@ export const LessonProgressOverviewFragmentDoc = gql`
     total
     completed
   }
+}
+    `;
+export const StreamFragmentDoc = gql`
+    fragment Stream on Stream {
+  url
+  videoLanguage
+  type
 }
     `;
 export const SectionItemFragmentDoc = gql`
@@ -2190,6 +2214,9 @@ export const GetEpisodeDocument = gql`
     availableFrom
     availableTo
     shareRestriction
+    streams {
+      ...Stream
+    }
     files {
       id
       url
@@ -2249,6 +2276,7 @@ export const GetEpisodeDocument = gql`
   }
 }
     ${SimpleEpisodeFragmentDoc}
+${StreamFragmentDoc}
 ${LessonProgressOverviewFragmentDoc}
 ${SectionItemFragmentDoc}`;
 
