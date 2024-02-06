@@ -86,6 +86,8 @@ func (h *Handler) HandleDirectusEvent(ctx context.Context, collection string, id
 		return h.handleTimedMetadata(ctx, id)
 	case "mediaitems":
 		return h.handleMediaitem(ctx, id)
+	case "shorts":
+		return h.handleShort(ctx, id)
 	default:
 		log.L.Debug().Str("collection", collection).Msg("Cllection not suported. Skipping")
 	}
@@ -169,15 +171,31 @@ func (h *Handler) handleTimedMetadata(ctx context.Context, id string) error {
 	return h.insert(ctx, bqTimedMetadatas, "timedmetadata")
 }
 
+// handleMediaitem updated the related shorts in BQ
+//
+// This is intentinall as most of the data about the short is stored in the mediaitem
 func (h *Handler) handleMediaitem(ctx context.Context, id string) error {
 	log.L.Debug().Str("mediaitem", id).Msg("updating mediaitem in BQ")
 	miUuid := utils.AsUuid(id)
-	mediaItem, err := h.queries.GetMediaItemByID(ctx, miUuid)
+	shorts, err := h.queries.GetShortsByMediaItemIDs(ctx, miUuid)
 	if err != nil {
 		return merry.Wrap(err)
 	}
 
-	return h.insert(ctx, MediaItemFromDb(mediaItem, 0), "mediaitem")
+	bqShorts := lo.Map(shorts, ShortFromCommon)
+	return h.insert(ctx, bqShorts, "shorts")
+}
+
+func (h *Handler) handleShort(ctx context.Context, id string) error {
+	log.L.Debug().Str("shorts", id).Msg("updating shorts in BQ")
+	shortUuid := utils.AsUuid(id)
+	shorts, err := h.queries.GetShorts(ctx, []uuid.UUID{shortUuid})
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	bqShorts := lo.Map(shorts, ShortFromCommon)
+	return h.insert(ctx, bqShorts, "shorts")
 }
 
 func (h *Handler) HandleAnswerExportToBQ(ctx context.Context) error {

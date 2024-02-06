@@ -9,6 +9,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -83,6 +84,7 @@ func (q *Queries) getMediaIDForShorts(ctx context.Context, ids []uuid.UUID) ([]g
 
 const getShorts = `-- name: getShorts :many
 SELECT s.id,
+	   s.status,
        mi.id AS media_id,
        mi.asset_id,
        mi.title,
@@ -92,7 +94,9 @@ SELECT s.id,
        mi.images,
        mi.parent_episode_id,
        mi.parent_starts_at,
-       mi.parent_ends_at
+       mi.parent_ends_at,
+       mi.label,
+	   GREATEST(s.date_updated, mi.date_updated)::timestamp AS date_updated
 FROM shorts s
          JOIN mediaitems_view mi ON mi.id = s.mediaitem_id
 WHERE s.id = ANY ($1::uuid[])
@@ -100,6 +104,7 @@ WHERE s.id = ANY ($1::uuid[])
 
 type getShortsRow struct {
 	ID                  uuid.UUID       `db:"id" json:"id"`
+	Status              string          `db:"status" json:"status"`
 	MediaID             uuid.UUID       `db:"media_id" json:"mediaId"`
 	AssetID             null_v4.Int     `db:"asset_id" json:"assetId"`
 	Title               json.RawMessage `db:"title" json:"title"`
@@ -110,6 +115,8 @@ type getShortsRow struct {
 	ParentEpisodeID     null_v4.Int     `db:"parent_episode_id" json:"parentEpisodeId"`
 	ParentStartsAt      sql.NullFloat64 `db:"parent_starts_at" json:"parentStartsAt"`
 	ParentEndsAt        sql.NullFloat64 `db:"parent_ends_at" json:"parentEndsAt"`
+	Label               string          `db:"label" json:"label"`
+	DateUpdated         time.Time       `db:"date_updated" json:"dateUpdated"`
 }
 
 func (q *Queries) getShorts(ctx context.Context, ids []uuid.UUID) ([]getShortsRow, error) {
@@ -123,6 +130,7 @@ func (q *Queries) getShorts(ctx context.Context, ids []uuid.UUID) ([]getShortsRo
 		var i getShortsRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.Status,
 			&i.MediaID,
 			&i.AssetID,
 			&i.Title,
@@ -133,6 +141,83 @@ func (q *Queries) getShorts(ctx context.Context, ids []uuid.UUID) ([]getShortsRo
 			&i.ParentEpisodeID,
 			&i.ParentStartsAt,
 			&i.ParentEndsAt,
+			&i.Label,
+			&i.DateUpdated,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getShortsByMediaItemID = `-- name: getShortsByMediaItemID :many
+SELECT s.id,
+       s.status,
+       mi.id AS media_id,
+       mi.asset_id,
+       mi.title,
+       mi.description,
+       mi.original_title,
+       mi.original_description,
+       mi.images,
+       mi.parent_episode_id,
+       mi.parent_starts_at,
+       mi.parent_ends_at,
+       mi.label,
+	   GREATEST(s.date_updated, mi.date_updated)::timestamp AS date_updated
+FROM shorts s
+         JOIN mediaitems_view mi ON mi.id = s.mediaitem_id
+WHERE s.media_id= $1::uuid
+`
+
+type getShortsByMediaItemIDRow struct {
+	ID                  uuid.UUID       `db:"id" json:"id"`
+	Status              string          `db:"status" json:"status"`
+	MediaID             uuid.UUID       `db:"media_id" json:"mediaId"`
+	AssetID             null_v4.Int     `db:"asset_id" json:"assetId"`
+	Title               json.RawMessage `db:"title" json:"title"`
+	Description         json.RawMessage `db:"description" json:"description"`
+	OriginalTitle       null_v4.String  `db:"original_title" json:"originalTitle"`
+	OriginalDescription null_v4.String  `db:"original_description" json:"originalDescription"`
+	Images              json.RawMessage `db:"images" json:"images"`
+	ParentEpisodeID     null_v4.Int     `db:"parent_episode_id" json:"parentEpisodeId"`
+	ParentStartsAt      sql.NullFloat64 `db:"parent_starts_at" json:"parentStartsAt"`
+	ParentEndsAt        sql.NullFloat64 `db:"parent_ends_at" json:"parentEndsAt"`
+	Label               string          `db:"label" json:"label"`
+	DateUpdated         time.Time       `db:"date_updated" json:"dateUpdated"`
+}
+
+func (q *Queries) getShortsByMediaItemID(ctx context.Context, id uuid.UUID) ([]getShortsByMediaItemIDRow, error) {
+	rows, err := q.db.QueryContext(ctx, getShortsByMediaItemID, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getShortsByMediaItemIDRow
+	for rows.Next() {
+		var i getShortsByMediaItemIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Status,
+			&i.MediaID,
+			&i.AssetID,
+			&i.Title,
+			&i.Description,
+			&i.OriginalTitle,
+			&i.OriginalDescription,
+			&i.Images,
+			&i.ParentEpisodeID,
+			&i.ParentStartsAt,
+			&i.ParentEndsAt,
+			&i.Label,
+			&i.DateUpdated,
 		); err != nil {
 			return nil, err
 		}

@@ -222,3 +222,31 @@ func MediaItemFromDb(mi sqlc.Mediaitem, _ int) MediaItem {
 		ParentEnds:    bigquery.NullFloat64(mi.ParentEndsAt),
 	}
 }
+
+type Short struct {
+	ID          string               `bigquery:"id"`
+	MediaID     string               `bigquery:"media_id"`
+	AssetID     string               `bigquery:"asset_id"`
+	Label       string               `bigquery:"label"`
+	EpisodeID   string               `bigquery:"episode_id"`
+	Status      string               `bigquery:"staus"`
+	StartsAt    bigquery.NullFloat64 `bigquery:"starts_at"`
+	EndsAt      bigquery.NullFloat64 `bigquery:"ends_at"`
+	Image       bigquery.NullString  `bigquery:"image"`
+	DateUpdated time.Time            `bigquery:"date_updated"`
+}
+
+func ShortFromCommon(s common.Short, _ int) Short {
+	return Short{
+		ID:          s.ID.String(),
+		MediaID:     s.MediaID.String(),
+		AssetID:     fmt.Sprint(s.AssetID),
+		Label:       s.Label,
+		EpisodeID:   fmt.Sprint(s.EpisodeID.Int64),
+		StartsAt:    bigquery.NullFloat64(s.StartsAt.NullFloat64),
+		EndsAt:      bigquery.NullFloat64(s.EndsAt.NullFloat64),
+		Image:       nullStr(s.Images.GetDefault([]string{"no"}, common.ImageStyleDefault)),
+		DateUpdated: s.DateUpdated,
+		Status:      string(s.Status),
+	}
+}

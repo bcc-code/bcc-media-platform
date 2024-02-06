@@ -8,6 +8,7 @@ WHERE s.status = 'published'
 
 -- name: getShorts :many
 SELECT s.id,
+	   s.status,
        mi.id AS media_id,
        mi.asset_id,
        mi.title,
@@ -17,7 +18,9 @@ SELECT s.id,
        mi.images,
        mi.parent_episode_id,
        mi.parent_starts_at,
-       mi.parent_ends_at
+       mi.parent_ends_at,
+       mi.label,
+	   GREATEST(s.date_updated, mi.date_updated)::timestamp AS date_updated
 FROM shorts s
          JOIN mediaitems_view mi ON mi.id = s.mediaitem_id
 WHERE s.id = ANY (@ids::uuid[]);
@@ -26,3 +29,22 @@ WHERE s.id = ANY (@ids::uuid[]);
 SELECT sh.id, sh.mediaitem_id
 FROM "public"."shorts" sh
 WHERE sh.id = ANY (@ids::uuid[]);
+
+-- name: getShortsByMediaItemID :many
+SELECT s.id,
+       s.status,
+       mi.id AS media_id,
+       mi.asset_id,
+       mi.title,
+       mi.description,
+       mi.original_title,
+       mi.original_description,
+       mi.images,
+       mi.parent_episode_id,
+       mi.parent_starts_at,
+       mi.parent_ends_at,
+       mi.label,
+	   GREATEST(s.date_updated, mi.date_updated)::timestamp AS date_updated
+FROM shorts s
+         JOIN mediaitems_view mi ON mi.id = s.mediaitem_id
+WHERE s.media_id= @id::uuid;
