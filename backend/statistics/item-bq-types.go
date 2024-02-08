@@ -229,7 +229,7 @@ type Short struct {
 	AssetID     string               `bigquery:"asset_id"`
 	Label       string               `bigquery:"label"`
 	EpisodeID   string               `bigquery:"episode_id"`
-	Status      string               `bigquery:"staus"`
+	Status      string               `bigquery:"status"`
 	StartsAt    bigquery.NullFloat64 `bigquery:"starts_at"`
 	EndsAt      bigquery.NullFloat64 `bigquery:"ends_at"`
 	Image       bigquery.NullString  `bigquery:"image"`
