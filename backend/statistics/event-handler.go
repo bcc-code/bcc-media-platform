@@ -88,6 +88,8 @@ func (h *Handler) HandleDirectusEvent(ctx context.Context, collection string, id
 		return h.handleMediaitem(ctx, id)
 	case "shorts":
 		return h.handleShort(ctx, id)
+	case "calendarentries":
+		return h.handleCalendarEntry(ctx, id)
 	default:
 		log.L.Debug().Str("collection", collection).Msg("Cllection not suported. Skipping")
 	}
@@ -196,6 +198,17 @@ func (h *Handler) handleShort(ctx context.Context, id string) error {
 
 	bqShorts := lo.Map(shorts, ShortFromCommon)
 	return h.insert(ctx, bqShorts, "shorts")
+}
+
+func (h *Handler) handleCalendarEntry(ctx context.Context, id string) error {
+	log.L.Debug().Str("calendarEntry", id).Msg("updating calendarEntry in BQ")
+	event, err := h.queries.GetCalendarEntriesByID(ctx, []int{utils.AsInt(id)})
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	bqEvents := lo.Map(event, CalendarEntryFromCommon)
+	return h.insert(ctx, bqEvents, "calendar_entries")
 }
 
 func (h *Handler) HandleAnswerExportToBQ(ctx context.Context) error {

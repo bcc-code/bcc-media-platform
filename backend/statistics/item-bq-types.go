@@ -250,3 +250,33 @@ func ShortFromCommon(s common.Short, _ int) Short {
 		Status:      string(s.Status),
 	}
 }
+
+type CalendarEntry struct {
+	ID       string              `bigquery:"id"`
+	EventID  bigquery.NullString `bigquery:"event_id"`
+	Title    string              `bigquery:"title"`
+	Start    time.Time           `bigquery:"start"`
+	End      time.Time           `bigquery:"end"`
+	Type     bigquery.NullString `bigquery:"type"`
+	IsReplay bool                `bigquery:"is_replay"`
+	ItemID   bigquery.NullString `bigquery:"item_id"`
+}
+
+func CalendarEntryFromCommon(c common.CalendarEntry, _ int) CalendarEntry {
+	var eventID *string
+	if c.EventID.Valid {
+		e := fmt.Sprint(c.EventID.Int64)
+		eventID = &e
+	}
+
+	return CalendarEntry{
+		ID:       fmt.Sprint(c.ID),
+		EventID:  nullStr(eventID),
+		Title:    c.Title.Get([]string{"no", "en"}),
+		Start:    c.Start,
+		End:      c.End,
+		Type:     nullStr(c.Type.Ptr()),
+		IsReplay: c.IsReplay,
+		ItemID:   nullIntToBQNullString(c.ItemID),
+	}
+}

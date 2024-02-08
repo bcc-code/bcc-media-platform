@@ -138,3 +138,15 @@ func (q *Queries) GetCalendarEntriesForPeriod(ctx context.Context, from time.Tim
 	}
 	return int32ToInt(ids), err
 }
+
+// GetCalendarEntriesByID returns the calendar entries for the specified ids
+func (q *Queries) GetCalendarEntriesByID(ctx context.Context, ids []int) ([]common.CalendarEntry, error) {
+	items, err := q.getCalendarEntriesByID(ctx, intToInt32(ids))
+	if err != nil {
+		return nil, err
+	}
+
+	return mapToCalendarEntries(lo.Map(items, func(i getCalendarEntriesByIDRow, _ int) getCalendarEntriesRow {
+		return getCalendarEntriesRow(i)
+	})), nil
+}
