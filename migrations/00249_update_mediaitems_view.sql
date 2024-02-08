@@ -29,7 +29,6 @@ FROM mediaitems mi
                              JOIN styledimages img ON img.id = simg.styledimages_id
                              JOIN directus_files df ON img.file = df.id
                     GROUP BY simg.mediaitems_id) images ON images.mediaitems_id = mi.id;
-ALTER VIEW IF EXISTS "public"."mediaitems_view" OWNER TO bccm;
 
 
 -- +goose Down
@@ -61,5 +60,4 @@ FROM mediaitems mi
                              JOIN styledimages img ON img.id = simg.styledimages_id
                              JOIN directus_files df ON img.file = df.id
                     GROUP BY simg.mediaitems_id) images ON images.mediaitems_id = mi.id;
-ALTER VIEW IF EXISTS "public"."mediaitems_view" OWNER TO bccm;
 
