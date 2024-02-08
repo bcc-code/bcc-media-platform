@@ -240,7 +240,7 @@ func ShortFromCommon(s common.Short, _ int) Short {
 	return Short{
 		ID:          s.ID.String(),
 		MediaID:     s.MediaID.String(),
-		AssetID:     fmt.Sprint(s.AssetID),
+		AssetID:     fmt.Sprint(s.AssetID.Int64),
 		Label:       s.Label,
 		EpisodeID:   fmt.Sprint(s.EpisodeID.Int64),
 		StartsAt:    bigquery.NullFloat64(s.StartsAt.NullFloat64),
