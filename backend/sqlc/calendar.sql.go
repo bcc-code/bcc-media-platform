@@ -118,7 +118,7 @@ FROM calendarentries e
          LEFT JOIN seasons se ON se.id = e.season_id
          LEFT JOIN shows sh ON sh.id = e.show_id
          LEFT JOIN t ON e.id = t.calendarentries_id
-  AND e.id = ANY ($1::int[])
+  WHERE e.id = ANY ($1::int[])
 `
 
 type getCalendarEntriesByIDRow struct {
