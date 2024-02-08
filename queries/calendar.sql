@@ -98,3 +98,28 @@ WHERE e.status = 'published'
   AND ((e.start >= $1::timestamptz AND e.start <= $2::timestamptz) OR
        (e.end >= $1::timestamptz AND e.end <= $2::timestamptz))
 ORDER BY e.start;
+
+-- name: getCalendarEntriesByID :many
+WITH t AS (SELECT ts.calendarentries_id,
+                  json_object_agg(ts.languages_code, ts.title)       AS title,
+                  json_object_agg(ts.languages_code, ts.description) AS description
+           FROM calendarentries_translations ts
+           GROUP BY ts.calendarentries_id)
+SELECT e.id,
+       e.event_id,
+       e.link_type,
+       e.start,
+       e.end,
+       COALESCE(e.is_replay, false) = true AS is_replay,
+       ea.id              AS episode_id,
+       se.id              AS season_id,
+       sh.id              AS show_id,
+       t.title,
+       t.description
+FROM calendarentries e
+         LEFT JOIN episode_roles er ON er.id = e.episode_id
+         LEFT JOIN episode_availability ea ON ea.id = er.id
+         LEFT JOIN seasons se ON se.id = e.season_id
+         LEFT JOIN shows sh ON sh.id = e.show_id
+         LEFT JOIN t ON e.id = t.calendarentries_id
+  AND e.id = ANY ($1::int[]);

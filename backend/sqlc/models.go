@@ -992,6 +992,8 @@ type MediaitemsView struct {
 	ParentEpisodeID     null_v4.Int     `db:"parent_episode_id" json:"parentEpisodeId"`
 	ParentStartsAt      sql.NullFloat64 `db:"parent_starts_at" json:"parentStartsAt"`
 	ParentEndsAt        sql.NullFloat64 `db:"parent_ends_at" json:"parentEndsAt"`
+	Label               string          `db:"label" json:"label"`
+	DateUpdated         null_v4.Time    `db:"date_updated" json:"dateUpdated"`
 }
 
 type Message struct {

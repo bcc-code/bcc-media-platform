@@ -241,6 +241,9 @@ type Short struct {
 	EpisodeID   null.Int
 	StartsAt    null.Float
 	EndsAt      null.Float
+	Label       string
+	Status      Status
+	DateUpdated time.Time
 }
 
 // Page is the definition of the Page object

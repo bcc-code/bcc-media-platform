@@ -222,3 +222,61 @@ func MediaItemFromDb(mi sqlc.Mediaitem, _ int) MediaItem {
 		ParentEnds:    bigquery.NullFloat64(mi.ParentEndsAt),
 	}
 }
+
+type Short struct {
+	ID          string               `bigquery:"id"`
+	MediaID     string               `bigquery:"media_id"`
+	AssetID     string               `bigquery:"asset_id"`
+	Label       string               `bigquery:"label"`
+	EpisodeID   string               `bigquery:"episode_id"`
+	Status      string               `bigquery:"staus"`
+	StartsAt    bigquery.NullFloat64 `bigquery:"starts_at"`
+	EndsAt      bigquery.NullFloat64 `bigquery:"ends_at"`
+	Image       bigquery.NullString  `bigquery:"image"`
+	DateUpdated time.Time            `bigquery:"date_updated"`
+}
+
+func ShortFromCommon(s common.Short, _ int) Short {
+	return Short{
+		ID:          s.ID.String(),
+		MediaID:     s.MediaID.String(),
+		AssetID:     fmt.Sprint(s.AssetID),
+		Label:       s.Label,
+		EpisodeID:   fmt.Sprint(s.EpisodeID.Int64),
+		StartsAt:    bigquery.NullFloat64(s.StartsAt.NullFloat64),
+		EndsAt:      bigquery.NullFloat64(s.EndsAt.NullFloat64),
+		Image:       nullStr(s.Images.GetDefault([]string{"no"}, common.ImageStyleDefault)),
+		DateUpdated: s.DateUpdated,
+		Status:      string(s.Status),
+	}
+}
+
+type CalendarEntry struct {
+	ID       string              `bigquery:"id"`
+	EventID  bigquery.NullString `bigquery:"event_id"`
+	Title    string              `bigquery:"title"`
+	Start    time.Time           `bigquery:"start"`
+	End      time.Time           `bigquery:"end"`
+	Type     bigquery.NullString `bigquery:"type"`
+	IsReplay bool                `bigquery:"is_replay"`
+	ItemID   bigquery.NullString `bigquery:"item_id"`
+}
+
+func CalendarEntryFromCommon(c common.CalendarEntry, _ int) CalendarEntry {
+	var eventID *string
+	if c.EventID.Valid {
+		e := fmt.Sprint(c.EventID.Int64)
+		eventID = &e
+	}
+
+	return CalendarEntry{
+		ID:       fmt.Sprint(c.ID),
+		EventID:  nullStr(eventID),
+		Title:    c.Title.Get([]string{"no", "en"}),
+		Start:    c.Start,
+		End:      c.End,
+		Type:     nullStr(c.Type.Ptr()),
+		IsReplay: c.IsReplay,
+		ItemID:   nullIntToBQNullString(c.ItemID),
+	}
+}

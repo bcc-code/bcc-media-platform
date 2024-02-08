@@ -8,6 +8,7 @@ import (
 	"cloud.google.com/go/bigquery"
 	"github.com/ansel1/merry/v2"
 	"google.golang.org/api/googleapi"
+	"gopkg.in/guregu/null.v4"
 )
 
 func bqTableExistsOrCreate(ctx context.Context, dataset *bigquery.Dataset, tableName string) error {
@@ -45,4 +46,13 @@ func bqTableExistsOrCreate(ctx context.Context, dataset *bigquery.Dataset, table
 
 	err = t.Create(ctx, tm)
 	return merry.Wrap(err)
+}
+
+func nullIntToBQNullString(i null.Int) bigquery.NullString {
+	var s *string
+	if i.Valid {
+		v := fmt.Sprintf("%d", i.Int64)
+		s = &v
+	}
+	return nullStr(s)
 }
