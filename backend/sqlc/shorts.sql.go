@@ -174,7 +174,7 @@ SELECT s.id,
 	   GREATEST(s.date_updated, mi.date_updated)::timestamp AS date_updated
 FROM shorts s
          JOIN mediaitems_view mi ON mi.id = s.mediaitem_id
-WHERE s.media_id= $1::uuid
+WHERE s.mediaitem_id= $1::uuid
 `
 
 type getShortsByMediaItemIDRow struct {
