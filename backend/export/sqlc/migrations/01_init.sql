@@ -78,5 +78,6 @@ CREATE TABLE streams (
 	url TEXT NOT NULL,
 	audio_languages TEXT NOT NULL,
 	subtitle_languages TEXT NOT NULL,
-	type TEXT NOT NULL
+	type TEXT NOT NULL,
+    video_language TEXT
 );

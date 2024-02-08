@@ -7,19 +7,21 @@ package sqlexport
 
 import (
 	"context"
+	"database/sql"
 )
 
 const insertStream = `-- name: InsertStream :exec
-INSERT INTO streams (id, episode_id, url, audio_languages, subtitle_languages, type) VALUES (?,?,?,?,?,?)
+INSERT INTO streams (id, episode_id, url, audio_languages, subtitle_languages, type, video_language) VALUES (?,?,?,?,?,?,?)
 `
 
 type InsertStreamParams struct {
-	ID                int64  `db:"id" json:"id"`
-	EpisodeID         int64  `db:"episode_id" json:"episodeId"`
-	Url               string `db:"url" json:"url"`
-	AudioLanguages    string `db:"audio_languages" json:"audioLanguages"`
-	SubtitleLanguages string `db:"subtitle_languages" json:"subtitleLanguages"`
-	Type              string `db:"type" json:"type"`
+	ID                int64          `db:"id" json:"id"`
+	EpisodeID         int64          `db:"episode_id" json:"episodeId"`
+	Url               string         `db:"url" json:"url"`
+	AudioLanguages    string         `db:"audio_languages" json:"audioLanguages"`
+	SubtitleLanguages string         `db:"subtitle_languages" json:"subtitleLanguages"`
+	Type              string         `db:"type" json:"type"`
+	VideoLanguage     sql.NullString `db:"video_language" json:"videoLanguage"`
 }
 
 func (q *Queries) InsertStream(ctx context.Context, arg InsertStreamParams) error {
@@ -30,6 +32,7 @@ func (q *Queries) InsertStream(ctx context.Context, arg InsertStreamParams) erro
 		arg.AudioLanguages,
 		arg.SubtitleLanguages,
 		arg.Type,
+		arg.VideoLanguage,
 	)
 	return err
 }
