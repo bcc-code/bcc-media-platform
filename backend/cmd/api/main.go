@@ -1,10 +1,15 @@
 package main
 
 import (
-	"cloud.google.com/go/profiler"
 	"context"
 	"database/sql"
 	"encoding/json"
+	"net/http"
+	"os"
+	"strings"
+	"time"
+
+	"cloud.google.com/go/profiler"
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/bcc-media-platform/backend/applications"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
@@ -14,10 +19,6 @@ import (
 	"github.com/bsm/redislock"
 	"github.com/gin-contrib/pprof"
 	"github.com/sony/gobreaker"
-	"net/http"
-	"os"
-	"strings"
-	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/email"
 	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
@@ -248,11 +249,6 @@ func main() {
 		authClient,
 		remoteCache,
 	))
-	r.GET("/test", func(ctx *gin.Context) {
-		ms, _ := membersClient.RetrieveByEmails(ctx, []string{"fredrik@vedvik.tech"})
-
-		ctx.JSON(200, ms)
-	})
 	r.GET("/", playgroundHandler())
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, ls))
 	r.POST("/public", publicGraphqlHandler(ls))
