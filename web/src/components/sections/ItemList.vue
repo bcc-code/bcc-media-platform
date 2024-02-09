@@ -54,7 +54,11 @@
                     <div
                         class="hidden lg:flex mt-1.5 line-clamp-2 text-style-body-2 opacity-70"
                     >
-                        {{ i.description }}
+                        <div
+                            v-html="
+                                i.description ? mdToHTML(i.description) : ''
+                            "
+                        ></div>
                     </div>
                 </div>
             </div>
@@ -68,6 +72,7 @@ import AgeRating from "../episodes/AgeRating.vue"
 import { ListItem } from "@/utils/lists"
 import Pill from "./item/Pill.vue"
 import { comingSoon, episodeComingSoon } from "@/utils/items"
+import { mdToHTML } from "@/services/converter"
 
 defineProps<{
     items: ListItem[]
