@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"path"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/service/cloudfront/sign"
@@ -58,7 +59,7 @@ func FileFrom(_ context.Context, signer signatureProvider, cdnDomain string, fil
 const streamUrlExpiresAfter = 6 * time.Hour
 
 // StreamFrom converts AssetFile rows to the GQL equivalents
-func StreamFrom(_ context.Context, signer signatureProvider, cdn cdnConfig, stream *common.Stream) (*Stream, error) {
+func StreamFrom(_ context.Context, signer signatureProvider, cdn cdnConfig, stream *common.Stream, isShort bool) (*Stream, error) {
 	signedURL := ""
 	var err error
 
@@ -80,7 +81,11 @@ func StreamFrom(_ context.Context, signer signatureProvider, cdn cdnConfig, stre
 
 		signedURL, err = signer.SignAzureURL(manifestURL, stream.EncryptionKeyID.ValueOrZero())
 	} else {
-		signedURL, err = signer.SignCloudfrontURL(stream.Path, cdn.GetVOD2Domain(), streamUrlExpiresAfter)
+		path := stream.Path
+		if isShort {
+			path = strings.Replace(path, "ab9e7540a3e34bee86ec6af8c7cdc342/1467e3c2761c4947ae7dc7a6c162747f", "7c011f242c6f4875a52e400061ef784a/8df0de9a956c4df9a33b130fe8dbd460", 1)
+		}
+		signedURL, err = signer.SignCloudfrontURL(path, cdn.GetVOD2Domain(), streamUrlExpiresAfter)
 	}
 
 	if err != nil {
