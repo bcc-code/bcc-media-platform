@@ -11,3 +11,5 @@ web/.crowdin_token
 .envrc
 .local.key.rsa.pub
 .local.key.rsa
+*.ignore.*
+__debug_bin*
