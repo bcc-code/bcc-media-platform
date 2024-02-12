@@ -1225,6 +1225,7 @@ func (this SimpleCalendarEntry) GetEnd() string         { return this.End }
 type Stream struct {
 	ID                string     `json:"id"`
 	URL               string     `json:"url"`
+	ExpiresAt         string     `json:"expiresAt"`
 	VideoLanguage     *string    `json:"videoLanguage,omitempty"`
 	AudioLanguages    []string   `json:"audioLanguages"`
 	SubtitleLanguages []string   `json:"subtitleLanguages"`

@@ -816,6 +816,7 @@ type ComplexityRoot struct {
 	Stream struct {
 		AudioLanguages    func(childComplexity int) int
 		Downloadable      func(childComplexity int) int
+		ExpiresAt         func(childComplexity int) int
 		ID                func(childComplexity int) int
 		SubtitleLanguages func(childComplexity int) int
 		Type              func(childComplexity int) int
@@ -4971,6 +4972,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Stream.Downloadable(childComplexity), true
 
+	case "Stream.expiresAt":
+		if e.complexity.Stream.ExpiresAt == nil {
+			break
+		}
+
+		return e.complexity.Stream.ExpiresAt(childComplexity), true
+
 	case "Stream.id":
 		if e.complexity.Stream.ID == nil {
 			break
@@ -5914,6 +5922,7 @@ enum StreamType {
 type Stream {
     id: ID!
     url: String!
+    expiresAt: Date!
     videoLanguage: Language
     audioLanguages: [Language!]!
     subtitleLanguages: [Language!]!
@@ -13533,6 +13542,8 @@ func (ec *executionContext) fieldContext_Episode_streams(ctx context.Context, fi
 				return ec.fieldContext_Stream_id(ctx, field)
 			case "url":
 				return ec.fieldContext_Stream_url(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_Stream_expiresAt(ctx, field)
 			case "videoLanguage":
 				return ec.fieldContext_Stream_videoLanguage(ctx, field)
 			case "audioLanguages":
@@ -30201,6 +30212,8 @@ func (ec *executionContext) fieldContext_Short_streams(ctx context.Context, fiel
 				return ec.fieldContext_Stream_id(ctx, field)
 			case "url":
 				return ec.fieldContext_Stream_url(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_Stream_expiresAt(ctx, field)
 			case "videoLanguage":
 				return ec.fieldContext_Stream_videoLanguage(ctx, field)
 			case "audioLanguages":
@@ -32355,6 +32368,50 @@ func (ec *executionContext) fieldContext_Stream_url(ctx context.Context, field g
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Stream_expiresAt(ctx context.Context, field graphql.CollectedField, obj *model.Stream) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Stream_expiresAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExpiresAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNDate2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Stream_expiresAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Stream",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Date does not have child fields")
 		},
 	}
 	return fc, nil
@@ -47463,6 +47520,11 @@ func (ec *executionContext) _Stream(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "url":
 			out.Values[i] = ec._Stream_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "expiresAt":
+			out.Values[i] = ec._Stream_expiresAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

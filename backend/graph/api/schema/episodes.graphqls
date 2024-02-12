@@ -92,6 +92,7 @@ enum StreamType {
 type Stream {
     id: ID!
     url: String!
+    expiresAt: Date!
     videoLanguage: Language
     audioLanguages: [Language!]!
     subtitleLanguages: [Language!]!

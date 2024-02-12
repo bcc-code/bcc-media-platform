@@ -13,7 +13,7 @@ import (
 
 type signatureProvider interface {
 	SignAzureURL(*url.URL, string) (string, error)
-	SignCloudfrontURL(string, string) (string, error)
+	SignCloudfrontURL(string, string, time.Duration) (string, error)
 	SignWithPolicy(string, *sign.Policy) (string, error)
 }
 
@@ -55,6 +55,8 @@ func FileFrom(_ context.Context, signer signatureProvider, cdnDomain string, fil
 	}
 }
 
+const streamUrlExpiresAfter = 6 * time.Hour
+
 // StreamFrom converts AssetFile rows to the GQL equivalents
 func StreamFrom(_ context.Context, signer signatureProvider, cdn cdnConfig, stream *common.Stream) (*Stream, error) {
 	signedURL := ""
@@ -78,16 +80,19 @@ func StreamFrom(_ context.Context, signer signatureProvider, cdn cdnConfig, stre
 
 		signedURL, err = signer.SignAzureURL(manifestURL, stream.EncryptionKeyID.ValueOrZero())
 	} else {
-		signedURL, err = signer.SignCloudfrontURL(stream.Path, cdn.GetVOD2Domain())
+		signedURL, err = signer.SignCloudfrontURL(stream.Path, cdn.GetVOD2Domain(), streamUrlExpiresAfter)
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
+	expiresAt := time.Now().Add(streamUrlExpiresAfter)
+
 	return &Stream{
 		ID:                strconv.Itoa(stream.ID),
 		URL:               signedURL,
+		ExpiresAt:         expiresAt.Format(time.RFC3339),
 		AudioLanguages:    stream.AudioLanguages,
 		SubtitleLanguages: stream.SubtitleLanguages,
 		Type:              StreamType(stream.Type),
