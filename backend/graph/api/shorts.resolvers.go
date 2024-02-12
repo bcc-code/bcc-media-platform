@@ -38,7 +38,7 @@ func (r *shortResolver) Streams(ctx context.Context, obj *model.Short) ([]*model
 
 	var out []*model.Stream
 	for _, s := range streams {
-		stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s)
+		stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s, true)
 		if err != nil {
 			return nil, err
 		}

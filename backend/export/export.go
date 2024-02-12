@@ -232,10 +232,27 @@ func exportEpisodes(ctx context.Context, q serviceProvider, liteQueries *sqlexpo
 }
 
 func exportStreams(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries, episodeIDs []int) error {
-	l := q.GetLoaders().StreamsLoader
-	streams, err := l.GetMany(ctx, episodeIDs)
+	ls := q.GetLoaders()
+
+	episodes, err := ls.EpisodeLoader.GetMany(ctx, episodeIDs)
 	if err != nil {
-		return merry.Wrap(err)
+		return err
+	}
+
+	var assetIDs = map[int]*string{}
+	for _, e := range episodes {
+		if e.AssetID.Valid {
+			assetIDs[int(e.AssetID.Int64)] = nil
+		}
+		for key, v := range e.Assets {
+			lang := key
+			assetIDs[v] = &lang
+		}
+	}
+
+	streams, err := ls.AssetStreamsLoader.GetMany(ctx, lo.Keys(assetIDs))
+	if err != nil {
+		return err
 	}
 
 	streamsFlat := lo.Flatten(streams)
@@ -245,13 +262,18 @@ func exportStreams(ctx context.Context, q serviceProvider, liteQueries *sqlexpor
 			continue
 		}
 
-		ss, err := model.StreamFrom(ctx, q.GetURLSigner(), q.GetCDNConfig(), s)
+		ss, err := model.StreamFrom(ctx, q.GetURLSigner(), q.GetCDNConfig(), s, false)
 		if err != nil {
 			log.L.Debug().Err(err).Msg("Err while singing stream url")
 		}
 
 		audios, _ := json.Marshal(s.AudioLanguages)
 		subs, _ := json.Marshal(s.SubtitleLanguages)
+		videoLanguage := sql.NullString{}
+		if l, ok := assetIDs[s.AssetID]; ok && l != nil {
+			videoLanguage.Valid = true
+			videoLanguage.String = *l
+		}
 		err = liteQueries.InsertStream(ctx, sqlexport.InsertStreamParams{
 			ID:                int64(s.ID),
 			EpisodeID:         int64(s.EpisodeID),
@@ -259,6 +281,7 @@ func exportStreams(ctx context.Context, q serviceProvider, liteQueries *sqlexpor
 			SubtitleLanguages: string(subs),
 			Type:              s.Type,
 			Url:               ss.URL,
+			VideoLanguage:     videoLanguage,
 		})
 
 		if err != nil {
