@@ -89,7 +89,7 @@ func (s Signer) SignAzureURL(url *url.URL, encryptionKeyID string) (string, erro
 //     after the /out/v1/ part
 //
 // For example: https://CLOUDFLARE-CDN.com/out/v1/2da6f0ab51344ff4a1048741da66d6df/1b5a8f5803a4459eb1bb430f8a79e524/2e0c61ef235f4945813fc7490745c8ff/index.m3u8?EncodedPolicy=<URL ENCODED POLICY>
-func (s Signer) SignCloudfrontURL(path string, domain string) (string, error) {
+func (s Signer) SignCloudfrontURL(path string, domain string, duration time.Duration) (string, error) {
 	// We need to sign the directory, else other parts of the stream will not be downloadable
 	// In order to do this we chop off everything after the first 4 folders
 
@@ -110,7 +110,7 @@ func (s Signer) SignCloudfrontURL(path string, domain string) (string, error) {
 
 	// The policy needs to be valid for all sub-documents, that's why the * is added
 	// If we add it as part of the path, golang will encode it and the policy will be invalid
-	policy := sign.NewCannedPolicy(urlToSign.String()+"/*", time.Now().Add(6*time.Hour))
+	policy := sign.NewCannedPolicy(urlToSign.String()+"/*", time.Now().Add(duration))
 	signed, err := s.cloudfrontSigner.SignWithPolicy(urlToSign.String(), policy)
 	if err != nil {
 		return "", err
