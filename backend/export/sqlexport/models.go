@@ -81,10 +81,11 @@ type Show struct {
 }
 
 type Stream struct {
-	ID                int64  `db:"id" json:"id"`
-	EpisodeID         int64  `db:"episode_id" json:"episodeId"`
-	Url               string `db:"url" json:"url"`
-	AudioLanguages    string `db:"audio_languages" json:"audioLanguages"`
-	SubtitleLanguages string `db:"subtitle_languages" json:"subtitleLanguages"`
-	Type              string `db:"type" json:"type"`
+	ID                int64          `db:"id" json:"id"`
+	EpisodeID         int64          `db:"episode_id" json:"episodeId"`
+	Url               string         `db:"url" json:"url"`
+	AudioLanguages    string         `db:"audio_languages" json:"audioLanguages"`
+	SubtitleLanguages string         `db:"subtitle_languages" json:"subtitleLanguages"`
+	Type              string         `db:"type" json:"type"`
+	VideoLanguage     sql.NullString `db:"video_language" json:"videoLanguage"`
 }
