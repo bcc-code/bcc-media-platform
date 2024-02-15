@@ -77,13 +77,15 @@ func (s *Service) getEventItems(ctx context.Context, collection string, id strin
 	case "prompts":
 		return []*realItem{{ID: id, Collection: collection}}, nil
 	case "applicationgroups":
+		// map applicationgroups to applications
 		applications, err := s.queries.ListApplications(ctx)
 		if err != nil {
 			return nil, err
 		}
+		uid := utils.AsUuid(id)
 		var ids []string
 		for _, app := range applications {
-			if app.GroupID == utils.AsUuid(id) {
+			if app.GroupID == uid {
 				ids = append(ids, app.Code)
 			}
 		}
