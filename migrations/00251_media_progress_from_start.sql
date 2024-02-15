@@ -6,20 +6,6 @@
 
 --- BEGIN CREATE SEQUENCE "public"."applicationgroups_usergroups_ls_id_seq" ---
 
-
-CREATE SEQUENCE IF NOT EXISTS "public"."applicationgroups_usergroups_ls_id_seq" 
-	INCREMENT BY 1 
-	MINVALUE 1
-	MAXVALUE 2147483647
-	START WITH 1
-	CACHE 1
-	NO CYCLE;
-
-ALTER SEQUENCE "public"."applicationgroups_usergroups_ls_id_seq" OWNER TO bccm;
-GRANT SELECT ON SEQUENCE "public"."applicationgroups_usergroups_ls_id_seq" TO bccm; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT USAGE ON SEQUENCE "public"."applicationgroups_usergroups_ls_id_seq" TO bccm; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT UPDATE ON SEQUENCE "public"."applicationgroups_usergroups_ls_id_seq" TO bccm; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-
 COMMENT ON SEQUENCE "public"."applicationgroups_usergroups_ls_id_seq"  IS NULL;
 
 --- END CREATE SEQUENCE "public"."applicationgroups_usergroups_ls_id_seq" ---
