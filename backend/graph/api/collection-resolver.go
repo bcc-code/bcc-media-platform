@@ -123,11 +123,18 @@ func (r *Resolver) resolveShortsCollection(ctx context.Context, ls *common.Batch
 	if err != nil {
 		return nil, err
 	}
-	cursor, err := r.getShuffledShortIDsCursor(ctx, p, nil)
+	result, err := r.getShuffledShortIDsWithCursor(ctx, p, nil)
 	if err != nil {
 		return nil, err
 	}
-	return cursor.Keys[0:10], nil
+	var res []uuid.UUID
+	for _, k := range result.Keys {
+		res = append(res, k)
+		if len(res) > 10 {
+			break
+		}
+	}
+	return res, nil
 }
 
 func mapCollectionEntriesToSectionItems(ctx context.Context, ls *common.BatchLoaders, entries []collection.Entry, imageStyle string, numberInTitle bool) ([]*model.SectionItem, error) {

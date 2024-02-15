@@ -52,7 +52,7 @@ type shortsShuffledResult struct {
 	Keys       []uuid.UUID
 }
 
-func (r *Resolver) getShuffledShortIDsCursor(ctx context.Context, p *common.Profile, cursor *shortsCursor) (*shortsShuffledResult, error) {
+func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.Profile, cursor *shortsCursor) (*shortsShuffledResult, error) {
 	if cursor == nil {
 		cursor = &shortsCursor{
 			Seed:         rand.Int63(),
@@ -169,7 +169,7 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*
 		return nil, err
 	}
 
-	result, err := r.getShuffledShortIDsCursor(ctx, p, c)
+	result, err := r.getShuffledShortIDsWithCursor(ctx, p, c)
 	if err != nil {
 		return nil, err
 	}
