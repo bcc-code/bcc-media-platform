@@ -79,9 +79,15 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		},
 		SurveyQuestionsLoader: loaders.NewRelationLoader(ctx, rq.GetSurveyQuestionIDsForSurveyIDs, loaders.WithName("survey-questions-loader")),
 
-		ShortIDsLoader: func(ctx context.Context) ([]uuid.UUID, error) {
-			return memorycache.GetOrSet(ctx, fmt.Sprintf("shortIDs:roles:%s", key), func(ctx context.Context) ([]uuid.UUID, error) {
-				return queries.ListShortIDsForRoles(ctx, roles)
+		ShortIDsLoader: func(ctx context.Context) ([][]uuid.UUID, error) {
+			return memorycache.GetOrSet(ctx, fmt.Sprintf("shortIDs:roles:%s", key), func(ctx context.Context) ([][]uuid.UUID, error) {
+				rows, err := queries.ListSegmentedShortIDsForRoles(ctx, roles)
+				if err != nil {
+					return nil, err
+				}
+				return lo.Map(rows, func(i sqlc.ListSegmentedShortIDsForRolesRow, _ int) []uuid.UUID {
+					return i.Ids
+				}), nil
 			}, cache.WithExpiration(time.Minute*5))
 		},
 	}

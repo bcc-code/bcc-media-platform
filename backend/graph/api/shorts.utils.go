@@ -14,19 +14,20 @@ import (
 )
 
 func (r *Resolver) getShuffledShortIDsCursor(ctx context.Context, p *common.Profile) (*utils.Cursor[uuid.UUID], error) {
-	shortIDs, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
-	mediaIDLoader := r.GetLoaders().ShortsMediaIDLoader
-	mediaIDLoader.LoadMany(ctx, shortIDs)
+	shortIDSegments, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
 	if err != nil {
 		return nil, err
 	}
-	// because we are shuffling, we need to copy the array to avoid editing the pointer value
-	arr := make([]uuid.UUID, len(shortIDs))
-	copy(arr, shortIDs)
+
+	shortIDs := utils.ShuffleSegmentedArray(shortIDSegments, 10)
+
+	mediaIDLoader := r.GetLoaders().ShortsMediaIDLoader
+	mediaIDLoader.LoadMany(ctx, shortIDs)
+
 	if p != nil {
 		mappedIDs := map[uuid.UUID]uuid.UUID{}
 		var mIDs []uuid.UUID
-		for _, sID := range arr {
+		for _, sID := range shortIDs {
 			mID, err := mediaIDLoader.Get(ctx, sID)
 			if err != nil {
 				return nil, err
@@ -37,19 +38,33 @@ func (r *Resolver) getShuffledShortIDsCursor(ctx context.Context, p *common.Prof
 			mappedIDs[sID] = *mID
 			mIDs = append(mIDs, *mID)
 		}
-		mediaIDs, err := r.GetQueries().GetProgressedMediaIDs(ctx, sqlc.GetProgressedMediaIDsParams{
+		progress, err := r.GetQueries().GetMediaProgress(ctx, sqlc.GetMediaProgressParams{
 			ProfileID: p.ID,
 			ItemIds:   mIDs,
 		})
 		if err != nil {
 			return nil, err
 		}
-		arr = lo.Filter(arr, func(i uuid.UUID, _ int) bool {
-			return !lo.Contains(mediaIDs, mappedIDs[i])
+		var ignoreIDs []uuid.UUID
+		for _, pr := range progress {
+			if pr.Progress > 0.1 {
+				ignoreIDs = append(ignoreIDs, pr.ItemID)
+			}
+		}
+		shortIDs = lo.Filter(shortIDs, func(i uuid.UUID, _ int) bool {
+			return !lo.Contains(ignoreIDs, mappedIDs[i])
 		})
 	}
-	ids := lo.Shuffle(arr)
-	return utils.NewCursor(ids), nil
+
+	var arr []uuid.UUID
+	for _, id := range shortIDs {
+		arr = append(arr, id)
+
+		if len(arr) >= 20 {
+			break
+		}
+	}
+	return utils.NewCursor(arr), nil
 }
 
 func (r *Resolver) shortIDsToMediaIDs(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
@@ -61,10 +76,11 @@ func (r *Resolver) shortIDsToMediaIDs(ctx context.Context, ids []uuid.UUID) ([]u
 }
 
 func (r *Resolver) clearShortsProgress(ctx context.Context, p *common.Profile) error {
-	shortIDs, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
+	shortIDSegments, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
 	if err != nil {
 		return err
 	}
+	shortIDs := lo.Flatten(shortIDSegments)
 	mediaIDs, err := r.shortIDsToMediaIDs(ctx, shortIDs)
 	err = r.GetQueries().RemoveProgressForMediaIDs(ctx, sqlc.RemoveProgressForMediaIDsParams{
 		ProfileID: p.ID,

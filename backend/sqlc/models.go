@@ -1668,6 +1668,7 @@ type UsersMediaProgress struct {
 	UpdatedAt time.Time             `db:"updated_at" json:"updatedAt"`
 	Context   pqtype.NullRawMessage `db:"context" json:"context"`
 	WatchedAt null_v4.Time          `db:"watched_at" json:"watchedAt"`
+	FromStart bool                  `db:"from_start" json:"fromStart"`
 }
 
 type UsersMessage struct {

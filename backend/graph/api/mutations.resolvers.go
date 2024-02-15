@@ -179,24 +179,44 @@ func (r *mutationRootResolver) SetShortProgress(ctx context.Context, id string, 
 	if err != nil {
 		return nil, err
 	}
-	if progress != nil {
-		d := 0.0
-		if duration != nil {
-			d = *duration
-		}
-		err = r.GetQueries().SaveMediaProgress(ctx, sqlc.SaveMediaProgressParams{
-			ProfileID: p.ID,
-			Progress:  float32(*progress),
-			Duration:  float32(d),
-			ItemID:    short.MediaID,
-			Watched:   0,
-		})
-	} else {
-		err = r.GetQueries().RemoveProgressForMediaIDs(ctx, sqlc.RemoveProgressForMediaIDsParams{
-			ProfileID: p.ID,
-			ItemIds:   []uuid.UUID{short.MediaID},
-		})
+
+	savedRows, err := r.GetQueries().GetMediaProgress(ctx, sqlc.GetMediaProgressParams{
+		ProfileID: p.ID,
+		ItemIds:   []uuid.UUID{short.MediaID},
+	})
+	if err != nil {
+		return nil, err
 	}
+	var saved sqlc.GetMediaProgressRow
+	if len(savedRows) == 1 {
+		saved = savedRows[0]
+	}
+
+	d := 0.0
+	if duration != nil {
+		d = *duration
+	}
+	params := sqlc.SaveMediaProgressParams{
+		ProfileID: p.ID,
+		ItemID:    short.MediaID,
+		Duration:  float32(d),
+		Watched:   saved.Watched,
+		WatchedAt: saved.WatchedAt,
+		FromStart: saved.FromStart,
+	}
+	if progress != nil && *progress != 0.0 {
+		params.Progress = float32(*progress)
+		if *progress/d < 0.1 {
+			params.FromStart = true
+		} else if *progress/d > 0.4 && params.FromStart {
+			params.FromStart = false
+			if !params.WatchedAt.Valid || params.WatchedAt.Time.After(time.Now().Add(time.Minute*60*-1)) {
+				params.Watched++
+				params.WatchedAt = null.TimeFrom(time.Now())
+			}
+		}
+	}
+	err = r.GetQueries().SaveMediaProgress(ctx, params)
 	if err != nil {
 		return nil, err
 	}
