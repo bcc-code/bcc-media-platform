@@ -4,12 +4,6 @@
 /***    CREATED ON: 2024-02-15T10:55:48.810Z             ***/
 /***********************************************************/
 
---- BEGIN CREATE SEQUENCE "public"."applicationgroups_usergroups_ls_id_seq" ---
-
-COMMENT ON SEQUENCE "public"."applicationgroups_usergroups_ls_id_seq"  IS NULL;
-
---- END CREATE SEQUENCE "public"."applicationgroups_usergroups_ls_id_seq" ---
-
 --- BEGIN ALTER TABLE "users"."media_progress" ---
 
 ALTER TABLE IF EXISTS "users"."media_progress" ADD COLUMN IF NOT EXISTS "from_start" bool NOT NULL DEFAULT false ;
