@@ -92,6 +92,7 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 		AgeRating:             e.AgeRating,
 		ImageURL:              image,
 		Images:                images,
+		AssetVersion:          e.AssetVersion,
 	}
 
 	if e.Number.Valid {

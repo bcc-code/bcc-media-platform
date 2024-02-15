@@ -53,6 +53,7 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			SeasonID:              e.SeasonID,
 			AssetID:               e.AssetID,
 			Assets:                assetIDs,
+			AssetVersion:          e.AssetVersion,
 			Image:                 image,
 			Images:                q.getImages(e.Images),
 			AgeRating:             e.Agerating,
