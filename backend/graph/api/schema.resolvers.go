@@ -42,9 +42,11 @@ func (r *queryRootResolver) Application(ctx context.Context, timestamp *string) 
 		return nil, err
 	}
 
-	withTimestampExpiration(ctx, "application:"+strconv.Itoa(ctxApp.ID), timestamp, func() {
-		r.Loaders.ApplicationLoader.Clear(ctx, ctxApp.ID)
-	})
+	if timestamp != nil {
+		withTimestampExpiration(ctx, "application:"+strconv.Itoa(ctxApp.ID), timestamp, func() {
+			r.Loaders.ApplicationLoader.Clear(ctx, ctxApp.ID)
+		})
+	}
 
 	app, err := r.Loaders.ApplicationLoader.Get(ctx, ctxApp.ID)
 	if err != nil {
