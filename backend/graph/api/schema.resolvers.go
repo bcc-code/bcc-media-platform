@@ -42,6 +42,12 @@ func (r *queryRootResolver) Application(ctx context.Context) (*model.Application
 		return nil, err
 	}
 
+	u := user.GetFromCtx(ginCtx)
+	livestreamEnabled := len(app.LivestreamRoles) == 0
+	if !livestreamEnabled {
+		livestreamEnabled = len(lo.Intersect(app.LivestreamRoles, u.Roles)) > 0
+	}
+
 	var page *model.Page
 	if app.DefaultPageID.Valid {
 		page = &model.Page{
@@ -62,12 +68,13 @@ func (r *queryRootResolver) Application(ctx context.Context) (*model.Application
 	}
 
 	return &model.Application{
-		ID:            strconv.Itoa(app.ID),
-		Code:          app.Code,
-		Page:          page,
-		SearchPage:    searchPage,
-		GamesPage:     gamesPage,
-		ClientVersion: app.ClientVersion,
+		ID:                strconv.Itoa(app.ID),
+		Code:              app.Code,
+		Page:              page,
+		SearchPage:        searchPage,
+		GamesPage:         gamesPage,
+		ClientVersion:     app.ClientVersion,
+		LivestreamEnabled: livestreamEnabled,
 	}, nil
 }
 

@@ -165,12 +165,13 @@ type ComplexityRoot struct {
 	}
 
 	Application struct {
-		ClientVersion func(childComplexity int) int
-		Code          func(childComplexity int) int
-		GamesPage     func(childComplexity int) int
-		ID            func(childComplexity int) int
-		Page          func(childComplexity int) int
-		SearchPage    func(childComplexity int) int
+		ClientVersion     func(childComplexity int) int
+		Code              func(childComplexity int) int
+		GamesPage         func(childComplexity int) int
+		ID                func(childComplexity int) int
+		LivestreamEnabled func(childComplexity int) int
+		Page              func(childComplexity int) int
+		SearchPage        func(childComplexity int) int
 	}
 
 	Calendar struct {
@@ -1543,6 +1544,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Application.ID(childComplexity), true
+
+	case "Application.livestreamEnabled":
+		if e.complexity.Application.LivestreamEnabled == nil {
+			break
+		}
+
+		return e.complexity.Application.LivestreamEnabled(childComplexity), true
 
 	case "Application.page":
 		if e.complexity.Application.Page == nil {
@@ -5721,6 +5729,7 @@ type ConfirmAchievementResult {
     page: Page @goField(forceResolver: true)
     searchPage: Page @goField(forceResolver: true)
     gamesPage: Page @goField(forceResolver: true)
+    livestreamEnabled: Boolean!
 }
 `, BuiltIn: false},
 	{Name: "../schema/calendar.graphqls", Input: `type CalendarPeriod {
@@ -10594,6 +10603,50 @@ func (ec *executionContext) fieldContext_Application_gamesPage(ctx context.Conte
 				return ec.fieldContext_Page_sections(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Page", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Application_livestreamEnabled(ctx context.Context, field graphql.CollectedField, obj *model.Application) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Application_livestreamEnabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LivestreamEnabled, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Application_livestreamEnabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Application",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -24630,6 +24683,8 @@ func (ec *executionContext) fieldContext_QueryRoot_application(ctx context.Conte
 				return ec.fieldContext_Application_searchPage(ctx, field)
 			case "gamesPage":
 				return ec.fieldContext_Application_gamesPage(ctx, field)
+			case "livestreamEnabled":
+				return ec.fieldContext_Application_livestreamEnabled(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
@@ -39785,6 +39840,11 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "livestreamEnabled":
+			out.Values[i] = ec._Application_livestreamEnabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

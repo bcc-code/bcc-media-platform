@@ -432,6 +432,7 @@ type Application struct {
 	RelatedCollectionID null.Int
 	SupportEmail        null.String
 	Roles               []string
+	LivestreamRoles     []string
 }
 
 // GetKey returns the key for this item
