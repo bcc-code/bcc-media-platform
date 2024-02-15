@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -31,6 +32,11 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			image = null.StringFrom(fmt.Sprintf("https://%s/%s", q.getImageCDNDomain(), e.ImageFileName.String))
 		}
 
+		assetVersion := ""
+		if e.AssetDateUpdated.Valid {
+			assetVersion = e.AssetDateUpdated.Time.Format(time.RFC3339)
+		}
+
 		return common.Episode{
 			ID:                    int(e.ID),
 			UUID:                  e.Uuid,
@@ -53,7 +59,7 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			SeasonID:              e.SeasonID,
 			AssetID:               e.AssetID,
 			Assets:                assetIDs,
-			AssetVersion:          e.AssetVersion,
+			AssetVersion:          assetVersion,
 			Image:                 image,
 			Images:                q.getImages(e.Images),
 			AgeRating:             e.Agerating,

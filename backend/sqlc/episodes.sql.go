@@ -383,7 +383,7 @@ SELECT e.id,
        ts.extra_description,
        tags.tags::int[]                                                        AS tag_ids,
        assets.duration                                                         as duration,
-       assets.date_updated::varchar                                            AS asset_version,
+       assets.date_updated                                                     AS asset_date_updated,
        COALESCE(e.agerating_code, s.agerating_code, 'A')                       as agerating,
        audience,
        content_type,
@@ -432,7 +432,7 @@ type getEpisodesRow struct {
 	ExtraDescription       pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
 	TagIds                 []int32               `db:"tag_ids" json:"tagIds"`
 	Duration               null_v4.Int           `db:"duration" json:"duration"`
-	AssetVersion           string                `db:"asset_version" json:"assetVersion"`
+	AssetDateUpdated       null_v4.Time          `db:"asset_date_updated" json:"assetDateUpdated"`
 	Agerating              string                `db:"agerating" json:"agerating"`
 	Audience               null_v4.String        `db:"audience" json:"audience"`
 	ContentType            null_v4.String        `db:"content_type" json:"contentType"`
@@ -475,7 +475,7 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 			&i.ExtraDescription,
 			pq.Array(&i.TagIds),
 			&i.Duration,
-			&i.AssetVersion,
+			&i.AssetDateUpdated,
 			&i.Agerating,
 			&i.Audience,
 			&i.ContentType,
@@ -602,7 +602,7 @@ SELECT e.id,
        ts.extra_description,
        tags.tags::int[]                                                        AS tag_ids,
        assets.duration                                                         as duration,
-       assets.date_updated::varchar                                            AS asset_version,
+       assets.date_updated                                                     AS asset_date_updated,
        COALESCE(e.agerating_code, s.agerating_code, 'A')                       as agerating,
        audience,
        content_type,
@@ -649,7 +649,7 @@ type listEpisodesRow struct {
 	ExtraDescription       pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
 	TagIds                 []int32               `db:"tag_ids" json:"tagIds"`
 	Duration               null_v4.Int           `db:"duration" json:"duration"`
-	AssetVersion           string                `db:"asset_version" json:"assetVersion"`
+	AssetDateUpdated       null_v4.Time          `db:"asset_date_updated" json:"assetDateUpdated"`
 	Agerating              string                `db:"agerating" json:"agerating"`
 	Audience               null_v4.String        `db:"audience" json:"audience"`
 	ContentType            null_v4.String        `db:"content_type" json:"contentType"`
@@ -692,7 +692,7 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 			&i.ExtraDescription,
 			pq.Array(&i.TagIds),
 			&i.Duration,
-			&i.AssetVersion,
+			&i.AssetDateUpdated,
 			&i.Agerating,
 			&i.Audience,
 			&i.ContentType,
