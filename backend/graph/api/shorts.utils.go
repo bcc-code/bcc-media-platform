@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"errors"
+	"math/rand"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
@@ -13,34 +14,65 @@ import (
 	"github.com/samber/lo"
 )
 
-func (r *Resolver) getShuffledShortIDsCursor(ctx context.Context, p *common.Profile) (*utils.Cursor[uuid.UUID], error) {
+func (r *Resolver) getShuffledShortIDs(ctx context.Context, seed int64) ([]uuid.UUID, error) {
 	shortIDSegments, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	shortIDs := utils.ShuffleSegmentedArray(shortIDSegments, 10)
+	return utils.ShuffleSegmentedArray(shortIDSegments, 10, seed), nil
+}
 
+func (r *Resolver) getShortToMediaIDMap(ctx context.Context, shortIDs []uuid.UUID) (map[uuid.UUID]uuid.UUID, error) {
 	mediaIDLoader := r.GetLoaders().ShortsMediaIDLoader
 	mediaIDLoader.LoadMany(ctx, shortIDs)
 
+	mappedIDs := map[uuid.UUID]uuid.UUID{}
+	for _, sID := range shortIDs {
+		mID, err := mediaIDLoader.Get(ctx, sID)
+		if err != nil {
+			return nil, err
+		}
+		if mID == nil {
+			continue
+		}
+		mappedIDs[sID] = *mID
+	}
+	return mappedIDs, nil
+}
+
+type shortsCursor struct {
+	Seed         int64 `json:"seed"`
+	CurrentIndex int   `json:"currentIndex"`
+}
+
+type shortsShuffledResult struct {
+	Cursor     *shortsCursor
+	NextCursor *shortsCursor
+	Keys       []uuid.UUID
+}
+
+func (r *Resolver) getShuffledShortIDsCursor(ctx context.Context, p *common.Profile, cursor *shortsCursor) (*shortsShuffledResult, error) {
+	if cursor == nil {
+		cursor = &shortsCursor{
+			Seed:         rand.Int63(),
+			CurrentIndex: 0,
+		}
+	}
+
+	shortIDs, err := r.getShuffledShortIDs(ctx, cursor.Seed)
+	if err != nil {
+		return nil, err
+	}
+
 	if p != nil {
-		mappedIDs := map[uuid.UUID]uuid.UUID{}
-		var mIDs []uuid.UUID
-		for _, sID := range shortIDs {
-			mID, err := mediaIDLoader.Get(ctx, sID)
-			if err != nil {
-				return nil, err
-			}
-			if mID == nil {
-				continue
-			}
-			mappedIDs[sID] = *mID
-			mIDs = append(mIDs, *mID)
+		mappedIDs, err := r.getShortToMediaIDMap(ctx, shortIDs)
+		if err != nil {
+			return nil, err
 		}
 		progress, err := r.GetQueries().GetMediaProgress(ctx, sqlc.GetMediaProgressParams{
 			ProfileID: p.ID,
-			ItemIds:   mIDs,
+			ItemIds:   lo.Values(mappedIDs),
 		})
 		if err != nil {
 			return nil, err
@@ -56,15 +88,47 @@ func (r *Resolver) getShuffledShortIDsCursor(ctx context.Context, p *common.Prof
 		})
 	}
 
-	var arr []uuid.UUID
-	for _, id := range shortIDs {
-		arr = append(arr, id)
+	var keys []uuid.UUID
+	for index, id := range shortIDs {
+		if index < cursor.CurrentIndex {
+			continue
+		}
 
-		if len(arr) >= 20 {
+		keys = append(keys, id)
+
+		if len(keys) >= 20 {
 			break
 		}
 	}
-	return utils.NewCursor(arr), nil
+	nextCursor := &shortsCursor{
+		Seed:         cursor.Seed,
+		CurrentIndex: cursor.CurrentIndex + 20,
+	}
+	if len(keys) < 20 {
+		nextCursor.CurrentIndex = 0
+		err = r.clearShortsProgress(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+
+		shortIDs, err = r.getShuffledShortIDs(ctx, cursor.Seed)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, id := range shortIDs {
+			keys = append(keys, id)
+			nextCursor.CurrentIndex++
+			if len(keys) >= 20 {
+				break
+			}
+		}
+	}
+	return &shortsShuffledResult{
+		Cursor:     cursor,
+		Keys:       keys,
+		NextCursor: nextCursor,
+	}, nil
 }
 
 func (r *Resolver) shortIDsToMediaIDs(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
@@ -97,51 +161,30 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*
 	if err != nil && !errors.Is(err, ErrProfileNotSet) {
 		return nil, err
 	}
-	var c *utils.Cursor[uuid.UUID]
+	var c *shortsCursor
 	if cursor != nil {
-		c, err = utils.ParseCursor[uuid.UUID](*cursor)
-	} else {
-		c, err = r.getShuffledShortIDsCursor(ctx, p)
+		c, err = utils.Base64DecodeAndUnmarshal[shortsCursor](*cursor)
 	}
 	if err != nil {
 		return nil, err
 	}
-	l := 10
-	if limit != nil {
-		l = *limit
-	}
-	var nextCursor *utils.Cursor[uuid.UUID]
-	// if the cursor doesn't have enough to satisfy the length of the limit, the next cursor is a new random one
-	// TODO: implement filling the required number of IDs instead of giving up and generating a new from scratch.
-	nextKey := c.Position(c.CurrentIndex + l)
-	if nextKey != nil {
-		nextCursor = c.CursorFor(*nextKey)
-	} else {
-		if p != nil {
-			err = r.clearShortsProgress(ctx, p)
-			if err != nil {
-				return nil, err
-			}
-		}
 
-		nextCursor, err = r.getShuffledShortIDsCursor(ctx, p)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	keys := c.GetKeys(l)
-
-	shorts, err := r.GetLoaders().ShortLoader.GetMany(ctx, keys)
+	result, err := r.getShuffledShortIDsCursor(ctx, p, c)
 	if err != nil {
 		return nil, err
 	}
 
-	currentCursorString, err := c.Encode()
+	shorts, err := r.GetLoaders().ShortLoader.GetMany(ctx, result.Keys)
 	if err != nil {
 		return nil, err
 	}
-	nextCursorString, err := nextCursor.Encode()
+
+	currentCursorString, err := utils.MarshalAndBase64Encode(result.Cursor)
+	if err != nil {
+		return nil, err
+	}
+
+	nextCursorString, err := utils.MarshalAndBase64Encode(result.NextCursor)
 	if err != nil {
 		return nil, err
 	}
