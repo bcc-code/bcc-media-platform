@@ -32,12 +32,21 @@ import (
 )
 
 // Application is the resolver for the application field.
-func (r *queryRootResolver) Application(ctx context.Context) (*model.Application, error) {
+func (r *queryRootResolver) Application(ctx context.Context, timestamp *string) (*model.Application, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
 	}
-	app, err := applications.GetFromCtx(ginCtx)
+	ctxApp, err := applications.GetFromCtx(ginCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	withTimestampExpiration(ctx, "application:"+strconv.Itoa(ctxApp.ID), timestamp, func() {
+		r.Loaders.ApplicationLoader.Clear(ctx, ctxApp.ID)
+	})
+
+	app, err := r.Loaders.ApplicationLoader.Get(ctx, ctxApp.ID)
 	if err != nil {
 		return nil, err
 	}

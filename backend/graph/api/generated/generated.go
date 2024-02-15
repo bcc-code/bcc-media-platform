@@ -611,7 +611,7 @@ type ComplexityRoot struct {
 		Achievement         func(childComplexity int, id string) int
 		AchievementGroup    func(childComplexity int, id string) int
 		AchievementGroups   func(childComplexity int, first *int, offset *int) int
-		Application         func(childComplexity int) int
+		Application         func(childComplexity int, timestamp *string) int
 		Calendar            func(childComplexity int) int
 		Config              func(childComplexity int) int
 		Episode             func(childComplexity int, id string, context *model.EpisodeContext) int
@@ -1130,7 +1130,7 @@ type PosterTaskResolver interface {
 	Completed(ctx context.Context, obj *model.PosterTask) (bool, error)
 }
 type QueryRootResolver interface {
-	Application(ctx context.Context) (*model.Application, error)
+	Application(ctx context.Context, timestamp *string) (*model.Application, error)
 	Languages(ctx context.Context) ([]string, error)
 	Export(ctx context.Context, groups []string) (*model.Export, error)
 	Redirect(ctx context.Context, id string) (*model.RedirectLink, error)
@@ -3848,7 +3848,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.QueryRoot.Application(childComplexity), true
+		args, err := ec.field_QueryRoot_application_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.QueryRoot.Application(childComplexity, args["timestamp"].(*string)), true
 
 	case "QueryRoot.calendar":
 		if e.complexity.QueryRoot.Calendar == nil {
@@ -6234,7 +6239,7 @@ type RedirectParam {
 }
 
 type QueryRoot{
-    application: Application!
+    application(timestamp: String): Application!
     languages: [Language!]!
 
     export(
@@ -8134,6 +8139,21 @@ func (ec *executionContext) field_QueryRoot_achievement_args(ctx context.Context
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_QueryRoot_application_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["timestamp"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timestamp"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["timestamp"] = arg0
 	return args, nil
 }
 
@@ -24646,7 +24666,7 @@ func (ec *executionContext) _QueryRoot_application(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().Application(rctx)
+		return ec.resolvers.QueryRoot().Application(rctx, fc.Args["timestamp"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24688,6 +24708,17 @@ func (ec *executionContext) fieldContext_QueryRoot_application(ctx context.Conte
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_QueryRoot_application_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
