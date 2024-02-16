@@ -32,6 +32,13 @@ type MutationRoot {
 
     updateUserMetadata(birthData: BirthOptions!, nameData: NameOptions!): Boolean!
     sendVerificationEmail: Boolean!
+
+    subscribe(topic: SubscriptionTopic!): Boolean!
+    unsubscribe(topic: SubscriptionTopic!): Boolean!
+}
+
+enum SubscriptionTopic {
+    comics
 }
 
 type AnswerSurveyQuestionResult {
