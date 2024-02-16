@@ -8,3 +8,8 @@ DELETE
 FROM users.subscriptions
 WHERE key = @key
   AND profile_id = @profile_id;
+
+-- name: ListSubscriptions :many
+SELECT key
+FROM users.subscriptions
+WHERE profile_id = @profile_id;

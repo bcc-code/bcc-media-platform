@@ -155,4 +155,6 @@ type QueryRoot{
     legacyIDLookup(options: LegacyIDLookupOptions): LegacyIDLookup!
 
     prompts(timestamp: Date): [Prompt!]!
+
+    subscriptions: [SubscriptionTopic!]!
 }

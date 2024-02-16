@@ -613,6 +613,10 @@ func (r *mutationRootResolver) Subscribe(ctx context.Context, topic model.Subscr
 	if !topic.IsValid() {
 		return false, nil
 	}
+	err = ratelimit.Endpoint(ctx, "subscribe:"+topic.String(), 5, false)
+	if err != nil {
+		return false, err
+	}
 	err = r.GetQueries().AddSubscription(ctx, sqlc.AddSubscriptionParams{
 		Key:       topic.String(),
 		ProfileID: p.ID,
@@ -631,6 +635,10 @@ func (r *mutationRootResolver) Unsubscribe(ctx context.Context, topic model.Subs
 	}
 	if !topic.IsValid() {
 		return false, nil
+	}
+	err = ratelimit.Endpoint(ctx, "unsubscribe:"+topic.String(), 5, false)
+	if err != nil {
+		return false, err
 	}
 	err = r.GetQueries().RemoveSubscription(ctx, sqlc.RemoveSubscriptionParams{
 		Key:       topic.String(),

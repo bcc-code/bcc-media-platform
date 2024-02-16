@@ -27,6 +27,35 @@ func (q *Queries) AddSubscription(ctx context.Context, arg AddSubscriptionParams
 	return err
 }
 
+const listSubscriptions = `-- name: ListSubscriptions :many
+SELECT key
+FROM users.subscriptions
+WHERE profile_id = $1
+`
+
+func (q *Queries) ListSubscriptions(ctx context.Context, profileID uuid.UUID) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, listSubscriptions, profileID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var key string
+		if err := rows.Scan(&key); err != nil {
+			return nil, err
+		}
+		items = append(items, key)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const removeSubscription = `-- name: RemoveSubscription :exec
 DELETE
 FROM users.subscriptions

@@ -641,6 +641,7 @@ type ComplexityRoot struct {
 		Show                func(childComplexity int, id string) int
 		StudyLesson         func(childComplexity int, id string) int
 		StudyTopic          func(childComplexity int, id string) int
+		Subscriptions       func(childComplexity int) int
 		UserCollection      func(childComplexity int, id string) int
 	}
 
@@ -1167,6 +1168,7 @@ type QueryRootResolver interface {
 	Profile(ctx context.Context) (*model.Profile, error)
 	LegacyIDLookup(ctx context.Context, options *model.LegacyIDLookupOptions) (*model.LegacyIDLookup, error)
 	Prompts(ctx context.Context, timestamp *string) ([]model.Prompt, error)
+	Subscriptions(ctx context.Context) ([]model.SubscriptionTopic, error)
 }
 type QuestionResolver interface {
 	Category(ctx context.Context, obj *model.Question) (*model.FAQCategory, error)
@@ -4159,6 +4161,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.QueryRoot.StudyTopic(childComplexity, args["id"].(string)), true
 
+	case "QueryRoot.subscriptions":
+		if e.complexity.QueryRoot.Subscriptions == nil {
+			break
+		}
+
+		return e.complexity.QueryRoot.Subscriptions(childComplexity), true
+
 	case "QueryRoot.userCollection":
 		if e.complexity.QueryRoot.UserCollection == nil {
 			break
@@ -6365,6 +6374,8 @@ type QueryRoot{
     legacyIDLookup(options: LegacyIDLookupOptions): LegacyIDLookup!
 
     prompts(timestamp: Date): [Prompt!]!
+
+    subscriptions: [SubscriptionTopic!]!
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `
@@ -26913,6 +26924,50 @@ func (ec *executionContext) fieldContext_QueryRoot_prompts(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _QueryRoot_subscriptions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_subscriptions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().Subscriptions(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]model.SubscriptionTopic)
+	fc.Result = res
+	return ec.marshalNSubscriptionTopic2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubscriptionTopicᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_subscriptions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type SubscriptionTopic does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _QueryRoot___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_QueryRoot___type(ctx, field)
 	if err != nil {
@@ -45809,6 +45864,28 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "subscriptions":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_subscriptions(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "__type":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._QueryRoot___type(ctx, field)
@@ -51532,6 +51609,67 @@ func (ec *executionContext) unmarshalNSubscriptionTopic2githubᚗcomᚋbccᚑcod
 
 func (ec *executionContext) marshalNSubscriptionTopic2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubscriptionTopic(ctx context.Context, sel ast.SelectionSet, v model.SubscriptionTopic) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) unmarshalNSubscriptionTopic2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubscriptionTopicᚄ(ctx context.Context, v interface{}) ([]model.SubscriptionTopic, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]model.SubscriptionTopic, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNSubscriptionTopic2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubscriptionTopic(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNSubscriptionTopic2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubscriptionTopicᚄ(ctx context.Context, sel ast.SelectionSet, v []model.SubscriptionTopic) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSubscriptionTopic2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubscriptionTopic(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNSurvey2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSurvey(ctx context.Context, sel ast.SelectionSet, v model.Survey) graphql.Marshaler {
