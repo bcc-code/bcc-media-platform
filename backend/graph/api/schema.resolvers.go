@@ -32,15 +32,29 @@ import (
 )
 
 // Application is the resolver for the application field.
-func (r *queryRootResolver) Application(ctx context.Context) (*model.Application, error) {
+func (r *queryRootResolver) Application(ctx context.Context, timestamp *string) (*model.Application, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
 	}
-	app, err := applications.GetFromCtx(ginCtx)
+	ctxApp, err := applications.GetFromCtx(ginCtx)
 	if err != nil {
 		return nil, err
 	}
+
+	if timestamp != nil {
+		withTimestampExpiration(ctx, "application:"+strconv.Itoa(ctxApp.ID), timestamp, func() {
+			r.Loaders.ApplicationLoader.Clear(ctx, ctxApp.ID)
+		})
+	}
+
+	app, err := r.Loaders.ApplicationLoader.Get(ctx, ctxApp.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	u := user.GetFromCtx(ginCtx)
+	livestreamEnabled := len(app.LivestreamRoles) == 0 || len(lo.Intersect(app.LivestreamRoles, u.Roles)) > 0
 
 	var page *model.Page
 	if app.DefaultPageID.Valid {
@@ -62,12 +76,13 @@ func (r *queryRootResolver) Application(ctx context.Context) (*model.Application
 	}
 
 	return &model.Application{
-		ID:            strconv.Itoa(app.ID),
-		Code:          app.Code,
-		Page:          page,
-		SearchPage:    searchPage,
-		GamesPage:     gamesPage,
-		ClientVersion: app.ClientVersion,
+		ID:                strconv.Itoa(app.ID),
+		Code:              app.Code,
+		Page:              page,
+		SearchPage:        searchPage,
+		GamesPage:         gamesPage,
+		ClientVersion:     app.ClientVersion,
+		LivestreamEnabled: livestreamEnabled,
 	}, nil
 }
 

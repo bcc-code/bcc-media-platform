@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"net/http"
 	"os"
 	"strings"
@@ -216,22 +215,8 @@ func main() {
 	r.Use(authClient.ValidateToken())
 	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
 	r.Use(middleware.NewUserMiddleware(queries, remoteCache, ls, authClient))
-	if environment.Test() {
-		// Get the user object from headers
-		r.Use(func(ctx *gin.Context) {
-			if v, ok := ctx.Get(auth0.CtxAuthenticated); !ok || v.(bool) != true {
-				return
-			}
-
-			userStr := ctx.GetHeader("x-user-data")
-			if userStr != "" {
-				var u common.User
-				_ = json.Unmarshal([]byte(userStr), &u)
-				ctx.Set(user.CtxUser, &u)
-				ctx.Set(user.CtxImpersonating, true)
-			}
-		})
-	}
+	// Get the user object from headers
+	r.Use(middleware.NewFakeUserMiddleware(os.Getenv("FAKE_USER_SECRET")))
 	r.Use(middleware.NewProfileMiddleware(queries, remoteCache))
 	r.Use(applications.RoleMiddleware())
 	r.Use(ratelimit.Middleware())

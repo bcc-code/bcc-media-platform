@@ -88,26 +88,28 @@ func (q *Queries) getApplicationIDsForCodes(ctx context.Context, dollar_1 []stri
 }
 
 const getApplications = `-- name: getApplications :many
-WITH roles AS (SELECT r.applicationgroups_id,
-                      array_agg(DISTINCT r.usergroups_code) as roles
-               FROM applicationgroups_usergroups r
-               GROUP BY r.applicationgroups_id)
-SELECT a.id::int                          AS id,
-       a.uuid                             AS uuid,
-       a.group_id                         AS group_id,
-       a.code::varchar                    AS code,
-       a.default                          AS "default",
+SELECT a.id::int                                 AS id,
+       a.uuid                                    AS uuid,
+       a.group_id                                AS group_id,
+       a.code::varchar                           AS code,
+       a.default                                 AS "default",
        a.client_version,
-       a.status = 'published'             AS published,
-       a.page_id                          AS default_page_id,
-       a.search_page_id                   AS search_page_id,
-       a.games_page_id                    AS games_page_id,
-       a.standalone_related_collection_id AS standalone_related_collection_id,
-       g.support_email                    AS support_email,
-       COALESCE(r.roles, '{}')::varchar[] AS roles
+       a.status = 'published'                    AS published,
+       a.page_id                                 AS default_page_id,
+       a.search_page_id                          AS search_page_id,
+       a.games_page_id                           AS games_page_id,
+       a.standalone_related_collection_id        AS standalone_related_collection_id,
+       g.support_email                           AS support_email,
+       COALESCE(r.roles, '{}')::varchar[]        AS roles,
+       COALESCE(ls_roles.roles, '{}')::varchar[] AS livestream_roles
 FROM applications a
          JOIN applicationgroups g ON g.id = a.group_id
-         LEFT JOIN roles r ON g.id = r.applicationgroups_id
+         LEFT JOIN (SELECT r.applicationgroups_id, array_agg(DISTINCT r.usergroups_code) roles
+                    FROM applicationgroups_usergroups r
+                    GROUP BY r.applicationgroups_id) r ON r.applicationgroups_id = g.id
+         LEFT JOIN (SELECT r.applicationgroups_id, array_agg(DISTINCT r.usergroups_code) roles
+                    FROM applicationgroups_usergroups_ls r
+                    GROUP BY r.applicationgroups_id) ls_roles ON ls_roles.applicationgroups_id = g.id
 WHERE a.id = ANY ($1::int[])
   AND a.status = 'published'
 `
@@ -126,6 +128,7 @@ type getApplicationsRow struct {
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionId"`
 	SupportEmail                  null_v4.String `db:"support_email" json:"supportEmail"`
 	Roles                         []string       `db:"roles" json:"roles"`
+	LivestreamRoles               []string       `db:"livestream_roles" json:"livestreamRoles"`
 }
 
 func (q *Queries) getApplications(ctx context.Context, dollar_1 []int32) ([]getApplicationsRow, error) {
@@ -151,6 +154,7 @@ func (q *Queries) getApplications(ctx context.Context, dollar_1 []int32) ([]getA
 			&i.StandaloneRelatedCollectionID,
 			&i.SupportEmail,
 			pq.Array(&i.Roles),
+			pq.Array(&i.LivestreamRoles),
 		); err != nil {
 			return nil, err
 		}
@@ -166,26 +170,28 @@ func (q *Queries) getApplications(ctx context.Context, dollar_1 []int32) ([]getA
 }
 
 const listApplications = `-- name: listApplications :many
-WITH roles AS (SELECT r.applicationgroups_id,
-                      array_agg(DISTINCT r.usergroups_code) as roles
-               FROM applicationgroups_usergroups r
-               GROUP BY r.applicationgroups_id)
-SELECT a.id::int                          AS id,
-       a.uuid                             AS uuid,
-       a.group_id                         AS group_id,
-       a.code::varchar                    AS code,
-       a.default                          AS "default",
+SELECT a.id::int                                 AS id,
+       a.uuid                                    AS uuid,
+       a.group_id                                AS group_id,
+       a.code::varchar                           AS code,
+       a.default                                 AS "default",
        a.client_version,
-       a.status = 'published'             AS published,
-       a.page_id                          AS default_page_id,
-       a.search_page_id                   AS search_page_id,
-       a.games_page_id                    AS games_page_id,
-       a.standalone_related_collection_id AS standalone_related_collection_id,
-       g.support_email                    AS support_email,
-       COALESCE(r.roles, '{}')::varchar[] AS roles
+       a.status = 'published'                    AS published,
+       a.page_id                                 AS default_page_id,
+       a.search_page_id                          AS search_page_id,
+       a.games_page_id                           AS games_page_id,
+       a.standalone_related_collection_id        AS standalone_related_collection_id,
+       g.support_email                           AS support_email,
+       COALESCE(r.roles, '{}')::varchar[]        AS roles,
+       COALESCE(ls_roles.roles, '{}')::varchar[] AS livestream_roles
 FROM applications a
          JOIN applicationgroups g ON g.id = a.group_id
-         LEFT JOIN roles r ON g.id = r.applicationgroups_id
+         LEFT JOIN (SELECT r.applicationgroups_id, array_agg(DISTINCT r.usergroups_code) roles
+                    FROM applicationgroups_usergroups r
+                    GROUP BY r.applicationgroups_id) r ON r.applicationgroups_id = g.id
+         LEFT JOIN (SELECT r.applicationgroups_id, array_agg(DISTINCT r.usergroups_code) roles
+                    FROM applicationgroups_usergroups_ls r
+                    GROUP BY r.applicationgroups_id) ls_roles ON ls_roles.applicationgroups_id = g.id
 WHERE a.status = 'published'
 `
 
@@ -203,6 +209,7 @@ type listApplicationsRow struct {
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionId"`
 	SupportEmail                  null_v4.String `db:"support_email" json:"supportEmail"`
 	Roles                         []string       `db:"roles" json:"roles"`
+	LivestreamRoles               []string       `db:"livestream_roles" json:"livestreamRoles"`
 }
 
 func (q *Queries) listApplications(ctx context.Context) ([]listApplicationsRow, error) {
@@ -228,6 +235,7 @@ func (q *Queries) listApplications(ctx context.Context) ([]listApplicationsRow, 
 			&i.StandaloneRelatedCollectionID,
 			&i.SupportEmail,
 			pq.Array(&i.Roles),
+			pq.Array(&i.LivestreamRoles),
 		); err != nil {
 			return nil, err
 		}
