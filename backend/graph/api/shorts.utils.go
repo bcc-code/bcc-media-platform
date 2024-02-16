@@ -64,11 +64,15 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 		return nil, err
 	}
 
+	// apply pagination here, before filtering out watched shorts
 	shuffledShortIDs := cursor.ApplyToSegments(shortIDSegments, 5)
 
 	var shortIDs []uuid.UUID
 	shortIDs = append(shortIDs, shuffledShortIDs...)
 
+	// filter out shorts that are watched
+	// keep in mind that this messes up the cursor,
+	// so the same cursor will not return the same shorts if they are watched
 	if p != nil {
 		mappedIDs, err := r.getShortToMediaIDMap(ctx, shortIDs)
 		if err != nil {
@@ -112,6 +116,9 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 		Seed:         cursor.Seed,
 		CurrentIndex: lo.IndexOf(shuffledShortIDs, lastID) + 1,
 	}
+
+	// if we don't have enough keys, restart the cursor while also setting progress for all shorts to 0.0,
+	// also add the shorts from the beginning onwards.
 	if len(keys) < l {
 		nextCursor.CurrentIndex = 0
 		err = r.clearShortsProgress(ctx, p)
