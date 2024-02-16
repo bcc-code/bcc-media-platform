@@ -65,7 +65,9 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 	}
 
 	shuffledShortIDs := cursor.ApplyToSegments(shortIDSegments, 5)
-	shortIDs := shuffledShortIDs
+
+	var shortIDs []uuid.UUID
+	shortIDs = append(shortIDs, shuffledShortIDs...)
 
 	if p != nil {
 		mappedIDs, err := r.getShortToMediaIDMap(ctx, shortIDs)
