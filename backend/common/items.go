@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/orsinium-labs/enum"
-
 	"github.com/google/uuid"
+	"github.com/orsinium-labs/enum"
 
 	"gopkg.in/guregu/null.v4"
 )
@@ -540,4 +539,16 @@ type Playlist struct {
 // GetKey returns the key for this item
 func (i Playlist) GetKey() uuid.UUID {
 	return i.ID
+}
+
+// MediaProgress is the profile progress for a specific media item
+type MediaProgress struct {
+	ProfileID uuid.UUID `json:"profileId"`
+	MediaID   uuid.UUID `json:"itemId"`
+	Progress  float64   `json:"progress"`
+	Duration  float64   `json:"duration"`
+	Watched   int       `json:"watched"`
+	WatchedAt null.Time `json:"watchedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	FromStart bool      `json:"fromStart"`
 }

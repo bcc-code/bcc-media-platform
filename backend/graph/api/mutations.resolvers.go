@@ -167,10 +167,6 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 
 // SetShortProgress is the resolver for the setShortProgress field.
 func (r *mutationRootResolver) SetShortProgress(ctx context.Context, id string, progress *float64, duration *float64) (*model.Short, error) {
-	p, err := getProfile(ctx)
-	if err != nil {
-		return nil, err
-	}
 	s, err := r.QueryRoot().Short(ctx, id)
 	if err != nil {
 		return nil, err
@@ -179,44 +175,7 @@ func (r *mutationRootResolver) SetShortProgress(ctx context.Context, id string, 
 	if err != nil {
 		return nil, err
 	}
-
-	savedRows, err := r.GetQueries().GetMediaProgress(ctx, sqlc.GetMediaProgressParams{
-		ProfileID: p.ID,
-		ItemIds:   []uuid.UUID{short.MediaID},
-	})
-	if err != nil {
-		return nil, err
-	}
-	var saved sqlc.GetMediaProgressRow
-	if len(savedRows) == 1 {
-		saved = savedRows[0]
-	}
-
-	d := 0.0
-	if duration != nil {
-		d = *duration
-	}
-	params := sqlc.SaveMediaProgressParams{
-		ProfileID: p.ID,
-		ItemID:    short.MediaID,
-		Duration:  float32(d),
-		Watched:   saved.Watched,
-		WatchedAt: saved.WatchedAt,
-		FromStart: saved.FromStart,
-	}
-	if progress != nil && *progress != 0.0 {
-		params.Progress = float32(*progress)
-		if *progress/d < 0.1 {
-			params.FromStart = true
-		} else if *progress/d > 0.4 && params.FromStart {
-			params.FromStart = false
-			if !params.WatchedAt.Valid || params.WatchedAt.Time.After(time.Now().Add(time.Minute*60*-1)) {
-				params.Watched++
-				params.WatchedAt = null.TimeFrom(time.Now())
-			}
-		}
-	}
-	err = r.GetQueries().SaveMediaProgress(ctx, params)
+	_, err = r.storeMediaProgress(ctx, short.MediaID, shortsWatchedThreshold, progress, duration)
 	if err != nil {
 		return nil, err
 	}

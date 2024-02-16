@@ -32,6 +32,29 @@ func ParseCursor[K comparable](cursorString string) (*Cursor[K], error) {
 	return Base64DecodeAndUnmarshal[Cursor[K]](cursorString)
 }
 
+// ApplyTo applies the cursor to a collection of keys
+func (c Cursor[K]) ApplyTo(keys []K) []K {
+	var result []K
+	for i, key := range keys {
+		if i > c.CurrentIndex {
+			result = append(result, key)
+		}
+	}
+	return result
+}
+
+// ApplyToSegments applies the cursor to segments of keys
+func (c Cursor[K]) ApplyToSegments(segments [][]K, minimumSegmentLength int) []K {
+	var keys []K
+	if c.Seed != nil {
+		keys = ShuffleSegmentedArray(segments, minimumSegmentLength, *c.Seed)
+	} else {
+		keys = lo.Flatten(segments)
+	}
+
+	return c.ApplyTo(keys)
+}
+
 // ItemCursor contains cursor data for pagination
 type ItemCursor[K comparable] struct {
 	Keys         []K `json:"keys"`

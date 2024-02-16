@@ -14,6 +14,8 @@ import (
 	"github.com/samber/lo"
 )
 
+const shortsWatchedThreshold = 0.4
+
 func (r *Resolver) getShuffledShortIDs(ctx context.Context, seed int64) ([]uuid.UUID, error) {
 	shortIDSegments, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
 	if err != nil {
@@ -57,27 +59,30 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 		cursor.Seed = &seed
 	}
 
-	shortIDs, err := r.getShuffledShortIDs(ctx, *cursor.Seed)
+	shortIDSegments, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
 	if err != nil {
 		return nil, err
 	}
+
+	shuffledShortIDs := cursor.ApplyToSegments(shortIDSegments, 5)
+	shortIDs := shuffledShortIDs
 
 	if p != nil {
 		mappedIDs, err := r.getShortToMediaIDMap(ctx, shortIDs)
 		if err != nil {
 			return nil, err
 		}
-		progress, err := r.GetQueries().GetMediaProgress(ctx, sqlc.GetMediaProgressParams{
-			ProfileID: p.ID,
-			ItemIds:   lo.Values(mappedIDs),
-		})
+		progress, err := r.GetProfileLoaders(ctx).MediaProgressLoader.GetMany(ctx, lo.Values(mappedIDs))
 		if err != nil {
 			return nil, err
 		}
 		var ignoreIDs []uuid.UUID
 		for _, pr := range progress {
+			if pr == nil {
+				continue
+			}
 			if pr.Progress > 0.1 {
-				ignoreIDs = append(ignoreIDs, pr.ItemID)
+				ignoreIDs = append(ignoreIDs, pr.MediaID)
 			}
 		}
 		shortIDs = lo.Filter(shortIDs, func(i uuid.UUID, _ int) bool {
@@ -91,20 +96,19 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 	}
 
 	var keys []uuid.UUID
-	for index, id := range shortIDs {
-		if index < cursor.CurrentIndex {
-			continue
-		}
-
+	for _, id := range shortIDs {
 		keys = append(keys, id)
 
 		if len(keys) >= l {
 			break
 		}
 	}
+
+	lastID, _ := lo.Last(keys)
+
 	nextCursor := &utils.Cursor[uuid.UUID]{
 		Seed:         cursor.Seed,
-		CurrentIndex: cursor.CurrentIndex + l,
+		CurrentIndex: lo.IndexOf(shuffledShortIDs, lastID) + 1,
 	}
 	if len(keys) < l {
 		nextCursor.CurrentIndex = 0

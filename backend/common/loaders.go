@@ -145,5 +145,7 @@ type ProfileLoaders struct {
 	SeasonDefaultEpisodeLoader *loaders.Loader[int, *int]
 	ShowDefaultEpisodeLoader   *loaders.Loader[int, *int]
 
+	MediaProgressLoader *loaders.Loader[uuid.UUID, *MediaProgress]
+
 	TopicDefaultLessonLoader *loaders.Loader[uuid.UUID, *uuid.UUID]
 }
