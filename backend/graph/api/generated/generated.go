@@ -254,6 +254,7 @@ type ComplexityRoot struct {
 
 	Episode struct {
 		AgeRating             func(childComplexity int) int
+		AssetVersion          func(childComplexity int) int
 		AudioLanguages        func(childComplexity int) int
 		AvailableFrom         func(childComplexity int) int
 		AvailableTo           func(childComplexity int) int
@@ -1009,6 +1010,7 @@ type EpisodeResolver interface {
 	Streams(ctx context.Context, obj *model.Episode) ([]*model.Stream, error)
 	Files(ctx context.Context, obj *model.Episode) ([]*model.File, error)
 	Chapters(ctx context.Context, obj *model.Episode) ([]*model.Chapter, error)
+
 	Season(ctx context.Context, obj *model.Episode) (*model.Season, error)
 
 	Progress(ctx context.Context, obj *model.Episode) (*int, error)
@@ -1910,6 +1912,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.AgeRating(childComplexity), true
+
+	case "Episode.assetVersion":
+		if e.complexity.Episode.AssetVersion == nil {
+			break
+		}
+
+		return e.complexity.Episode.AssetVersion(childComplexity), true
 
 	case "Episode.audioLanguages":
 		if e.complexity.Episode.AudioLanguages == nil {
@@ -5864,6 +5873,7 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     streams: [Stream!]! @goField(forceResolver: true)
     files: [File!]! @goField(forceResolver: true)
     chapters: [Chapter!]! @goField(forceResolver: true)
+    assetVersion: String!
 
     season: Season @goField(forceResolver: true)
     duration: Int!
@@ -13681,6 +13691,50 @@ func (ec *executionContext) fieldContext_Episode_chapters(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_assetVersion(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_assetVersion(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AssetVersion, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_assetVersion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_season(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_season(ctx, field)
 	if err != nil {
@@ -14395,6 +14449,8 @@ func (ec *executionContext) fieldContext_Episode_next(ctx context.Context, field
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -14884,6 +14940,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -15134,6 +15192,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -19416,6 +19476,8 @@ func (ec *executionContext) fieldContext_Lesson_defaultEpisode(ctx context.Conte
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -21819,6 +21881,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -25174,6 +25238,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -28126,6 +28192,8 @@ func (ec *executionContext) fieldContext_Season_defaultEpisode(ctx context.Conte
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -31176,6 +31244,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(ctx context.Context
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -35634,6 +35704,8 @@ func (ec *executionContext) fieldContext_VideoTask_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -40983,6 +41055,11 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "assetVersion":
+			out.Values[i] = ec._Episode_assetVersion(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "season":
 			field := field
 

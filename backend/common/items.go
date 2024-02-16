@@ -120,29 +120,32 @@ func (i Season) GetStatus() Status {
 
 // Episode is the definition of the Episode object
 type Episode struct {
-	ID                     int            `json:"id"`
-	UUID                   uuid.UUID      `json:"uuid"`
-	Status                 Status         `json:"unlisted"`
-	Type                   string         `json:"type"`
-	PreventPublicIndexing  bool           `json:"preventPublicIndexing"`
-	LegacyID               null.Int       `json:"legacyId"`
-	LegacyProgramID        null.Int       `json:"legacyProgramId"`
-	SeasonID               null.Int       `json:"seasonId"`
-	ProductionDateInTitle  bool           `json:"publishDateInTitle"`
-	PublishDate            time.Time      `json:"publishDate"`
-	ProductionDate         time.Time      `json:"productionDate"`
-	AvailableFrom          time.Time      `json:"availableFrom"`
-	AvailableTo            time.Time      `json:"availableTo"`
-	Number                 null.Int       `json:"number"`
-	Duration               int            `json:"duration"`
-	AgeRating              string         `json:"ageRating"`
-	AssetID                null.Int       `json:"assetId"`
-	Assets                 LocaleMap[int] `json:"assets"`
-	Image                  null.String    `json:"image"`
-	Images                 Images         `json:"images"`
-	TagIDs                 []int          `json:"tagIds"`
-	TimedMetadataFromAsset bool           `json:"timedMetadataFromAsset"`
-	TimedMetadataIDs       []uuid.UUID    `json:"timedMetadataIds"`
+	ID                    int       `json:"id"`
+	UUID                  uuid.UUID `json:"uuid"`
+	Status                Status    `json:"unlisted"`
+	Type                  string    `json:"type"`
+	PreventPublicIndexing bool      `json:"preventPublicIndexing"`
+	LegacyID              null.Int  `json:"legacyId"`
+	LegacyProgramID       null.Int  `json:"legacyProgramId"`
+	SeasonID              null.Int  `json:"seasonId"`
+	ProductionDateInTitle bool      `json:"publishDateInTitle"`
+	PublishDate           time.Time `json:"publishDate"`
+	ProductionDate        time.Time `json:"productionDate"`
+	AvailableFrom         time.Time `json:"availableFrom"`
+	AvailableTo           time.Time `json:"availableTo"`
+	Number                null.Int  `json:"number"`
+	Duration              int       `json:"duration"`
+	AgeRating             string    `json:"ageRating"`
+
+	AssetID      null.Int       `json:"assetId"`
+	Assets       LocaleMap[int] `json:"assets"`
+	AssetVersion string         `json:"assetVersion"`
+
+	Image                  null.String `json:"image"`
+	Images                 Images      `json:"images"`
+	TagIDs                 []int       `json:"tagIds"`
+	TimedMetadataFromAsset bool        `json:"timedMetadataFromAsset"`
+	TimedMetadataIDs       []uuid.UUID `json:"timedMetadataIds"`
 
 	PublicTitle      null.String  `json:"publicTitle"`
 	Title            LocaleString `json:"title"`
