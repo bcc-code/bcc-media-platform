@@ -217,12 +217,13 @@ type AnswerSurveyQuestionResult struct {
 }
 
 type Application struct {
-	ID            string `json:"id"`
-	Code          string `json:"code"`
-	ClientVersion string `json:"clientVersion"`
-	Page          *Page  `json:"page,omitempty"`
-	SearchPage    *Page  `json:"searchPage,omitempty"`
-	GamesPage     *Page  `json:"gamesPage,omitempty"`
+	ID                string `json:"id"`
+	Code              string `json:"code"`
+	ClientVersion     string `json:"clientVersion"`
+	Page              *Page  `json:"page,omitempty"`
+	SearchPage        *Page  `json:"searchPage,omitempty"`
+	GamesPage         *Page  `json:"gamesPage,omitempty"`
+	LivestreamEnabled bool   `json:"livestreamEnabled"`
 }
 
 type BirthOptions struct {
@@ -385,6 +386,7 @@ type Episode struct {
 	Streams               []*Stream              `json:"streams"`
 	Files                 []*File                `json:"files"`
 	Chapters              []*Chapter             `json:"chapters"`
+	AssetVersion          string                 `json:"assetVersion"`
 	Season                *Season                `json:"season,omitempty"`
 	Duration              int                    `json:"duration"`
 	Progress              *int                   `json:"progress,omitempty"`

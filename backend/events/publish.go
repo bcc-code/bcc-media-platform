@@ -2,12 +2,13 @@ package events
 
 import (
 	"context"
+	"strconv"
+	"time"
+
 	firebase "firebase.google.com/go"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/samber/lo"
-	"strconv"
-	"time"
 )
 
 // Service contains multiple functions for handling and publishing events
@@ -75,6 +76,25 @@ func (s *Service) getEventItems(ctx context.Context, collection string, id strin
 		}), nil
 	case "prompts":
 		return []*realItem{{ID: id, Collection: collection}}, nil
+	case "applicationgroups":
+		// map applicationgroups to applications
+		applications, err := s.queries.ListApplications(ctx)
+		if err != nil {
+			return nil, err
+		}
+		uid := utils.AsUuid(id)
+		var ids []string
+		for _, app := range applications {
+			if app.GroupID == uid {
+				ids = append(ids, app.Code)
+			}
+		}
+		return lo.Map(ids, func(i string, _ int) *realItem {
+			return &realItem{
+				ID:         i,
+				Collection: "applications",
+			}
+		}), nil
 	default:
 		return nil, nil
 	}

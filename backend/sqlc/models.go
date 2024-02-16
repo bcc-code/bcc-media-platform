@@ -126,6 +126,12 @@ type ApplicationgroupsUsergroup struct {
 	UsergroupsCode      string    `db:"usergroups_code" json:"usergroupsCode"`
 }
 
+type ApplicationgroupsUsergroupsL struct {
+	ID                  int32          `db:"id" json:"id"`
+	ApplicationgroupsID uuid.NullUUID  `db:"applicationgroups_id" json:"applicationgroupsId"`
+	UsergroupsCode      null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
+}
+
 type Asset struct {
 	DateCreated     time.Time      `db:"date_created" json:"dateCreated"`
 	DateUpdated     time.Time      `db:"date_updated" json:"dateUpdated"`

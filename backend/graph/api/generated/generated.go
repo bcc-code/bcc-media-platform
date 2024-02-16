@@ -165,12 +165,13 @@ type ComplexityRoot struct {
 	}
 
 	Application struct {
-		ClientVersion func(childComplexity int) int
-		Code          func(childComplexity int) int
-		GamesPage     func(childComplexity int) int
-		ID            func(childComplexity int) int
-		Page          func(childComplexity int) int
-		SearchPage    func(childComplexity int) int
+		ClientVersion     func(childComplexity int) int
+		Code              func(childComplexity int) int
+		GamesPage         func(childComplexity int) int
+		ID                func(childComplexity int) int
+		LivestreamEnabled func(childComplexity int) int
+		Page              func(childComplexity int) int
+		SearchPage        func(childComplexity int) int
 	}
 
 	Calendar struct {
@@ -254,6 +255,7 @@ type ComplexityRoot struct {
 
 	Episode struct {
 		AgeRating             func(childComplexity int) int
+		AssetVersion          func(childComplexity int) int
 		AudioLanguages        func(childComplexity int) int
 		AvailableFrom         func(childComplexity int) int
 		AvailableTo           func(childComplexity int) int
@@ -610,7 +612,7 @@ type ComplexityRoot struct {
 		Achievement         func(childComplexity int, id string) int
 		AchievementGroup    func(childComplexity int, id string) int
 		AchievementGroups   func(childComplexity int, first *int, offset *int) int
-		Application         func(childComplexity int) int
+		Application         func(childComplexity int, timestamp *string) int
 		Calendar            func(childComplexity int) int
 		Config              func(childComplexity int) int
 		Episode             func(childComplexity int, id string, context *model.EpisodeContext) int
@@ -1009,6 +1011,7 @@ type EpisodeResolver interface {
 	Streams(ctx context.Context, obj *model.Episode) ([]*model.Stream, error)
 	Files(ctx context.Context, obj *model.Episode) ([]*model.File, error)
 	Chapters(ctx context.Context, obj *model.Episode) ([]*model.Chapter, error)
+
 	Season(ctx context.Context, obj *model.Episode) (*model.Season, error)
 
 	Progress(ctx context.Context, obj *model.Episode) (*int, error)
@@ -1129,7 +1132,7 @@ type PosterTaskResolver interface {
 	Completed(ctx context.Context, obj *model.PosterTask) (bool, error)
 }
 type QueryRootResolver interface {
-	Application(ctx context.Context) (*model.Application, error)
+	Application(ctx context.Context, timestamp *string) (*model.Application, error)
 	Languages(ctx context.Context) ([]string, error)
 	Export(ctx context.Context, groups []string) (*model.Export, error)
 	Redirect(ctx context.Context, id string) (*model.RedirectLink, error)
@@ -1544,6 +1547,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Application.ID(childComplexity), true
 
+	case "Application.livestreamEnabled":
+		if e.complexity.Application.LivestreamEnabled == nil {
+			break
+		}
+
+		return e.complexity.Application.LivestreamEnabled(childComplexity), true
+
 	case "Application.page":
 		if e.complexity.Application.Page == nil {
 			break
@@ -1910,6 +1920,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.AgeRating(childComplexity), true
+
+	case "Episode.assetVersion":
+		if e.complexity.Episode.AssetVersion == nil {
+			break
+		}
+
+		return e.complexity.Episode.AssetVersion(childComplexity), true
 
 	case "Episode.audioLanguages":
 		if e.complexity.Episode.AudioLanguages == nil {
@@ -3840,7 +3857,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.QueryRoot.Application(childComplexity), true
+		args, err := ec.field_QueryRoot_application_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.QueryRoot.Application(childComplexity, args["timestamp"].(*string)), true
 
 	case "QueryRoot.calendar":
 		if e.complexity.QueryRoot.Calendar == nil {
@@ -5721,6 +5743,7 @@ type ConfirmAchievementResult {
     page: Page @goField(forceResolver: true)
     searchPage: Page @goField(forceResolver: true)
     gamesPage: Page @goField(forceResolver: true)
+    livestreamEnabled: Boolean!
 }
 `, BuiltIn: false},
 	{Name: "../schema/calendar.graphqls", Input: `type CalendarPeriod {
@@ -5864,6 +5887,7 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     streams: [Stream!]! @goField(forceResolver: true)
     files: [File!]! @goField(forceResolver: true)
     chapters: [Chapter!]! @goField(forceResolver: true)
+    assetVersion: String!
 
     season: Season @goField(forceResolver: true)
     duration: Int!
@@ -6225,7 +6249,7 @@ type RedirectParam {
 }
 
 type QueryRoot{
-    application: Application!
+    application(timestamp: String): Application!
     languages: [Language!]!
 
     export(
@@ -8125,6 +8149,21 @@ func (ec *executionContext) field_QueryRoot_achievement_args(ctx context.Context
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_QueryRoot_application_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["timestamp"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timestamp"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["timestamp"] = arg0
 	return args, nil
 }
 
@@ -10594,6 +10633,50 @@ func (ec *executionContext) fieldContext_Application_gamesPage(ctx context.Conte
 				return ec.fieldContext_Page_sections(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Page", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Application_livestreamEnabled(ctx context.Context, field graphql.CollectedField, obj *model.Application) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Application_livestreamEnabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LivestreamEnabled, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Application_livestreamEnabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Application",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -13681,6 +13764,50 @@ func (ec *executionContext) fieldContext_Episode_chapters(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_assetVersion(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_assetVersion(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AssetVersion, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_assetVersion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_season(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_season(ctx, field)
 	if err != nil {
@@ -14395,6 +14522,8 @@ func (ec *executionContext) fieldContext_Episode_next(ctx context.Context, field
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -14884,6 +15013,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -15134,6 +15265,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -19416,6 +19549,8 @@ func (ec *executionContext) fieldContext_Lesson_defaultEpisode(ctx context.Conte
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -21819,6 +21954,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -24593,7 +24730,7 @@ func (ec *executionContext) _QueryRoot_application(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().Application(rctx)
+		return ec.resolvers.QueryRoot().Application(rctx, fc.Args["timestamp"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24630,9 +24767,22 @@ func (ec *executionContext) fieldContext_QueryRoot_application(ctx context.Conte
 				return ec.fieldContext_Application_searchPage(ctx, field)
 			case "gamesPage":
 				return ec.fieldContext_Application_gamesPage(ctx, field)
+			case "livestreamEnabled":
+				return ec.fieldContext_Application_livestreamEnabled(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_QueryRoot_application_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -25174,6 +25324,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -28126,6 +28278,8 @@ func (ec *executionContext) fieldContext_Season_defaultEpisode(ctx context.Conte
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -31176,6 +31330,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(ctx context.Context
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -35634,6 +35790,8 @@ func (ec *executionContext) fieldContext_VideoTask_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
 				return ec.fieldContext_Episode_season(ctx, field)
 			case "duration":
@@ -39785,6 +39943,11 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "livestreamEnabled":
+			out.Values[i] = ec._Application_livestreamEnabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -40983,6 +41146,11 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "assetVersion":
+			out.Values[i] = ec._Episode_assetVersion(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "season":
 			field := field
 
