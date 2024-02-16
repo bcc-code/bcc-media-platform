@@ -2,6 +2,7 @@ package sqlc
 
 import (
 	"context"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/google/uuid"
@@ -24,7 +25,6 @@ func (q *Queries) ApplicationQueries(groupID uuid.UUID) *ApplicationQueries {
 
 func mapToApplications(applications []getApplicationsRow) []common.Application {
 	return lo.Map(applications, func(p getApplicationsRow, _ int) common.Application {
-
 		return common.Application{
 			ID:                  int(p.ID),
 			UUID:                p.Uuid,
@@ -38,6 +38,7 @@ func mapToApplications(applications []getApplicationsRow) []common.Application {
 			RelatedCollectionID: p.StandaloneRelatedCollectionID,
 			SupportEmail:        p.SupportEmail,
 			Roles:               p.Roles,
+			LivestreamRoles:     p.LivestreamRoles,
 		}
 	})
 }
