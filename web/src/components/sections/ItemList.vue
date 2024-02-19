@@ -55,6 +55,7 @@
                         class="hidden lg:flex mt-1.5 line-clamp-2 text-style-body-2 opacity-70"
                     >
                         <div
+                            class="pointer-events-none"
                             v-html="
                                 i.description ? mdToHTML(i.description) : ''
                             "
