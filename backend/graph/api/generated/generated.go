@@ -664,7 +664,8 @@ type ComplexityRoot struct {
 	}
 
 	RedirectLink struct {
-		URL func(childComplexity int) int
+		RequiresAuthentication func(childComplexity int) int
+		URL                    func(childComplexity int) int
 	}
 
 	RedirectParam struct {
@@ -4227,6 +4228,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.QuoteTask.Title(childComplexity), true
 
+	case "RedirectLink.requiresAuthentication":
+		if e.complexity.RedirectLink.RequiresAuthentication == nil {
+			break
+		}
+
+		return e.complexity.RedirectLink.RequiresAuthentication(childComplexity), true
+
 	case "RedirectLink.url":
 		if e.complexity.RedirectLink.URL == nil {
 			break
@@ -6241,6 +6249,7 @@ input EpisodeContext {
 
 type RedirectLink {
     url: String!
+    requiresAuthentication: Boolean!
 }
 
 type RedirectParam {
@@ -24933,6 +24942,8 @@ func (ec *executionContext) fieldContext_QueryRoot_redirect(ctx context.Context,
 			switch field.Name {
 			case "url":
 				return ec.fieldContext_RedirectLink_url(ctx, field)
+			case "requiresAuthentication":
+				return ec.fieldContext_RedirectLink_requiresAuthentication(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type RedirectLink", field.Name)
 		},
@@ -27452,6 +27463,50 @@ func (ec *executionContext) fieldContext_RedirectLink_url(ctx context.Context, f
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedirectLink_requiresAuthentication(ctx context.Context, field graphql.CollectedField, obj *model.RedirectLink) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedirectLink_requiresAuthentication(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RequiresAuthentication, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedirectLink_requiresAuthentication(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedirectLink",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -45888,6 +45943,11 @@ func (ec *executionContext) _RedirectLink(ctx context.Context, sel ast.Selection
 			out.Values[i] = graphql.MarshalString("RedirectLink")
 		case "url":
 			out.Values[i] = ec._RedirectLink_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "requiresAuthentication":
+			out.Values[i] = ec._RedirectLink_requiresAuthentication(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

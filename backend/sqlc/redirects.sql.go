@@ -48,17 +48,18 @@ func (q *Queries) getRedirectIDsForCodes(ctx context.Context, dollar_1 []string)
 }
 
 const getRedirects = `-- name: getRedirects :many
-SELECT r.id, r.code, r.target_url, COALESCE(r.include_token, true)::bool as include_token
+SELECT r.id, r.code, r.target_url, r.requires_authentication, COALESCE(r.include_token, true)::bool as include_token
 FROM redirects r
 WHERE r.status = 'published'
   AND r.id = ANY ($1::uuid[])
 `
 
 type getRedirectsRow struct {
-	ID           uuid.UUID `db:"id" json:"id"`
-	Code         string    `db:"code" json:"code"`
-	TargetUrl    string    `db:"target_url" json:"targetUrl"`
-	IncludeToken bool      `db:"include_token" json:"includeToken"`
+	ID                     uuid.UUID `db:"id" json:"id"`
+	Code                   string    `db:"code" json:"code"`
+	TargetUrl              string    `db:"target_url" json:"targetUrl"`
+	RequiresAuthentication bool      `db:"requires_authentication" json:"requiresAuthentication"`
+	IncludeToken           bool      `db:"include_token" json:"includeToken"`
 }
 
 func (q *Queries) getRedirects(ctx context.Context, dollar_1 []uuid.UUID) ([]getRedirectsRow, error) {
@@ -74,6 +75,7 @@ func (q *Queries) getRedirects(ctx context.Context, dollar_1 []uuid.UUID) ([]get
 			&i.ID,
 			&i.Code,
 			&i.TargetUrl,
+			&i.RequiresAuthentication,
 			&i.IncludeToken,
 		); err != nil {
 			return nil, err

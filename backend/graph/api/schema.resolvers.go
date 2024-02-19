@@ -183,7 +183,8 @@ func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.Red
 	}
 
 	return &model.RedirectLink{
-		URL: url.String(),
+		URL:                    url.String(),
+		RequiresAuthentication: redir.RequiresAuthentication,
 	}, nil
 }
 

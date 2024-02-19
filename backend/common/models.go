@@ -137,10 +137,11 @@ func (i Progress) GetKey() int {
 
 // Redirect contains data for an authenticated redirect
 type Redirect struct {
-	ID           uuid.UUID
-	Code         string
-	TargetURL    string
-	IncludeToken bool
+	ID                     uuid.UUID
+	Code                   string
+	TargetURL              string
+	IncludeToken           bool
+	RequiresAuthentication bool
 }
 
 // GetKey returns the identifier for this object

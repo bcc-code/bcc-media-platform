@@ -954,7 +954,8 @@ func (this QuoteTask) GetTitle() string   { return this.Title }
 func (this QuoteTask) GetCompleted() bool { return this.Completed }
 
 type RedirectLink struct {
-	URL string `json:"url"`
+	URL                    string `json:"url"`
+	RequiresAuthentication bool   `json:"requiresAuthentication"`
 }
 
 type RedirectParam struct {
