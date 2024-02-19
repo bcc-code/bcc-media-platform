@@ -83,18 +83,16 @@ func (s *Service) getEventItems(ctx context.Context, collection string, id strin
 			return nil, err
 		}
 		uid := utils.AsUuid(id)
-		var ids []string
+		var realItems []*realItem
 		for _, app := range applications {
 			if app.GroupID == uid {
-				ids = append(ids, app.Code)
+				realItems = append(realItems, &realItem{
+					Collection: "applications",
+					ID:         app.Code,
+				})
 			}
 		}
-		return lo.Map(ids, func(i string, _ int) *realItem {
-			return &realItem{
-				ID:         i,
-				Collection: "applications",
-			}
-		}), nil
+		return realItems, nil
 	default:
 		return nil, nil
 	}
