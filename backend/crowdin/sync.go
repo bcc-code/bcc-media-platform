@@ -97,11 +97,11 @@ func syncCollection[T any, TUpdate any](
 			l.Debug().Str("identifier", str.Identifier).Msg("String not found, updating")
 			missingStrings = append(missingStrings, str)
 		} else {
-			if strings.TrimSpace(s.Text) != strings.TrimSpace(str.Text) || (strings.TrimSpace(str.Context) != "" && strings.TrimSpace(s.Context) != strings.TrimSpace(str.Context)) {
+			if str.IsHidden || strings.TrimSpace(s.Text) != strings.TrimSpace(str.Text) || (strings.TrimSpace(str.Context) != "" && strings.TrimSpace(s.Context) != strings.TrimSpace(str.Context)) {
 				l.Debug().Str("source", str.Text).Str("value", s.Text).Msg("Texts are not identical, updating")
 				s.Text = str.Text
 				s.Context = str.Context
-				s.IsHidden = str.IsHidden
+				s.IsHidden = false
 				editStrings = append(editStrings, s)
 			}
 		}
