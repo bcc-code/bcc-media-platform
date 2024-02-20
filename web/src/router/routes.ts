@@ -103,6 +103,12 @@ export default [
                 component: () => import("@/components/comics/Comic.vue"),
                 props: true,
             },
+            {
+                name: "quote-of-the-day",
+                path: "quote-of-the-day",
+                component: () => import("@/components/quotes/QuoteOfTheDay.vue"),
+                props: true,
+            },
         ],
     },
     {
