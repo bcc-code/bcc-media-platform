@@ -97,6 +97,12 @@ export default [
                 component: () => import("@/components/study/Lesson.vue"),
                 props: true,
             },
+            {
+                name: "comic",
+                path: "comic/:comicId",
+                component: () => import("@/components/comics/Comic.vue"),
+                props: true,
+            },
         ],
     },
     {
