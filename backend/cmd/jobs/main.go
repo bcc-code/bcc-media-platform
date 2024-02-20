@@ -72,7 +72,7 @@ func main() {
 
 	searchService := search.New(queries, config.Algolia)
 	eventHandler := events.NewHandler()
-	crowdinClient := crowdin.New(config.Crowdin, queries, true)
+	crowdinClient := crowdin.New(config.Crowdin, queries, false)
 	statisticsHandler := statistics.NewHandler(ctx, config.BigQuery, queries)
 
 	sr := scheduler.New(config.ServiceUrl+"/api/tasks", config.CloudTasks.QueueID)
