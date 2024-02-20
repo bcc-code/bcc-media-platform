@@ -2,11 +2,12 @@ package crowdin
 
 import (
 	"fmt"
+	"strconv"
+	"time"
+
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/samber/lo"
-	"strconv"
-	"time"
 )
 
 type addStringRequest struct {
@@ -146,6 +147,24 @@ func (c *Client) hideStrings(projectID int, strs []String) error {
 		}
 	}
 	return nil
+}
+
+func (c *Client) unHideString(projectID int, s String) error {
+	req := c.c.R()
+	req.SetBody([]patchRequest{
+		{
+			Value: true,
+			Op:    "replace",
+			Path:  "/isHidden",
+		},
+	})
+	req.SetResult(Object[String]{})
+	res, err := req.Patch(fmt.Sprintf("projects/%d/strings/%d", projectID, s.ID))
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to update string")
+		return nil
+	}
+	return ensureSuccess(res)
 }
 
 func (c *Client) setString(projectId int, s String) (r String, err error) {
