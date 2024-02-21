@@ -40,7 +40,8 @@ func (r *Resolver) storeMediaProgress(ctx context.Context, mediaID uuid.UUID, wa
 	if duration != nil {
 		pr.Duration = *duration
 	} else {
-		pr.Duration = 0.0
+		// avoid a 0.0 value
+		pr.Duration = 100.0
 	}
 
 	if progress != nil {
