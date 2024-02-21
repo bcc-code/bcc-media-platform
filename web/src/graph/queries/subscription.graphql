@@ -1,0 +1,9 @@
+mutation subscribeToTopic($topic: SubscriptionTopic!) {
+    subscribe(topic: $topic)
+}
+mutation unsubscribeToTopic($topic: SubscriptionTopic!) {
+    unsubscribe(topic: $topic)
+}
+query getSubscriptions {
+    subscriptions
+}

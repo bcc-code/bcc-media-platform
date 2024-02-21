@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from "vue"
+import { ref, onMounted, watch } from "vue"
 import Image from "@/components/Image.vue"
 import ComicImage from "./ComicImage.vue"
 import VButton from "../VButton.vue"
 import { analytics } from "@/services/analytics"
 import { useAuth } from "@/services/auth"
-import { useGetMeQuery } from "@/graph/generated"
+import { SubscriptionTopic, useGetMeQuery } from "@/graph/generated"
+import SubscribeButton from "./SubscribeButton.vue"
+import { useIntervalFn } from "@vueuse/core"
 
 const props = defineProps<{
     comicId: string
@@ -32,7 +34,7 @@ const analyticsQuery = useGetMeQuery({
 })
 const { authenticated } = useAuth()
 
-const fractionRead = ref(0)
+const currentFraction = ref(0)
 const comicRef = ref<HTMLElement | null>(null)
 
 const calculatePercentRead = () => {
@@ -50,11 +52,13 @@ const calculatePercentRead = () => {
         if (visibleTop <= comicTop) {
             fraction = 0
         }
-        fractionRead.value = fraction
+        currentFraction.value = fraction
     }
 }
 
 onMounted(async () => {
+    document.body.onscroll = calculatePercentRead
+
     await analytics.initialize(async () => {
         let analyticsId: string | null = null
         const result = await analyticsQuery.executeQuery()
@@ -73,20 +77,43 @@ onMounted(async () => {
             comicId: props.comicId,
         },
     })
-
-    document.body.onscroll = calculatePercentRead
-
-    setInterval(() => {
-        analytics.track("viewing", {
-            elementType: "comic",
-            pageCode: "comic",
-            elementId: props.comicId,
-            meta: {
-                fractionRead: fractionRead.value,
-            },
-        })
-    }, 5000)
 })
+
+const trackViewing = () => {
+    analytics.track("viewing", {
+        elementType: "Comic",
+        pageCode: "comic",
+        elementId: props.comicId,
+        meta: {
+            currentFraction: currentFraction.value,
+        },
+    })
+}
+
+const hasSentFraction1 = ref(false)
+const startTime = Date.now()
+watch(currentFraction, () => {
+    if (hasSentFraction1.value) return
+    if (currentFraction.value !== 1) return
+    hasSentFraction1.value = true
+    analytics.track("interaction", {
+        contextElementType: "Comic",
+        contextElementId: props.comicId,
+        interaction: "comic_done",
+        meta: {
+            timeToReadSec: (Date.now() - startTime) / 1000,
+        },
+    })
+})
+useIntervalFn(trackViewing, 15 * 1000)
+
+const trackSubscribeClick = () => {
+    analytics.track("interaction", {
+        contextElementType: "Comic",
+        contextElementId: props.comicId,
+        interaction: "subscribe",
+    })
+}
 </script>
 
 <template>
@@ -106,26 +133,22 @@ onMounted(async () => {
             />
         </div>
         <div
-            class="mt-8 flex items-center justify-center flex-col bg-background-2 rounded-lg px-8 py-8 mx-4"
+            class="mt-8 flex items-center justify-center flex-col bg-background-2 rounded-2xl px-8 py-8 mx-4"
         >
             <h3 class="text-style-title-2 text-center">
                 Subscribe to get notified about new comics!
             </h3>
-            <VButton
+            <SubscribeButton
                 class="mt-4"
-                variant="primary"
-                @click="console.log('Subscribe')"
-            >
-                Subscribe
-            </VButton>
+                :topic="SubscriptionTopic.Comics"
+                @click="trackSubscribeClick"
+            />
         </div>
-        <div class="h-64">&nbsp;</div>
-        <div class="h-64">&nbsp;</div>
-        <div class="h-64">&nbsp;</div>
+        <div class="h-96 mt-48">&nbsp;</div>
 
         <div
             class="fixed top-0 -mt-[1px] left-0 h-2 rounded-r-lg text-label-1 bg-background-1 opacity-50 transform-gpu"
-            :style="{ width: `${fractionRead * 100}%` }"
+            :style="{ width: `${currentFraction * 100}%` }"
         ></div>
     </div>
 </template>
