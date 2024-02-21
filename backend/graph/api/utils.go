@@ -49,7 +49,7 @@ func (r *Resolver) storeMediaProgress(ctx context.Context, mediaID uuid.UUID, wa
 		pr.Progress = 0.0
 	}
 
-	if pr.Progress == 0.0 || pr.Progress/pr.Duration < 0.1 {
+	if pr.Progress == 0.0 || pr.Duration == 0.0 || pr.Progress/pr.Duration < 0.1 {
 		pr.FromStart = true
 	}
 
