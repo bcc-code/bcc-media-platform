@@ -23,6 +23,15 @@ const comics = [
             "https://imgix.bcc.media/2f14926e-a0cc-4f94-8193-3c970f0db3c5.png",
         ],
     },
+    {
+        id: "15yearmentor-2",
+        title: "15 år og mentor? - Del 2",
+        images: [
+            "https://imgix.bcc.media/bd468d45-b0c1-4379-b23f-1b605761ae37.png",
+            "https://imgix.bcc.media/8dd8ecce-2016-408f-92c5-caa71ef79278.png",
+            "https://imgix.bcc.media/d91c1fed-b2e4-4a8b-8548-aa0abd6bafdf.png",
+        ],
+    },
 ]
 
 const comic = ref(
