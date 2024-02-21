@@ -35,7 +35,7 @@ func Test_ShuffleSegmentedArray(t *testing.T) {
 			"14",
 		},
 	}
-	arr := ShuffleSegmentedArray(segments, 5)
+	arr := ShuffleSegmentedArray(segments, 5, 0)
 
 	assert.Equal(t, 14, len(lo.Uniq(arr)), "Should have 14 unique keys")
 
