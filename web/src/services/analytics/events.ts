@@ -18,10 +18,10 @@ export type Page = StringWithAutocomplete<
 
 export type IdentifyData = {
     id: string
-    ageGroup: string
-    country: string
-    churchId: string
-    gender: string
+    ageGroup?: string
+    country?: string
+    churchId?: string
+    gender?: string
 }
 
 export type AgeGroup =
