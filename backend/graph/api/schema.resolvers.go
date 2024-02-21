@@ -20,6 +20,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
+	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
@@ -620,6 +621,27 @@ func (r *queryRootResolver) Prompts(ctx context.Context, timestamp *string) ([]m
 		return nil, err
 	}
 	return utils.MapWithCtx(ctx, surveys, model.PromptFrom), nil
+}
+
+// Subscriptions is the resolver for the subscriptions field.
+func (r *queryRootResolver) Subscriptions(ctx context.Context) ([]model.SubscriptionTopic, error) {
+	p, err := getProfile(ctx)
+	if err != nil {
+		return nil, err
+	}
+	err = ratelimit.Endpoint(ctx, "subscriptions", 10, false)
+	if err != nil {
+		return nil, err
+	}
+	subscriptions, err := r.GetQueries().ListSubscriptions(ctx, p.ID)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Filter(lo.Map(subscriptions, func(i string, _ int) model.SubscriptionTopic {
+		return model.SubscriptionTopic(i)
+	}), func(i model.SubscriptionTopic, _ int) bool {
+		return i.IsValid()
+	}), nil
 }
 
 // QueryRoot returns generated.QueryRootResolver implementation.

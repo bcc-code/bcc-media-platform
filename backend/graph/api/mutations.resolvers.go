@@ -604,6 +604,52 @@ func (r *mutationRootResolver) SendVerificationEmail(ctx context.Context) (bool,
 	return true, err
 }
 
+// Subscribe is the resolver for the subscribe field.
+func (r *mutationRootResolver) Subscribe(ctx context.Context, topic model.SubscriptionTopic) (bool, error) {
+	p, err := getProfile(ctx)
+	if err != nil {
+		return false, err
+	}
+	if !topic.IsValid() {
+		return false, nil
+	}
+	err = ratelimit.Endpoint(ctx, "subscribe:"+topic.String(), 5, false)
+	if err != nil {
+		return false, err
+	}
+	err = r.GetQueries().AddSubscription(ctx, sqlc.AddSubscriptionParams{
+		Key:       topic.String(),
+		ProfileID: p.ID,
+	})
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+// Unsubscribe is the resolver for the unsubscribe field.
+func (r *mutationRootResolver) Unsubscribe(ctx context.Context, topic model.SubscriptionTopic) (bool, error) {
+	p, err := getProfile(ctx)
+	if err != nil {
+		return false, err
+	}
+	if !topic.IsValid() {
+		return false, nil
+	}
+	err = ratelimit.Endpoint(ctx, "unsubscribe:"+topic.String(), 5, false)
+	if err != nil {
+		return false, err
+	}
+	err = r.GetQueries().RemoveSubscription(ctx, sqlc.RemoveSubscriptionParams{
+		Key:       topic.String(),
+		ProfileID: p.ID,
+	})
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 // AddToCollectionResult returns generated.AddToCollectionResultResolver implementation.
 func (r *Resolver) AddToCollectionResult() generated.AddToCollectionResultResolver {
 	return &addToCollectionResultResolver{r}

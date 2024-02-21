@@ -1708,6 +1708,11 @@ type UsersProgress struct {
 	Context   pqtype.NullRawMessage `db:"context" json:"context"`
 }
 
+type UsersSubscription struct {
+	Key       string    `db:"key" json:"key"`
+	ProfileID uuid.UUID `db:"profile_id" json:"profileId"`
+}
+
 type UsersSurveyquestionanswer struct {
 	ProfileID  uuid.UUID `db:"profile_id" json:"profileId"`
 	QuestionID uuid.UUID `db:"question_id" json:"questionId"`

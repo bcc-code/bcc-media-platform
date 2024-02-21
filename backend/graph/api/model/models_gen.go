@@ -1876,3 +1876,42 @@ func (e *StreamType) UnmarshalGQL(v interface{}) error {
 func (e StreamType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
+
+type SubscriptionTopic string
+
+const (
+	SubscriptionTopicComics SubscriptionTopic = "comics"
+)
+
+var AllSubscriptionTopic = []SubscriptionTopic{
+	SubscriptionTopicComics,
+}
+
+func (e SubscriptionTopic) IsValid() bool {
+	switch e {
+	case SubscriptionTopicComics:
+		return true
+	}
+	return false
+}
+
+func (e SubscriptionTopic) String() string {
+	return string(e)
+}
+
+func (e *SubscriptionTopic) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SubscriptionTopic(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SubscriptionTopic", str)
+	}
+	return nil
+}
+
+func (e SubscriptionTopic) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
