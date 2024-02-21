@@ -1,4 +1,5 @@
 import { GetPageQuery, SectionItemFragment } from "@/graph/generated"
+import { apiObject } from "rudder-sdk-js"
 
 type StringWithAutocomplete<T> = T | (string & {})
 
@@ -14,6 +15,7 @@ export type Page = StringWithAutocomplete<
     | "support"
     | "faq"
     | "episode"
+    | "comic"
 >
 
 export type IdentifyData = {
@@ -110,5 +112,11 @@ export type Events = {
         fileName: string
         audioLanguage: string
         resolution: string
+    },
+    viewing: {
+        pageCode?: Page,
+        elementType?: string,
+        elementId?: string,
+        meta?: apiObject,
     }
 }

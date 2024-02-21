@@ -91,7 +91,8 @@ class Analytics {
         title: string
         meta?: {
             setting?: "webSettings"
-            episodeId?: string
+            episodeId?: string,
+            comicId?: string,
         }
     }) {
         if (!this.initialized) return

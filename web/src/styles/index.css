@@ -68,3 +68,7 @@ body {
         scrollbar-width: none; /* Firefox */
     }
 }
+
+.ease-out-expo {
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
