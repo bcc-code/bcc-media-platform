@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
@@ -13,43 +14,136 @@ import (
 	"github.com/samber/lo"
 )
 
-func (r *Resolver) getShuffledShortIDsCursor(ctx context.Context, p *common.Profile) (*utils.Cursor[uuid.UUID], error) {
-	shortIDs, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
-	mediaIDLoader := r.GetLoaders().ShortsMediaIDLoader
-	mediaIDLoader.LoadMany(ctx, shortIDs)
+const shortsWatchedThreshold = 0.4
+
+func (r *Resolver) getShuffledShortIDs(ctx context.Context, seed int64) ([]uuid.UUID, error) {
+	shortIDSegments, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
 	if err != nil {
 		return nil, err
 	}
-	// because we are shuffling, we need to copy the array to avoid editing the pointer value
-	arr := make([]uuid.UUID, len(shortIDs))
-	copy(arr, shortIDs)
-	if p != nil {
-		mappedIDs := map[uuid.UUID]uuid.UUID{}
-		var mIDs []uuid.UUID
-		for _, sID := range arr {
-			mID, err := mediaIDLoader.Get(ctx, sID)
-			if err != nil {
-				return nil, err
-			}
-			if mID == nil {
-				continue
-			}
-			mappedIDs[sID] = *mID
-			mIDs = append(mIDs, *mID)
-		}
-		mediaIDs, err := r.GetQueries().GetProgressedMediaIDs(ctx, sqlc.GetProgressedMediaIDsParams{
-			ProfileID: p.ID,
-			ItemIds:   mIDs,
-		})
+
+	return utils.ShuffleSegmentedArray(shortIDSegments, 10, seed), nil
+}
+
+func (r *Resolver) getShortToMediaIDMap(ctx context.Context, shortIDs []uuid.UUID) (map[uuid.UUID]uuid.UUID, error) {
+	mediaIDLoader := r.GetLoaders().ShortsMediaIDLoader
+	mediaIDLoader.LoadMany(ctx, shortIDs)
+
+	mappedIDs := map[uuid.UUID]uuid.UUID{}
+	for _, sID := range shortIDs {
+		mID, err := mediaIDLoader.Get(ctx, sID)
 		if err != nil {
 			return nil, err
 		}
-		arr = lo.Filter(arr, func(i uuid.UUID, _ int) bool {
-			return !lo.Contains(mediaIDs, mappedIDs[i])
+		if mID == nil {
+			continue
+		}
+		mappedIDs[sID] = *mID
+	}
+	return mappedIDs, nil
+}
+
+type shortsShuffledResult struct {
+	Cursor     *utils.Cursor[uuid.UUID]
+	NextCursor *utils.Cursor[uuid.UUID]
+	Keys       []uuid.UUID
+}
+
+func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.Profile, cursor *utils.Cursor[uuid.UUID], limit *int) (*shortsShuffledResult, error) {
+	if cursor == nil {
+		cursor = utils.NewCursor[uuid.UUID](true)
+	}
+
+	if cursor.Seed == nil {
+		seed := time.Now().UnixMilli()
+		cursor.Seed = &seed
+	}
+
+	shortIDSegments, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// apply pagination here, before filtering out watched shorts
+	shuffledShortIDs := cursor.ApplyToSegments(shortIDSegments, 5)
+
+	var shortIDs []uuid.UUID
+	shortIDs = append(shortIDs, shuffledShortIDs...)
+
+	// filter out shorts that are watched
+	// keep in mind that this messes up the cursor,
+	// so the same cursor will not return the same shorts if they are watched
+	if p != nil {
+		mappedIDs, err := r.getShortToMediaIDMap(ctx, shortIDs)
+		if err != nil {
+			return nil, err
+		}
+		progress, err := r.GetProfileLoaders(ctx).MediaProgressLoader.GetMany(ctx, lo.Values(mappedIDs))
+		if err != nil {
+			return nil, err
+		}
+		var ignoreIDs []uuid.UUID
+		for _, pr := range progress {
+			if pr == nil {
+				continue
+			}
+			if pr.Progress > 0.1 {
+				ignoreIDs = append(ignoreIDs, pr.MediaID)
+			}
+		}
+		shortIDs = lo.Filter(shortIDs, func(i uuid.UUID, _ int) bool {
+			return !lo.Contains(ignoreIDs, mappedIDs[i])
 		})
 	}
-	ids := lo.Shuffle(arr)
-	return utils.NewCursor(ids), nil
+
+	l := 20
+	if limit != nil {
+		l = *limit
+	}
+
+	var keys []uuid.UUID
+	for _, id := range shortIDs {
+		keys = append(keys, id)
+
+		if len(keys) >= l {
+			break
+		}
+	}
+
+	lastID, _ := lo.Last(keys)
+
+	nextCursor := &utils.Cursor[uuid.UUID]{
+		Seed:         cursor.Seed,
+		CurrentIndex: lo.IndexOf(shuffledShortIDs, lastID) + 1,
+	}
+
+	// if we don't have enough keys, restart the cursor while also setting progress for all shorts to 0.0,
+	// also add the shorts from the beginning onwards.
+	if len(keys) < l {
+		nextCursor.CurrentIndex = 0
+		err = r.clearShortsProgress(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+
+		shortIDs, err = r.getShuffledShortIDs(ctx, *cursor.Seed)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, id := range shortIDs {
+			keys = append(keys, id)
+			nextCursor.CurrentIndex++
+			if len(keys) >= l {
+				break
+			}
+		}
+	}
+	return &shortsShuffledResult{
+		Cursor:     cursor,
+		Keys:       keys,
+		NextCursor: nextCursor,
+	}, nil
 }
 
 func (r *Resolver) shortIDsToMediaIDs(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
@@ -61,10 +155,11 @@ func (r *Resolver) shortIDsToMediaIDs(ctx context.Context, ids []uuid.UUID) ([]u
 }
 
 func (r *Resolver) clearShortsProgress(ctx context.Context, p *common.Profile) error {
-	shortIDs, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
+	shortIDSegments, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
 	if err != nil {
 		return err
 	}
+	shortIDs := lo.Flatten(shortIDSegments)
 	mediaIDs, err := r.shortIDsToMediaIDs(ctx, shortIDs)
 	err = r.GetQueries().RemoveProgressForMediaIDs(ctx, sqlc.RemoveProgressForMediaIDsParams{
 		ProfileID: p.ID,
@@ -84,48 +179,27 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*
 	var c *utils.Cursor[uuid.UUID]
 	if cursor != nil {
 		c, err = utils.ParseCursor[uuid.UUID](*cursor)
-	} else {
-		c, err = r.getShuffledShortIDsCursor(ctx, p)
 	}
 	if err != nil {
 		return nil, err
 	}
-	l := 10
-	if limit != nil {
-		l = *limit
-	}
-	var nextCursor *utils.Cursor[uuid.UUID]
-	// if the cursor doesn't have enough to satisfy the length of the limit, the next cursor is a new random one
-	// TODO: implement filling the required number of IDs instead of giving up and generating a new from scratch.
-	nextKey := c.Position(c.CurrentIndex + l)
-	if nextKey != nil {
-		nextCursor = c.CursorFor(*nextKey)
-	} else {
-		if p != nil {
-			err = r.clearShortsProgress(ctx, p)
-			if err != nil {
-				return nil, err
-			}
-		}
 
-		nextCursor, err = r.getShuffledShortIDsCursor(ctx, p)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	keys := c.GetKeys(l)
-
-	shorts, err := r.GetLoaders().ShortLoader.GetMany(ctx, keys)
+	result, err := r.getShuffledShortIDsWithCursor(ctx, p, c, limit)
 	if err != nil {
 		return nil, err
 	}
 
-	currentCursorString, err := c.Encode()
+	shorts, err := r.GetLoaders().ShortLoader.GetMany(ctx, result.Keys)
 	if err != nil {
 		return nil, err
 	}
-	nextCursorString, err := nextCursor.Encode()
+
+	currentCursorString, err := utils.MarshalAndBase64Encode(result.Cursor)
+	if err != nil {
+		return nil, err
+	}
+
+	nextCursorString, err := utils.MarshalAndBase64Encode(result.NextCursor)
 	if err != nil {
 		return nil, err
 	}

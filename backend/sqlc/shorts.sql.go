@@ -16,28 +16,38 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
-const listShortIDsForRoles = `-- name: ListShortIDsForRoles :many
-SELECT s.id
+const listSegmentedShortIDsForRoles = `-- name: ListSegmentedShortIDsForRoles :many
+SELECT concat(date_part('year', s.date_created), '-', date_part('week', s.date_created))::varchar as week,
+       array_agg(s.id)::uuid[] as ids
 FROM shorts s
-         JOIN (SELECT r.shorts_id, array_agg(r.usergroups_code) as roles FROM shorts_usergroups r GROUP BY r.shorts_id) r
+         JOIN (SELECT r.shorts_id, array_agg(r.usergroups_code) as roles
+               FROM shorts_usergroups r
+               GROUP BY r.shorts_id) r
               ON s.id = r.shorts_id
 WHERE s.status = 'published'
   AND r.roles && $1::varchar[]
+GROUP BY week
+ORDER BY week DESC
 `
 
-func (q *Queries) ListShortIDsForRoles(ctx context.Context, roles []string) ([]uuid.UUID, error) {
-	rows, err := q.db.QueryContext(ctx, listShortIDsForRoles, pq.Array(roles))
+type ListSegmentedShortIDsForRolesRow struct {
+	Week string      `db:"week" json:"week"`
+	Ids  []uuid.UUID `db:"ids" json:"ids"`
+}
+
+func (q *Queries) ListSegmentedShortIDsForRoles(ctx context.Context, roles []string) ([]ListSegmentedShortIDsForRolesRow, error) {
+	rows, err := q.db.QueryContext(ctx, listSegmentedShortIDsForRoles, pq.Array(roles))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []uuid.UUID
+	var items []ListSegmentedShortIDsForRolesRow
 	for rows.Next() {
-		var id uuid.UUID
-		if err := rows.Scan(&id); err != nil {
+		var i ListSegmentedShortIDsForRolesRow
+		if err := rows.Scan(&i.Week, pq.Array(&i.Ids)); err != nil {
 			return nil, err
 		}
-		items = append(items, id)
+		items = append(items, i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -84,8 +94,8 @@ func (q *Queries) getMediaIDForShorts(ctx context.Context, ids []uuid.UUID) ([]g
 
 const getShorts = `-- name: getShorts :many
 SELECT s.id,
-	   s.status,
-       mi.id AS media_id,
+       s.status,
+       mi.id                                                AS media_id,
        mi.asset_id,
        mi.title,
        mi.description,
@@ -96,7 +106,7 @@ SELECT s.id,
        mi.parent_starts_at,
        mi.parent_ends_at,
        mi.label,
-	   GREATEST(s.date_updated, mi.date_updated)::timestamp AS date_updated
+       GREATEST(s.date_updated, mi.date_updated)::timestamp AS date_updated
 FROM shorts s
          JOIN mediaitems_view mi ON mi.id = s.mediaitem_id
 WHERE s.id = ANY ($1::uuid[])
@@ -160,7 +170,7 @@ func (q *Queries) getShorts(ctx context.Context, ids []uuid.UUID) ([]getShortsRo
 const getShortsByMediaItemID = `-- name: getShortsByMediaItemID :many
 SELECT s.id,
        s.status,
-       mi.id AS media_id,
+       mi.id                                                AS media_id,
        mi.asset_id,
        mi.title,
        mi.description,
@@ -171,10 +181,10 @@ SELECT s.id,
        mi.parent_starts_at,
        mi.parent_ends_at,
        mi.label,
-	   GREATEST(s.date_updated, mi.date_updated)::timestamp AS date_updated
+       GREATEST(s.date_updated, mi.date_updated)::timestamp AS date_updated
 FROM shorts s
          JOIN mediaitems_view mi ON mi.id = s.mediaitem_id
-WHERE s.mediaitem_id= $1::uuid
+WHERE s.mediaitem_id = $1::uuid
 `
 
 type getShortsByMediaItemIDRow struct {

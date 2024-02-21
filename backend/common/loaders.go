@@ -132,7 +132,7 @@ type FilteredLoaders struct {
 	// Lists
 	PromptIDsLoader      func(ctx context.Context) ([]uuid.UUID, error)
 	FAQCategoryIDsLoader func(ctx context.Context) ([]uuid.UUID, error)
-	ShortIDsLoader       func(ctx context.Context) ([]uuid.UUID, error)
+	ShortIDsLoader       func(ctx context.Context) ([][]uuid.UUID, error)
 }
 
 // ProfileLoaders contains loaders per profile
@@ -144,6 +144,8 @@ type ProfileLoaders struct {
 
 	SeasonDefaultEpisodeLoader *loaders.Loader[int, *int]
 	ShowDefaultEpisodeLoader   *loaders.Loader[int, *int]
+
+	MediaProgressLoader *loaders.Loader[uuid.UUID, *MediaProgress]
 
 	TopicDefaultLessonLoader *loaders.Loader[uuid.UUID, *uuid.UUID]
 }

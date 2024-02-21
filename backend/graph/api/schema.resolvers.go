@@ -304,10 +304,11 @@ func (r *queryRootResolver) Short(ctx context.Context, id string) (*model.Short,
 	if err != nil {
 		return nil, err
 	}
-	shortIDs, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
+	shortIDSegments, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
 	if err != nil {
 		return nil, err
 	}
+	shortIDs := lo.Flatten(shortIDSegments)
 	if !lo.Contains(shortIDs, uid) {
 		return nil, ErrItemNotFound
 	}

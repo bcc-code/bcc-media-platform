@@ -129,18 +129,18 @@ func (r *episodeResolver) getRootEpisodeID(ctx context.Context) (string, error) 
 	return "", fmt.Errorf("no root episode found")
 }
 
-func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string) (*utils.Cursor[int], error) {
+func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string) (*utils.ItemCursor[int], error) {
 	ctx, span := otel.Tracer("episode-resolver").Start(ctx, "getEpisodeCursor")
 	defer span.End()
-	return utils.GetOrSetContextWithLock(ctx, "cursor-lock-"+episodeID, func() (*utils.Cursor[int], error) {
+	return utils.GetOrSetContextWithLock(ctx, "cursor-lock-"+episodeID, func() (*utils.ItemCursor[int], error) {
 		intID := utils.AsInt(episodeID)
 		episodeContext, err := r.getEpisodeContext(ctx, episodeID)
 		if err != nil {
 			return nil, err
 		}
-		var cursor *utils.Cursor[int]
+		var cursor *utils.ItemCursor[int]
 		if episodeContext.Cursor.Valid {
-			cursor, err = utils.ParseCursor[int](episodeContext.Cursor.String)
+			cursor, err = utils.ParseItemCursor[int](episodeContext.Cursor.String)
 			if err != nil {
 				return nil, err
 			}
@@ -166,7 +166,7 @@ func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string
 					return id != intID
 				}))...)
 			}
-			cursor = utils.ToCursor(episodeIDs, intID)
+			cursor = utils.ToItemCursor(episodeIDs, intID)
 		}
 		return cursor, nil
 	})

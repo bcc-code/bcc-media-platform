@@ -79,9 +79,15 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		},
 		SurveyQuestionsLoader: loaders.NewRelationLoader(ctx, rq.GetSurveyQuestionIDsForSurveyIDs, loaders.WithName("survey-questions-loader")),
 
-		ShortIDsLoader: func(ctx context.Context) ([]uuid.UUID, error) {
-			return memorycache.GetOrSet(ctx, fmt.Sprintf("shortIDs:roles:%s", key), func(ctx context.Context) ([]uuid.UUID, error) {
-				return queries.ListShortIDsForRoles(ctx, roles)
+		ShortIDsLoader: func(ctx context.Context) ([][]uuid.UUID, error) {
+			return memorycache.GetOrSet(ctx, fmt.Sprintf("shortIDs:roles:%s", key), func(ctx context.Context) ([][]uuid.UUID, error) {
+				rows, err := queries.ListSegmentedShortIDsForRoles(ctx, roles)
+				if err != nil {
+					return nil, err
+				}
+				return lo.Map(rows, func(i sqlc.ListSegmentedShortIDsForRolesRow, _ int) []uuid.UUID {
+					return i.Ids
+				}), nil
 			}, cache.WithExpiration(time.Minute*5))
 		},
 	}
@@ -117,6 +123,25 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 		ShowDefaultEpisodeLoader:   loaders.NewConversionLoader(ctx, profileQueries.DefaultEpisodeIDForShowIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("show-default-episodes")),
 
 		TopicDefaultLessonLoader: loaders.NewConversionLoader(ctx, profileQueries.GetDefaultLessonIDForTopicIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("topic-default-lessons")),
+
+		MediaProgressLoader: loaders.New(ctx, func(ctx context.Context, ids []uuid.UUID) ([]common.MediaProgress, error) {
+			rows, err := queries.GetMediaProgress(ctx, sqlc.GetMediaProgressParams{
+				ProfileID: profileID,
+				ItemIds:   ids,
+			})
+			if err != nil {
+				return nil, err
+			}
+			return lo.Map(rows, func(i sqlc.GetMediaProgressRow, _ int) common.MediaProgress {
+				return common.MediaProgress{
+					ProfileID: i.ProfileID,
+					MediaID:   i.ItemID,
+					Progress:  float64(i.Progress),
+				}
+			}), nil
+		}, loaders.WithKeyFunc(func(i common.MediaProgress) uuid.UUID {
+			return i.MediaID
+		}), loaders.WithMemoryCache(time.Second*30)),
 	}
 
 	profileLoaders.Set(profileID, ls, loaders.WithOnDelete(func() {
@@ -126,6 +151,7 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 		ls.AchievementAchievedAtLoader.ClearAll()
 		ls.ProgressLoader.ClearAll()
 		ls.GetSelectedAlternativesLoader.ClearAll()
+		ls.MediaProgressLoader.ClearAll()
 
 		ls.SeasonDefaultEpisodeLoader.ClearAll()
 		ls.ShowDefaultEpisodeLoader.ClearAll()

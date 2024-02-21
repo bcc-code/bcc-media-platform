@@ -15,6 +15,71 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const getMediaProgress = `-- name: GetMediaProgress :many
+SELECT p.profile_id,
+       p.item_id,
+       p.progress,
+       p.duration,
+       p.watched,
+       p.watched_at,
+       p.updated_at,
+       p.context,
+       p.from_start
+FROM "users"."media_progress" p
+WHERE p.profile_id = $1
+  AND p.item_id = ANY ($2::uuid[])
+`
+
+type GetMediaProgressParams struct {
+	ProfileID uuid.UUID   `db:"profile_id" json:"profileId"`
+	ItemIds   []uuid.UUID `db:"item_ids" json:"itemIds"`
+}
+
+type GetMediaProgressRow struct {
+	ProfileID uuid.UUID             `db:"profile_id" json:"profileId"`
+	ItemID    uuid.UUID             `db:"item_id" json:"itemId"`
+	Progress  float32               `db:"progress" json:"progress"`
+	Duration  float32               `db:"duration" json:"duration"`
+	Watched   int32                 `db:"watched" json:"watched"`
+	WatchedAt null_v4.Time          `db:"watched_at" json:"watchedAt"`
+	UpdatedAt time.Time             `db:"updated_at" json:"updatedAt"`
+	Context   pqtype.NullRawMessage `db:"context" json:"context"`
+	FromStart bool                  `db:"from_start" json:"fromStart"`
+}
+
+func (q *Queries) GetMediaProgress(ctx context.Context, arg GetMediaProgressParams) ([]GetMediaProgressRow, error) {
+	rows, err := q.db.QueryContext(ctx, getMediaProgress, arg.ProfileID, pq.Array(arg.ItemIds))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetMediaProgressRow
+	for rows.Next() {
+		var i GetMediaProgressRow
+		if err := rows.Scan(
+			&i.ProfileID,
+			&i.ItemID,
+			&i.Progress,
+			&i.Duration,
+			&i.Watched,
+			&i.WatchedAt,
+			&i.UpdatedAt,
+			&i.Context,
+			&i.FromStart,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getProgressedMediaIDs = `-- name: GetProgressedMediaIDs :many
 SELECT p.item_id
 FROM "users"."media_progress" p
@@ -51,8 +116,8 @@ func (q *Queries) GetProgressedMediaIDs(ctx context.Context, arg GetProgressedMe
 }
 
 const removeProgressForMediaIDs = `-- name: RemoveProgressForMediaIDs :exec
-DELETE
-FROM users.media_progress p
+UPDATE users.media_progress p
+SET progress = 0.0
 WHERE p.profile_id = $1
   AND p.item_id = ANY ($2::uuid[])
 `
@@ -69,15 +134,16 @@ func (q *Queries) RemoveProgressForMediaIDs(ctx context.Context, arg RemoveProgr
 
 const saveMediaProgress = `-- name: SaveMediaProgress :exec
 INSERT INTO "users"."media_progress" (profile_id, item_id, progress, duration, watched, watched_at, updated_at,
-                                      context)
+                                      context, from_start)
 VALUES ($1::uuid, $2::uuid, $3::float4, $4::float4, $5, $6, NOW(),
-        $7)
+        $7, $8)
 ON CONFLICT (profile_id, item_id) DO UPDATE SET progress   = EXCLUDED.progress,
                                                 updated_at = NOW(),
                                                 watched    = EXCLUDED.watched,
                                                 watched_at = EXCLUDED.watched_at,
                                                 duration   = EXCLUDED.duration,
-                                                context    = EXCLUDED.context
+                                                context    = EXCLUDED.context,
+                                                from_start = EXCLUDED.from_start
 `
 
 type SaveMediaProgressParams struct {
@@ -88,6 +154,7 @@ type SaveMediaProgressParams struct {
 	Watched   int32                 `db:"watched" json:"watched"`
 	WatchedAt null_v4.Time          `db:"watched_at" json:"watchedAt"`
 	Context   pqtype.NullRawMessage `db:"context" json:"context"`
+	FromStart bool                  `db:"from_start" json:"fromStart"`
 }
 
 func (q *Queries) SaveMediaProgress(ctx context.Context, arg SaveMediaProgressParams) error {
@@ -99,6 +166,7 @@ func (q *Queries) SaveMediaProgress(ctx context.Context, arg SaveMediaProgressPa
 		arg.Watched,
 		arg.WatchedAt,
 		arg.Context,
+		arg.FromStart,
 	)
 	return err
 }

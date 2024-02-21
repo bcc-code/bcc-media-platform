@@ -72,19 +72,34 @@ WHERE p.profile_id = @profile_id::uuid
   AND p.item_id = ANY (@item_ids::uuid[]);
 
 -- name: RemoveProgressForMediaIDs :exec
-DELETE
-FROM users.media_progress p
+UPDATE users.media_progress p
+SET progress = 0.0
 WHERE p.profile_id = @profile_id
   AND p.item_id = ANY (@item_ids::uuid[]);
 
 -- name: SaveMediaProgress :exec
 INSERT INTO "users"."media_progress" (profile_id, item_id, progress, duration, watched, watched_at, updated_at,
-                                      context)
+                                      context, from_start)
 VALUES (@profile_id::uuid, @item_id::uuid, @progress::float4, @duration::float4, @watched, @watched_at, NOW(),
-        @context)
+        @context, @from_start)
 ON CONFLICT (profile_id, item_id) DO UPDATE SET progress   = EXCLUDED.progress,
                                                 updated_at = NOW(),
                                                 watched    = EXCLUDED.watched,
                                                 watched_at = EXCLUDED.watched_at,
                                                 duration   = EXCLUDED.duration,
-                                                context    = EXCLUDED.context;
+                                                context    = EXCLUDED.context,
+                                                from_start = EXCLUDED.from_start;
+
+-- name: GetMediaProgress :many
+SELECT p.profile_id,
+       p.item_id,
+       p.progress,
+       p.duration,
+       p.watched,
+       p.watched_at,
+       p.updated_at,
+       p.context,
+       p.from_start
+FROM "users"."media_progress" p
+WHERE p.profile_id = @profile_id
+  AND p.item_id = ANY (@item_ids::uuid[]);

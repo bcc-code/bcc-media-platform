@@ -1,47 +1,85 @@
 package utils
 
 import (
-	"encoding/base64"
-	"encoding/json"
+	"math/rand"
 
 	"github.com/samber/lo"
 )
 
-// Cursor contains cursor data for pagination
+// Cursor contains basic cursor data
 type Cursor[K comparable] struct {
+	Seed         *int64 `json:"seed"`
+	CurrentIndex int    `json:"currentIndex"`
+}
+
+// NewCursor creates a new cursor
+func NewCursor[K comparable](withSeed bool) *Cursor[K] {
+	cursor := &Cursor[K]{}
+	if withSeed {
+		seed := rand.Int63()
+		cursor.Seed = &seed
+	}
+	return cursor
+}
+
+// Encode marshals to json and encodes to base64
+func (c Cursor[K]) Encode() (string, error) {
+	return MarshalAndBase64Encode(c)
+}
+
+// ParseCursor decodes from base64 and will unmarshal from json
+func ParseCursor[K comparable](cursorString string) (*Cursor[K], error) {
+	return Base64DecodeAndUnmarshal[Cursor[K]](cursorString)
+}
+
+// ApplyTo applies the cursor to a collection of keys
+func (c Cursor[K]) ApplyTo(keys []K) []K {
+	var result []K
+	for i, key := range keys {
+		if i > c.CurrentIndex {
+			result = append(result, key)
+		}
+	}
+	return result
+}
+
+// ApplyToSegments applies the cursor to segments of keys
+func (c Cursor[K]) ApplyToSegments(segments [][]K, minimumSegmentLength int) []K {
+	var keys []K
+	if c.Seed != nil {
+		keys = ShuffleSegmentedArray(segments, minimumSegmentLength, *c.Seed)
+	} else {
+		keys = lo.Flatten(segments)
+	}
+
+	return c.ApplyTo(keys)
+}
+
+// ItemCursor contains cursor data for pagination
+type ItemCursor[K comparable] struct {
 	Keys         []K `json:"keys"`
 	CurrentIndex int `json:"currentIndex"`
 }
 
 // Encode encodes the cursor to a base64 string
-func (c *Cursor[K]) Encode() (string, error) {
-	marshalled, err := json.Marshal(c)
-	if err != nil {
-		return "", err
-	}
-	// encode to base64
-	return base64.StdEncoding.EncodeToString(marshalled), nil
+func (c *ItemCursor[K]) Encode() (string, error) {
+	return MarshalAndBase64Encode(c)
 }
 
-// ParseCursor parses the base64 encoded cursor into a Cursor struct
-func ParseCursor[K comparable](cursorString string) (*Cursor[K], error) {
-	marshalled, err := base64.StdEncoding.DecodeString(cursorString)
-	if err != nil {
-		return nil, err
-	}
-	var cursor Cursor[K]
-	err = json.Unmarshal(marshalled, &cursor)
+// ParseItemCursor parses the base64 encoded cursor into a ItemCursor struct
+func ParseItemCursor[K comparable](cursorString string) (*ItemCursor[K], error) {
+	cursor, err := Base64DecodeAndUnmarshal[ItemCursor[K]](cursorString)
 	if err != nil {
 		return nil, err
 	}
 	if cursor.Keys == nil {
 		return nil, err
 	}
-	return &cursor, nil
+	return cursor, nil
 }
 
 // CursorFor returns the cursor for the specified string
-func (c *Cursor[K]) CursorFor(id K) *Cursor[K] {
+func (c *ItemCursor[K]) CursorFor(id K) *ItemCursor[K] {
 	if len(c.Keys) == 0 {
 		return nil
 	}
@@ -49,37 +87,14 @@ func (c *Cursor[K]) CursorFor(id K) *Cursor[K] {
 	if index < 0 {
 		return nil
 	}
-	return &Cursor[K]{
+	return &ItemCursor[K]{
 		Keys:         c.Keys,
 		CurrentIndex: index,
 	}
 }
 
-// Current returns the current key
-func (c *Cursor[K]) Current() K {
-	return c.Keys[c.CurrentIndex]
-}
-
-// GetKeys returns keys starting from the current index
-func (c *Cursor[K]) GetKeys(limit int) []K {
-	if c.CurrentIndex >= len(c.Keys) {
-		return nil
-	}
-
-	from := c.CurrentIndex
-
-	to := lo.Min[int](
-		[]int{
-			c.CurrentIndex + limit,
-			len(c.Keys),
-		},
-	)
-
-	return c.Keys[from:to]
-}
-
 // NextKeys returns the next keys with this specified limit
-func (c *Cursor[K]) NextKeys(limit int) []K {
+func (c *ItemCursor[K]) NextKeys(limit int) []K {
 	if c.CurrentIndex >= len(c.Keys)-1 {
 		return nil
 	}
@@ -96,65 +111,11 @@ func (c *Cursor[K]) NextKeys(limit int) []K {
 	return c.Keys[from:to]
 }
 
-// Next returns the next key
-func (c *Cursor[K]) Next() *K {
-	if c.CurrentIndex >= len(c.Keys)-1 {
-		return nil
-	}
-	return &c.Keys[c.CurrentIndex+1]
-}
-
-// NextCursor returns the next cursor
-func (c *Cursor[K]) NextCursor() *Cursor[K] {
-	if c.CurrentIndex >= len(c.Keys)-1 {
-		return nil
-	}
-	return &Cursor[K]{
-		Keys:         c.Keys,
-		CurrentIndex: c.CurrentIndex + 1,
-	}
-}
-
-// Previous returns the previous key
-func (c *Cursor[K]) Previous() *K {
-	if c.CurrentIndex <= 0 {
-		return nil
-	}
-	return &c.Keys[c.CurrentIndex-1]
-}
-
-// PreviousCursor returns the previous cursor
-func (c *Cursor[K]) PreviousCursor() *Cursor[K] {
-	if c.CurrentIndex <= 0 {
-		return nil
-	}
-	return &Cursor[K]{
-		Keys:         c.Keys,
-		CurrentIndex: c.CurrentIndex - 1,
-	}
-}
-
-// Position returns the key at the position or nil
-func (c *Cursor[K]) Position(index int) *K {
-	if index < 0 || index >= len(c.Keys) {
-		return nil
-	}
-	return &c.Keys[index]
-}
-
-// ToCursor returns a cursor for the specified ids
-func ToCursor[K comparable](ids []K, id K) *Cursor[K] {
+// ToItemCursor returns a cursor for the specified ids
+func ToItemCursor[K comparable](ids []K, id K) *ItemCursor[K] {
 	index := lo.IndexOf(ids, id)
-	return &Cursor[K]{
+	return &ItemCursor[K]{
 		Keys:         ids,
 		CurrentIndex: index,
-	}
-}
-
-// NewCursor returns a new cursor for the specified ids
-func NewCursor[K comparable](ids []K) *Cursor[K] {
-	return &Cursor[K]{
-		Keys:         ids,
-		CurrentIndex: 0,
 	}
 }
