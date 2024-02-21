@@ -91,17 +91,21 @@ const trackViewing = () => {
 }
 
 const hasSentFraction1 = ref(false)
-const startTime = Date.now()
+const startTime = ref<number | undefined>(undefined)
 watch(currentFraction, () => {
+    if (!startTime.value && currentFraction.value > 0) {
+        startTime.value = Date.now()
+    }
     if (hasSentFraction1.value) return
     if (currentFraction.value !== 1) return
     hasSentFraction1.value = true
+
     analytics.track("interaction", {
         contextElementType: "Comic",
         contextElementId: props.comicId,
         interaction: "comic_done",
         meta: {
-            timeToReadSec: (Date.now() - startTime) / 1000,
+            timeToReadSec: (Date.now() - startTime.value!) / 1000,
         },
     })
 })
