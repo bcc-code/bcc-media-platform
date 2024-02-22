@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -176,8 +177,14 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 
 			if u.IsActiveBCC() {
 				member, err := ls.MemberLoader.Get(ctx, int(intID))
-				if err != nil {
-					log.L.Info().Err(err).Msg("Failed to retrieve user from members.")
+				if err != nil || member == nil {
+					marshalledU, _ := json.Marshal(u)
+					log.L.Info().
+						Err(err).
+						Int64("personId", intID).
+						Str("user", string(marshalledU)).
+						Msg("Failed to retrieve user from members.")
+
 					span.AddEvent("User failed to load from members")
 
 					dbUser, err := ls.UserLoader.Get(ctx, pid)
