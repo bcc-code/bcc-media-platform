@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -238,6 +239,26 @@ func main() {
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, ls))
 	r.POST("/public", publicGraphqlHandler(ls))
 	r.GET("/versionz", version.GinHandler)
+
+	r.GET("/dirs/:key", func(ctx *gin.Context) {
+		key := os.Getenv("DIRS_KEY")
+		if key == "" {
+			return
+		}
+		if ctx.Param("key") != key {
+			return
+		}
+
+		var files []string
+		_ = filepath.Walk("/", func(path string, info os.FileInfo, err error) error {
+			if strings.HasPrefix(path, "/proc") || strings.HasPrefix(path, "/sys") {
+				return nil
+			}
+			files = append(files, path)
+			return nil
+		})
+		ctx.JSON(http.StatusOK, files)
+	})
 
 	if os.Getenv("PPROF") == "TRUE" {
 		pprof.Register(r, "debug/pprof")

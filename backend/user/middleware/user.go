@@ -179,7 +179,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				member, err := ls.MemberLoader.Get(ctx, int(intID))
 				if err != nil || member == nil {
 					marshalledU, _ := json.Marshal(u)
-					log.L.Info().
+					log.L.Warn().
 						Err(err).
 						Int64("personId", intID).
 						Str("user", string(marshalledU)).
