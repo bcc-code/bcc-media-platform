@@ -461,6 +461,9 @@ func DoExport(ctx context.Context, q serviceProvider, bucketName string) (string
 		log.L.Error().Err(err).Str("exportStep", "initDB").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
+	defer func() {
+		_ = os.Remove(dbPath)
+	}()
 
 	err = migrate(db)
 	if err != nil {
