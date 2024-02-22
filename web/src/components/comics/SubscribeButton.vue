@@ -49,15 +49,14 @@ const handleClick = async () => {
             topic: props.topic,
         })
         const data = result.data?.unsubscribe
-        if (data != null) {
-            subscribed.value = data
+        if (data) {
+            subscribed.value = false
         }
     } else {
         const result = await subMutation.executeMutation({ topic: props.topic })
         const data = result.data?.subscribe
-        subscribed.value = true
-        if (data != null) {
-            subscribed.value = data
+        if (data) {
+            subscribed.value = true
         }
     }
 }
