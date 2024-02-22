@@ -1,4 +1,5 @@
 import { GetPageQuery, SectionItemFragment } from "@/graph/generated"
+import { apiObject } from "rudder-sdk-js"
 
 type StringWithAutocomplete<T> = T | (string & {})
 
@@ -14,6 +15,7 @@ export type Page = StringWithAutocomplete<
     | "support"
     | "faq"
     | "episode"
+    | "comic"
 >
 
 export type IdentifyData = {
@@ -35,7 +37,7 @@ export type AgeGroup =
     | "51 - 64"
     | "65+"
 
-type ElementType = SectionItemFragment["item"]["__typename"]
+type ElementType = SectionItemFragment["item"]["__typename"] | "Comic"
 
 type VideoEvent = {
     sessionId: string
@@ -110,5 +112,17 @@ export type Events = {
         fileName: string
         audioLanguage: string
         resolution: string
+    },
+    interaction: {
+        interaction: string
+        contextElementType: ElementType
+        contextElementId: string
+        meta?: apiObject
+    }
+    viewing: {
+        pageCode?: Page
+        elementType?: ElementType
+        elementId?: string
+        meta?: apiObject
     }
 }

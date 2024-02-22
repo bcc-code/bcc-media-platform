@@ -201,5 +201,9 @@
     },
     "shorts": {
         "watchOnOurApp": "Download the mobile app to watch shorts."
+    },
+    "subscriptions": {
+        "subscribe": "Subscribe",
+        "unsubscribe": "Unsubscribe"
     }
 }
