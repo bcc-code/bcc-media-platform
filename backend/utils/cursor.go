@@ -8,13 +8,16 @@ import (
 
 // Cursor contains basic cursor data
 type Cursor[K comparable] struct {
-	Seed         *int64 `json:"seed"`
-	CurrentIndex int    `json:"currentIndex"`
+	Seed         *int64  `json:"seed"`
+	RandomFactor float64 `json:"randomProportion"`
+	CurrentIndex int     `json:"currentIndex"`
 }
 
 // NewCursor creates a new cursor
-func NewCursor[K comparable](withSeed bool) *Cursor[K] {
-	cursor := &Cursor[K]{}
+func NewCursor[K comparable](withSeed bool, randomFactor float64) *Cursor[K] {
+	cursor := &Cursor[K]{
+		RandomFactor: randomFactor,
+	}
 	if withSeed {
 		seed := rand.Int63()
 		cursor.Seed = &seed
@@ -47,7 +50,7 @@ func (c Cursor[K]) ApplyTo(keys []K) []K {
 func (c Cursor[K]) ApplyToSegments(segments [][]K, minimumSegmentLength int) []K {
 	var keys []K
 	if c.Seed != nil {
-		keys = ShuffleSegmentedArray(segments, minimumSegmentLength, *c.Seed)
+		keys = ShuffleSegmentedArray(segments, minimumSegmentLength, c.RandomFactor, *c.Seed)
 	} else {
 		keys = lo.Flatten(segments)
 	}
