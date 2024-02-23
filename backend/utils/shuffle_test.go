@@ -35,7 +35,7 @@ func Test_ShuffleSegmentedArray(t *testing.T) {
 			"14",
 		},
 	}
-	arr := ShuffleSegmentedArray(segments, 5, 0)
+	arr := ShuffleSegmentedArray(segments, 5, 0, 0)
 
 	assert.Equal(t, 14, len(lo.Uniq(arr)), "Should have 14 unique keys")
 
@@ -79,6 +79,6 @@ func Test_ShuffleSegmentedArrayWithRandomEntries(t *testing.T) {
 		},
 	}
 
-	arr := ShuffleSegmentedArrayWithRandomEntries(segments, 2, 1, 0)
+	arr := ShuffleSegmentedArray(segments, 2, 1, 0)
 	assert.Equal(t, 14, len(lo.Uniq(arr)), "Should have 14 unique keys")
 }

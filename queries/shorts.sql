@@ -1,5 +1,5 @@
 -- name: ListSegmentedShortIDsForRoles :many
-SELECT concat(date_part('year', s.date_updated), '-', date_part('week', s.date_updated))::varchar as week,
+SELECT concat(date_part('year', s.published_at), '-', date_part('week', s.published_at))::varchar as week,
        array_agg(s.id)::uuid[] as ids
 FROM shorts s
          JOIN (SELECT r.shorts_id, array_agg(r.usergroups_code) as roles
