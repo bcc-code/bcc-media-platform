@@ -965,6 +965,7 @@ type Mediaitem struct {
 	ParentEpisodeID null_v4.Int     `db:"parent_episode_id" json:"parentEpisodeId"`
 	ParentStartsAt  sql.NullFloat64 `db:"parent_starts_at" json:"parentStartsAt"`
 	ParentEndsAt    sql.NullFloat64 `db:"parent_ends_at" json:"parentEndsAt"`
+	PublishedAt     null_v4.Time    `db:"published_at" json:"publishedAt"`
 }
 
 type MediaitemsStyledimage struct {

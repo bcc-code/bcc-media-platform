@@ -22,7 +22,7 @@ func (r *Resolver) getShuffledShortIDs(ctx context.Context, seed int64) ([]uuid.
 		return nil, err
 	}
 
-	return utils.ShuffleSegmentedArray(shortIDSegments, 10, seed), nil
+	return utils.ShuffleSegmentedArray(shortIDSegments, 10, 1, seed), nil
 }
 
 func (r *Resolver) getShortToMediaIDMap(ctx context.Context, shortIDs []uuid.UUID) (map[uuid.UUID]uuid.UUID, error) {
@@ -51,7 +51,7 @@ type shortsShuffledResult struct {
 
 func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.Profile, cursor *utils.Cursor[uuid.UUID], limit *int) (*shortsShuffledResult, error) {
 	if cursor == nil {
-		cursor = utils.NewCursor[uuid.UUID](true)
+		cursor = utils.NewCursor[uuid.UUID](true, 1)
 	}
 
 	if cursor.Seed == nil {
