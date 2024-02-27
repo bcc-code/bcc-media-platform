@@ -37,6 +37,7 @@ func (q *Queries) GetShorts(ctx context.Context, ids []uuid.UUID) ([]common.Shor
 			Images:      q.getImages(i.Images),
 			DateUpdated: i.DateUpdated,
 			Status:      common.Status(i.Status),
+			Label:       i.Label,
 		}
 	}), nil
 }
