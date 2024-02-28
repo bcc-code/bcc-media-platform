@@ -112,6 +112,14 @@ export default [
         ],
     },
     {
+        name: "delete-account",
+        path: "/delete-account",
+        component: () => import("@/pages/DeleteAccount.vue"),
+        props: {
+            title: "Delete my account",
+        },
+    },
+    {
         name: "not-found",
         path: "/:pathMatch(.*)*",
         component: () => import("@/components/NotFound.vue"),
