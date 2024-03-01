@@ -16,7 +16,7 @@ const props = defineProps<{
 const comics = [
     {
         id: "15yearmentor-1",
-        title: "15 år og mentor? - Vol 1",
+        title: "A mentor at 15 years old? - Del 1:1",
         images: [
             "https://imgix.bcc.media/27743d87-9107-4cda-88e0-beda3baff72f.png",
             "https://imgix.bcc.media/e2240dde-f0d7-446a-84f4-b747bd28c790.png",
@@ -25,7 +25,7 @@ const comics = [
     },
     {
         id: "15yearmentor-2",
-        title: "15 år og mentor? - Vol 2",
+        title: "A mentor at 15 years old? - Del 1:2",
         images: [
             "https://imgix.bcc.media/bd468d45-b0c1-4379-b23f-1b605761ae37.png",
             "https://imgix.bcc.media/8dd8ecce-2016-408f-92c5-caa71ef79278.png",
