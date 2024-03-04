@@ -149,22 +149,31 @@ func (c *Client) hideStrings(projectID int, strs []String) error {
 	return nil
 }
 
-func (c *Client) unHideString(projectID int, s String) error {
-	req := c.c.R()
-	req.SetBody([]patchRequest{
-		{
-			Value: true,
-			Op:    "replace",
-			Path:  "/isHidden",
-		},
-	})
-	req.SetResult(Object[String]{})
-	res, err := req.Patch(fmt.Sprintf("projects/%d/strings/%d", projectID, s.ID))
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to update string")
-		return nil
+func (c *Client) unHideStrings(projectID int, strs []String) error {
+	chunks := lo.Chunk(strs, 20)
+	for _, chunk := range chunks {
+		req := c.c.R()
+		req.SetHeader("Content-Type", "application/json")
+		var body []patchRequest
+		for _, str := range chunk {
+			body = append(body, patchRequest{
+				Op:    "replace",
+				Path:  fmt.Sprintf("/%d/isHidden", str.ID),
+				Value: false,
+			})
+		}
+		req.SetResult(Object[[]Object[String]]{})
+		req.SetBody(body)
+		res, err := req.Patch(fmt.Sprintf("projects/%d/strings", projectID))
+		if err != nil {
+			return err
+		}
+		err = ensureSuccess(res)
+		if err != nil {
+			return err
+		}
 	}
-	return ensureSuccess(res)
+	return nil
 }
 
 func (c *Client) setString(projectId int, s String) (r String, err error) {

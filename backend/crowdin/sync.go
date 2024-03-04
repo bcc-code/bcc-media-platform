@@ -133,15 +133,12 @@ func syncCollection[T any, TUpdate any](
 	}
 
 	if len(unHideStrings) > 0 {
-		for _, str := range unHideStrings {
-			l.Debug().Str("identifier", str.Identifier).Msg("Unhiding string")
-			if c.readonly {
-				continue
-			}
-			err = c.unHideString(project.ID, str)
-			if err != nil {
-				return err
-			}
+		l.Debug().Int("count", len(unHideStrings)).Strs("identifiers", lo.Map(unHideStrings, func(i String, _ int) string {
+			return i.Identifier
+		})).Msg("Unhiding strings")
+		err = c.unHideStrings(project.ID, unHideStrings)
+		if err != nil {
+			return err
 		}
 	}
 

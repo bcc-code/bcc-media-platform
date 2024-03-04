@@ -1,7 +1,8 @@
 -- name: ListSegmentedShortIDsForRoles :many
-SELECT concat(date_part('year', s.date_updated), '-', date_part('week', s.date_updated))::varchar as week,
-       array_agg(s.id)::uuid[] as ids
+SELECT concat(date_part('year', mi.published_at), '-', date_part('week', mi.published_at))::varchar as week,
+       array_agg(s.id)::uuid[]                                                                      as ids
 FROM shorts s
+         JOIN mediaitems mi ON s.mediaitem_id = mi.id
          JOIN (SELECT r.shorts_id, array_agg(r.usergroups_code) as roles
                FROM shorts_usergroups r
                GROUP BY r.shorts_id) r
