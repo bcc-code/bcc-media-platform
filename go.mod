@@ -25,7 +25,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.40.2
 	github.com/bcc-code/mediabank-bridge v1.1.1
 	github.com/bsm/redislock v0.9.4
-	github.com/cloudevents/sdk-go/v2 v2.14.0
+	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/davecgh/go-spew v1.1.1
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-contrib/pprof v1.4.0
