@@ -161,6 +161,10 @@
         "copied": "Copied to clipboard",
         "membersOnly": "This video is only accessible to users that are logged in."
     },
+    "quotes": {
+        "markAsRead": "Mark as read",
+        "markAsUnread": "Mark as unread"
+    },
     "feedback": {
         "appreciated": "We appreciate your feedback.",
         "comment": "Add a comment to your experience",
