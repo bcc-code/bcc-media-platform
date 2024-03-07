@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-defineProps<{
+const props = defineProps<{
     author: string
     quote: string
 }>()
+
+const size =
+    props.quote.length > 20 ? "text-style-title-3" : "text-style-title-2"
 </script>
 <template>
-    <div class="text-left flex">
-        <div class="w-0.5 rounded-full bg-white shrink-0"></div>
-        <div class="pl-3 pb-2">
-            <div class="text-style-body-1">«{{ quote }}»</div>
-            <div class="pt-2 text-style-body-2">{{ author }}</div>
-        </div>
+    <div class="text-center flex items-center flex-col justify-center">
+        <div :class="size">«{{ quote }}»</div>
+        <div class="pt-2 text-style-body-2">{{ author }}</div>
     </div>
 </template>
