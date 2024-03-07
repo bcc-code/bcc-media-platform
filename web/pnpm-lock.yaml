@@ -1473,7 +1473,7 @@ packages:
       http-proxy-agent: 5.0.0
       https-proxy-agent: 5.0.1
       isomorphic-fetch: 3.0.0
-      jose: 4.13.1
+      jose: 4.15.5
       js-yaml: 4.1.0
       json-stable-stringify: 1.0.2
       lodash: 4.17.21
@@ -1913,7 +1913,7 @@ packages:
       video.js: '>= 6 < 9'
     dependencies:
       video.js: 7.21.5
-      webcomponents.js: github.com/webcomponents/webcomponentsjs/8a2e40557b177e2cca0def2553f84c8269c8f93e
+      webcomponents.js: git@github.com+webcomponents/webcomponentsjs/8a2e40557b177e2cca0def2553f84c8269c8f93e
     dev: false
 
   /@tailwindcss/typography@0.5.10(tailwindcss@3.3.3):
@@ -3895,8 +3895,8 @@ packages:
     hasBin: true
     dev: true
 
-  /jose@4.13.1:
-    resolution: {integrity: sha512-MSJQC5vXco5Br38mzaQKiq9mwt7lwj2eXpgpRyQYNHYt2lq1PjkWa7DLXX0WVcQLE9HhMh3jPiufS7fhJf+CLQ==}
+  /jose@4.15.5:
+    resolution: {integrity: sha512-jc7BFxgKPKi94uOvEmzlSWFFe2+vASyXaKUpdQKatWAESU2MWjDfFf0fdfc83CDKcA5QecabZeNLyfhe3yKNkg==}
     dev: true
 
   /js-tokens@4.0.0:
@@ -5710,8 +5710,8 @@ packages:
     resolution: {integrity: sha512-Y/ZsHA2eqG2FeYV691gLjC6QhWoan+da4r/t4DvfCd4a6l+s08eFip709ZwFjFDxavPhPYlcqqn+7aycay2kbQ==}
     dev: false
 
-  github.com/webcomponents/webcomponentsjs/8a2e40557b177e2cca0def2553f84c8269c8f93e:
-    resolution: {tarball: https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e}
+  git@github.com+webcomponents/webcomponentsjs/8a2e40557b177e2cca0def2553f84c8269c8f93e:
+    resolution: {commit: 8a2e40557b177e2cca0def2553f84c8269c8f93e, repo: git@github.com:webcomponents/webcomponentsjs.git, type: git}
     name: webcomponents.js
     version: 0.7.24
     dev: false
