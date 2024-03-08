@@ -3,9 +3,10 @@ import Quote from "./Quote.vue"
 import quotesRaw from "../../utils/quotes/all.json"
 import { useI18n } from "vue-i18n"
 import { useAsyncState } from "@vueuse/core"
-import { computed, ref, watch, watchEffect } from "vue"
+import { computed, onMounted, ref, watch, watchEffect } from "vue"
 import VButton from "../VButton.vue"
 import Check from "../icons/Check.vue"
+import { analytics } from "@/services/analytics"
 
 type Quote = (typeof quotesRaw)[keyof typeof quotesRaw]
 const quotes = quotesRaw as Record<string, Quote>
@@ -63,18 +64,40 @@ const setRead = (val: boolean) => {
     } else {
         readDaysArray.value = [...readDaysArray.value, todayString]
     }
+    analytics.track("interaction", {
+        contextElementId: quote.id,
+        contextElementType: "Quote",
+        interaction: "quote_read",
+        meta: {
+            quoteId: quote.id,
+            pageCode: "qotd",
+        },
+    })
 }
 const hasReadToday = computed(() => readDaysArray.value.includes(todayString))
 
 const share = () => {
-    if (navigator.share) {
-        navigator.share({
-            title: "Quote of the day",
-            text: `«${quoteText.value}» - ${quote.author}`,
-            url: window.location.href,
-        })
-    }
+    analytics.track("content_shared", {
+        elementId: quote.id,
+        elementType: "Quote",
+        pageCode: "qotd",
+    })
+    navigator.share({
+        title: "Quote of the day",
+        text: `«${quoteText.value}» - ${quote.author}`,
+        url: window.location.href,
+    })
 }
+
+onMounted(async () => {
+    analytics.page({
+        id: "qotd",
+        title: "Quote of the day",
+        meta: {
+            quoteId: quote.id,
+        },
+    })
+})
 </script>
 
 <template>
