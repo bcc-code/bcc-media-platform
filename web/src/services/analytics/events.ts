@@ -37,7 +37,7 @@ export type AgeGroup =
     | "51 - 64"
     | "65+"
 
-type ElementType = SectionItemFragment["item"]["__typename"] | "Comic"
+type ElementType = SectionItemFragment["item"]["__typename"] | "Comic" | "Quote"
 
 type VideoEvent = {
     sessionId: string
