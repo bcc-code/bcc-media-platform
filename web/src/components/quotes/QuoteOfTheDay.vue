@@ -7,6 +7,7 @@ import { computed, onMounted, ref, watch, watchEffect } from "vue"
 import VButton from "../VButton.vue"
 import Check from "../icons/Check.vue"
 import { analytics } from "@/services/analytics"
+import QuoteFeedbackButton from "./QuoteFeedbackButton.vue"
 
 type Quote = (typeof quotesRaw)[keyof typeof quotesRaw]
 const quotes = quotesRaw as Record<string, Quote>
@@ -163,6 +164,7 @@ onMounted(async () => {
                     {{ $t("share.title") }}
                 </VButton>
             </transition>
+            <QuoteFeedbackButton />
         </div>
     </div>
 </template>
