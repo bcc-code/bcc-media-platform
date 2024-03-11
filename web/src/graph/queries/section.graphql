@@ -62,6 +62,10 @@ fragment SectionItem on SectionItem {
         ... on Playlist {
             id
         }
+        ... on Link {
+            id
+            url
+        }
     }
 }
 

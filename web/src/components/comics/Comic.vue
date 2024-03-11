@@ -124,7 +124,7 @@ const trackSubscribeClick = () => {
         >
             {{ comic.title }}
         </h2>
-        <div class="w-full" ref="comicRef">
+        <div class="w-full justify-center" ref="comicRef">
             <ComicImage
                 v-for="image in comic.images"
                 :key="image"
