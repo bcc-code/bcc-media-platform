@@ -123,26 +123,43 @@ const endpointConfig: EndpointConfig = {
                 return
             }
 
-            const { episodeId } = req.body as {
-                episodeId: string
+            const { collection, itemId } = req.body as {
+                collection: string;
+                itemId: string
             }
 
             try {
-                const body = `query($episodeId: ID!) {
+                if (collection == "episodes") {
+                    const body = `query($episodeId: ID!) {
     episodes {
         importTimedMetadata(episodeId: $episodeId)
     }
 }`
+                    const result = await postQuery(body, {
+                        episodeId: itemId,
+                    })
 
-                const result = await postQuery(body, {
-                    episodeId,
-                })
+                    console.log(result.data)
 
-                console.log(result.data)
+                    res.status(200).send(
+                        result.data.data.episodes.importTimedMetadata
+                    )
+                } else if (collection === "mediaitems") {
+                    const body = `query($mediaItemId: ID!) {
+    mediaItems {
+        importTimedMetadata(mediaItemId: $mediaItemId)
+    }
+}`
+                    const result = await postQuery(body, {
+                        mediaItemId: itemId,
+                    })
 
-                res.status(200).send(
-                    result.data.data.episodes.importTimedMetadata
-                )
+                    console.log(result.data)
+
+                    res.status(200).send(
+                        result.data.data.mediaItems.importTimedMetadata
+                    )
+                }
                 return
             } catch (e) {
                 console.log("Couldn't fetch data from API")

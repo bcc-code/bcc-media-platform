@@ -23,6 +23,15 @@ func (q *Queries) ClearEpisodeTimedMetadata(ctx context.Context, episodeID null_
 	return err
 }
 
+const clearMediaItemTimedMetadata = `-- name: ClearMediaItemTimedMetadata :exec
+DELETE FROM timedmetadata WHERE mediaitem_id = $1::uuid
+`
+
+func (q *Queries) ClearMediaItemTimedMetadata(ctx context.Context, mediaitemID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearMediaItemTimedMetadata, mediaitemID)
+	return err
+}
+
 const getAssetTimedMetadata = `-- name: GetAssetTimedMetadata :many
 SELECT t.id,
        status,
@@ -38,6 +47,7 @@ SELECT t.id,
        seconds,
        description,
        episode_id,
+       mediaitem_id,
        chapter_type,
        song_id,
        (SELECT array_agg(p.persons_id) FROM "timedmetadata_persons" p WHERE p.timedmetadata_id = t.id)::uuid[]  AS person_ids
@@ -61,6 +71,7 @@ type GetAssetTimedMetadataRow struct {
 	Seconds     float32        `db:"seconds" json:"seconds"`
 	Description null_v4.String `db:"description" json:"description"`
 	EpisodeID   null_v4.Int    `db:"episode_id" json:"episodeId"`
+	MediaitemID uuid.NullUUID  `db:"mediaitem_id" json:"mediaitemId"`
 	ChapterType null_v4.String `db:"chapter_type" json:"chapterType"`
 	SongID      uuid.NullUUID  `db:"song_id" json:"songId"`
 	PersonIds   []uuid.UUID    `db:"person_ids" json:"personIds"`
@@ -90,6 +101,7 @@ func (q *Queries) GetAssetTimedMetadata(ctx context.Context, assetID null_v4.Int
 			&i.Seconds,
 			&i.Description,
 			&i.EpisodeID,
+			&i.MediaitemID,
 			&i.ChapterType,
 			&i.SongID,
 			pq.Array(&i.PersonIds),
@@ -109,9 +121,9 @@ func (q *Queries) GetAssetTimedMetadata(ctx context.Context, assetID null_v4.Int
 
 const insertTimedMetadata = `-- name: InsertTimedMetadata :exec
 INSERT INTO timedmetadata (id, status, date_created, date_updated, label, type, highlight,
-                           title, asset_id, seconds, description, episode_id, chapter_type, song_id)
+                           title, asset_id, seconds, description, episode_id, mediaitem_id, chapter_type, song_id)
 VALUES ($1, $2, NOW(), NOW(), $3, $4, $5, $6::varchar,
-        $7, $8::real, $9::varchar, $10, $11, $12)
+        $7, $8::real, $9::varchar, $10, $11, $12, $13)
 `
 
 type InsertTimedMetadataParams struct {
@@ -125,6 +137,7 @@ type InsertTimedMetadataParams struct {
 	Seconds     float32        `db:"seconds" json:"seconds"`
 	Description string         `db:"description" json:"description"`
 	EpisodeID   null_v4.Int    `db:"episode_id" json:"episodeId"`
+	MediaitemID uuid.NullUUID  `db:"mediaitem_id" json:"mediaitemId"`
 	ChapterType null_v4.String `db:"chapter_type" json:"chapterType"`
 	SongID      uuid.NullUUID  `db:"song_id" json:"songId"`
 }
@@ -141,6 +154,7 @@ func (q *Queries) InsertTimedMetadata(ctx context.Context, arg InsertTimedMetada
 		arg.Seconds,
 		arg.Description,
 		arg.EpisodeID,
+		arg.MediaitemID,
 		arg.ChapterType,
 		arg.SongID,
 	)

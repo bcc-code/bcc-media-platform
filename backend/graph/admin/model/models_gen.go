@@ -18,6 +18,10 @@ type Episodes struct {
 	ImportTimedMetadata bool `json:"importTimedMetadata"`
 }
 
+type MediaItems struct {
+	ImportTimedMetadata bool `json:"importTimedMetadata"`
+}
+
 type Preview struct {
 	Collection *PreviewCollection `json:"collection"`
 	Asset      *PreviewAsset      `json:"asset"`
