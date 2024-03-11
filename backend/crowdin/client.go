@@ -75,13 +75,13 @@ func getItem[t any](client *Client, endpoint string, id int) (item t, err error)
 func getItems[t any](client *Client, endpoint string, limit int, offset int, queryParams map[string]string) (items []t, err error) {
 	req := client.c.R()
 	req.SetResult(Result[[]Object[t]]{})
-	if queryParams != nil {
-		req.SetQueryParams(queryParams)
+	if queryParams == nil {
+		queryParams = map[string]string{}
 	}
-	req.SetQueryParams(map[string]string{
-		"limit":  strconv.Itoa(limit),
-		"offset": strconv.Itoa(offset),
-	})
+	queryParams["limit"] = strconv.Itoa(limit)
+	queryParams["offset"] = strconv.Itoa(offset)
+
+	req.SetQueryParams(queryParams)
 	query := fmt.Sprintf("/%s", endpoint)
 	res, err := req.Get(query)
 	if err != nil {
@@ -193,6 +193,7 @@ func (c *Client) getFileForCollection(project Project, directoryId int, collecti
 			if f.Title == collection {
 				found = true
 				file = f
+				break
 			}
 		}
 	}
