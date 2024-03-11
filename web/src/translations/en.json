@@ -171,7 +171,8 @@
         "episodeTitle": "How would you rate this episode?",
         "howEasyToUnderstand": "How easy was it to understand the video?",
         "anonymousInfo": "Your rating will be submitted anonymously",
-        "placeholder": "Please be as detailed as possible to help us understand."
+        "placeholder": "Please be as detailed as possible to help us understand.",
+        "giveFeedback": "Give feedback"
     },
     "contactLocalBukIfWrong": "Contact the person responsible in your local BUK association if you think this is wrong.",
     "thankYou": "Thank you!",

@@ -1,5 +1,5 @@
 <template>
-    <div class="h-screen embedded-page">
+    <div class="h-screen embedded-pag">
         <div
             v-if="initializing"
             class="flex h-full items-center justify-center"
