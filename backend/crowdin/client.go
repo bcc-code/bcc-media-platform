@@ -164,8 +164,9 @@ func (c *Client) getDirectoryForProject(project Project) (d Directory, err error
 
 	var directory *Directory
 	for _, dir := range directories {
+		v := dir
 		if dir.Name == "content" {
-			directory = &dir
+			directory = &v
 		}
 	}
 	if directory == nil {
