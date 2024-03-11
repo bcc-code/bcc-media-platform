@@ -29,7 +29,7 @@ function onLoad() {
             :src="imageUrl(url)"
             alt="Comic page"
             :onload="onLoad"
-            class="transition-opacity duration-[4s] ease-out-expo min-h-screen"
+            class="mx-auto transition-opacity duration-[4s] ease-out-expo min-h-screen"
             :class="{ 'opacity-100': loaded, 'opacity-0': !loaded }"
         />
         <div

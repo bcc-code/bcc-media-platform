@@ -38,9 +38,6 @@ const comic = ref(
     comics.find((comic) => comic.id === props.comicId) || comics[0]
 )
 
-const analyticsQuery = useGetMeQuery({
-    pause: true,
-})
 const { authenticated } = useAuth()
 
 const currentFraction = ref(0)
@@ -67,17 +64,6 @@ const calculatePercentRead = () => {
 
 onMounted(async () => {
     document.body.onscroll = calculatePercentRead
-
-    await analytics.initialize(async () => {
-        let analyticsId: string | null = null
-        const result = await analyticsQuery.executeQuery()
-        if (result.data.value?.me.analytics.anonymousId) {
-            analyticsId = result.data.value.me.analytics.anonymousId
-        }
-        return analyticsId
-    })
-
-    console.log("ag: initialized analytics")
 
     analytics.page({
         id: "comic",
@@ -138,7 +124,7 @@ const trackSubscribeClick = () => {
         >
             {{ comic.title }}
         </h2>
-        <div class="w-full" ref="comicRef">
+        <div class="w-full justify-center" ref="comicRef">
             <ComicImage
                 v-for="image in comic.images"
                 :key="image"

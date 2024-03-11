@@ -12,6 +12,7 @@ import {
     GetPlaylistEpisodeQuery,
     GetPlaylistEpisodeQueryVariables,
     GetPlaylistEpisodeDocument,
+    Link,
 } from "@/graph/generated"
 import router from "@/router"
 import { analytics, Page } from "@/services/analytics"
@@ -42,6 +43,10 @@ export const goToEpisode = (
     }
 }
 
+export const goToLink = async (item: Partial<Link>) => {
+    if (!item.url) return;
+    window.location.assign(item.url)
+}
 export const goToPlaylist = async (playlistId: string) => {
     const result = await client
         .query<GetPlaylistEpisodeQuery, GetPlaylistEpisodeQueryVariables>(
@@ -158,6 +163,8 @@ export const goToSectionItem = async (
         case "Playlist":
             await goToPlaylist(item.item.item.id)
             break
+        case "Link":
+            await goToLink(item.item.item);
     }
 }
 
