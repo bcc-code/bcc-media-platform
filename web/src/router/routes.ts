@@ -7,6 +7,12 @@ export default [
         component: () => import("@/layout/StackedLayout.vue"),
         children: [
             {
+                name: "webview",
+                path: "/w/:code",
+                component: () => import("@/pages/w.vue"),
+                props: true,
+            },
+            {
                 name: "page",
                 path: ":pageId",
                 component: () => import("@/pages/page/Page.vue"),

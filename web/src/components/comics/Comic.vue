@@ -16,7 +16,7 @@ const props = defineProps<{
 const comics = [
     {
         id: "15yearmentor-1",
-        title: "15 år og mentor? - Vol 1",
+        title: "A mentor at 15 years old? - Part 1:1",
         images: [
             "https://imgix.bcc.media/27743d87-9107-4cda-88e0-beda3baff72f.png",
             "https://imgix.bcc.media/e2240dde-f0d7-446a-84f4-b747bd28c790.png",
@@ -25,7 +25,7 @@ const comics = [
     },
     {
         id: "15yearmentor-2",
-        title: "15 år og mentor? - Vol 2",
+        title: "A mentor at 15 years old? - Part 1:2",
         images: [
             "https://imgix.bcc.media/bd468d45-b0c1-4379-b23f-1b605761ae37.png",
             "https://imgix.bcc.media/8dd8ecce-2016-408f-92c5-caa71ef79278.png",
@@ -38,9 +38,6 @@ const comic = ref(
     comics.find((comic) => comic.id === props.comicId) || comics[0]
 )
 
-const analyticsQuery = useGetMeQuery({
-    pause: true,
-})
 const { authenticated } = useAuth()
 
 const currentFraction = ref(0)
@@ -67,17 +64,6 @@ const calculatePercentRead = () => {
 
 onMounted(async () => {
     document.body.onscroll = calculatePercentRead
-
-    await analytics.initialize(async () => {
-        let analyticsId: string | null = null
-        const result = await analyticsQuery.executeQuery()
-        if (result.data.value?.me.analytics.anonymousId) {
-            analyticsId = result.data.value.me.analytics.anonymousId
-        }
-        return analyticsId
-    })
-
-    console.log("ag: initialized analytics")
 
     analytics.page({
         id: "comic",
@@ -138,7 +124,7 @@ const trackSubscribeClick = () => {
         >
             {{ comic.title }}
         </h2>
-        <div class="w-full" ref="comicRef">
+        <div class="w-full justify-center" ref="comicRef">
             <ComicImage
                 v-for="image in comic.images"
                 :key="image"

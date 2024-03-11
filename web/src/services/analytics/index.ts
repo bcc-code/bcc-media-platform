@@ -93,6 +93,7 @@ class Analytics {
             setting?: "webSettings"
             episodeId?: string,
             comicId?: string,
+            quoteId?: string,
         }
     }) {
         if (!this.initialized) return
