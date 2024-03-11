@@ -12,9 +12,14 @@ type HapticFeedbackType =
 class MainWebViewHandler {
     handlerName: string
     webView: WebView
+    supportedFeatures: Map<string, boolean> | null = null
+
     constructor(webView: WebView) {
         this.webView = webView
         this.handlerName = webView.type == "flutter" ? "flutter_main" : "main"
+        this.getSupportedFeatures().then((features) => {
+            this.supportedFeatures = features
+        });
     }
 
     navigate(path: string): Promise<any> | null {
@@ -54,6 +59,26 @@ class MainWebViewHandler {
             this.handlerName,
             "share_image",
             url
+        )
+    }
+
+    async getSupportedFeatures(): Promise<Map<string, boolean> | null> {
+        const result = await this.webView.communication.callHandler(
+            this.handlerName,
+            "get_supported_features"
+        )
+        if (result) {
+            return new Map(Object.entries(result))
+        }
+        return null
+    }
+
+    share(text: string, subject?: string): Promise<boolean | null> {
+        return this.webView.communication.callHandler(
+            this.handlerName,
+            "share",
+            text,
+            subject
         )
     }
 

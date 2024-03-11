@@ -162,6 +162,7 @@
         "membersOnly": "This video is only accessible to users that are logged in."
     },
     "quotes": {
+        "quoteOfTheDay": "Quote of the day",
         "markAsRead": "Mark as read",
         "markAsUnread": "Mark as unread"
     },

@@ -8,6 +8,7 @@ import VButton from "../VButton.vue"
 import Check from "../icons/Check.vue"
 import { analytics } from "@/services/analytics"
 import QuoteFeedbackButton from "./QuoteFeedbackButton.vue"
+import { webViewMain } from "@/services/webviews/mainHandler"
 
 type Quote = (typeof quotesRaw)[keyof typeof quotesRaw]
 const quotes = quotesRaw as Record<string, Quote>
@@ -76,18 +77,29 @@ const setRead = (val: boolean) => {
     })
 }
 const hasReadToday = computed(() => readDaysArray.value.includes(todayString))
+const { t } = useI18n()
 
+const shareSupported =
+    (navigator.share && typeof navigator.share === "function") ||
+    (webViewMain?.supportedFeatures?.get("share") ?? false)
 const share = () => {
     analytics.track("content_shared", {
         elementId: quote.id,
         elementType: "Quote",
         pageCode: "qotd",
     })
-    navigator.share({
-        title: "Quote of the day",
-        text: `«${quoteText.value}» - ${quote.author}`,
-        url: window.location.href,
-    })
+    const shareSubject = t("quotes.quoteOfTheDay")
+    const shareText = `«${quoteText.value}» - ${quote.author}`
+    if (navigator.share && typeof navigator.share === "function") {
+        navigator.share({
+            title: shareSubject,
+            text: shareText,
+        })
+    } else if (webViewMain?.supportedFeatures?.get("share")) {
+        webViewMain.share(shareText, shareSubject)
+    } else {
+        console.error("Share not supported")
+    }
 }
 
 onMounted(async () => {
@@ -138,7 +150,7 @@ onMounted(async () => {
                     size="thin"
                     class="flex items-center"
                     @click.stop="share"
-                    v-else
+                    v-else-if="shareSupported"
                 >
                     <svg
                         class="h-6 w-6 mr-1"
