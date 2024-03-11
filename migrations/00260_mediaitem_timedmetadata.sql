@@ -137,34 +137,12 @@ alter table public.timedmetadata
                (asset_id IS NULL AND episode_id IS NOT NULL AND mediaitem_id IS NULL) OR
                (asset_id IS NULL AND episode_id IS NULL AND mediaitem_id IS NOT NULL));
 
-UPDATE episodes
-SET mediaitem_id = uuid;
-
-INSERT INTO timedmetadata (id, type, status, label, mediaitem_id, title, seconds, date_created, date_updated,
-                           user_created, user_updated)
-SELECT gen_random_uuid(),
-       md.type,
-       md.status,
-       md.label,
-       e.uuid,
-       md.title,
-       md.seconds,
-       md.date_created,
-       md.date_updated,
-       md.user_created,
-       md.user_updated
-FROM timedmetadata md
-         JOIN episodes e ON episode_id = e.id;
 
 -- +goose Down
 /***********************************************************/
 /*** SCRIPT AUTHOR: Fredrik Vedvik (fredrik@vedvik.tech) ***/
 /***    CREATED ON: 2024-03-11T10:52:52.294Z             ***/
 /***********************************************************/
-
-DELETE
-FROM timedmetadata
-WHERE mediaitem_id IS NOT NULL;
 
 
 alter table public.timedmetadata

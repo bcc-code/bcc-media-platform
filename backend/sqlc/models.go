@@ -974,6 +974,8 @@ type Mediaitem struct {
 	AgeratingCode          null_v4.String  `db:"agerating_code" json:"ageratingCode"`
 	TranslationsRequired   bool            `db:"translations_required" json:"translationsRequired"`
 	TimedmetadataFromAsset bool            `db:"timedmetadata_from_asset" json:"timedmetadataFromAsset"`
+	AvailableFrom          null_v4.Time    `db:"available_from" json:"availableFrom"`
+	AvailableTo            null_v4.Time    `db:"available_to" json:"availableTo"`
 }
 
 type MediaitemsAsset struct {
@@ -1001,6 +1003,12 @@ type MediaitemsTranslation struct {
 	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
 	Title         null_v4.String `db:"title" json:"title"`
 	Description   null_v4.String `db:"description" json:"description"`
+}
+
+type MediaitemsUsergroup struct {
+	ID             int32          `db:"id" json:"id"`
+	MediaitemsID   uuid.NullUUID  `db:"mediaitems_id" json:"mediaitemsId"`
+	UsergroupsCode null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
 }
 
 type MediaitemsView struct {

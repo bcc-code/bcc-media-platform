@@ -373,52 +373,11 @@ SELECT setval(pg_get_serial_sequence('"public"."directus_fields"', 'id'), max("i
 
 --- END SYNCHRONIZE TABLE "public"."directus_fields" RECORDS ---
 
---- COPY FROM EPISODES TO MEDIAITEMS
-
-INSERT INTO mediaitems (id, user_created, user_updated, date_updated, date_created, title, description, asset_id, label,
-                        published_at, type, agerating_code, content_type, audience, production_date, translations_required)
-SELECT uuid,
-       user_created,
-       user_updated,
-       date_updated,
-       date_created,
-       ts.title,
-       ts.description,
-       asset_id,
-       label,
-       publish_date,
-       'video',
-       agerating_code,
-       content_type,
-       audience,
-       production_date,
-       translations_required
-FROM episodes
-         LEFT JOIN episodes_translations ts ON ts.episodes_id = episodes.id AND ts.languages_code = 'no';
-
-INSERT INTO mediaitems_translations (mediaitems_id, languages_code, title, description)
-SELECT e.uuid, ts.languages_code, ts.title, ts.description
-FROM episodes e
-         JOIN episodes_translations ts ON ts.episodes_id = e.id AND ts.languages_code != 'no';
-
-UPDATE mediaitems
-SET parent_id = (SELECT uuid FROM episodes WHERE id = parent_episode_id)
-WHERE parent_episode_id IS NOT NULL;
-
-INSERT INTO mediaitems_assets (mediaitems_id, assets_id, language)
-SELECT e.uuid, a.assets_id, a.language
-FROM episodes_assets a
-         JOIN episodes e ON e.id = a.episodes_id;
-
 -- +goose Down
 /***********************************************************/
 /*** SCRIPT AUTHOR: Fredrik Vedvik (fredrik@vedvik.tech) ***/
 /***    CREATED ON: 2024-03-11T10:21:37.435Z             ***/
 /***********************************************************/
-
-DELETE
-FROM mediaitems
-WHERE id IN (SELECT uuid FROM episodes);
 
 
 --- BEGIN ALTER TABLE "public"."mediaitems" ---
