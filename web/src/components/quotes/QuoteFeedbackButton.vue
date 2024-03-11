@@ -7,7 +7,8 @@ const openFeedback = () => {
         webViewMain.navigate("/r/quotes-feedback")
         return
     }
-    router.push("/r/quotes-feedback")
+    // open <host>/r/quotes-feedback in new tab
+    window.open("/r/quotes-feedback", "_blank")
 }
 
 const open = ref(false)
