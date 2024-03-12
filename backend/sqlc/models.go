@@ -1006,9 +1006,9 @@ type MediaitemsTranslation struct {
 }
 
 type MediaitemsUsergroup struct {
-	ID             int32          `db:"id" json:"id"`
-	MediaitemsID   uuid.NullUUID  `db:"mediaitems_id" json:"mediaitemsId"`
-	UsergroupsCode null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
+	ID             int32     `db:"id" json:"id"`
+	MediaitemsID   uuid.UUID `db:"mediaitems_id" json:"mediaitemsId"`
+	UsergroupsCode string    `db:"usergroups_code" json:"usergroupsCode"`
 }
 
 type MediaitemsView struct {

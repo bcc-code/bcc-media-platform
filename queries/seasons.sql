@@ -28,7 +28,7 @@ SELECT s.id,
        ts.title,
        ts.description
 FROM seasons s
-         JOIN ts ON s.id = ts.seasons_id
+         LEFT JOIN ts ON s.id = ts.seasons_id
          LEFT JOIN tags ON tags.seasons_id = s.id
          LEFT JOIN images img ON img.season_id = s.id
          JOIN shows sh ON s.show_id = sh.id
@@ -64,7 +64,7 @@ SELECT s.id,
        ts.title,
        ts.description
 FROM seasons s
-         JOIN ts ON s.id = ts.seasons_id
+         LEFT JOIN ts ON s.id = ts.seasons_id
          LEFT JOIN tags ON tags.seasons_id = s.id
          LEFT JOIN images img ON img.season_id = s.id
          JOIN shows sh ON s.show_id = sh.id
