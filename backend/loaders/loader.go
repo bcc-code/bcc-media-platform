@@ -2,6 +2,7 @@ package loaders
 
 import (
 	"context"
+
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/graph-gophers/dataloader/v7"
 )
@@ -161,7 +162,10 @@ func GetMany[k comparable, t any](ctx context.Context, loader *dataloader.Loader
 
 	var items []t
 	for _, i := range result {
-		items = append(items, i)
+		// don't add nil items
+		if i != nil {
+			items = append(items, i)
+		}
 	}
 	return items, nil
 }
