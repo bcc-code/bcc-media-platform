@@ -1012,18 +1012,32 @@ type MediaitemsUsergroup struct {
 }
 
 type MediaitemsView struct {
-	ID                  uuid.UUID       `db:"id" json:"id"`
-	AssetID             null_v4.Int     `db:"asset_id" json:"assetId"`
-	OriginalTitle       null_v4.String  `db:"original_title" json:"originalTitle"`
-	OriginalDescription null_v4.String  `db:"original_description" json:"originalDescription"`
-	Title               json.RawMessage `db:"title" json:"title"`
-	Description         json.RawMessage `db:"description" json:"description"`
-	Images              json.RawMessage `db:"images" json:"images"`
-	ParentEpisodeID     null_v4.Int     `db:"parent_episode_id" json:"parentEpisodeId"`
-	ParentStartsAt      sql.NullFloat64 `db:"parent_starts_at" json:"parentStartsAt"`
-	ParentEndsAt        sql.NullFloat64 `db:"parent_ends_at" json:"parentEndsAt"`
-	Label               string          `db:"label" json:"label"`
-	DateUpdated         null_v4.Time    `db:"date_updated" json:"dateUpdated"`
+	ID                   uuid.UUID       `db:"id" json:"id"`
+	Assets               json.RawMessage `db:"assets" json:"assets"`
+	AssetID              null_v4.Int     `db:"asset_id" json:"assetId"`
+	OriginalTitle        null_v4.String  `db:"original_title" json:"originalTitle"`
+	OriginalDescription  null_v4.String  `db:"original_description" json:"originalDescription"`
+	Title                json.RawMessage `db:"title" json:"title"`
+	Description          json.RawMessage `db:"description" json:"description"`
+	Images               json.RawMessage `db:"images" json:"images"`
+	ParentID             uuid.NullUUID   `db:"parent_id" json:"parentId"`
+	ParentEpisodeID      null_v4.Int     `db:"parent_episode_id" json:"parentEpisodeId"`
+	ParentStartsAt       sql.NullFloat64 `db:"parent_starts_at" json:"parentStartsAt"`
+	ParentEndsAt         sql.NullFloat64 `db:"parent_ends_at" json:"parentEndsAt"`
+	AvailableFrom        time.Time       `db:"available_from" json:"availableFrom"`
+	AvailableTo          time.Time       `db:"available_to" json:"availableTo"`
+	Label                string          `db:"label" json:"label"`
+	AgeratingCode        null_v4.String  `db:"agerating_code" json:"ageratingCode"`
+	Audience             null_v4.String  `db:"audience" json:"audience"`
+	ContentType          null_v4.String  `db:"content_type" json:"contentType"`
+	ProductionDate       time.Time       `db:"production_date" json:"productionDate"`
+	PublishedAt          time.Time       `db:"published_at" json:"publishedAt"`
+	TranslationsRequired bool            `db:"translations_required" json:"translationsRequired"`
+	DateUpdated          null_v4.Time    `db:"date_updated" json:"dateUpdated"`
+	Duration             null_v4.Int     `db:"duration" json:"duration"`
+	AssetDateUpdated     null_v4.Time    `db:"asset_date_updated" json:"assetDateUpdated"`
+	TagIds               []int32         `db:"tag_ids" json:"tagIds"`
+	TimedmetadataIds     []uuid.UUID     `db:"timedmetadata_ids" json:"timedmetadataIds"`
 }
 
 type Message struct {

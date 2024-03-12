@@ -16,13 +16,16 @@ import (
 
 func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 	return lo.Map(episodes, func(e getEpisodesRow, _ int) common.Episode {
-		var title common.LocaleString
-		var description common.LocaleString
-		var extraDescription common.LocaleString
+		var title = common.LocaleString{}
+		var description = common.LocaleString{}
+		var extraDescription = common.LocaleString{}
 
 		_ = json.Unmarshal(e.Title.RawMessage, &title)
 		_ = json.Unmarshal(e.Description.RawMessage, &description)
 		_ = json.Unmarshal(e.ExtraDescription.RawMessage, &extraDescription)
+
+		title["no"] = e.OriginalTitle
+		description["no"] = e.OriginalDescription
 
 		var assetIDs common.LocaleMap[int]
 		_ = json.Unmarshal(e.Assets.RawMessage, &assetIDs)
@@ -51,8 +54,8 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			Description:           description,
 			ExtraDescription:      extraDescription,
 			ProductionDateInTitle: e.PublishDateInTitle,
-			PublishDate:           e.PublishDate,
-			ProductionDate:        e.ProductionDate,
+			PublishDate:           e.PublishedAt.Time,
+			ProductionDate:        e.ProductionDate.Time,
 			AvailableFrom:         e.AvailableFrom,
 			AvailableTo:           e.AvailableTo,
 			Number:                e.EpisodeNumber,
@@ -61,7 +64,7 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			Assets:                assetIDs,
 			AssetVersion:          assetVersion,
 			Image:                 image,
-			Images:                q.getImages(e.Images),
+			Images:                q.getImages(e.Images.RawMessage),
 			AgeRating:             e.Agerating,
 			Duration:              int(e.Duration.ValueOrZero()),
 			Audience:              e.Audience,
@@ -69,8 +72,7 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
 				return int(id)
 			}),
-			TimedMetadataIDs:       e.TimedmetadataIds,
-			TimedMetadataFromAsset: e.TimedmetadataFromAsset,
+			TimedMetadataIDs: e.TimedmetadataIds,
 		}
 	})
 }
