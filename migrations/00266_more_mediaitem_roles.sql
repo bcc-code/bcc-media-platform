@@ -324,12 +324,12 @@ FROM "public"."directus_relations";
 
 
 INSERT INTO mediaitems_usergroups_download (mediaitems_id, usergroups_code)
-SELECT e.uuid, usergroups_code
+SELECT DISTINCT e.uuid, usergroups_code
 FROM episodes_usergroups_download ug
          JOIN episodes e ON e.id = ug.episodes_id;
 
 INSERT INTO mediaitems_usergroups_earlyaccess (mediaitems_id, usergroups_code)
-SELECT e.uuid, usergroups_code
+SELECT DISTINCT e.uuid, usergroups_code
 FROM episodes_usergroups_download ug
          JOIN episodes e ON e.id = ug.episodes_id;
 
