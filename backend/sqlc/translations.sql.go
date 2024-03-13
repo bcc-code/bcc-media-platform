@@ -116,6 +116,17 @@ func (q *Queries) ClearLessonTranslations(ctx context.Context, dollar_1 []uuid.U
 	return err
 }
 
+const clearMediaItemTranslations = `-- name: ClearMediaItemTranslations :exec
+DELETE
+FROM mediaitems_translations ts
+WHERE ts.mediaitems_id = ANY ($1::uuid[])
+`
+
+func (q *Queries) ClearMediaItemTranslations(ctx context.Context, dollar_1 []uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearMediaItemTranslations, pq.Array(dollar_1))
+	return err
+}
+
 const clearPageTranslations = `-- name: ClearPageTranslations :exec
 DELETE
 FROM pages_translations
@@ -969,6 +980,88 @@ func (q *Queries) ListLinkTranslations(ctx context.Context, language string) ([]
 	var items []ListLinkTranslationsRow
 	for rows.Next() {
 		var i ListLinkTranslationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentID,
+			&i.Language,
+			&i.Values,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listMediaItemOriginalTranslations = `-- name: ListMediaItemOriginalTranslations :many
+SELECT items.id, json_build_object('title', items.title, 'description', items.description) as values
+FROM mediaitems items
+WHERE items.translations_required
+`
+
+type ListMediaItemOriginalTranslationsRow struct {
+	ID     uuid.UUID       `db:"id" json:"id"`
+	Values json.RawMessage `db:"values" json:"values"`
+}
+
+func (q *Queries) ListMediaItemOriginalTranslations(ctx context.Context) ([]ListMediaItemOriginalTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listMediaItemOriginalTranslations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListMediaItemOriginalTranslationsRow
+	for rows.Next() {
+		var i ListMediaItemOriginalTranslationsRow
+		if err := rows.Scan(&i.ID, &i.Values); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listMediaItemTranslations = `-- name: ListMediaItemTranslations :many
+WITH items AS (SELECT i.id
+               FROM mediaitems i
+               WHERE i.translations_required)
+SELECT ts.id,
+       mediaitems_id                                                       as parent_id,
+       languages_code                                                      as language,
+       json_build_object('title', ts.title, 'description', ts.description) as values
+FROM mediaitems_translations ts
+         JOIN items i ON i.id = ts.mediaitems_id
+WHERE ts.languages_code = $1::varchar
+`
+
+type ListMediaItemTranslationsRow struct {
+	ID       int32           `db:"id" json:"id"`
+	ParentID uuid.UUID       `db:"parent_id" json:"parentId"`
+	Language string          `db:"language" json:"language"`
+	Values   json.RawMessage `db:"values" json:"values"`
+}
+
+func (q *Queries) ListMediaItemTranslations(ctx context.Context, language string) ([]ListMediaItemTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listMediaItemTranslations, language)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListMediaItemTranslationsRow
+	for rows.Next() {
+		var i ListMediaItemTranslationsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.ParentID,
@@ -1901,6 +1994,30 @@ type UpdateLinkTranslationParams struct {
 
 func (q *Queries) UpdateLinkTranslation(ctx context.Context, arg UpdateLinkTranslationParams) error {
 	_, err := q.db.ExecContext(ctx, updateLinkTranslation,
+		arg.ItemID,
+		arg.Language,
+		arg.Title,
+		arg.Description,
+	)
+	return err
+}
+
+const updateMediaItemTranslation = `-- name: UpdateMediaItemTranslation :exec
+INSERT INTO mediaitems_translations (mediaitems_id, languages_code, title, description)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (mediaitems_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
+                                                          description = EXCLUDED.description
+`
+
+type UpdateMediaItemTranslationParams struct {
+	ItemID      uuid.UUID      `db:"item_id" json:"itemId"`
+	Language    string         `db:"language" json:"language"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) UpdateMediaItemTranslation(ctx context.Context, arg UpdateMediaItemTranslationParams) error {
+	_, err := q.db.ExecContext(ctx, updateMediaItemTranslation,
 		arg.ItemID,
 		arg.Language,
 		arg.Title,

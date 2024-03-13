@@ -999,13 +999,25 @@ type MediaitemsTag struct {
 
 type MediaitemsTranslation struct {
 	ID            int32          `db:"id" json:"id"`
-	MediaitemsID  uuid.NullUUID  `db:"mediaitems_id" json:"mediaitemsId"`
-	LanguagesCode null_v4.String `db:"languages_code" json:"languagesCode"`
+	MediaitemsID  uuid.UUID      `db:"mediaitems_id" json:"mediaitemsId"`
+	LanguagesCode string         `db:"languages_code" json:"languagesCode"`
 	Title         null_v4.String `db:"title" json:"title"`
 	Description   null_v4.String `db:"description" json:"description"`
 }
 
 type MediaitemsUsergroup struct {
+	ID             int32     `db:"id" json:"id"`
+	MediaitemsID   uuid.UUID `db:"mediaitems_id" json:"mediaitemsId"`
+	UsergroupsCode string    `db:"usergroups_code" json:"usergroupsCode"`
+}
+
+type MediaitemsUsergroupsDownload struct {
+	ID             int32     `db:"id" json:"id"`
+	MediaitemsID   uuid.UUID `db:"mediaitems_id" json:"mediaitemsId"`
+	UsergroupsCode string    `db:"usergroups_code" json:"usergroupsCode"`
+}
+
+type MediaitemsUsergroupsEarlyaccess struct {
 	ID             int32     `db:"id" json:"id"`
 	MediaitemsID   uuid.UUID `db:"mediaitems_id" json:"mediaitemsId"`
 	UsergroupsCode string    `db:"usergroups_code" json:"usergroupsCode"`

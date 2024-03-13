@@ -495,6 +495,32 @@ func (c *Client) syncPlaylists(ctx context.Context, options Options) error {
 	))
 }
 
+func (c *Client) syncMediaItems(ctx context.Context, options Options) error {
+	return syncCollection(ctx, c, options, NewTranslationHandler(
+		"mediaitems",
+		func(ctx context.Context, language string) ([]SimpleTranslation, error) {
+			if language == "no" {
+				ts, err := c.q.ListMediaItemOriginalTranslations(ctx)
+				if err != nil {
+					return nil, err
+				}
+				return mapToSimpleTranslations(ts), nil
+			}
+			return dbToSimple(ctx, language, c.q.ListMediaItemTranslations)
+		},
+		func(t SimpleTranslation) sqlc.UpdateMediaItemTranslationParams {
+			return sqlc.UpdateMediaItemTranslationParams{
+				ItemID:      utils.AsUuid(t.ParentID),
+				Language:    t.Language,
+				Title:       null.StringFrom(t.Values["title"]),
+				Description: null.StringFrom(t.Values["description"]),
+			}
+		},
+		c.q.UpdateMediaItemTranslation,
+		nil,
+	))
+}
+
 type dbT interface {
 	GetKey() string
 	GetParentKey() string
@@ -543,6 +569,8 @@ func toSimple[T any](i T) SimpleTranslation {
 		v = sqlc.UuidTranslationRow(t)
 	case sqlc.ListPlaylistTranslationsRow:
 		v = sqlc.UuidTranslationRow(t)
+	case sqlc.ListMediaItemTranslationsRow:
+		v = sqlc.UuidTranslationRow(t)
 	case sqlc.ListLinkTranslationsRow:
 		v = sqlc.Int32TranslationRow(t)
 	case sqlc.ListStudyTopicOriginalTranslationsRow:
@@ -568,6 +596,8 @@ func toSimple[T any](i T) SimpleTranslation {
 	case sqlc.ListFAQCategoryOriginalTranslationsRow:
 		v = sqlc.OriginalTranslationRow(t)
 	case sqlc.ListPlaylistOriginalTranslationsRow:
+		v = sqlc.OriginalTranslationRow(t)
+	case sqlc.ListMediaItemOriginalTranslationsRow:
 		v = sqlc.OriginalTranslationRow(t)
 	case SimpleTranslation:
 		return t
