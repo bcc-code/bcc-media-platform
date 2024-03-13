@@ -2,6 +2,7 @@ package loaders
 
 import (
 	"context"
+	"reflect"
 
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/graph-gophers/dataloader/v7"
@@ -163,9 +164,10 @@ func GetMany[k comparable, t any](ctx context.Context, loader *dataloader.Loader
 	var items []t
 	for _, i := range result {
 		// don't add nil items
-		if i != nil {
-			items = append(items, i)
+		if v := reflect.ValueOf(i); v.Kind() == reflect.Ptr && v.IsNil() {
+			continue
 		}
+		items = append(items, i)
 	}
 	return items, nil
 }
