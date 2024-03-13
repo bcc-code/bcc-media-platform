@@ -40,6 +40,11 @@ CREATE UNIQUE INDEX mediaitems_translations_pk ON public.mediaitems_translations
 
 COMMENT ON INDEX "public"."mediaitems_translations_pk" IS NULL;
 
+INSERT INTO mediaitems_tags (mediaitems_id, tags_id)
+SELECT DISTINCT e.uuid, t.tags_id
+FROM episodes_tags t
+         JOIN episodes e ON e.id = t.episodes_id;
+
 --- END ALTER TABLE "public"."mediaitems_translations" ---
 -- +goose Down
 /***********************************************************/
