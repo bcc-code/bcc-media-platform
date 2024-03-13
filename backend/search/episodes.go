@@ -3,8 +3,9 @@ package search
 import (
 	"context"
 	"fmt"
-	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"strconv"
+
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 )
 
 func (service *Service) episodeToSearchItem(ctx context.Context, episode common.Episode) (searchItem, error) {
@@ -52,10 +53,7 @@ func (service *Service) episodeToSearchItem(ctx context.Context, episode common.
 		legacyID = &v
 	}
 
-	var image *string
-	if episode.Image.Valid {
-		image = &episode.Image.String
-	}
+	image := episode.Images.GetDefault([]string{"no"}, common.ImageStyleDefault)
 
 	var item = searchItem{
 		ID:          "episodes-" + strconv.Itoa(episode.ID),

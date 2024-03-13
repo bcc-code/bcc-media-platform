@@ -19,9 +19,9 @@ WHERE md.id = ANY (@ids::uuid[]);
 
 -- name: InsertTimedMetadata :exec
 INSERT INTO timedmetadata (id, status, date_created, date_updated, label, type, highlight,
-                           title, asset_id, seconds, description, episode_id, chapter_type, song_id)
+                           title, asset_id, seconds, description, episode_id, mediaitem_id, chapter_type, song_id)
 VALUES (@id, @status, NOW(), NOW(), @label, @type, @highlight, @title::varchar,
-        @asset_id, @seconds::real, @description::varchar, @episode_id, @chapter_type, @song_id);
+        @asset_id, @seconds::real, @description::varchar, @episode_id, @mediaitem_id, @chapter_type, @song_id);
 
 -- name: GetAssetTimedMetadata :many
 SELECT t.id,
@@ -38,6 +38,7 @@ SELECT t.id,
        seconds,
        description,
        episode_id,
+       mediaitem_id,
        chapter_type,
        song_id,
        (SELECT array_agg(p.persons_id) FROM "timedmetadata_persons" p WHERE p.timedmetadata_id = t.id)::uuid[]  AS person_ids
@@ -47,3 +48,7 @@ ORDER BY seconds;
 
 -- name: ClearEpisodeTimedMetadata :exec
 DELETE FROM timedmetadata WHERE episode_id = @episode_id;
+
+-- name: ClearMediaItemTimedMetadata :exec
+DELETE FROM timedmetadata WHERE mediaitem_id = @mediaitem_id::uuid;
+

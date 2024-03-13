@@ -8,7 +8,6 @@ package sqlc
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -337,67 +336,45 @@ func (q *Queries) getEpisodeUUIDsWithRoles(ctx context.Context, arg getEpisodeUU
 
 const getEpisodes = `-- name: getEpisodes :many
 WITH ts AS (SELECT episodes_id,
-                   json_object_agg(languages_code, title)             AS title,
-                   json_object_agg(languages_code, description)       AS description,
                    json_object_agg(languages_code, extra_description) AS extra_description
             FROM episodes_translations
-            WHERE episodes_id = ANY ($1::int[])
-            GROUP BY episodes_id),
-     tags AS (SELECT episodes_id,
-                     array_agg(tags_id) AS tags
-              FROM episodes_tags
-              GROUP BY episodes_id),
-     asset_ids AS (SELECT episodes_id,
-                          json_object_agg(language, assets_id) AS ids
-                   FROM episodes_assets
-                   GROUP BY episodes_id),
-     images AS (WITH images AS (SELECT episode_id, style, language, filename_disk
-                                FROM images img
-                                         JOIN directus_files df on img.file = df.id
-                                WHERE episode_id = ANY ($1::int[]))
-                SELECT episode_id, json_agg(images) as json
-                FROM images
-                GROUP BY episode_id)
+            GROUP BY episodes_id)
 SELECT e.id,
        e.uuid,
+       e.mediaitem_id,
        e.status,
        e.legacy_id,
        e.legacy_program_id,
-       e.asset_id,
-       asset_ids.ids                                                           AS assets,
-       e.episode_number,
-       e.publish_date,
-       e.production_date,
-       e.public_title,
-       s.episode_number_in_title                                               AS number_in_title,
-       COALESCE(e.prevent_public_indexing, false)::bool                        as prevent_public_indexing,
-       ea.available_from::timestamp without time zone                          AS available_from,
-       ea.available_to::timestamp without time zone                            AS available_to,
-       COALESCE(e.publish_date_in_title, false)::bool                          AS publish_date_in_title,
-       fs.filename_disk                                                        as image_file_name,
+       fs.filename_disk                                                     as image_file_name,
        e.season_id,
        e.type,
-       COALESCE(img.json, '[]')                                                as images,
-       ts.title,
-       ts.description,
+       e.episode_number,
+       e.public_title,
+       s.episode_number_in_title                                            AS number_in_title,
+       COALESCE(e.prevent_public_indexing, false)::bool                     as prevent_public_indexing,
+       COALESCE(e.publish_date_in_title, false)::bool                       AS publish_date_in_title,
+       ea.available_from::timestamp without time zone                       AS available_from,
+       ea.available_to::timestamp without time zone                         AS available_to,
+       mi.asset_id,
+       mi.assets,
+       mi.published_at,
+       mi.production_date,
+       mi.images,
+       mi.original_title,
+       mi.original_description,
+       mi.title,
+       mi.description,
        ts.extra_description,
-       tags.tags::int[]                                                        AS tag_ids,
-       assets.duration                                                         as duration,
-       assets.date_updated                                                     AS asset_date_updated,
-       COALESCE(e.agerating_code, s.agerating_code, 'A')                       as agerating,
-       audience,
-       content_type,
-       timedmetadata_from_asset,
-       (SELECT array_agg(id ORDER BY seconds)
-        FROM timedmetadata md
-        WHERE (timedmetadata_from_asset AND md.asset_id = e.asset_id)
-           OR (NOT timedmetadata_from_asset AND md.episode_id = e.id))::uuid[] AS timedmetadata_ids
+       mi.tag_ids,
+       mi.duration,
+       mi.asset_date_updated,
+       COALESCE(mi.agerating_code, e.agerating_code, s.agerating_code, 'A') as agerating,
+       mi.audience,
+       mi.content_type,
+       mi.timedmetadata_ids
 FROM episodes e
+         LEFT JOIN mediaitems_view mi ON mi.id = e.mediaitem_id
          LEFT JOIN ts ON e.id = ts.episodes_id
-         LEFT JOIN tags ON tags.episodes_id = e.id
-         LEFT JOIN images img ON img.episode_id = e.id
-         LEFT JOIN asset_ids ON asset_ids.episodes_id = e.id
-         LEFT JOIN assets ON e.asset_id = assets.id
          LEFT JOIN seasons s ON e.season_id = s.id
          LEFT JOIN shows sh ON s.show_id = sh.id
          LEFT JOIN directus_files fs ON fs.id = COALESCE(e.image_file_id, s.image_file_id, sh.image_file_id)
@@ -407,37 +384,39 @@ ORDER BY e.episode_number
 `
 
 type getEpisodesRow struct {
-	ID                     int32                 `db:"id" json:"id"`
-	Uuid                   uuid.UUID             `db:"uuid" json:"uuid"`
-	Status                 string                `db:"status" json:"status"`
-	LegacyID               null_v4.Int           `db:"legacy_id" json:"legacyId"`
-	LegacyProgramID        null_v4.Int           `db:"legacy_program_id" json:"legacyProgramId"`
-	AssetID                null_v4.Int           `db:"asset_id" json:"assetId"`
-	Assets                 pqtype.NullRawMessage `db:"assets" json:"assets"`
-	EpisodeNumber          null_v4.Int           `db:"episode_number" json:"episodeNumber"`
-	PublishDate            time.Time             `db:"publish_date" json:"publishDate"`
-	ProductionDate         time.Time             `db:"production_date" json:"productionDate"`
-	PublicTitle            null_v4.String        `db:"public_title" json:"publicTitle"`
-	NumberInTitle          sql.NullBool          `db:"number_in_title" json:"numberInTitle"`
-	PreventPublicIndexing  bool                  `db:"prevent_public_indexing" json:"preventPublicIndexing"`
-	AvailableFrom          time.Time             `db:"available_from" json:"availableFrom"`
-	AvailableTo            time.Time             `db:"available_to" json:"availableTo"`
-	PublishDateInTitle     bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
-	ImageFileName          null_v4.String        `db:"image_file_name" json:"imageFileName"`
-	SeasonID               null_v4.Int           `db:"season_id" json:"seasonId"`
-	Type                   string                `db:"type" json:"type"`
-	Images                 json.RawMessage       `db:"images" json:"images"`
-	Title                  pqtype.NullRawMessage `db:"title" json:"title"`
-	Description            pqtype.NullRawMessage `db:"description" json:"description"`
-	ExtraDescription       pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
-	TagIds                 []int32               `db:"tag_ids" json:"tagIds"`
-	Duration               null_v4.Int           `db:"duration" json:"duration"`
-	AssetDateUpdated       null_v4.Time          `db:"asset_date_updated" json:"assetDateUpdated"`
-	Agerating              string                `db:"agerating" json:"agerating"`
-	Audience               null_v4.String        `db:"audience" json:"audience"`
-	ContentType            null_v4.String        `db:"content_type" json:"contentType"`
-	TimedmetadataFromAsset bool                  `db:"timedmetadata_from_asset" json:"timedmetadataFromAsset"`
-	TimedmetadataIds       []uuid.UUID           `db:"timedmetadata_ids" json:"timedmetadataIds"`
+	ID                    int32                 `db:"id" json:"id"`
+	Uuid                  uuid.UUID             `db:"uuid" json:"uuid"`
+	MediaitemID           uuid.NullUUID         `db:"mediaitem_id" json:"mediaitemId"`
+	Status                string                `db:"status" json:"status"`
+	LegacyID              null_v4.Int           `db:"legacy_id" json:"legacyId"`
+	LegacyProgramID       null_v4.Int           `db:"legacy_program_id" json:"legacyProgramId"`
+	ImageFileName         null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	SeasonID              null_v4.Int           `db:"season_id" json:"seasonId"`
+	Type                  string                `db:"type" json:"type"`
+	EpisodeNumber         null_v4.Int           `db:"episode_number" json:"episodeNumber"`
+	PublicTitle           null_v4.String        `db:"public_title" json:"publicTitle"`
+	NumberInTitle         sql.NullBool          `db:"number_in_title" json:"numberInTitle"`
+	PreventPublicIndexing bool                  `db:"prevent_public_indexing" json:"preventPublicIndexing"`
+	PublishDateInTitle    bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
+	AvailableFrom         time.Time             `db:"available_from" json:"availableFrom"`
+	AvailableTo           time.Time             `db:"available_to" json:"availableTo"`
+	AssetID               null_v4.Int           `db:"asset_id" json:"assetId"`
+	Assets                pqtype.NullRawMessage `db:"assets" json:"assets"`
+	PublishedAt           null_v4.Time          `db:"published_at" json:"publishedAt"`
+	ProductionDate        null_v4.Time          `db:"production_date" json:"productionDate"`
+	Images                pqtype.NullRawMessage `db:"images" json:"images"`
+	OriginalTitle         null_v4.String        `db:"original_title" json:"originalTitle"`
+	OriginalDescription   null_v4.String        `db:"original_description" json:"originalDescription"`
+	Title                 pqtype.NullRawMessage `db:"title" json:"title"`
+	Description           pqtype.NullRawMessage `db:"description" json:"description"`
+	ExtraDescription      pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
+	TagIds                []int32               `db:"tag_ids" json:"tagIds"`
+	Duration              null_v4.Int           `db:"duration" json:"duration"`
+	AssetDateUpdated      null_v4.Time          `db:"asset_date_updated" json:"assetDateUpdated"`
+	Agerating             string                `db:"agerating" json:"agerating"`
+	Audience              null_v4.String        `db:"audience" json:"audience"`
+	ContentType           null_v4.String        `db:"content_type" json:"contentType"`
+	TimedmetadataIds      []uuid.UUID           `db:"timedmetadata_ids" json:"timedmetadataIds"`
 }
 
 func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpisodesRow, error) {
@@ -452,24 +431,27 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 		if err := rows.Scan(
 			&i.ID,
 			&i.Uuid,
+			&i.MediaitemID,
 			&i.Status,
 			&i.LegacyID,
 			&i.LegacyProgramID,
-			&i.AssetID,
-			&i.Assets,
-			&i.EpisodeNumber,
-			&i.PublishDate,
-			&i.ProductionDate,
-			&i.PublicTitle,
-			&i.NumberInTitle,
-			&i.PreventPublicIndexing,
-			&i.AvailableFrom,
-			&i.AvailableTo,
-			&i.PublishDateInTitle,
 			&i.ImageFileName,
 			&i.SeasonID,
 			&i.Type,
+			&i.EpisodeNumber,
+			&i.PublicTitle,
+			&i.NumberInTitle,
+			&i.PreventPublicIndexing,
+			&i.PublishDateInTitle,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			&i.AssetID,
+			&i.Assets,
+			&i.PublishedAt,
+			&i.ProductionDate,
 			&i.Images,
+			&i.OriginalTitle,
+			&i.OriginalDescription,
 			&i.Title,
 			&i.Description,
 			&i.ExtraDescription,
@@ -479,7 +461,6 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 			&i.Agerating,
 			&i.Audience,
 			&i.ContentType,
-			&i.TimedmetadataFromAsset,
 			pq.Array(&i.TimedmetadataIds),
 		); err != nil {
 			return nil, err
@@ -558,65 +539,45 @@ func (q *Queries) getPermissionsForEpisodes(ctx context.Context, dollar_1 []int3
 
 const listEpisodes = `-- name: listEpisodes :many
 WITH ts AS (SELECT episodes_id,
-                   json_object_agg(languages_code, title)             AS title,
-                   json_object_agg(languages_code, description)       AS description,
                    json_object_agg(languages_code, extra_description) AS extra_description
             FROM episodes_translations
-            GROUP BY episodes_id),
-     tags AS (SELECT episodes_id,
-                     array_agg(tags_id) AS tags
-              FROM episodes_tags
-              GROUP BY episodes_id),
-     asset_ids AS (SELECT episodes_id,
-                          json_object_agg(language, assets_id) AS ids
-                   FROM episodes_assets
-                   GROUP BY episodes_id),
-     images AS (WITH images AS (SELECT episode_id, style, language, filename_disk
-                                FROM images img
-                                         JOIN directus_files df on img.file = df.id)
-                SELECT episode_id, json_agg(images) as json
-                FROM images
-                GROUP BY episode_id)
+            GROUP BY episodes_id)
 SELECT e.id,
        e.uuid,
+       e.mediaitem_id,
        e.status,
        e.legacy_id,
        e.legacy_program_id,
-       e.asset_id,
-       asset_ids.ids                                                           AS assets,
-       e.episode_number,
-       e.publish_date,
-       e.production_date,
-       e.public_title,
-       s.episode_number_in_title                                               AS number_in_title,
-       COALESCE(e.prevent_public_indexing, false)::bool                        as prevent_public_indexing,
-       ea.available_from::timestamp without time zone                          AS available_from,
-       ea.available_to::timestamp without time zone                            AS available_to,
-       COALESCE(e.publish_date_in_title, false)::bool                          AS publish_date_in_title,
-       fs.filename_disk                                                        as image_file_name,
+       fs.filename_disk                                                     as image_file_name,
        e.season_id,
        e.type,
-       COALESCE(img.json, '[]')                                                as images,
-       ts.title,
-       ts.description,
+       e.episode_number,
+       e.public_title,
+       s.episode_number_in_title                                            AS number_in_title,
+       COALESCE(e.prevent_public_indexing, false)::bool                     as prevent_public_indexing,
+       COALESCE(e.publish_date_in_title, false)::bool                       AS publish_date_in_title,
+       ea.available_from::timestamp without time zone                       AS available_from,
+       ea.available_to::timestamp without time zone                         AS available_to,
+       mi.asset_id,
+       mi.assets,
+       mi.published_at,
+       mi.production_date,
+       mi.images,
+       mi.original_title,
+       mi.original_description,
+       mi.title,
+       mi.description,
        ts.extra_description,
-       tags.tags::int[]                                                        AS tag_ids,
-       assets.duration                                                         as duration,
-       assets.date_updated                                                     AS asset_date_updated,
-       COALESCE(e.agerating_code, s.agerating_code, 'A')                       as agerating,
-       audience,
-       content_type,
-       timedmetadata_from_asset,
-       (SELECT array_agg(id ORDER BY seconds)
-        FROM timedmetadata md
-        WHERE (timedmetadata_from_asset AND md.asset_id = e.asset_id)
-           OR (NOT timedmetadata_from_asset AND md.episode_id = e.id))::uuid[] AS timedmetadata_ids
+       mi.tag_ids,
+       mi.duration,
+       mi.asset_date_updated,
+       COALESCE(mi.agerating_code, e.agerating_code, s.agerating_code, 'A') as agerating,
+       mi.audience,
+       mi.content_type,
+       mi.timedmetadata_ids
 FROM episodes e
+         LEFT JOIN mediaitems_view mi ON mi.id = e.mediaitem_id
          LEFT JOIN ts ON e.id = ts.episodes_id
-         LEFT JOIN tags ON tags.episodes_id = e.id
-         LEFT JOIN images img ON img.episode_id = e.id
-         LEFT JOIN asset_ids ON asset_ids.episodes_id = e.id
-         LEFT JOIN assets ON e.asset_id = assets.id
          LEFT JOIN seasons s ON e.season_id = s.id
          LEFT JOIN shows sh ON s.show_id = sh.id
          LEFT JOIN directus_files fs ON fs.id = COALESCE(e.image_file_id, s.image_file_id, sh.image_file_id)
@@ -624,37 +585,39 @@ FROM episodes e
 `
 
 type listEpisodesRow struct {
-	ID                     int32                 `db:"id" json:"id"`
-	Uuid                   uuid.UUID             `db:"uuid" json:"uuid"`
-	Status                 string                `db:"status" json:"status"`
-	LegacyID               null_v4.Int           `db:"legacy_id" json:"legacyId"`
-	LegacyProgramID        null_v4.Int           `db:"legacy_program_id" json:"legacyProgramId"`
-	AssetID                null_v4.Int           `db:"asset_id" json:"assetId"`
-	Assets                 pqtype.NullRawMessage `db:"assets" json:"assets"`
-	EpisodeNumber          null_v4.Int           `db:"episode_number" json:"episodeNumber"`
-	PublishDate            time.Time             `db:"publish_date" json:"publishDate"`
-	ProductionDate         time.Time             `db:"production_date" json:"productionDate"`
-	PublicTitle            null_v4.String        `db:"public_title" json:"publicTitle"`
-	NumberInTitle          sql.NullBool          `db:"number_in_title" json:"numberInTitle"`
-	PreventPublicIndexing  bool                  `db:"prevent_public_indexing" json:"preventPublicIndexing"`
-	AvailableFrom          time.Time             `db:"available_from" json:"availableFrom"`
-	AvailableTo            time.Time             `db:"available_to" json:"availableTo"`
-	PublishDateInTitle     bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
-	ImageFileName          null_v4.String        `db:"image_file_name" json:"imageFileName"`
-	SeasonID               null_v4.Int           `db:"season_id" json:"seasonId"`
-	Type                   string                `db:"type" json:"type"`
-	Images                 json.RawMessage       `db:"images" json:"images"`
-	Title                  pqtype.NullRawMessage `db:"title" json:"title"`
-	Description            pqtype.NullRawMessage `db:"description" json:"description"`
-	ExtraDescription       pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
-	TagIds                 []int32               `db:"tag_ids" json:"tagIds"`
-	Duration               null_v4.Int           `db:"duration" json:"duration"`
-	AssetDateUpdated       null_v4.Time          `db:"asset_date_updated" json:"assetDateUpdated"`
-	Agerating              string                `db:"agerating" json:"agerating"`
-	Audience               null_v4.String        `db:"audience" json:"audience"`
-	ContentType            null_v4.String        `db:"content_type" json:"contentType"`
-	TimedmetadataFromAsset bool                  `db:"timedmetadata_from_asset" json:"timedmetadataFromAsset"`
-	TimedmetadataIds       []uuid.UUID           `db:"timedmetadata_ids" json:"timedmetadataIds"`
+	ID                    int32                 `db:"id" json:"id"`
+	Uuid                  uuid.UUID             `db:"uuid" json:"uuid"`
+	MediaitemID           uuid.NullUUID         `db:"mediaitem_id" json:"mediaitemId"`
+	Status                string                `db:"status" json:"status"`
+	LegacyID              null_v4.Int           `db:"legacy_id" json:"legacyId"`
+	LegacyProgramID       null_v4.Int           `db:"legacy_program_id" json:"legacyProgramId"`
+	ImageFileName         null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	SeasonID              null_v4.Int           `db:"season_id" json:"seasonId"`
+	Type                  string                `db:"type" json:"type"`
+	EpisodeNumber         null_v4.Int           `db:"episode_number" json:"episodeNumber"`
+	PublicTitle           null_v4.String        `db:"public_title" json:"publicTitle"`
+	NumberInTitle         sql.NullBool          `db:"number_in_title" json:"numberInTitle"`
+	PreventPublicIndexing bool                  `db:"prevent_public_indexing" json:"preventPublicIndexing"`
+	PublishDateInTitle    bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
+	AvailableFrom         time.Time             `db:"available_from" json:"availableFrom"`
+	AvailableTo           time.Time             `db:"available_to" json:"availableTo"`
+	AssetID               null_v4.Int           `db:"asset_id" json:"assetId"`
+	Assets                pqtype.NullRawMessage `db:"assets" json:"assets"`
+	PublishedAt           null_v4.Time          `db:"published_at" json:"publishedAt"`
+	ProductionDate        null_v4.Time          `db:"production_date" json:"productionDate"`
+	Images                pqtype.NullRawMessage `db:"images" json:"images"`
+	OriginalTitle         null_v4.String        `db:"original_title" json:"originalTitle"`
+	OriginalDescription   null_v4.String        `db:"original_description" json:"originalDescription"`
+	Title                 pqtype.NullRawMessage `db:"title" json:"title"`
+	Description           pqtype.NullRawMessage `db:"description" json:"description"`
+	ExtraDescription      pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
+	TagIds                []int32               `db:"tag_ids" json:"tagIds"`
+	Duration              null_v4.Int           `db:"duration" json:"duration"`
+	AssetDateUpdated      null_v4.Time          `db:"asset_date_updated" json:"assetDateUpdated"`
+	Agerating             string                `db:"agerating" json:"agerating"`
+	Audience              null_v4.String        `db:"audience" json:"audience"`
+	ContentType           null_v4.String        `db:"content_type" json:"contentType"`
+	TimedmetadataIds      []uuid.UUID           `db:"timedmetadata_ids" json:"timedmetadataIds"`
 }
 
 func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
@@ -669,24 +632,27 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.Uuid,
+			&i.MediaitemID,
 			&i.Status,
 			&i.LegacyID,
 			&i.LegacyProgramID,
-			&i.AssetID,
-			&i.Assets,
-			&i.EpisodeNumber,
-			&i.PublishDate,
-			&i.ProductionDate,
-			&i.PublicTitle,
-			&i.NumberInTitle,
-			&i.PreventPublicIndexing,
-			&i.AvailableFrom,
-			&i.AvailableTo,
-			&i.PublishDateInTitle,
 			&i.ImageFileName,
 			&i.SeasonID,
 			&i.Type,
+			&i.EpisodeNumber,
+			&i.PublicTitle,
+			&i.NumberInTitle,
+			&i.PreventPublicIndexing,
+			&i.PublishDateInTitle,
+			&i.AvailableFrom,
+			&i.AvailableTo,
+			&i.AssetID,
+			&i.Assets,
+			&i.PublishedAt,
+			&i.ProductionDate,
 			&i.Images,
+			&i.OriginalTitle,
+			&i.OriginalDescription,
 			&i.Title,
 			&i.Description,
 			&i.ExtraDescription,
@@ -696,7 +662,6 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 			&i.Agerating,
 			&i.Audience,
 			&i.ContentType,
-			&i.TimedmetadataFromAsset,
 			pq.Array(&i.TimedmetadataIds),
 		); err != nil {
 			return nil, err

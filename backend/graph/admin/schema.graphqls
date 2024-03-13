@@ -47,10 +47,15 @@ type Episodes {
     importTimedMetadata(episodeId: ID!): Boolean! @goField(forceResolver: true)
 }
 
+type MediaItems {
+    importTimedMetadata(mediaItemId: ID!): Boolean! @goField(forceResolver: true)
+}
+
 type QueryRoot {
     preview: Preview!
     statistics: Statistics!
     episodes: Episodes!
+    mediaItems: MediaItems!
 }
 
 schema{

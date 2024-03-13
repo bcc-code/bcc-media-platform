@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/samber/lo"
@@ -15,8 +16,8 @@ func (q *Queries) mapToSeasons(seasons []getSeasonsRow) []common.Season {
 		var title common.LocaleString
 		var description common.LocaleString
 
-		_ = json.Unmarshal(e.Title, &title)
-		_ = json.Unmarshal(e.Description, &description)
+		_ = json.Unmarshal(e.Title.RawMessage, &title)
+		_ = json.Unmarshal(e.Description.RawMessage, &description)
 
 		var image null.String
 		if e.ImageFileName.Valid {

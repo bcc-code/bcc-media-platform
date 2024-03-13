@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/lib/pq"
+	"github.com/sqlc-dev/pqtype"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
@@ -228,7 +229,7 @@ SELECT s.id,
        ts.title,
        ts.description
 FROM seasons s
-         JOIN ts ON s.id = ts.seasons_id
+         LEFT JOIN ts ON s.id = ts.seasons_id
          LEFT JOIN tags ON tags.seasons_id = s.id
          LEFT JOIN images img ON img.season_id = s.id
          JOIN shows sh ON s.show_id = sh.id
@@ -237,18 +238,18 @@ WHERE s.id = ANY ($1::int[])
 `
 
 type getSeasonsRow struct {
-	ID            int32           `db:"id" json:"id"`
-	LegacyID      null_v4.Int     `db:"legacy_id" json:"legacyId"`
-	Status        string          `db:"status" json:"status"`
-	SeasonNumber  int32           `db:"season_number" json:"seasonNumber"`
-	ImageFileName null_v4.String  `db:"image_file_name" json:"imageFileName"`
-	ShowID        int32           `db:"show_id" json:"showId"`
-	PublicTitle   null_v4.String  `db:"public_title" json:"publicTitle"`
-	Agerating     string          `db:"agerating" json:"agerating"`
-	TagIds        []int32         `db:"tag_ids" json:"tagIds"`
-	Images        json.RawMessage `db:"images" json:"images"`
-	Title         json.RawMessage `db:"title" json:"title"`
-	Description   json.RawMessage `db:"description" json:"description"`
+	ID            int32                 `db:"id" json:"id"`
+	LegacyID      null_v4.Int           `db:"legacy_id" json:"legacyId"`
+	Status        string                `db:"status" json:"status"`
+	SeasonNumber  int32                 `db:"season_number" json:"seasonNumber"`
+	ImageFileName null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	ShowID        int32                 `db:"show_id" json:"showId"`
+	PublicTitle   null_v4.String        `db:"public_title" json:"publicTitle"`
+	Agerating     string                `db:"agerating" json:"agerating"`
+	TagIds        []int32               `db:"tag_ids" json:"tagIds"`
+	Images        json.RawMessage       `db:"images" json:"images"`
+	Title         pqtype.NullRawMessage `db:"title" json:"title"`
+	Description   pqtype.NullRawMessage `db:"description" json:"description"`
 }
 
 func (q *Queries) getSeasons(ctx context.Context, dollar_1 []int32) ([]getSeasonsRow, error) {
@@ -317,7 +318,7 @@ SELECT s.id,
        ts.title,
        ts.description
 FROM seasons s
-         JOIN ts ON s.id = ts.seasons_id
+         LEFT JOIN ts ON s.id = ts.seasons_id
          LEFT JOIN tags ON tags.seasons_id = s.id
          LEFT JOIN images img ON img.season_id = s.id
          JOIN shows sh ON s.show_id = sh.id
@@ -325,18 +326,18 @@ FROM seasons s
 `
 
 type listSeasonsRow struct {
-	ID            int32           `db:"id" json:"id"`
-	LegacyID      null_v4.Int     `db:"legacy_id" json:"legacyId"`
-	Status        string          `db:"status" json:"status"`
-	SeasonNumber  int32           `db:"season_number" json:"seasonNumber"`
-	ImageFileName null_v4.String  `db:"image_file_name" json:"imageFileName"`
-	ShowID        int32           `db:"show_id" json:"showId"`
-	PublicTitle   null_v4.String  `db:"public_title" json:"publicTitle"`
-	Agerating     string          `db:"agerating" json:"agerating"`
-	TagIds        []int32         `db:"tag_ids" json:"tagIds"`
-	Images        json.RawMessage `db:"images" json:"images"`
-	Title         json.RawMessage `db:"title" json:"title"`
-	Description   json.RawMessage `db:"description" json:"description"`
+	ID            int32                 `db:"id" json:"id"`
+	LegacyID      null_v4.Int           `db:"legacy_id" json:"legacyId"`
+	Status        string                `db:"status" json:"status"`
+	SeasonNumber  int32                 `db:"season_number" json:"seasonNumber"`
+	ImageFileName null_v4.String        `db:"image_file_name" json:"imageFileName"`
+	ShowID        int32                 `db:"show_id" json:"showId"`
+	PublicTitle   null_v4.String        `db:"public_title" json:"publicTitle"`
+	Agerating     string                `db:"agerating" json:"agerating"`
+	TagIds        []int32               `db:"tag_ids" json:"tagIds"`
+	Images        json.RawMessage       `db:"images" json:"images"`
+	Title         pqtype.NullRawMessage `db:"title" json:"title"`
+	Description   pqtype.NullRawMessage `db:"description" json:"description"`
 }
 
 func (q *Queries) listSeasons(ctx context.Context) ([]listSeasonsRow, error) {

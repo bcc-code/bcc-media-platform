@@ -17,7 +17,8 @@ const importFromAsset = async () => {
     loading.value = true
     imported.value = (
         await api.post("/tools/timedmetadata/import", {
-            episodeId: props.primaryKey,
+            collection: props.collection,
+            itemId: props.primaryKey,
         })
     ).data
     setTimeout(() => {

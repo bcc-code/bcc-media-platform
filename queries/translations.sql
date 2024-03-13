@@ -572,3 +572,32 @@ INSERT INTO playlists_translations (playlists_id, languages_code, title, descrip
 VALUES (@item_id, @language, @title, @description)
 ON CONFLICT (playlists_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
                                                          description = EXCLUDED.description;
+
+
+-- name: ListMediaItemOriginalTranslations :many
+SELECT items.id, json_build_object('title', items.title, 'description', items.description) as values
+FROM mediaitems items
+WHERE items.translations_required;
+
+-- name: ListMediaItemTranslations :many
+WITH items AS (SELECT i.id
+               FROM mediaitems i
+               WHERE i.translations_required)
+SELECT ts.id,
+       mediaitems_id                                                       as parent_id,
+       languages_code                                                      as language,
+       json_build_object('title', ts.title, 'description', ts.description) as values
+FROM mediaitems_translations ts
+         JOIN items i ON i.id = ts.mediaitems_id
+WHERE ts.languages_code = @language::varchar;
+
+-- name: ClearMediaItemTranslations :exec
+DELETE
+FROM mediaitems_translations ts
+WHERE ts.mediaitems_id = ANY ($1::uuid[]);
+
+-- name: UpdateMediaItemTranslation :exec
+INSERT INTO mediaitems_translations (mediaitems_id, languages_code, title, description)
+VALUES (@item_id, @language, @title, @description)
+ON CONFLICT (mediaitems_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
+                                                          description = EXCLUDED.description;
