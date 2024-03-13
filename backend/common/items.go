@@ -140,7 +140,6 @@ type Episode struct {
 	Assets       LocaleMap[int] `json:"assets"`
 	AssetVersion string         `json:"assetVersion"`
 
-	Image            null.String `json:"image"`
 	Images           Images      `json:"images"`
 	TagIDs           []int       `json:"tagIds"`
 	TimedMetadataIDs []uuid.UUID `json:"timedMetadataIds"`

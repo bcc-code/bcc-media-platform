@@ -3,7 +3,6 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -11,7 +10,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/samber/lo"
-	"gopkg.in/guregu/null.v4"
 )
 
 func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
@@ -29,11 +27,6 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 
 		var assetIDs common.LocaleMap[int]
 		_ = json.Unmarshal(e.Assets.RawMessage, &assetIDs)
-
-		var image null.String
-		if e.ImageFileName.Valid {
-			image = null.StringFrom(fmt.Sprintf("https://%s/%s", q.getImageCDNDomain(), e.ImageFileName.String))
-		}
 
 		assetVersion := ""
 		if e.AssetDateUpdated.Valid {
@@ -63,7 +56,6 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			AssetID:               e.AssetID,
 			Assets:                assetIDs,
 			AssetVersion:          assetVersion,
-			Image:                 image,
 			Images:                q.getImages(e.Images.RawMessage),
 			AgeRating:             e.Agerating,
 			Duration:              int(e.Duration.ValueOrZero()),

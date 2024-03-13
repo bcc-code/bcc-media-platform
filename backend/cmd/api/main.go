@@ -49,7 +49,6 @@ import (
 
 const filteredLoadersCtxKey = "filtered-loaders"
 const profileLoadersCtxKey = "profile-loaders"
-const applicationLoadersCtxKey = "application-loaders"
 
 func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *loaders.Loader[int, *common.Collection]) func(ctx context.Context) *common.FilteredLoaders {
 	return func(ctx context.Context) *common.FilteredLoaders {
