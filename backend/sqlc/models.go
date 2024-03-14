@@ -648,7 +648,7 @@ type Episode struct {
 	LegacyTagsID             null_v4.Int           `db:"legacy_tags_id" json:"legacyTagsId"`
 	LegacyTitleID            null_v4.Int           `db:"legacy_title_id" json:"legacyTitleId"`
 	MigrationData            pqtype.NullRawMessage `db:"migration_data" json:"migrationData"`
-	PublishDate              time.Time             `db:"publish_date" json:"publishDate"`
+	PublishDate              null_v4.Time          `db:"publish_date" json:"publishDate"`
 	SeasonID                 null_v4.Int           `db:"season_id" json:"seasonId"`
 	Status                   string                `db:"status" json:"status"`
 	Type                     string                `db:"type" json:"type"`
@@ -656,7 +656,7 @@ type Episode struct {
 	UserUpdated              uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 	PublishDateInTitle       sql.NullBool          `db:"publish_date_in_title" json:"publishDateInTitle"`
 	Label                    null_v4.String        `db:"label" json:"label"`
-	ProductionDate           time.Time             `db:"production_date" json:"productionDate"`
+	ProductionDate           null_v4.Time          `db:"production_date" json:"productionDate"`
 	PublicTitle              null_v4.String        `db:"public_title" json:"publicTitle"`
 	PreventPublicIndexing    sql.NullBool          `db:"prevent_public_indexing" json:"preventPublicIndexing"`
 	Uuid                     uuid.UUID             `db:"uuid" json:"uuid"`
