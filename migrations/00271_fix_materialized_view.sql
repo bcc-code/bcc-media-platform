@@ -154,7 +154,7 @@ CREATE UNIQUE INDEX filter_dataset_uuid ON public.filter_dataset USING btree (uu
 
 CREATE ROLE refresh_materialized_views;
 GRANT SELECT, INSERT, UPDATE, DELETE ON filter_dataset TO refresh_materialized_views;
-GRANT refresh_materialized_views TO background_worker;
+GRANT refresh_materialized_views TO builder, background_worker;
 ALTER TABLE filter_dataset
     OWNER TO refresh_materialized_views;
 
@@ -328,5 +328,7 @@ GRANT TRIGGER ON TABLE "public"."filter_dataset" TO bccm; --WARN: Grant\Revoke p
 GRANT SELECT ON TABLE "public"."filter_dataset" TO api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON MATERIALIZED VIEW "public"."filter_dataset" IS NULL;
+
+DROP ROLE refresh_materialized_views;
 
 --- END ALTER MATERIALIZED VIEW "public"."filter_dataset" ---
