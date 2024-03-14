@@ -43,7 +43,8 @@ func (q *Queries) DeletePath(ctx context.Context, path null_v4.String) error {
 const insertAsset = `-- name: InsertAsset :one
 INSERT INTO assets (duration, encoding_version, legacy_id, main_storage_path,
                     mediabanken_id, name, status, aws_arn, source, date_updated, date_created)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(),
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8,
+        $9, NOW(),
         NOW())
 RETURNING id
 `
@@ -363,7 +364,8 @@ func (q *Queries) getFilesForAssets(ctx context.Context, dollar_1 []int32) ([]ge
 const getFilesForEpisodes = `-- name: getFilesForEpisodes :many
 SELECT e.id AS episodes_id, f.asset_id, f.audio_language_id, f.date_created, f.date_updated, f.extra_metadata, f.id, f.mime_type, f.path, f.storage, f.subtitle_language_id, f.type, f.user_created, f.user_updated, f.resolution, f.size
 FROM episodes e
-         JOIN assets a ON e.asset_id = a.id
+         JOIN mediaitems mi ON mi.id = e.mediaitem_id
+         JOIN assets a ON mi.asset_id = a.id
          JOIN assetfiles f ON a.id = f.asset_id
 WHERE e.id = ANY ($1::int[])
 `
@@ -517,14 +519,16 @@ func (q *Queries) getStreamsForAssets(ctx context.Context, dollar_1 []int32) ([]
 const getStreamsForEpisodes = `-- name: getStreamsForEpisodes :many
 WITH audiolang AS (SELECT s.id, array_agg(al.languages_code) langs
                    FROM episodes e
-                            JOIN assets a ON e.asset_id = a.id
+                            JOIN mediaitems mi ON mi.id = e.mediaitem_id
+                            JOIN assets a ON mi.asset_id = a.id
                             LEFT JOIN assetstreams s ON a.id = s.asset_id
                             LEFT JOIN assetstreams_audio_languages al ON al.assetstreams_id = s.id
                    WHERE al.languages_code IS NOT NULL
                    GROUP BY s.id),
      sublang AS (SELECT s.id, array_agg(al.languages_code) langs
                  FROM episodes e
-                          JOIN assets a ON e.asset_id = a.id
+                          JOIN mediaitems mi ON mi.id = e.mediaitem_id
+                          JOIN assets a ON mi.asset_id = a.id
                           LEFT JOIN assetstreams s ON a.id = s.asset_id
                           LEFT JOIN assetstreams_subtitle_languages al ON al.assetstreams_id = s.id
                  WHERE al.languages_code IS NOT NULL
@@ -534,7 +538,8 @@ SELECT e.id AS                          episodes_id,
        COALESCE(al.langs, '{}')::text[] audio_languages,
        COALESCE(sl.langs, '{}')::text[] subtitle_languages
 FROM episodes e
-         JOIN assets a ON e.asset_id = a.id
+         JOIN mediaitems mi ON mi.id = e.mediaitem_id
+         JOIN assets a ON mi.asset_id = a.id
          JOIN assetstreams s ON a.id = s.asset_id
          LEFT JOIN audiolang al ON al.id = s.id
          LEFT JOIN sublang sl ON sl.id = s.id
