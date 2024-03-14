@@ -45,7 +45,7 @@ SELECT 'episodes'::text                                                         
                 ''::character varying)                                                                       AS agerating_code,
        e.episode_number                                                                                      AS number,
        e.type,
-       mi.published_at,
+       mi.published_at                                                                                       as publish_date,
        av.published,
        av.available_from,
        av.available_to,
@@ -68,7 +68,7 @@ SELECT 'seasons'::text                                                          
        COALESCE(se.agerating_code, ''::character varying)                            AS agerating_code,
        se.season_number                                                              AS number,
        ''::character varying                                                         AS type,
-       se.publish_date                                                               AS published_at,
+       se.publish_date                                                               AS publish_date,
        av.published,
        av.available_from,
        av.available_to,
@@ -88,7 +88,7 @@ SELECT 'shows'::text                                      AS collection,
        COALESCE(sh.agerating_code, ''::character varying) AS agerating_code,
        0                                                  AS number,
        sh.type,
-       sh.publish_date                                    AS published_at,
+       sh.publish_date                                    AS publish_date,
        av.published,
        av.available_from,
        av.available_to,
@@ -107,7 +107,7 @@ SELECT 'games'::text                                      AS collection,
        ''::character varying                              AS agerating_code,
        0                                                  AS number,
        ''::character varying                              AS type,
-       '1800-01-01 00:00:00'::timestamp without time zone AS published_at,
+       '1800-01-01 00:00:00'::timestamp without time zone AS publish_date,
        ((g.status)::text = 'published'::text)             AS published,
        '1800-01-01 00:00:00'::timestamp without time zone AS available_from,
        '3000-01-01 00:00:00'::timestamp without time zone AS available_to,
@@ -124,7 +124,7 @@ SELECT 'playlists'::text                                  AS collection,
        ''::character varying                              AS agerating_code,
        0                                                  AS number,
        ''::character varying                              AS type,
-       '1800-01-01 00:00:00'::timestamp without time zone AS published_at,
+       '1800-01-01 00:00:00'::timestamp without time zone AS publish_date,
        ((p.status)::text = 'published'::text)             AS published,
        '1800-01-01 00:00:00'::timestamp without time zone AS available_from,
        '3000-01-01 00:00:00'::timestamp without time zone AS available_to,
@@ -141,7 +141,7 @@ SELECT 'shorts'::text                                     AS collection,
        ''::character varying                              AS agerating_code,
        0                                                  AS number,
        ''::character varying                              AS type,
-       '1800-01-01 00:00:00'::timestamp without time zone AS published_at,
+       '1800-01-01 00:00:00'::timestamp without time zone AS publish_date,
        ((s.status)::text = 'published'::text)             AS published,
        '1800-01-01 00:00:00'::timestamp without time zone AS available_from,
        '3000-01-01 00:00:00'::timestamp without time zone AS available_to,
@@ -149,14 +149,6 @@ SELECT 'shorts'::text                                     AS collection,
        '{}'::character varying[]                          AS tags
 FROM (shorts s
     LEFT JOIN s_roles r ON ((r.shorts_id = s.id)));
-
-CREATE UNIQUE INDEX filter_dataset_uuid ON public.filter_dataset USING btree (uuid);
-
-CREATE ROLE refresh_materialized_views;
-GRANT SELECT, INSERT, UPDATE, DELETE ON filter_dataset TO refresh_materialized_views;
-GRANT refresh_materialized_views TO builder, background_worker;
-ALTER TABLE filter_dataset
-    OWNER TO refresh_materialized_views;
 
 GRANT SELECT ON TABLE "public"."filter_dataset" TO api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
