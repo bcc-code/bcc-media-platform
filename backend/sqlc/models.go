@@ -806,7 +806,7 @@ type FilterDataset struct {
 	AgeratingCode null_v4.String `db:"agerating_code" json:"ageratingCode"`
 	Number        null_v4.Int    `db:"number" json:"number"`
 	Type          string         `db:"type" json:"type"`
-	PublishDate   time.Time      `db:"publish_date" json:"publishDate"`
+	PublishDate   null_v4.Time   `db:"publish_date" json:"publishDate"`
 	Published     sql.NullBool   `db:"published" json:"published"`
 	AvailableFrom interface{}    `db:"available_from" json:"availableFrom"`
 	AvailableTo   interface{}    `db:"available_to" json:"availableTo"`
