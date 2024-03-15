@@ -9,6 +9,7 @@ alter materialized view public.filter_dataset owner to background_worker;
 grant all on sequence events_translations_id_seq to background_worker;
 grant all on sequence mediaitems_translations_id_seq to background_worker;
 GRANT ALL ON SEQUENCE calendarentries_translations_id_seq TO background_worker;
+GRANT SELECT ON games_usergroups TO background_worker;
 
 -- +goose Down
 /***********************************************************/
