@@ -262,8 +262,6 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				}
 			}
 
-			u.Roles = roles
-
 			ageGroupMin := 0
 			for minAge, group := range user.AgeGroups {
 				// Note: Maps are not iterated in a sorted order, so we have to find the lowest applicable range
@@ -272,6 +270,11 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 					ageGroupMin = minAge
 				}
 			}
+			if u.AgeGroup != "" && u.IsActiveBCC() {
+				roles = append(roles, "age-group:"+strings.Replace(u.AgeGroup, " ", "", -1))
+			}
+
+			u.Roles = roles
 
 			err := saveUser()
 
