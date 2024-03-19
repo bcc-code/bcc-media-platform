@@ -147,7 +147,7 @@
     "footer": {
         "cookies": "Cookies",
         "privacyPolicy": "Politique de confidentialité",
-        "information": "BCC Media est une fondation médiatique de la [BCC federation](https://bcc.no) qui produit et distribue des contenus aux valeurs positives et chrétiennes.\n\nBCC Media est un radiodiffuseur enregistré et adhère aux règlements établis dans la loi norvégienne sur la radiodiffusion. L'organe de surveillance de cette loi est [the Norwegian Media Authority](https://medietilsynet.no/).",
+        "information": "",
         "headOffice": "Siège social",
         "contactUs": "Nous contacter",
         "downloadApp": "Télécharge notre application",
@@ -161,13 +161,19 @@
         "copied": "Copié dans le presse-papiers",
         "membersOnly": "Cette vidéo est uniquement accessible aux utilisateurs qui sont connectés."
     },
+    "quotes": {
+        "quoteOfTheDay": "",
+        "markAsRead": "",
+        "markAsUnread": ""
+    },
     "feedback": {
         "appreciated": "Nous apprécions tes commentaires.",
         "comment": "Ajouter un commentaire sur ton expérience",
         "episodeTitle": "Comment évalues-tu cet épisode ?",
         "howEasyToUnderstand": "La vidéo était-elle facile à comprendre ?",
         "anonymousInfo": "Ta note sera soumise de manière anonyme",
-        "placeholder": "Merci d'être le plus précis possible pour nous aider à comprendre."
+        "placeholder": "Merci d'être le plus précis possible pour nous aider à comprendre.",
+        "giveFeedback": ""
     },
     "contactLocalBukIfWrong": "Contacte la personne responsable de ton association locale BUK si tu penses qu'il s'agit d'une erreur.",
     "thankYou": "Merci beaucoup !",
@@ -201,5 +207,9 @@
     },
     "shorts": {
         "watchOnOurApp": "Téléchargez l'application mobile pour regarder les courts métrages."
+    },
+    "subscriptions": {
+        "subscribe": "",
+        "unsubscribe": ""
     }
 }

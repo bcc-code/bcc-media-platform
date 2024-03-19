@@ -80,8 +80,8 @@
     },
     "live": {
         "now": "Teraz",
-        "title": "",
-        "description": ""
+        "title": "Nowa aplikacja do transmisji na żywo",
+        "description": "Przepraszamy! Nie możesz już oglądać transmisji na żywo na tej stronie. Kliknij link, aby przejść do nowego rozwiązania!"
     },
     "calendar": {
         "noScheduledEvents": "Brak zaplanowanych wydarzeń",
@@ -147,19 +147,24 @@
     "footer": {
         "cookies": "Ciasteczka",
         "privacyPolicy": "Polityka prywatności",
-        "information": "BCC Media to fundacja medialna w federacji BCC, która zajmuje się produkcją i dystrybucją treści o charakterze pozytywnym i chrześcijańskim.\n\nBCC Media jest zarejestrowanym kanałem telewizyjnym i stosuje się do regulacji zawartych w Norweskim Akcie Telewizyjnym. Organem nadzorującym ten Akt jest [the Norwegian Media Authority] (https://medietilsynet.no/).",
+        "information": "",
         "headOffice": "Siedziba",
         "contactUs": "Kontakt",
         "downloadApp": "Pobierz naszą aplikację",
         "termsOfUse": "Warunki użytkowania"
     },
     "terms": {
-        "byDownloadingYouAcceptTerms": ""
+        "byDownloadingYouAcceptTerms": "Pobierając ten film, akceptujesz nasze [warunki użytkowania](https://bcc.media/terms-of-use) i [politykę prywatności](https://bcc.media/privacy)."
     },
     "share": {
         "title": "Udostępnij",
         "copied": "Skopiowano do schowka",
         "membersOnly": "To wideo jest dostępne wyłącznie dla zalogowanych użytkowników."
+    },
+    "quotes": {
+        "quoteOfTheDay": "",
+        "markAsRead": "",
+        "markAsUnread": ""
     },
     "feedback": {
         "appreciated": "Doceniamy twój feedback.",
@@ -167,7 +172,8 @@
         "episodeTitle": "Jak oceniłbyś ten odcinek?",
         "howEasyToUnderstand": "Jak łatwo było zrozumieć ten film?",
         "anonymousInfo": "Twoja ocena zostanie zapisana anonimowo",
-        "placeholder": "Prosimy o szczegółowy opis, który będzie łatwiejszy do zrozumienia."
+        "placeholder": "Prosimy o szczegółowy opis, który będzie łatwiejszy do zrozumienia.",
+        "giveFeedback": ""
     },
     "contactLocalBukIfWrong": "Skontaktuj się z osobą odpowiedzialną za twoją grupę BUK, jeśli uważasz, że powinno być inaczej.",
     "thankYou": "Dziękujemy!",
@@ -200,6 +206,10 @@
         "receitDescription": "Nasz zespół skontaktuje się z Tobą w ciągu 7 dni roboczych. Na Twój adres e-mail została wysłana automatyczna odpowiedź."
     },
     "shorts": {
-        "watchOnOurApp": ""
+        "watchOnOurApp": "Pobierz aplikację mobilną, aby oglądać shortsy."
+    },
+    "subscriptions": {
+        "subscribe": "",
+        "unsubscribe": ""
     }
 }

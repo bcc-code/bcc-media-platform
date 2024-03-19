@@ -81,7 +81,7 @@
     "live": {
         "now": "Ahora",
         "title": "Nueva aplicación de transmisión en vivo",
-        "description": ""
+        "description": "¡Lo lamentamos! Ya no puedes ver transmisiones en vivo en este sitio web. ¡Haga clic en el enlace para ir a la nueva solución!"
     },
     "calendar": {
         "noScheduledEvents": "Sin eventos programados",
@@ -147,19 +147,24 @@
     "footer": {
         "cookies": "Cookies",
         "privacyPolicy": "Políticas de privacidad",
-        "information": "BCC Media es una fundación de medios en la [Federación BCC](https://bcc.no) que produce y distribuye contenidos con valores positivos y cristianos.",
+        "information": "",
         "headOffice": "Oficina central",
         "contactUs": "Contactenos",
         "downloadApp": "Descarga nuestra aplicación",
         "termsOfUse": "Condiciones de uso"
     },
     "terms": {
-        "byDownloadingYouAcceptTerms": ""
+        "byDownloadingYouAcceptTerms": "Al descargar este video, acepta nuestros [términos de uso](https://bcc.media/terms-of-use/) y nuestra [política de privacidad](https://bcc.media/privacy)."
     },
     "share": {
         "title": "Compartir",
         "copied": "Copiada al portapapeles",
         "membersOnly": "Este video solo es accesible para los usuarios que han iniciado sesión."
+    },
+    "quotes": {
+        "quoteOfTheDay": "",
+        "markAsRead": "",
+        "markAsUnread": ""
     },
     "feedback": {
         "appreciated": "Agradecemos sus comentarios.",
@@ -167,7 +172,8 @@
         "episodeTitle": "¿Cómo calificarías este episodio?",
         "howEasyToUnderstand": "¿Qué tan fácil fue entender el video?",
         "anonymousInfo": "Su calificación se enviará de forma anónima",
-        "placeholder": "Sea lo más detallado posible para ayudarnos a comprender."
+        "placeholder": "Sea lo más detallado posible para ayudarnos a comprender.",
+        "giveFeedback": ""
     },
     "contactLocalBukIfWrong": "Póngase en contacto con la persona responsable en su asociación BUK local si cree que esto está mal.",
     "thankYou": "¡Gracias!",
@@ -200,6 +206,10 @@
         "receitDescription": "Nuestro equipo se pondrá en contacto con usted en un plazo de 7 días laborables. Se ha enviado una respuesta automática a su correo electrónico."
     },
     "shorts": {
-        "watchOnOurApp": ""
+        "watchOnOurApp": "Descarga la aplicación móvil para ver cortos."
+    },
+    "subscriptions": {
+        "subscribe": "",
+        "unsubscribe": ""
     }
 }

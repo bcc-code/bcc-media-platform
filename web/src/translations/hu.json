@@ -81,7 +81,7 @@
     "live": {
         "now": "Most",
         "title": "Új élő közvetítés alkalmazás",
-        "description": ""
+        "description": "Sajnáljuk! Ezen a weboldalon már nem nézhet élő közvetítést. Kattintson a linkre az új megoldás eléréséhez!"
     },
     "calendar": {
         "noScheduledEvents": "Nincs tervezett esemény",
@@ -147,19 +147,24 @@
     "footer": {
         "cookies": "Sütik",
         "privacyPolicy": "Adatvédelmi szabályzat",
-        "information": "A BCC Media a [BCC Szövetség] (https://bcc.no) médiaalapítványa, amely pozitív és keresztény értékeket tartalmazó tartalmakat gyárt és terjeszt.\n\nA BCC Media bejegyzett műsorszolgáltató, és betartja a norvég műsorszolgáltatási törvényben meghatározott szabályokat. A törvényt felügyelő szerv a [Norvég Médiahatóság](https://medietilsynet.no/).",
+        "information": "",
         "headOffice": "Székhely",
         "contactUs": "Kapcsolat",
         "downloadApp": "Alkalmazásunk letöltése",
         "termsOfUse": "Használati feltételek"
     },
     "terms": {
-        "byDownloadingYouAcceptTerms": ""
+        "byDownloadingYouAcceptTerms": "A videó letöltésével elfogadod a [felhasználási feltételeinket](https://bcc.media/terms-of-use) és [adatvédelmi irányelveinket](https://bcc.media/privacy)."
     },
     "share": {
         "title": "Megosztás",
         "copied": "Vágólapra másolva",
         "membersOnly": "Ez a videó csak bejelentkezett felhasználók számára érhető el."
+    },
+    "quotes": {
+        "quoteOfTheDay": "",
+        "markAsRead": "",
+        "markAsUnread": ""
     },
     "feedback": {
         "appreciated": "Nagyra értékeljük visszajelzésedet.",
@@ -167,7 +172,8 @@
         "episodeTitle": "Hogyan értékelnéd ezt az epizódot?",
         "howEasyToUnderstand": "Mennyire volt könnyű megérteni a videót?",
         "anonymousInfo": "Az értékelésed névtelenül kerül beküldésre",
-        "placeholder": "Legyél a lehető legrészletesebb, hogy segíts nekünk megérteni."
+        "placeholder": "Legyél a lehető legrészletesebb, hogy segíts nekünk megérteni.",
+        "giveFeedback": ""
     },
     "contactLocalBukIfWrong": "Ha úgy gondolod, hogy ez nem helyes, vedd fel a kapcsolatot a helyi BUK-felelőssel.",
     "thankYou": "Köszönjük!",
@@ -200,6 +206,10 @@
         "receitDescription": "Csapatunk 7 munkanapon belül felveszi veled a kapcsolatot. Automatikus választ küldtünk az e-mail címedre."
     },
     "shorts": {
-        "watchOnOurApp": ""
+        "watchOnOurApp": "A shortok megtekintéséhez töltse le a mobilalkalmazást."
+    },
+    "subscriptions": {
+        "subscribe": "",
+        "unsubscribe": ""
     }
 }

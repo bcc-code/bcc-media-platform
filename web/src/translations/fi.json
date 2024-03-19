@@ -81,7 +81,7 @@
     "live": {
         "now": "Nyt",
         "title": "Uusi suoratoistosovellus",
-        "description": ""
+        "description": "Tällä sivulla ei voi enää seurata lähetyksiä. Alla olevasta linkistä pääset uuteen verkkosovellukseen."
     },
     "calendar": {
         "noScheduledEvents": "Ei suunniteltuja tapahtumia",
@@ -147,19 +147,24 @@
     "footer": {
         "cookies": "Evästeet",
         "privacyPolicy": "Tietosuojakäytäntö",
-        "information": "BCC Media on [BCC Liiton](https://bcc.no) mediaosasto, joka tuottaa ja toimittaa positiivista Kristillisten arvojen mukaista sisältöä.\n\nBCC Media on rekisteröity juokkoviestinnän tarjoaja ja noudattaa Norjan lakia joukkoviestinnästä. Joukkoviestintää Norjassa sääntelee [Medietilsynet](https://medietilsynet.no/).",
+        "information": "",
         "headOffice": "Pääkonttori",
         "contactUs": "Yhteydenotto",
         "downloadApp": "Lataa sovelluksemme",
         "termsOfUse": "Käyttöehdot"
     },
     "terms": {
-        "byDownloadingYouAcceptTerms": ""
+        "byDownloadingYouAcceptTerms": "Lataamalla tämän videon hyväksyt [käyttöehtomme](https://bcc.media/terms-of-use) ja [tietosuojakäytäntömme](https://bcc.media/privacy)."
     },
     "share": {
         "title": "Jaa",
         "copied": "Kopioitu leikepöydälle",
         "membersOnly": "Tämä video näkyy vain sisäänkirjautuneille."
+    },
+    "quotes": {
+        "quoteOfTheDay": "",
+        "markAsRead": "",
+        "markAsUnread": ""
     },
     "feedback": {
         "appreciated": "Kiitos palautteesta.",
@@ -167,7 +172,8 @@
         "episodeTitle": "Minkä arvosanan annat tälle jaksolle?",
         "howEasyToUnderstand": "Kuinka helppoa oli ymmärtää videon sisältö?",
         "anonymousInfo": "Arvostelusi tallentuu nimettömänä",
-        "placeholder": "Jotta voisimme mahdollisimman hyvin ymmärtää, pyydämme selittämään yksityiskohtaisesti."
+        "placeholder": "Jotta voisimme mahdollisimman hyvin ymmärtää, pyydämme selittämään yksityiskohtaisesti.",
+        "giveFeedback": ""
     },
     "contactLocalBukIfWrong": "Jos pidät tätä vääränä ota yhteyttä paikalliseen BUK-vastuuhenkilöön.",
     "thankYou": "Kiitoksia!",
@@ -200,6 +206,10 @@
         "receitDescription": "Otamme sinuun yhteyttä 7 päivän kuluessa. Sähköpostiisi tulee myös automaattinen vastaus."
     },
     "shorts": {
-        "watchOnOurApp": ""
+        "watchOnOurApp": "Lyhytvideoita katsellaksesi asenna kännykkäsovellus."
+    },
+    "subscriptions": {
+        "subscribe": "",
+        "unsubscribe": ""
     }
 }

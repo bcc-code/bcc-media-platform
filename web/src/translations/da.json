@@ -147,7 +147,7 @@
     "footer": {
         "cookies": "Cookies",
         "privacyPolicy": "Privacy Policy",
-        "information": "BCC Media er en mediefond i [BCC-forbundet](https://bcc.no), der producerer og distribuerer indhold med positive og kristne værdier.\n\nBCC Media er et registreret TV-selskab og overholder reglerne i den norske radio- og TV-lov. Tilsynsorganet for denne lov er [den norske medietilsyn](https://medietilsynet.no/).",
+        "information": "",
         "headOffice": "Hovedkontor",
         "contactUs": "Kontakt os",
         "downloadApp": "Download vores app",
@@ -161,13 +161,19 @@
         "copied": "Kopieret til udklipsholder",
         "membersOnly": "Denne video er kun tilgængelig for brugere, der er logget ind."
     },
+    "quotes": {
+        "quoteOfTheDay": "",
+        "markAsRead": "",
+        "markAsUnread": ""
+    },
     "feedback": {
         "appreciated": "Vi sætter pris på din feedback.",
         "comment": "Tilføj en kommentar til din oplevelse",
         "episodeTitle": "Hvordan vil du vurdere denne episode?",
         "howEasyToUnderstand": "Hvor let var det at forstå videoen?",
         "anonymousInfo": "Din vurdering vil blive indsendt anonymt",
-        "placeholder": "Vær så detaljeret som muligt for at hjælpe os med at forstå."
+        "placeholder": "Vær så detaljeret som muligt for at hjælpe os med at forstå.",
+        "giveFeedback": ""
     },
     "contactLocalBukIfWrong": "Kontakt ansvarlig person i din lokale BUK-forening hvis du tror dette er forkert.",
     "thankYou": "Mange tak!",
@@ -201,5 +207,9 @@
     },
     "shorts": {
         "watchOnOurApp": "Download mobilappen for at se shorts."
+    },
+    "subscriptions": {
+        "subscribe": "",
+        "unsubscribe": ""
     }
 }

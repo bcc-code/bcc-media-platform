@@ -147,7 +147,7 @@
     "footer": {
         "cookies": "Cookies",
         "privacyPolicy": "Informativa sulla privacy",
-        "information": "BCC Media è una fondazione mediatica della [federazione BCC](https://bcc.no) che produce e distribuisce contenuti con valori positivi e cristiani.\n\nBCC Media è un'emittente registrata e aderisce alle norme stabilite dal Norwegian Broadcasting Act. L'organo di controllo per questa legge è [l'autorità norvegese per i media](https://medietilsynet.no/).",
+        "information": "",
         "headOffice": "Capoufficio",
         "contactUs": "Contattaci",
         "downloadApp": "Scarica la nostra app",
@@ -161,13 +161,19 @@
         "copied": "Copiato negli appunti",
         "membersOnly": "Questo video è accessibile solo agli utenti che hanno effettuato l'accesso."
     },
+    "quotes": {
+        "quoteOfTheDay": "",
+        "markAsRead": "",
+        "markAsUnread": ""
+    },
     "feedback": {
         "appreciated": "Apprezziamo il tuo feedback.",
         "comment": "Aggiungi un commento alla tua esperienza",
         "episodeTitle": "Come giudichi questo episodio?",
         "howEasyToUnderstand": "Quanto è stato facile capire il video?",
         "anonymousInfo": "La tua valutazione sarà inviata in forma anonima",
-        "placeholder": "Sii il più dettagliato possibile per aiutarci a capire."
+        "placeholder": "Sii il più dettagliato possibile per aiutarci a capire.",
+        "giveFeedback": ""
     },
     "contactLocalBukIfWrong": "Contatta la persona responsabile nella tua associazione BUK locale se pensi che questo sia sbagliato.",
     "thankYou": "Grazie!",
@@ -201,5 +207,9 @@
     },
     "shorts": {
         "watchOnOurApp": ""
+    },
+    "subscriptions": {
+        "subscribe": "",
+        "unsubscribe": ""
     }
 }

@@ -147,7 +147,7 @@
     "footer": {
         "cookies": "Çerezler",
         "privacyPolicy": "Gizlilik Politikası",
-        "information": "BCC Media, [BCC federasyonunda](https://bcc.no) pozitif ve Hristiyan değerlere sahip içerik üreten ve dağıtan bir medya kuruluşudur.\n\nBCC Media tescilli bir yayıncıdır ve Norveç Yayıncılık Yasasında belirtilen düzenlemelere bağlıdır. Bu Yasanın denetim organı [Norveç Medya Kurumudur](https://medietilsynet.no/).",
+        "information": "",
         "headOffice": "Merkez ofis",
         "contactUs": "Bize Ulaşın",
         "downloadApp": "Uygulamamızı indirin",
@@ -161,13 +161,19 @@
         "copied": "Panoya kopyalandı",
         "membersOnly": "Bu videoya yalnızca oturum açmış kullanıcılar erişebilir."
     },
+    "quotes": {
+        "quoteOfTheDay": "",
+        "markAsRead": "",
+        "markAsUnread": ""
+    },
     "feedback": {
         "appreciated": "Geribildirim için teşekkürler.",
         "comment": "Deneyiminize bir yorum ekleyin",
         "episodeTitle": "Bu bölümü nasıl değerlendirirsiniz?",
         "howEasyToUnderstand": "",
         "anonymousInfo": "Derecelendirmeniz anonim olarak gönderilecek",
-        "placeholder": "Lütfen anlamamıza yardımcı olmak için mümkün olduğunca ayrıntılı olun."
+        "placeholder": "Lütfen anlamamıza yardımcı olmak için mümkün olduğunca ayrıntılı olun.",
+        "giveFeedback": ""
     },
     "contactLocalBukIfWrong": "",
     "thankYou": "Teşekkür ederim!",
@@ -201,5 +207,9 @@
     },
     "shorts": {
         "watchOnOurApp": ""
+    },
+    "subscriptions": {
+        "subscribe": "",
+        "unsubscribe": ""
     }
 }
