@@ -3,6 +3,7 @@ package utils
 import (
 	"context"
 	"database/sql"
+
 	"github.com/XSAM/otelsql"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/samber/lo"

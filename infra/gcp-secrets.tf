@@ -10,7 +10,7 @@ module "background_worker_secrets" {
       AWS_SECRET_ACCESS_KEY = {
         data = aws_iam_access_key.backgroundjobs.secret
         name = "AWS_SECRET_ACCESS_KEY"
-      }
+      },
       postgres_background_worker_password = {
         name = "PGPASSWORD"
         data = random_password.background_worker_db_password.result
@@ -31,6 +31,18 @@ module "builder_secrets" {
   secret_accessors = [
     "serviceAccount:${google_project_service_identity.cloudbuils_sa.email}",
   ]
+}
+
+module "staging_sync_secrets" {
+  source = "./gcp-secrets"
+  secrets = {
+    postgres_staging_sync_password = {
+      name = "PGPASSWORD"
+      data = random_password.staging_sync_db_password.result
+    },
+  }
+  project = google_project.brunstadtv.project_id
+  secret_accessors = []
 }
 
 module "directus_secrets" {

@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"os"
 	"os/exec"
-	"path"
+	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/bcc-media-platform/migrations"
@@ -27,27 +27,39 @@ func main() {
 
 	if proxyInstance := os.Getenv("DEST_AUTH_PROXY_CONFIG"); proxyInstance != "" {
 		cmd := exec.Command(proxyPath, "-instances", proxyInstance)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
 		if err := cmd.Start(); err != nil {
 			panic(err)
 		}
 		defer cmd.Process.Kill()
+		time.Sleep(time.Second * 5)
 	}
 	if proxyInstance := os.Getenv("SOURCE_AUTH_PROXY_CONFIG"); proxyInstance != "" {
 		cmd := exec.Command(proxyPath, "-instances", proxyInstance)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
 		if err := cmd.Start(); err != nil {
 			panic(err)
 		}
 		defer cmd.Process.Kill()
+		time.Sleep(time.Second * 5)
 	}
 
 	ctx := context.Background()
 
+	if pgPass := os.Getenv("DEST_PG_PASSWORD"); pgPass != "" {
+		_ = os.Setenv("PGPASSWORD", pgPass)
+	}
 	destConnectionString := os.Getenv("DEST_DB_CONNECTION_STRING")
 	destDb, err := connectToDb(ctx, utils.DatabaseConfig{
 		ConnectionString: destConnectionString,
 	})
 	if err != nil {
 		panic(err)
+	}
+	if pgPass := os.Getenv("SOURCE_PG_PASSWORD"); pgPass != "" {
+		_ = os.Setenv("PGPASSWORD", pgPass)
 	}
 	sourceConnectionString := os.Getenv("SOURCE_DB_CONNECTION_STRING")
 	sourceDb, err := connectToDb(ctx, utils.DatabaseConfig{
@@ -63,36 +75,12 @@ func main() {
 		panic(err)
 	}
 
-	currentVersion, _ := goose.GetDBVersion(destDb)
-	if currentVersion < 0 {
+	currentVersion, err := goose.GetDBVersion(destDb)
+	// This is in case the destination is not configured correctly
+	if currentVersion < 0 || err != nil {
 		_, _ = destDb.Exec("DROP SCHEMA public CASCADE")
-		fs := migrations.PreMigrations
-		entries, err := fs.ReadDir("special/pre")
-		if err != nil {
-			panic(err)
-		}
-		for _, entry := range entries {
-			fp := path.Join("special/pre", entry.Name())
-			if entry.IsDir() {
-				continue
-			}
-
-			contents, err := fs.ReadFile(fp)
-			err = os.WriteFile(entry.Name(), contents, 0666)
-			if err != nil {
-				panic(err)
-			}
-
-			cmd := exec.Command("psql", destConnectionString, "-f", entry.Name())
-			err = cmd.Start()
-			if err != nil {
-				panic(err)
-			}
-			err = cmd.Wait()
-			if err != nil {
-				panic(err)
-			}
-		}
+		_, _ = destDb.Exec("DROP SCHEMA users CASCADE")
+		_, _ = destDb.Exec("DROP SCHEMA stats CASCADE")
 		_, _ = destDb.Exec("CREATE SCHEMA public")
 		_, _ = destDb.Exec("ALTER SCHEMA public OWNER TO manager")
 	}
@@ -109,14 +97,6 @@ func main() {
 		}
 	}
 
-	if err = goose.SetDialect("postgres"); err != nil {
-		panic(err)
-	}
-
-	if err = goose.Status(destDb, "."); err != nil {
-		panic(err)
-	}
-
 	// Do the sync
 	scriptPath := dumpPublicSchema(sourceConnectionString)
 
@@ -125,8 +105,10 @@ func main() {
 		panic(err)
 	}
 
+	if pgPass := os.Getenv("DEST_PG_PASSWORD"); pgPass != "" {
+		_ = os.Setenv("PGPASSWORD", pgPass)
+	}
 	executeScript(destConnectionString, scriptPath)
-
 	if err = goose.Up(destDb, "."); err != nil {
 		panic(err)
 	}

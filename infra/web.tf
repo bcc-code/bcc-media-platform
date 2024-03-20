@@ -80,14 +80,20 @@ resource "google_compute_url_map" "website" {
     path_matcher = "socials"
   }
 
-  host_rule {
-    hosts        = ["app.biblekids.io"]
-    path_matcher = "biblekids"
+  dynamic "host_rule" {
+    for_each = google_project.brunstadtv.project_id == "btv-platform-prod-2" ? [1] : []
+    content {
+      hosts        = ["app.biblekids.io"]
+      path_matcher = "biblekids"
+    }
   }
 
-  path_matcher {
-    default_service = "https://www.googleapis.com/compute/v1/projects/btv-platform-prod-2/global/backendBuckets/app-biblekids-io-gcs"
-    name            = "biblekids"
+  dynamic "path_matcher" {
+    for_each = google_project.brunstadtv.project_id == "btv-platform-prod-2" ? [1] : []
+    content {
+      default_service = "https://www.googleapis.com/compute/v1/projects/btv-platform-prod-2/global/backendBuckets/app-biblekids-io-gcs"
+      name            = "biblekids"
+    }
   }
 
   path_matcher {
@@ -123,7 +129,13 @@ resource "google_compute_target_https_proxy" "website" {
   project          = google_project.brunstadtv.project_id
   name             = "website-target-proxy"
   url_map          = google_compute_url_map.website.self_link
-  ssl_certificates = flatten([var.additional_key_path != "" ? [google_compute_ssl_certificate.additional_cert[0].self_link] : [], google_compute_managed_ssl_certificate.website.self_link, "https://www.googleapis.com/compute/v1/projects/btv-platform-prod-2/global/sslCertificates/app-biblekids-io"])
+  ssl_certificates = flatten([
+    var.additional_key_path != "" ? [google_compute_ssl_certificate.additional_cert[0].self_link] : [],
+    google_compute_managed_ssl_certificate.website.self_link,
+    google_project.brunstadtv.project_id == "btv-platform-prod-2" ? [
+      "https://www.googleapis.com/compute/v1/projects/btv-platform-prod-2/global/sslCertificates/app-biblekids-io"
+    ] : []
+  ])
 }
 
 resource "google_compute_global_forwarding_rule" "default" {
