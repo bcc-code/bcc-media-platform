@@ -15,14 +15,6 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// Config contains configuration parameters for connecting to a database
-type Config struct {
-	dbName  string
-	dbUser  string
-	dbPass  string
-	address string
-}
-
 func connectToDb(ctx context.Context, cfg utils.DatabaseConfig) (*sql.DB, error) {
 	db, errChan := utils.MustCreateDBClient(ctx, cfg)
 	err := <-errChan
