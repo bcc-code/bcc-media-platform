@@ -33,6 +33,7 @@ func main() {
 			panic(err)
 		}
 		defer cmd.Process.Kill()
+		log.L.Info().Msg("Started the proxy to the destination database. Waiting a bit for connection to be made.")
 		time.Sleep(time.Second * 5)
 	}
 	if proxyInstance := os.Getenv("SOURCE_AUTH_PROXY_CONFIG"); proxyInstance != "" {
@@ -43,6 +44,7 @@ func main() {
 			panic(err)
 		}
 		defer cmd.Process.Kill()
+		log.L.Info().Msg("Started the proxy to the source database. Waiting a bit for connection to be made.")
 		time.Sleep(time.Second * 5)
 	}
 
