@@ -98,6 +98,14 @@ resource "google_sql_user" "onsite_backup" {
   type     = "BUILT_IN"
 }
 
+resource "google_sql_user" "staging_sync" {
+  name     = "staging_sync"
+  project  = google_project.brunstadtv.project_id
+  instance = google_sql_database_instance.main.name
+  password = random_password.staging_sync_db_password.result
+  type     = "BUILT_IN"
+}
+
 resource "google_service_account" "db_backup" {
   project      = google_project.brunstadtv.project_id
   account_id   = "db-backup"

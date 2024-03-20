@@ -8,6 +8,8 @@ CREATE ROLE background_worker;
 CREATE ROLE builder;
 CREATE ROLE onsite_backup;
 
+CREATE ROLE staging_sync;
+
 -- Stuff should be owned by manager
 GRANT manager TO bccm;
 

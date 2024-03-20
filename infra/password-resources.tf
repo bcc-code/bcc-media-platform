@@ -43,6 +43,11 @@ resource "random_password" "onsite_backup_db_password" {
   special = true
 }
 
+resource "random_password" "staging_sync_db_password" {
+  length  = 64
+  special = true
+}
+
 resource "random_password" "analytics_id_salt" {
   length  = 64
   special = true
