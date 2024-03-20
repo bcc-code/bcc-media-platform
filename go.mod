@@ -59,7 +59,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.19.0
 	golang.org/x/net v0.21.0
 	google.golang.org/api v0.147.0
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.33.0
 	gopkg.in/guregu/null.v4 v4.0.0
 )
 
