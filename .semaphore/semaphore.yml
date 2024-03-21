@@ -146,10 +146,10 @@ blocks:
           commands:
             - cache store
 promotions:
-  - name: Deploy to DEV
-    pipeline_file: deploy-dev.yml
-    auto_promote:
-      when: branch = 'develop' AND result = 'passed'
+#  - name: Deploy to DEV
+#    pipeline_file: deploy-dev.yml
+#    auto_promote:
+#      when: branch = 'develop' AND result = 'passed'
   - name: Deploy to STA
     pipeline_file: deploy-sta.yml
     auto_promote:
