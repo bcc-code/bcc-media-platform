@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"context"
+	"time"
+
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/bcc-media-platform/backend/applications"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -13,7 +15,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"time"
 )
 
 var profileCache = cache.New[string, []common.Profile]()
@@ -45,7 +46,7 @@ func getProfilesFromDatabase(ctx context.Context, queries *sqlc.ApplicationQueri
 }
 
 func getProfiles(ctx *gin.Context, queries *sqlc.ApplicationQueries, remoteCache *remotecache.Client, user *common.User) ([]common.Profile, error) {
-	key := "profiles:" + user.PersonID
+	key := "profiles:" + queries.GroupID.String() + ":" + user.PersonID
 	if p, ok := profileCache.Get(key); ok && len(p) > 0 {
 		return p, nil
 	}
