@@ -153,7 +153,7 @@ promotions:
   - name: Deploy to STA
     pipeline_file: deploy-sta.yml
     auto_promote:
-      when: branch = 'master' AND result = 'passed'
+      when: branch = 'develop' AND result = 'passed'
   - name: Deploy to PROD
     pipeline_file: deploy-prod.yml
     auto_promote:
