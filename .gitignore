@@ -13,3 +13,4 @@ web/.crowdin_token
 .local.key.rsa
 *.ignore.*
 __debug_bin*
+/dump.sql
