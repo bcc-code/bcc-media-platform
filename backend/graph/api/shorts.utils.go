@@ -115,7 +115,7 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 	nextCursor := &utils.Cursor[uuid.UUID]{
 		Seed:         cursor.Seed,
 		RandomFactor: cursor.RandomFactor,
-		CurrentIndex: lo.IndexOf(shuffledShortIDs, lastID) + 1,
+		CurrentIndex: cursor.CurrentIndex + lo.IndexOf(shuffledShortIDs, lastID) + 1,
 	}
 
 	// if we don't have enough keys, restart the cursor while also setting progress for all shorts to 0.0,
