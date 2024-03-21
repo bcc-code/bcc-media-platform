@@ -4,11 +4,12 @@ import (
 	"context"
 	"crypto/rsa"
 	"fmt"
-	"github.com/bcc-code/bcc-media-platform/backend/auth0"
-	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/bcc-code/bcc-media-platform/backend/auth0"
+	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
 
 	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
 	"github.com/bcc-code/mediabank-bridge/log"
@@ -16,7 +17,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 
-	"github.com/99designs/gqlgen/graphql"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/bcc-media-platform/backend/email"
 	"github.com/bcc-code/bcc-media-platform/backend/export"
@@ -39,6 +39,8 @@ import (
 // This file will not be regenerated automatically.
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
+
+const timestampContextKey = "GqlTimestamp"
 
 const episodeContextKey = "EpisodeContext"
 
@@ -272,15 +274,15 @@ func messageStyleFromString(styleString string) *model.MessageStyle {
 }
 
 func resolveMessageSection(ctx context.Context, r *messageSectionResolver, s *common.Section) ([]*model.Message, error) {
-	var timestamp *string
-	fieldCtx := graphql.GetRootFieldContext(ctx)
-	for _, a := range fieldCtx.Field.Arguments {
-		if a.Name == "timestamp" && a.Value.Raw != "null" {
-			timestamp = &a.Value.Raw
-		}
+
+	ginCtx, _ := utils.GinCtx(ctx)
+	timestamp := ginCtx.GetString(timestampContextKey)
+	var timestampPointer *string
+	if timestamp != "" {
+		timestampPointer = &timestamp
 	}
 
-	t, err := utils.TimestampFromString(timestamp)
+	t, err := utils.TimestampFromString(timestampPointer)
 	if err != nil {
 		return nil, err
 	}
@@ -314,10 +316,6 @@ func resolveMessageSection(ctx context.Context, r *messageSectionResolver, s *co
 		return nil, nil
 	}
 
-	ginCtx, err := utils.GinCtx(ctx)
-	if err != nil {
-		return nil, err
-	}
 	languages := user.GetLanguagesFromCtx(ginCtx)
 
 	return lo.Map(group.Messages, func(i common.Message, _ int) *model.Message {

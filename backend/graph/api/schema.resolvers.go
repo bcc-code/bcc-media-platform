@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Code-Hex/go-generics-cache"
+	cache "github.com/Code-Hex/go-generics-cache"
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/applications"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
@@ -220,6 +220,8 @@ func (r *queryRootResolver) Section(ctx context.Context, id string, timestamp *s
 		if err != nil {
 			return nil, err
 		}
+		ginCtx, _ := utils.GinCtx(ctx)
+		ginCtx.Set(timestampContextKey, *timestamp)
 		withTimestampExpiration(ctx, "section:"+id, timestamp, func() {
 			r.Loaders.SectionLoader.Clear(ctx, int(intID))
 		})
