@@ -114,6 +114,7 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 
 	nextCursor := &utils.Cursor[uuid.UUID]{
 		Seed:         cursor.Seed,
+		RandomFactor: cursor.RandomFactor,
 		CurrentIndex: lo.IndexOf(shuffledShortIDs, lastID) + 1,
 	}
 
