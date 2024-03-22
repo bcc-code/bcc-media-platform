@@ -1,15 +1,15 @@
 <template>
     <div class="relative">
-        <Pill
+        <!-- <Pill
             color="bg-red"
             class="absolute -top-1 -right-1 pointer-events-none"
             v-if="isLive(i, currentDay)"
             >{{ $t("episode.liveNow") }}</Pill
-        >
+        > -->
         <NewPill
             class="absolute -top-1 -right-1 pointer-events-none"
             :item="i"
-            v-else-if="!comingSoon(i)"
+            v-if="!comingSoon(i)"
         ></NewPill>
         <Pill class="absolute -top-1 -right-1 pointer-events-none" v-else>{{
             $t("episode.comingSoon")

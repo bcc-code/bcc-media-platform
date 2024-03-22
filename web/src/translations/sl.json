@@ -147,7 +147,7 @@
     "footer": {
         "cookies": "Piškotki",
         "privacyPolicy": "Pravilnik o zasebnosti",
-        "information": "",
+        "information": "BCC Media je medijska fundacija v [ BCC zvezi](https://bcc.no), ki proizvaja in širi vsebino s pozitivnimi in krščanskimi vrednotami.",
         "headOffice": "Sedež podjetja",
         "contactUs": "Kontaktiraj nas",
         "downloadApp": "Prenesi našo aplikacijo",
@@ -162,9 +162,9 @@
         "membersOnly": "Ta video je na voljo samo prijavljenim uporabnikom."
     },
     "quotes": {
-        "quoteOfTheDay": "",
-        "markAsRead": "",
-        "markAsUnread": ""
+        "quoteOfTheDay": "Citat dneva",
+        "markAsRead": "Označi kot prebrano",
+        "markAsUnread": "Označi kot neprebrano"
     },
     "feedback": {
         "appreciated": "Cenimo tvojo povratno informacijo.",
@@ -173,7 +173,7 @@
         "howEasyToUnderstand": "Kako razumljiv je bil ta video?",
         "anonymousInfo": "Tvoja ocena je anonimna",
         "placeholder": "Za lažje razumevanje, prosim, napiši čim več podrobnosti.",
-        "giveFeedback": ""
+        "giveFeedback": "Pošlji povratne informacije"
     },
     "contactLocalBukIfWrong": "Kontaktiraj odgovorno osebo za tvoj BUK, če misliš, da je prišlo do napake.",
     "thankYou": "Hvala!",
@@ -209,7 +209,7 @@
         "watchOnOurApp": "Za ogled kratkih filmov prenesi mobilno aplikacijo."
     },
     "subscriptions": {
-        "subscribe": "",
-        "unsubscribe": ""
+        "subscribe": "Naroči se",
+        "unsubscribe": "Odjavi se"
     }
 }

@@ -147,7 +147,7 @@
     "footer": {
         "cookies": "Cookies",
         "privacyPolicy": "Privacybeleid",
-        "information": "",
+        "information": "BCC Media is een media-stichting binnen de [BCC-federatie](https://bcc.no), welke content met positieve en christelijke waarden produceert en verspreidt.",
         "headOffice": "Hoofdkantoor",
         "contactUs": "Contact",
         "downloadApp": "Download onze app",
@@ -162,9 +162,9 @@
         "membersOnly": "Deze video is alleen beschikbaar voor ingelogde gebruikers."
     },
     "quotes": {
-        "quoteOfTheDay": "",
-        "markAsRead": "",
-        "markAsUnread": ""
+        "quoteOfTheDay": "Citaat van de dag",
+        "markAsRead": "Markeer als gelezen",
+        "markAsUnread": "markeren als ongelezen"
     },
     "feedback": {
         "appreciated": "We stellen je feedback op prijs.",
@@ -173,7 +173,7 @@
         "howEasyToUnderstand": "Hoe makkelijk was het om de film te begrijpen?",
         "anonymousInfo": "Je beoordeling zal anoniem opgeslagen worden",
         "placeholder": "Geef zoveel mogelijk details, om ons te helpen je te begrijpen.",
-        "giveFeedback": ""
+        "giveFeedback": "Geef feedback"
     },
     "contactLocalBukIfWrong": "Neem contact op met de verantwoordelijke in jouw lokale BUK-vereniging als je denkt dat dit niet klopt.",
     "thankYou": "Hartelijk dank!",
@@ -209,7 +209,7 @@
         "watchOnOurApp": "Download de mobiele app om korte films te bekijken."
     },
     "subscriptions": {
-        "subscribe": "",
-        "unsubscribe": ""
+        "subscribe": "Abonneer",
+        "unsubscribe": "Afmelden"
     }
 }

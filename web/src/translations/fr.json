@@ -147,7 +147,7 @@
     "footer": {
         "cookies": "Cookies",
         "privacyPolicy": "Politique de confidentialité",
-        "information": "",
+        "information": "BCC Media est une fondation médiatique de la [fédération BCC](https://bcc.no) qui produit et distribue des contenus aux valeurs positives et chrétiennes.",
         "headOffice": "Siège social",
         "contactUs": "Nous contacter",
         "downloadApp": "Télécharge notre application",
@@ -162,9 +162,9 @@
         "membersOnly": "Cette vidéo est uniquement accessible aux utilisateurs qui sont connectés."
     },
     "quotes": {
-        "quoteOfTheDay": "",
-        "markAsRead": "",
-        "markAsUnread": ""
+        "quoteOfTheDay": "Citation du jour",
+        "markAsRead": "Marquer comme lu",
+        "markAsUnread": "Marquer comme non lu"
     },
     "feedback": {
         "appreciated": "Nous apprécions tes commentaires.",
@@ -173,7 +173,7 @@
         "howEasyToUnderstand": "La vidéo était-elle facile à comprendre ?",
         "anonymousInfo": "Ta note sera soumise de manière anonyme",
         "placeholder": "Merci d'être le plus précis possible pour nous aider à comprendre.",
-        "giveFeedback": ""
+        "giveFeedback": "Donner un avis"
     },
     "contactLocalBukIfWrong": "Contacte la personne responsable de ton association locale BUK si tu penses qu'il s'agit d'une erreur.",
     "thankYou": "Merci beaucoup !",
@@ -209,7 +209,7 @@
         "watchOnOurApp": "Téléchargez l'application mobile pour regarder les courts métrages."
     },
     "subscriptions": {
-        "subscribe": "",
-        "unsubscribe": ""
+        "subscribe": "S'abonner",
+        "unsubscribe": "Se désabonner"
     }
 }
