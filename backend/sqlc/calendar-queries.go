@@ -77,8 +77,8 @@ func mapToCalendarEntries(items []getCalendarEntriesRow) []common.CalendarEntry 
 		var title common.LocaleString
 		var description common.LocaleString
 
-		_ = json.Unmarshal(i.Title.RawMessage, &title)
-		_ = json.Unmarshal(i.Description.RawMessage, &description)
+		_ = json.Unmarshal(i.Title, &title)
+		_ = json.Unmarshal(i.Description, &description)
 
 		var itemID null.Int
 		switch i.LinkType.ValueOrZero() {
@@ -114,17 +114,6 @@ func (rq *RoleQueries) GetCalendarEntries(ctx context.Context, ids []int) ([]com
 		return nil, err
 	}
 	return mapToCalendarEntries(items), nil
-}
-
-// ListCalendarEntries returns all entries
-func (rq *RoleQueries) ListCalendarEntries(ctx context.Context) ([]common.CalendarEntry, error) {
-	items, err := rq.queries.listCalendarEntries(ctx, rq.roles)
-	if err != nil {
-		return nil, err
-	}
-	return mapToCalendarEntries(lo.Map(items, func(i listCalendarEntriesRow, _ int) getCalendarEntriesRow {
-		return getCalendarEntriesRow(i)
-	})), nil
 }
 
 // GetCalendarEntriesForPeriod returns events for the specific period

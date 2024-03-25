@@ -24,7 +24,7 @@ func (r *calendarResolver) Events(ctx context.Context, obj *model.Calendar, from
 	}
 	events, err := memorycache.GetOrSet(ctx, "events", func(ctx context.Context) ([]common.Event, error) {
 		return r.Queries.ListEvents(ctx)
-	}, cache.WithExpiration(time.Minute))
+	}, cache.WithExpiration(time.Minute*5))
 	if err != nil {
 		return nil, err
 	}

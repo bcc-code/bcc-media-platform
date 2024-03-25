@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/lib/pq"
@@ -15,28 +16,26 @@ import (
 )
 
 const getCalendarEntries = `-- name: getCalendarEntries :many
-WITH t AS (SELECT ts.calendarentries_id,
-                  json_object_agg(ts.languages_code, ts.title)       AS title,
-                  json_object_agg(ts.languages_code, ts.description) AS description
-           FROM calendarentries_translations ts
-           GROUP BY ts.calendarentries_id)
 SELECT e.id,
        e.event_id,
        e.link_type,
        e.start,
        e.end,
        COALESCE(e.is_replay, false) = true AS is_replay,
-       ea.id              AS episode_id,
-       se.id              AS season_id,
-       sh.id              AS show_id,
-       t.title,
-       t.description
+       ea.id                               AS episode_id,
+       se.id                               AS season_id,
+       sh.id                               AS show_id,
+       ts.title,
+       ts.description
 FROM calendarentries e
+         LEFT JOIN LATERAL (SELECT json_object_agg(ts.languages_code, ts.title)       AS title,
+                                   json_object_agg(ts.languages_code, ts.description) AS description
+                            FROM calendarentries_translations ts
+                            WHERE ts.calendarentries_id = e.id) ts ON true
          LEFT JOIN episode_roles er ON er.id = e.episode_id AND er.roles && $2::varchar[]
          LEFT JOIN episode_availability ea ON ea.id = er.id AND ea.published
          LEFT JOIN seasons se ON se.id = e.season_id AND se.status = 'published'
          LEFT JOIN shows sh ON sh.id = e.show_id AND sh.status = 'published'
-         LEFT JOIN t ON e.id = t.calendarentries_id
 WHERE e.status = 'published'
   AND e.id = ANY ($1::int[])
 `
@@ -47,17 +46,17 @@ type getCalendarEntriesParams struct {
 }
 
 type getCalendarEntriesRow struct {
-	ID          int32                 `db:"id" json:"id"`
-	EventID     null_v4.Int           `db:"event_id" json:"eventId"`
-	LinkType    null_v4.String        `db:"link_type" json:"linkType"`
-	Start       time.Time             `db:"start" json:"start"`
-	End         time.Time             `db:"end" json:"end"`
-	IsReplay    bool                  `db:"is_replay" json:"isReplay"`
-	EpisodeID   null_v4.Int           `db:"episode_id" json:"episodeId"`
-	SeasonID    null_v4.Int           `db:"season_id" json:"seasonId"`
-	ShowID      null_v4.Int           `db:"show_id" json:"showId"`
-	Title       pqtype.NullRawMessage `db:"title" json:"title"`
-	Description pqtype.NullRawMessage `db:"description" json:"description"`
+	ID          int32           `db:"id" json:"id"`
+	EventID     null_v4.Int     `db:"event_id" json:"eventId"`
+	LinkType    null_v4.String  `db:"link_type" json:"linkType"`
+	Start       time.Time       `db:"start" json:"start"`
+	End         time.Time       `db:"end" json:"end"`
+	IsReplay    bool            `db:"is_replay" json:"isReplay"`
+	EpisodeID   null_v4.Int     `db:"episode_id" json:"episodeId"`
+	SeasonID    null_v4.Int     `db:"season_id" json:"seasonId"`
+	ShowID      null_v4.Int     `db:"show_id" json:"showId"`
+	Title       json.RawMessage `db:"title" json:"title"`
+	Description json.RawMessage `db:"description" json:"description"`
 }
 
 func (q *Queries) getCalendarEntries(ctx context.Context, arg getCalendarEntriesParams) ([]getCalendarEntriesRow, error) {
@@ -96,43 +95,41 @@ func (q *Queries) getCalendarEntries(ctx context.Context, arg getCalendarEntries
 }
 
 const getCalendarEntriesByID = `-- name: getCalendarEntriesByID :many
-WITH t AS (SELECT ts.calendarentries_id,
-                  json_object_agg(ts.languages_code, ts.title)       AS title,
-                  json_object_agg(ts.languages_code, ts.description) AS description
-           FROM calendarentries_translations ts
-           GROUP BY ts.calendarentries_id)
 SELECT e.id,
        e.event_id,
        e.link_type,
        e.start,
        e.end,
        COALESCE(e.is_replay, false) = true AS is_replay,
-       ea.id              AS episode_id,
-       se.id              AS season_id,
-       sh.id              AS show_id,
-       t.title,
-       t.description
+       ea.id                               AS episode_id,
+       se.id                               AS season_id,
+       sh.id                               AS show_id,
+       ts.title,
+       ts.description
 FROM calendarentries e
+         LEFT JOIN LATERAL (SELECT json_object_agg(ts.languages_code, ts.title)       AS title,
+                                   json_object_agg(ts.languages_code, ts.description) AS description
+                            FROM calendarentries_translations ts
+                            WHERE ts.calendarentries_id = e.id) ts ON true
          LEFT JOIN episode_roles er ON er.id = e.episode_id
          LEFT JOIN episode_availability ea ON ea.id = er.id
          LEFT JOIN seasons se ON se.id = e.season_id
          LEFT JOIN shows sh ON sh.id = e.show_id
-         LEFT JOIN t ON e.id = t.calendarentries_id
-  WHERE e.id = ANY ($1::int[])
+WHERE e.id = ANY ($1::int[])
 `
 
 type getCalendarEntriesByIDRow struct {
-	ID          int32                 `db:"id" json:"id"`
-	EventID     null_v4.Int           `db:"event_id" json:"eventId"`
-	LinkType    null_v4.String        `db:"link_type" json:"linkType"`
-	Start       time.Time             `db:"start" json:"start"`
-	End         time.Time             `db:"end" json:"end"`
-	IsReplay    bool                  `db:"is_replay" json:"isReplay"`
-	EpisodeID   null_v4.Int           `db:"episode_id" json:"episodeId"`
-	SeasonID    null_v4.Int           `db:"season_id" json:"seasonId"`
-	ShowID      null_v4.Int           `db:"show_id" json:"showId"`
-	Title       pqtype.NullRawMessage `db:"title" json:"title"`
-	Description pqtype.NullRawMessage `db:"description" json:"description"`
+	ID          int32           `db:"id" json:"id"`
+	EventID     null_v4.Int     `db:"event_id" json:"eventId"`
+	LinkType    null_v4.String  `db:"link_type" json:"linkType"`
+	Start       time.Time       `db:"start" json:"start"`
+	End         time.Time       `db:"end" json:"end"`
+	IsReplay    bool            `db:"is_replay" json:"isReplay"`
+	EpisodeID   null_v4.Int     `db:"episode_id" json:"episodeId"`
+	SeasonID    null_v4.Int     `db:"season_id" json:"seasonId"`
+	ShowID      null_v4.Int     `db:"show_id" json:"showId"`
+	Title       json.RawMessage `db:"title" json:"title"`
+	Description json.RawMessage `db:"description" json:"description"`
 }
 
 func (q *Queries) getCalendarEntriesByID(ctx context.Context, dollar_1 []int32) ([]getCalendarEntriesByIDRow, error) {
@@ -329,81 +326,6 @@ func (q *Queries) getEvents(ctx context.Context, dollar_1 []int32) ([]getEventsR
 	return items, nil
 }
 
-const listCalendarEntries = `-- name: listCalendarEntries :many
-WITH t AS (SELECT ts.calendarentries_id,
-                  json_object_agg(ts.languages_code, ts.title)       AS title,
-                  json_object_agg(ts.languages_code, ts.description) AS description
-           FROM calendarentries_translations ts
-           GROUP BY ts.calendarentries_id)
-SELECT e.id,
-       e.event_id,
-       e.link_type,
-       e.start,
-       e.end,
-       COALESCE(e.is_replay, false) = true AS is_replay,
-       ea.id AS episode_id,
-       se.id AS season_id,
-       sh.id AS show_id,
-       t.title,
-       t.description
-FROM calendarentries e
-         LEFT JOIN episode_roles er ON er.id = e.episode_id AND er.roles && $1::varchar[]
-         LEFT JOIN episode_availability ea ON ea.id = er.id AND ea.published
-         LEFT JOIN seasons se ON se.id = e.season_id AND se.status = 'published'
-         LEFT JOIN shows sh ON sh.id = e.show_id AND sh.status = 'published'
-         LEFT JOIN t ON e.id = t.calendarentries_id
-WHERE e.status = 'published'
-`
-
-type listCalendarEntriesRow struct {
-	ID          int32                 `db:"id" json:"id"`
-	EventID     null_v4.Int           `db:"event_id" json:"eventId"`
-	LinkType    null_v4.String        `db:"link_type" json:"linkType"`
-	Start       time.Time             `db:"start" json:"start"`
-	End         time.Time             `db:"end" json:"end"`
-	IsReplay    bool                  `db:"is_replay" json:"isReplay"`
-	EpisodeID   null_v4.Int           `db:"episode_id" json:"episodeId"`
-	SeasonID    null_v4.Int           `db:"season_id" json:"seasonId"`
-	ShowID      null_v4.Int           `db:"show_id" json:"showId"`
-	Title       pqtype.NullRawMessage `db:"title" json:"title"`
-	Description pqtype.NullRawMessage `db:"description" json:"description"`
-}
-
-func (q *Queries) listCalendarEntries(ctx context.Context, dollar_1 []string) ([]listCalendarEntriesRow, error) {
-	rows, err := q.db.QueryContext(ctx, listCalendarEntries, pq.Array(dollar_1))
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []listCalendarEntriesRow
-	for rows.Next() {
-		var i listCalendarEntriesRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.EventID,
-			&i.LinkType,
-			&i.Start,
-			&i.End,
-			&i.IsReplay,
-			&i.EpisodeID,
-			&i.SeasonID,
-			&i.ShowID,
-			&i.Title,
-			&i.Description,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const listEvents = `-- name: listEvents :many
 WITH t AS (SELECT ts.events_id,
                   json_object_agg(ts.languages_code, ts.title) AS title
@@ -415,7 +337,8 @@ SELECT e.id,
        t.title
 FROM events e
          LEFT JOIN t ON e.id = t.events_id
-WHERE e.status = 'published' AND e.end >= now() - '1 year'::interval
+WHERE e.status = 'published'
+  AND e.end >= now() - '1 year'::interval
 ORDER BY e.start
 `
 

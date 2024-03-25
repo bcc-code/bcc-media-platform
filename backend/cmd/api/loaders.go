@@ -53,7 +53,7 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 			return i.CollectionID
 		}, loaders.WithName("collection-items")),
 		CollectionItemIDsLoader: collection.NewCollectionItemLoader(ctx, db, collectionLoader, roles),
-		CalendarEntryLoader:     loaders.New(ctx, rq.GetCalendarEntries),
+		CalendarEntryLoader:     loaders.New(ctx, rq.GetCalendarEntries, loaders.WithMemoryCache(time.Minute*5)),
 		StudyTopicFilterLoader:  loaders.NewFilterLoader(ctx, rq.GetTopicIDsWithRoles, loaders.WithName("study-topic-filter")),
 		StudyLessonFilterLoader: loaders.NewFilterLoader(ctx, rq.GetLessonIDsWithRoles, loaders.WithName("study-lesson-filter")),
 		StudyTaskFilterLoader:   loaders.NewFilterLoader(ctx, rq.GetTaskIDsWithRoles, loaders.WithName("study-task-filter")),

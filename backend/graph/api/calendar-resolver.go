@@ -2,16 +2,24 @@ package graph
 
 import (
 	"context"
+	"fmt"
+	"time"
+
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
+	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/samber/lo"
-	"time"
 )
 
 func getForPeriod[k comparable, t any](ctx context.Context, loader *loaders.Loader[k, *t], factory func(ctx context.Context, from time.Time, to time.Time) ([]k, error), from time.Time, to time.Time) ([]*t, error) {
-	ids, err := factory(ctx, from, to)
+	fromTrunc := from.Truncate(time.Hour * 1)
+	toTrunc := to.Truncate(time.Hour * 1)
+	ids, err := memorycache.GetOrSet(ctx, fmt.Sprintf("period-%s-%s", fromTrunc.Format(time.RFC3339), toTrunc.Format(time.RFC3339)), func(ctx context.Context) ([]k, error) {
+		return factory(ctx, from, to)
+	}, cache.WithExpiration(time.Minute*5))
 	if err != nil {
 		return nil, err
 	}
