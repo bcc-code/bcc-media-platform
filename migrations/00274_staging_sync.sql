@@ -12,8 +12,3 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public
 ALTER DEFAULT PRIVILEGES IN SCHEMA public
     GRANT SELECT ON SEQUENCES TO staging_sync;
 -- +goose Down
-/***********************************************************/
-/*** SCRIPT AUTHOR: Fredrik Vedvik (fredrik@vedvik.tech) ***/
-/***    CREATED ON: 2024-03-20T12:23:16.239Z             ***/
-/***********************************************************/
-
