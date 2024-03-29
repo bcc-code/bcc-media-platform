@@ -12,7 +12,7 @@ dependencies:
 devDependencies:
   '@directus/extensions-sdk':
     specifier: 9.14.1
-    version: 9.14.1(@types/express@4.17.18)(@types/geojson@7946.0.11)(@types/pino@7.0.5)(axios@1.5.1)(express@4.18.2)(geojson@0.5.0)(knex-schema-inspector@3.0.1)(knex@3.0.1)(pino@8.15.7)(typescript@4.9.5)(vue-i18n@9.5.0)(vue-router@4.2.5)(vue@3.3.4)
+    version: 9.14.1(@types/express@4.17.18)(@types/geojson@7946.0.11)(@types/pino@7.0.5)(axios@1.5.1)(express@4.19.2)(geojson@0.5.0)(knex-schema-inspector@3.0.1)(knex@3.0.1)(pino@8.15.7)(typescript@4.9.5)(vue-i18n@9.5.0)(vue-router@4.2.5)(vue@3.3.4)
   typescript:
     specifier: ^4.9.5
     version: 4.9.5
@@ -66,12 +66,12 @@ packages:
       to-fast-properties: 2.0.0
     dev: true
 
-  /@directus/extensions-sdk@9.14.1(@types/express@4.17.18)(@types/geojson@7946.0.11)(@types/pino@7.0.5)(axios@1.5.1)(express@4.18.2)(geojson@0.5.0)(knex-schema-inspector@3.0.1)(knex@3.0.1)(pino@8.15.7)(typescript@4.9.5)(vue-i18n@9.5.0)(vue-router@4.2.5)(vue@3.3.4):
+  /@directus/extensions-sdk@9.14.1(@types/express@4.17.18)(@types/geojson@7946.0.11)(@types/pino@7.0.5)(axios@1.5.1)(express@4.19.2)(geojson@0.5.0)(knex-schema-inspector@3.0.1)(knex@3.0.1)(pino@8.15.7)(typescript@4.9.5)(vue-i18n@9.5.0)(vue-router@4.2.5)(vue@3.3.4):
     resolution: {integrity: sha512-uj96n5qY188DU0bTUnjnV2gVt/YzqBBR3uS5JWCnudJKYKSptvqkmfATG2wD5bpGGIng8D+aj31yAHbVJhM1Iw==}
     engines: {node: '>=12.20.0'}
     hasBin: true
     dependencies:
-      '@directus/shared': 9.14.1(@types/express@4.17.18)(@types/geojson@7946.0.11)(@types/pino@7.0.5)(axios@1.5.1)(express@4.18.2)(geojson@0.5.0)(knex-schema-inspector@3.0.1)(knex@3.0.1)(pino@8.15.7)(vue-i18n@9.5.0)(vue-router@4.2.5)(vue@3.3.4)
+      '@directus/shared': 9.14.1(@types/express@4.17.18)(@types/geojson@7946.0.11)(@types/pino@7.0.5)(axios@1.5.1)(express@4.19.2)(geojson@0.5.0)(knex-schema-inspector@3.0.1)(knex@3.0.1)(pino@8.15.7)(vue-i18n@9.5.0)(vue-router@4.2.5)(vue@3.3.4)
       '@rollup/plugin-commonjs': 21.1.0(rollup@2.79.1)
       '@rollup/plugin-json': 4.1.0(rollup@2.79.1)
       '@rollup/plugin-node-resolve': 13.3.0(rollup@2.79.1)
@@ -104,7 +104,7 @@ packages:
       - vue-router
     dev: true
 
-  /@directus/shared@9.14.1(@types/express@4.17.18)(@types/geojson@7946.0.11)(@types/pino@7.0.5)(axios@1.5.1)(express@4.18.2)(geojson@0.5.0)(knex-schema-inspector@3.0.1)(knex@3.0.1)(pino@8.15.7)(vue-i18n@9.5.0)(vue-router@4.2.5)(vue@3.3.4):
+  /@directus/shared@9.14.1(@types/express@4.17.18)(@types/geojson@7946.0.11)(@types/pino@7.0.5)(axios@1.5.1)(express@4.19.2)(geojson@0.5.0)(knex-schema-inspector@3.0.1)(knex@3.0.1)(pino@8.15.7)(vue-i18n@9.5.0)(vue-router@4.2.5)(vue@3.3.4):
     resolution: {integrity: sha512-m37bcJjmeFda3S6zxi7mMLT54a9QzgjGBPSzLlV6djIlFBMCX9bkkHi8UBZPHUmehASFDLDnCcFJjyyXjYQ4Mw==}
     peerDependencies:
       '@types/express': '*'
@@ -125,7 +125,7 @@ packages:
       '@types/pino': 7.0.5
       axios: 1.5.1
       date-fns: 2.24.0
-      express: 4.18.2
+      express: 4.19.2
       fs-extra: 10.0.0
       geojson: 0.5.0
       joi: 17.4.2
@@ -578,8 +578,8 @@ packages:
       readable-stream: 3.6.2
     dev: true
 
-  /body-parser@1.20.1:
-    resolution: {integrity: sha512-jWi7abTbYwajOytWCQc37VulmWiRae5RyTpaCyDcS5/lMdtwSz5lOpDE67srw/HYe35f1z3fDQw+3txg7gNtWw==}
+  /body-parser@1.20.2:
+    resolution: {integrity: sha512-ml9pReCu3M61kGlqoTm2umSXTlRTuGTx0bfYj+uIUKKYycG5NtSbeetV3faSU6R7ajOPw0g/J1PvK4qNy7s5bA==}
     engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
     dependencies:
       bytes: 3.1.2
@@ -591,7 +591,7 @@ packages:
       iconv-lite: 0.4.24
       on-finished: 2.4.1
       qs: 6.11.0
-      raw-body: 2.5.1
+      raw-body: 2.5.2
       type-is: 1.6.18
       unpipe: 1.0.0
     transitivePeerDependencies:
@@ -786,8 +786,8 @@ packages:
     resolution: {integrity: sha512-QADzlaHc8icV8I7vbaJXJwod9HWYp8uCqf1xa4OfNu1T7JVxQIrUgOWtHdNDtPiywmFbiS12VjotIXLrKM3orQ==}
     dev: true
 
-  /cookie@0.5.0:
-    resolution: {integrity: sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw==}
+  /cookie@0.6.0:
+    resolution: {integrity: sha512-U71cyTamuh1CRNCfpGY6to28lxvNwPG4Guz/EVjgf3Jmzv0vlDp1atT9eS5dDjMYHucpHbWns6Lwf3BKz6svdw==}
     engines: {node: '>= 0.6'}
     dev: true
 
@@ -1093,16 +1093,16 @@ packages:
       strip-final-newline: 2.0.0
     dev: true
 
-  /express@4.18.2:
-    resolution: {integrity: sha512-5/PsL6iGPdfQ/lKM1UuielYgv3BUoJfz1aUwU9vHZ+J7gyvwdQXFEBIEIaxeGf0GIcreATNyBExtalisDbuMqQ==}
+  /express@4.19.2:
+    resolution: {integrity: sha512-5T6nhjsT+EOMzuck8JjBHARTHfMht0POzlA60WV2pMD3gyXw2LZnZ+ueGdNxG+0calOJcWKbpFcuzLZ91YWq9Q==}
     engines: {node: '>= 0.10.0'}
     dependencies:
       accepts: 1.3.8
       array-flatten: 1.1.1
-      body-parser: 1.20.1
+      body-parser: 1.20.2
       content-disposition: 0.5.4
       content-type: 1.0.5
-      cookie: 0.5.0
+      cookie: 0.6.0
       cookie-signature: 1.0.6
       debug: 2.6.9
       depd: 2.0.0
@@ -2299,8 +2299,8 @@ packages:
     engines: {node: '>= 0.6'}
     dev: true
 
-  /raw-body@2.5.1:
-    resolution: {integrity: sha512-qqJBtEyVgS0ZmPGdCFPWJ3FreoqvG4MVQln/kCgF7Olq95IbOp0/BWyMwbdtn4VTvkM8Y7khCQ2Xgk/tcrCXig==}
+  /raw-body@2.5.2:
+    resolution: {integrity: sha512-8zGqypfENjCIqGhgXToC8aB2r7YrBX+AQAfIPs/Mlk+BtPTztOvTS01NRW/3Eh60J+a48lt8qsCzirQ6loCVfA==}
     engines: {node: '>= 0.8'}
     dependencies:
       bytes: 3.1.2
