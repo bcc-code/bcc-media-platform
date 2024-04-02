@@ -8,6 +8,7 @@ import (
 	"cloud.google.com/go/bigquery"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/google/uuid"
 )
 
@@ -272,7 +273,7 @@ func CalendarEntryFromCommon(c common.CalendarEntry, _ int) CalendarEntry {
 	return CalendarEntry{
 		ID:       fmt.Sprint(c.ID),
 		EventID:  nullStr(eventID),
-		Title:    c.Title.Get([]string{"no", "en"}),
+		Title:    c.Title.Get(*utils.FallbackLanguages()),
 		Start:    c.Start,
 		End:      c.End,
 		Type:     nullStr(c.Type.Ptr()),

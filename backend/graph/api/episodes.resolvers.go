@@ -59,7 +59,7 @@ func (r *episodeResolver) AvailableFrom(ctx context.Context, obj *model.Episode)
 
 // OriginalTitle is the resolver for the originalTitle field.
 func (r *episodeResolver) OriginalTitle(ctx context.Context, obj *model.Episode) (string, error) {
-	return r.getTitleFromContext(ctx, obj, &[]string{"no", "en"})
+	return r.getTitleFromContext(ctx, obj, utils.FallbackLanguages())
 }
 
 // Title is the resolver for the title field.
