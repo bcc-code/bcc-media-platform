@@ -280,14 +280,14 @@ func (r *episodeResolver) getRelatedEpisodeIDs(ctx context.Context, episodeID st
 	return episodeIDs, nil
 }
 
-func (r *episodeResolver) getTitleFromContext(ctx context.Context, obj *model.Episode, language *string) (string, error) {
+func (r *episodeResolver) getTitleFromContext(ctx context.Context, obj *model.Episode, languages *[]string) (string, error) {
 	episode, err := r.Loaders.EpisodeLoader.Get(ctx, utils.AsInt(obj.ID))
 	if err != nil {
 		return "", err
 	}
 
-	if language != nil {
-		return episode.Title.Get([]string{*language}), nil
+	if languages != nil {
+		return episode.Title.Get(*languages), nil
 	}
 
 	if obj.Number == nil {

@@ -57,9 +57,14 @@ func (r *episodeResolver) AvailableFrom(ctx context.Context, obj *model.Episode)
 	return "1800-01-01T00:00:00Z", nil
 }
 
+// OriginalTitle is the resolver for the originalTitle field.
+func (r *episodeResolver) OriginalTitle(ctx context.Context, obj *model.Episode) (string, error) {
+	return r.getTitleFromContext(ctx, obj, &[]string{"no", "en"})
+}
+
 // Title is the resolver for the title field.
-func (r *episodeResolver) Title(ctx context.Context, obj *model.Episode, language *string) (string, error) {
-	return r.getTitleFromContext(ctx, obj, language)
+func (r *episodeResolver) Title(ctx context.Context, obj *model.Episode) (string, error) {
+	return r.getTitleFromContext(ctx, obj, nil)
 }
 
 // Image is the resolver for the image field.

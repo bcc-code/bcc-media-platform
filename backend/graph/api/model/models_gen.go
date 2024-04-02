@@ -378,6 +378,7 @@ type Episode struct {
 	AvailableFrom         string                 `json:"availableFrom"`
 	AvailableTo           string                 `json:"availableTo"`
 	AgeRating             string                 `json:"ageRating"`
+	OriginalTitle         string                 `json:"originalTitle"`
 	Title                 string                 `json:"title"`
 	Description           string                 `json:"description"`
 	ExtraDescription      string                 `json:"extraDescription"`

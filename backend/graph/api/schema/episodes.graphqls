@@ -25,7 +25,8 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     availableFrom: Date! @goField(forceResolver: true)
     availableTo: Date!
     ageRating: String!
-    title(language: String): String! @goField(forceResolver: true)
+    originalTitle: String! @goField(forceResolver: true)
+    title: String! @goField(forceResolver: true)
     description: String!
     extraDescription: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
