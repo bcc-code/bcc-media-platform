@@ -287,7 +287,7 @@ type ComplexityRoot struct {
 		Status                func(childComplexity int) int
 		Streams               func(childComplexity int) int
 		SubtitleLanguages     func(childComplexity int) int
-		Title                 func(childComplexity int) int
+		Title                 func(childComplexity int, language *string) int
 		Type                  func(childComplexity int) int
 		UUID                  func(childComplexity int) int
 		Watched               func(childComplexity int) int
@@ -1008,7 +1008,7 @@ type EpisodeResolver interface {
 
 	AvailableFrom(ctx context.Context, obj *model.Episode) (string, error)
 
-	Title(ctx context.Context, obj *model.Episode) (string, error)
+	Title(ctx context.Context, obj *model.Episode, language *string) (string, error)
 
 	Image(ctx context.Context, obj *model.Episode, style *model.ImageStyle) (*string, error)
 
@@ -2177,7 +2177,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Episode.Title(childComplexity), true
+		args, err := ec.field_Episode_title_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Episode.Title(childComplexity, args["language"].(*string)), true
 
 	case "Episode.type":
 		if e.complexity.Episode.Type == nil {
@@ -5923,7 +5928,7 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     availableFrom: Date! @goField(forceResolver: true)
     availableTo: Date!
     ageRating: String!
-    title: String! @goField(forceResolver: true)
+    title(language: String): String! @goField(forceResolver: true)
     description: String!
     extraDescription: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
@@ -7253,6 +7258,21 @@ func (ec *executionContext) field_Episode_relatedItems_args(ctx context.Context,
 		}
 	}
 	args["offset"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Episode_title_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["language"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("language"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["language"] = arg0
 	return args, nil
 }
 
@@ -13456,7 +13476,7 @@ func (ec *executionContext) _Episode_title(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Episode().Title(rctx, obj)
+		return ec.resolvers.Episode().Title(rctx, obj, fc.Args["language"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13482,6 +13502,17 @@ func (ec *executionContext) fieldContext_Episode_title(ctx context.Context, fiel
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Episode_title_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }

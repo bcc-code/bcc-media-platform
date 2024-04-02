@@ -58,8 +58,8 @@ func (r *episodeResolver) AvailableFrom(ctx context.Context, obj *model.Episode)
 }
 
 // Title is the resolver for the title field.
-func (r *episodeResolver) Title(ctx context.Context, obj *model.Episode) (string, error) {
-	return r.getTitleFromContext(ctx, obj)
+func (r *episodeResolver) Title(ctx context.Context, obj *model.Episode, language *string) (string, error) {
+	return r.getTitleFromContext(ctx, obj, language)
 }
 
 // Image is the resolver for the image field.
