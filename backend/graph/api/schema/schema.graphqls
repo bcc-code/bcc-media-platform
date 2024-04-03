@@ -24,6 +24,7 @@ interface MediaItem {
     streams: [Stream!]!
     files: [File!]!
     title: String!
+    originalTitle: String!
     image(style: ImageStyle): String
     #duration: Int!
 }

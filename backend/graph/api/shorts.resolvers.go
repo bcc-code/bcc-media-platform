@@ -13,6 +13,15 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
 
+// OriginalTitle is the resolver for the originalTitle field.
+func (r *shortResolver) OriginalTitle(ctx context.Context, obj *model.Short) (string, error) {
+	e, err := r.GetLoaders().ShortLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return "", err
+	}
+	return e.Title.Get(*utils.FallbackLanguages()), nil
+}
+
 // Image is the resolver for the image field.
 func (r *shortResolver) Image(ctx context.Context, obj *model.Short, style *model.ImageStyle) (*string, error) {
 	e, err := r.GetLoaders().ShortLoader.Get(ctx, utils.AsUuid(obj.ID))

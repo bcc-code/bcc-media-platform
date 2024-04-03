@@ -1,6 +1,7 @@
 type Short implements CollectionItem & PlaylistItem & MediaItem {
     id: ID!
     title: String!
+    originalTitle: String! @goField(forceResolver: true)
     description: String
     image(style: ImageStyle): String @goField(forceResolver: true)
     streams: [Stream!]! @goField(forceResolver: true)

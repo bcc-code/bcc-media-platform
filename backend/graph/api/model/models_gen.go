@@ -1088,14 +1088,15 @@ func (this SectionPagination) GetFirst() int  { return this.First }
 func (this SectionPagination) GetOffset() int { return this.Offset }
 
 type Short struct {
-	ID          string         `json:"id"`
-	Title       string         `json:"title"`
-	Description *string        `json:"description,omitempty"`
-	Image       *string        `json:"image,omitempty"`
-	Streams     []*Stream      `json:"streams"`
-	Files       []*File        `json:"files"`
-	Source      *SubclipSource `json:"source,omitempty"`
-	InMyList    bool           `json:"inMyList"`
+	ID            string         `json:"id"`
+	Title         string         `json:"title"`
+	OriginalTitle string         `json:"originalTitle"`
+	Description   *string        `json:"description,omitempty"`
+	Image         *string        `json:"image,omitempty"`
+	Streams       []*Stream      `json:"streams"`
+	Files         []*File        `json:"files"`
+	Source        *SubclipSource `json:"source,omitempty"`
+	InMyList      bool           `json:"inMyList"`
 }
 
 func (Short) IsSectionItemType() {}
