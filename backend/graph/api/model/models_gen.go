@@ -57,6 +57,7 @@ type MediaItem interface {
 	GetStreams() []*Stream
 	GetFiles() []*File
 	GetTitle() string
+	GetOriginalTitle() string
 	GetImage() *string
 }
 
@@ -437,6 +438,8 @@ func (this Episode) GetFiles() []*File {
 	}
 	return interfaceSlice
 }
+
+func (this Episode) GetOriginalTitle() string { return this.OriginalTitle }
 
 func (Episode) IsSectionItemType() {}
 
@@ -1132,6 +1135,8 @@ func (this Short) GetFiles() []*File {
 	}
 	return interfaceSlice
 }
+
+func (this Short) GetOriginalTitle() string { return this.OriginalTitle }
 
 func (Short) IsUserCollectionEntryItem() {}
 
