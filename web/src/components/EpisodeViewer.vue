@@ -7,7 +7,7 @@
 </template>
 <script lang="ts" setup>
 import { onMounted, onUnmounted, onUpdated, ref } from "vue"
-import { Player } from "bccm-video-player"
+import { Options, Player } from "bccm-video-player"
 import playerFactory from "@/services/player"
 import {
     EpisodeContext,
@@ -24,6 +24,7 @@ import { analytics } from "@/services/analytics"
 import { useRoute } from "vue-router"
 import { createVjsMenuButton, type MenuItem } from "@/components/videojs/Menu"
 import { languages } from "@/services/language"
+import { currentApp } from "@/services/app"
 
 const { isAuthenticated } = useAuth0()
 
@@ -123,7 +124,7 @@ const load = async () => {
             await executeQuery()
         }
 
-        const options = {
+        const options: Partial<Options> = {
             languagePreferenceDefaults: {
                 audio: lanTo3letter[currentLanguage.value.code],
                 subtitles: lanTo3letter[currentLanguage.value.code],
@@ -134,6 +135,7 @@ const load = async () => {
             npaw: {
                 enabled: !!import.meta.env.VITE_NPAW_ACCOUNT_CODE,
                 accountCode: import.meta.env.VITE_NPAW_ACCOUNT_CODE,
+                appName: currentApp.value,
                 tracking: {
                     isLive: false,
                     userId: data.value?.me.analytics.anonymousId!,

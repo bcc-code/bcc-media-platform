@@ -36,8 +36,8 @@ dependencies:
     specifier: ^10.8.0
     version: 10.8.0(vue@3.3.4)
   bccm-video-player:
-    specifier: 1.5.3
-    version: 1.5.3
+    specifier: 1.5.4
+    version: 1.5.4
   bccm-video-player-legacy:
     specifier: npm:bccm-video-player@1.4.0-test
     version: /bccm-video-player@1.4.0-test
@@ -2590,8 +2590,8 @@ packages:
       - encoding
     dev: false
 
-  /bccm-video-player@1.5.3:
-    resolution: {integrity: sha512-OV4ZtudIq0hPcKTb5BEbnSV+VJg00mIrLRFbobUzQvB4zCha5kwSG35xD1AbXHV9k+WJfoKXiFq1QyPvUzQTVg==}
+  /bccm-video-player@1.5.4:
+    resolution: {integrity: sha512-gTHG3qrxc+UVYa2iu86ml2GbE9is9FloGvzFk7Bot4Y4NWgtOXVbeQpNfpp/UEt18LNNeWiScQzbN0HTzAuqtQ==}
     dependencies:
       '@silvermine/videojs-chromecast': 1.4.1(video.js@7.21.5)
       graphql: 16.8.1

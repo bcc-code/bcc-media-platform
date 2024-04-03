@@ -8,7 +8,7 @@ import {
 import { AuthConfig, authExchange, AuthUtilities } from "@urql/exchange-auth"
 import { Auth } from "../services/auth"
 import { current } from "@/services/language"
-import { current as currentApp } from "@/services/app"
+import { currentApp as currentApp } from "@/services/app"
 import { webViewMain } from "@/services/webviews/mainHandler"
 
 const authExchangeFunction = async (

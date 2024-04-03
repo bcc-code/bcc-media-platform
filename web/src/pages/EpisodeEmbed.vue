@@ -5,7 +5,7 @@ import { lanTo3letter } from "@/utils/languages"
 import { onMounted, ref } from "vue"
 import { useGetEpisodeEmbedQuery } from "@/graph/generated"
 import EmbedDownloadables from "@/components/embed/EmbedDownloadables.vue"
-import { current as currentApp } from "@/services/app"
+import { currentApp } from "@/services/app"
 import { useRoute } from "vue-router"
 
 const props = defineProps<{
@@ -83,6 +83,17 @@ const load = async () => {
             languagePreferenceDefaults: {
                 audio: language.value,
                 subtitles: language.value,
+            },
+            npaw: {
+                accountCode: import.meta.env.VITE_NPAW_ACCOUNT_CODE,
+                enabled: !!import.meta.env.VITE_NPAW_ACCOUNT_CODE,
+                appName: currentApp.value,
+                tracking: {
+                    isLive: false,
+                    metadata: {
+                        contentId: episodeId.value,
+                    },
+                },
             },
         },
     })

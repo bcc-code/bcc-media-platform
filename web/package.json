@@ -30,7 +30,7 @@
         "@urql/exchange-auth": "2.0.0",
         "@urql/vue": "1.0.4",
         "@vueuse/core": "^10.8.0",
-        "bccm-video-player": "1.5.3",
+        "bccm-video-player": "1.5.4",
         "bccm-video-player-legacy": "npm:bccm-video-player@1.4.0-test",
         "graphql": "^16.8.1",
         "graphql-tag": "^2.12.6",
