@@ -49,7 +49,7 @@ export async function createPlayer(containerId: string, opts: Partial<Options>):
     document.getElementById(containerId)?.insertAdjacentElement("afterbegin", videoEl)
 
     const player = setupVideoJs(videoEl, options)
-    if (options.npaw.enabled === true) {
+    if (options.npaw?.enabled === true) {
         enableNPAW(player, options.npaw)
     }
 
@@ -65,7 +65,7 @@ export type Options = {
         audio?: string,
         subtitles?: string,
     },
-    npaw: NPAWOptions,
+    npaw?: NPAWOptions,
     autoplay: boolean,
     subtitles: any[],
     videojs: VideoJsPlayerOptions
@@ -92,15 +92,6 @@ const getDefaults = () => {
         },
         autoplay: false,
         languagePreferenceDefaults: {},
-        npaw: {
-            tracking: {
-                isLive: false,
-                metadata: {
-
-                },
-                userId: ""
-            },
-        },
         subtitles: [],
         videojs: {
             autoplay: false,

@@ -5,6 +5,7 @@ import Adapter from "youbora-adapter-videojs"
 export type Options = {
     enabled?: boolean,
     accountCode?: string,
+    appName: string,
     tracking: {
         isLive?: boolean,
         userId?: string,
@@ -35,7 +36,7 @@ function toConfig(options: Options) {
         "content.episodeTitle": md.episodeTitle,
         obfuscateIp: true,
         "user.name": options.tracking.userId,
-        "app.name": "web",
+        "app.name": options.appName,
         "app.releaseVersion": "",//RELEASE_VERSION,
         "parse.manifest": true,
         "extraparam.1": options.tracking.sessionId,
@@ -56,9 +57,9 @@ export function enableNPAW(player: VideoJsPlayer, options: Options) {
     const defaults = toConfig(options)
 
     npaw.setOptions(defaults)
-    npaw.setAdapter(new Adapter(player)) // Attach adapter
+    npaw.setAdapter(new Adapter(player)); // Attach adapter
 
-    ;(player as any)._npaw = npaw
+    (player as any)._npaw = npaw
 }
 
 export function setOptions(player: VideoJsPlayer, options: Options) {
