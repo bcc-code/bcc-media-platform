@@ -277,6 +277,7 @@ type ComplexityRoot struct {
 		Locked                func(childComplexity int) int
 		Next                  func(childComplexity int, limit *int) int
 		Number                func(childComplexity int) int
+		OriginalTitle         func(childComplexity int) int
 		ProductionDate        func(childComplexity int) int
 		ProductionDateInTitle func(childComplexity int) int
 		Progress              func(childComplexity int) int
@@ -1008,6 +1009,7 @@ type EpisodeResolver interface {
 
 	AvailableFrom(ctx context.Context, obj *model.Episode) (string, error)
 
+	OriginalTitle(ctx context.Context, obj *model.Episode) (string, error)
 	Title(ctx context.Context, obj *model.Episode) (string, error)
 
 	Image(ctx context.Context, obj *model.Episode, style *model.ImageStyle) (*string, error)
@@ -2096,6 +2098,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.Number(childComplexity), true
+
+	case "Episode.originalTitle":
+		if e.complexity.Episode.OriginalTitle == nil {
+			break
+		}
+
+		return e.complexity.Episode.OriginalTitle(childComplexity), true
 
 	case "Episode.productionDate":
 		if e.complexity.Episode.ProductionDate == nil {
@@ -5923,6 +5932,7 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     availableFrom: Date! @goField(forceResolver: true)
     availableTo: Date!
     ageRating: String!
+    originalTitle: String! @goField(forceResolver: true)
     title: String! @goField(forceResolver: true)
     description: String!
     extraDescription: String!
@@ -13442,6 +13452,50 @@ func (ec *executionContext) fieldContext_Episode_ageRating(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_originalTitle(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_originalTitle(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Episode().OriginalTitle(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_originalTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_title(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_title(ctx, field)
 	if err != nil {
@@ -14591,6 +14645,8 @@ func (ec *executionContext) fieldContext_Episode_next(ctx context.Context, field
 				return ec.fieldContext_Episode_availableTo(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Episode_ageRating(ctx, field)
+			case "originalTitle":
+				return ec.fieldContext_Episode_originalTitle(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -15082,6 +15138,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx contex
 				return ec.fieldContext_Episode_availableTo(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Episode_ageRating(ctx, field)
+			case "originalTitle":
+				return ec.fieldContext_Episode_originalTitle(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -15334,6 +15392,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Con
 				return ec.fieldContext_Episode_availableTo(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Episode_ageRating(ctx, field)
+			case "originalTitle":
+				return ec.fieldContext_Episode_originalTitle(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -19618,6 +19678,8 @@ func (ec *executionContext) fieldContext_Lesson_defaultEpisode(ctx context.Conte
 				return ec.fieldContext_Episode_availableTo(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Episode_ageRating(ctx, field)
+			case "originalTitle":
+				return ec.fieldContext_Episode_originalTitle(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -22023,6 +22085,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 				return ec.fieldContext_Episode_availableTo(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Episode_ageRating(ctx, field)
+			case "originalTitle":
+				return ec.fieldContext_Episode_originalTitle(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -25505,6 +25569,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_availableTo(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Episode_ageRating(ctx, field)
+			case "originalTitle":
+				return ec.fieldContext_Episode_originalTitle(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -28547,6 +28613,8 @@ func (ec *executionContext) fieldContext_Season_defaultEpisode(ctx context.Conte
 				return ec.fieldContext_Episode_availableTo(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Episode_ageRating(ctx, field)
+			case "originalTitle":
+				return ec.fieldContext_Episode_originalTitle(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -31599,6 +31667,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(ctx context.Context
 				return ec.fieldContext_Episode_availableTo(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Episode_ageRating(ctx, field)
+			case "originalTitle":
+				return ec.fieldContext_Episode_originalTitle(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -36059,6 +36129,8 @@ func (ec *executionContext) fieldContext_VideoTask_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_availableTo(ctx, field)
 			case "ageRating":
 				return ec.fieldContext_Episode_ageRating(ctx, field)
+			case "originalTitle":
+				return ec.fieldContext_Episode_originalTitle(ctx, field)
 			case "title":
 				return ec.fieldContext_Episode_title(ctx, field)
 			case "description":
@@ -41242,6 +41314,42 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "originalTitle":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_originalTitle(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "title":
 			field := field
 
