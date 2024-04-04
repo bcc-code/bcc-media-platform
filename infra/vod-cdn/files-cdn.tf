@@ -36,6 +36,7 @@ resource "aws_cloudfront_distribution" "vod_files" {
       "GET",
       "HEAD",
     ]
+    response_headers_policy_id = "60669652-455b-4ae9-85a4-c4c02393f86c" // SimpleCORS managed policy
 
     compress               = true
     default_ttl            = 0
