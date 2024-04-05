@@ -1,4 +1,3 @@
-
 # BCC Media CMS
 
 # Local setup
@@ -6,10 +5,12 @@
 ## Prerequisities
 
 You need:
+
 - docker
 - npm
 
 If using windows (without wsl), you also need:
+
 - make for windows ([choco](https://chocolatey.org/install) install make)
 - some bash terminal, like git-bash
 
@@ -26,5 +27,4 @@ You can start a local instance (after completing the above section) using `make 
 The initial login credentials are:
 
 Username: admin@brunstad.tv
-Pass: btv123
-
+Pass: bccm123
