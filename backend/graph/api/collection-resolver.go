@@ -123,7 +123,7 @@ func (r *Resolver) resolveShortsCollection(ctx context.Context, ls *common.Batch
 	if err != nil {
 		return nil, err
 	}
-	result, err := r.getShuffledShortIDsWithCursor(ctx, p, nil, nil)
+	result, err := r.getShuffledShortIDsWithCursor(ctx, p, nil, nil, uuid.Nil)
 	if err != nil {
 		return nil, err
 	}
