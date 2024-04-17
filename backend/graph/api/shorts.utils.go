@@ -191,7 +191,8 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int, in
 	if err != nil {
 		return nil, err
 	}
-	if initialUUID != uuid.Nil {
+
+	if initialUUID != uuid.Nil && result.Cursor.CurrentIndex == 0 {
 		isInResult := false
 		for _, s := range shorts {
 			if s.ID == initialUUID {
