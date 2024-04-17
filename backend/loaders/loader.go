@@ -18,9 +18,14 @@ func (bl *Loader[K, V]) Get(ctx context.Context, key K) (V, error) {
 	return GetByID(ctx, bl.Loader, key)
 }
 
-// GetMany retrieves the specified entries from the loader
+// GetMany retrieves the specified entries from the loader, and ignores nil items
 func (bl *Loader[K, V]) GetMany(ctx context.Context, keys []K) ([]V, error) {
 	return GetMany(ctx, bl.Loader, keys)
+}
+
+// GetManyStrict retrieves the specified entries from the loader, and returns errors for nil items
+func (bl *Loader[K, V]) GetManyStrict(ctx context.Context, keys []K) ([]V, []error) {
+	return GetManyStrict(ctx, bl.Loader, keys)
 }
 
 // HasKey interface for items with keys
@@ -152,7 +157,7 @@ func GetByID[k comparable, t any](ctx context.Context, loader *dataloader.Loader
 	return result, nil
 }
 
-// GetMany retrieves multiple items from specified loader
+// GetMany retrieves multiple items from specified loader, and ignores nil items
 func GetMany[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, t], ids []k) ([]t, error) {
 	thunk := loader.LoadMany(ctx, ids)
 	result, errs := thunk()
@@ -170,4 +175,25 @@ func GetMany[k comparable, t any](ctx context.Context, loader *dataloader.Loader
 		items = append(items, i)
 	}
 	return items, nil
+}
+
+// GetManyStrict retrieves multiple items from specified loader, but returns errors for nil items
+func GetManyStrict[k comparable, t any](ctx context.Context, loader *dataloader.Loader[k, t], ids []k) ([]t, []error) {
+	thunk := loader.LoadMany(ctx, ids)
+	result, errs := thunk()
+	if len(errs) > 0 {
+		log.L.Error().Err(errs[0]).Send()
+		return nil, errs
+	}
+
+	var err []error
+	var items []t
+	for index, i := range result {
+		if v := reflect.ValueOf(i); v.Kind() == reflect.Ptr && v.IsNil() {
+			err = append(err, errNotFound(ids[index]))
+			continue
+		}
+		items = append(items, i)
+	}
+	return items, err
 }
