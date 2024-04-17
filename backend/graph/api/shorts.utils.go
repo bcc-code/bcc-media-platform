@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
@@ -147,6 +148,9 @@ func (r *Resolver) clearShortsProgress(ctx context.Context, p *common.Profile) e
 	}
 	shortIDs := lo.Flatten(shortIDSegments)
 	mediaIDs, err := r.shortIDsToMediaIDs(ctx, shortIDs)
+	if err != nil {
+		return err
+	}
 	err = r.GetQueries().RemoveProgressForMediaIDs(ctx, sqlc.RemoveProgressForMediaIDsParams{
 		ProfileID: p.ID,
 		ItemIds:   mediaIDs,
@@ -186,6 +190,18 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int, in
 	shorts, err := r.GetLoaders().ShortLoader.GetMany(ctx, result.Keys)
 	if err != nil {
 		return nil, err
+	}
+	if initialUUID != uuid.Nil {
+		isInResult := false
+		for _, s := range shorts {
+			if s.ID == initialUUID {
+				isInResult = true
+				break
+			}
+		}
+		if !isInResult {
+			graphql.AddError(ctx, ErrItemNotFound)
+		}
 	}
 
 	currentCursorString, err := utils.MarshalAndBase64Encode(result.Cursor)
@@ -230,7 +246,7 @@ func applyInitialShort(shortIDs []uuid.UUID, initialID uuid.UUID, cursor utils.C
 	return shortIDs
 }
 
-// filter out shorts that are watched
+// applyWatchedFilter filters out shorts that are watched
 // keep in mind that this messes up the cursor,
 // so the same cursor will not return the same shorts if they are watched
 func (r *Resolver) applyWatchedFilter(ctx context.Context, shortIDs []uuid.UUID, p *common.Profile) ([]uuid.UUID, error) {
