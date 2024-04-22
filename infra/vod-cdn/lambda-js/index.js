@@ -165,9 +165,9 @@ function signed(dir, file, request) {
 
     if (fileWithoutQuery.endsWith(".m3u8")) {
         if (originalQueryString === '') {
-            return file + '?' + request.querystring
+            return file + '?' + policy
         } else {
-            return file + '&' + request.querystring
+            return file + '&' + policy
         }
     }
 
