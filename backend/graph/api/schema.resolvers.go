@@ -363,8 +363,8 @@ func (r *queryRootResolver) Short(ctx context.Context, id string) (*model.Short,
 }
 
 // Shorts is the resolver for the shorts field.
-func (r *queryRootResolver) Shorts(ctx context.Context, cursor *string, limit *int) (*model.ShortsPagination, error) {
-	return r.getShorts(ctx, cursor, limit)
+func (r *queryRootResolver) Shorts(ctx context.Context, cursor *string, limit *int, initialShortID *string) (*model.ShortsPagination, error) {
+	return r.getShorts(ctx, cursor, limit, initialShortID)
 }
 
 // PendingAchievements is the resolver for the pendingAchievements field.

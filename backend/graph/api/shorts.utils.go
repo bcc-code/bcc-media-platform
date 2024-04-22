@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
@@ -49,7 +50,7 @@ type shortsShuffledResult struct {
 	Keys       []uuid.UUID
 }
 
-func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.Profile, cursor *utils.Cursor[uuid.UUID], limit *int) (*shortsShuffledResult, error) {
+func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.Profile, cursor *utils.Cursor[uuid.UUID], limit *int, initialID uuid.UUID) (*shortsShuffledResult, error) {
 	if cursor == nil {
 		cursor = utils.NewCursor[uuid.UUID](true, 1)
 	}
@@ -70,30 +71,15 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 	var shortIDs []uuid.UUID
 	shortIDs = append(shortIDs, shuffledShortIDs...)
 
-	// filter out shorts that are watched
-	// keep in mind that this messes up the cursor,
-	// so the same cursor will not return the same shorts if they are watched
 	if p != nil {
-		mappedIDs, err := r.getShortToMediaIDMap(ctx, shortIDs)
+		shortIDs, err = r.applyWatchedFilter(ctx, shortIDs, p)
 		if err != nil {
 			return nil, err
 		}
-		progress, err := r.GetProfileLoaders(ctx).MediaProgressLoader.GetMany(ctx, lo.Values(mappedIDs))
-		if err != nil {
-			return nil, err
-		}
-		var ignoreIDs []uuid.UUID
-		for _, pr := range progress {
-			if pr == nil {
-				continue
-			}
-			if pr.Progress > 0.1 {
-				ignoreIDs = append(ignoreIDs, pr.MediaID)
-			}
-		}
-		shortIDs = lo.Filter(shortIDs, func(i uuid.UUID, _ int) bool {
-			return !lo.Contains(ignoreIDs, mappedIDs[i])
-		})
+	}
+
+	if initialID != uuid.Nil {
+		shortIDs = applyInitialShort(shortIDs, initialID, *cursor)
 	}
 
 	l := 20
@@ -162,6 +148,9 @@ func (r *Resolver) clearShortsProgress(ctx context.Context, p *common.Profile) e
 	}
 	shortIDs := lo.Flatten(shortIDSegments)
 	mediaIDs, err := r.shortIDsToMediaIDs(ctx, shortIDs)
+	if err != nil {
+		return err
+	}
 	err = r.GetQueries().RemoveProgressForMediaIDs(ctx, sqlc.RemoveProgressForMediaIDsParams{
 		ProfileID: p.ID,
 		ItemIds:   mediaIDs,
@@ -172,7 +161,7 @@ func (r *Resolver) clearShortsProgress(ctx context.Context, p *common.Profile) e
 	return nil
 }
 
-func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*model.ShortsPagination, error) {
+func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int, initialID *string) (*model.ShortsPagination, error) {
 	p, err := getProfile(ctx)
 	if err != nil && !errors.Is(err, ErrProfileNotSet) {
 		return nil, err
@@ -185,7 +174,15 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*
 		return nil, err
 	}
 
-	result, err := r.getShuffledShortIDsWithCursor(ctx, p, c, limit)
+	var initialUUID uuid.UUID
+	if initialID != nil {
+		initialUUID, err = uuid.Parse(*initialID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	result, err := r.getShuffledShortIDsWithCursor(ctx, p, c, limit, initialUUID)
 	if err != nil {
 		return nil, err
 	}
@@ -193,6 +190,19 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int) (*
 	shorts, err := r.GetLoaders().ShortLoader.GetMany(ctx, result.Keys)
 	if err != nil {
 		return nil, err
+	}
+
+	if initialUUID != uuid.Nil && result.Cursor.CurrentIndex == 0 {
+		isInResult := false
+		for _, s := range shorts {
+			if s.ID == initialUUID {
+				isInResult = true
+				break
+			}
+		}
+		if !isInResult {
+			graphql.AddError(ctx, ErrItemNotFound)
+		}
 	}
 
 	currentCursorString, err := utils.MarshalAndBase64Encode(result.Cursor)
@@ -222,4 +232,44 @@ func shortToShort(ctx context.Context, short *common.Short) *model.Short {
 		Title:       short.Title.Get(languages),
 		Description: short.Description.GetValueOrNil(languages),
 	}
+}
+
+func applyInitialShort(shortIDs []uuid.UUID, initialID uuid.UUID, cursor utils.Cursor[uuid.UUID]) []uuid.UUID {
+	for i, id := range shortIDs {
+		if id == initialID {
+			shortIDs = append(shortIDs[:i], shortIDs[i+1:]...)
+			break
+		}
+	}
+	if cursor.CurrentIndex == 0 {
+		shortIDs = append([]uuid.UUID{initialID}, shortIDs...)
+	}
+	return shortIDs
+}
+
+// applyWatchedFilter filters out shorts that are watched
+// keep in mind that this messes up the cursor,
+// so the same cursor will not return the same shorts if they are watched
+func (r *Resolver) applyWatchedFilter(ctx context.Context, shortIDs []uuid.UUID, p *common.Profile) ([]uuid.UUID, error) {
+	mappedIDs, err := r.getShortToMediaIDMap(ctx, shortIDs)
+	if err != nil {
+		return nil, err
+	}
+	progress, err := r.GetProfileLoaders(ctx).MediaProgressLoader.GetMany(ctx, lo.Values(mappedIDs))
+	if err != nil {
+		return nil, err
+	}
+	var ignoreIDs []uuid.UUID
+	for _, pr := range progress {
+		if pr == nil {
+			continue
+		}
+		if pr.Progress > 0.1 {
+			ignoreIDs = append(ignoreIDs, pr.MediaID)
+		}
+	}
+	shortIDs = lo.Filter(shortIDs, func(i uuid.UUID, _ int) bool {
+		return !lo.Contains(ignoreIDs, mappedIDs[i])
+	})
+	return shortIDs, nil
 }

@@ -639,7 +639,7 @@ type ComplexityRoot struct {
 		Season              func(childComplexity int, id string) int
 		Section             func(childComplexity int, id string, timestamp *string) int
 		Short               func(childComplexity int, id string) int
-		Shorts              func(childComplexity int, cursor *string, limit *int) int
+		Shorts              func(childComplexity int, cursor *string, limit *int, initialShortID *string) int
 		Show                func(childComplexity int, id string) int
 		StudyLesson         func(childComplexity int, id string) int
 		StudyTopic          func(childComplexity int, id string) int
@@ -1156,7 +1156,7 @@ type QueryRootResolver interface {
 	Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error)
 	Game(ctx context.Context, id string) (*model.Game, error)
 	Short(ctx context.Context, id string) (*model.Short, error)
-	Shorts(ctx context.Context, cursor *string, limit *int) (*model.ShortsPagination, error)
+	Shorts(ctx context.Context, cursor *string, limit *int, initialShortID *string) (*model.ShortsPagination, error)
 	PendingAchievements(ctx context.Context) ([]*model.Achievement, error)
 	Achievement(ctx context.Context, id string) (*model.Achievement, error)
 	AchievementGroup(ctx context.Context, id string) (*model.AchievementGroup, error)
@@ -4155,7 +4155,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.QueryRoot.Shorts(childComplexity, args["cursor"].(*string), args["limit"].(*int)), true
+		return e.complexity.QueryRoot.Shorts(childComplexity, args["cursor"].(*string), args["limit"].(*int), args["initialShortId"].(*string)), true
 
 	case "QueryRoot.show":
 		if e.complexity.QueryRoot.Show == nil {
@@ -6266,35 +6266,37 @@ type SurveyPrompt implements Prompt {
     survey: Survey! @goField(forceResolver: true)
 }
 `, BuiltIn: false},
-	{Name: "../schema/schema.graphqls", Input: `directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
-    | FIELD_DEFINITION
+	{Name: "../schema/schema.graphqls", Input: `directive @goField(
+  forceResolver: Boolean
+  name: String
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 
-schema{
-    query: QueryRoot
-    mutation: MutationRoot
+schema {
+  query: QueryRoot
+  mutation: MutationRoot
 }
 
 interface Pagination {
-    total: Int!
-    first: Int!
-    offset: Int!
+  total: Int!
+  first: Int!
+  offset: Int!
 }
 
 interface CollectionItem {
-    id: ID!
-    title: String!
-    description: String
-    #image(style: ImageStyle): String
+  id: ID!
+  title: String!
+  description: String
+  #image(style: ImageStyle): String
 }
 
 interface MediaItem {
-    id: ID!
-    streams: [Stream!]!
-    files: [File!]!
-    title: String!
-    originalTitle: String!
-    image(style: ImageStyle): String
-    #duration: Int!
+  id: ID!
+  streams: [Stream!]!
+  files: [File!]!
+  title: String!
+  originalTitle: String!
+  image(style: ImageStyle): String
+  #duration: Int!
 }
 
 scalar Language
@@ -6302,135 +6304,118 @@ scalar Date
 scalar UUID
 
 type Image {
-    style: String!
-    url: String!
+  style: String!
+  url: String!
 }
 
 enum ImageStyle {
-    poster
-    featured
-    default
+  poster
+  featured
+  default
 }
 
 enum Status {
-    published
-    unlisted
+  published
+  unlisted
 }
 
 input LegacyIDLookupOptions {
-    episodeID: Int
-    programID: Int
+  episodeID: Int
+  programID: Int
 }
 
 type LegacyIDLookup {
-    id: ID!
+  id: ID!
 }
 
 input EpisodeContext {
-    collectionId: String
-    playlistId: String
-    shuffle: Boolean
-    cursor: String
+  collectionId: String
+  playlistId: String
+  shuffle: Boolean
+  cursor: String
 }
 
 type RedirectLink {
-    url: String!
-    requiresAuthentication: Boolean!
+  url: String!
+  requiresAuthentication: Boolean!
 }
 
 type RedirectParam {
-    key: String!
-    value: String!
+  key: String!
+  value: String!
 }
 
-type QueryRoot{
-    application(timestamp: String): Application!
-    languages: [Language!]!
+type QueryRoot {
+  application(timestamp: String): Application!
+  languages: [Language!]!
 
-    export(
-        # Only export for this groups. The groups will be filtered by the groups the users has access to.
-        # NOT IMPLEMENTED YET!
-        groups: [String!]
-    ): Export!
+  export(
+    # Only export for this groups. The groups will be filtered by the groups the users has access to.
+    # NOT IMPLEMENTED YET!
+    groups: [String!]
+  ): Export!
 
-    redirect(id: String!): RedirectLink!
+  redirect(id: String!): RedirectLink!
 
-    page(
-        id: ID
-        code: String
-    ): Page!
+  page(id: ID, code: String): Page!
 
-    section(
-        id: ID!
-        timestamp: String
-    ): Section!
+  section(id: ID!, timestamp: String): Section!
 
-    show(
-        id: ID!
-    ): Show!
+  show(id: ID!): Show!
 
-    season(
-        id: ID!
-    ): Season!
+  season(id: ID!): Season!
 
-    episode(
-        id: ID!
-        context: EpisodeContext
-    ): Episode!
+  episode(id: ID!, context: EpisodeContext): Episode!
 
-    episodes(
-        ids: [ID!]!
-    ): [Episode!]!
+  episodes(ids: [ID!]!): [Episode!]!
 
-    playlist(id: ID!): Playlist!
+  playlist(id: ID!): Playlist!
 
-    search(
-        queryString: String!
-        first: Int
-        offset: Int
-        type: String
-        minScore: Int
-    ): SearchResult!
+  search(
+    queryString: String!
+    first: Int
+    offset: Int
+    type: String
+    minScore: Int
+  ): SearchResult!
 
-    game(
-        id: UUID!
-    ): Game!
+  game(id: UUID!): Game!
 
-    short(id: UUID!): Short!
+  short(id: UUID!): Short!
 
-    shorts(cursor: String, limit: Int): ShortsPagination!
+  shorts(cursor: String, limit: Int, initialShortId: UUID): ShortsPagination!
 
-    pendingAchievements: [Achievement!]!
+  pendingAchievements: [Achievement!]!
 
-    achievement(id: ID!): Achievement!
+  achievement(id: ID!): Achievement!
 
-    achievementGroup(id: ID!): AchievementGroup!
-    achievementGroups(first: Int, offset: Int): AchievementGroupPagination!
+  achievementGroup(id: ID!): AchievementGroup!
+  achievementGroups(first: Int, offset: Int): AchievementGroupPagination!
 
-    studyTopic(id: ID!): StudyTopic!
-    studyLesson(id: ID!): Lesson!
+  studyTopic(id: ID!): StudyTopic!
+  studyLesson(id: ID!): Lesson!
 
-    calendar: Calendar
-    event(id: ID!): Event
+  calendar: Calendar
+  event(id: ID!): Event
 
-    faq: FAQ!
+  faq: FAQ!
 
-    me: User!
+  me: User!
 
-    myList: UserCollection!
+  myList: UserCollection!
 
-    userCollection(id: UUID!): UserCollection!
+  userCollection(id: UUID!): UserCollection!
 
-    config: Config!
+  config: Config!
 
-    profiles: [Profile!]!
-    profile: Profile!
+  profiles: [Profile!]!
+  profile: Profile!
 
-    legacyIDLookup(options: LegacyIDLookupOptions): LegacyIDLookup!
+  legacyIDLookup(options: LegacyIDLookupOptions): LegacyIDLookup!
 
-    prompts(timestamp: Date): [Prompt!]!
+  prompts(timestamp: Date): [Prompt!]!
 
-    subscriptions: [SubscriptionTopic!]!
+  subscriptions: [SubscriptionTopic!]!
 }
 `, BuiltIn: false},
 	{Name: "../schema/search.graphqls", Input: `
@@ -8608,6 +8593,15 @@ func (ec *executionContext) field_QueryRoot_shorts_args(ctx context.Context, raw
 		}
 	}
 	args["limit"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["initialShortId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("initialShortId"))
+		arg2, err = ec.unmarshalOUUID2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["initialShortId"] = arg2
 	return args, nil
 }
 
@@ -26136,7 +26130,7 @@ func (ec *executionContext) _QueryRoot_shorts(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().Shorts(rctx, fc.Args["cursor"].(*string), fc.Args["limit"].(*int))
+		return ec.resolvers.QueryRoot().Shorts(rctx, fc.Args["cursor"].(*string), fc.Args["limit"].(*int), fc.Args["initialShortId"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -53069,6 +53063,22 @@ func (ec *executionContext) marshalOSubclipSource2ᚖgithubᚗcomᚋbccᚑcode�
 		return graphql.Null
 	}
 	return ec._SubclipSource(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOUUID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalString(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOUUID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalString(*v)
+	return res
 }
 
 func (ec *executionContext) marshalOUserCollectionEntryItem2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntryItem(ctx context.Context, sel ast.SelectionSet, v model.UserCollectionEntryItem) graphql.Marshaler {
