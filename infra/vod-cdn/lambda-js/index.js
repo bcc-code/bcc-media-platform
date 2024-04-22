@@ -164,10 +164,11 @@ function signed(dir, file, request) {
     let policy = parsedQs["EncodedPolicy"];
 
     if (fileWithoutQuery.endsWith(".m3u8")) {
+        let newQuery = qsParser.stringify({ EncodedPolicy: policy });
         if (originalQueryString === '') {
-            return file + '?' + policy
+            return file + '?' + qsParser.encode(newQuery)
         } else {
-            return file + '&' + policy
+            return file + '&' + qsParser.encode(newQuery)
         }
     }
 
