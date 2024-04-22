@@ -143,7 +143,12 @@ func (r *previewResolver) Asset(ctx context.Context, obj *model.Preview, id stri
 	}
 
 	streams = lo.Filter(streams, func(s common.Stream, _ int) bool {
-		return !strings.Contains(s.Url, common.IgnoreEpisodeAssetEndpoint)
+		for _, ignore := range common.IgnoreEpisodeAssetEndpoints {
+			if strings.Contains(s.Url, ignore) {
+				return false
+			}
+		}
+		return true
 	})
 
 	stream, found := lo.Find(streams, func(s common.Stream) bool {

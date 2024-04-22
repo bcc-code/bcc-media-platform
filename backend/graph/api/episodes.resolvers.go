@@ -150,7 +150,12 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 	}
 
 	out = lo.Filter(out, func(s *model.Stream, _ int) bool {
-		return !strings.Contains(s.URL, common.IgnoreEpisodeAssetEndpoint)
+		for _, ignore := range common.IgnoreEpisodeAssetEndpoints {
+			if strings.Contains(s.URL, ignore) {
+				return false
+			}
+		}
+		return true
 	})
 
 	return out, nil
