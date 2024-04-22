@@ -4,7 +4,7 @@ sql:
     schema: "../migrations"
     queries: "../queries"
     database:
-      uri: postgresql://btv:btv123@localhost:5432/btv
+      uri: postgresql://bccm:bccm123@localhost:5432/bccm
     gen:
        go:
             package: sqlc

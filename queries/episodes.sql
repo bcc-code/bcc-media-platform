@@ -48,6 +48,7 @@ FROM episodes e
 WITH ts AS (SELECT episodes_id,
                    json_object_agg(languages_code, extra_description) AS extra_description
             FROM episodes_translations
+            WHERE episodes_id = ANY ($1::int[])
             GROUP BY episodes_id)
 SELECT e.id,
        e.uuid,
