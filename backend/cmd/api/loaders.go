@@ -305,6 +305,14 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		UserCollectionEntryIDsLoader:   loaders.NewRelationLoader(ctx, queries.GetUserCollectionEntryIDsForUserCollectionIDs, loaders.WithName("user-collection-entry-ids")),
 		ProfileUserCollectionIDsLoader: loaders.NewRelationLoader(ctx, queries.GetUserCollectionIDsForProfileIDs, loaders.WithName("user-collection-ids")),
 		ProfileMyListCollectionID:      loaders.NewConversionLoader(ctx, queries.GetMyListCollectionForProfileIDs, loaders.WithName("user-my-list-id")),
+
+		ContributionsLoader: loaders.New(ctx, queries.GetContributions, loaders.WithName("contributions-loader"), loaders.WithKeyFunc(func(i common.Contribution) int32 {
+			return i.ID
+		})),
+		PersonContributionsLoader: loaders.NewRelationLoader(ctx, queries.GetContributionsForPersons, loaders.WithName("person-contributions")),
+		PersonContributionTypesLoader: loaders.NewListLoader(ctx, queries.GetContributionTypesForPersons, func(item common.ContributionTypeCount) uuid.UUID {
+			return item.PersonId
+		}),
 	}
 }
 

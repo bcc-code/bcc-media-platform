@@ -25,6 +25,10 @@ type CollectionItem interface {
 	GetDescription() *string
 }
 
+type ContributionItem interface {
+	IsContributionItem()
+}
+
 type EpisodeContextUnion interface {
 	IsEpisodeContextUnion()
 }
@@ -295,6 +299,8 @@ type Chapter struct {
 	Description *string `json:"description,omitempty"`
 }
 
+func (Chapter) IsContributionItem() {}
+
 type Config struct {
 	Global *GlobalConfig `json:"global"`
 }
@@ -310,6 +316,29 @@ type ContextCollection struct {
 }
 
 func (ContextCollection) IsEpisodeContextUnion() {}
+
+type Contribution struct {
+	Person *Person          `json:"person"`
+	Type   ContributionType `json:"type"`
+	Item   ContributionItem `json:"item"`
+}
+
+type ContributionTypeCount struct {
+	Type  ContributionType `json:"type"`
+	Count int              `json:"count"`
+}
+
+type ContributionsPagination struct {
+	Total  int             `json:"total"`
+	First  int             `json:"first"`
+	Offset int             `json:"offset"`
+	Items  []*Contribution `json:"items"`
+}
+
+func (ContributionsPagination) IsPagination()       {}
+func (this ContributionsPagination) GetTotal() int  { return this.Total }
+func (this ContributionsPagination) GetFirst() int  { return this.First }
+func (this ContributionsPagination) GetOffset() int { return this.Offset }
 
 type DefaultGridSection struct {
 	ID          string                 `json:"id"`
@@ -440,6 +469,8 @@ func (this Episode) GetFiles() []*File {
 }
 
 func (this Episode) GetOriginalTitle() string { return this.OriginalTitle }
+
+func (Episode) IsContributionItem() {}
 
 func (Episode) IsSectionItemType() {}
 
@@ -837,6 +868,14 @@ func (PageDetailsSection) IsSection()                   {}
 func (this PageDetailsSection) GetID() string           { return this.ID }
 func (this PageDetailsSection) GetTitle() *string       { return this.Title }
 func (this PageDetailsSection) GetDescription() *string { return this.Description }
+
+type Person struct {
+	ID                string                   `json:"id"`
+	Name              string                   `json:"name"`
+	Image             *string                  `json:"image,omitempty"`
+	ContributionTypes []*ContributionTypeCount `json:"contributionTypes"`
+	Contributions     *ContributionsPagination `json:"contributions"`
+}
 
 type Playlist struct {
 	ID          string                  `json:"id"`
@@ -1461,6 +1500,53 @@ func (e *CardSectionSize) UnmarshalGQL(v interface{}) error {
 }
 
 func (e CardSectionSize) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ContributionType string
+
+const (
+	ContributionTypeLyricist ContributionType = "lyricist"
+	ContributionTypeComposer ContributionType = "composer"
+	ContributionTypeArranger ContributionType = "arranger"
+	ContributionTypeSpeaker  ContributionType = "speaker"
+	ContributionTypeSinger   ContributionType = "singer"
+)
+
+var AllContributionType = []ContributionType{
+	ContributionTypeLyricist,
+	ContributionTypeComposer,
+	ContributionTypeArranger,
+	ContributionTypeSpeaker,
+	ContributionTypeSinger,
+}
+
+func (e ContributionType) IsValid() bool {
+	switch e {
+	case ContributionTypeLyricist, ContributionTypeComposer, ContributionTypeArranger, ContributionTypeSpeaker, ContributionTypeSinger:
+		return true
+	}
+	return false
+}
+
+func (e ContributionType) String() string {
+	return string(e)
+}
+
+func (e *ContributionType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ContributionType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ContributionType", str)
+	}
+	return nil
+}
+
+func (e ContributionType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

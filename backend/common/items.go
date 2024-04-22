@@ -516,8 +516,9 @@ type Song struct {
 
 // Person contains some metadata for people
 type Person struct {
-	ID   uuid.UUID
-	Name string
+	ID     uuid.UUID
+	Name   string
+	Images Images
 }
 
 // Phrase is a key value pair for translations
