@@ -41,6 +41,63 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			LegacyID:              e.LegacyID,
 			LegacyProgramID:       e.LegacyProgramID,
 			PublicTitle:           e.PublicTitle,
+			PreventPublicIndexing: e.PreventPublicIndexing.Bool,
+			NumberInTitle:         e.NumberInTitle.Bool,
+			Title:                 title,
+			Description:           description,
+			ExtraDescription:      extraDescription,
+			ProductionDateInTitle: e.PublishDateInTitle.Bool,
+			PublishDate:           e.PublishedAt.Time,
+			ProductionDate:        e.ProductionDate.Time,
+			AvailableFrom:         e.AvailableFrom.Time,
+			AvailableTo:           e.AvailableTo.Time,
+			Number:                e.EpisodeNumber,
+			SeasonID:              e.SeasonID,
+			AssetID:               e.AssetID,
+			Assets:                assetIDs,
+			AssetVersion:          assetVersion,
+			Images:                q.getImages(e.Images.RawMessage),
+			AgeRating:             e.Agerating.String,
+			Duration:              int(e.Duration.ValueOrZero()),
+			Audience:              e.Audience,
+			ContentType:           e.ContentType,
+			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
+				return int(id)
+			}),
+			TimedMetadataIDs: e.TimedmetadataIds,
+		}
+	})
+}
+
+func (q *Queries) mapListToEpisodes(episodes []listEpisodesRow) []common.Episode {
+	return lo.Map(episodes, func(e listEpisodesRow, _ int) common.Episode {
+		var title = common.LocaleString{}
+		var description = common.LocaleString{}
+		var extraDescription = common.LocaleString{}
+
+		_ = json.Unmarshal(e.Title.RawMessage, &title)
+		_ = json.Unmarshal(e.Description.RawMessage, &description)
+		_ = json.Unmarshal(e.ExtraDescription.RawMessage, &extraDescription)
+
+		title["no"] = e.OriginalTitle
+		description["no"] = e.OriginalDescription
+
+		var assetIDs common.LocaleMap[int]
+		_ = json.Unmarshal(e.Assets.RawMessage, &assetIDs)
+
+		assetVersion := ""
+		if e.AssetDateUpdated.Valid {
+			assetVersion = e.AssetDateUpdated.Time.Format(time.RFC3339)
+		}
+
+		return common.Episode{
+			ID:                    int(e.ID),
+			UUID:                  e.Uuid,
+			Status:                common.StatusFrom(e.Status),
+			Type:                  e.Type,
+			LegacyID:              e.LegacyID,
+			LegacyProgramID:       e.LegacyProgramID,
+			PublicTitle:           e.PublicTitle,
 			PreventPublicIndexing: e.PreventPublicIndexing,
 			NumberInTitle:         e.NumberInTitle.Bool,
 			Title:                 title,
@@ -84,8 +141,8 @@ func (q *Queries) ListEpisodes(ctx context.Context) ([]common.Episode, error) {
 	if err != nil {
 		return nil, err
 	}
-	return q.mapToEpisodes(lo.Map(items, func(i listEpisodesRow, _ int) getEpisodesRow {
-		return getEpisodesRow(i)
+	return q.mapListToEpisodes(lo.Map(items, func(i listEpisodesRow, _ int) listEpisodesRow {
+		return listEpisodesRow(i)
 	})), nil
 }
 

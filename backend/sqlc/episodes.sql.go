@@ -373,7 +373,7 @@ SELECT e.id,
        mi.content_type,
        mi.timedmetadata_ids
 FROM episodes e
-         LEFT JOIN mediaitems_view mi ON mi.id = e.mediaitem_id
+         LEFT JOIN mediaitems_by_episodes($1::int[]) mi ON mi.id = e.mediaitem_id
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN seasons s ON e.season_id = s.id
          LEFT JOIN shows sh ON s.show_id = sh.id
@@ -396,10 +396,10 @@ type getEpisodesRow struct {
 	EpisodeNumber         null_v4.Int           `db:"episode_number" json:"episodeNumber"`
 	PublicTitle           null_v4.String        `db:"public_title" json:"publicTitle"`
 	NumberInTitle         sql.NullBool          `db:"number_in_title" json:"numberInTitle"`
-	PreventPublicIndexing bool                  `db:"prevent_public_indexing" json:"preventPublicIndexing"`
-	PublishDateInTitle    bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
-	AvailableFrom         time.Time             `db:"available_from" json:"availableFrom"`
-	AvailableTo           time.Time             `db:"available_to" json:"availableTo"`
+	PreventPublicIndexing sql.NullBool          `db:"prevent_public_indexing" json:"preventPublicIndexing"`
+	PublishDateInTitle    sql.NullBool          `db:"publish_date_in_title" json:"publishDateInTitle"`
+	AvailableFrom         null_v4.Time          `db:"available_from" json:"availableFrom"`
+	AvailableTo           null_v4.Time          `db:"available_to" json:"availableTo"`
 	AssetID               null_v4.Int           `db:"asset_id" json:"assetId"`
 	Assets                pqtype.NullRawMessage `db:"assets" json:"assets"`
 	PublishedAt           null_v4.Time          `db:"published_at" json:"publishedAt"`
@@ -413,7 +413,7 @@ type getEpisodesRow struct {
 	TagIds                []int32               `db:"tag_ids" json:"tagIds"`
 	Duration              null_v4.Int           `db:"duration" json:"duration"`
 	AssetDateUpdated      null_v4.Time          `db:"asset_date_updated" json:"assetDateUpdated"`
-	Agerating             string                `db:"agerating" json:"agerating"`
+	Agerating             null_v4.String        `db:"agerating" json:"agerating"`
 	Audience              null_v4.String        `db:"audience" json:"audience"`
 	ContentType           null_v4.String        `db:"content_type" json:"contentType"`
 	TimedmetadataIds      []uuid.UUID           `db:"timedmetadata_ids" json:"timedmetadataIds"`
