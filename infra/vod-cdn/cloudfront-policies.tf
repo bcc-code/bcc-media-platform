@@ -36,7 +36,7 @@ resource "aws_cloudfront_origin_request_policy" "manifest_lambda" {
   query_strings_config {
     query_string_behavior = "whitelist"
     query_strings {
-      items = ["EncodedPolicy", "m"]
+      items = ["EncodedPolicy", "m", "aws.manifestfilter"]
     }
   }
 
