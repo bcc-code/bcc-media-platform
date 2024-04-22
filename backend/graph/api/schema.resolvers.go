@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Code-Hex/go-generics-cache"
+	cache "github.com/Code-Hex/go-generics-cache"
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/applications"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
@@ -276,6 +276,46 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string, context *mod
 		Item:        r.Loaders.EpisodeLoader,
 		Permissions: r.Loaders.EpisodePermissionLoader,
 	}, episodeID, model.EpisodeFrom)
+}
+
+// Episodes is the resolver for the episodes field.
+func (r *queryRootResolver) Episodes(ctx context.Context, ids []string) ([]*model.Episode, error) {
+
+	resolved := make([]*model.Episode, len(ids))
+	ch := make(chan *model.Episode, len(ids))
+	errCh := make(chan error, len(ids))
+	defer close(ch)
+	defer close(errCh)
+
+	for _, id := range ids {
+		go func(id string) {
+			episodeID, err := r.episodeIDResolver(ctx, id)
+			if err != nil {
+				errCh <- err
+				return
+			}
+			episode, err := resolverForIntID(ctx, &itemLoaders[int, common.Episode]{
+				Item:        r.Loaders.EpisodeLoader,
+				Permissions: r.Loaders.EpisodePermissionLoader,
+			}, episodeID, model.EpisodeFrom)
+			if err != nil {
+				errCh <- err
+				return
+			}
+			ch <- episode
+		}(id)
+	}
+
+	for i := 0; i < len(ids); i++ {
+		select {
+		case episode := <-ch:
+			resolved[i] = episode
+		case err := <-errCh:
+			return nil, err
+		}
+	}
+
+	return resolved, nil
 }
 
 // Playlist is the resolver for the playlist field.

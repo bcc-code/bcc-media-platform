@@ -265,7 +265,7 @@ type ComplexityRoot struct {
 		Description           func(childComplexity int) int
 		Duration              func(childComplexity int) int
 		ExtraDescription      func(childComplexity int) int
-		Files                 func(childComplexity int) int
+		Files                 func(childComplexity int, audioLanguages []string) int
 		ID                    func(childComplexity int) int
 		Image                 func(childComplexity int, style *model.ImageStyle) int
 		ImageURL              func(childComplexity int) int
@@ -619,6 +619,7 @@ type ComplexityRoot struct {
 		Calendar            func(childComplexity int) int
 		Config              func(childComplexity int) int
 		Episode             func(childComplexity int, id string, context *model.EpisodeContext) int
+		Episodes            func(childComplexity int, ids []string) int
 		Event               func(childComplexity int, id string) int
 		Export              func(childComplexity int, groups []string) int
 		Faq                 func(childComplexity int) int
@@ -1016,7 +1017,7 @@ type EpisodeResolver interface {
 	Image(ctx context.Context, obj *model.Episode, style *model.ImageStyle) (*string, error)
 
 	Streams(ctx context.Context, obj *model.Episode) ([]*model.Stream, error)
-	Files(ctx context.Context, obj *model.Episode) ([]*model.File, error)
+	Files(ctx context.Context, obj *model.Episode, audioLanguages []string) ([]*model.File, error)
 	Chapters(ctx context.Context, obj *model.Episode) ([]*model.Chapter, error)
 
 	Season(ctx context.Context, obj *model.Episode) (*model.Season, error)
@@ -1150,6 +1151,7 @@ type QueryRootResolver interface {
 	Show(ctx context.Context, id string) (*model.Show, error)
 	Season(ctx context.Context, id string) (*model.Season, error)
 	Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error)
+	Episodes(ctx context.Context, ids []string) ([]*model.Episode, error)
 	Playlist(ctx context.Context, id string) (*model.Playlist, error)
 	Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error)
 	Game(ctx context.Context, id string) (*model.Game, error)
@@ -2008,7 +2010,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Episode.Files(childComplexity), true
+		args, err := ec.field_Episode_files_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Episode.Files(childComplexity, args["audioLanguages"].([]string)), true
 
 	case "Episode.id":
 		if e.complexity.Episode.ID == nil {
@@ -3932,6 +3939,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.QueryRoot.Episode(childComplexity, args["id"].(string), args["context"].(*model.EpisodeContext)), true
+
+	case "QueryRoot.episodes":
+		if e.complexity.QueryRoot.Episodes == nil {
+			break
+		}
+
+		args, err := ec.field_QueryRoot_episodes_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.QueryRoot.Episodes(childComplexity, args["ids"].([]string)), true
 
 	case "QueryRoot.event":
 		if e.complexity.QueryRoot.Event == nil {
@@ -5916,107 +5935,109 @@ type GlobalConfig {
 #}
 `, BuiltIn: false},
 	{Name: "../schema/episodes.graphqls", Input: `enum EpisodeType {
-    episode
-    standalone
+  episode
+  standalone
 }
 
 union EpisodeContextUnion = Season | ContextCollection
 
 enum ShareRestriction {
-    registered
-    members
-    public
+  registered
+  members
+  public
 }
 
 type Episode implements CollectionItem & PlaylistItem & MediaItem {
-    id: ID!
-    uuid: String!
-    status: Status!
-    type: EpisodeType!
-    legacyID: ID
-    legacyProgramID: ID
-    locked: Boolean! @goField(forceResolver: true)
-    publishDate: Date!
-    productionDate: Date!
-    productionDateInTitle: Boolean!
-    availableFrom: Date! @goField(forceResolver: true)
-    availableTo: Date!
-    ageRating: String!
-    originalTitle: String! @goField(forceResolver: true)
-    title: String! @goField(forceResolver: true)
-    description: String!
-    extraDescription: String!
-    image(style: ImageStyle): String @goField(forceResolver: true)
-    imageUrl: String @deprecated(reason: "Replaced by the image field")
+  id: ID!
+  uuid: String!
+  status: Status!
+  type: EpisodeType!
+  legacyID: ID
+  legacyProgramID: ID
+  locked: Boolean! @goField(forceResolver: true)
+  publishDate: Date!
+  productionDate: Date!
+  productionDateInTitle: Boolean!
+  availableFrom: Date! @goField(forceResolver: true)
+  availableTo: Date!
+  ageRating: String!
+  originalTitle: String! @goField(forceResolver: true)
+  title: String! @goField(forceResolver: true)
+  description: String!
+  extraDescription: String!
+  image(style: ImageStyle): String @goField(forceResolver: true)
+  imageUrl: String @deprecated(reason: "Replaced by the image field")
 
-    streams: [Stream!]! @goField(forceResolver: true)
-    files: [File!]! @goField(forceResolver: true)
-    chapters: [Chapter!]! @goField(forceResolver: true)
-    assetVersion: String!
+  streams: [Stream!]! @goField(forceResolver: true)
+  files(audioLanguages: [String!]): [File!]! @goField(forceResolver: true)
+  chapters: [Chapter!]! @goField(forceResolver: true)
+  assetVersion: String!
 
-    season: Season @goField(forceResolver: true)
-    duration: Int!
-    progress: Int @goField(forceResolver: true)
-    watched: Boolean! @goField(forceResolver: true)
-    audioLanguages: [Language!]!
-    subtitleLanguages: [Language!]!
-    context: EpisodeContextUnion @goField(forceResolver: true)
-    relatedItems(first: Int, offset: Int): SectionItemPagination @goField(forceResolver: true)
-    images: [Image!]!
-    number: Int
-    lessons(first: Int, offset: Int): LessonPagination! @goField(forceResolver: true)
-    shareRestriction: ShareRestriction! @goField(forceResolver: true)
-    inMyList: Boolean! @goField(forceResolver: true)
+  season: Season @goField(forceResolver: true)
+  duration: Int!
+  progress: Int @goField(forceResolver: true)
+  watched: Boolean! @goField(forceResolver: true)
+  audioLanguages: [Language!]!
+  subtitleLanguages: [Language!]!
+  context: EpisodeContextUnion @goField(forceResolver: true)
+  relatedItems(first: Int, offset: Int): SectionItemPagination
+    @goField(forceResolver: true)
+  images: [Image!]!
+  number: Int
+  lessons(first: Int, offset: Int): LessonPagination!
+    @goField(forceResolver: true)
+  shareRestriction: ShareRestriction! @goField(forceResolver: true)
+  inMyList: Boolean! @goField(forceResolver: true)
 
-    """
-    Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
-    """
-    next(limit: Int): [Episode!]! @goField(forceResolver: true)
-    cursor: String! @goField(forceResolver: true)
+  """
+  Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
+  """
+  next(limit: Int): [Episode!]! @goField(forceResolver: true)
+  cursor: String! @goField(forceResolver: true)
 }
 
 type EpisodePagination implements Pagination {
-    total: Int!
-    first: Int!
-    offset: Int!
-    items: [Episode!]!
+  total: Int!
+  first: Int!
+  offset: Int!
+  items: [Episode!]!
 }
 
 type Chapter {
-    id: UUID!
-    start: Int!
-    title: String!
-    image: String
-    description: String
+  id: UUID!
+  start: Int!
+  title: String!
+  image: String
+  description: String
 }
 
 type File {
-    id: ID!
-    url: String!
-    videoLanguage: Language
-    audioLanguage: Language!
-    subtitleLanguage: Language
-    size: Int!
-    fileName: String!
-    mimeType: String!
-    resolution: String
+  id: ID!
+  url: String!
+  videoLanguage: Language
+  audioLanguage: Language!
+  subtitleLanguage: Language
+  size: Int!
+  fileName: String!
+  mimeType: String!
+  resolution: String
 }
 
 enum StreamType {
-    hls_ts
-    hls_cmaf
-    dash
+  hls_ts
+  hls_cmaf
+  dash
 }
 
 type Stream {
-    id: ID!
-    url: String!
-    expiresAt: Date!
-    videoLanguage: Language
-    audioLanguages: [Language!]!
-    subtitleLanguages: [Language!]!
-    type: StreamType!
-    downloadable: Boolean!
+  id: ID!
+  url: String!
+  expiresAt: Date!
+  videoLanguage: Language
+  audioLanguages: [Language!]!
+  subtitleLanguages: [Language!]!
+  type: StreamType!
+  downloadable: Boolean!
 }
 `, BuiltIn: false},
 	{Name: "../schema/export.graphqls", Input: `type Export {
@@ -6356,6 +6377,10 @@ type QueryRoot{
         id: ID!
         context: EpisodeContext
     ): Episode!
+
+    episodes(
+        ids: [ID!]!
+    ): [Episode!]!
 
     playlist(id: ID!): Playlist!
 
@@ -7197,6 +7222,21 @@ func (ec *executionContext) field_DefaultSection_items_args(ctx context.Context,
 		}
 	}
 	args["offset"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Episode_files_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 []string
+	if tmp, ok := rawArgs["audioLanguages"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("audioLanguages"))
+		arg0, err = ec.unmarshalOString2ᚕstringᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["audioLanguages"] = arg0
 	return args, nil
 }
 
@@ -8295,6 +8335,21 @@ func (ec *executionContext) field_QueryRoot_episode_args(ctx context.Context, ra
 		}
 	}
 	args["context"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_QueryRoot_episodes_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 []string
+	if tmp, ok := rawArgs["ids"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ids"))
+		arg0, err = ec.unmarshalNID2ᚕstringᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["ids"] = arg0
 	return args, nil
 }
 
@@ -13809,7 +13864,7 @@ func (ec *executionContext) _Episode_files(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Episode().Files(rctx, obj)
+		return ec.resolvers.Episode().Files(rctx, obj, fc.Args["audioLanguages"].([]string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13855,6 +13910,17 @@ func (ec *executionContext) fieldContext_Episode_files(ctx context.Context, fiel
 			}
 			return nil, fmt.Errorf("no field named %q was found under type File", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Episode_files_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -25645,6 +25711,139 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_QueryRoot_episode_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QueryRoot_episodes(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_episodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().Episodes(rctx, fc.Args["ids"].([]string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Episode)
+	fc.Result = res
+	return ec.marshalNEpisode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_episodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
+			case "type":
+				return ec.fieldContext_Episode_type(ctx, field)
+			case "legacyID":
+				return ec.fieldContext_Episode_legacyID(ctx, field)
+			case "legacyProgramID":
+				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
+			case "locked":
+				return ec.fieldContext_Episode_locked(ctx, field)
+			case "publishDate":
+				return ec.fieldContext_Episode_publishDate(ctx, field)
+			case "productionDate":
+				return ec.fieldContext_Episode_productionDate(ctx, field)
+			case "productionDateInTitle":
+				return ec.fieldContext_Episode_productionDateInTitle(ctx, field)
+			case "availableFrom":
+				return ec.fieldContext_Episode_availableFrom(ctx, field)
+			case "availableTo":
+				return ec.fieldContext_Episode_availableTo(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Episode_ageRating(ctx, field)
+			case "originalTitle":
+				return ec.fieldContext_Episode_originalTitle(ctx, field)
+			case "title":
+				return ec.fieldContext_Episode_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Episode_description(ctx, field)
+			case "extraDescription":
+				return ec.fieldContext_Episode_extraDescription(ctx, field)
+			case "image":
+				return ec.fieldContext_Episode_image(ctx, field)
+			case "imageUrl":
+				return ec.fieldContext_Episode_imageUrl(ctx, field)
+			case "streams":
+				return ec.fieldContext_Episode_streams(ctx, field)
+			case "files":
+				return ec.fieldContext_Episode_files(ctx, field)
+			case "chapters":
+				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "assetVersion":
+				return ec.fieldContext_Episode_assetVersion(ctx, field)
+			case "season":
+				return ec.fieldContext_Episode_season(ctx, field)
+			case "duration":
+				return ec.fieldContext_Episode_duration(ctx, field)
+			case "progress":
+				return ec.fieldContext_Episode_progress(ctx, field)
+			case "watched":
+				return ec.fieldContext_Episode_watched(ctx, field)
+			case "audioLanguages":
+				return ec.fieldContext_Episode_audioLanguages(ctx, field)
+			case "subtitleLanguages":
+				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "context":
+				return ec.fieldContext_Episode_context(ctx, field)
+			case "relatedItems":
+				return ec.fieldContext_Episode_relatedItems(ctx, field)
+			case "images":
+				return ec.fieldContext_Episode_images(ctx, field)
+			case "number":
+				return ec.fieldContext_Episode_number(ctx, field)
+			case "lessons":
+				return ec.fieldContext_Episode_lessons(ctx, field)
+			case "shareRestriction":
+				return ec.fieldContext_Episode_shareRestriction(ctx, field)
+			case "inMyList":
+				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "next":
+				return ec.fieldContext_Episode_next(ctx, field)
+			case "cursor":
+				return ec.fieldContext_Episode_cursor(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_QueryRoot_episodes_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -45611,6 +45810,28 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "episodes":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_episodes(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "playlist":
 			field := field
 
@@ -50715,6 +50936,38 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐImageᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Image) graphql.Marshaler {

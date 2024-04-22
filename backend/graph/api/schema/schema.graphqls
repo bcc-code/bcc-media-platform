@@ -110,6 +110,10 @@ type QueryRoot{
         context: EpisodeContext
     ): Episode!
 
+    episodes(
+        ids: [ID!]!
+    ): [Episode!]!
+
     playlist(id: ID!): Playlist!
 
     search(

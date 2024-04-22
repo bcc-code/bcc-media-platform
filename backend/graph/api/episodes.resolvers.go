@@ -157,7 +157,7 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 }
 
 // Files is the resolver for the files field.
-func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode) ([]*model.File, error) {
+func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode, audioLanguages []string) ([]*model.File, error) {
 	err := user.ValidateAccess(ctx, r.Loaders.EpisodePermissionLoader, utils.AsInt(obj.ID), user.CheckConditions{FromDate: true, PublishDate: true, Download: true})
 	if err != nil {
 		return nil, nil
@@ -175,6 +175,11 @@ func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode) ([]*mod
 
 	var out []*model.File
 	for _, f := range files {
+		if len(audioLanguages) > 0 {
+			if !lo.Contains(audioLanguages, f.AudioLanguage.String) {
+				continue
+			}
+		}
 		out = append(out, model.FileFrom(ctx, r.URLSigner, r.Resolver.APIConfig.GetFilesCDNDomain(), f))
 	}
 	return out, nil
