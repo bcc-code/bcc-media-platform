@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Code-Hex/go-generics-cache"
+	cache "github.com/Code-Hex/go-generics-cache"
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/applications"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
@@ -283,8 +283,6 @@ func (r *queryRootResolver) Episodes(ctx context.Context, ids []string) ([]*mode
 	resolved := make([]*model.Episode, len(ids))
 	ch := make(chan *model.Episode, len(ids))
 	errCh := make(chan error, len(ids))
-	defer close(ch)
-	defer close(errCh)
 
 	for _, id := range ids {
 		go func(id string) {
@@ -313,6 +311,9 @@ func (r *queryRootResolver) Episodes(ctx context.Context, ids []string) ([]*mode
 			return nil, err
 		}
 	}
+
+	close(ch)
+	close(errCh)
 
 	return resolved, nil
 }
