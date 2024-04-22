@@ -315,7 +315,22 @@ func (r *queryRootResolver) Episodes(ctx context.Context, ids []string) ([]*mode
 	close(ch)
 	close(errCh)
 
-	return resolved, nil
+	// sort by original order
+	ordered := make([]*model.Episode, len(ids))
+	for i, id := range ids {
+		for _, episode := range resolved {
+			if episode.ID == id || episode.UUID == id {
+				ordered[i] = episode
+				break
+			}
+		}
+	}
+
+	if len(ordered) != len(resolved) {
+		return nil, merry.New("Failed to resolve all episodes")
+	}
+
+	return ordered, nil
 }
 
 // Playlist is the resolver for the playlist field.
