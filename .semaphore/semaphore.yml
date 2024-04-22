@@ -6,10 +6,10 @@ agent:
     os_image: ubuntu2004
 fail_fast:
   stop:
-    when: 'true'
+    when: "true"
 auto_cancel:
   running:
-    when: 'true'
+    when: "true"
 blocks:
   - name: Build CMS
     task:
@@ -26,7 +26,7 @@ blocks:
             - make build
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:$SEMAPHORE_GIT_BRANCH .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_SHA:0:7}" '
-            - 'docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:$SEMAPHORE_GIT_BRANCH'
+            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:$SEMAPHORE_GIT_BRANCH"
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_SHA:0:7}" > cms.txt'
             - artifact push workflow cms.txt
       prologue:
@@ -36,7 +36,7 @@ blocks:
       secrets:
         - name: GoogleSemaphoreServiceAccount
     run:
-      when: 'change_in([''/cms/'', ''/migrations/'', ''/packages/directus-modules/''])'
+      when: "change_in(['/cms/', '/migrations/', '/packages/directus-modules/'])"
     dependencies: []
   - name: Build Backend
     task:
@@ -44,7 +44,7 @@ blocks:
         commands:
           - sem-version go 1.21
           - export GOPATH=~/go
-          - 'export PATH=/home/semaphore/go/bin:$PATH'
+          - "export PATH=/home/semaphore/go/bin:$PATH"
           - checkout
           - cache restore
           - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
@@ -60,7 +60,7 @@ blocks:
             - cd ./backend
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:$SEMAPHORE_GIT_BRANCH .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_SHA:0:7}"'
-            - 'docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:$SEMAPHORE_GIT_BRANCH'
+            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:$SEMAPHORE_GIT_BRANCH"
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_SHA:0:7}" > api.txt'
             - artifact push workflow api.txt
             - cd ..
@@ -68,7 +68,7 @@ blocks:
             - cd ./backend
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:$SEMAPHORE_GIT_BRANCH .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_SHA:0:7}"'
-            - 'docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:$SEMAPHORE_GIT_BRANCH'
+            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:$SEMAPHORE_GIT_BRANCH"
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_SHA:0:7}" > jobs.txt'
             - artifact push workflow jobs.txt
             - cd ..
@@ -76,7 +76,7 @@ blocks:
             - cd ./backend
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:$SEMAPHORE_GIT_BRANCH .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:${SEMAPHORE_GIT_SHA:0:7}"'
-            - 'docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:$SEMAPHORE_GIT_BRANCH'
+            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:$SEMAPHORE_GIT_BRANCH"
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:${SEMAPHORE_GIT_SHA:0:7}" > rewriter.txt'
             - artifact push workflow rewriter.txt
       secrets:
@@ -94,7 +94,7 @@ blocks:
             - cd migrations
             - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:$SEMAPHORE_GIT_BRANCH .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_SHA:0:7}" '
-            - 'docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:$SEMAPHORE_GIT_BRANCH'
+            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:$SEMAPHORE_GIT_BRANCH"
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_SHA:0:7}"  > migrations.txt'
             - artifact push workflow migrations.txt
       secrets:
@@ -127,7 +127,7 @@ blocks:
     task:
       prologue:
         commands:
-          - sem-version node 16
+          - sem-version node 20
           - checkout
           - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
           - gcloud auth configure-docker -q europe-west4-docker.pkg.dev
@@ -146,10 +146,10 @@ blocks:
           commands:
             - cache store
 promotions:
-#  - name: Deploy to DEV
-#    pipeline_file: deploy-dev.yml
-#    auto_promote:
-#      when: branch = 'develop' AND result = 'passed'
+  #  - name: Deploy to DEV
+  #    pipeline_file: deploy-dev.yml
+  #    auto_promote:
+  #      when: branch = 'develop' AND result = 'passed'
   - name: Deploy to STA
     pipeline_file: deploy-sta.yml
     auto_promote:
