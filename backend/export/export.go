@@ -275,7 +275,7 @@ func exportStreams(ctx context.Context, q serviceProvider, liteQueries *sqlexpor
 			continue
 		}
 
-		ss, err := model.StreamFrom(ctx, q.GetURLSigner(), q.GetCDNConfig(), s, false)
+		ss, err := model.StreamFrom(ctx, q.GetURLSigner(), q.GetCDNConfig(), s)
 		if err != nil {
 			log.L.Debug().Err(err).Msg("Err while singing stream url")
 		}

@@ -122,7 +122,7 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 		}
 
 		for _, s := range streams {
-			stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s, false)
+			stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s)
 			if err != nil {
 				return nil, err
 			}
@@ -139,7 +139,7 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 		}
 
 		for _, s := range streams {
-			stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s, false)
+			stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s)
 			if err != nil {
 				return nil, err
 			}

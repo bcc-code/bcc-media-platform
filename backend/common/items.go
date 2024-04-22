@@ -201,6 +201,7 @@ type Stream struct {
 	Service           string      `json:"service"`
 	Url               string      `json:"url"`
 	EncryptionKeyID   null.String `json:"encryptionKeyId"`
+	ConfigurationId   null.String `json:"configurationId"`
 }
 
 // ChapterType is a chapter type

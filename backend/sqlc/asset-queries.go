@@ -2,6 +2,7 @@ package sqlc
 
 import (
 	"context"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/samber/lo"
 )
@@ -57,6 +58,7 @@ func toStreams(items []getStreamsForAssetsRow) []common.Stream {
 			Service:           s.Service,
 			Url:               s.Url,
 			EncryptionKeyID:   s.EncryptionKeyID,
+			ConfigurationId:   s.ConfigurationID,
 		}
 	})
 }

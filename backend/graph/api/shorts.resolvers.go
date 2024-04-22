@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
@@ -47,10 +48,16 @@ func (r *shortResolver) Streams(ctx context.Context, obj *model.Short) ([]*model
 
 	var out []*model.Stream
 	for _, s := range streams {
-		stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s, true)
+		if s.ConfigurationId.Valid && s.ConfigurationId.String != "CMAF" {
+			continue
+		}
+		// For now we are testing out different stream configs manually by overriding the path
+		s.Path = strings.Replace(s.Path, "ab9e7540a3e34bee86ec6af8c7cdc342/1467e3c2761c4947ae7dc7a6c162747f", "942b3eed46ad4ec48e539fa12f81b50e/7cae744530a849bf8b2f61295c802b48", 1)
+		stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s)
 		if err != nil {
 			return nil, err
 		}
+		stream.URL = stream.URL + "&aws.manifestfilter=video_height:640-1920"
 
 		out = append(out, stream)
 	}
