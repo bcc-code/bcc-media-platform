@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	cache "github.com/Code-Hex/go-generics-cache"
+	"github.com/Code-Hex/go-generics-cache"
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/applications"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
@@ -280,7 +280,6 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string, context *mod
 
 // Episodes is the resolver for the episodes field.
 func (r *queryRootResolver) Episodes(ctx context.Context, ids []string) ([]*model.Episode, error) {
-
 	resolved := make([]*model.Episode, len(ids))
 	ch := make(chan *model.Episode, len(ids))
 	errCh := make(chan error, len(ids))
