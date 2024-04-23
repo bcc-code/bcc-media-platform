@@ -11,12 +11,6 @@ sql:
             emit_db_tags: true
             json_tags_case_style: camel
             overrides:
-              # For reference, when we need string-arrays (e.g. "usergroups" for a row on the materialized view)
-              # I think I had to do that manually for every column like this:
-              # - column: "public.materialized.usergroups"
-              #  go_type:
-              #    import: "github.com/lib/pq"
-              #    type: "StringArray"
               - go_type:
                   import: "gopkg.in/guregu/null.v4"
                   type: "String"
