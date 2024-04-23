@@ -2,41 +2,14 @@
 
 -- +goose StatementBegin
 CREATE OR REPLACE FUNCTION mediaitems_by_episodes(episodeids int[])
-    RETURNS TABLE
-            (
-                id uuid,
-                assets json,
-                asset_id int,
-                original_title text,
-                original_description text,
-                title json,
-                description json,
-                images json,
-                parent_id uuid,
-                parent_episode_id int,
-                parent_starts_at int,
-                parent_ends_at int,
-                available_from timestamptz,
-                available_to timestamptz,
-                label text,
-                agerating_code text,
-                audience text,
-                content_type text,
-                production_date timestamptz,
-                published_at timestamptz,
-                translations_required bool,
-                date_updated timestamptz,
-                duration int,
-                asset_date_updated timestamptz,
-                tag_ids int[],
-                timedmetadata_ids uuid[]
-            )
-    LANGUAGE sql AS
+    RETURNS setof mediaitems_view
+    LANGUAGE plpgsql AS
 $func$
-WITH mids AS (
-    SELECT mediaitem_id FROM episodes WHERE episodes.id = ANY(episodeids)
-)
-SELECT mi.id,
+    BEGIN
+    RETURN QUERY (WITH mids AS (
+        SELECT mediaitem_id FROM episodes WHERE episodes.id = ANY(episodeids)
+    )
+    SELECT mi.id,
        ma.assets,
        mi.asset_id,
        mi.title                                                                         AS original_title,
@@ -96,11 +69,11 @@ FROM mediaitems mi
                     FROM mediaitems_tags t
                     WHERE mediaitems_id IN (SELECT * FROM mids)
                     GROUP BY t.mediaitems_id) tags ON tags.mediaitems_id = mi.id
-WHERE e.id = ANY(episodeids)
-$func$;
+    WHERE e.id = ANY(episodeids));
+END;$func$;
 -- +goose StatementEnd
 
-GRANT EXECUTE ON FUNCTION mediaitems_by_episodes(int[]) TO api;
+GRANT EXECUTE ON FUNCTION mediaitems_by_episodes TO api;
 
 -- +goose Down
-DROP FUNCTION  mediaitems_by_episodes(episodeids int[]);
+DROP FUNCTION  mediaitems_by_episodes;

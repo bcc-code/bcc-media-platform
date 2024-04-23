@@ -8,6 +8,7 @@ package sqlc
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -397,24 +398,24 @@ type getEpisodesRow struct {
 	EpisodeNumber         null_v4.Int           `db:"episode_number" json:"episodeNumber"`
 	PublicTitle           null_v4.String        `db:"public_title" json:"publicTitle"`
 	NumberInTitle         sql.NullBool          `db:"number_in_title" json:"numberInTitle"`
-	PreventPublicIndexing sql.NullBool          `db:"prevent_public_indexing" json:"preventPublicIndexing"`
-	PublishDateInTitle    sql.NullBool          `db:"publish_date_in_title" json:"publishDateInTitle"`
-	AvailableFrom         null_v4.Time          `db:"available_from" json:"availableFrom"`
-	AvailableTo           null_v4.Time          `db:"available_to" json:"availableTo"`
+	PreventPublicIndexing bool                  `db:"prevent_public_indexing" json:"preventPublicIndexing"`
+	PublishDateInTitle    bool                  `db:"publish_date_in_title" json:"publishDateInTitle"`
+	AvailableFrom         time.Time             `db:"available_from" json:"availableFrom"`
+	AvailableTo           time.Time             `db:"available_to" json:"availableTo"`
 	AssetID               null_v4.Int           `db:"asset_id" json:"assetId"`
-	Assets                pqtype.NullRawMessage `db:"assets" json:"assets"`
-	PublishedAt           null_v4.Time          `db:"published_at" json:"publishedAt"`
-	ProductionDate        null_v4.Time          `db:"production_date" json:"productionDate"`
-	Images                pqtype.NullRawMessage `db:"images" json:"images"`
+	Assets                json.RawMessage       `db:"assets" json:"assets"`
+	PublishedAt           time.Time             `db:"published_at" json:"publishedAt"`
+	ProductionDate        time.Time             `db:"production_date" json:"productionDate"`
+	Images                json.RawMessage       `db:"images" json:"images"`
 	OriginalTitle         null_v4.String        `db:"original_title" json:"originalTitle"`
 	OriginalDescription   null_v4.String        `db:"original_description" json:"originalDescription"`
-	Title                 pqtype.NullRawMessage `db:"title" json:"title"`
-	Description           pqtype.NullRawMessage `db:"description" json:"description"`
+	Title                 json.RawMessage       `db:"title" json:"title"`
+	Description           json.RawMessage       `db:"description" json:"description"`
 	ExtraDescription      pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
 	TagIds                []int32               `db:"tag_ids" json:"tagIds"`
 	Duration              null_v4.Int           `db:"duration" json:"duration"`
 	AssetDateUpdated      null_v4.Time          `db:"asset_date_updated" json:"assetDateUpdated"`
-	Agerating             null_v4.String        `db:"agerating" json:"agerating"`
+	Agerating             string                `db:"agerating" json:"agerating"`
 	Audience              null_v4.String        `db:"audience" json:"audience"`
 	ContentType           null_v4.String        `db:"content_type" json:"contentType"`
 	TimedmetadataIds      []uuid.UUID           `db:"timedmetadata_ids" json:"timedmetadataIds"`

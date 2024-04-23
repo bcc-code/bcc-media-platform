@@ -3,8 +3,6 @@ sql:
   - engine: "postgresql"
     schema: "../migrations"
     queries: "../queries"
-    database:
-      uri: postgresql://bccm:bccm123@localhost:5432/bccm
     gen:
        go:
             package: sqlc

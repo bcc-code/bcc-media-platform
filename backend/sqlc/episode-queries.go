@@ -18,15 +18,15 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 		var description = common.LocaleString{}
 		var extraDescription = common.LocaleString{}
 
-		_ = json.Unmarshal(e.Title.RawMessage, &title)
-		_ = json.Unmarshal(e.Description.RawMessage, &description)
+		_ = json.Unmarshal(e.Title, &title)
+		_ = json.Unmarshal(e.Description, &description)
 		_ = json.Unmarshal(e.ExtraDescription.RawMessage, &extraDescription)
 
 		title["no"] = e.OriginalTitle
 		description["no"] = e.OriginalDescription
 
 		var assetIDs common.LocaleMap[int]
-		_ = json.Unmarshal(e.Assets.RawMessage, &assetIDs)
+		_ = json.Unmarshal(e.Assets, &assetIDs)
 
 		assetVersion := ""
 		if e.AssetDateUpdated.Valid {
@@ -41,23 +41,23 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			LegacyID:              e.LegacyID,
 			LegacyProgramID:       e.LegacyProgramID,
 			PublicTitle:           e.PublicTitle,
-			PreventPublicIndexing: e.PreventPublicIndexing.Bool,
+			PreventPublicIndexing: e.PreventPublicIndexing,
 			NumberInTitle:         e.NumberInTitle.Bool,
 			Title:                 title,
 			Description:           description,
 			ExtraDescription:      extraDescription,
-			ProductionDateInTitle: e.PublishDateInTitle.Bool,
-			PublishDate:           e.PublishedAt.Time,
-			ProductionDate:        e.ProductionDate.Time,
-			AvailableFrom:         e.AvailableFrom.Time,
-			AvailableTo:           e.AvailableTo.Time,
+			ProductionDateInTitle: e.PublishDateInTitle,
+			PublishDate:           e.PublishedAt,
+			ProductionDate:        e.ProductionDate,
+			AvailableFrom:         e.AvailableFrom,
+			AvailableTo:           e.AvailableTo,
 			Number:                e.EpisodeNumber,
 			SeasonID:              e.SeasonID,
 			AssetID:               e.AssetID,
 			Assets:                assetIDs,
 			AssetVersion:          assetVersion,
-			Images:                q.getImages(e.Images.RawMessage),
-			AgeRating:             e.Agerating.String,
+			Images:                q.getImages(e.Images),
+			AgeRating:             e.Agerating,
 			Duration:              int(e.Duration.ValueOrZero()),
 			Audience:              e.Audience,
 			ContentType:           e.ContentType,
