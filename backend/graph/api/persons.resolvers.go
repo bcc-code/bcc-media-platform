@@ -41,11 +41,15 @@ func (r *personResolver) Image(ctx context.Context, obj *model.Person, style *mo
 
 // ContributionTypes is the resolver for the contributionTypes field.
 func (r *personResolver) ContributionTypes(ctx context.Context, obj *model.Person) ([]*model.ContributionTypeCount, error) {
-	types, err := r.Loaders.PersonContributionTypesLoader.Get(ctx, utils.AsUuid(obj.ID))
+	ids, err := r.FilteredLoaders(ctx).ContributionsForPersonLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
 	}
-	mapped := lo.Map(types, func(t *common.ContributionTypeCount, index int) *model.ContributionTypeCount {
+	counts, err := r.Queries.GetContributionCountByType(ctx, utils.PointerArrayToArray(ids))
+	if err != nil {
+		return nil, err
+	}
+	mapped := lo.Map(counts, func(t common.ContributionTypeCount, index int) *model.ContributionTypeCount {
 		return &model.ContributionTypeCount{
 			Type:  &model.ContributionType{Code: t.Type},
 			Count: t.Count,
@@ -57,7 +61,7 @@ func (r *personResolver) ContributionTypes(ctx context.Context, obj *model.Perso
 
 // Contributions is the resolver for the contributions field.
 func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, first *int, offset *int, types []string, shuffle *bool) (*model.ContributionsPagination, error) {
-	ids, err := r.Loaders.PersonContributionsLoader.Get(ctx, utils.AsUuid(obj.ID))
+	ids, err := r.FilteredLoaders(ctx).ContributionsForPersonLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
 	}
@@ -67,16 +71,11 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 		return nil, err
 	}
 
-	filteredItems, err := FilteredContributions(ctx, types, commonItems, r.FilteredLoaders(ctx))
-	if err != nil {
-		return nil, err
-	}
-
 	if shuffle != nil && *shuffle {
-		filteredItems = lo.Shuffle(filteredItems)
+		commonItems = lo.Shuffle(commonItems)
 	}
 
-	page := utils.Paginate(filteredItems, first, offset, nil)
+	page := utils.Paginate(commonItems, first, offset, nil)
 	if err != nil {
 		return nil, err
 	}

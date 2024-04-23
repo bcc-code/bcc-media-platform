@@ -7,32 +7,85 @@ package sqlc
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
-const getContributionIDsForPersons = `-- name: getContributionIDsForPersons :many
-SELECT id, person_id::uuid as parent_id
+const getContributionCountByType = `-- name: getContributionCountByType :many
+SELECT type, count(*) as count
 FROM contributions
-WHERE person_id = ANY ($1::uuid[])
+WHERE id = ANY ($1::int[])
+group by type
 `
 
-type getContributionIDsForPersonsRow struct {
-	ID       int32     `db:"id" json:"id"`
-	ParentID uuid.UUID `db:"parent_id" json:"parentId"`
+type getContributionCountByTypeRow struct {
+	Type  string `db:"type" json:"type"`
+	Count int64  `db:"count" json:"count"`
 }
 
-func (q *Queries) getContributionIDsForPersons(ctx context.Context, personIds []uuid.UUID) ([]getContributionIDsForPersonsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getContributionIDsForPersons, pq.Array(personIds))
+func (q *Queries) getContributionCountByType(ctx context.Context, ids []int32) ([]getContributionCountByTypeRow, error) {
+	rows, err := q.db.QueryContext(ctx, getContributionCountByType, pq.Array(ids))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []getContributionIDsForPersonsRow
+	var items []getContributionCountByTypeRow
 	for rows.Next() {
-		var i getContributionIDsForPersonsRow
+		var i getContributionCountByTypeRow
+		if err := rows.Scan(&i.Type, &i.Count); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getContributionIDsForPersonsWithRoles = `-- name: getContributionIDsForPersonsWithRoles :many
+SELECT
+  c.id,
+  person_id::uuid as parent_id
+FROM contributions c
+LEFT JOIN public.mediaitems_contributions mc ON c.id = mc.contributions_id
+LEFT JOIN public.mediaitems m ON mc.mediaitems_id = m.id OR mc.mediaitems_id = m.id
+LEFT JOIN episode_availability access ON access.id = m.primary_episode_id
+LEFT JOIN episode_roles roles ON roles.id = m.primary_episode_id
+WHERE 
+c.person_id = ANY ($1::uuid[])
+AND access.published
+AND access.available_to > now()
+AND (
+  (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+  (roles.roles_earlyaccess && $2::varchar[])
+)
+order by m.published_at desc
+`
+
+type getContributionIDsForPersonsWithRolesParams struct {
+	PersonIds []uuid.UUID `db:"person_ids" json:"personIds"`
+	Roles     []string    `db:"roles" json:"roles"`
+}
+
+type getContributionIDsForPersonsWithRolesRow struct {
+	ID       int32     `db:"id" json:"id"`
+	ParentID uuid.UUID `db:"parent_id" json:"parentId"`
+}
+
+func (q *Queries) getContributionIDsForPersonsWithRoles(ctx context.Context, arg getContributionIDsForPersonsWithRolesParams) ([]getContributionIDsForPersonsWithRolesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getContributionIDsForPersonsWithRoles, pq.Array(arg.PersonIds), pq.Array(arg.Roles))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getContributionIDsForPersonsWithRolesRow
+	for rows.Next() {
+		var i getContributionIDsForPersonsWithRolesRow
 		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
 			return nil, err
 		}
@@ -92,78 +145,6 @@ func (q *Queries) getContributionItems(ctx context.Context, ids []int32) ([]getC
 			&i.Type,
 			&i.PersonID,
 		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getContributionTypes = `-- name: getContributionTypes :many
-SELECT code,
-COALESCE((SELECT json_object_agg(ts.languages_code, ts.title)
-                 FROM contributiontypes_translations ts
-                 WHERE ts.contributiontypes_code = code), '{}')::json AS title
-FROM contributiontypes
-where code = ANY ($1::string[])
-`
-
-type getContributionTypesRow struct {
-	Code  string          `db:"code" json:"code"`
-	Title json.RawMessage `db:"title" json:"title"`
-}
-
-func (q *Queries) getContributionTypes(ctx context.Context, codes []string) ([]getContributionTypesRow, error) {
-	rows, err := q.db.QueryContext(ctx, getContributionTypes, pq.Array(codes))
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []getContributionTypesRow
-	for rows.Next() {
-		var i getContributionTypesRow
-		if err := rows.Scan(&i.Code, &i.Title); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getContributionTypesForPersons = `-- name: getContributionTypesForPersons :many
-SELECT type, person_id::uuid
-FROM contributions
-WHERE person_id = ANY ($1::uuid[])
-group by type, person_id
-`
-
-type getContributionTypesForPersonsRow struct {
-	Type     string    `db:"type" json:"type"`
-	PersonID uuid.UUID `db:"person_id" json:"personId"`
-}
-
-func (q *Queries) getContributionTypesForPersons(ctx context.Context, personIds []uuid.UUID) ([]getContributionTypesForPersonsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getContributionTypesForPersons, pq.Array(personIds))
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []getContributionTypesForPersonsRow
-	for rows.Next() {
-		var i getContributionTypesForPersonsRow
-		if err := rows.Scan(&i.Type, &i.PersonID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

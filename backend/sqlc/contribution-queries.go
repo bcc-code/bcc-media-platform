@@ -9,36 +9,28 @@ import (
 	"github.com/samber/lo"
 )
 
-func (q *Queries) GetContributionsForPersons(ctx context.Context, ids []uuid.UUID) ([]loaders.Relation[int32, uuid.UUID], error) {
-	rows, err := q.getContributionIDsForPersons(ctx, ids)
+func (q *RoleQueries) GetContributionsForPersonsWithRoles(ctx context.Context, ids []uuid.UUID) ([]loaders.Relation[int32, uuid.UUID], error) {
+	rows, err := q.queries.getContributionIDsForPersonsWithRoles(ctx, getContributionIDsForPersonsWithRolesParams{
+		PersonIds: ids,
+		Roles:     q.roles,
+	})
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getContributionIDsForPersonsRow, _ int) loaders.Relation[int32, uuid.UUID] {
+	return lo.Map(rows, func(i getContributionIDsForPersonsWithRolesRow, _ int) loaders.Relation[int32, uuid.UUID] {
 		return relation[int32, uuid.UUID](i)
 	}), nil
 }
 
-func (q *Queries) GetContributionTypes(ctx context.Context, codes []string) ([]common.ContributionType, error) {
-	rows, err := q.getContributionTypes(ctx, codes)
+func (q *Queries) GetContributionCountByType(ctx context.Context, ids []int32) ([]common.ContributionTypeCount, error) {
+	rows, err := q.getContributionCountByType(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getContributionTypesRow, _ int) common.ContributionType {
-		return common.ContributionType{}
-	}), nil
-}
-
-func (q *Queries) GetContributionTypesForPersons(ctx context.Context, ids []uuid.UUID) ([]common.ContributionTypeCount, error) {
-	rows, err := q.getContributionTypesForPersons(ctx, ids)
-	if err != nil {
-		return nil, err
-	}
-	return lo.Map(rows, func(i getContributionTypesForPersonsRow, _ int) common.ContributionTypeCount {
+	return lo.Map(rows, func(i getContributionCountByTypeRow, _ int) common.ContributionTypeCount {
 		return common.ContributionTypeCount{
-			Type:     i.Type,
-			PersonId: i.PersonID,
-			Count:    i.Count,
+			Type:  i.Type,
+			Count: int(i.Count),
 		}
 	}), nil
 }

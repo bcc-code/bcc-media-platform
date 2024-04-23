@@ -1,7 +1,5 @@
 package common
 
-import "github.com/google/uuid"
-
 type Contribution struct {
 	ID       int32  `json:"id"`
 	ItemID   string `json:"itemId"`
@@ -16,7 +14,6 @@ type ContributionType struct {
 }
 
 type ContributionTypeCount struct {
-	PersonId uuid.UUID `json:"personId"`
-	Type     string    `json:"type"`
-	Count    int       `json:"count"`
+	Type  string `json:"type"`
+	Count int    `json:"count"`
 }

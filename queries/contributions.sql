@@ -1,22 +1,29 @@
 
--- name: getContributionTypes :many
-SELECT code,
-COALESCE((SELECT json_object_agg(ts.languages_code, ts.title)
-                 FROM contributiontypes_translations ts
-                 WHERE ts.contributiontypes_code = code), '{}')::json AS title
-FROM contributiontypes
-where code = ANY (@codes::string[]);
-
--- name: getContributionTypesForPersons :many
-SELECT type, person_id::uuid, count(*) as count
+-- name: getContributionCountByType :many
+SELECT type, count(*) as count
 FROM contributions
-WHERE person_id = ANY (@person_ids::uuid[])
-group by type, person_id;
+WHERE id = ANY (@ids::int[])
+group by type;
 
--- name: getContributionIDsForPersons :many
-SELECT id, person_id::uuid as parent_id
-FROM contributions
-WHERE person_id = ANY (@person_ids::uuid[]);
+
+-- name: getContributionIDsForPersonsWithRoles :many
+SELECT
+  c.id,
+  person_id::uuid as parent_id
+FROM contributions c
+LEFT JOIN public.mediaitems_contributions mc ON c.id = mc.contributions_id
+LEFT JOIN public.mediaitems m ON mc.mediaitems_id = m.id OR mc.mediaitems_id = m.id
+LEFT JOIN episode_availability access ON access.id = m.primary_episode_id
+LEFT JOIN episode_roles roles ON roles.id = m.primary_episode_id
+WHERE 
+c.person_id = ANY (@person_ids::uuid[])
+AND access.published
+AND access.available_to > now()
+AND (
+  (roles.roles && @roles::varchar[] AND access.available_from < now()) OR
+  (roles.roles_earlyaccess && @roles::varchar[])
+)
+order by m.published_at desc;
 
 -- name: getContributionItems :many
 SELECT
