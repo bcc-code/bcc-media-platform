@@ -48,6 +48,7 @@ FROM episodes e
 WITH ts AS (SELECT episodes_id,
                    json_object_agg(languages_code, extra_description) AS extra_description
             FROM episodes_translations
+            WHERE episodes_id = ANY ($1::int[])
             GROUP BY episodes_id)
 SELECT e.id,
        e.uuid,
@@ -83,7 +84,7 @@ SELECT e.id,
        mi.content_type,
        mi.timedmetadata_ids
 FROM episodes e
-         LEFT JOIN mediaitems_view mi ON mi.id = e.mediaitem_id
+         LEFT JOIN mediaitems_by_episodes($1::int[]) mi ON mi.id = e.mediaitem_id
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN seasons s ON e.season_id = s.id
          LEFT JOIN shows sh ON s.show_id = sh.id

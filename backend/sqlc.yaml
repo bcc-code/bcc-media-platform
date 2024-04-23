@@ -1,85 +1,108 @@
-version: 1
-packages:
-  - name: "sqlc"
-    path: "./sqlc"
-    engine: "postgresql"
+version: "2"
+sql:
+  - engine: "postgresql"
     schema: "../migrations"
     queries: "../queries"
-    emit_json_tags: true
-    emit_db_tags: true
-    json_tags_case_style: camel
-    overrides:
-      # For reference, when we need string-arrays (e.g. "usergroups" for a row on the materialized view)
-      # I think I had to do that manually for every column like this:
-      # - column: "public.materialized.usergroups"
-      #  go_type:
-      #    import: "github.com/lib/pq"
-      #    type: "StringArray"
-      - go_type:
-          import: "gopkg.in/guregu/null.v4"
-          type: "String"
-        nullable: true
-        db_type: "text"
-      - go_type:
-          import: "gopkg.in/guregu/null.v4"
-          type: "String"
-        nullable: true
-        db_type: "pg_catalog.varchar"
-      - go_type:
-          import: "gopkg.in/guregu/null.v4"
-          type: "Int"
-        nullable: true
-        db_type: "pg_catalog.int4"
-      - go_type:
-          import: "gopkg.in/guregu/null.v4"
-          type: "Int"
-        nullable: true
-        db_type: "int4"
-      - go_type:
-          import: "gopkg.in/guregu/null.v4"
-          type: "Int"
-        nullable: true
-        db_type: "int8"
-      - go_type:
-          import: "gopkg.in/guregu/null.v4"
-          type: "Float"
-        nullable: true
-        db_type: "pg_catalog.float4"
-      - go_type:
-          import: "gopkg.in/guregu/null.v4"
-          type: "Int"
-        nullable: true
-        db_type: "pg_catalog.int8"
-      - go_type:
-          import: "gopkg.in/guregu/null.v4"
-          type: "Int"
-        nullable: true
-        db_type: "bigint"
-      - go_type:
-          import: "gopkg.in/guregu/null.v4/zero"
-          type: "Int"
-        nullable: true
-        db_type: "bigserial"
-      - go_type:
-          import: "gopkg.in/guregu/null.v4"
-          type: "Time"
-        nullable: true
-        db_type: "timestamptz"
-      - go_type:
-          import: "gopkg.in/guregu/null.v4"
-          type: "Time"
-        nullable: true
-        db_type: "date"
-      - go_type:
-          import: "gopkg.in/guregu/null.v4"
-          type: "Time"
-        nullable: true
-        db_type: "pg_catalog.timestamp"
-  - name: "sqlexport"
-    path: "./export/sqlexport"
-    engine: "sqlite"
+    gen:
+       go:
+            package: sqlc
+            out: "./sqlc"
+            emit_json_tags: true
+            emit_db_tags: true
+            json_tags_case_style: camel
+            overrides:
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4"
+                  type: "String"
+                nullable: true
+                db_type: "text"
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4"
+                  type: "String"
+                nullable: true
+                db_type: "pg_catalog.varchar"
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4"
+                  type: "Int"
+                nullable: true
+                db_type: "pg_catalog.int"
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4"
+                  type: "Int"
+                nullable: true
+                db_type: "int4"
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4"
+                  type: "Int"
+                nullable: true
+                db_type: "int"
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4"
+                  type: "Int"
+                nullable: true
+                db_type: "integer"
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4"
+                  type: "Int"
+                nullable: true
+                db_type: "pg_catalog.int4"
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4"
+                  type: "Int"
+                nullable: true
+                db_type: "int4"
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4"
+                  type: "Int"
+                nullable: true
+                db_type: "int8"
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4"
+                  type: "Float"
+                nullable: true
+                db_type: "pg_catalog.float4"
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4"
+                  type: "Int"
+                nullable: true
+                db_type: "pg_catalog.int8"
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4"
+                  type: "Int"
+                nullable: true
+                db_type: "bigint"
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4/zero"
+                  type: "Int"
+                nullable: true
+                db_type: "bigserial"
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4"
+                  type: "Time"
+                nullable: true
+                db_type: "timestamptz"
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4"
+                  type: "Time"
+                nullable: true
+                db_type: "date"
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4"
+                  type: "Time"
+                nullable: true
+                db_type: "pg_catalog.timestamp"
+              - go_type:
+                  import: "gopkg.in/guregu/null.v4"
+                  type: "Time"
+                nullable: true
+                db_type: "pg_catalog.timestamptz"
+  - engine: "sqlite"
     schema: "./export/sqlc/migrations"
     queries: "./export/sqlc/queries"
-    emit_json_tags: true
-    emit_db_tags: true
-    json_tags_case_style: camel
+    gen:
+      go:
+        package: "sqlexport"
+        out: "./export/sqlexport"
+        emit_json_tags: true
+        emit_db_tags: true
+        json_tags_case_style: camel

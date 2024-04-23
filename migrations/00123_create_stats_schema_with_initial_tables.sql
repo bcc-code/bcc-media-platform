@@ -4,6 +4,7 @@
 /**********************************************************/
 
 CREATE SCHEMA stats;
+ALTER schema stats OWNER TO builder;
 
 create table stats.members_data
 (

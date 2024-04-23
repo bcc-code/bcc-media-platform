@@ -8,6 +8,7 @@ package sqlc
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -338,6 +339,7 @@ const getEpisodes = `-- name: getEpisodes :many
 WITH ts AS (SELECT episodes_id,
                    json_object_agg(languages_code, extra_description) AS extra_description
             FROM episodes_translations
+            WHERE episodes_id = ANY ($1::int[])
             GROUP BY episodes_id)
 SELECT e.id,
        e.uuid,
@@ -373,7 +375,7 @@ SELECT e.id,
        mi.content_type,
        mi.timedmetadata_ids
 FROM episodes e
-         LEFT JOIN mediaitems_view mi ON mi.id = e.mediaitem_id
+         LEFT JOIN mediaitems_by_episodes($1::int[]) mi ON mi.id = e.mediaitem_id
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN seasons s ON e.season_id = s.id
          LEFT JOIN shows sh ON s.show_id = sh.id
@@ -401,14 +403,14 @@ type getEpisodesRow struct {
 	AvailableFrom         time.Time             `db:"available_from" json:"availableFrom"`
 	AvailableTo           time.Time             `db:"available_to" json:"availableTo"`
 	AssetID               null_v4.Int           `db:"asset_id" json:"assetId"`
-	Assets                pqtype.NullRawMessage `db:"assets" json:"assets"`
-	PublishedAt           null_v4.Time          `db:"published_at" json:"publishedAt"`
-	ProductionDate        null_v4.Time          `db:"production_date" json:"productionDate"`
-	Images                pqtype.NullRawMessage `db:"images" json:"images"`
+	Assets                json.RawMessage       `db:"assets" json:"assets"`
+	PublishedAt           time.Time             `db:"published_at" json:"publishedAt"`
+	ProductionDate        time.Time             `db:"production_date" json:"productionDate"`
+	Images                json.RawMessage       `db:"images" json:"images"`
 	OriginalTitle         null_v4.String        `db:"original_title" json:"originalTitle"`
 	OriginalDescription   null_v4.String        `db:"original_description" json:"originalDescription"`
-	Title                 pqtype.NullRawMessage `db:"title" json:"title"`
-	Description           pqtype.NullRawMessage `db:"description" json:"description"`
+	Title                 json.RawMessage       `db:"title" json:"title"`
+	Description           json.RawMessage       `db:"description" json:"description"`
 	ExtraDescription      pqtype.NullRawMessage `db:"extra_description" json:"extraDescription"`
 	TagIds                []int32               `db:"tag_ids" json:"tagIds"`
 	Duration              null_v4.Int           `db:"duration" json:"duration"`
