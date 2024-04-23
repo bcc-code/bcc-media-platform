@@ -10,7 +10,7 @@ $func$
         SELECT mediaitem_id FROM episodes WHERE episodes.id = ANY(episodeids)
     )
     SELECT mi.id,
-       ma.assets,
+       COALESCE(ma.assets, '{}'::json)                                                  AS assets,
        mi.asset_id,
        mi.title                                                                         AS original_title,
        mi.description                                                                   AS original_description,
