@@ -286,13 +286,30 @@ type Computeddatum struct {
 }
 
 type Contribution struct {
-	ID          int32          `db:"id" json:"id"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	PersonID    uuid.NullUUID  `db:"person_id" json:"personId"`
-	Type        null_v4.String `db:"type" json:"type"`
+	ID          int32         `db:"id" json:"id"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	PersonID    uuid.NullUUID `db:"person_id" json:"personId"`
+	Type        string        `db:"type" json:"type"`
+}
+
+type Contributiontype struct {
+	Code        string        `db:"code" json:"code"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	Title       string        `db:"title" json:"title"`
+	HideInLists sql.NullBool  `db:"hide_in_lists" json:"hideInLists"`
+}
+
+type ContributiontypesTranslation struct {
+	ID                    int32          `db:"id" json:"id"`
+	Title                 null_v4.String `db:"title" json:"title"`
+	LanguagesCode         string         `db:"languages_code" json:"languagesCode"`
+	ContributiontypesCode string         `db:"contributiontypes_code" json:"contributiontypesCode"`
 }
 
 type DirectusActivity struct {

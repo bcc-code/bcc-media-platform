@@ -90,7 +90,7 @@ func (q *Queries) InsertSongCollection(ctx context.Context, arg InsertSongCollec
 const getPhrases = `-- name: getPhrases :many
 SELECT p.key,
        p.value                                   AS original_value,
-       COALESCE((SELECT json_object_agg(value, languages_code)
+       COALESCE((SELECT json_object_agg(languages_code, value)
                  FROM phrases_translations
                  WHERE key = p.key), '{}')::json AS value
 FROM phrases p

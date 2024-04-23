@@ -6,18 +6,28 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/samber/lo"
 )
 
-// Person is the resolver for the person field.
-func (r *contributionResolver) Person(ctx context.Context, obj *model.Contribution) (*model.Person, error) {
-	panic(fmt.Errorf("not implemented: Person - person"))
+// Title is the resolver for the title field.
+func (r *contributionTypeResolver) Title(ctx context.Context, obj *model.ContributionType) (string, error) {
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+	phrase, _ := r.Loaders.PhraseLoader.Get(ctx, obj.Code)
+
+	if phrase == nil {
+		return obj.Code, nil
+	}
+
+	val := phrase.Value.Get(languages)
+
+	return val, nil
 }
 
 // Image is the resolver for the image field.
@@ -37,7 +47,7 @@ func (r *personResolver) ContributionTypes(ctx context.Context, obj *model.Perso
 	}
 	mapped := lo.Map(types, func(t *common.ContributionTypeCount, index int) *model.ContributionTypeCount {
 		return &model.ContributionTypeCount{
-			Type:  model.ContributionType(t.Type),
+			Type:  &model.ContributionType{Code: t.Type},
 			Count: t.Count,
 		}
 	})
@@ -46,7 +56,7 @@ func (r *personResolver) ContributionTypes(ctx context.Context, obj *model.Perso
 }
 
 // Contributions is the resolver for the contributions field.
-func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, first *int, offset *int, typeArg *model.ContributionType) (*model.ContributionsPagination, error) {
+func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, first *int, offset *int, types []string, shuffle *bool) (*model.ContributionsPagination, error) {
 	ids, err := r.Loaders.PersonContributionsLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
@@ -57,9 +67,13 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 		return nil, err
 	}
 
-	filteredItems, err := FilteredContributions(ctx, commonItems, r.FilteredLoaders(ctx))
+	filteredItems, err := FilteredContributions(ctx, types, commonItems, r.FilteredLoaders(ctx))
 	if err != nil {
 		return nil, err
+	}
+
+	if shuffle != nil && *shuffle {
+		filteredItems = lo.Shuffle(filteredItems)
 	}
 
 	page := utils.Paginate(filteredItems, first, offset, nil)
@@ -87,11 +101,13 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 	}, nil
 }
 
-// Contribution returns generated.ContributionResolver implementation.
-func (r *Resolver) Contribution() generated.ContributionResolver { return &contributionResolver{r} }
+// ContributionType returns generated.ContributionTypeResolver implementation.
+func (r *Resolver) ContributionType() generated.ContributionTypeResolver {
+	return &contributionTypeResolver{r}
+}
 
 // Person returns generated.PersonResolver implementation.
 func (r *Resolver) Person() generated.PersonResolver { return &personResolver{r} }
 
-type contributionResolver struct{ *Resolver }
+type contributionTypeResolver struct{ *Resolver }
 type personResolver struct{ *Resolver }

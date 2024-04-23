@@ -48,8 +48,7 @@ func ContributionFrom(ctx context.Context, i *common.Contribution, loaders *comm
 	}
 
 	return &Contribution{
-		Type:   ContributionType(i.Type),
-		Item:   item,
-		Person: nil,
+		Type: &ContributionType{Code: i.Type},
+		Item: item,
 	}, nil
 }

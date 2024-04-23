@@ -318,14 +318,18 @@ type ContextCollection struct {
 func (ContextCollection) IsEpisodeContextUnion() {}
 
 type Contribution struct {
-	Person *Person          `json:"person"`
-	Type   ContributionType `json:"type"`
-	Item   ContributionItem `json:"item"`
+	Type *ContributionType `json:"type"`
+	Item ContributionItem  `json:"item"`
+}
+
+type ContributionType struct {
+	Code  string `json:"code"`
+	Title string `json:"title"`
 }
 
 type ContributionTypeCount struct {
-	Type  ContributionType `json:"type"`
-	Count int              `json:"count"`
+	Type  *ContributionType `json:"type"`
+	Count int               `json:"count"`
 }
 
 type ContributionsPagination struct {
@@ -1500,53 +1504,6 @@ func (e *CardSectionSize) UnmarshalGQL(v interface{}) error {
 }
 
 func (e CardSectionSize) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type ContributionType string
-
-const (
-	ContributionTypeLyricist ContributionType = "lyricist"
-	ContributionTypeComposer ContributionType = "composer"
-	ContributionTypeArranger ContributionType = "arranger"
-	ContributionTypeSpeaker  ContributionType = "speaker"
-	ContributionTypeSinger   ContributionType = "singer"
-)
-
-var AllContributionType = []ContributionType{
-	ContributionTypeLyricist,
-	ContributionTypeComposer,
-	ContributionTypeArranger,
-	ContributionTypeSpeaker,
-	ContributionTypeSinger,
-}
-
-func (e ContributionType) IsValid() bool {
-	switch e {
-	case ContributionTypeLyricist, ContributionTypeComposer, ContributionTypeArranger, ContributionTypeSpeaker, ContributionTypeSinger:
-		return true
-	}
-	return false
-}
-
-func (e ContributionType) String() string {
-	return string(e)
-}
-
-func (e *ContributionType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = ContributionType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ContributionType", str)
-	}
-	return nil
-}
-
-func (e ContributionType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

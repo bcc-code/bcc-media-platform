@@ -19,6 +19,16 @@ func (q *Queries) GetContributionsForPersons(ctx context.Context, ids []uuid.UUI
 	}), nil
 }
 
+func (q *Queries) GetContributionTypes(ctx context.Context, codes []string) ([]common.ContributionType, error) {
+	rows, err := q.getContributionTypes(ctx, codes)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i getContributionTypesRow, _ int) common.ContributionType {
+		return common.ContributionType{}
+	}), nil
+}
+
 func (q *Queries) GetContributionTypesForPersons(ctx context.Context, ids []uuid.UUID) ([]common.ContributionTypeCount, error) {
 	rows, err := q.getContributionTypesForPersons(ctx, ids)
 	if err != nil {
@@ -26,9 +36,9 @@ func (q *Queries) GetContributionTypesForPersons(ctx context.Context, ids []uuid
 	}
 	return lo.Map(rows, func(i getContributionTypesForPersonsRow, _ int) common.ContributionTypeCount {
 		return common.ContributionTypeCount{
-			Type:     common.ContributionType(i.Type.String),
-			Count:    int(i.Count),
+			Type:     i.Type,
 			PersonId: i.PersonID,
+			Count:    i.Count,
 		}
 	}), nil
 }
@@ -43,7 +53,7 @@ func (q *Queries) GetContributions(ctx context.Context, ids []int32) ([]common.C
 			ID:       i.ID,
 			ItemID:   i.ItemID,
 			ItemType: i.ItemType,
-			Type:     common.ContributionType(i.Type.String),
+			Type:     i.Type,
 			PersonID: i.PersonID.UUID.String(),
 		}
 	}), nil

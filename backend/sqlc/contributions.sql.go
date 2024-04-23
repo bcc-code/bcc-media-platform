@@ -7,10 +7,10 @@ package sqlc
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const getContributionIDsForPersons = `-- name: getContributionIDsForPersons :many
@@ -50,10 +50,10 @@ func (q *Queries) getContributionIDsForPersons(ctx context.Context, personIds []
 const getContributionItems = `-- name: getContributionItems :many
 SELECT
   c.id,
-  COALESCE(m.primary_episode_id::text, tmc.timedmetadata_id::text)::text AS item_id,
+  COALESCE(tmc.timedmetadata_id::text, m.primary_episode_id::text, '')::text AS item_id,
   CASE
-    WHEN m.primary_episode_id IS NOT NULL THEN 'episode'
     WHEN tmc.timedmetadata_id IS NOT NULL THEN 'chapter'
+    WHEN m.primary_episode_id IS NOT NULL THEN 'episode'
     ELSE ''
   END AS item_type,
   c.type,
@@ -61,17 +61,19 @@ SELECT
 FROM contributions c
 LEFT JOIN public.mediaitems_contributions mc ON c.id = mc.contributions_id
 LEFT JOIN public.timedmetadata_contributions tmc ON c.id = tmc.contributions_id
-LEFT JOIN public.mediaitems m ON mc.mediaitems_id = m.id
+LEFT JOIN public.timedmetadata tm ON tmc.timedmetadata_id = tm.id
+LEFT JOIN public.mediaitems m ON mc.mediaitems_id = m.id OR tm.mediaitem_id = m.id
 WHERE c.id = ANY ($1::int[])
   AND (mc.mediaitems_id IS NOT NULL OR tmc.timedmetadata_id IS NOT NULL)
+order by m.published_at desc
 `
 
 type getContributionItemsRow struct {
-	ID       int32          `db:"id" json:"id"`
-	ItemID   string         `db:"item_id" json:"itemId"`
-	ItemType string         `db:"item_type" json:"itemType"`
-	Type     null_v4.String `db:"type" json:"type"`
-	PersonID uuid.NullUUID  `db:"person_id" json:"personId"`
+	ID       int32         `db:"id" json:"id"`
+	ItemID   string        `db:"item_id" json:"itemId"`
+	ItemType string        `db:"item_type" json:"itemType"`
+	Type     string        `db:"type" json:"type"`
+	PersonID uuid.NullUUID `db:"person_id" json:"personId"`
 }
 
 func (q *Queries) getContributionItems(ctx context.Context, ids []int32) ([]getContributionItemsRow, error) {
@@ -103,17 +105,53 @@ func (q *Queries) getContributionItems(ctx context.Context, ids []int32) ([]getC
 	return items, nil
 }
 
+const getContributionTypes = `-- name: getContributionTypes :many
+SELECT code,
+COALESCE((SELECT json_object_agg(ts.languages_code, ts.title)
+                 FROM contributiontypes_translations ts
+                 WHERE ts.contributiontypes_code = code), '{}')::json AS title
+FROM contributiontypes
+where code = ANY ($1::string[])
+`
+
+type getContributionTypesRow struct {
+	Code  string          `db:"code" json:"code"`
+	Title json.RawMessage `db:"title" json:"title"`
+}
+
+func (q *Queries) getContributionTypes(ctx context.Context, codes []string) ([]getContributionTypesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getContributionTypes, pq.Array(codes))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getContributionTypesRow
+	for rows.Next() {
+		var i getContributionTypesRow
+		if err := rows.Scan(&i.Code, &i.Title); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getContributionTypesForPersons = `-- name: getContributionTypesForPersons :many
-SELECT count(*), type, person_id::uuid
+SELECT type, person_id::uuid
 FROM contributions
 WHERE person_id = ANY ($1::uuid[])
 group by type, person_id
 `
 
 type getContributionTypesForPersonsRow struct {
-	Count    int64          `db:"count" json:"count"`
-	Type     null_v4.String `db:"type" json:"type"`
-	PersonID uuid.UUID      `db:"person_id" json:"personId"`
+	Type     string    `db:"type" json:"type"`
+	PersonID uuid.UUID `db:"person_id" json:"personId"`
 }
 
 func (q *Queries) getContributionTypesForPersons(ctx context.Context, personIds []uuid.UUID) ([]getContributionTypesForPersonsRow, error) {
@@ -125,7 +163,7 @@ func (q *Queries) getContributionTypesForPersons(ctx context.Context, personIds 
 	var items []getContributionTypesForPersonsRow
 	for rows.Next() {
 		var i getContributionTypesForPersonsRow
-		if err := rows.Scan(&i.Count, &i.Type, &i.PersonID); err != nil {
+		if err := rows.Scan(&i.Type, &i.PersonID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

@@ -97,6 +97,7 @@ type BatchLoaders struct {
 	SongLoader                    *loaders.Loader[uuid.UUID, *Song]
 	PhraseLoader                  *loaders.Loader[string, *Phrase]
 	ContributionsLoader           *loaders.Loader[int32, *Contribution]
+	ContributionTypesLoader       *loaders.Loader[string, *ContributionType]
 	PersonContributionsLoader     *loaders.Loader[uuid.UUID, []*int32]
 	PersonContributionTypesLoader *loaders.Loader[uuid.UUID, []*ContributionTypeCount]
 }

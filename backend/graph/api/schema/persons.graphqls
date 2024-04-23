@@ -1,3 +1,8 @@
+type ContributionType {
+    code: String!
+    title: String! @goField(forceResolver: true)
+}
+
 type ContributionTypeCount {
     type: ContributionType!
     count: Int!
@@ -12,24 +17,15 @@ type ContributionsPagination implements Pagination {
 
 union ContributionItem = Episode | Chapter
 
-enum ContributionType {
-    lyricist
-    composer
-    arranger
-    speaker
-    singer
-}
-
 type Person {
     id: ID!
     name: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
     contributionTypes: [ContributionTypeCount!]! @goField(forceResolver: true)
-    contributions(first: Int, offset: Int, type: ContributionType): ContributionsPagination! @goField(forceResolver: true)
+    contributions(first: Int, offset: Int, types: [String!], shuffle: Boolean): ContributionsPagination! @goField(forceResolver: true)
 }
 
 type Contribution {
-    person: Person! @goField(forceResolver: true)
     type: ContributionType!
     item: ContributionItem!
 }

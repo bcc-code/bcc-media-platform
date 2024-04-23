@@ -49,7 +49,7 @@ type ResolverRoot interface {
 	CardSection() CardSectionResolver
 	Config() ConfigResolver
 	ContextCollection() ContextCollectionResolver
-	Contribution() ContributionResolver
+	ContributionType() ContributionTypeResolver
 	DefaultGridSection() DefaultGridSectionResolver
 	DefaultSection() DefaultSectionResolver
 	Episode() EpisodeResolver
@@ -233,9 +233,13 @@ type ComplexityRoot struct {
 	}
 
 	Contribution struct {
-		Item   func(childComplexity int) int
-		Person func(childComplexity int) int
-		Type   func(childComplexity int) int
+		Item func(childComplexity int) int
+		Type func(childComplexity int) int
+	}
+
+	ContributionType struct {
+		Code  func(childComplexity int) int
+		Title func(childComplexity int) int
 	}
 
 	ContributionTypeCount struct {
@@ -588,7 +592,7 @@ type ComplexityRoot struct {
 
 	Person struct {
 		ContributionTypes func(childComplexity int) int
-		Contributions     func(childComplexity int, first *int, offset *int, typeArg *model.ContributionType) int
+		Contributions     func(childComplexity int, first *int, offset *int, types []string, shuffle *bool) int
 		ID                func(childComplexity int) int
 		Image             func(childComplexity int, style *model.ImageStyle) int
 		Name              func(childComplexity int) int
@@ -1029,8 +1033,8 @@ type ConfigResolver interface {
 type ContextCollectionResolver interface {
 	Items(ctx context.Context, obj *model.ContextCollection, first *int, offset *int) (*model.SectionItemPagination, error)
 }
-type ContributionResolver interface {
-	Person(ctx context.Context, obj *model.Contribution) (*model.Person, error)
+type ContributionTypeResolver interface {
+	Title(ctx context.Context, obj *model.ContributionType) (string, error)
 }
 type DefaultGridSectionResolver interface {
 	Items(ctx context.Context, obj *model.DefaultGridSection, first *int, offset *int) (*model.SectionItemPagination, error)
@@ -1163,7 +1167,7 @@ type PageResolver interface {
 type PersonResolver interface {
 	Image(ctx context.Context, obj *model.Person, style *model.ImageStyle) (*string, error)
 	ContributionTypes(ctx context.Context, obj *model.Person) ([]*model.ContributionTypeCount, error)
-	Contributions(ctx context.Context, obj *model.Person, first *int, offset *int, typeArg *model.ContributionType) (*model.ContributionsPagination, error)
+	Contributions(ctx context.Context, obj *model.Person, first *int, offset *int, types []string, shuffle *bool) (*model.ContributionsPagination, error)
 }
 type PlaylistResolver interface {
 	Image(ctx context.Context, obj *model.Playlist, style *model.ImageStyle) (*string, error)
@@ -1865,19 +1869,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Contribution.Item(childComplexity), true
 
-	case "Contribution.person":
-		if e.complexity.Contribution.Person == nil {
-			break
-		}
-
-		return e.complexity.Contribution.Person(childComplexity), true
-
 	case "Contribution.type":
 		if e.complexity.Contribution.Type == nil {
 			break
 		}
 
 		return e.complexity.Contribution.Type(childComplexity), true
+
+	case "ContributionType.code":
+		if e.complexity.ContributionType.Code == nil {
+			break
+		}
+
+		return e.complexity.ContributionType.Code(childComplexity), true
+
+	case "ContributionType.title":
+		if e.complexity.ContributionType.Title == nil {
+			break
+		}
+
+		return e.complexity.ContributionType.Title(childComplexity), true
 
 	case "ContributionTypeCount.count":
 		if e.complexity.ContributionTypeCount.Count == nil {
@@ -3775,7 +3786,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Person.Contributions(childComplexity, args["first"].(*int), args["offset"].(*int), args["type"].(*model.ContributionType)), true
+		return e.complexity.Person.Contributions(childComplexity, args["first"].(*int), args["offset"].(*int), args["types"].([]string), args["shuffle"].(*bool)), true
 
 	case "Person.id":
 		if e.complexity.Person.ID == nil {
@@ -6379,7 +6390,12 @@ type ContextCollection {
     ): SectionItemPagination @goField(forceResolver: true)
 }
 `, BuiltIn: false},
-	{Name: "../schema/persons.graphqls", Input: `type ContributionTypeCount {
+	{Name: "../schema/persons.graphqls", Input: `type ContributionType {
+    code: String!
+    title: String! @goField(forceResolver: true)
+}
+
+type ContributionTypeCount {
     type: ContributionType!
     count: Int!
 }
@@ -6393,24 +6409,15 @@ type ContributionsPagination implements Pagination {
 
 union ContributionItem = Episode | Chapter
 
-enum ContributionType {
-    lyricist
-    composer
-    arranger
-    speaker
-    singer
-}
-
 type Person {
     id: ID!
     name: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
     contributionTypes: [ContributionTypeCount!]! @goField(forceResolver: true)
-    contributions(first: Int, offset: Int, type: ContributionType): ContributionsPagination! @goField(forceResolver: true)
+    contributions(first: Int, offset: Int, types: [String!], shuffle: Boolean): ContributionsPagination! @goField(forceResolver: true)
 }
 
 type Contribution {
-    person: Person! @goField(forceResolver: true)
     type: ContributionType!
     item: ContributionItem!
 }
@@ -8336,15 +8343,24 @@ func (ec *executionContext) field_Person_contributions_args(ctx context.Context,
 		}
 	}
 	args["offset"] = arg1
-	var arg2 *model.ContributionType
-	if tmp, ok := rawArgs["type"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-		arg2, err = ec.unmarshalOContributionType2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionType(ctx, tmp)
+	var arg2 []string
+	if tmp, ok := rawArgs["types"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("types"))
+		arg2, err = ec.unmarshalOString2ᚕstringᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["type"] = arg2
+	args["types"] = arg2
+	var arg3 *bool
+	if tmp, ok := rawArgs["shuffle"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shuffle"))
+		arg3, err = ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["shuffle"] = arg3
 	return args, nil
 }
 
@@ -12529,62 +12545,6 @@ func (ec *executionContext) fieldContext_ContextCollection_items(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _Contribution_person(ctx context.Context, field graphql.CollectedField, obj *model.Contribution) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Contribution_person(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Contribution().Person(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Person)
-	fc.Result = res
-	return ec.marshalNPerson2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPerson(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Contribution_person(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Contribution",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Person_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Person_name(ctx, field)
-			case "image":
-				return ec.fieldContext_Person_image(ctx, field)
-			case "contributionTypes":
-				return ec.fieldContext_Person_contributionTypes(ctx, field)
-			case "contributions":
-				return ec.fieldContext_Person_contributions(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Person", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Contribution_type(ctx context.Context, field graphql.CollectedField, obj *model.Contribution) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Contribution_type(ctx, field)
 	if err != nil {
@@ -12611,9 +12571,9 @@ func (ec *executionContext) _Contribution_type(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.ContributionType)
+	res := resTmp.(*model.ContributionType)
 	fc.Result = res
-	return ec.marshalNContributionType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionType(ctx, field.Selections, res)
+	return ec.marshalNContributionType2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Contribution_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12623,7 +12583,13 @@ func (ec *executionContext) fieldContext_Contribution_type(ctx context.Context, 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ContributionType does not have child fields")
+			switch field.Name {
+			case "code":
+				return ec.fieldContext_ContributionType_code(ctx, field)
+			case "title":
+				return ec.fieldContext_ContributionType_title(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ContributionType", field.Name)
 		},
 	}
 	return fc, nil
@@ -12673,6 +12639,94 @@ func (ec *executionContext) fieldContext_Contribution_item(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _ContributionType_code(ctx context.Context, field graphql.CollectedField, obj *model.ContributionType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ContributionType_code(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Code, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ContributionType_code(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ContributionType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ContributionType_title(ctx context.Context, field graphql.CollectedField, obj *model.ContributionType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ContributionType_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ContributionType().Title(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ContributionType_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ContributionType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ContributionTypeCount_type(ctx context.Context, field graphql.CollectedField, obj *model.ContributionTypeCount) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ContributionTypeCount_type(ctx, field)
 	if err != nil {
@@ -12699,9 +12753,9 @@ func (ec *executionContext) _ContributionTypeCount_type(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.ContributionType)
+	res := resTmp.(*model.ContributionType)
 	fc.Result = res
-	return ec.marshalNContributionType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionType(ctx, field.Selections, res)
+	return ec.marshalNContributionType2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ContributionTypeCount_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12711,7 +12765,13 @@ func (ec *executionContext) fieldContext_ContributionTypeCount_type(ctx context.
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ContributionType does not have child fields")
+			switch field.Name {
+			case "code":
+				return ec.fieldContext_ContributionType_code(ctx, field)
+			case "title":
+				return ec.fieldContext_ContributionType_title(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ContributionType", field.Name)
 		},
 	}
 	return fc, nil
@@ -12932,8 +12992,6 @@ func (ec *executionContext) fieldContext_ContributionsPagination_items(ctx conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "person":
-				return ec.fieldContext_Contribution_person(ctx, field)
 			case "type":
 				return ec.fieldContext_Contribution_type(ctx, field)
 			case "item":
@@ -24653,7 +24711,7 @@ func (ec *executionContext) _Person_contributions(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Person().Contributions(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["type"].(*model.ContributionType))
+		return ec.resolvers.Person().Contributions(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["types"].([]string), fc.Args["shuffle"].(*bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -42250,7 +42308,56 @@ func (ec *executionContext) _Contribution(ctx context.Context, sel ast.Selection
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Contribution")
-		case "person":
+		case "type":
+			out.Values[i] = ec._Contribution_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "item":
+			out.Values[i] = ec._Contribution_item(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var contributionTypeImplementors = []string{"ContributionType"}
+
+func (ec *executionContext) _ContributionType(ctx context.Context, sel ast.SelectionSet, obj *model.ContributionType) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, contributionTypeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ContributionType")
+		case "code":
+			out.Values[i] = ec._ContributionType_code(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "title":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -42259,7 +42366,7 @@ func (ec *executionContext) _Contribution(ctx context.Context, sel ast.Selection
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Contribution_person(ctx, field, obj)
+				res = ec._ContributionType_title(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -42286,16 +42393,6 @@ func (ec *executionContext) _Contribution(ctx context.Context, sel ast.Selection
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "type":
-			out.Values[i] = ec._Contribution_type(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "item":
-			out.Values[i] = ec._Contribution_item(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -51962,14 +52059,14 @@ func (ec *executionContext) marshalNContributionItem2githubᚗcomᚋbccᚑcode�
 	return ec._ContributionItem(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNContributionType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionType(ctx context.Context, v interface{}) (model.ContributionType, error) {
-	var res model.ContributionType
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNContributionType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionType(ctx context.Context, sel ast.SelectionSet, v model.ContributionType) graphql.Marshaler {
-	return v
+func (ec *executionContext) marshalNContributionType2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionType(ctx context.Context, sel ast.SelectionSet, v *model.ContributionType) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ContributionType(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNContributionTypeCount2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionTypeCountᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ContributionTypeCount) graphql.Marshaler {
@@ -54274,22 +54371,6 @@ func (ec *executionContext) marshalOCalendar2ᚖgithubᚗcomᚋbccᚑcodeᚋbcc�
 		return graphql.Null
 	}
 	return ec._Calendar(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOContributionType2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionType(ctx context.Context, v interface{}) (*model.ContributionType, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(model.ContributionType)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOContributionType2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionType(ctx context.Context, sel ast.SelectionSet, v *model.ContributionType) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
 }
 
 func (ec *executionContext) unmarshalODate2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

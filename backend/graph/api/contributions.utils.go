@@ -6,10 +6,11 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
 
 // FilteredContributions takes a list of contributions and filters out items based on roles etc
-func FilteredContributions(ctx context.Context, items []*common.Contribution, fl *common.FilteredLoaders) ([]*common.Contribution, error) {
+func FilteredContributions(ctx context.Context, types []string, items []*common.Contribution, fl *common.FilteredLoaders) ([]*common.Contribution, error) {
 	if items == nil {
 		return nil, nil
 	}
@@ -37,6 +38,9 @@ func FilteredContributions(ctx context.Context, items []*common.Contribution, fl
 	}
 
 	for _, i := range items {
+		if len(types) > 0 && !lo.Contains(types, i.Type) {
+			continue
+		}
 		switch i.ItemType {
 		case "episode":
 			for _, id := range allowedEpisodeIds {
