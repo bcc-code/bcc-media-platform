@@ -52,13 +52,14 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		CollectionItemsLoader: loaders.NewListLoader(ctx, rq.GetItemsForCollectionsWithRoles, func(i common.CollectionItem) int {
 			return i.CollectionID
 		}, loaders.WithName("collection-items")),
-		CollectionItemIDsLoader: collection.NewCollectionItemLoader(ctx, db, collectionLoader, roles),
-		CalendarEntryLoader:     loaders.New(ctx, rq.GetCalendarEntries, loaders.WithMemoryCache(time.Minute*5)),
-		StudyTopicFilterLoader:  loaders.NewFilterLoader(ctx, rq.GetTopicIDsWithRoles, loaders.WithName("study-topic-filter")),
-		StudyLessonFilterLoader: loaders.NewFilterLoader(ctx, rq.GetLessonIDsWithRoles, loaders.WithName("study-lesson-filter")),
-		StudyTaskFilterLoader:   loaders.NewFilterLoader(ctx, rq.GetTaskIDsWithRoles, loaders.WithName("study-task-filter")),
-		StudyLessonsLoader:      loaders.NewRelationLoader(ctx, rq.GetLessonIDsForTopics, loaders.WithName("study-lessons")),
-		StudyTasksLoader:        loaders.NewRelationLoader(ctx, rq.GetTaskIDsForLessons, loaders.WithName("study-tasks")),
+		CollectionItemIDsLoader:   collection.NewCollectionItemLoader(ctx, db, collectionLoader, roles),
+		CalendarEntryLoader:       loaders.New(ctx, rq.GetCalendarEntries, loaders.WithMemoryCache(time.Minute*5)),
+		StudyTopicFilterLoader:    loaders.NewFilterLoader(ctx, rq.GetTopicIDsWithRoles, loaders.WithName("study-topic-filter")),
+		StudyLessonFilterLoader:   loaders.NewFilterLoader(ctx, rq.GetLessonIDsWithRoles, loaders.WithName("study-lesson-filter")),
+		StudyTaskFilterLoader:     loaders.NewFilterLoader(ctx, rq.GetTaskIDsWithRoles, loaders.WithName("study-task-filter")),
+		StudyLessonsLoader:        loaders.NewRelationLoader(ctx, rq.GetLessonIDsForTopics, loaders.WithName("study-lessons")),
+		StudyTasksLoader:          loaders.NewRelationLoader(ctx, rq.GetTaskIDsForLessons, loaders.WithName("study-tasks")),
+		TimedMetadataFilterLoader: loaders.NewFilterLoader(ctx, rq.GetTimedMetadataIdsWithRoles, loaders.WithName("chapter-roles")),
 
 		// Study Relations
 		StudyLessonEpisodesLoader: loaders.NewRelationLoader(ctx, rq.GetEpisodeIDsForLessons, loaders.WithName("study-lesson-episodes")),

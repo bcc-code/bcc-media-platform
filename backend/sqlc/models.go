@@ -986,6 +986,7 @@ type Mediaitem struct {
 	TimedmetadataFromAsset bool            `db:"timedmetadata_from_asset" json:"timedmetadataFromAsset"`
 	AvailableFrom          null_v4.Time    `db:"available_from" json:"availableFrom"`
 	AvailableTo            null_v4.Time    `db:"available_to" json:"availableTo"`
+	PrimaryEpisodeID       null_v4.Int     `db:"primary_episode_id" json:"primaryEpisodeId"`
 }
 
 type MediaitemsAsset struct {

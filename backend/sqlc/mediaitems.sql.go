@@ -12,7 +12,7 @@ import (
 )
 
 const getMediaItemByID = `-- name: GetMediaItemByID :one
-SELECT id, user_created, date_created, user_updated, date_updated, label, title, description, type, asset_id, parent_episode_id, parent_starts_at, parent_ends_at, published_at, production_date, parent_id, content_type, audience, agerating_code, translations_required, timedmetadata_from_asset, available_from, available_to FROM mediaitems WHERE id = $1::uuid
+SELECT id, user_created, date_created, user_updated, date_updated, label, title, description, type, asset_id, parent_episode_id, parent_starts_at, parent_ends_at, published_at, production_date, parent_id, content_type, audience, agerating_code, translations_required, timedmetadata_from_asset, available_from, available_to, primary_episode_id FROM mediaitems WHERE id = $1::uuid
 `
 
 func (q *Queries) GetMediaItemByID(ctx context.Context, id uuid.UUID) (Mediaitem, error) {
@@ -42,6 +42,7 @@ func (q *Queries) GetMediaItemByID(ctx context.Context, id uuid.UUID) (Mediaitem
 		&i.TimedmetadataFromAsset,
 		&i.AvailableFrom,
 		&i.AvailableTo,
+		&i.PrimaryEpisodeID,
 	)
 	return i, err
 }

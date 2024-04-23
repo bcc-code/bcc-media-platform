@@ -1,3 +1,18 @@
+
+-- name: getTimedMetadataIdsWithRoles :many
+SELECT tm.id
+FROM timedmetadata tm
+          LEFT JOIN episodes ep on ep.mediaitem_id = tm.mediaitem_id
+         LEFT JOIN episode_availability access ON access.id = ep.id
+         LEFT JOIN episode_roles roles ON roles.id = ep.id
+WHERE tm.id = ANY ($1::uuid[])
+  AND access.published
+  AND access.available_to > now()
+  AND (
+    (roles.roles && $2::varchar[] AND access.available_from < now()) OR
+    (roles.roles_earlyaccess && $2::varchar[])
+    );
+
 -- name: getTimedMetadata :many
 SELECT md.id,
        md.type,

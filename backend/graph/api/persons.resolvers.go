@@ -52,18 +52,29 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 		return nil, err
 	}
 
-	page := utils.Paginate(ids, first, offset, nil)
+	commonItems, err := r.Loaders.ContributionsLoader.GetMany(ctx, utils.PointerArrayToArray(ids))
 	if err != nil {
 		return nil, err
 	}
 
-	commonItems, err := r.Loaders.ContributionsLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
+	filteredItems, err := FilteredContributions(ctx, commonItems, r.FilteredLoaders(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	page := utils.Paginate(filteredItems, first, offset, nil)
+	if err != nil {
+		return nil, err
+	}
 
 	var items []*model.Contribution
-	for _, c := range commonItems {
+	for _, c := range page.Items {
 		contribution, err := model.ContributionFrom(ctx, c, r.Loaders)
 		if err != nil {
 			return nil, err
+		}
+		if contribution == nil {
+			continue
 		}
 		items = append(items, contribution)
 	}

@@ -41,7 +41,7 @@ func (q *Queries) GetContributions(ctx context.Context, ids []int32) ([]common.C
 	return lo.Map(rows, func(i getContributionItemsRow, _ int) common.Contribution {
 		return common.Contribution{
 			ID:       i.ID,
-			ItemID:   i.ItemID.UUID.String(),
+			ItemID:   i.ItemID,
 			ItemType: i.ItemType,
 			Type:     common.ContributionType(i.Type.String),
 			PersonID: i.PersonID.UUID.String(),

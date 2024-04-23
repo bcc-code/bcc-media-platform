@@ -50,10 +50,10 @@ func (q *Queries) getContributionIDsForPersons(ctx context.Context, personIds []
 const getContributionItems = `-- name: getContributionItems :many
 SELECT
   c.id,
-  COALESCE(mc.mediaitems_id, tmc.timedmetadata_id) AS item_id,
+  COALESCE(m.primary_episode_id::text, tmc.timedmetadata_id::text)::text AS item_id,
   CASE
-    WHEN mc.mediaitems_id IS NOT NULL THEN 'mediaitem'
-    WHEN tmc.timedmetadata_id IS NOT NULL THEN 'timedmetadata'
+    WHEN m.primary_episode_id IS NOT NULL THEN 'episode'
+    WHEN tmc.timedmetadata_id IS NOT NULL THEN 'chapter'
     ELSE ''
   END AS item_type,
   c.type,
@@ -61,13 +61,14 @@ SELECT
 FROM contributions c
 LEFT JOIN public.mediaitems_contributions mc ON c.id = mc.contributions_id
 LEFT JOIN public.timedmetadata_contributions tmc ON c.id = tmc.contributions_id
+LEFT JOIN public.mediaitems m ON mc.mediaitems_id = m.id
 WHERE c.id = ANY ($1::int[])
   AND (mc.mediaitems_id IS NOT NULL OR tmc.timedmetadata_id IS NOT NULL)
 `
 
 type getContributionItemsRow struct {
 	ID       int32          `db:"id" json:"id"`
-	ItemID   uuid.NullUUID  `db:"item_id" json:"itemId"`
+	ItemID   string         `db:"item_id" json:"itemId"`
 	ItemType string         `db:"item_type" json:"itemType"`
 	Type     null_v4.String `db:"type" json:"type"`
 	PersonID uuid.NullUUID  `db:"person_id" json:"personId"`
