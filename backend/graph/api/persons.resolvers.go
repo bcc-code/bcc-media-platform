@@ -6,6 +6,8 @@ package graph
 
 import (
 	"context"
+	"sync"
+	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
@@ -45,7 +47,9 @@ func (r *personResolver) ContributionTypes(ctx context.Context, obj *model.Perso
 	if err != nil {
 		return nil, err
 	}
-	counts, err := r.Queries.GetContributionCountByType(ctx, utils.PointerArrayToArray(ids))
+	counts, err := withCacheAndTimestamp(ctx, "global_config", func(ctx context.Context) ([]common.ContributionTypeCount, error) {
+		return r.Queries.GetContributionCountByType(ctx, utils.PointerArrayToArray(ids))
+	}, time.Second*90, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -80,23 +84,34 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 		return nil, err
 	}
 
-	var items []*model.Contribution
+	var result []*model.Contribution
+	var wg sync.WaitGroup
+	var errors []error
+	mu := sync.Mutex{}
+	wg.Add(len(page.Items))
 	for _, c := range page.Items {
-		contribution, err := model.ContributionFrom(ctx, c, r.Loaders)
-		if err != nil {
-			return nil, err
-		}
-		if contribution == nil {
-			continue
-		}
-		items = append(items, contribution)
+		go func(c *common.Contribution) {
+			contribution, err := model.ContributionFrom(ctx, c, r.Loaders)
+			mu.Lock()
+			defer mu.Unlock()
+			if err != nil {
+				errors = append(errors, err)
+				return
+			}
+			if contribution == nil {
+				return
+			}
+			result = append(result, contribution)
+			wg.Done()
+		}(c)
 	}
+	wg.Wait()
 
 	return &model.ContributionsPagination{
 		Offset: page.Offset,
 		First:  page.First,
 		Total:  page.Total,
-		Items:  items,
+		Items:  result,
 	}, nil
 }
 
