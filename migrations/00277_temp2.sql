@@ -1,7 +1,7 @@
 -- +goose Up
 /***************************************************************/
 /*** SCRIPT AUTHOR: Andreas Gangsø (andreasgangso@gmail.com) ***/
-/***    CREATED ON: 2024-04-24T08:25:05.119Z                 ***/
+/***    CREATED ON: 2024-04-24T09:48:59.627Z                 ***/
 /***************************************************************/
 
 --- BEGIN CREATE SEQUENCE "public"."mediaitems_contributions_id_seq" ---
@@ -444,7 +444,7 @@ INSERT INTO "public"."directus_relations" ("id", "many_collection", "many_field"
 -- +goose Down
 /***************************************************************/
 /*** SCRIPT AUTHOR: Andreas Gangsø (andreasgangso@gmail.com) ***/
-/***    CREATED ON: 2024-04-24T08:25:07.455Z                 ***/
+/***    CREATED ON: 2024-04-24T09:49:01.985Z                 ***/
 /***************************************************************/
 
 --- BEGIN ALTER SEQUENCE "public"."directus_fields_id_seq" ---
@@ -501,19 +501,15 @@ DELETE FROM "public"."directus_collections" WHERE "collection" = 'contributions'
 
 UPDATE "public"."directus_fields" SET "sort" = 7 WHERE "id" = 1233;
 
-UPDATE "public"."directus_fields" SET "hidden" = false WHERE "id" = 1398;
-
-UPDATE "public"."directus_fields" SET "width" = 'half' WHERE "id" = 1403;
-
-UPDATE "public"."directus_fields" SET "sort" = 3 WHERE "id" = 1406;
-
 UPDATE "public"."directus_fields" SET "sort" = 2 WHERE "id" = 1232;
 
-UPDATE "public"."directus_fields" SET "sort" = 1 WHERE "id" = 1231;
+UPDATE "public"."directus_fields" SET "width" = 'full' WHERE "id" = 1230;
+
+UPDATE "public"."directus_fields" SET "sort" = 3 WHERE "id" = 1299;
 
 UPDATE "public"."directus_fields" SET "sort" = 8 WHERE "id" = 1296;
 
-UPDATE "public"."directus_fields" SET "width" = 'full' WHERE "id" = 1230;
+UPDATE "public"."directus_fields" SET "sort" = 1 WHERE "id" = 1231;
 
 UPDATE "public"."directus_fields" SET "sort" = 12 WHERE "id" = 1235;
 
@@ -521,27 +517,29 @@ UPDATE "public"."directus_fields" SET "sort" = 13 WHERE "id" = 1239;
 
 UPDATE "public"."directus_fields" SET "sort" = 4 WHERE "id" = 1308;
 
-UPDATE "public"."directus_fields" SET "sort" = 3 WHERE "id" = 1299;
-
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display", "display_options", "readonly", "hidden", "sort", "width", "translations", "note", "conditions", "required", "group", "validation", "validation_message")  VALUES (1340, 'timedmetadata', 'persons', 'm2m', 'list-m2m', NULL, 'related-values', NULL, false, false, 6, 'half', NULL, NULL, '[{"name":"hide if not person","rule":{"_and":[{"chapter_type":{"_nin":["testimony","appeal","speech"]}}]},"hidden":true,"options":{"layout":"list","enableCreate":true,"enableSelect":true,"limit":15,"junctionFieldLocation":"bottom","allowDuplicates":false,"enableSearchFilter":false,"enableLink":false}}]', false, 'details', NULL, NULL);
 
 UPDATE "public"."directus_fields" SET "sort" = 11, "width" = 'full' WHERE "id" = 1329;
 
+UPDATE "public"."directus_fields" SET "sort" = 6, "width" = 'full' WHERE "id" = 1404;
+
+UPDATE "public"."directus_fields" SET "hidden" = false WHERE "id" = 1398;
+
 UPDATE "public"."directus_fields" SET "hidden" = false, "sort" = 16 WHERE "id" = 1422;
 
+UPDATE "public"."directus_fields" SET "sort" = 3 WHERE "id" = 1406;
+
 UPDATE "public"."directus_fields" SET "options" = NULL, "sort" = 14 WHERE "id" = 483;
+
+UPDATE "public"."directus_fields" SET "width" = 'half' WHERE "id" = 1403;
 
 UPDATE "public"."directus_fields" SET "sort" = 7 WHERE "id" = 1414;
 
 UPDATE "public"."directus_fields" SET "sort" = 8 WHERE "id" = 1407;
 
-UPDATE "public"."directus_fields" SET "sort" = 6, "width" = 'full' WHERE "id" = 1404;
-
-UPDATE "public"."directus_fields" SET "options" = NULL, "sort" = 12 WHERE "id" = 1442;
+UPDATE "public"."directus_fields" SET "sort" = 9 WHERE "id" = 495;
 
 UPDATE "public"."directus_fields" SET "sort" = 4 WHERE "id" = 1431;
-
-UPDATE "public"."directus_fields" SET "sort" = 9 WHERE "id" = 495;
 
 UPDATE "public"."directus_fields" SET "sort" = 5, "width" = 'half', "group" = 'details' WHERE "id" = 1427;
 
@@ -550,6 +548,8 @@ UPDATE "public"."directus_fields" SET "sort" = 2 WHERE "id" = 1405;
 UPDATE "public"."directus_fields" SET "sort" = 1 WHERE "id" = 1465;
 
 UPDATE "public"."directus_fields" SET "options" = NULL, "sort" = 15 WHERE "id" = 1460;
+
+UPDATE "public"."directus_fields" SET "options" = NULL, "sort" = 12 WHERE "id" = 1442;
 
 DELETE FROM "public"."directus_fields" WHERE "id" = 3023;
 
