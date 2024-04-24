@@ -22,18 +22,6 @@ func (rq *Queries) GetEpisodeIDForTimedMetadatas(ctx context.Context, ids []uuid
 	}), nil
 }
 
-// GetTimedMetadataIdsWithRoles returns metadata ids for the specified roles
-func (rq *RoleQueries) GetTimedMetadataIdsWithRoles(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
-	rows, err := rq.queries.getTimedMetadataIDsWithRoles(ctx, getTimedMetadataIDsWithRolesParams{
-		Column1: ids,
-		Column2: rq.roles,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return rows, nil
-}
-
 // GetTimedMetadata returns metadata items for the specified ids
 func (q *Queries) GetTimedMetadata(ctx context.Context, ids []uuid.UUID) ([]common.TimedMetadata, error) {
 	rows, err := q.getTimedMetadata(ctx, ids)

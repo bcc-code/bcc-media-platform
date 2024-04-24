@@ -59,7 +59,6 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		StudyTaskFilterLoader:        loaders.NewFilterLoader(ctx, rq.GetTaskIDsWithRoles, loaders.WithName("study-task-filter")),
 		StudyLessonsLoader:           loaders.NewRelationLoader(ctx, rq.GetLessonIDsForTopics, loaders.WithName("study-lessons")),
 		StudyTasksLoader:             loaders.NewRelationLoader(ctx, rq.GetTaskIDsForLessons, loaders.WithName("study-tasks")),
-		TimedMetadataFilterLoader:    loaders.NewFilterLoader(ctx, rq.GetTimedMetadataIdsWithRoles, loaders.WithName("timedmetadata-roles")),
 		ContributionsForPersonLoader: loaders.NewRelationLoader(ctx, rq.GetContributionsForPersonsWithRoles, loaders.WithName("person-contributions-roles")),
 
 		// Study Relations
