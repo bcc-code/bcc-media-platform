@@ -40,13 +40,16 @@ SELECT md.id,
        md.mediaitem_id,
        COALESCE(images.images, '{}'::json)            AS images
 FROM timedmetadata md
-LEFT JOIN (SELECT simg.timedmetadata_id,
-                      json_agg(json_build_object('style', img.style, 'language', img.language, 'filename_disk',
-                                                 df.filename_disk)) AS images
-               FROM ((timedmetadata_styledimages simg
-                   JOIN styledimages img ON ((img.id = simg.styledimages_id)))
-                   JOIN directus_files df ON ((img.file = df.id)))
-               GROUP BY simg.timedmetadata_id) images ON ((images.timedmetadata_id = md.id))
+LEFT JOIN (
+    SELECT
+    simg.timedmetadata_id,
+    json_agg(json_build_object('style', img.style, 'language', img.language, 'filename_disk', df.filename_disk)) AS images
+    FROM timedmetadata_styledimages simg
+    JOIN styledimages img ON (img.id = simg.styledimages_id)
+    JOIN directus_files df ON (img.file = df.id)
+    WHERE simg.timedmetadata_id = ANY(@ids::uuid[])
+    GROUP BY simg.timedmetadata_id
+) images ON (images.timedmetadata_id = md.id)
 WHERE md.id = ANY (@ids::uuid[]);
 
 -- name: InsertTimedMetadata :exec

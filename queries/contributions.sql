@@ -7,7 +7,6 @@ group by type;
 
 
 -- name: getContributionIDsForPersonsWithRoles :many
--- name: getContributionIDsForPersonsWithRoles :many
 WITH RelevantContributions AS (
   SELECT
     c.id,
