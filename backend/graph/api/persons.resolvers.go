@@ -48,7 +48,7 @@ func (r *personResolver) ContributionTypes(ctx context.Context, obj *model.Perso
 	if err != nil {
 		return nil, err
 	}
-	counts, err := withCacheAndTimestamp(ctx, "global_config", func(ctx context.Context) ([]common.ContributionTypeCount, error) {
+	counts, err := withCacheAndTimestamp(ctx, "person_contributions-"+obj.ID, func(ctx context.Context) ([]common.ContributionTypeCount, error) {
 		return r.Queries.GetContributionCountByType(ctx, utils.PointerArrayToArray(ids))
 	}, time.Second*90, nil)
 	if err != nil {
