@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -72,21 +73,34 @@ func (q *Queries) InsertTimedMetadataPerson(ctx context.Context, arg InsertTimed
 }
 
 const getPersons = `-- name: getPersons :many
-SELECT id, name
-FROM persons
+SELECT p.id, p.name, COALESCE(images.images, '{}'::json) AS images
+FROM persons p
+LEFT JOIN (SELECT simg.persons_id,
+                      json_agg(json_build_object('style', img.style, 'language', img.language, 'filename_disk',
+                                                 df.filename_disk)) AS images
+               FROM ((persons_styledimages simg
+                   JOIN styledimages img ON ((img.id = simg.styledimages_id)))
+                   JOIN directus_files df ON ((img.file = df.id)))
+               GROUP BY simg.persons_id) images ON ((images.persons_id = p.id))
 WHERE id = ANY ($1::uuid[])
 `
 
-func (q *Queries) getPersons(ctx context.Context, ids []uuid.UUID) ([]Person, error) {
+type getPersonsRow struct {
+	ID     uuid.UUID       `db:"id" json:"id"`
+	Name   string          `db:"name" json:"name"`
+	Images json.RawMessage `db:"images" json:"images"`
+}
+
+func (q *Queries) getPersons(ctx context.Context, ids []uuid.UUID) ([]getPersonsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getPersons, pq.Array(ids))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Person
+	var items []getPersonsRow
 	for rows.Next() {
-		var i Person
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+		var i getPersonsRow
+		if err := rows.Scan(&i.ID, &i.Name, &i.Images); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

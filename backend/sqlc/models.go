@@ -1171,6 +1171,12 @@ type Person struct {
 	Name string    `db:"name" json:"name"`
 }
 
+type PersonsStyledimage struct {
+	ID             int32     `db:"id" json:"id"`
+	PersonsID      uuid.UUID `db:"persons_id" json:"personsId"`
+	StyledimagesID uuid.UUID `db:"styledimages_id" json:"styledimagesId"`
+}
+
 type Phrase struct {
 	Key         string        `db:"key" json:"key"`
 	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
