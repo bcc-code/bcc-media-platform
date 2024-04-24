@@ -68,11 +68,12 @@ type EpisodePagination implements Pagination {
 }
 
 type Chapter {
-  id: UUID!
+  id: ID!
   start: Int!
   title: String!
   image: String
   description: String
+  episode: Episode @goField(forceResolver: true)
 }
 
 type File {

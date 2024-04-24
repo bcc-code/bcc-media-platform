@@ -1,5 +1,5 @@
 
--- name: getTimedMetadataIdsWithRoles :many
+-- name: getTimedMetadataIDsWithRoles :many
 SELECT tm.id
 FROM timedmetadata tm
           LEFT JOIN episodes ep on ep.mediaitem_id = tm.mediaitem_id
@@ -12,6 +12,14 @@ WHERE tm.id = ANY ($1::uuid[])
     (roles.roles && $2::varchar[] AND access.available_from < now()) OR
     (roles.roles_earlyaccess && $2::varchar[])
     );
+
+-- name: getEpisodeIDsForTimedMetadatas :many
+SELECT
+tm.id,
+m.primary_episode_id
+FROM timedmetadata tm
+         LEFT JOIN mediaitems m on m.id = tm.mediaitem_id
+WHERE tm.id = ANY ($1::uuid[]);
 
 -- name: getTimedMetadata :many
 SELECT md.id,
@@ -28,8 +36,17 @@ SELECT md.id,
                  FROM timedmetadata_translations ts
                  WHERE ts.timedmetadata_id = md.id), '{}')::json AS description,
        md.seconds,
-       md.highlight
+       md.highlight,
+       md.mediaitem_id,
+       COALESCE(images.images, '{}'::json)            AS images
 FROM timedmetadata md
+LEFT JOIN (SELECT simg.timedmetadata_id,
+                      json_agg(json_build_object('style', img.style, 'language', img.language, 'filename_disk',
+                                                 df.filename_disk)) AS images
+               FROM ((timedmetadata_styledimages simg
+                   JOIN styledimages img ON ((img.id = simg.styledimages_id)))
+                   JOIN directus_files df ON ((img.file = df.id)))
+               GROUP BY simg.timedmetadata_id) images ON ((images.timedmetadata_id = md.id))
 WHERE md.id = ANY (@ids::uuid[]);
 
 -- name: InsertTimedMetadata :exec

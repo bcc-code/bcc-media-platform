@@ -4,13 +4,27 @@ import (
 	"context"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
+func (rq *Queries) GetEpisodeIDForTimedMetadatas(ctx context.Context, ids []uuid.UUID) ([]loaders.Conversion[uuid.UUID, int], error) {
+	rows, err := rq.getEpisodeIDsForTimedMetadatas(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(r getEpisodeIDsForTimedMetadatasRow, _ int) loaders.Conversion[uuid.UUID, int] {
+		return conversion[uuid.UUID, int]{
+			source: r.ID,
+			result: int(r.PrimaryEpisodeID.Int64),
+		}
+	}), nil
+}
+
 // GetTimedMetadataIdsWithRoles returns metadata ids for the specified roles
 func (rq *RoleQueries) GetTimedMetadataIdsWithRoles(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
-	rows, err := rq.queries.getTimedMetadataIdsWithRoles(ctx, getTimedMetadataIdsWithRolesParams{
+	rows, err := rq.queries.getTimedMetadataIDsWithRoles(ctx, getTimedMetadataIDsWithRolesParams{
 		Column1: ids,
 		Column2: rq.roles,
 	})
@@ -42,6 +56,8 @@ func (q *Queries) GetTimedMetadata(ctx context.Context, ids []uuid.UUID) ([]comm
 			Timestamp:   float64(i.Seconds),
 			Title:       title,
 			Description: description,
+			MediaItemID: i.MediaitemID,
+			Images:      q.getImages(i.Images),
 		}
 	}), nil
 }

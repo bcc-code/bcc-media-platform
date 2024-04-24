@@ -292,11 +292,12 @@ func (this CardSection) GetMetadata() *ItemSectionMetadata { return this.Metadat
 func (this CardSection) GetItems() *SectionItemPagination { return this.Items }
 
 type Chapter struct {
-	ID          string  `json:"id"`
-	Start       int     `json:"start"`
-	Title       string  `json:"title"`
-	Image       *string `json:"image,omitempty"`
-	Description *string `json:"description,omitempty"`
+	ID          string   `json:"id"`
+	Start       int      `json:"start"`
+	Title       string   `json:"title"`
+	Image       *string  `json:"image,omitempty"`
+	Description *string  `json:"description,omitempty"`
+	Episode     *Episode `json:"episode,omitempty"`
 }
 
 func (Chapter) IsContributionItem() {}

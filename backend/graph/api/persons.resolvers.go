@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
@@ -91,6 +92,7 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 	wg.Add(len(page.Items))
 	for _, c := range page.Items {
 		go func(c *common.Contribution) {
+			defer wg.Done()
 			contribution, err := model.ContributionFrom(ctx, c, r.Loaders)
 			mu.Lock()
 			defer mu.Unlock()
@@ -102,10 +104,13 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 				return
 			}
 			result = append(result, contribution)
-			wg.Done()
 		}(c)
 	}
 	wg.Wait()
+
+	for _, e := range errors {
+		graphql.AddError(ctx, e)
+	}
 
 	return &model.ContributionsPagination{
 		Offset: page.Offset,

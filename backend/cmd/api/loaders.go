@@ -59,7 +59,7 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		StudyTaskFilterLoader:        loaders.NewFilterLoader(ctx, rq.GetTaskIDsWithRoles, loaders.WithName("study-task-filter")),
 		StudyLessonsLoader:           loaders.NewRelationLoader(ctx, rq.GetLessonIDsForTopics, loaders.WithName("study-lessons")),
 		StudyTasksLoader:             loaders.NewRelationLoader(ctx, rq.GetTaskIDsForLessons, loaders.WithName("study-tasks")),
-		TimedMetadataFilterLoader:    loaders.NewFilterLoader(ctx, rq.GetTimedMetadataIdsWithRoles, loaders.WithName("chapter-roles")),
+		TimedMetadataFilterLoader:    loaders.NewFilterLoader(ctx, rq.GetTimedMetadataIdsWithRoles, loaders.WithName("timedmetadata-roles")),
 		ContributionsForPersonLoader: loaders.NewRelationLoader(ctx, rq.GetContributionsForPersonsWithRoles, loaders.WithName("person-contributions-roles")),
 
 		// Study Relations
@@ -256,6 +256,7 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		SongLoader: loaders.New(ctx, queries.GetSongs, loaders.WithName("song-loader"), loaders.WithKeyFunc(func(i common.Song) uuid.UUID {
 			return i.ID
 		})),
+		TimedMetadataEpisodeIDLoader: loaders.NewConversionLoader(ctx, queries.GetEpisodeIDForTimedMetadatas, loaders.WithMemoryCache(time.Second*30), loaders.WithName("timedmetadata-episode-id")),
 		TimedMetadataLoader: loaders.New(ctx, queries.GetTimedMetadata, loaders.WithName("timedmetadata-loader"), loaders.WithKeyFunc(func(i common.TimedMetadata) uuid.UUID {
 			return i.ID
 		})),

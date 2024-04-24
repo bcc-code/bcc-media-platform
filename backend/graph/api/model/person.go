@@ -44,6 +44,7 @@ func ContributionFrom(ctx context.Context, i *common.Contribution, loaders *comm
 			Start:       int(tm.Timestamp),
 			Title:       tm.Title.Get(languages),
 			Description: tm.Description.GetValueOrNil(languages),
+			Image:       tm.Images.GetDefault(languages, common.ImageStyleDefault),
 		}
 	}
 

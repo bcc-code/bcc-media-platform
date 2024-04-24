@@ -18,9 +18,29 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	null "gopkg.in/guregu/null.v4"
 )
+
+// Episode is the resolver for the episode field.
+func (r *chapterResolver) Episode(ctx context.Context, obj *model.Chapter) (*model.Episode, error) {
+	if obj.Episode != nil && obj.Episode.ID != "" {
+		return r.QueryRoot().Episode(ctx, obj.Episode.ID, nil)
+	}
+	tmID := utils.AsUuid(obj.ID)
+	if tmID == uuid.Nil {
+		return nil, nil
+	}
+	epID, err := r.Loaders.TimedMetadataEpisodeIDLoader.Get(ctx, tmID)
+	if err != nil {
+		return nil, err
+	}
+	if epID != nil {
+		return r.QueryRoot().Episode(ctx, fmt.Sprint(*epID), nil)
+	}
+	return nil, nil
+}
 
 // Locked is the resolver for the locked field.
 func (r *episodeResolver) Locked(ctx context.Context, obj *model.Episode) (bool, error) {
@@ -442,7 +462,11 @@ func (r *episodeResolver) Cursor(ctx context.Context, obj *model.Episode) (strin
 	return cursor.Encode()
 }
 
+// Chapter returns generated.ChapterResolver implementation.
+func (r *Resolver) Chapter() generated.ChapterResolver { return &chapterResolver{r} }
+
 // Episode returns generated.EpisodeResolver implementation.
 func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
 
+type chapterResolver struct{ *Resolver }
 type episodeResolver struct{ *Resolver }

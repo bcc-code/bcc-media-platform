@@ -1,11 +1,13 @@
 package common
 
+import "github.com/google/uuid"
+
 type Contribution struct {
-	ID       int32  `json:"id"`
-	ItemID   string `json:"itemId"`
-	ItemType string `json:"itemType"`
-	Type     string `json:"type"`
-	PersonID string `json:"personId"`
+	ID       int32     `json:"id"`
+	ItemID   string    `json:"itemId"`
+	ItemType string    `json:"itemType"`
+	Type     string    `json:"type"`
+	PersonID uuid.UUID `json:"personId"`
 }
 
 type ContributionType struct {

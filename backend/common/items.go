@@ -229,6 +229,8 @@ type TimedMetadata struct {
 	ChapterType ChapterType
 	PersonIDs   []uuid.UUID
 	SongID      uuid.NullUUID
+	MediaItemID uuid.NullUUID
+	Images      Images
 }
 
 // Short item type

@@ -48,28 +48,41 @@ func (q *Queries) getContributionCountByType(ctx context.Context, ids []int32) (
 }
 
 const getContributionIDsForPersonsWithRoles = `-- name: getContributionIDsForPersonsWithRoles :many
-SELECT
-  c.id,
-  person_id::uuid as parent_id
-FROM contributions c
-LEFT JOIN public.mediaitems_contributions mc ON c.id = mc.contributions_id
-LEFT JOIN public.mediaitems m ON mc.mediaitems_id = m.id OR mc.mediaitems_id = m.id
-LEFT JOIN episode_availability access ON access.id = m.primary_episode_id
-LEFT JOIN episode_roles roles ON roles.id = m.primary_episode_id
-WHERE 
-c.person_id = ANY ($1::uuid[])
-AND access.published
-AND access.available_to > now()
-AND (
-  (roles.roles && $2::varchar[] AND access.available_from < now()) OR
-  (roles.roles_earlyaccess && $2::varchar[])
+WITH RelevantContributions AS (
+  SELECT
+    c.id,
+    c.person_id::uuid AS parent_id,
+    COALESCE(mc.mediaitems_id, tm.mediaitem_id) AS mediaitem_id
+  FROM 
+    public.contributions c
+    LEFT JOIN public.mediaitems_contributions mc ON c.id = mc.contributions_id
+    LEFT JOIN public.timedmetadata_contributions tmc ON c.id = tmc.contributions_id
+    LEFT JOIN public.timedmetadata tm ON tm.id = tmc.timedmetadata_id
+  WHERE 
+    c.person_id = ANY ($2::uuid[])
 )
-order by m.published_at desc
+SELECT
+  rc.id,
+  rc.parent_id
+FROM 
+  RelevantContributions rc
+  JOIN public.mediaitems m ON rc.mediaitem_id = m.id
+  JOIN public.episode_availability access ON access.id = m.primary_episode_id
+  JOIN public.episode_roles roles ON roles.id = m.primary_episode_id
+WHERE 
+  access.published
+  AND access.available_to > now()
+  AND (
+    (roles.roles && $1::varchar[] AND access.available_from < now()) OR
+    (roles.roles_earlyaccess && $1::varchar[])
+  )
+ORDER BY 
+  m.published_at DESC
 `
 
 type getContributionIDsForPersonsWithRolesParams struct {
-	PersonIds []uuid.UUID `db:"person_ids" json:"personIds"`
 	Roles     []string    `db:"roles" json:"roles"`
+	PersonIds []uuid.UUID `db:"person_ids" json:"personIds"`
 }
 
 type getContributionIDsForPersonsWithRolesRow struct {
@@ -78,7 +91,7 @@ type getContributionIDsForPersonsWithRolesRow struct {
 }
 
 func (q *Queries) getContributionIDsForPersonsWithRoles(ctx context.Context, arg getContributionIDsForPersonsWithRolesParams) ([]getContributionIDsForPersonsWithRolesRow, error) {
-	rows, err := q.db.QueryContext(ctx, getContributionIDsForPersonsWithRoles, pq.Array(arg.PersonIds), pq.Array(arg.Roles))
+	rows, err := q.db.QueryContext(ctx, getContributionIDsForPersonsWithRoles, pq.Array(arg.Roles), pq.Array(arg.PersonIds))
 	if err != nil {
 		return nil, err
 	}
@@ -122,11 +135,11 @@ order by m.published_at desc
 `
 
 type getContributionItemsRow struct {
-	ID       int32         `db:"id" json:"id"`
-	ItemID   string        `db:"item_id" json:"itemId"`
-	ItemType string        `db:"item_type" json:"itemType"`
-	Type     string        `db:"type" json:"type"`
-	PersonID uuid.NullUUID `db:"person_id" json:"personId"`
+	ID       int32     `db:"id" json:"id"`
+	ItemID   string    `db:"item_id" json:"itemId"`
+	ItemType string    `db:"item_type" json:"itemType"`
+	Type     string    `db:"type" json:"type"`
+	PersonID uuid.UUID `db:"person_id" json:"personId"`
 }
 
 func (q *Queries) getContributionItems(ctx context.Context, ids []int32) ([]getContributionItemsRow, error) {
