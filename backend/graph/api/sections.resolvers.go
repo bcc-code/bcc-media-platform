@@ -14,6 +14,11 @@ import (
 )
 
 // Items is the resolver for the items field.
+func (r *avatarSectionResolver) Items(ctx context.Context, obj *model.AvatarSection, first *int, offset *int) (*model.SectionItemPagination, error) {
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+}
+
+// Items is the resolver for the items field.
 func (r *cardListSectionResolver) Items(ctx context.Context, obj *model.CardListSection, first *int, offset *int) (*model.SectionItemPagination, error) {
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 }
@@ -102,6 +107,9 @@ func (r *sectionItemResolver) Image(ctx context.Context, obj *model.SectionItem)
 	return obj.Image, nil
 }
 
+// AvatarSection returns generated.AvatarSectionResolver implementation.
+func (r *Resolver) AvatarSection() generated.AvatarSectionResolver { return &avatarSectionResolver{r} }
+
 // CardListSection returns generated.CardListSectionResolver implementation.
 func (r *Resolver) CardListSection() generated.CardListSectionResolver {
 	return &cardListSectionResolver{r}
@@ -155,6 +163,7 @@ func (r *Resolver) PosterSection() generated.PosterSectionResolver { return &pos
 // SectionItem returns generated.SectionItemResolver implementation.
 func (r *Resolver) SectionItem() generated.SectionItemResolver { return &sectionItemResolver{r} }
 
+type avatarSectionResolver struct{ *Resolver }
 type cardListSectionResolver struct{ *Resolver }
 type cardSectionResolver struct{ *Resolver }
 type defaultGridSectionResolver struct{ *Resolver }

@@ -2,6 +2,7 @@ package sqlc
 
 import (
 	"context"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -28,10 +29,11 @@ func (q *Queries) GetPersons(ctx context.Context, ids []uuid.UUID) ([]common.Per
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i Person, _ int) common.Person {
+	return lo.Map(rows, func(i getPersonsRow, _ int) common.Person {
 		return common.Person{
-			ID:   i.ID,
-			Name: i.Name,
+			ID:     i.ID,
+			Name:   i.Name,
+			Images: q.getImages(i.Images),
 		}
 	}), nil
 }

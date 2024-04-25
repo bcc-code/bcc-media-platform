@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "backend"
+		},
+		{
+			"path": "migrations"
+		},
+		{
+			"path": "queries"
+		},
+		{
+			"path": "cms"
+		}
+	],
+	"settings": {}
+}

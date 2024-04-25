@@ -285,6 +285,16 @@ type Computeddatum struct {
 	Label       null_v4.String `db:"label" json:"label"`
 }
 
+type Contribution struct {
+	ID          int32         `db:"id" json:"id"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	PersonID    uuid.UUID     `db:"person_id" json:"personId"`
+	Type        string        `db:"type" json:"type"`
+}
+
 type DirectusActivity struct {
 	ID         int32          `db:"id" json:"id"`
 	Action     string         `db:"action" json:"action"`
@@ -976,6 +986,7 @@ type Mediaitem struct {
 	TimedmetadataFromAsset bool            `db:"timedmetadata_from_asset" json:"timedmetadataFromAsset"`
 	AvailableFrom          null_v4.Time    `db:"available_from" json:"availableFrom"`
 	AvailableTo            null_v4.Time    `db:"available_to" json:"availableTo"`
+	PrimaryEpisodeID       null_v4.Int     `db:"primary_episode_id" json:"primaryEpisodeId"`
 }
 
 type MediaitemsAsset struct {
@@ -983,6 +994,12 @@ type MediaitemsAsset struct {
 	MediaitemsID uuid.UUID `db:"mediaitems_id" json:"mediaitemsId"`
 	AssetsID     int32     `db:"assets_id" json:"assetsId"`
 	Language     string    `db:"language" json:"language"`
+}
+
+type MediaitemsContribution struct {
+	ID              int32         `db:"id" json:"id"`
+	MediaitemsID    uuid.NullUUID `db:"mediaitems_id" json:"mediaitemsId"`
+	ContributionsID null_v4.Int   `db:"contributions_id" json:"contributionsId"`
 }
 
 type MediaitemsStyledimage struct {
@@ -1152,6 +1169,12 @@ type PagesTranslation struct {
 type Person struct {
 	ID   uuid.UUID `db:"id" json:"id"`
 	Name string    `db:"name" json:"name"`
+}
+
+type PersonsStyledimage struct {
+	ID             int32     `db:"id" json:"id"`
+	PersonsID      uuid.UUID `db:"persons_id" json:"personsId"`
+	StyledimagesID uuid.UUID `db:"styledimages_id" json:"styledimagesId"`
 }
 
 type Phrase struct {
@@ -1635,10 +1658,22 @@ type TasksTranslation struct {
 	Description    null_v4.String `db:"description" json:"description"`
 }
 
+type TimedmetadataContribution struct {
+	ID              int32         `db:"id" json:"id"`
+	TimedmetadataID uuid.NullUUID `db:"timedmetadata_id" json:"timedmetadataId"`
+	ContributionsID null_v4.Int   `db:"contributions_id" json:"contributionsId"`
+}
+
 type TimedmetadataPerson struct {
 	ID              int32     `db:"id" json:"id"`
 	TimedmetadataID uuid.UUID `db:"timedmetadata_id" json:"timedmetadataId"`
 	PersonsID       uuid.UUID `db:"persons_id" json:"personsId"`
+}
+
+type TimedmetadataStyledimage struct {
+	ID              int32         `db:"id" json:"id"`
+	TimedmetadataID uuid.NullUUID `db:"timedmetadata_id" json:"timedmetadataId"`
+	StyledimagesID  uuid.NullUUID `db:"styledimages_id" json:"styledimagesId"`
 }
 
 type TimedmetadataTranslation struct {

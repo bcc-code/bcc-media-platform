@@ -31,6 +31,7 @@ var (
 	CollectionPlaylists   = ItemCollection{"playlists"}
 	CollectionStudyTopics = ItemCollection{"studytopics"}
 	CollectionShorts      = ItemCollection{"shorts"}
+	CollectionPersons     = ItemCollection{"persons"}
 	Collections           = enum.New(
 		CollectionUnknown,
 		CollectionShows,
@@ -42,6 +43,7 @@ var (
 		CollectionPlaylists,
 		CollectionStudyTopics,
 		CollectionShorts,
+		CollectionPersons,
 	)
 )
 
@@ -229,6 +231,8 @@ type TimedMetadata struct {
 	ChapterType ChapterType
 	PersonIDs   []uuid.UUID
 	SongID      uuid.NullUUID
+	MediaItemID uuid.NullUUID
+	Images      Images
 }
 
 // Short item type
@@ -516,8 +520,9 @@ type Song struct {
 
 // Person contains some metadata for people
 type Person struct {
-	ID   uuid.UUID
-	Name string
+	ID     uuid.UUID
+	Name   string
+	Images Images
 }
 
 // Phrase is a key value pair for translations

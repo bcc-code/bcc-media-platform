@@ -2,10 +2,11 @@ package model
 
 import (
 	"context"
+	"strconv"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
-	"strconv"
 )
 
 // SectionFrom converts common.Page to Section
@@ -66,6 +67,18 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 				size = SectionSizeMedium
 			}
 			return &ListSection{
+				ID:          id,
+				Title:       title,
+				Description: description,
+				Size:        size,
+				Metadata:    metadata,
+			}
+		case "avatars":
+			size := SectionSize(s.Size)
+			if !size.IsValid() {
+				size = SectionSizeMedium
+			}
+			return &AvatarSection{
 				ID:          id,
 				Title:       title,
 				Description: description,

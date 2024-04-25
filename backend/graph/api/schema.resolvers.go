@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	cache "github.com/Code-Hex/go-generics-cache"
+	"github.com/Code-Hex/go-generics-cache"
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/applications"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
@@ -230,6 +230,17 @@ func (r *queryRootResolver) Section(ctx context.Context, id string, timestamp *s
 		Item:        r.Loaders.SectionLoader,
 		Permissions: r.Loaders.SectionPermissionLoader,
 	}, id, model.SectionFrom)
+}
+
+// Person is the resolver for the person field.
+func (r *queryRootResolver) Person(ctx context.Context, id string) (*model.Person, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	return resolverFor(ctx, &itemLoaders[uuid.UUID, common.Person]{
+		Item: r.Loaders.PersonLoader,
+	}, uid, model.PersonFrom)
 }
 
 // Show is the resolver for the show field.

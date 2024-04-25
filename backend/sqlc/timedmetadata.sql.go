@@ -161,6 +161,43 @@ func (q *Queries) InsertTimedMetadata(ctx context.Context, arg InsertTimedMetada
 	return err
 }
 
+const getEpisodeIDsForTimedMetadatas = `-- name: getEpisodeIDsForTimedMetadatas :many
+SELECT
+tm.id,
+m.primary_episode_id
+FROM timedmetadata tm
+         LEFT JOIN mediaitems m on m.id = tm.mediaitem_id
+WHERE tm.id = ANY ($1::uuid[])
+`
+
+type getEpisodeIDsForTimedMetadatasRow struct {
+	ID               uuid.UUID   `db:"id" json:"id"`
+	PrimaryEpisodeID null_v4.Int `db:"primary_episode_id" json:"primaryEpisodeId"`
+}
+
+func (q *Queries) getEpisodeIDsForTimedMetadatas(ctx context.Context, dollar_1 []uuid.UUID) ([]getEpisodeIDsForTimedMetadatasRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodeIDsForTimedMetadatas, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getEpisodeIDsForTimedMetadatasRow
+	for rows.Next() {
+		var i getEpisodeIDsForTimedMetadatasRow
+		if err := rows.Scan(&i.ID, &i.PrimaryEpisodeID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTimedMetadata = `-- name: getTimedMetadata :many
 SELECT md.id,
        md.type,
@@ -176,8 +213,20 @@ SELECT md.id,
                  FROM timedmetadata_translations ts
                  WHERE ts.timedmetadata_id = md.id), '{}')::json AS description,
        md.seconds,
-       md.highlight
+       md.highlight,
+       md.mediaitem_id,
+       COALESCE(images.images, '{}'::json)            AS images
 FROM timedmetadata md
+LEFT JOIN (
+    SELECT
+    simg.timedmetadata_id,
+    json_agg(json_build_object('style', img.style, 'language', img.language, 'filename_disk', df.filename_disk)) AS images
+    FROM timedmetadata_styledimages simg
+    JOIN styledimages img ON (img.id = simg.styledimages_id)
+    JOIN directus_files df ON (img.file = df.id)
+    WHERE simg.timedmetadata_id = ANY($1::uuid[])
+    GROUP BY simg.timedmetadata_id
+) images ON (images.timedmetadata_id = md.id)
 WHERE md.id = ANY ($1::uuid[])
 `
 
@@ -193,6 +242,8 @@ type getTimedMetadataRow struct {
 	Description         json.RawMessage `db:"description" json:"description"`
 	Seconds             float32         `db:"seconds" json:"seconds"`
 	Highlight           bool            `db:"highlight" json:"highlight"`
+	MediaitemID         uuid.NullUUID   `db:"mediaitem_id" json:"mediaitemId"`
+	Images              json.RawMessage `db:"images" json:"images"`
 }
 
 func (q *Queries) getTimedMetadata(ctx context.Context, ids []uuid.UUID) ([]getTimedMetadataRow, error) {
@@ -216,6 +267,8 @@ func (q *Queries) getTimedMetadata(ctx context.Context, ids []uuid.UUID) ([]getT
 			&i.Description,
 			&i.Seconds,
 			&i.Highlight,
+			&i.MediaitemID,
+			&i.Images,
 		); err != nil {
 			return nil, err
 		}

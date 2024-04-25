@@ -18,9 +18,29 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	null "gopkg.in/guregu/null.v4"
 )
+
+// Episode is the resolver for the episode field.
+func (r *chapterResolver) Episode(ctx context.Context, obj *model.Chapter) (*model.Episode, error) {
+	if obj.Episode != nil && obj.Episode.ID != "" {
+		return r.QueryRoot().Episode(ctx, obj.Episode.ID, nil)
+	}
+	tmID := utils.AsUuid(obj.ID)
+	if tmID == uuid.Nil {
+		return nil, nil
+	}
+	epID, err := r.Loaders.TimedMetadataEpisodeIDLoader.Get(ctx, tmID)
+	if err != nil {
+		return nil, err
+	}
+	if epID != nil {
+		return r.QueryRoot().Episode(ctx, fmt.Sprint(*epID), nil)
+	}
+	return nil, nil
+}
 
 // Locked is the resolver for the locked field.
 func (r *episodeResolver) Locked(ctx context.Context, obj *model.Episode) (bool, error) {
@@ -203,65 +223,13 @@ func (r *episodeResolver) Chapters(ctx context.Context, obj *model.Episode) ([]*
 	metadataItems = lo.Filter(metadataItems, func(i *common.TimedMetadata, _ int) bool {
 		return i.Type == "chapter"
 	})
-	ginCtx, _ := utils.GinCtx(ctx)
-	languages := user.GetLanguagesFromCtx(ginCtx)
 
 	r.Loaders.PhraseLoader.LoadMany(ctx, lo.Uniq(lo.Map(metadataItems, func(i *common.TimedMetadata, _ int) string {
 		return i.ChapterType.Value
 	})))
 
 	return lo.Map(metadataItems, func(i *common.TimedMetadata, _ int) *model.Chapter {
-		title := i.Title.Get(languages)
-		phrase, _ := r.Loaders.PhraseLoader.Get(ctx, i.ChapterType.Value)
-		emptyTitle := title == ""
-		if emptyTitle && phrase != nil {
-			title = phrase.Value.Get(languages)
-		}
-
-		switch i.ChapterType {
-		case common.ChapterTypeSong, common.ChapterTypeSingAlong:
-			if !i.SongID.Valid {
-				break
-			}
-			song, _ := r.Loaders.SongLoader.Get(ctx, i.SongID.UUID)
-			if song == nil {
-				break
-			}
-			if emptyTitle {
-				if phrase != nil {
-					title = fmt.Sprintf("%s - %s", phrase.Value.Get(languages), song.Title.Get(languages))
-				} else {
-					title = song.Title.Get(languages)
-				}
-			} else {
-				title = strings.Replace(title, "{{song.title}}", song.Title.Get(languages), -1)
-			}
-		case common.ChapterTypeSpeech, common.ChapterTypeAppeal, common.ChapterTypeTestimony:
-			if len(i.PersonIDs) != 1 {
-				break
-			}
-			personID := i.PersonIDs[0]
-			person, _ := r.Loaders.PersonLoader.Get(ctx, personID)
-			if person == nil {
-				break
-			}
-			if emptyTitle {
-				if phrase != nil {
-					title = fmt.Sprintf("%s - %s", phrase.Value.Get(languages), person.Name)
-				} else {
-					title = person.Name
-				}
-			} else {
-				title = strings.Replace(title, "{{person.name}}", person.Name, -1)
-			}
-		}
-
-		return &model.Chapter{
-			ID:          i.ID.String(),
-			Title:       title,
-			Description: i.Description.GetValueOrNil(languages),
-			Start:       int(i.Timestamp),
-		}
+		return resolveChapter(ctx, i, r.Loaders)
 	}), nil
 }
 
@@ -442,7 +410,11 @@ func (r *episodeResolver) Cursor(ctx context.Context, obj *model.Episode) (strin
 	return cursor.Encode()
 }
 
+// Chapter returns generated.ChapterResolver implementation.
+func (r *Resolver) Chapter() generated.ChapterResolver { return &chapterResolver{r} }
+
 // Episode returns generated.EpisodeResolver implementation.
 func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
 
+type chapterResolver struct{ *Resolver }
 type episodeResolver struct{ *Resolver }

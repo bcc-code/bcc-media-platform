@@ -49,50 +49,6 @@ func (q *Queries) GetCollectionSongID(ctx context.Context, arg GetCollectionSong
 	return id, err
 }
 
-const getPersonIDsByNames = `-- name: GetPersonIDsByNames :many
-SELECT p.id, p.name
-FROM persons p
-WHERE name = ANY ($1::varchar[])
-`
-
-func (q *Queries) GetPersonIDsByNames(ctx context.Context, names []string) ([]Person, error) {
-	rows, err := q.db.QueryContext(ctx, getPersonIDsByNames, pq.Array(names))
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Person
-	for rows.Next() {
-		var i Person
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const insertPerson = `-- name: InsertPerson :exec
-INSERT INTO "public"."persons" (id, name)
-VALUES ($1, $2)
-`
-
-type InsertPersonParams struct {
-	ID   uuid.UUID `db:"id" json:"id"`
-	Name string    `db:"name" json:"name"`
-}
-
-func (q *Queries) InsertPerson(ctx context.Context, arg InsertPersonParams) error {
-	_, err := q.db.ExecContext(ctx, insertPerson, arg.ID, arg.Name)
-	return err
-}
-
 const insertSong = `-- name: InsertSong :exec
 INSERT INTO "public"."songs" (id, key, collection_id, title)
 VALUES ($1, $2, $3, $4)
@@ -131,54 +87,10 @@ func (q *Queries) InsertSongCollection(ctx context.Context, arg InsertSongCollec
 	return err
 }
 
-const insertTimedMetadataPerson = `-- name: InsertTimedMetadataPerson :exec
-INSERT INTO "public"."timedmetadata_persons" (timedmetadata_id, persons_id)
-VALUES ($1::uuid, $2::uuid)
-`
-
-type InsertTimedMetadataPersonParams struct {
-	TimedmetadataID uuid.UUID `db:"timedmetadata_id" json:"timedmetadataId"`
-	PersonsID       uuid.UUID `db:"persons_id" json:"personsId"`
-}
-
-func (q *Queries) InsertTimedMetadataPerson(ctx context.Context, arg InsertTimedMetadataPersonParams) error {
-	_, err := q.db.ExecContext(ctx, insertTimedMetadataPerson, arg.TimedmetadataID, arg.PersonsID)
-	return err
-}
-
-const getPersons = `-- name: getPersons :many
-SELECT id, name
-FROM persons
-WHERE id = ANY ($1::uuid[])
-`
-
-func (q *Queries) getPersons(ctx context.Context, ids []uuid.UUID) ([]Person, error) {
-	rows, err := q.db.QueryContext(ctx, getPersons, pq.Array(ids))
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Person
-	for rows.Next() {
-		var i Person
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getPhrases = `-- name: getPhrases :many
 SELECT p.key,
        p.value                                   AS original_value,
-       COALESCE((SELECT json_object_agg(value, languages_code)
+       COALESCE((SELECT json_object_agg(languages_code, value)
                  FROM phrases_translations
                  WHERE key = p.key), '{}')::json AS value
 FROM phrases p

@@ -142,6 +142,16 @@ func mapCollectionEntriesToSectionItems(ctx context.Context, ls *common.BatchLoa
 	for _, e := range entries {
 		var item *model.SectionItem
 		switch e.Collection {
+		case common.CollectionPersons:
+			i, err := ls.PersonLoader.Get(ctx, utils.AsUuid(e.ID))
+			if err != nil {
+				return nil, err
+			}
+			if i == nil {
+				log.L.Debug().Str("id", e.ID).Str("type", e.Collection.Value).Msg("Item with id not found")
+				continue
+			}
+			item = model.PersonSectionItemFrom(ctx, i, e.Sort, imageStyle)
 		case common.CollectionPages:
 			i, err := ls.PageLoader.Get(ctx, utils.AsInt(e.ID))
 			if err != nil {
