@@ -112,9 +112,6 @@ GRANT SELECT ON TABLE "public"."contributions" TO directus, api; --WARN: Grant\R
 GRANT INSERT ON TABLE "public"."contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT DELETE ON TABLE "public"."contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON COLUMN "public"."contributions"."id"  IS NULL;
 
@@ -166,9 +163,6 @@ GRANT SELECT ON TABLE "public"."timedmetadata_contributions" TO directus, api; -
 GRANT INSERT ON TABLE "public"."timedmetadata_contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."timedmetadata_contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT DELETE ON TABLE "public"."timedmetadata_contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."timedmetadata_contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."timedmetadata_contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."timedmetadata_contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON COLUMN "public"."timedmetadata_contributions"."id"  IS NULL;
 
@@ -205,9 +199,6 @@ GRANT SELECT ON TABLE "public"."timedmetadata_styledimages" TO directus, api; --
 GRANT INSERT ON TABLE "public"."timedmetadata_styledimages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."timedmetadata_styledimages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT DELETE ON TABLE "public"."timedmetadata_styledimages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."timedmetadata_styledimages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."timedmetadata_styledimages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."timedmetadata_styledimages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON COLUMN "public"."timedmetadata_styledimages"."id"  IS NULL;
 
@@ -244,9 +235,6 @@ GRANT SELECT ON TABLE "public"."mediaitems_contributions" TO directus, api; --WA
 GRANT INSERT ON TABLE "public"."mediaitems_contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."mediaitems_contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT DELETE ON TABLE "public"."mediaitems_contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."mediaitems_contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."mediaitems_contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."mediaitems_contributions" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON COLUMN "public"."mediaitems_contributions"."id"  IS NULL;
 

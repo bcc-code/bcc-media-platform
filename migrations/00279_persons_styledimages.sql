@@ -38,9 +38,6 @@ GRANT SELECT ON TABLE "public"."persons_styledimages" TO directus, api; --WARN: 
 GRANT INSERT ON TABLE "public"."persons_styledimages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT UPDATE ON TABLE "public"."persons_styledimages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 GRANT DELETE ON TABLE "public"."persons_styledimages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRUNCATE ON TABLE "public"."persons_styledimages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT REFERENCES ON TABLE "public"."persons_styledimages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
-GRANT TRIGGER ON TABLE "public"."persons_styledimages" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
 
 COMMENT ON COLUMN "public"."persons_styledimages"."id"  IS NULL;
 
