@@ -31,6 +31,7 @@ var (
 	CollectionPlaylists   = ItemCollection{"playlists"}
 	CollectionStudyTopics = ItemCollection{"studytopics"}
 	CollectionShorts      = ItemCollection{"shorts"}
+	CollectionPersons     = ItemCollection{"persons"}
 	Collections           = enum.New(
 		CollectionUnknown,
 		CollectionShows,
@@ -42,6 +43,7 @@ var (
 		CollectionPlaylists,
 		CollectionStudyTopics,
 		CollectionShorts,
+		CollectionPersons,
 	)
 )
 

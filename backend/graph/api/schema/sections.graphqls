@@ -148,9 +148,16 @@ type LabelSection implements Section & ItemSection {
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
-type MessageSection implements Section {
+type AvatarSection implements Section & ItemSection {
     id: ID!
     metadata: ItemSectionMetadata
+    title: String
+    description: String
+    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+}
+
+type MessageSection implements Section {
+    id: ID!
     title: String
     description: String
     messages: [Message!] @goField(forceResolver: true)
@@ -158,7 +165,6 @@ type MessageSection implements Section {
 
 type WebSection implements Section {
     id: ID!
-    metadata: ItemSectionMetadata
     title: String
     description: String
     url: String!
@@ -180,7 +186,7 @@ type PageDetailsSection implements Section {
     description: String
 }
 
-union SectionItemType = Show | Season | Episode | Page | Link | StudyTopic | Game | Playlist | Short
+union SectionItemType = Show | Season | Episode | Page | Link | StudyTopic | Game | Playlist | Short | Person
 
 type SectionItem {
     id: ID!

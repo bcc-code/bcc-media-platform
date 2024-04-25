@@ -19,6 +19,19 @@ func PersonFrom(ctx context.Context, item *common.Person) *Person {
 	}
 }
 
+func PersonSectionItemFrom(ctx context.Context, item *common.Person, sort int, style common.ImageStyle) *SectionItem {
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+
+	return &SectionItem{
+		ID:    item.ID.String(),
+		Sort:  sort,
+		Title: item.Name,
+		Image: item.Images.GetDefault(languages, style),
+		Item:  PersonFrom(ctx, item),
+	}
+}
+
 func ContributionFrom(ctx context.Context, i *common.Contribution, loaders *common.BatchLoaders) (*Contribution, error) {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
