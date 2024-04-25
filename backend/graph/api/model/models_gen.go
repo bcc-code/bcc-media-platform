@@ -236,6 +236,7 @@ type AvatarSection struct {
 	Metadata    *ItemSectionMetadata   `json:"metadata,omitempty"`
 	Title       *string                `json:"title,omitempty"`
 	Description *string                `json:"description,omitempty"`
+	Size        SectionSize            `json:"size"`
 	Items       *SectionItemPagination `json:"items"`
 }
 

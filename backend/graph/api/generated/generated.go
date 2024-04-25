@@ -183,6 +183,7 @@ type ComplexityRoot struct {
 		ID          func(childComplexity int) int
 		Items       func(childComplexity int, first *int, offset *int) int
 		Metadata    func(childComplexity int) int
+		Size        func(childComplexity int) int
 		Title       func(childComplexity int) int
 	}
 
@@ -1671,6 +1672,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AvatarSection.Metadata(childComplexity), true
+
+	case "AvatarSection.size":
+		if e.complexity.AvatarSection.Size == nil {
+			break
+		}
+
+		return e.complexity.AvatarSection.Size(childComplexity), true
 
 	case "AvatarSection.title":
 		if e.complexity.AvatarSection.Title == nil {
@@ -6918,6 +6926,7 @@ type AvatarSection implements Section & ItemSection {
     metadata: ItemSectionMetadata
     title: String
     description: String
+    size: SectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
@@ -11359,6 +11368,50 @@ func (ec *executionContext) fieldContext_AvatarSection_description(ctx context.C
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AvatarSection_size(ctx context.Context, field graphql.CollectedField, obj *model.AvatarSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AvatarSection_size(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Size, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.SectionSize)
+	fc.Result = res
+	return ec.marshalNSectionSize2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSectionSize(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AvatarSection_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AvatarSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type SectionSize does not have child fields")
 		},
 	}
 	return fc, nil
@@ -42038,6 +42091,11 @@ func (ec *executionContext) _AvatarSection(ctx context.Context, sel ast.Selectio
 			out.Values[i] = ec._AvatarSection_title(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec._AvatarSection_description(ctx, field, obj)
+		case "size":
+			out.Values[i] = ec._AvatarSection_size(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "items":
 			field := field
 

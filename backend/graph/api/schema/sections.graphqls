@@ -153,6 +153,7 @@ type AvatarSection implements Section & ItemSection {
     metadata: ItemSectionMetadata
     title: String
     description: String
+    size: SectionSize!
     items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
 }
 
