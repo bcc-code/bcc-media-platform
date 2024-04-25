@@ -1,4 +1,4 @@
-package model
+package graph
 
 import (
 	"context"
@@ -6,11 +6,12 @@ import (
 	"strings"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
 
-func ChapterFrom(ctx context.Context, tm *common.TimedMetadata, loaders *common.BatchLoaders) *Chapter {
+func resolveChapter(ctx context.Context, tm *common.TimedMetadata, loaders *common.BatchLoaders) *model.Chapter {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 	title := tm.Title.Get(languages)
@@ -58,7 +59,7 @@ func ChapterFrom(ctx context.Context, tm *common.TimedMetadata, loaders *common.
 		}
 	}
 
-	return &Chapter{
+	return &model.Chapter{
 		ID:          tm.ID.String(),
 		Title:       title,
 		Description: tm.Description.GetValueOrNil(languages),

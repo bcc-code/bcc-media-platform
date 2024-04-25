@@ -93,7 +93,7 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 	for _, c := range page.Items {
 		go func(c *common.Contribution) {
 			defer wg.Done()
-			contribution, err := model.ContributionFrom(ctx, c, r.Loaders)
+			contribution, err := resolveContribution(ctx, c, r.Loaders)
 			mu.Lock()
 			defer mu.Unlock()
 			if err != nil {

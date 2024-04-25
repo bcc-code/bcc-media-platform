@@ -229,7 +229,7 @@ func (r *episodeResolver) Chapters(ctx context.Context, obj *model.Episode) ([]*
 	})))
 
 	return lo.Map(metadataItems, func(i *common.TimedMetadata, _ int) *model.Chapter {
-		return model.ChapterFrom(ctx, i, r.Loaders)
+		return resolveChapter(ctx, i, r.Loaders)
 	}), nil
 }
 
