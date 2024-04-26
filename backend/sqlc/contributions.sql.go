@@ -12,81 +12,64 @@ import (
 	"github.com/lib/pq"
 )
 
-const getContributionCountByType = `-- name: getContributionCountByType :many
-SELECT type, count(*) as count
-FROM contributions
-WHERE id = ANY ($1::int[])
-group by type
-`
-
-type getContributionCountByTypeRow struct {
-	Type  string `db:"type" json:"type"`
-	Count int64  `db:"count" json:"count"`
-}
-
-func (q *Queries) getContributionCountByType(ctx context.Context, ids []int32) ([]getContributionCountByTypeRow, error) {
-	rows, err := q.db.QueryContext(ctx, getContributionCountByType, pq.Array(ids))
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []getContributionCountByTypeRow
-	for rows.Next() {
-		var i getContributionCountByTypeRow
-		if err := rows.Scan(&i.Type, &i.Count); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getContributionIDsForPersonsWithRoles = `-- name: getContributionIDsForPersonsWithRoles :many
 WITH RelevantContributions AS (
   SELECT
-    c.id,
+    m.primary_episode_id::text as item_id,
+    c.type,
     c.person_id,
-    COALESCE(tm.mediaitem_id, mc.mediaitems_id, m.id) AS mediaitem_id
-  FROM 
-    public.contributions c
-    LEFT JOIN public.mediaitems_contributions mc ON c.id = mc.contributions_id
-    LEFT JOIN public.timedmetadata_contributions tmc ON c.id = tmc.contributions_id
-    LEFT JOIN public.timedmetadata tm ON tmc.timedmetadata_id = tm.id
-    LEFT JOIN public.mediaitems m ON tm.asset_id = m.asset_id AND m.timedmetadata_from_asset
-  WHERE 
-    c.person_id = ANY ($2::uuid[])
-    AND (
-      tm.mediaitem_id IS NOT NULL OR
-      mc.mediaitems_id IS NOT NULL OR
-      (m.id IS NOT NULL AND NOT EXISTS (
-        SELECT 1
-        FROM public.timedmetadata t
-        WHERE t.mediaitem_id = m.id
-      ))
+    'episode' as item_type,
+    m.id as mediaitem_id
+  FROM
+    public.mediaitems m
+    INNER JOIN public.mediaitems_contributions mc ON m.id = mc.mediaitems_id
+    INNER JOIN contributions c ON mc.contributions_id = c.id
+    AND c.person_id = ANY ($2::uuid[])
+  where
+    m.primary_episode_id is not null
+  UNION
+  ALL
+  SELECT
+    tm.id::text as item_id,
+    c.type,
+    c.person_id,
+    'chapter' as item_type,
+    m.id as mediaitem_id
+  FROM
+    public.mediaitems m
+    INNER JOIN timedmetadata tm ON (
+      m.timedmetadata_from_asset
+      AND tm.asset_id = m.asset_id
     )
+    OR (
+      NOT m.timedmetadata_from_asset
+      AND tm.mediaitem_id = tm.id
+    )
+    INNER JOIN timedmetadata_contributions tmc ON tmc.timedmetadata_id = tm.id
+    INNER JOIN contributions c ON tmc.contributions_id = c.id
+    AND c.person_id = ANY ($2::uuid[])
 )
 SELECT
-  rc.id,
-  rc.person_id::uuid as parent_id
-FROM 
+  rc.type,
+  rc.person_id,
+  rc.item_type,
+  rc.item_id
+FROM
   RelevantContributions rc
   JOIN public.mediaitems m ON rc.mediaitem_id = m.id
   JOIN public.episode_availability access ON access.id = m.primary_episode_id
   JOIN public.episode_roles roles ON roles.id = m.primary_episode_id
-WHERE 
+WHERE
   access.published
   AND access.available_to > now()
   AND (
-    (roles.roles && $1::varchar[] AND access.available_from < now()) OR
-    (roles.roles_earlyaccess && $1::varchar[])
+    (
+      roles.roles && $1::varchar[]
+      AND access.available_from < now()
+    )
+    OR (roles.roles_earlyaccess && $1::varchar[])
   )
-ORDER BY 
+ORDER BY
   m.published_at DESC
 `
 
@@ -96,8 +79,10 @@ type getContributionIDsForPersonsWithRolesParams struct {
 }
 
 type getContributionIDsForPersonsWithRolesRow struct {
-	ID       int32     `db:"id" json:"id"`
-	ParentID uuid.UUID `db:"parent_id" json:"parentId"`
+	Type     string    `db:"type" json:"type"`
+	PersonID uuid.UUID `db:"person_id" json:"personId"`
+	ItemType string    `db:"item_type" json:"itemType"`
+	ItemID   string    `db:"item_id" json:"itemId"`
 }
 
 func (q *Queries) getContributionIDsForPersonsWithRoles(ctx context.Context, arg getContributionIDsForPersonsWithRolesParams) ([]getContributionIDsForPersonsWithRolesRow, error) {
@@ -109,64 +94,11 @@ func (q *Queries) getContributionIDsForPersonsWithRoles(ctx context.Context, arg
 	var items []getContributionIDsForPersonsWithRolesRow
 	for rows.Next() {
 		var i getContributionIDsForPersonsWithRolesRow
-		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getContributionItems = `-- name: getContributionItems :many
-SELECT
-  c.id,
-  COALESCE(tmc.timedmetadata_id::text, m.primary_episode_id::text, '')::text AS item_id,
-  CASE
-    WHEN tmc.timedmetadata_id IS NOT NULL THEN 'chapter'
-    WHEN m.primary_episode_id IS NOT NULL THEN 'episode'
-    ELSE ''
-  END AS item_type,
-  c.type,
-  c.person_id
-FROM contributions c
-LEFT JOIN public.mediaitems_contributions mc ON c.id = mc.contributions_id
-LEFT JOIN public.timedmetadata_contributions tmc ON c.id = tmc.contributions_id
-LEFT JOIN public.timedmetadata tm ON tmc.timedmetadata_id = tm.id
-LEFT JOIN public.mediaitems m ON mc.mediaitems_id = m.id OR tm.mediaitem_id = m.id
-WHERE c.id = ANY ($1::int[])
-  AND (mc.mediaitems_id IS NOT NULL OR tmc.timedmetadata_id IS NOT NULL)
-order by m.published_at desc
-`
-
-type getContributionItemsRow struct {
-	ID       int32     `db:"id" json:"id"`
-	ItemID   string    `db:"item_id" json:"itemId"`
-	ItemType string    `db:"item_type" json:"itemType"`
-	Type     string    `db:"type" json:"type"`
-	PersonID uuid.UUID `db:"person_id" json:"personId"`
-}
-
-func (q *Queries) getContributionItems(ctx context.Context, ids []int32) ([]getContributionItemsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getContributionItems, pq.Array(ids))
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []getContributionItemsRow
-	for rows.Next() {
-		var i getContributionItemsRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.ItemID,
-			&i.ItemType,
 			&i.Type,
 			&i.PersonID,
+			&i.ItemType,
+			&i.ItemID,
 		); err != nil {
 			return nil, err
 		}

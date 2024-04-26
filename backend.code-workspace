@@ -1,17 +1,21 @@
 {
-	"folders": [
-		{
-			"path": "backend"
-		},
-		{
-			"path": "migrations"
-		},
-		{
-			"path": "queries"
-		},
-		{
-			"path": "cms"
-		}
-	],
-	"settings": {}
+  "folders": [
+    {
+      "path": "backend"
+    },
+    {
+      "path": "migrations"
+    },
+    {
+      "path": "queries"
+    },
+    {
+      "path": "cms"
+    }
+  ],
+  "settings": {
+    "files.associations": {
+      "*.sql": "sql"
+    }
+  }
 }
