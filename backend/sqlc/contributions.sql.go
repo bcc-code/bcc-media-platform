@@ -51,19 +51,29 @@ const getContributionIDsForPersonsWithRoles = `-- name: getContributionIDsForPer
 WITH RelevantContributions AS (
   SELECT
     c.id,
-    c.person_id::uuid AS parent_id,
-    COALESCE(mc.mediaitems_id, tm.mediaitem_id) AS mediaitem_id
+    c.person_id,
+    COALESCE(tm.mediaitem_id, mc.mediaitems_id, m.id) AS mediaitem_id
   FROM 
     public.contributions c
     LEFT JOIN public.mediaitems_contributions mc ON c.id = mc.contributions_id
     LEFT JOIN public.timedmetadata_contributions tmc ON c.id = tmc.contributions_id
-    LEFT JOIN public.timedmetadata tm ON tm.id = tmc.timedmetadata_id
+    LEFT JOIN public.timedmetadata tm ON tmc.timedmetadata_id = tm.id
+    LEFT JOIN public.mediaitems m ON tm.asset_id = m.asset_id AND m.timedmetadata_from_asset
   WHERE 
     c.person_id = ANY ($2::uuid[])
+    AND (
+      tm.mediaitem_id IS NOT NULL OR
+      mc.mediaitems_id IS NOT NULL OR
+      (m.id IS NOT NULL AND NOT EXISTS (
+        SELECT 1
+        FROM public.timedmetadata t
+        WHERE t.mediaitem_id = m.id
+      ))
+    )
 )
 SELECT
   rc.id,
-  rc.parent_id
+  rc.person_id::uuid as parent_id
 FROM 
   RelevantContributions rc
   JOIN public.mediaitems m ON rc.mediaitem_id = m.id
