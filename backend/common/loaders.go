@@ -122,7 +122,7 @@ type FilteredLoaders struct {
 	StudyTasksLoader             *loaders.Loader[uuid.UUID, []*uuid.UUID]
 	StudyTaskFilterLoader        *loaders.Loader[uuid.UUID, *uuid.UUID]
 	SurveyQuestionsLoader        *loaders.Loader[uuid.UUID, []*uuid.UUID]
-	ContributionsForPersonLoader *loaders.Loader[uuid.UUID, []*int32]
+	ContributionsForPersonLoader *loaders.Loader[uuid.UUID, []*Contribution]
 
 	FAQQuestionsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
 

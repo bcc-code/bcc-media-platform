@@ -7,7 +7,6 @@ package graph
 import (
 	"context"
 	"sync"
-	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -44,43 +43,50 @@ func (r *personResolver) Image(ctx context.Context, obj *model.Person, style *mo
 
 // ContributionTypes is the resolver for the contributionTypes field.
 func (r *personResolver) ContributionTypes(ctx context.Context, obj *model.Person) ([]*model.ContributionTypeCount, error) {
-	ids, err := r.FilteredLoaders(ctx).ContributionsForPersonLoader.Get(ctx, utils.AsUuid(obj.ID))
+	items, err := r.FilteredLoaders(ctx).ContributionsForPersonLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
 	}
-	counts, err := withCacheAndTimestamp(ctx, "person_contributions-"+obj.ID, func(ctx context.Context) ([]common.ContributionTypeCount, error) {
-		return r.Queries.GetContributionCountByType(ctx, utils.PointerArrayToArray(ids))
-	}, time.Second*90, nil)
-	if err != nil {
-		return nil, err
+
+	countsByType := make(map[string]int)
+	for _, c := range items {
+		countsByType[c.Type]++
 	}
-	mapped := lo.Map(counts, func(t common.ContributionTypeCount, index int) *model.ContributionTypeCount {
-		return &model.ContributionTypeCount{
-			Type:  &model.ContributionType{Code: t.Type},
-			Count: t.Count,
-		}
-	})
+
+	var mapped []*model.ContributionTypeCount
+	for k, v := range countsByType {
+		mapped = append(mapped, &model.ContributionTypeCount{
+			Type:  &model.ContributionType{Code: k},
+			Count: v,
+		})
+	}
 
 	return mapped, err
 }
 
 // Contributions is the resolver for the contributions field.
 func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, first *int, offset *int, types []string, shuffle *bool) (*model.ContributionsPagination, error) {
-	ids, err := r.FilteredLoaders(ctx).ContributionsForPersonLoader.Get(ctx, utils.AsUuid(obj.ID))
+	items, err := r.FilteredLoaders(ctx).ContributionsForPersonLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
 	}
 
-	commonItems, err := r.Loaders.ContributionsLoader.GetMany(ctx, utils.PointerArrayToArray(ids))
-	if err != nil {
-		return nil, err
+	if len(types) > 0 {
+		items = lo.Filter(items, func(c *common.Contribution, _ int) bool {
+			for _, t := range types {
+				if c.Type == t {
+					return true
+				}
+			}
+			return false
+		})
 	}
 
 	if shuffle != nil && *shuffle {
-		commonItems = lo.Shuffle(commonItems)
+		items = lo.Shuffle(items)
 	}
 
-	page := utils.Paginate(commonItems, first, offset, nil)
+	page := utils.Paginate(items, first, offset, nil)
 	if err != nil {
 		return nil, err
 	}
