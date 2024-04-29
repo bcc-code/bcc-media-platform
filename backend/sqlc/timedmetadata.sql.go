@@ -215,7 +215,11 @@ SELECT md.id,
        md.seconds,
        md.highlight,
        md.mediaitem_id,
-       COALESCE(images.images, '{}'::json)            AS images
+       COALESCE(images.images, '{}'::json)            AS images,
+       COALESCE((SELECT nextMd.seconds - md.seconds FROM timedmetadata nextMd 
+                 WHERE nextMd.mediaitem_id = md.mediaitem_id or nextMd.asset_id = md.asset_id
+                   AND nextMd.seconds > md.seconds 
+                 ORDER BY nextMd.seconds LIMIT 1), 0)::float as duration
 FROM timedmetadata md
 LEFT JOIN (
     SELECT
@@ -244,6 +248,7 @@ type getTimedMetadataRow struct {
 	Highlight           bool            `db:"highlight" json:"highlight"`
 	MediaitemID         uuid.NullUUID   `db:"mediaitem_id" json:"mediaitemId"`
 	Images              json.RawMessage `db:"images" json:"images"`
+	Duration            float64         `db:"duration" json:"duration"`
 }
 
 func (q *Queries) getTimedMetadata(ctx context.Context, ids []uuid.UUID) ([]getTimedMetadataRow, error) {
@@ -269,6 +274,7 @@ func (q *Queries) getTimedMetadata(ctx context.Context, ids []uuid.UUID) ([]getT
 			&i.Highlight,
 			&i.MediaitemID,
 			&i.Images,
+			&i.Duration,
 		); err != nil {
 			return nil, err
 		}

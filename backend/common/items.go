@@ -226,6 +226,7 @@ type TimedMetadata struct {
 	ID          uuid.UUID
 	Type        string
 	Timestamp   float64
+	Duration    float64
 	Title       LocaleString `json:"title"`
 	Description LocaleString `json:"description"`
 	ChapterType ChapterType

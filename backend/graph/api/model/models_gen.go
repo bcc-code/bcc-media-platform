@@ -317,6 +317,7 @@ type Chapter struct {
 	Title       string   `json:"title"`
 	Image       *string  `json:"image,omitempty"`
 	Description *string  `json:"description,omitempty"`
+	Duration    int      `json:"duration"`
 	Episode     *Episode `json:"episode,omitempty"`
 }
 

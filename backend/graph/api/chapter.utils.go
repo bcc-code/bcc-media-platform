@@ -64,5 +64,7 @@ func resolveChapter(ctx context.Context, tm *common.TimedMetadata, loaders *comm
 		Title:       title,
 		Description: tm.Description.GetValueOrNil(languages),
 		Start:       int(tm.Timestamp),
+		Duration:    int(tm.Duration),
+		Image:       imageOrFallback(ctx, tm.Images, nil),
 	}
 }
