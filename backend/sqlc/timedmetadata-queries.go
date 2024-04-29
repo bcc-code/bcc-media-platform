@@ -42,6 +42,7 @@ func (q *Queries) GetTimedMetadata(ctx context.Context, ids []uuid.UUID) ([]comm
 			PersonIDs:   i.PersonIds,
 			SongID:      i.SongID,
 			Timestamp:   float64(i.Seconds),
+			Duration:    float64(i.Duration),
 			Title:       title,
 			Description: description,
 			MediaItemID: i.MediaitemID,

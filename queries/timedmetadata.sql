@@ -23,7 +23,11 @@ SELECT md.id,
        md.seconds,
        md.highlight,
        md.mediaitem_id,
-       COALESCE(images.images, '{}'::json)            AS images
+       COALESCE(images.images, '{}'::json)            AS images,
+       COALESCE((SELECT nextMd.seconds - md.seconds FROM timedmetadata nextMd 
+                 WHERE nextMd.mediaitem_id = md.mediaitem_id or nextMd.asset_id = md.asset_id
+                   AND nextMd.seconds > md.seconds 
+                 ORDER BY nextMd.seconds LIMIT 1), 0)::float as duration
 FROM timedmetadata md
 LEFT JOIN (
     SELECT

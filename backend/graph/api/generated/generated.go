@@ -223,6 +223,7 @@ type ComplexityRoot struct {
 
 	Chapter struct {
 		Description func(childComplexity int) int
+		Duration    func(childComplexity int) int
 		Episode     func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Image       func(childComplexity int) int
@@ -1851,6 +1852,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Chapter.Description(childComplexity), true
+
+	case "Chapter.duration":
+		if e.complexity.Chapter.Duration == nil {
+			break
+		}
+
+		return e.complexity.Chapter.Duration(childComplexity), true
 
 	case "Chapter.episode":
 		if e.complexity.Chapter.Episode == nil {
@@ -6234,6 +6242,7 @@ type Chapter {
   title: String!
   image: String
   description: String
+  duration: Int!
   episode: Episode @goField(forceResolver: true)
 }
 
@@ -12671,6 +12680,50 @@ func (ec *executionContext) fieldContext_Chapter_description(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Chapter_duration(ctx context.Context, field graphql.CollectedField, obj *model.Chapter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Chapter_duration(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Duration, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Chapter_duration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Chapter",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Chapter_episode(ctx context.Context, field graphql.CollectedField, obj *model.Chapter) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Chapter_episode(ctx, field)
 	if err != nil {
@@ -15189,6 +15242,8 @@ func (ec *executionContext) fieldContext_Episode_chapters(ctx context.Context, f
 				return ec.fieldContext_Chapter_image(ctx, field)
 			case "description":
 				return ec.fieldContext_Chapter_description(ctx, field)
+			case "duration":
+				return ec.fieldContext_Chapter_duration(ctx, field)
 			case "episode":
 				return ec.fieldContext_Chapter_episode(ctx, field)
 			}
@@ -42587,6 +42642,11 @@ func (ec *executionContext) _Chapter(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = ec._Chapter_image(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec._Chapter_description(ctx, field, obj)
+		case "duration":
+			out.Values[i] = ec._Chapter_duration(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "episode":
 			field := field
 

@@ -73,6 +73,7 @@ type Chapter {
   title: String!
   image: String
   description: String
+  duration: Int!
   episode: Episode @goField(forceResolver: true)
 }
 
