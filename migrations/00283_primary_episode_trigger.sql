@@ -1,6 +1,7 @@
 -- +goose Up
 
 
+-- +goose StatementBegin
 CREATE OR REPLACE FUNCTION update_primary_episode() RETURNS TRIGGER AS $$
 BEGIN
     IF (SELECT primary_episode_id FROM mediaitems WHERE id = NEW.mediaitem_id) IS NULL THEN
@@ -9,7 +10,7 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
+-- +goose StatementEnd
 
 CREATE TRIGGER set_primary_episode
 AFTER INSERT ON episodes
