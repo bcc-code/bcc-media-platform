@@ -139,7 +139,7 @@ func EpisodeFromCommon(e common.Episode, tags []common.Tag) Episode {
 	}
 
 	t := lo.Map(tags, func(t common.Tag, _ int) string {
-		return t.Name.Get(*utils.FallbackLanguages())
+		return t.Code
 	})
 
 	return Episode{
@@ -247,7 +247,7 @@ type Short struct {
 
 func ShortFromCommon(s common.Short, tags []common.Tag) Short {
 	t := lo.Map(tags, func(t common.Tag, _ int) string {
-		return t.Name.Get(*utils.FallbackLanguages())
+		return t.Code
 	})
 	return Short{
 		ID:          s.ID.String(),
