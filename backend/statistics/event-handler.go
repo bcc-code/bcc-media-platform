@@ -117,7 +117,10 @@ func (h *Handler) handleShow(ctx context.Context, id int) error {
 		return nil
 	}
 
-	bqShows := lo.Map(shows, ShowFromCommon)
+	bqShows, err := h.resolveShows(ctx, shows)
+	if err != nil {
+		return merry.Wrap(err)
+	}
 	return h.insert(ctx, bqShows, "shows")
 }
 
@@ -134,7 +137,10 @@ func (h *Handler) handleSeason(ctx context.Context, id int) error {
 		return nil
 	}
 
-	bqSeasons := lo.Map(seasons, SeasonFromCommon)
+	bqSeasons, err := h.resolveSeasons(ctx, seasons)
+	if err != nil {
+		return merry.Wrap(err)
+	}
 	return h.insert(ctx, bqSeasons, "seasons")
 }
 

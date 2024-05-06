@@ -30,3 +30,27 @@ func (h *Handler) resolveEpisodes(ctx context.Context, ep []common.Episode) ([]E
 	}
 	return bqEpisodes, nil
 }
+
+func (h *Handler) resolveSeasons(ctx context.Context, seasons []common.Season) ([]Season, error) {
+	var bqSeasons []Season
+	for _, season := range seasons {
+		tags, err := h.queries.GetTags(ctx, season.TagIDs)
+		if err != nil {
+			return nil, merry.Wrap(err)
+		}
+		bqSeasons = append(bqSeasons, SeasonFromCommon(season, tags))
+	}
+	return bqSeasons, nil
+}
+
+func (h *Handler) resolveShows(ctx context.Context, shows []common.Show) ([]Show, error) {
+	var bqShows []Show
+	for _, show := range shows {
+		tags, err := h.queries.GetTags(ctx, show.TagIDs)
+		if err != nil {
+			return nil, merry.Wrap(err)
+		}
+		bqShows = append(bqShows, ShowFromCommon(show, tags))
+	}
+	return bqShows, nil
+}
