@@ -151,7 +151,10 @@ func (h *Handler) handleEpisode(ctx context.Context, id int) error {
 		return nil
 	}
 
-	bqEpisodes := lo.Map(episodes, EpisodeFromCommon)
+	bqEpisodes, err := h.resolveEpisodes(ctx, episodes)
+	if err != nil {
+		return merry.Wrap(err)
+	}
 	return h.insert(ctx, bqEpisodes, "episodes")
 }
 
@@ -184,8 +187,32 @@ func (h *Handler) handleMediaitem(ctx context.Context, id string) error {
 		return merry.Wrap(err)
 	}
 
-	bqShorts := lo.Map(shorts, ShortFromCommon)
-	return h.insert(ctx, bqShorts, "shorts")
+	bqShorts, err := h.resolveShorts(ctx, shorts)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	err = h.insert(ctx, bqShorts, "shorts")
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	episodeIDs, err := h.queries.GetEpisodeIDsByMediaItemID(ctx, miUuid)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	episodes, err := h.queries.GetEpisodes(ctx, episodeIDs)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	bqEpisodes, err := h.resolveEpisodes(ctx, episodes)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	return h.insert(ctx, bqEpisodes, "episodes")
 }
 
 func (h *Handler) handleShort(ctx context.Context, id string) error {
@@ -196,7 +223,10 @@ func (h *Handler) handleShort(ctx context.Context, id string) error {
 		return merry.Wrap(err)
 	}
 
-	bqShorts := lo.Map(shorts, ShortFromCommon)
+	bqShorts, err := h.resolveShorts(ctx, shorts)
+	if err != nil {
+		return merry.Wrap(err)
+	}
 	return h.insert(ctx, bqShorts, "shorts")
 }
 

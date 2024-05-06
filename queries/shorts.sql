@@ -26,6 +26,7 @@ SELECT s.id,
        mi.parent_starts_at,
        mi.parent_ends_at,
        mi.label,
+       mi.tag_ids,
        GREATEST(s.date_updated, mi.date_updated)::timestamp AS date_updated
 FROM shorts s
          JOIN mediaitems_view mi ON mi.id = s.mediaitem_id

@@ -56,6 +56,10 @@
     "type": "JSON"
   },
   {
+    "name": "Tags",
+    "type": "JSON"
+  },
+  {
     "name": "PublicTitle",
     "type": "STRING"
   },

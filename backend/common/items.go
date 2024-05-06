@@ -250,6 +250,7 @@ type Short struct {
 	Label       string
 	Status      Status
 	DateUpdated time.Time
+	TagIDs      []int
 }
 
 // Page is the definition of the Page object

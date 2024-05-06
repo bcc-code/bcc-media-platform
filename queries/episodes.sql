@@ -183,3 +183,8 @@ WHERE t.tags_id = ANY (@tag_ids::int[])
     (roles.roles && @roles::varchar[] AND access.available_from < now()) OR
     (roles.roles_earlyaccess && @roles::varchar[])
     );
+
+-- name: getEpisodeIDsByMediaItemID :many
+SELECT e.id
+FROM episodes e
+WHERE e.mediaitem_id = @id::uuid;

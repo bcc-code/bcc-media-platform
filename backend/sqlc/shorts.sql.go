@@ -107,6 +107,7 @@ SELECT s.id,
        mi.parent_starts_at,
        mi.parent_ends_at,
        mi.label,
+       mi.tag_ids,
        GREATEST(s.date_updated, mi.date_updated)::timestamp AS date_updated
 FROM shorts s
          JOIN mediaitems_view mi ON mi.id = s.mediaitem_id
@@ -127,6 +128,7 @@ type getShortsRow struct {
 	ParentStartsAt      sql.NullFloat64 `db:"parent_starts_at" json:"parentStartsAt"`
 	ParentEndsAt        sql.NullFloat64 `db:"parent_ends_at" json:"parentEndsAt"`
 	Label               string          `db:"label" json:"label"`
+	TagIds              []int32         `db:"tag_ids" json:"tagIds"`
 	DateUpdated         time.Time       `db:"date_updated" json:"dateUpdated"`
 }
 
@@ -153,6 +155,7 @@ func (q *Queries) getShorts(ctx context.Context, ids []uuid.UUID) ([]getShortsRo
 			&i.ParentStartsAt,
 			&i.ParentEndsAt,
 			&i.Label,
+			pq.Array(&i.TagIds),
 			&i.DateUpdated,
 		); err != nil {
 			return nil, err

@@ -10,6 +10,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
 
 var statsLanguages = []string{"no", "en", "de", "nl"}
@@ -113,6 +114,7 @@ type Episode struct {
 	Duration              int                 `json:"duration"`
 	AgeRating             string              `json:"ageRating"`
 	TagIDs                string              `json:"tagIds"`
+	Tags                  string              `json:"tags"`
 	PublicTitle           bigquery.NullString `json:"publicTitle"`
 	Title                 bigquery.NullString `json:"title"`
 	Description           bigquery.NullString `json:"description"`
@@ -125,7 +127,7 @@ type Episode struct {
 	ContentType           bigquery.NullString `json:"contentType"`
 }
 
-func EpisodeFromCommon(e common.Episode, _ int) Episode {
+func EpisodeFromCommon(e common.Episode, tags []common.Tag) Episode {
 	legacyEpisodeID := bigquery.NullString{
 		Valid:     e.LegacyID.Valid,
 		StringVal: fmt.Sprintf("E%d", e.LegacyID.ValueOrZero()),
@@ -135,6 +137,10 @@ func EpisodeFromCommon(e common.Episode, _ int) Episode {
 		Valid:     e.LegacyProgramID.Valid,
 		StringVal: fmt.Sprintf("P%d", e.LegacyProgramID.ValueOrZero()),
 	}
+
+	t := lo.Map(tags, func(t common.Tag, _ int) string {
+		return t.Name.Get(*utils.FallbackLanguages())
+	})
 
 	return Episode{
 		ID:                    e.ID,
@@ -154,6 +160,7 @@ func EpisodeFromCommon(e common.Episode, _ int) Episode {
 		Duration:              e.Duration,
 		AgeRating:             e.AgeRating,
 		TagIDs:                asJsonString(e.TagIDs),
+		Tags:                  asJsonString(t),
 		PublicTitle:           nullStr(e.PublicTitle.Ptr()),
 		Title:                 nullStr(e.Title.GetValueOrNil(statsLanguages)),
 		Description:           nullStr(e.Description.GetValueOrNil(statsLanguages)),
@@ -235,9 +242,13 @@ type Short struct {
 	EndsAt      bigquery.NullFloat64 `bigquery:"ends_at"`
 	Image       bigquery.NullString  `bigquery:"image"`
 	DateUpdated time.Time            `bigquery:"date_updated"`
+	Tags        string               `bigquery:"tags"`
 }
 
-func ShortFromCommon(s common.Short, _ int) Short {
+func ShortFromCommon(s common.Short, tags []common.Tag) Short {
+	t := lo.Map(tags, func(t common.Tag, _ int) string {
+		return t.Name.Get(*utils.FallbackLanguages())
+	})
 	return Short{
 		ID:          s.ID.String(),
 		MediaID:     s.MediaID.String(),
@@ -249,6 +260,7 @@ func ShortFromCommon(s common.Short, _ int) Short {
 		Image:       nullStr(s.Images.GetDefault([]string{"no"}, common.ImageStyleDefault)),
 		DateUpdated: s.DateUpdated,
 		Status:      string(s.Status),
+		Tags:        asJsonString(t),
 	}
 }
 

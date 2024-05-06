@@ -17,6 +17,35 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const getEpisodeIDsByMediaItemID = `-- name: getEpisodeIDsByMediaItemID :many
+SELECT e.id
+FROM episodes e
+WHERE e.mediaitem_id = $1::uuid
+`
+
+func (q *Queries) getEpisodeIDsByMediaItemID(ctx context.Context, id uuid.UUID) ([]int32, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodeIDsByMediaItemID, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int32
+	for rows.Next() {
+		var id int32
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getEpisodeIDsForLegacyIDs = `-- name: getEpisodeIDsForLegacyIDs :many
 SELECT e.id, e.legacy_id as legacy_id
 FROM episodes e
