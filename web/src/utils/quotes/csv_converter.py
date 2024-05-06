@@ -24,7 +24,7 @@ def main():
     base_filename = input_filename.rsplit('.', 1)[0]
     
     with open(input_filename, newline='', encoding='utf-8-sig') as csvfile:
-        reader = csv.DictReader(csvfile)
+        reader = csv.DictReader(csvfile, delimiter=';')
         fieldnames = [snake_case(field) for field in reader.fieldnames]
         
         id_column = auto_detect_id_column(fieldnames)

@@ -10,7 +10,13 @@ import { analytics } from "@/services/analytics"
 import QuoteFeedbackButton from "./QuoteFeedbackButton.vue"
 import { webViewMain } from "@/services/webviews/mainHandler"
 
-type Quote = (typeof quotesRaw)[keyof typeof quotesRaw]
+type Quote = {
+    id: string
+    quote: string
+    published_at: string
+    source?: string
+    author?: string
+}
 const quotes = quotesRaw as Record<string, Quote>
 
 type LocalizedModule = {
@@ -124,7 +130,8 @@ onMounted(async () => {
             v-else-if="quote"
             :quote="quoteText"
             :author="quote.author"
-            class="px-8 pt-3 py-4"
+            :source="quote.source"
+            class="px-8 pt-3 pb-2"
         />
         <div class="flex gap-2 mx-5 w-full pt-1 items-center justify-center">
             <transition
