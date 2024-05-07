@@ -38,6 +38,9 @@ func (q *Queries) GetShorts(ctx context.Context, ids []uuid.UUID) ([]common.Shor
 			DateUpdated: i.DateUpdated,
 			Status:      common.Status(i.Status),
 			Label:       i.Label,
+			TagIDs: lo.Map(i.TagIds, func(id int32, _ int) int {
+				return int(id)
+			}),
 		}
 	}), nil
 }

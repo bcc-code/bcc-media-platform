@@ -292,3 +292,13 @@ func (rq *RoleQueries) GetEpisodeIDsWithTagIDs(ctx context.Context, ids []int) (
 		}
 	}), nil
 }
+
+func (q *Queries) GetEpisodeIDsByMediaItemID(ctx context.Context, id uuid.UUID) ([]int, error) {
+	rows, err := q.getEpisodeIDsByMediaItemID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(id int32, _ int) int {
+		return int(id)
+	}), nil
+}
