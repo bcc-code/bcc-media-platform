@@ -1,6 +1,9 @@
 package common
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"github.com/orsinium-labs/enum"
+)
 
 type Contribution struct {
 	ItemID   string    `json:"itemId"`
@@ -8,12 +11,17 @@ type Contribution struct {
 	Type     string    `json:"type"`
 	PersonID uuid.UUID `json:"personId"`
 }
-type ContributionType struct {
-	Code  string       `json:"code"`
-	Title LocaleString `json:"title"`
-}
+type ContributionType enum.Member[string]
 
-type ContributionTypeCount struct {
-	Type  string `json:"type"`
-	Count int    `json:"count"`
-}
+var (
+	ContributionTypeLyricist = ContributionType{"lyricist"}
+	ContributionTypeArranger = ContributionType{"arranger"}
+	ContributionTypeSinger   = ContributionType{"singer"}
+	ContributionTypeSpeaker  = ContributionType{"speaker"}
+	ContributionTypes        = enum.New(
+		ContributionTypeLyricist,
+		ContributionTypeArranger,
+		ContributionTypeSinger,
+		ContributionTypeSpeaker,
+	)
+)

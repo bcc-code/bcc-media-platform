@@ -57,21 +57,6 @@ func (q *Queries) InsertPerson(ctx context.Context, arg InsertPersonParams) erro
 	return err
 }
 
-const insertTimedMetadataPerson = `-- name: InsertTimedMetadataPerson :exec
-INSERT INTO "public"."timedmetadata_persons" (timedmetadata_id, persons_id)
-VALUES ($1::uuid, $2::uuid)
-`
-
-type InsertTimedMetadataPersonParams struct {
-	TimedmetadataID uuid.UUID `db:"timedmetadata_id" json:"timedmetadataId"`
-	PersonsID       uuid.UUID `db:"persons_id" json:"personsId"`
-}
-
-func (q *Queries) InsertTimedMetadataPerson(ctx context.Context, arg InsertTimedMetadataPersonParams) error {
-	_, err := q.db.ExecContext(ctx, insertTimedMetadataPerson, arg.TimedmetadataID, arg.PersonsID)
-	return err
-}
-
 const getPersons = `-- name: getPersons :many
 SELECT p.id, p.name, COALESCE(images.images, '{}'::json) AS images
 FROM persons p

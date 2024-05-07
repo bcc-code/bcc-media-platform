@@ -217,6 +217,8 @@ var (
 	ChapterTypeSingAlong = ChapterType{Value: "sing_along"}
 	ChapterTypeAppeal    = ChapterType{Value: "appeal"}
 	ChapterTypeOther     = ChapterType{Value: "other"}
+	ChapterTypePanel     = ChapterType{Value: "panel"}
+	ChapterTypeTheme     = ChapterType{Value: "theme"}
 	ChapterTypes         = enum.New(ChapterTypeSong, ChapterTypeSpeech, ChapterTypeTestimony,
 		ChapterTypeSingAlong, ChapterTypeAppeal, ChapterTypeOther)
 )

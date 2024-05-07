@@ -88,15 +88,17 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 				return merry.Wrap(err)
 			}
 		}
-		err = qtx.InsertTimedMetadata(ctx, timedMetadata)
+		tmID, err := qtx.InsertTimedMetadata(ctx, timedMetadata)
 		if err != nil {
 			return merry.Wrap(err)
 		}
 		for _, p := range personIDs {
-			err = qtx.InsertTimedMetadataPerson(ctx, sqlc.InsertTimedMetadataPersonParams{
-				PersonsID:       p,
-				TimedmetadataID: timedMetadata.ID,
+			err = qtx.InsertContribution(ctx, sqlc.InsertContributionParams{
+				PersonID:        p,
+				Type:            common.ContributionTypeSpeaker.Value,
+				TimedmetadataID: uuid.NullUUID{UUID: tmID, Valid: true},
 			})
+
 			if err != nil {
 				return merry.Wrap(err)
 			}

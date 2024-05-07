@@ -45,7 +45,7 @@ func (r *episodesResolver) ImportTimedMetadata(ctx context.Context, obj *model.E
 		m.ID = uuid.New()
 		m.EpisodeID = null_v4.IntFrom(intID)
 
-		err = r.Queries.InsertTimedMetadata(ctx, sqlc.InsertTimedMetadataParams{
+		_, err = r.Queries.InsertTimedMetadata(ctx, sqlc.InsertTimedMetadataParams{
 			ID:          m.ID,
 			EpisodeID:   m.EpisodeID,
 			Title:       m.Title.String,
@@ -90,7 +90,7 @@ func (r *mediaItemsResolver) ImportTimedMetadata(ctx context.Context, obj *model
 		m.ID = uuid.New()
 		m.MediaitemID = uuid.NullUUID{UUID: mediaItem.ID, Valid: true}
 
-		err = r.Queries.InsertTimedMetadata(ctx, sqlc.InsertTimedMetadataParams{
+		_, err = r.Queries.InsertTimedMetadata(ctx, sqlc.InsertTimedMetadataParams{
 			ID:          m.ID,
 			MediaitemID: m.MediaitemID,
 			Title:       m.Title.String,

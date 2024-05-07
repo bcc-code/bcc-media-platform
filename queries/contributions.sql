@@ -49,3 +49,7 @@ WHERE
   )
 ORDER BY
   m.published_at DESC;
+
+-- name: InsertContribution :exec
+INSERT INTO "public"."contributions" (person_id, "type", mediaitem_id, timedmetadata_id)
+VALUES (@person_id::uuid, @type, sqlc.narg('mediaitem_id')::uuid, sqlc.narg('timedmetadata_id')::uuid);
