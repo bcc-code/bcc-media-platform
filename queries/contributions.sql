@@ -10,7 +10,7 @@ WITH RelevantContributions AS (
   FROM
     public.mediaitems m
   INNER JOIN contributions c ON c.mediaitem_id = m.primary_episode_id
-  where c.person_id = ANY (@person_ids::uuid[])
+    and c.person_id = ANY (@person_ids::uuid[])
     and m.primary_episode_id is not null
   UNION
   ALL
@@ -25,7 +25,7 @@ WITH RelevantContributions AS (
     (m.timedmetadata_from_asset AND tm.asset_id = m.asset_id)
     OR (NOT m.timedmetadata_from_asset AND tm.mediaitem_id = m.id)
   INNER JOIN contributions c ON c.timedmetadata_id = tm.id
-  WHERE c.person_id = ANY (@person_ids::uuid[])
+  and c.person_id = ANY (@person_ids::uuid[])
 )
 SELECT
   rc.type,
