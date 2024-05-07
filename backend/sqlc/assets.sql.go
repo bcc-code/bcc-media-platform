@@ -29,6 +29,19 @@ func (q *Queries) AssetIDByARN(ctx context.Context, awsArn string) (int32, error
 	return id, err
 }
 
+const assetIDsByMediabankenID = `-- name: AssetIDsByMediabankenID :one
+SELECT id
+FROM assets
+WHERE mediabanken_id = $1::varchar
+`
+
+func (q *Queries) AssetIDsByMediabankenID(ctx context.Context, mediabankenID string) (int32, error) {
+	row := q.db.QueryRowContext(ctx, assetIDsByMediabankenID, mediabankenID)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
 const deletePath = `-- name: DeletePath :exec
 DELETE
 FROM assets

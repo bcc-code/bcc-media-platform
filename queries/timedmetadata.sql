@@ -76,3 +76,5 @@ DELETE FROM timedmetadata WHERE episode_id = @episode_id;
 -- name: ClearMediaItemTimedMetadata :exec
 DELETE FROM timedmetadata WHERE mediaitem_id = @mediaitem_id::uuid;
 
+-- name: ClearAssetTimedMetadata :exec
+DELETE FROM timedmetadata WHERE asset_id = @asset_id;

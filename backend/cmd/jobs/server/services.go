@@ -2,6 +2,7 @@ package server
 
 import (
 	"database/sql"
+
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
@@ -25,6 +26,11 @@ type ExternalServices struct {
 	CrowdinClient     *crowdin.Client
 	Scheduler         *scheduler.Service
 	StatisticsHandler *statistics.Handler
+}
+
+// GetDatabase as stored in the struct
+func (e ExternalServices) GetDatabase() *sql.DB {
+	return e.Database
 }
 
 // GetS3Client as stored in the struct

@@ -1,7 +1,7 @@
 package asset
 
-// Chapter contains data for a chapter
-type Chapter struct {
+// TimedMetadata is the JSON structure for the timed metadata JSON file
+type TimedMetadata struct {
 	ChapterType    string   `json:"chapter_type"`
 	Timestamp      float64  `json:"timestamp"`
 	Label          string   `json:"label"`

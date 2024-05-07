@@ -128,6 +128,16 @@ func (s Server) ProcessMessage(c *gin.Context) {
 	switch e.Type() {
 	case events.TypeAssetDelivered:
 		err = asset.Ingest(ctx, s.services, s.config, e)
+	case events.TypeAssetTimedMetadataDelivered:
+		msg := events.AssetIngestTimedMetadata{}
+		err := e.DataAs(&msg)
+		if err != nil {
+			break
+		}
+		err = asset.IngestTimedMetadata(ctx, s.services, s.config, asset.IngestTimedMetadataParams{
+			VXID:     msg.VXID,
+			JSONPath: msg.JSONPath,
+		})
 	case events.TypeRefreshView:
 		err = maintenance.RefreshView(ctx, s.services, e)
 	case events.TypeDirectusEvent:

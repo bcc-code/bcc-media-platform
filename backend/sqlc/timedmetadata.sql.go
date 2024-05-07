@@ -14,6 +14,15 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const clearAssetTimedMetadata = `-- name: ClearAssetTimedMetadata :exec
+DELETE FROM timedmetadata WHERE asset_id = $1
+`
+
+func (q *Queries) ClearAssetTimedMetadata(ctx context.Context, assetID null_v4.Int) error {
+	_, err := q.db.ExecContext(ctx, clearAssetTimedMetadata, assetID)
+	return err
+}
+
 const clearEpisodeTimedMetadata = `-- name: ClearEpisodeTimedMetadata :exec
 DELETE FROM timedmetadata WHERE episode_id = $1
 `
