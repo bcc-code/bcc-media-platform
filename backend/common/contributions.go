@@ -18,10 +18,12 @@ var (
 	ContributionTypeArranger = ContributionType{"arranger"}
 	ContributionTypeSinger   = ContributionType{"singer"}
 	ContributionTypeSpeaker  = ContributionType{"speaker"}
+	ContributionTypeUnknown  = ContributionType{"unknown"}
 	ContributionTypes        = enum.New(
 		ContributionTypeLyricist,
 		ContributionTypeArranger,
 		ContributionTypeSinger,
 		ContributionTypeSpeaker,
+		ContributionTypeUnknown,
 	)
 )

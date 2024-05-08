@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"gopkg.in/guregu/null.v4"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -54,6 +55,8 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	for _, chapter := range chapters {
 		t := common.ChapterTypes.Parse(chapter.ChapterType)
 		if t == nil {
+			log.L.Warn().Msg("Skipping. Unknown chapter type: " + chapter.ChapterType)
+
 			continue
 		}
 		timedMetadata := sqlc.InsertTimedMetadataParams{
@@ -70,9 +73,12 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 		}
 
 		var personIDs []uuid.UUID
-		switch *t {
-		case common.ChapterTypeSong:
-			// We only want to insert the song number if it is present
+		personIDs, err = getOrInsertPersonIDs(ctx, qtx, chapter.Persons)
+		if err != nil {
+			return merry.Wrap(err)
+		}
+
+		if chapter.SongCollection != "" && chapter.SongNumber != "" {
 			songID, err := getOrInsertSongID(ctx, qtx, chapter.SongCollection, chapter.SongNumber)
 			if err != nil {
 				return merry.Wrap(err)
@@ -81,13 +87,8 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 				Valid: true,
 				UUID:  songID,
 			}
-		case common.ChapterTypeTestimony, common.ChapterTypeAppeal, common.ChapterTypeSpeech:
-			// We only want to insert the persons if they are present
-			personIDs, err = getOrInsertPersonIDs(ctx, qtx, chapter.Persons)
-			if err != nil {
-				return merry.Wrap(err)
-			}
 		}
+
 		tmID, err := qtx.InsertTimedMetadata(ctx, timedMetadata)
 		if err != nil {
 			return merry.Wrap(err)
@@ -95,7 +96,7 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 		for _, p := range personIDs {
 			err = qtx.InsertContribution(ctx, sqlc.InsertContributionParams{
 				PersonID:        p,
-				Type:            common.ContributionTypeSpeaker.Value,
+				Type:            mapContributionType(*t).Value,
 				TimedmetadataID: uuid.NullUUID{UUID: tmID, Valid: true},
 			})
 
@@ -104,10 +105,27 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 			}
 		}
 	}
+
 	err = tx.Commit()
 	if err != nil {
 		return merry.Wrap(err)
 	}
 
 	return nil
+}
+
+// mapContributionType guesses the contribution type based on the chapter type
+func mapContributionType(t common.ChapterType) common.ContributionType {
+	switch t {
+	case common.ChapterTypeInterview:
+	case common.ChapterTypeSpeech:
+	case common.ChapterTypeTestimony:
+	case common.ChapterTypeTheme:
+		return common.ContributionTypeSpeaker
+	case common.ChapterTypeSingAlong:
+	case common.ChapterTypeSong:
+		return common.ContributionTypeSinger
+	}
+
+	return common.ContributionTypeUnknown
 }
