@@ -2,9 +2,14 @@ package asset
 
 import (
 	"context"
+	"os"
+	"path"
+	"sync"
 
+	"github.com/bcc-code/bcc-media-platform/backend/files"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -46,13 +51,52 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 		return merry.Wrap(err)
 	}
 
-	var chapters []TimedMetadata
-	err = readJSONFromS3(ctx, s3client, config.GetIngestBucket(), params.JSONPath, &chapters)
+	var timedMetadatas []TimedMetadata
+	err = readJSONFromS3(ctx, s3client, config.GetIngestBucket(), params.JSONPath, &timedMetadatas)
 	if err != nil {
 		return merry.Wrap(err)
 	}
 
-	for _, chapter := range chapters {
+	tempDir, err := os.MkdirTemp(config.GetTempDir(), "timedmetadata")
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	imagePaths := lo.FilterMap(timedMetadatas, func(t TimedMetadata, _ int) (string, bool) {
+		return t.ImageFilename, t.ImageFilename != ""
+	})
+
+	var wg sync.WaitGroup
+	wg.Add(len(imagePaths))
+	var imageIDs map[string]string
+	var imageErrors []error
+	for _, image := range imagePaths {
+		i := image
+		go func() {
+			defer wg.Done()
+			localPath := path.Join(tempDir, "images", i)
+			_, err := downloadFromS3(ctx, downloadFromS3Params{
+				client:    s3client,
+				bucket:    config.GetIngestBucket(),
+				path:      i,
+				localPath: localPath,
+			})
+			if err != nil {
+				imageErrors = append(imageErrors, err)
+				return
+			}
+
+			imageId, err := uploadToPlatform(ctx, services, localPath)
+			if err != nil {
+				imageErrors = append(imageErrors, err)
+				return
+			}
+			imageIDs[i] = *imageId
+		}()
+	}
+	wg.Wait()
+
+	for _, chapter := range timedMetadatas {
 		t := common.ChapterTypes.Parse(chapter.ChapterType)
 		if t == nil {
 			log.L.Warn().Msg("Skipping. Unknown chapter type: " + chapter.ChapterType)
@@ -128,4 +172,22 @@ func mapContributionType(t common.ChapterType) common.ContributionType {
 	}
 
 	return common.ContributionTypeUnknown
+}
+
+func uploadToPlatform(ctx context.Context, services externalServices, localPath string) (*string, error) {
+	fs := services.GetFileService()
+	file, err := os.Open(localPath)
+	if err != nil {
+		return nil, merry.Wrap(err)
+	}
+	defer file.Close()
+
+	asset, err := fs.UploadFile(ctx, files.UploadFileParams{
+		File: file,
+	})
+	if err != nil {
+		return nil, merry.Wrap(err)
+	}
+
+	return &asset.ID, nil
 }

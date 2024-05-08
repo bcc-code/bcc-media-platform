@@ -10,6 +10,7 @@ type TimedMetadata struct {
 	SongCollection string   `json:"song_collection"`
 	SongNumber     string   `json:"song_number"`
 	Highlight      bool     `json:"highlight"`
+	ImageFilename  string   `json:"image"`
 	Persons        []string `json:"persons"`
 }
 

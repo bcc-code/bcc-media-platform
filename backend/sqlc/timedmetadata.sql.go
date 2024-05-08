@@ -129,10 +129,40 @@ func (q *Queries) GetAssetTimedMetadata(ctx context.Context, assetID null_v4.Int
 }
 
 const insertTimedMetadata = `-- name: InsertTimedMetadata :one
-INSERT INTO timedmetadata (id, status, date_created, date_updated, label, type, highlight,
-                           title, asset_id, seconds, description, episode_id, mediaitem_id, chapter_type, song_id)
-VALUES ($1, $2, NOW(), NOW(), $3, $4, $5, $6::varchar,
-        $7, $8::real, $9::varchar, $10, $11, $12, $13)
+INSERT INTO timedmetadata (
+  id,
+  status,
+  date_created,
+  date_updated,
+  label,
+  type,
+  highlight,
+  title,
+  asset_id,
+  seconds,
+  description,
+  episode_id,
+  mediaitem_id,
+  chapter_type,
+  song_id
+)
+VALUES (
+  $1,
+  $2,
+  NOW(),
+  NOW(),
+  $3,
+  $4,
+  $5,
+  $6::varchar,
+  $7,
+  $8::real,
+  $9::varchar,
+  $10,
+  $11,
+  $12,
+  $13
+)
 RETURNING id
 `
 

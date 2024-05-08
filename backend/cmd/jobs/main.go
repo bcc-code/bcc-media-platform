@@ -4,6 +4,8 @@ package main
 
 import (
 	"context"
+	"os"
+	"path"
 
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
@@ -12,6 +14,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/cmd/jobs/server"
 	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
 	"github.com/bcc-code/bcc-media-platform/backend/events"
+	"github.com/bcc-code/bcc-media-platform/backend/files"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/bcc-code/bcc-media-platform/backend/notifications"
 	"github.com/bcc-code/bcc-media-platform/backend/push"
@@ -43,6 +46,7 @@ func main() {
 	ctx, span := otel.Tracer("jobs/core").Start(ctx, "init")
 
 	serverConfig := server.ConfigData{
+		TempDir:               path.Join(os.TempDir(), "jobs"),
 		IngestBucket:          config.AWS.IngestBucket,
 		StorageBucket:         config.AWS.StorageBucket,
 		PackagingGroupID:      config.AWS.PackagingGroupARN,
@@ -128,6 +132,8 @@ func main() {
 
 	locker := redislock.New(rdb)
 
+	fileService := files.NewAzureFileService()
+
 	services := server.ExternalServices{
 		Database:          db,
 		S3Client:          s3Client,
@@ -139,6 +145,7 @@ func main() {
 		CrowdinClient:     crowdinClient,
 		Scheduler:         sr,
 		StatisticsHandler: statisticsHandler,
+		FileService:       fileService,
 	}
 
 	handlers := server.NewServer(services, serverConfig)

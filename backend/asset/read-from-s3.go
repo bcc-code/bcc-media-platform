@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
+	"os"
+
 	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -11,11 +14,9 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/asset/smil"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
-	"io"
 )
 
 func readJSONFromS3[T any](ctx context.Context, client *s3.Client, bucket *string, path string, obj *T) error {
-
 	jsonObjectOut, err := client.GetObject(
 		ctx,
 		&s3.GetObjectInput{
@@ -73,4 +74,42 @@ func readSmilFroms3(ctx context.Context, client *s3.Client, bucket *string, path
 	result, err := smil.Unmarshall(xmlBytes)
 
 	return &result, merry.Wrap(err)
+}
+
+type downloadFromS3Params struct {
+	client    *s3.Client
+	bucket    *string
+	path      string
+	localPath string
+}
+
+func downloadFromS3(ctx context.Context, params downloadFromS3Params) (*string, error) {
+	object, err := params.client.GetObject(
+		ctx,
+		&s3.GetObjectInput{
+			Bucket: params.bucket,
+			Key:    aws.String(params.path),
+		},
+	)
+	if err != nil {
+		var nsk *types.NoSuchKey
+		if errors.As(err, &nsk) {
+			log.L.Warn().Err(err).Str("path", params.path).Msg("Unable to download from s3")
+		}
+		return nil, merry.Wrap(err)
+	}
+
+	// read the bytes into localpath, using idiomatic go, no utils
+	file, err := os.Create(params.localPath)
+	if err != nil {
+		return nil, merry.Wrap(err)
+	}
+	defer file.Close()
+
+	_, err = io.Copy(file, object.Body)
+	if err != nil {
+		return nil, merry.Wrap(err)
+	}
+
+	return &params.localPath, merry.Wrap(err)
 }

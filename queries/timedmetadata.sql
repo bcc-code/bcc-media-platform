@@ -42,10 +42,40 @@ LEFT JOIN (
 WHERE md.id = ANY (@ids::uuid[]);
 
 -- name: InsertTimedMetadata :one
-INSERT INTO timedmetadata (id, status, date_created, date_updated, label, type, highlight,
-                           title, asset_id, seconds, description, episode_id, mediaitem_id, chapter_type, song_id)
-VALUES (@id, @status, NOW(), NOW(), @label, @type, @highlight, @title::varchar,
-        @asset_id, @seconds::real, @description::varchar, @episode_id, @mediaitem_id, @chapter_type, @song_id)
+INSERT INTO timedmetadata (
+  id,
+  status,
+  date_created,
+  date_updated,
+  label,
+  type,
+  highlight,
+  title,
+  asset_id,
+  seconds,
+  description,
+  episode_id,
+  mediaitem_id,
+  chapter_type,
+  song_id
+)
+VALUES (
+  @id,
+  @status,
+  NOW(),
+  NOW(),
+  @label,
+  @type,
+  @highlight,
+  @title::varchar,
+  @asset_id,
+  @seconds::real,
+  @description::varchar,
+  @episode_id,
+  @mediaitem_id,
+  @chapter_type,
+  @song_id
+)
 RETURNING id;
 
 -- name: GetAssetTimedMetadata :many

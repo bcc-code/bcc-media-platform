@@ -39,7 +39,7 @@ func resolveChapter(ctx context.Context, tm *common.TimedMetadata, loaders *comm
 		} else {
 			title = strings.Replace(title, "{{song.title}}", song.Title.Get(languages), -1)
 		}
-	case common.ChapterTypeSpeech, common.ChapterTypeAppeal, common.ChapterTypeTestimony:
+	case common.ChapterTypeSpeech, common.ChapterTypeInterview, common.ChapterTypeTestimony:
 		if len(tm.PersonIDs) != 1 {
 			break
 		}

@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/bcc-code/bcc-media-platform/backend/files"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/guregu/null.v4"
@@ -50,9 +51,11 @@ type externalServices interface {
 	GetMediaPackageVOD() *mediapackagevod.Client
 	GetQueries() *sqlc.Queries
 	GetDatabase() *sql.DB
+	GetFileService() files.Service
 }
 
 type config interface {
+	GetTempDir() string
 	GetIngestBucket() *string
 	GetStorageBucket() *string
 	GetPackagingGroup() *string
