@@ -286,13 +286,15 @@ type Computeddatum struct {
 }
 
 type Contribution struct {
-	ID          int32         `db:"id" json:"id"`
-	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
-	PersonID    uuid.UUID     `db:"person_id" json:"personId"`
-	Type        string        `db:"type" json:"type"`
+	ID              int32         `db:"id" json:"id"`
+	UserCreated     uuid.NullUUID `db:"user_created" json:"userCreated"`
+	DateCreated     null_v4.Time  `db:"date_created" json:"dateCreated"`
+	UserUpdated     uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+	DateUpdated     null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	PersonID        uuid.UUID     `db:"person_id" json:"personId"`
+	Type            string        `db:"type" json:"type"`
+	MediaitemID     uuid.NullUUID `db:"mediaitem_id" json:"mediaitemId"`
+	TimedmetadataID uuid.NullUUID `db:"timedmetadata_id" json:"timedmetadataId"`
 }
 
 type DirectusActivity struct {
@@ -996,12 +998,6 @@ type MediaitemsAsset struct {
 	Language     string    `db:"language" json:"language"`
 }
 
-type MediaitemsContribution struct {
-	ID              int32         `db:"id" json:"id"`
-	MediaitemsID    uuid.NullUUID `db:"mediaitems_id" json:"mediaitemsId"`
-	ContributionsID null_v4.Int   `db:"contributions_id" json:"contributionsId"`
-}
-
 type MediaitemsStyledimage struct {
 	ID             int32         `db:"id" json:"id"`
 	MediaitemsID   uuid.NullUUID `db:"mediaitems_id" json:"mediaitemsId"`
@@ -1656,12 +1652,6 @@ type TasksTranslation struct {
 	Title          null_v4.String `db:"title" json:"title"`
 	SecondaryTitle null_v4.String `db:"secondary_title" json:"secondaryTitle"`
 	Description    null_v4.String `db:"description" json:"description"`
-}
-
-type TimedmetadataContribution struct {
-	ID              int32         `db:"id" json:"id"`
-	TimedmetadataID uuid.NullUUID `db:"timedmetadata_id" json:"timedmetadataId"`
-	ContributionsID null_v4.Int   `db:"contributions_id" json:"contributionsId"`
 }
 
 type TimedmetadataPerson struct {

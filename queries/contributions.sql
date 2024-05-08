@@ -9,11 +9,9 @@ WITH RelevantContributions AS (
     m.id as mediaitem_id
   FROM
     public.mediaitems m
-    INNER JOIN public.mediaitems_contributions mc ON m.id = mc.mediaitems_id
-    INNER JOIN contributions c ON mc.contributions_id = c.id
-    AND c.person_id = ANY (@person_ids::uuid[])
-  where
-    m.primary_episode_id is not null
+  INNER JOIN contributions c ON c.mediaitem_id = m.primary_episode_id
+    and c.person_id = ANY (@person_ids::uuid[])
+    and m.primary_episode_id is not null
   UNION
   ALL
   SELECT
@@ -22,19 +20,12 @@ WITH RelevantContributions AS (
     c.person_id,
     'chapter' as item_type,
     m.id as mediaitem_id
-  FROM
-    public.mediaitems m
-    INNER JOIN timedmetadata tm ON (
-      m.timedmetadata_from_asset
-      AND tm.asset_id = m.asset_id
-    )
-    OR (
-      NOT m.timedmetadata_from_asset
-      AND tm.mediaitem_id = tm.id
-    )
-    INNER JOIN timedmetadata_contributions tmc ON tmc.timedmetadata_id = tm.id
-    INNER JOIN contributions c ON tmc.contributions_id = c.id
-    AND c.person_id = ANY (@person_ids::uuid[])
+  FROM timedmetadata tm
+  INNER JOIN mediaitems m ON
+    (m.timedmetadata_from_asset AND tm.asset_id = m.asset_id)
+    OR (NOT m.timedmetadata_from_asset AND tm.mediaitem_id = m.id)
+  INNER JOIN contributions c ON c.timedmetadata_id = tm.id
+  and c.person_id = ANY (@person_ids::uuid[])
 )
 SELECT
   rc.type,
