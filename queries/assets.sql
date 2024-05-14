@@ -80,7 +80,7 @@ FROM assets
 WHERE aws_arn = @aws_arn::varchar
 LIMIT 1;
 
--- name: AssetIDsByMediabankenID :one
+-- name: AssetIDsByMediabankenID :many
 SELECT id
 FROM assets
 WHERE mediabanken_id = @mediabanken_id::varchar;

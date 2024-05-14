@@ -1,0 +1,16 @@
+[
+    {
+        "chapter_type": "speech",
+        "timestamp": 0,
+        "label": "1The Beginning",
+        "title": "The Beginning",
+        "description": "The beginning of the story",
+        "highlight": true,
+        "image": "image.jpg",
+        "persons": [
+            "God",
+            "Adam",
+            "Eve"
+        ]
+    }
+]

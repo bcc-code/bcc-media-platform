@@ -29,12 +29,12 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	s3client := services.GetS3Client()
 	db := services.GetDatabase()
 
-	assetID, err := queries.AssetIDsByMediabankenID(ctx, params.VXID)
+	assetIDs, err := queries.AssetIDsByMediabankenID(ctx, params.VXID)
 	if err != nil {
 		return merry.Wrap(err)
 	}
 
-	if assetID == 0 {
+	if len(assetIDs) == 0 {
 		return merry.New("asset not found", merry.WithUserMessage("asset not found for VXID: "+params.VXID))
 	}
 
@@ -46,9 +46,11 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 
 	qtx := queries.WithTx(tx)
 
-	err = qtx.ClearAssetTimedMetadata(ctx, null.IntFrom(int64(assetID)))
-	if err != nil {
-		return merry.Wrap(err)
+	for _, assetID := range assetIDs {
+		err = qtx.ClearAssetTimedMetadata(ctx, null.IntFrom(int64(assetID)))
+		if err != nil {
+			return merry.Wrap(err)
+		}
 	}
 
 	var timedMetadatas []TimedMetadata
@@ -61,6 +63,7 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	if err != nil {
 		return merry.Wrap(err)
 	}
+	defer os.RemoveAll(tempDir)
 
 	imagePaths := lo.FilterMap(timedMetadatas, func(t TimedMetadata, _ int) (string, bool) {
 		return t.ImageFilename, t.ImageFilename != ""
@@ -68,13 +71,13 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 
 	var wg sync.WaitGroup
 	wg.Add(len(imagePaths))
-	var imageIDs map[string]string
+	imageIDs := make(map[string]string)
 	var imageErrors []error
 	for _, image := range imagePaths {
 		i := image
 		go func() {
 			defer wg.Done()
-			localPath := path.Join(tempDir, "images", i)
+			localPath := path.Join(tempDir, i)
 			_, err := downloadFromS3(ctx, downloadFromS3Params{
 				client:    s3client,
 				bucket:    config.GetIngestBucket(),
@@ -96,6 +99,13 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	}
 	wg.Wait()
 
+	if len(imageErrors) > 0 {
+		for _, e := range imageErrors {
+			log.L.Error().Err(e).Msg("Error uploading image")
+		}
+		return merry.Wrap(imageErrors[0])
+	}
+
 	for _, chapter := range timedMetadatas {
 		t := common.ChapterTypes.Parse(chapter.ChapterType)
 		if t == nil {
@@ -104,10 +114,8 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 			continue
 		}
 		timedMetadata := sqlc.InsertTimedMetadataParams{
-			ID:          uuid.New(),
 			ChapterType: null.StringFrom(t.Value),
 			Title:       chapter.Title,
-			AssetID:     null.IntFrom(int64(assetID)),
 			Highlight:   chapter.Highlight,
 			Description: chapter.Description,
 			Status:      string(common.StatusPublished),
@@ -133,19 +141,23 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 			}
 		}
 
-		tmID, err := qtx.InsertTimedMetadata(ctx, timedMetadata)
-		if err != nil {
-			return merry.Wrap(err)
-		}
-		for _, p := range personIDs {
-			err = qtx.InsertContribution(ctx, sqlc.InsertContributionParams{
-				PersonID:        p,
-				Type:            mapContributionType(*t).Value,
-				TimedmetadataID: uuid.NullUUID{UUID: tmID, Valid: true},
-			})
-
+		for _, assetID := range assetIDs {
+			timedMetadata.ID = uuid.New()
+			timedMetadata.AssetID = null.IntFrom(int64(assetID))
+			tmID, err := qtx.InsertTimedMetadata(ctx, timedMetadata)
 			if err != nil {
 				return merry.Wrap(err)
+			}
+			for _, p := range personIDs {
+				err = qtx.InsertContribution(ctx, sqlc.InsertContributionParams{
+					PersonID:        p,
+					Type:            mapContributionType(*t).Value,
+					TimedmetadataID: uuid.NullUUID{UUID: tmID, Valid: true},
+				})
+
+				if err != nil {
+					return merry.Wrap(err)
+				}
 			}
 		}
 	}
@@ -182,12 +194,13 @@ func uploadToPlatform(ctx context.Context, services externalServices, localPath 
 	}
 	defer file.Close()
 
-	asset, err := fs.UploadFile(ctx, files.UploadFileParams{
-		File: file,
+	f, err := fs.UploadFile(ctx, files.UploadFileParams{
+		File:     file,
+		FileName: path.Base(localPath),
 	})
 	if err != nil {
 		return nil, merry.Wrap(err)
 	}
 
-	return &asset.ID, nil
+	return &f.ID, nil
 }

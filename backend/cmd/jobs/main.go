@@ -45,8 +45,11 @@ func main() {
 	utils.MustSetupTracing("BTV-WORKER", config.Tracing)
 	ctx, span := otel.Tracer("jobs/core").Start(ctx, "init")
 
+	tempDir := path.Join(os.TempDir(), "jobs")
+	os.MkdirAll(tempDir, 0755)
+
 	serverConfig := server.ConfigData{
-		TempDir:               path.Join(os.TempDir(), "jobs"),
+		TempDir:               tempDir,
 		IngestBucket:          config.AWS.IngestBucket,
 		StorageBucket:         config.AWS.StorageBucket,
 		PackagingGroupID:      config.AWS.PackagingGroupARN,

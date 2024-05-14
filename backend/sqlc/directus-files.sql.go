@@ -16,6 +16,7 @@ import (
 
 const insertDirectusFile = `-- name: InsertDirectusFile :one
 INSERT INTO directus_files (
+    id,
     storage,
     filename_disk,
     filename_download,
@@ -35,8 +36,8 @@ INSERT INTO directus_files (
 )
 VALUES (
     $1,
-    $2::varchar,
-    $3,
+    $2,
+    $3::varchar,
     $4,
     $5,
     $6,
@@ -49,12 +50,14 @@ VALUES (
     $13,
     $14,
     $15,
-    $16
+    $16,
+    $17
 )
 RETURNING id
 `
 
 type InsertDirectusFileParams struct {
+	ID               uuid.UUID             `db:"id" json:"id"`
 	Storage          string                `db:"storage" json:"storage"`
 	FilenameDisk     string                `db:"filename_disk" json:"filenameDisk"`
 	FilenameDownload string                `db:"filename_download" json:"filenameDownload"`
@@ -75,6 +78,7 @@ type InsertDirectusFileParams struct {
 
 func (q *Queries) InsertDirectusFile(ctx context.Context, arg InsertDirectusFileParams) (uuid.UUID, error) {
 	row := q.db.QueryRowContext(ctx, insertDirectusFile,
+		arg.ID,
 		arg.Storage,
 		arg.FilenameDisk,
 		arg.FilenameDownload,

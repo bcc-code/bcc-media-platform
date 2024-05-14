@@ -278,10 +278,13 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 	if assetMeta.ChaptersFile != "" {
 		jsonPath := path.Join(assetMeta.BasePath, assetMeta.ChaptersFile)
-		IngestTimedMetadata(ctx, services, config, IngestTimedMetadataParams{
+		err = IngestTimedMetadata(ctx, services, config, IngestTimedMetadataParams{
 			JSONPath: jsonPath,
 			VXID:     assetMeta.ID,
 		})
+		if err != nil {
+			log.L.Error().Err(err).Msg("Failed to ingest timedmetadata from the asset")
+		}
 	}
 
 	var fileSizeErrors []error

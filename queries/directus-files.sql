@@ -3,6 +3,7 @@ SELECT * FROM directus_files WHERE id = ANY($1::uuid[]);
 
 -- name: InsertDirectusFile :one
 INSERT INTO directus_files (
+    id,
     storage,
     filename_disk,
     filename_download,
@@ -21,6 +22,7 @@ INSERT INTO directus_files (
     metadata
 )
 VALUES (
+    @id,
     @storage,
     @filename_disk::varchar,
     @filename_download,

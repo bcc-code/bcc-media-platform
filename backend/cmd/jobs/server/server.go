@@ -129,8 +129,8 @@ func (s Server) ProcessMessage(c *gin.Context) {
 	case events.TypeAssetDelivered:
 		err = asset.Ingest(ctx, s.services, s.config, e)
 	case events.TypeAssetTimedMetadataDelivered:
-		msg := events.AssetIngestTimedMetadata{}
-		err := e.DataAs(&msg)
+		msg := events.AssetTimedMetadataDelivered{}
+		err = e.DataAs(&msg)
 		if err != nil {
 			break
 		}

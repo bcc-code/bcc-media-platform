@@ -7,7 +7,7 @@ type AssetDelivered struct {
 	JSONMetaPath string `json:"jsonMetaPath"`
 }
 
-type AssetIngestTimedMetadata struct {
+type AssetTimedMetadataDelivered struct {
 	VXID     string `json:"vxID"`
 	JSONPath string `json:"jsonPath"`
 }
