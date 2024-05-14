@@ -245,7 +245,7 @@ SELECT md.id,
        md.type,
        md.chapter_type,
        md.song_id,
-       (SELECT array_agg(p.persons_id) FROM "timedmetadata_persons" p WHERE p.timedmetadata_id = md.id)::uuid[] AS person_ids,
+       (SELECT array_agg(c.person_id) FROM "contributions" c WHERE c.timedmetadata_id = md.id)::uuid[] AS person_ids,
        md.title                                                  AS original_title,
        md.description                                            AS original_description,
        COALESCE((SELECT json_object_agg(ts.languages_code, ts.title)

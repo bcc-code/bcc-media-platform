@@ -53,9 +53,19 @@ func TestIngestMetadata(t *testing.T) {
 
 	var inputData = []asset.TimedMetadata{
 		{
-			ChapterType:   "speech",
+			ChapterType:   common.ChapterTypeOther.Value,
+			Timestamp:     20,
+			Label:         "Some chapter",
+			Title:         "Some title",
+			Description:   "Some description",
+			Highlight:     false,
+			ImageFilename: "image.jpg",
+			Persons:       []string{"Person1", "God"},
+		},
+		{
+			ChapterType:   common.ChapterTypeSpeech.Value,
 			Timestamp:     0,
-			Label:         "1The Beginning",
+			Label:         "The Beginning, label",
 			Title:         "The Beginning",
 			Description:   "The beginning of the story",
 			Highlight:     true,
@@ -100,11 +110,11 @@ func TestIngestMetadata(t *testing.T) {
 	// Assert
 	timedmetadata, err := queries.GetAssetTimedMetadata(ctx, null.IntFrom(int64(assetID)))
 	if err != nil {
-		log.Panicf("GetAssetTimedMetadata: %v", err)
+		log.Panicf("%v", err)
 	}
 
 	if len(timedmetadata) == 0 {
-		panic("GetAssetTimedMetadata: timedmetadata is empty")
+		panic("timedmetadata is empty")
 	}
 
 	uuids := lo.Map(timedmetadata, func(t sqlc.GetAssetTimedMetadataRow, _ int) uuid.UUID {
@@ -113,7 +123,11 @@ func TestIngestMetadata(t *testing.T) {
 
 	fullTimedMetadata, err := queries.GetTimedMetadata(ctx, uuids)
 	if err != nil {
-		t.Errorf("GetTimedMetadata: %v", err)
+		t.Errorf("%v", err)
+	}
+
+	if len(fullTimedMetadata) != len(inputData) {
+		t.Errorf("length mismatch")
 	}
 
 	for index, input := range inputData {
@@ -131,10 +145,13 @@ func TestIngestMetadata(t *testing.T) {
 				t.Errorf("GetTimedMetadata: persons length mismatch")
 			} else {
 
-				persons := lo.Must(queries.GetPersons(ctx, imported.PersonIDs))
-				for i, name := range input.Persons {
-					if persons[i].Name != name {
-						t.Errorf("GetTimedMetadata: person name mismatch")
+				dbPersons := lo.Must(queries.GetPersons(ctx, imported.PersonIDs))
+				for _, name := range input.Persons {
+					anyWithName := lo.SomeBy(dbPersons, func(p common.Person) bool {
+						return p.Name == name
+					})
+					if !anyWithName {
+						t.Errorf("person not found")
 					}
 				}
 			}
