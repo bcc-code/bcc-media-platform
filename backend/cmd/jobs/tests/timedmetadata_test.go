@@ -10,13 +10,17 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/bcc-code/bcc-media-platform/backend/asset"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/events"
 	"github.com/bcc-code/bcc-media-platform/backend/pubsub"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -24,7 +28,7 @@ import (
 
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	_ "github.com/lib/pq"
-	"github.com/stretchr/testify/assert"
+	"github.com/shoenig/test"
 )
 
 const dbConnectionString = "postgres://bccm@localhost:5432/bccm?sslmode=disable"
@@ -32,18 +36,12 @@ const dbConnectionString = "postgres://bccm@localhost:5432/bccm?sslmode=disable"
 func TestIngestMetadata(t *testing.T) {
 	ctx := context.Background()
 
-	db, err := sql.Open("postgres", dbConnectionString)
-	if err != nil {
-		panic(err)
-	}
+	db := lo.Must(sql.Open("postgres", dbConnectionString))
 	defer db.Close()
 	queries := sqlc.New(db)
 
 	// Add test data
-	vxID, err := uuid.NewRandom()
-	if err != nil {
-		panic(err)
-	}
+	vxID := lo.Must(uuid.NewRandom())
 	assetID, err := queries.InsertAsset(ctx, sqlc.InsertAssetParams{
 		MediabankenID: null.StringFrom(vxID.String()),
 		Name:          "test",
@@ -53,14 +51,24 @@ func TestIngestMetadata(t *testing.T) {
 		panic(err)
 	}
 
-	s3Client, err := getS3Client(ctx)
-	if err != nil {
-		panic(err)
+	var inputData = []asset.TimedMetadata{
+		{
+			ChapterType:   "speech",
+			Timestamp:     0,
+			Label:         "1The Beginning",
+			Title:         "The Beginning",
+			Description:   "The beginning of the story",
+			Highlight:     true,
+			ImageFilename: "image.jpg",
+			Persons:       []string{"God", "Adam", "Eve"},
+		},
 	}
-	err = uploadAllFilesInFolder(ctx, s3Client, "vod-asset-ingest-sta", "testdata/tm")
-	if err != nil {
-		panic(err)
-	}
+
+	s3Client := lo.Must(getS3Client(ctx))
+	jsonData := lo.Must(json.Marshal(inputData))
+	lo.Must0(uploadFolderToS3(ctx, s3Client, "vod-asset-ingest-sta", "testdata/"))
+	lo.Must0(uploadFileToS3(ctx, s3Client, strings.NewReader(string(jsonData)), "vod-asset-ingest-sta", "testdata/tm.json"))
+	defer deleteFolderOnS3(ctx, s3Client, "vod-asset-ingest-sta", "testdata/")
 
 	// Execute
 	e := cloudevents.NewEvent()
@@ -71,10 +79,7 @@ func TestIngestMetadata(t *testing.T) {
 		JSONPath: "testdata/tm.json",
 	})
 
-	j, err := e.MarshalJSON()
-	if err != nil {
-		panic(err)
-	}
+	j := lo.Must(e.MarshalJSON())
 	msg := pubsub.Message{
 		Message: pubsub.Msg{
 			PublishTime: time.Now(),
@@ -83,17 +88,14 @@ func TestIngestMetadata(t *testing.T) {
 		Subscription: "bgjobs",
 	}
 
-	msgBytes, err := json.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
+	msgBytes := lo.Must(json.Marshal(msg))
 
-	resp, err := http.Post("http://localhost:8078/api/message", "application/json", bytes.NewBuffer(msgBytes))
-	if err != nil {
-		panic(err)
+	resp := lo.Must(http.Post("http://localhost:8078/api/message", "application/json", bytes.NewBuffer(msgBytes)))
+	body := lo.Must(io.ReadAll(resp.Body))
+	if strings.Contains(string(body), "error") {
+		log.Panicf("Error processing message: %s", body)
 	}
-	io.Copy(io.Discard, resp.Body)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	test.Eq(t, http.StatusOK, resp.StatusCode)
 
 	// Assert
 	timedmetadata, err := queries.GetAssetTimedMetadata(ctx, null.IntFrom(int64(assetID)))
@@ -114,13 +116,28 @@ func TestIngestMetadata(t *testing.T) {
 		t.Errorf("GetTimedMetadata: %v", err)
 	}
 
-	first := fullTimedMetadata[0]
-	if len(first.Images) == 0 {
-		t.Errorf("GetTimedMetadata: images is empty")
-	}
-	for _, images := range first.Images {
-		if len(images) == 0 {
-			t.Errorf("GetTimedMetadata: images is empty")
+	for index, input := range inputData {
+		imported := fullTimedMetadata[index]
+		test.Eq(t, input.ChapterType, imported.ChapterType.Value)
+		test.Eq(t, input.Timestamp, imported.Timestamp)
+		test.Eq(t, input.Title, imported.Title.Get(*utils.FallbackLanguages()))
+		test.Eq(t, input.Description, imported.Description.Get(*utils.FallbackLanguages()))
+		if input.ImageFilename != "" {
+			image := imported.Images.GetDefault(*utils.FallbackLanguages(), common.ImageStyleDefault)
+			test.StrContains(t, *image, input.ImageFilename)
+		}
+		if len(input.Persons) > 0 {
+			if len(input.Persons) != len(imported.PersonIDs) {
+				t.Errorf("GetTimedMetadata: persons length mismatch")
+			} else {
+
+				persons := lo.Must(queries.GetPersons(ctx, imported.PersonIDs))
+				for i, name := range input.Persons {
+					if persons[i].Name != name {
+						t.Errorf("GetTimedMetadata: person name mismatch")
+					}
+				}
+			}
 		}
 	}
 
@@ -136,8 +153,7 @@ func getS3Client(ctx context.Context) (*s3.Client, error) {
 	return s3Client, nil
 }
 
-func uploadFile(ctx context.Context, s3Client *s3.Client, file io.Reader, bucket string, key string) error {
-
+func uploadFileToS3(ctx context.Context, s3Client *s3.Client, file io.Reader, bucket string, key string) error {
 	_, err := s3Client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket: &bucket,
 		Key:    &key,
@@ -150,7 +166,7 @@ func uploadFile(ctx context.Context, s3Client *s3.Client, file io.Reader, bucket
 	return nil
 }
 
-func uploadAllFilesInFolder(ctx context.Context, s3Client *s3.Client, bucket string, folder string) error {
+func uploadFolderToS3(ctx context.Context, s3Client *s3.Client, bucket string, folder string) error {
 	dir, err := os.ReadDir(folder)
 	if err != nil {
 		return err
@@ -166,7 +182,29 @@ func uploadAllFilesInFolder(ctx context.Context, s3Client *s3.Client, bucket str
 			return err
 		}
 
-		err = uploadFile(ctx, s3Client, f, bucket, file.Name())
+		err = uploadFileToS3(ctx, s3Client, f, bucket, file.Name())
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func deleteFolderOnS3(ctx context.Context, s3Client *s3.Client, bucket string, s3Folder string) error {
+	s3Folder = strings.TrimSuffix(s3Folder, "/") + "/"
+	objects, err := s3Client.ListObjectsV2(ctx, &s3.ListObjectsV2Input{
+		Bucket: &bucket,
+		Prefix: &s3Folder,
+	})
+	if err != nil {
+		return err
+	}
+
+	for _, obj := range objects.Contents {
+		_, err := s3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
+			Bucket: &bucket,
+			Key:    obj.Key,
+		})
 		if err != nil {
 			return err
 		}

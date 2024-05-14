@@ -6,14 +6,16 @@ import (
 )
 
 type UploadFileParams struct {
-	File     io.Reader
-	FileName string
+	File        io.Reader
+	FileName    string
+	ContentType string
 }
 
 type File struct {
-	ID       string
-	Storage  string
-	FilePath string
+	ID          string
+	Storage     string
+	FilePath    string
+	ContentType string
 }
 
 type Service interface {

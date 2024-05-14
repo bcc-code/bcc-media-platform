@@ -7,6 +7,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/google/uuid"
+	"gopkg.in/guregu/null.v4"
 )
 
 type azureFileService struct {
@@ -37,17 +38,19 @@ func (s *azureFileService) UploadFile(ctx context.Context, params UploadFilePara
 
 	id, err := s.queries.InsertDirectusFile(ctx, sqlc.InsertDirectusFileParams{
 		ID:           randomId,
-		Storage:      "azure",
+		Storage:      "az",
 		FilenameDisk: params.FileName,
+		Type:         null.StringFrom(params.ContentType),
 	})
 	if err != nil {
 		return File{}, err
 	}
 
 	return File{
-		ID:       id.String(),
-		Storage:  "azure",
-		FilePath: params.FileName,
+		ID:          id.String(),
+		Storage:     "az",
+		FilePath:    params.FileName,
+		ContentType: params.ContentType,
 	}, nil
 }
 

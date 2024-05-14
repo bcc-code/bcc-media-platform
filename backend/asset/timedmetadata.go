@@ -8,6 +8,7 @@ import (
 
 	"github.com/bcc-code/bcc-media-platform/backend/files"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
@@ -106,45 +107,45 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 		return merry.Wrap(imageErrors[0])
 	}
 
-	for _, chapter := range timedMetadatas {
-		t := common.ChapterTypes.Parse(chapter.ChapterType)
+	for _, inputTm := range timedMetadatas {
+		t := common.ChapterTypes.Parse(inputTm.ChapterType)
 		if t == nil {
-			log.L.Warn().Msg("Skipping. Unknown chapter type: " + chapter.ChapterType)
+			log.L.Warn().Msg("Skipping. Unknown chapter type: " + inputTm.ChapterType)
 
 			continue
 		}
-		timedMetadata := sqlc.InsertTimedMetadataParams{
+		realTm := sqlc.InsertTimedMetadataParams{
 			ChapterType: null.StringFrom(t.Value),
-			Title:       chapter.Title,
-			Highlight:   chapter.Highlight,
-			Description: chapter.Description,
+			Title:       inputTm.Title,
+			Highlight:   inputTm.Highlight,
+			Description: inputTm.Description,
 			Status:      string(common.StatusPublished),
-			Label:       chapter.Label,
+			Label:       inputTm.Label,
 			Type:        "chapter",
-			Seconds:     float32(chapter.Timestamp),
+			Seconds:     float32(inputTm.Timestamp),
 		}
 
 		var personIDs []uuid.UUID
-		personIDs, err = getOrInsertPersonIDs(ctx, qtx, chapter.Persons)
+		personIDs, err = getOrInsertPersonIDs(ctx, qtx, inputTm.Persons)
 		if err != nil {
 			return merry.Wrap(err)
 		}
 
-		if chapter.SongCollection != "" && chapter.SongNumber != "" {
-			songID, err := getOrInsertSongID(ctx, qtx, chapter.SongCollection, chapter.SongNumber)
+		if inputTm.SongCollection != "" && inputTm.SongNumber != "" {
+			songID, err := getOrInsertSongID(ctx, qtx, inputTm.SongCollection, inputTm.SongNumber)
 			if err != nil {
 				return merry.Wrap(err)
 			}
-			timedMetadata.SongID = uuid.NullUUID{
+			realTm.SongID = uuid.NullUUID{
 				Valid: true,
 				UUID:  songID,
 			}
 		}
 
 		for _, assetID := range assetIDs {
-			timedMetadata.ID = uuid.New()
-			timedMetadata.AssetID = null.IntFrom(int64(assetID))
-			tmID, err := qtx.InsertTimedMetadata(ctx, timedMetadata)
+			realTm.ID = uuid.New()
+			realTm.AssetID = null.IntFrom(int64(assetID))
+			tmID, err := qtx.InsertTimedMetadata(ctx, realTm)
 			if err != nil {
 				return merry.Wrap(err)
 			}
@@ -158,6 +159,23 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 				if err != nil {
 					return merry.Wrap(err)
 				}
+			}
+			imageId := imageIDs[inputTm.ImageFilename]
+			styledId, err := qtx.InsertStyledImage(ctx, sqlc.InsertStyledImageParams{
+				Language: (*utils.FallbackLanguages())[0],
+				Style:    common.ImageStyleDefault,
+				File:     uuid.MustParse(imageId),
+			})
+			if err != nil {
+				return merry.Wrap(err)
+			}
+
+			_, err = qtx.InsertTimedMetadataStyledImage(ctx, sqlc.InsertTimedMetadataStyledImageParams{
+				TimedMetadataID: uuid.NullUUID{UUID: tmID, Valid: true},
+				StyledImageID:   uuid.NullUUID{UUID: styledId, Valid: true},
+			})
+			if err != nil {
+				return merry.Wrap(err)
 			}
 		}
 	}
