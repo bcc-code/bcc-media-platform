@@ -53,17 +53,11 @@ func TestIngestMetadata(t *testing.T) {
 		panic(err)
 	}
 
-	awsConfig, err := awsSDKConfig.LoadDefaultConfig(ctx)
+	s3Client, err := getS3Client(ctx)
 	if err != nil {
 		panic(err)
 	}
-
-	awsConfig.Region = "eu-north-1"
-	s3Client := s3.NewFromConfig(awsConfig)
-
-	// upload testdata/tm.json to vod-asset-ingest-sta bucket
-	bucket := "vod-asset-ingest-sta"
-	err = uploadAllFilesInFolder(ctx, s3Client, bucket, "testdata/tm")
+	err = uploadAllFilesInFolder(ctx, s3Client, "vod-asset-ingest-sta", "testdata/tm")
 	if err != nil {
 		panic(err)
 	}
@@ -107,10 +101,6 @@ func TestIngestMetadata(t *testing.T) {
 		log.Panicf("GetAssetTimedMetadata: %v", err)
 	}
 
-	if timedmetadata == nil {
-		panic("GetAssetTimedMetadata: timedmetadata is nil")
-	}
-
 	if len(timedmetadata) == 0 {
 		panic("GetAssetTimedMetadata: timedmetadata is empty")
 	}
@@ -134,6 +124,16 @@ func TestIngestMetadata(t *testing.T) {
 		}
 	}
 
+}
+
+func getS3Client(ctx context.Context) (*s3.Client, error) {
+	awsConfig, err := awsSDKConfig.LoadDefaultConfig(ctx)
+	if err != nil {
+		return nil, err
+	}
+	awsConfig.Region = "eu-north-1"
+	s3Client := s3.NewFromConfig(awsConfig)
+	return s3Client, nil
 }
 
 func uploadFile(ctx context.Context, s3Client *s3.Client, file io.Reader, bucket string, key string) error {
