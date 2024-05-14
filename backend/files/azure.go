@@ -2,33 +2,59 @@ package files
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 )
 
 type azureFileService struct {
 	queries   *sqlc.Queries
+	client    *azblob.Client
 	container string
+}
+type AzureConfig struct {
+	AccountName string
+	AccountKey  string
+	Container   string
 }
 
 func (s *azureFileService) UploadFile(ctx context.Context, params UploadFileParams) (File, error) {
-	// TODO: Dump the file into root of the container with github.com/Azure/azure-sdk-for-go/sdk/storage/azblob
-	filenameDisk := ""
+	if params.File == nil || params.FileName == "" {
+		return File{}, fmt.Errorf("file and filename are required")
+	}
 
-	s.queries.InsertDirectusFile(ctx, sqlc.InsertDirectusFileParams{
+	_, err := s.client.UploadStream(ctx, s.container, params.FileName, params.File, nil)
+	if err != nil {
+		return File{}, err
+	}
+
+	id, err := s.queries.InsertDirectusFile(ctx, sqlc.InsertDirectusFileParams{
 		Storage:      "azure",
-		FilenameDisk: filenameDisk,
+		FilenameDisk: params.FileName,
 	})
+	if err != nil {
+		return File{}, err
+	}
 
 	return File{
+		ID:       id.String(),
 		Storage:  "azure",
-		FilePath: filenameDisk,
+		FilePath: params.FileName,
 	}, nil
 }
 
-func NewAzureFileService(container string, queries *sqlc.Queries) Service {
-	return &azureFileService{
-		container: container,
-		queries:   queries,
+func NewAzureFileService(queries *sqlc.Queries, config AzureConfig) (Service, error) {
+	cred, err := azblob.NewSharedKeyCredential(config.AccountName, config.AccountKey)
+	if err != nil {
+		return nil, err
 	}
+	client, err := azblob.NewClientWithSharedKeyCredential(fmt.Sprintf("https://%s.blob.core.windows.net/", config.AccountName), cred, nil)
+	if err != nil {
+		return nil, err
+	}
+	return &azureFileService{
+		client:  client,
+		queries: queries,
+	}, nil
 }

@@ -11,6 +11,7 @@ require (
 	cloud.google.com/go/pubsub v1.33.0
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/99designs/gqlgen v0.17.39
+	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.3.2
 	github.com/Code-Hex/go-generics-cache v1.3.1
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.20.0
 	github.com/Masterminds/squirrel v1.5.4
@@ -33,7 +34,7 @@ require (
 	github.com/glebarez/go-sqlite v1.21.2
 	github.com/go-resty/resty/v2 v2.11.0
 	github.com/goodsign/monday v1.0.1
-	github.com/google/uuid v1.3.1
+	github.com/google/uuid v1.6.0
 	github.com/graph-gophers/dataloader/v7 v7.1.0
 	github.com/lestrrat-go/jwx/v2 v2.0.21
 	github.com/lib/pq v1.10.9
@@ -72,6 +73,9 @@ require (
 	cloud.google.com/go/longrunning v0.5.2 // indirect
 	cloud.google.com/go/storage v1.33.0 // indirect
 	cloud.google.com/go/trace v1.10.2 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.11.1 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.5.2 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/internal v1.5.2 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.44.0 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/andybalholm/brotli v1.0.6 // indirect

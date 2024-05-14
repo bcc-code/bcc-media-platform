@@ -132,7 +132,11 @@ func main() {
 
 	locker := redislock.New(rdb)
 
-	fileService := files.NewAzureFileService()
+	fileService, err := files.NewAzureFileService(queries, config.AzureStorage)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to initialize azure file service")
+		return
+	}
 
 	services := server.ExternalServices{
 		Database:          db,

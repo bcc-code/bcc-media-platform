@@ -6,7 +6,8 @@ import (
 )
 
 type UploadFileParams struct {
-	File io.Reader
+	File     io.Reader
+	FileName string
 }
 
 type File struct {
