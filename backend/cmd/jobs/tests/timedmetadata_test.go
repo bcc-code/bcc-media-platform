@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -48,7 +47,7 @@ func TestIngestTimedMetadata(t *testing.T) {
 		Status:        null.StringFrom("published"),
 	})
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
 
 	var inputData = []asset.TimedMetadata{
@@ -115,18 +114,18 @@ func TestIngestTimedMetadata(t *testing.T) {
 	resp := lo.Must(http.Post("http://localhost:8078/api/message", "application/json", bytes.NewBuffer(msgBytes)))
 	body := lo.Must(io.ReadAll(resp.Body))
 	if strings.Contains(string(body), "error") {
-		log.Panicf("Error processing message: %s", body)
+		t.Fatalf("Error processing message: %s", body)
 	}
 	test.Eq(t, http.StatusOK, resp.StatusCode)
 
 	// Assert
 	timedmetadata, err := queries.GetAssetTimedMetadata(ctx, null.IntFrom(int64(assetID)))
 	if err != nil {
-		log.Panicf("%v", err)
+		t.Fatalf("%v", err)
 	}
 
 	if len(timedmetadata) == 0 {
-		panic("timedmetadata is empty")
+		t.Fatalf("timedmetadata is empty")
 	}
 
 	uuids := lo.Map(timedmetadata, func(t sqlc.GetAssetTimedMetadataRow, _ int) uuid.UUID {
