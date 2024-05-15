@@ -33,7 +33,7 @@ import (
 
 const dbConnectionString = "postgres://bccm@localhost:5432/bccm?sslmode=disable"
 
-func TestIngestMetadata(t *testing.T) {
+func TestIngestTimedMetadata(t *testing.T) {
 	ctx := context.Background()
 
 	db := lo.Must(sql.Open("postgres", dbConnectionString))
@@ -71,6 +71,18 @@ func TestIngestMetadata(t *testing.T) {
 			Highlight:     true,
 			ImageFilename: "image.jpg",
 			Persons:       []string{"God", "Adam", "Eve"},
+		},
+		{
+			ChapterType:    common.ChapterTypeSpeech.Value,
+			Timestamp:      0,
+			Label:          "The Beginning, label",
+			Title:          "The Beginning",
+			Description:    "The beginning of the story",
+			Highlight:      true,
+			ImageFilename:  "image.jpg",
+			Persons:        []string{"God", "Adam", "Eve"},
+			SongCollection: "WOTL",
+			SongNumber:     "123",
 		},
 	}
 
@@ -136,6 +148,13 @@ func TestIngestMetadata(t *testing.T) {
 		test.Eq(t, input.Timestamp, imported.Timestamp)
 		test.Eq(t, input.Title, imported.Title.Get(*utils.FallbackLanguages()))
 		test.Eq(t, input.Description, imported.Description.Get(*utils.FallbackLanguages()))
+		if input.SongCollection != "" {
+			songId := lo.Must(queries.GetCollectionSongID(ctx, sqlc.GetCollectionSongIDParams{
+				CollectionKey: input.SongCollection,
+				SongKey:       input.SongNumber,
+			}))
+			test.Eq(t, songId, imported.SongID.UUID)
+		}
 		if input.ImageFilename != "" {
 			image := imported.Images.GetDefault(*utils.FallbackLanguages(), common.ImageStyleDefault)
 			test.StrContains(t, *image, input.ImageFilename)

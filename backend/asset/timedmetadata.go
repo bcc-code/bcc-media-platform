@@ -30,8 +30,14 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	queries := services.GetQueries()
 	s3client := services.GetS3Client()
 	db := services.GetDatabase()
+	tx, err := db.Begin()
+	if err != nil {
+		return merry.Wrap(err)
+	}
+	defer tx.Rollback()
+	qtx := queries.WithTx(tx)
 
-	assetIDs, err := queries.AssetIDsByMediabankenID(ctx, params.VXID)
+	assetIDs, err := qtx.AssetIDsByMediabankenID(ctx, params.VXID)
 	if err != nil {
 		return merry.Wrap(err)
 	}
@@ -39,14 +45,6 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	if len(assetIDs) == 0 {
 		return merry.New("asset not found", merry.WithUserMessage("asset not found for VXID: "+params.VXID))
 	}
-
-	tx, err := db.Begin()
-	if err != nil {
-		return merry.Wrap(err)
-	}
-	defer tx.Rollback()
-
-	qtx := queries.WithTx(tx)
 
 	for _, assetID := range assetIDs {
 		err = qtx.ClearAssetTimedMetadata(ctx, null.IntFrom(int64(assetID)))
@@ -60,16 +58,15 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	if err != nil {
 		return merry.Wrap(err)
 	}
+	imagePaths := lo.FilterMap(timedMetadatas, func(t TimedMetadata, _ int) (string, bool) {
+		return t.ImageFilename, t.ImageFilename != ""
+	})
 
 	tempDir, err := os.MkdirTemp(config.GetTempDir(), "timedmetadata")
 	if err != nil {
 		return merry.Wrap(err)
 	}
 	defer os.RemoveAll(tempDir)
-
-	imagePaths := lo.FilterMap(timedMetadatas, func(t TimedMetadata, _ int) (string, bool) {
-		return t.ImageFilename, t.ImageFilename != ""
-	})
 
 	var eg errgroup.Group
 	imageIDs := make(map[string]string)
@@ -104,75 +101,9 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	}
 
 	for _, inputTm := range timedMetadatas {
-		t := common.ChapterTypes.Parse(inputTm.ChapterType)
-		if t == nil {
-			log.L.Warn().Msg("Skipping. Unknown chapter type: " + inputTm.ChapterType)
-
-			continue
-		}
-		realTm := sqlc.InsertTimedMetadataParams{
-			ChapterType: null.StringFrom(t.Value),
-			Title:       inputTm.Title,
-			Highlight:   inputTm.Highlight,
-			Description: inputTm.Description,
-			Status:      string(common.StatusPublished),
-			Label:       inputTm.Label,
-			Type:        "chapter",
-			Seconds:     float32(inputTm.Timestamp),
-		}
-
-		var personIDs []uuid.UUID
-		personIDs, err = getOrInsertPersonIDs(ctx, qtx, inputTm.Persons)
+		err = insertTimedMetadata(ctx, inputTm, qtx, assetIDs, imageIDs)
 		if err != nil {
 			return merry.Wrap(err)
-		}
-
-		if inputTm.SongCollection != "" && inputTm.SongNumber != "" {
-			songID, err := getOrInsertSongID(ctx, qtx, inputTm.SongCollection, inputTm.SongNumber)
-			if err != nil {
-				return merry.Wrap(err)
-			}
-			realTm.SongID = uuid.NullUUID{
-				Valid: true,
-				UUID:  songID,
-			}
-		}
-
-		for _, assetID := range assetIDs {
-			realTm.ID = uuid.New()
-			realTm.AssetID = null.IntFrom(int64(assetID))
-			tmID, err := qtx.InsertTimedMetadata(ctx, realTm)
-			if err != nil {
-				return merry.Wrap(err)
-			}
-			for _, p := range personIDs {
-				err = qtx.InsertContribution(ctx, sqlc.InsertContributionParams{
-					PersonID:        p,
-					Type:            mapContributionType(*t).Value,
-					TimedmetadataID: uuid.NullUUID{UUID: tmID, Valid: true},
-				})
-
-				if err != nil {
-					return merry.Wrap(err)
-				}
-			}
-			imageId := imageIDs[inputTm.ImageFilename]
-			styledId, err := qtx.InsertStyledImage(ctx, sqlc.InsertStyledImageParams{
-				Language: (*utils.FallbackLanguages())[0],
-				Style:    common.ImageStyleDefault,
-				File:     uuid.MustParse(imageId),
-			})
-			if err != nil {
-				return merry.Wrap(err)
-			}
-
-			_, err = qtx.InsertTimedMetadataStyledImage(ctx, sqlc.InsertTimedMetadataStyledImageParams{
-				TimedMetadataID: uuid.NullUUID{UUID: tmID, Valid: true},
-				StyledImageID:   uuid.NullUUID{UUID: styledId, Valid: true},
-			})
-			if err != nil {
-				return merry.Wrap(err)
-			}
 		}
 	}
 
@@ -181,6 +112,80 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 		return merry.Wrap(err)
 	}
 
+	return nil
+}
+
+func insertTimedMetadata(ctx context.Context, inputTm TimedMetadata, queries *sqlc.Queries, assetIDs []int32, imageIDs map[string]string) error {
+	t := common.ChapterTypes.Parse(inputTm.ChapterType)
+	if t == nil {
+		log.L.Warn().Msg("Skipping. Unknown chapter type: " + inputTm.ChapterType)
+		return nil
+	}
+	realTm := sqlc.InsertTimedMetadataParams{
+		ChapterType: null.StringFrom(t.Value),
+		Title:       inputTm.Title,
+		Highlight:   inputTm.Highlight,
+		Description: inputTm.Description,
+		Status:      string(common.StatusPublished),
+		Label:       inputTm.Label,
+		Type:        "chapter",
+		Seconds:     float32(inputTm.Timestamp),
+	}
+
+	var personIDs []uuid.UUID
+	personIDs, err := getOrInsertPersonIDs(ctx, queries, inputTm.Persons)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	if inputTm.SongCollection != "" && inputTm.SongNumber != "" {
+		songID, err := getOrInsertSongID(ctx, queries, inputTm.SongCollection, inputTm.SongNumber)
+		if err != nil {
+			return merry.Wrap(err)
+		}
+		realTm.SongID = uuid.NullUUID{
+			Valid: true,
+			UUID:  songID,
+		}
+	}
+
+	for _, assetID := range assetIDs {
+		realTm.ID = uuid.New()
+		realTm.AssetID = null.IntFrom(int64(assetID))
+		tmID, err := queries.InsertTimedMetadata(ctx, realTm)
+		if err != nil {
+			return merry.Wrap(err)
+		}
+		for _, p := range personIDs {
+			err = queries.InsertContribution(ctx, sqlc.InsertContributionParams{
+				PersonID:        p,
+				Type:            mapContributionType(*t).Value,
+				TimedmetadataID: uuid.NullUUID{UUID: tmID, Valid: true},
+			})
+
+			if err != nil {
+				return merry.Wrap(err)
+			}
+		}
+		if imageId, exists := imageIDs[inputTm.ImageFilename]; exists {
+			styledId, err := queries.InsertStyledImage(ctx, sqlc.InsertStyledImageParams{
+				Language: (*utils.FallbackLanguages())[0],
+				Style:    common.ImageStyleDefault,
+				File:     uuid.MustParse(imageId),
+			})
+			if err != nil {
+				return merry.Wrap(err)
+			}
+
+			_, err = queries.InsertTimedMetadataStyledImage(ctx, sqlc.InsertTimedMetadataStyledImageParams{
+				TimedMetadataID: uuid.NullUUID{UUID: tmID, Valid: true},
+				StyledImageID:   uuid.NullUUID{UUID: styledId, Valid: true},
+			})
+			if err != nil {
+				return merry.Wrap(err)
+			}
+		}
+	}
 	return nil
 }
 
