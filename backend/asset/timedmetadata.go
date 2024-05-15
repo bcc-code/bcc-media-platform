@@ -11,6 +11,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/samber/lo"
+	"golang.org/x/sync/errgroup"
 	"gopkg.in/guregu/null.v4"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -70,14 +71,12 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 		return t.ImageFilename, t.ImageFilename != ""
 	})
 
-	var wg sync.WaitGroup
-	wg.Add(len(imagePaths))
+	var eg errgroup.Group
 	imageIDs := make(map[string]string)
-	var imageErrors []error
+	var mu sync.Mutex
 	for _, image := range imagePaths {
 		i := image
-		go func() {
-			defer wg.Done()
+		eg.Go(func() error {
 			localPath := path.Join(tempDir, i)
 			_, err := downloadFromS3(ctx, downloadFromS3Params{
 				client:    s3client,
@@ -86,25 +85,22 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 				localPath: localPath,
 			})
 			if err != nil {
-				imageErrors = append(imageErrors, err)
-				return
+				return merry.Wrap(err)
 			}
 
 			imageId, err := uploadToPlatform(ctx, services, localPath)
 			if err != nil {
-				imageErrors = append(imageErrors, err)
-				return
+				return merry.Wrap(err)
 			}
+			mu.Lock()
 			imageIDs[i] = *imageId
-		}()
+			mu.Unlock()
+			return nil
+		})
 	}
-	wg.Wait()
-
-	if len(imageErrors) > 0 {
-		for _, e := range imageErrors {
-			log.L.Error().Err(e).Msg("Error uploading image")
-		}
-		return merry.Wrap(imageErrors[0])
+	if err := eg.Wait(); err != nil {
+		log.L.Error().Err(err).Msg("Error uploading image")
+		return merry.Wrap(err)
 	}
 
 	for _, inputTm := range timedMetadatas {
