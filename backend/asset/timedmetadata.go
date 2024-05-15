@@ -2,16 +2,11 @@ package asset
 
 import (
 	"context"
-	"os"
-	"path"
-	"sync"
 
-	"github.com/bcc-code/bcc-media-platform/backend/files"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/samber/lo"
-	"golang.org/x/sync/errgroup"
 	"gopkg.in/guregu/null.v4"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -62,46 +57,13 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 		return t.ImageFilename, t.ImageFilename != ""
 	})
 
-	tempDir, err := os.MkdirTemp(config.GetTempDir(), "timedmetadata")
+	imageIDs, err := ingestImagesFromS3(ctx, imagePaths, services, config)
 	if err != nil {
-		return merry.Wrap(err)
-	}
-	defer os.RemoveAll(tempDir)
-
-	var eg errgroup.Group
-	imageIDs := make(map[string]string)
-	var mu sync.Mutex
-	for _, image := range imagePaths {
-		i := image
-		eg.Go(func() error {
-			localPath := path.Join(tempDir, i)
-			_, err := downloadFromS3(ctx, downloadFromS3Params{
-				client:    s3client,
-				bucket:    config.GetIngestBucket(),
-				path:      i,
-				localPath: localPath,
-			})
-			if err != nil {
-				return merry.Wrap(err)
-			}
-
-			imageId, err := uploadToPlatform(ctx, services, localPath)
-			if err != nil {
-				return merry.Wrap(err)
-			}
-			mu.Lock()
-			imageIDs[i] = *imageId
-			mu.Unlock()
-			return nil
-		})
-	}
-	if err := eg.Wait(); err != nil {
-		log.L.Error().Err(err).Msg("Error uploading image")
 		return merry.Wrap(err)
 	}
 
 	for _, inputTm := range timedMetadatas {
-		err = insertTimedMetadata(ctx, inputTm, qtx, assetIDs, imageIDs)
+		err = ingestOneTimedMetadata(ctx, qtx, inputTm, assetIDs, imageIDs)
 		if err != nil {
 			return merry.Wrap(err)
 		}
@@ -115,7 +77,8 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	return nil
 }
 
-func insertTimedMetadata(ctx context.Context, inputTm TimedMetadata, queries *sqlc.Queries, assetIDs []int32, imageIDs map[string]string) error {
+// ingestOneTimedMetadata creates one timed metadata with contributions, song, etc.
+func ingestOneTimedMetadata(ctx context.Context, queries *sqlc.Queries, inputTm TimedMetadata, assetIDs []int32, imageIDs map[string]string) error {
 	t := common.ChapterTypes.Parse(inputTm.ChapterType)
 	if t == nil {
 		log.L.Warn().Msg("Skipping. Unknown chapter type: " + inputTm.ChapterType)
@@ -203,23 +166,4 @@ func mapContributionType(t common.ChapterType) common.ContributionType {
 	}
 
 	return common.ContributionTypeUnknown
-}
-
-func uploadToPlatform(ctx context.Context, services externalServices, localPath string) (*string, error) {
-	fs := services.GetFileService()
-	file, err := os.Open(localPath)
-	if err != nil {
-		return nil, merry.Wrap(err)
-	}
-	defer file.Close()
-
-	f, err := fs.UploadFile(ctx, files.UploadFileParams{
-		File:     file,
-		FileName: path.Base(localPath),
-	})
-	if err != nil {
-		return nil, merry.Wrap(err)
-	}
-
-	return &f.ID, nil
 }
