@@ -29,6 +29,35 @@ func (q *Queries) AssetIDByARN(ctx context.Context, awsArn string) (int32, error
 	return id, err
 }
 
+const assetIDsByMediabankenID = `-- name: AssetIDsByMediabankenID :many
+SELECT id
+FROM assets
+WHERE mediabanken_id = $1::varchar
+`
+
+func (q *Queries) AssetIDsByMediabankenID(ctx context.Context, mediabankenID string) ([]int32, error) {
+	rows, err := q.db.QueryContext(ctx, assetIDsByMediabankenID, mediabankenID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int32
+	for rows.Next() {
+		var id int32
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const deletePath = `-- name: DeletePath :exec
 DELETE
 FROM assets

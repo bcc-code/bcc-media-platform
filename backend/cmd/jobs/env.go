@@ -7,6 +7,7 @@ import (
 
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
 	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
+	"github.com/bcc-code/bcc-media-platform/backend/files"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/bcc-code/bcc-media-platform/backend/search"
 	"github.com/bcc-code/bcc-media-platform/backend/statistics"
@@ -33,6 +34,7 @@ type cloudTasks struct {
 
 type envConfig struct {
 	AWS               awsConfig
+	AzureStorage      files.AzureConfig
 	Port              string
 	DeleteIngestFiles bool
 	DB                utils.DatabaseConfig
@@ -72,6 +74,11 @@ func getEnvConfig() envConfig {
 			MediapackageSourceARN: os.Getenv("AWS_MEDIAPACKAGE_SOURCE"),
 			IngestBucket:          os.Getenv("AWS_INGEST_BUCKET"),
 			StorageBucket:         os.Getenv("AWS_STORAGE_BUCKET"),
+		},
+		AzureStorage: files.AzureConfig{
+			AccountName: os.Getenv("AZURE_STORAGE_ACCOUNT_NAME"),
+			AccountKey:  os.Getenv("AZURE_STORAGE_ACCOUNT_KEY"),
+			Container:   os.Getenv("AZURE_STORAGE_CONTAINER"),
 		},
 		DB: utils.DatabaseConfig{
 			ConnectionString:   os.Getenv("DB_CONNECTION_STRING"),

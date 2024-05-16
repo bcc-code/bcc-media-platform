@@ -12,6 +12,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/cmd/jobs/server"
 	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
 	"github.com/bcc-code/bcc-media-platform/backend/events"
+	"github.com/bcc-code/bcc-media-platform/backend/files"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/bcc-code/bcc-media-platform/backend/notifications"
 	"github.com/bcc-code/bcc-media-platform/backend/push"
@@ -128,6 +129,12 @@ func main() {
 
 	locker := redislock.New(rdb)
 
+	fileService, err := files.NewAzureFileService(queries, config.AzureStorage)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Failed to initialize azure file service")
+		return
+	}
+
 	services := server.ExternalServices{
 		Database:          db,
 		S3Client:          s3Client,
@@ -139,6 +146,7 @@ func main() {
 		CrowdinClient:     crowdinClient,
 		Scheduler:         sr,
 		StatisticsHandler: statisticsHandler,
+		FileService:       fileService,
 	}
 
 	handlers := server.NewServer(services, serverConfig)

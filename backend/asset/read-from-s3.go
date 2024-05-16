@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
+
 	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -11,11 +13,9 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/asset/smil"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
-	"io"
 )
 
 func readJSONFromS3[T any](ctx context.Context, client *s3.Client, bucket *string, path string, obj *T) error {
-
 	jsonObjectOut, err := client.GetObject(
 		ctx,
 		&s3.GetObjectInput{
@@ -73,4 +73,29 @@ func readSmilFroms3(ctx context.Context, client *s3.Client, bucket *string, path
 	result, err := smil.Unmarshall(xmlBytes)
 
 	return &result, merry.Wrap(err)
+}
+
+type readFromS3Params struct {
+	client *s3.Client
+	bucket *string
+	path   string
+}
+
+// readFromS3 reads a file from S3. It returns a ReadCloser that must be closed by the caller.
+func readFromS3(ctx context.Context, params readFromS3Params) (io.ReadCloser, error) {
+	object, err := params.client.GetObject(
+		ctx,
+		&s3.GetObjectInput{
+			Bucket: params.bucket,
+			Key:    &params.path,
+		},
+	)
+	if err != nil {
+		var nsk *types.NoSuchKey
+		if errors.As(err, &nsk) {
+			log.L.Warn().Err(err).Str("path", params.path).Msg("Unable to download from s3, no such file.")
+		}
+		return nil, merry.Wrap(err)
+	}
+	return object.Body, merry.Wrap(err)
 }

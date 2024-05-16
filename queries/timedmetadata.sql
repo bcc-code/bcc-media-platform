@@ -11,7 +11,7 @@ SELECT md.id,
        md.type,
        md.chapter_type,
        md.song_id,
-       (SELECT array_agg(p.persons_id) FROM "timedmetadata_persons" p WHERE p.timedmetadata_id = md.id)::uuid[] AS person_ids,
+       (SELECT array_agg(c.person_id) FROM "contributions" c WHERE c.timedmetadata_id = md.id)::uuid[] AS person_ids,
        md.title                                                  AS original_title,
        md.description                                            AS original_description,
        COALESCE((SELECT json_object_agg(ts.languages_code, ts.title)
@@ -41,11 +41,42 @@ LEFT JOIN (
 ) images ON (images.timedmetadata_id = md.id)
 WHERE md.id = ANY (@ids::uuid[]);
 
--- name: InsertTimedMetadata :exec
-INSERT INTO timedmetadata (id, status, date_created, date_updated, label, type, highlight,
-                           title, asset_id, seconds, description, episode_id, mediaitem_id, chapter_type, song_id)
-VALUES (@id, @status, NOW(), NOW(), @label, @type, @highlight, @title::varchar,
-        @asset_id, @seconds::real, @description::varchar, @episode_id, @mediaitem_id, @chapter_type, @song_id);
+-- name: InsertTimedMetadata :one
+INSERT INTO timedmetadata (
+  id,
+  status,
+  date_created,
+  date_updated,
+  label,
+  type,
+  highlight,
+  title,
+  asset_id,
+  seconds,
+  description,
+  episode_id,
+  mediaitem_id,
+  chapter_type,
+  song_id
+)
+VALUES (
+  @id,
+  @status,
+  NOW(),
+  NOW(),
+  @label,
+  @type,
+  @highlight,
+  @title::varchar,
+  @asset_id,
+  @seconds::real,
+  @description::varchar,
+  @episode_id,
+  @mediaitem_id,
+  @chapter_type,
+  @song_id
+)
+RETURNING id;
 
 -- name: GetAssetTimedMetadata :many
 SELECT t.id,
@@ -76,3 +107,5 @@ DELETE FROM timedmetadata WHERE episode_id = @episode_id;
 -- name: ClearMediaItemTimedMetadata :exec
 DELETE FROM timedmetadata WHERE mediaitem_id = @mediaitem_id::uuid;
 
+-- name: ClearAssetTimedMetadata :exec
+DELETE FROM timedmetadata WHERE asset_id = @asset_id;

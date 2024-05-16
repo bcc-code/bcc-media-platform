@@ -10,7 +10,96 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	"github.com/sqlc-dev/pqtype"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
+
+const insertDirectusFile = `-- name: InsertDirectusFile :one
+INSERT INTO directus_files (
+    id,
+    storage,
+    filename_disk,
+    filename_download,
+    title,
+    type,
+    folder,
+    charset,
+    filesize,
+    width,
+    height,
+    duration,
+    embed,
+    description,
+    location,
+    tags,
+    metadata
+)
+VALUES (
+    $1,
+    $2,
+    $3::varchar,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17
+)
+RETURNING id
+`
+
+type InsertDirectusFileParams struct {
+	ID               uuid.UUID             `db:"id" json:"id"`
+	Storage          string                `db:"storage" json:"storage"`
+	FilenameDisk     string                `db:"filename_disk" json:"filenameDisk"`
+	FilenameDownload string                `db:"filename_download" json:"filenameDownload"`
+	Title            null_v4.String        `db:"title" json:"title"`
+	Type             null_v4.String        `db:"type" json:"type"`
+	Folder           uuid.NullUUID         `db:"folder" json:"folder"`
+	Charset          null_v4.String        `db:"charset" json:"charset"`
+	Filesize         null_v4.Int           `db:"filesize" json:"filesize"`
+	Width            null_v4.Int           `db:"width" json:"width"`
+	Height           null_v4.Int           `db:"height" json:"height"`
+	Duration         null_v4.Int           `db:"duration" json:"duration"`
+	Embed            null_v4.String        `db:"embed" json:"embed"`
+	Description      null_v4.String        `db:"description" json:"description"`
+	Location         null_v4.String        `db:"location" json:"location"`
+	Tags             null_v4.String        `db:"tags" json:"tags"`
+	Metadata         pqtype.NullRawMessage `db:"metadata" json:"metadata"`
+}
+
+func (q *Queries) InsertDirectusFile(ctx context.Context, arg InsertDirectusFileParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, insertDirectusFile,
+		arg.ID,
+		arg.Storage,
+		arg.FilenameDisk,
+		arg.FilenameDownload,
+		arg.Title,
+		arg.Type,
+		arg.Folder,
+		arg.Charset,
+		arg.Filesize,
+		arg.Width,
+		arg.Height,
+		arg.Duration,
+		arg.Embed,
+		arg.Description,
+		arg.Location,
+		arg.Tags,
+		arg.Metadata,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
 
 const getFiles = `-- name: getFiles :many
 SELECT id, storage, filename_disk, filename_download, title, type, folder, uploaded_by, uploaded_on, modified_by, modified_on, charset, filesize, width, height, duration, embed, description, location, tags, metadata FROM directus_files WHERE id = ANY($1::uuid[])

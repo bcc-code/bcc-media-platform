@@ -12,6 +12,28 @@ import (
 	"github.com/lib/pq"
 )
 
+const insertContribution = `-- name: InsertContribution :exec
+INSERT INTO "public"."contributions" (person_id, "type", mediaitem_id, timedmetadata_id)
+VALUES ($1::uuid, $2, $3::uuid, $4::uuid)
+`
+
+type InsertContributionParams struct {
+	PersonID        uuid.UUID     `db:"person_id" json:"personId"`
+	Type            string        `db:"type" json:"type"`
+	MediaitemID     uuid.NullUUID `db:"mediaitem_id" json:"mediaitemId"`
+	TimedmetadataID uuid.NullUUID `db:"timedmetadata_id" json:"timedmetadataId"`
+}
+
+func (q *Queries) InsertContribution(ctx context.Context, arg InsertContributionParams) error {
+	_, err := q.db.ExecContext(ctx, insertContribution,
+		arg.PersonID,
+		arg.Type,
+		arg.MediaitemID,
+		arg.TimedmetadataID,
+	)
+	return err
+}
+
 const getContributionIDsForPersonsWithRoles = `-- name: getContributionIDsForPersonsWithRoles :many
 WITH RelevantContributions AS (
   SELECT
@@ -23,7 +45,7 @@ WITH RelevantContributions AS (
   FROM
     public.mediaitems m
   INNER JOIN contributions c ON c.mediaitem_id = m.primary_episode_id
-  where c.person_id = ANY ($2::uuid[])
+    and c.person_id = ANY ($2::uuid[])
     and m.primary_episode_id is not null
   UNION
   ALL
@@ -38,7 +60,7 @@ WITH RelevantContributions AS (
     (m.timedmetadata_from_asset AND tm.asset_id = m.asset_id)
     OR (NOT m.timedmetadata_from_asset AND tm.mediaitem_id = m.id)
   INNER JOIN contributions c ON c.timedmetadata_id = tm.id
-  WHERE c.person_id = ANY ($2::uuid[])
+  and c.person_id = ANY ($2::uuid[])
 )
 SELECT
   rc.type,

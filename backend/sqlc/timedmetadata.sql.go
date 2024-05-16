@@ -14,6 +14,15 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const clearAssetTimedMetadata = `-- name: ClearAssetTimedMetadata :exec
+DELETE FROM timedmetadata WHERE asset_id = $1
+`
+
+func (q *Queries) ClearAssetTimedMetadata(ctx context.Context, assetID null_v4.Int) error {
+	_, err := q.db.ExecContext(ctx, clearAssetTimedMetadata, assetID)
+	return err
+}
+
 const clearEpisodeTimedMetadata = `-- name: ClearEpisodeTimedMetadata :exec
 DELETE FROM timedmetadata WHERE episode_id = $1
 `
@@ -119,11 +128,42 @@ func (q *Queries) GetAssetTimedMetadata(ctx context.Context, assetID null_v4.Int
 	return items, nil
 }
 
-const insertTimedMetadata = `-- name: InsertTimedMetadata :exec
-INSERT INTO timedmetadata (id, status, date_created, date_updated, label, type, highlight,
-                           title, asset_id, seconds, description, episode_id, mediaitem_id, chapter_type, song_id)
-VALUES ($1, $2, NOW(), NOW(), $3, $4, $5, $6::varchar,
-        $7, $8::real, $9::varchar, $10, $11, $12, $13)
+const insertTimedMetadata = `-- name: InsertTimedMetadata :one
+INSERT INTO timedmetadata (
+  id,
+  status,
+  date_created,
+  date_updated,
+  label,
+  type,
+  highlight,
+  title,
+  asset_id,
+  seconds,
+  description,
+  episode_id,
+  mediaitem_id,
+  chapter_type,
+  song_id
+)
+VALUES (
+  $1,
+  $2,
+  NOW(),
+  NOW(),
+  $3,
+  $4,
+  $5,
+  $6::varchar,
+  $7,
+  $8::real,
+  $9::varchar,
+  $10,
+  $11,
+  $12,
+  $13
+)
+RETURNING id
 `
 
 type InsertTimedMetadataParams struct {
@@ -142,8 +182,8 @@ type InsertTimedMetadataParams struct {
 	SongID      uuid.NullUUID  `db:"song_id" json:"songId"`
 }
 
-func (q *Queries) InsertTimedMetadata(ctx context.Context, arg InsertTimedMetadataParams) error {
-	_, err := q.db.ExecContext(ctx, insertTimedMetadata,
+func (q *Queries) InsertTimedMetadata(ctx context.Context, arg InsertTimedMetadataParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, insertTimedMetadata,
 		arg.ID,
 		arg.Status,
 		arg.Label,
@@ -158,7 +198,9 @@ func (q *Queries) InsertTimedMetadata(ctx context.Context, arg InsertTimedMetada
 		arg.ChapterType,
 		arg.SongID,
 	)
-	return err
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
 }
 
 const getEpisodeIDsForTimedMetadatas = `-- name: getEpisodeIDsForTimedMetadatas :many
@@ -203,7 +245,7 @@ SELECT md.id,
        md.type,
        md.chapter_type,
        md.song_id,
-       (SELECT array_agg(p.persons_id) FROM "timedmetadata_persons" p WHERE p.timedmetadata_id = md.id)::uuid[] AS person_ids,
+       (SELECT array_agg(c.person_id) FROM "contributions" c WHERE c.timedmetadata_id = md.id)::uuid[] AS person_ids,
        md.title                                                  AS original_title,
        md.description                                            AS original_description,
        COALESCE((SELECT json_object_agg(ts.languages_code, ts.title)

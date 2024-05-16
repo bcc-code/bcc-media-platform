@@ -2,10 +2,12 @@ package server
 
 import (
 	"database/sql"
+
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
 	"github.com/bcc-code/bcc-media-platform/backend/events"
+	"github.com/bcc-code/bcc-media-platform/backend/files"
 	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
 	"github.com/bcc-code/bcc-media-platform/backend/scheduler"
 	"github.com/bcc-code/bcc-media-platform/backend/search"
@@ -25,6 +27,12 @@ type ExternalServices struct {
 	CrowdinClient     *crowdin.Client
 	Scheduler         *scheduler.Service
 	StatisticsHandler *statistics.Handler
+	FileService       files.Service
+}
+
+// GetDatabase as stored in the struct
+func (e ExternalServices) GetDatabase() *sql.DB {
+	return e.Database
 }
 
 // GetS3Client as stored in the struct
@@ -64,4 +72,8 @@ func (e ExternalServices) GetScheduler() *scheduler.Service {
 
 func (e ExternalServices) GetStatisticHandler() *statistics.Handler {
 	return e.StatisticsHandler
+}
+
+func (e ExternalServices) GetFileService() files.Service {
+	return e.FileService
 }

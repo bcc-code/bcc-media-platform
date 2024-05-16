@@ -80,6 +80,11 @@ FROM assets
 WHERE aws_arn = @aws_arn::varchar
 LIMIT 1;
 
+-- name: AssetIDsByMediabankenID :many
+SELECT id
+FROM assets
+WHERE mediabanken_id = @mediabanken_id::varchar;
+
 -- name: InsertAsset :one
 INSERT INTO assets (duration, encoding_version, legacy_id, main_storage_path,
                     mediabanken_id, name, status, aws_arn, source, date_updated, date_created)

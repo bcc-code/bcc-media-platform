@@ -7,6 +7,11 @@ type AssetDelivered struct {
 	JSONMetaPath string `json:"jsonMetaPath"`
 }
 
+type AssetTimedMetadataDelivered struct {
+	VXID     string `json:"vxID"`
+	JSONPath string `json:"jsonPath"`
+}
+
 // RefreshView is an event requestig refresh of a view in the DB
 // This is a generic event and the ViewName should be checked against a list of
 // known views to prevent potential abuse
