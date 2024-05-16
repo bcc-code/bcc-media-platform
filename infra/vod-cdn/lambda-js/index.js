@@ -96,7 +96,7 @@ exports.handler = (event, context, callback) => {
             const bodyString = body.join('\n');
             console.log("gzipping body")
             let gzipStart = Date.now()
-            response.body = zlib.gzipSync(bodyString).toString('utf8')
+            response.body = zlib.gzipSync(bodyString).toString('base64')
             let gzipTime = Date.now() - gzipStart
 
 
