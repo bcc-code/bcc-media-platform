@@ -7,8 +7,10 @@ const path = require('path');
 const qsParser = require('querystring');
 let _isFirstRequest = true;
 const { readFileSync } = require('fs');
+const zlib = require('zlib');
 
-const config = JSON.parse(readFileSync('./config.json'));
+const configPath = process.env.CONFIG_PATH || './config.json';
+const config = JSON.parse(readFileSync(configPath));
 
 /**
  * This lambda is expected to be used as a origin request handler with cloudfront.
@@ -91,7 +93,18 @@ exports.handler = (event, context, callback) => {
                 }
             });
 
-            response.body = body.join('\n')
+            const bodyString = body.join('\n');
+            console.log("gzipping body")
+            let gzipStart = Date.now()
+            response.body = zlib.gzipSync(bodyString).toString('utf8')
+            let gzipTime = Date.now() - gzipStart
+
+
+            response.headers["Content-Encoding"] = [{
+                key: 'Content-Encoding',
+                value: 'gzip'
+            }];
+
             let bodyModificationTime = Date.now() - bodyModificationStart
             response.headers["x-ag-stats"] = [
                 {
@@ -101,7 +114,8 @@ exports.handler = (event, context, callback) => {
                         isFirstRequest,
                         fetchTime,
                         bodyReadTime,
-                        bodyModificationTime
+                        bodyModificationTime,
+                        gzipTime
                     })
                 }
             ];
@@ -111,26 +125,14 @@ exports.handler = (event, context, callback) => {
                     value: resp.headers["x-cache"]
                 }
             ];
-
-            response.headers["X-AG-Debug"] = [
-                {
-                    key: 'X-AG-Debug',
-                    value: request.querystring
-                }
-            ];
-
             console.log({
                 timeSinceBoot,
                 isFirstRequest,
                 fetchTime,
                 bodyReadTime,
-                bodyModificationTime
+                bodyModificationTime,
+                gzipTime
             })
-
-            /*response.headers["Content-Encoding"] = [{
-                    key: 'Content-Encoding',
-                    value: 'gzip'
-            }];*/
             callback(null, response);
         });
     }).on('error', (err) => {
