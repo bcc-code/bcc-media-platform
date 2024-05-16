@@ -4,8 +4,6 @@ package main
 
 import (
 	"context"
-	"os"
-	"path"
 
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
@@ -45,11 +43,7 @@ func main() {
 	utils.MustSetupTracing("BTV-WORKER", config.Tracing)
 	ctx, span := otel.Tracer("jobs/core").Start(ctx, "init")
 
-	tempDir := path.Join(os.TempDir(), "jobs")
-	os.MkdirAll(tempDir, 0755)
-
 	serverConfig := server.ConfigData{
-		TempDir:               tempDir,
 		IngestBucket:          config.AWS.IngestBucket,
 		StorageBucket:         config.AWS.StorageBucket,
 		PackagingGroupID:      config.AWS.PackagingGroupARN,

@@ -55,7 +55,6 @@ type externalServices interface {
 }
 
 type config interface {
-	GetTempDir() string
 	GetIngestBucket() *string
 	GetStorageBucket() *string
 	GetPackagingGroup() *string

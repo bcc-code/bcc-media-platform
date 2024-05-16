@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"os"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -76,40 +75,27 @@ func readSmilFroms3(ctx context.Context, client *s3.Client, bucket *string, path
 	return &result, merry.Wrap(err)
 }
 
-type downloadFromS3Params struct {
-	client    *s3.Client
-	bucket    *string
-	path      string
-	localPath string
+type readFromS3Params struct {
+	client *s3.Client
+	bucket *string
+	path   string
 }
 
-func downloadFromS3(ctx context.Context, params downloadFromS3Params) (*string, error) {
+// readFromS3 reads a file from S3. It returns a ReadCloser that must be closed by the caller.
+func readFromS3(ctx context.Context, params readFromS3Params) (io.ReadCloser, error) {
 	object, err := params.client.GetObject(
 		ctx,
 		&s3.GetObjectInput{
 			Bucket: params.bucket,
-			Key:    aws.String(params.path),
+			Key:    &params.path,
 		},
 	)
 	if err != nil {
 		var nsk *types.NoSuchKey
 		if errors.As(err, &nsk) {
-			log.L.Warn().Err(err).Str("path", params.path).Msg("Unable to download from s3")
+			log.L.Warn().Err(err).Str("path", params.path).Msg("Unable to download from s3, no such file.")
 		}
 		return nil, merry.Wrap(err)
 	}
-
-	// read the bytes into localpath, using idiomatic go, no utils
-	file, err := os.Create(params.localPath)
-	if err != nil {
-		return nil, merry.Wrap(err)
-	}
-	defer file.Close()
-
-	_, err = io.Copy(file, object.Body)
-	if err != nil {
-		return nil, merry.Wrap(err)
-	}
-
-	return &params.localPath, merry.Wrap(err)
+	return object.Body, merry.Wrap(err)
 }

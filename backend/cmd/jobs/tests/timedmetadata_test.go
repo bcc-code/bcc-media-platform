@@ -68,7 +68,7 @@ func TestIngestTimedMetadata(t *testing.T) {
 			Title:         "The Beginning",
 			Description:   "The beginning of the story",
 			Highlight:     true,
-			ImageFilename: "image.jpg",
+			ImageFilename: "img.jpg",
 			Persons:       []string{"God", "Adam", "Eve"},
 		},
 		{

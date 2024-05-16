@@ -12,7 +12,6 @@ type ConfigData struct {
 	DeleteIngestFilesFlag bool
 	CrowdinToken          string
 	CrowdinProjectIDs     []int
-	TempDir               string
 }
 
 // GetIngestBucket that contains the new assets
@@ -54,9 +53,4 @@ func (c ConfigData) GetCrowdinToken() string {
 // GetCrowdinProjectIDs retrieves the projects the crowdin client should sync to
 func (c ConfigData) GetCrowdinProjectIDs() []int {
 	return c.CrowdinProjectIDs
-}
-
-// GetTempDir retrieves a temporary directory for storing files during processing
-func (c ConfigData) GetTempDir() string {
-	return c.TempDir
 }
