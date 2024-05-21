@@ -9,7 +9,7 @@ WITH RelevantContributions AS (
     m.id as mediaitem_id
   FROM
     public.mediaitems m
-  INNER JOIN contributions c ON c.mediaitem_id = m.primary_episode_id
+  INNER JOIN contributions c ON c.mediaitem_id = m.id
     and c.person_id = ANY (@person_ids::uuid[])
     and m.primary_episode_id is not null
   UNION
