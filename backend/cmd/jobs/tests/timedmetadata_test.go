@@ -33,6 +33,9 @@ import (
 const dbConnectionString = "postgres://bccm@localhost:5432/bccm?sslmode=disable"
 
 func TestIngestTimedMetadata(t *testing.T) {
+	if utils.SkipTestIfCI(t) {
+		return
+	}
 	ctx := context.Background()
 
 	db := lo.Must(sql.Open("postgres", dbConnectionString))
