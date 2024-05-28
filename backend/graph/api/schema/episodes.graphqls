@@ -67,7 +67,7 @@ type EpisodePagination implements Pagination {
   items: [Episode!]!
 }
 
-type Chapter {
+type Chapter implements CollectionItem {
   id: ID!
   start: Int!
   title: String!

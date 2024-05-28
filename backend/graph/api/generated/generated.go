@@ -6236,7 +6236,7 @@ type EpisodePagination implements Pagination {
   items: [Episode!]!
 }
 
-type Chapter {
+type Chapter implements CollectionItem {
   id: ID!
   start: Int!
   title: String!
@@ -40432,6 +40432,13 @@ func (ec *executionContext) _CollectionItem(ctx context.Context, sel ast.Selecti
 			return graphql.Null
 		}
 		return ec._Episode(ctx, sel, obj)
+	case model.Chapter:
+		return ec._Chapter(ctx, sel, &obj)
+	case *model.Chapter:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Chapter(ctx, sel, obj)
 	case model.Game:
 		return ec._Game(ctx, sel, &obj)
 	case *model.Game:
@@ -42612,7 +42619,7 @@ func (ec *executionContext) _CardSection(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var chapterImplementors = []string{"Chapter", "ContributionItem"}
+var chapterImplementors = []string{"Chapter", "CollectionItem", "ContributionItem"}
 
 func (ec *executionContext) _Chapter(ctx context.Context, sel ast.SelectionSet, obj *model.Chapter) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, chapterImplementors)

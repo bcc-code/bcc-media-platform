@@ -321,6 +321,11 @@ type Chapter struct {
 	Episode     *Episode `json:"episode,omitempty"`
 }
 
+func (Chapter) IsCollectionItem()            {}
+func (this Chapter) GetID() string           { return this.ID }
+func (this Chapter) GetTitle() string        { return this.Title }
+func (this Chapter) GetDescription() *string { return this.Description }
+
 func (Chapter) IsContributionItem() {}
 
 type Config struct {
