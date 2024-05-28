@@ -12,6 +12,43 @@ import (
 	"github.com/lib/pq"
 )
 
+const getContributionsForPerson = `-- name: GetContributionsForPerson :many
+SELECT id, user_created, date_created, user_updated, date_updated, person_id, type, mediaitem_id, timedmetadata_id FROM "public"."contributions" WHERE person_id = $1::uuid
+`
+
+func (q *Queries) GetContributionsForPerson(ctx context.Context, personID uuid.UUID) ([]Contribution, error) {
+	rows, err := q.db.QueryContext(ctx, getContributionsForPerson, personID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Contribution
+	for rows.Next() {
+		var i Contribution
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserCreated,
+			&i.DateCreated,
+			&i.UserUpdated,
+			&i.DateUpdated,
+			&i.PersonID,
+			&i.Type,
+			&i.MediaitemID,
+			&i.TimedmetadataID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const insertContribution = `-- name: InsertContribution :exec
 INSERT INTO "public"."contributions" (person_id, "type", mediaitem_id, timedmetadata_id)
 VALUES ($1::uuid, $2, $3::uuid, $4::uuid)
