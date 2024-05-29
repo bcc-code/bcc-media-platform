@@ -35,6 +35,14 @@ SELECT setval(pg_get_serial_sequence('"public"."directus_fields"', 'id'), max("i
 
 --- BEGIN ALTER TABLE "public"."episodes" ---
 
+UPDATE "public"."episodes"
+    SET "publish_date" = '1970-01-01T00:00:00.000Z'
+    WHERE "publish_date" IS NULL;
+
+UPDATE "public"."episodes"
+    SET "production_date" = '1970-01-01T00:00:00.000Z'
+    WHERE "production_date" IS NULL;
+
 ALTER TABLE IF EXISTS "public"."episodes"
 	ALTER COLUMN "publish_date" SET NOT NULL;
 
