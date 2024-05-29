@@ -55,7 +55,7 @@ func TestIngestTimedMetadata(t *testing.T) {
 
 	var inputData = []asset.TimedMetadata{
 		{
-			ChapterType:   common.ChapterTypeOther.Value,
+			ContentType:   common.ContentTypeOther.Value,
 			Timestamp:     20,
 			Label:         "Some chapter",
 			Title:         "Some title",
@@ -65,7 +65,7 @@ func TestIngestTimedMetadata(t *testing.T) {
 			Persons:       []string{"Person1", "God"},
 		},
 		{
-			ChapterType:   common.ChapterTypeSpeech.Value,
+			ContentType:   common.ContentTypeSpeech.Value,
 			Timestamp:     0,
 			Label:         "The Beginning, label",
 			Title:         "The Beginning",
@@ -75,7 +75,7 @@ func TestIngestTimedMetadata(t *testing.T) {
 			Persons:       []string{"God", "Adam", "Eve"},
 		},
 		{
-			ChapterType:    common.ChapterTypeSpeech.Value,
+			ContentType:    common.ContentTypeSpeech.Value,
 			Timestamp:      0,
 			Label:          "The Beginning, label",
 			Title:          "The Beginning",
@@ -146,7 +146,7 @@ func TestIngestTimedMetadata(t *testing.T) {
 
 	for index, input := range inputData {
 		imported := fullTimedMetadata[index]
-		test.Eq(t, input.ChapterType, imported.ChapterType.Value)
+		test.Eq(t, input.ContentType, imported.ContentType.Value)
 		test.Eq(t, input.Timestamp, imported.Timestamp)
 		test.Eq(t, input.Title, imported.Title.Get(*utils.FallbackLanguages()))
 		test.Eq(t, input.Description, imported.Description.Get(*utils.FallbackLanguages()))

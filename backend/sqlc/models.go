@@ -1688,7 +1688,7 @@ type Timedmetadatum struct {
 	Description null_v4.String `db:"description" json:"description"`
 	AssetID     null_v4.Int    `db:"asset_id" json:"assetId"`
 	EpisodeID   null_v4.Int    `db:"episode_id" json:"episodeId"`
-	ChapterType null_v4.String `db:"chapter_type" json:"chapterType"`
+	ContentType null_v4.String `db:"content_type" json:"contentType"`
 	SongID      uuid.NullUUID  `db:"song_id" json:"songId"`
 	Seconds     float32        `db:"seconds" json:"seconds"`
 	MediaitemID uuid.NullUUID  `db:"mediaitem_id" json:"mediaitemId"`

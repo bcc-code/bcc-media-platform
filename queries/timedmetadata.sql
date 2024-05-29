@@ -9,7 +9,7 @@ WHERE tm.id = ANY ($1::uuid[]);
 -- name: getTimedMetadata :many
 SELECT md.id,
        md.type,
-       md.chapter_type,
+       md.content_type,
        md.song_id,
        (SELECT array_agg(c.person_id) FROM "contributions" c WHERE c.timedmetadata_id = md.id)::uuid[] AS person_ids,
        md.title                                                  AS original_title,
@@ -24,9 +24,9 @@ SELECT md.id,
        md.highlight,
        md.mediaitem_id,
        COALESCE(images.images, '{}'::json)            AS images,
-       COALESCE((SELECT nextMd.seconds - md.seconds FROM timedmetadata nextMd 
+       COALESCE((SELECT nextMd.seconds - md.seconds FROM timedmetadata nextMd
                  WHERE nextMd.mediaitem_id = md.mediaitem_id or nextMd.asset_id = md.asset_id
-                   AND nextMd.seconds > md.seconds 
+                   AND nextMd.seconds > md.seconds
                  ORDER BY nextMd.seconds LIMIT 1), 0)::float as duration
 FROM timedmetadata md
 LEFT JOIN (
@@ -56,7 +56,7 @@ INSERT INTO timedmetadata (
   description,
   episode_id,
   mediaitem_id,
-  chapter_type,
+  content_type,
   song_id
 )
 VALUES (
@@ -73,7 +73,7 @@ VALUES (
   @description::varchar,
   @episode_id,
   @mediaitem_id,
-  @chapter_type,
+  @content_type,
   @song_id
 )
 RETURNING id;
@@ -94,7 +94,7 @@ SELECT t.id,
        description,
        episode_id,
        mediaitem_id,
-       chapter_type,
+       content_type,
        song_id,
        (SELECT array_agg(p.persons_id) FROM "timedmetadata_persons" p WHERE p.timedmetadata_id = t.id)::uuid[]  AS person_ids
 FROM timedmetadata t

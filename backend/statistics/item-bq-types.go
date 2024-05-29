@@ -186,7 +186,7 @@ func TimedMetadataFromCommon(tm common.TimedMetadata, _ int) TimedMetadata {
 		Title:       nullStr(tm.Title.GetValueOrNil(statsLanguages)),
 		Description: nullStr(tm.Description.GetValueOrNil(statsLanguages)),
 		Timestamp:   tm.Timestamp,
-		ChapterType: nullStr(&tm.ChapterType.Value),
+		ChapterType: nullStr(&tm.ContentType.Value),
 		PersonIDs:   asJsonString(tm.PersonIDs),
 		SongID:      tm.SongID,
 	}

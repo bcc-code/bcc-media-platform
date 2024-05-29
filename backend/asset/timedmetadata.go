@@ -79,13 +79,13 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 
 // ingestOneTimedMetadata creates one timed metadata with contributions, song, etc.
 func ingestOneTimedMetadata(ctx context.Context, queries *sqlc.Queries, inputTm TimedMetadata, assetIDs []int32, imageIDs map[string]string) error {
-	t := common.ChapterTypes.Parse(inputTm.ChapterType)
+	t := common.ContentTypes.Parse(inputTm.ContentType)
 	if t == nil {
-		log.L.Warn().Msg("Skipping. Unknown chapter type: " + inputTm.ChapterType)
+		log.L.Warn().Msg("Skipping. Unknown chapter type: " + inputTm.ContentType)
 		return nil
 	}
 	realTm := sqlc.InsertTimedMetadataParams{
-		ChapterType: null.StringFrom(t.Value),
+		ContentType: null.StringFrom(t.Value),
 		Title:       inputTm.Title,
 		Highlight:   inputTm.Highlight,
 		Description: inputTm.Description,
@@ -153,11 +153,11 @@ func ingestOneTimedMetadata(ctx context.Context, queries *sqlc.Queries, inputTm 
 }
 
 // MapContributionTypeFromChapterType guesses the contribution type based on the chapter type
-func MapContributionTypeFromChapterType(t common.ChapterType) common.ContributionType {
+func MapContributionTypeFromChapterType(t common.ContentType) common.ContributionType {
 	switch t {
-	case common.ChapterTypeInterview, common.ChapterTypeSpeech, common.ChapterTypeTestimony, common.ChapterTypeTheme:
+	case common.ContentTypeInterview, common.ContentTypeSpeech, common.ContentTypeTestimony, common.ContentTypeTheme:
 		return common.ContributionTypeSpeaker
-	case common.ChapterTypeSingAlong, common.ChapterTypeSong:
+	case common.ContentTypeSingAlong, common.ContentTypeSong:
 		return common.ContributionTypeSinger
 	}
 
