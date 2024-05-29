@@ -321,6 +321,4 @@ GRANT SELECT ON TABLE "public"."filter_dataset" TO api; --WARN: Grant\Revoke pri
 
 COMMENT ON MATERIALIZED VIEW "public"."filter_dataset" IS NULL;
 
-DROP ROLE refresh_materialized_views;
-
 --- END ALTER MATERIALIZED VIEW "public"."filter_dataset" ---

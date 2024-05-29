@@ -4,12 +4,14 @@ package main
 // on the pubsub emulator, and then send some message.
 // Cleanup is done at the end so the program can be re-run w/o errors
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -174,6 +176,59 @@ func directusHook(projectID string, topicID string, event string, collection str
 	fmt.Printf("Sent: %v\n", err)
 }
 
+func directusFromFile(projectID string, topicID string) {
+	ctx := context.Background()
+	client, err := pubsub.NewClient(ctx, projectID)
+	if err != nil {
+		fmt.Printf("pubsub.NewClient: %v", err)
+	}
+	defer client.Close()
+	topic := client.Topic(topicID)
+
+	// CSV Format:
+	// collection,id
+
+	// Read file
+	file, err := os.Open("directus.csv")
+	if err != nil {
+		fmt.Printf("Error opening file: %v", err)
+		return
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		parts := strings.Split(line, ",")
+		if len(parts) != 2 {
+			fmt.Printf("Invalid line: %v", line)
+			continue
+		}
+		collection := parts[0]
+		id := parts[1]
+
+		e := cloudevents.NewEvent()
+		e.SetID(uuid.New().String())
+		e.SetSource("pubsub-helper")
+		e.SetType(events.TypeDirectusEvent)
+		e.SetData(cloudevents.ApplicationJSON, events.Event{
+			Event:      "item.update",
+			Collection: collection,
+			ID:         id,
+		})
+
+		data, err := json.Marshal(e)
+		spew.Dump(string(data))
+		msg := topic.Publish(ctx, &pubsub.Message{
+			Data: data,
+		})
+
+		_, err = msg.Get(ctx)
+		fmt.Printf("Sent: %v\n", err)
+
+	}
+}
+
 func main() {
 	task := flag.String("task", "", "")
 	host := flag.String("host", "", "")
@@ -207,6 +262,10 @@ func main() {
 		directusHook(projectId, topicId, "items.update", "seasons", "1")
 	case "episode.update":
 		directusHook(projectId, topicId, "items.update", "episodes", "1")
+	case "episodes.all":
+		directusHook(projectId, topicId, "items.update", "episodes", "1")
+	case "directus.fromfile":
+		directusFromFile(projectId, topicId)
 	default:
 		create(projectId, topicId)
 

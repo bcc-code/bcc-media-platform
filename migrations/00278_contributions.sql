@@ -7,8 +7,8 @@
 --- BEGIN CREATE SEQUENCE "public"."mediaitems_contributions_id_seq" ---
 
 
-CREATE SEQUENCE IF NOT EXISTS "public"."mediaitems_contributions_id_seq" 
-	INCREMENT BY 1 
+CREATE SEQUENCE IF NOT EXISTS "public"."mediaitems_contributions_id_seq"
+	INCREMENT BY 1
 	MINVALUE 1
 	MAXVALUE 2147483647
 	START WITH 1
@@ -26,8 +26,8 @@ COMMENT ON SEQUENCE "public"."mediaitems_contributions_id_seq"  IS NULL;
 --- BEGIN CREATE SEQUENCE "public"."timedmetadata_styledimages_id_seq" ---
 
 
-CREATE SEQUENCE IF NOT EXISTS "public"."timedmetadata_styledimages_id_seq" 
-	INCREMENT BY 1 
+CREATE SEQUENCE IF NOT EXISTS "public"."timedmetadata_styledimages_id_seq"
+	INCREMENT BY 1
 	MINVALUE 1
 	MAXVALUE 2147483647
 	START WITH 1
@@ -45,8 +45,8 @@ COMMENT ON SEQUENCE "public"."timedmetadata_styledimages_id_seq"  IS NULL;
 --- BEGIN CREATE SEQUENCE "public"."timedmetadata_contributions_id_seq" ---
 
 
-CREATE SEQUENCE IF NOT EXISTS "public"."timedmetadata_contributions_id_seq" 
-	INCREMENT BY 1 
+CREATE SEQUENCE IF NOT EXISTS "public"."timedmetadata_contributions_id_seq"
+	INCREMENT BY 1
 	MINVALUE 1
 	MAXVALUE 2147483647
 	START WITH 1
@@ -64,8 +64,8 @@ COMMENT ON SEQUENCE "public"."timedmetadata_contributions_id_seq"  IS NULL;
 --- BEGIN CREATE SEQUENCE "public"."contributions_id_seq" ---
 
 
-CREATE SEQUENCE IF NOT EXISTS "public"."contributions_id_seq" 
-	INCREMENT BY 1 
+CREATE SEQUENCE IF NOT EXISTS "public"."contributions_id_seq"
+	INCREMENT BY 1
 	MINVALUE 1
 	MAXVALUE 2147483647
 	START WITH 1
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS "public"."contributions" (
 	CONSTRAINT "contributions_person_foreign" FOREIGN KEY (person_id) REFERENCES persons(id) ,
 	CONSTRAINT "contributions_pkey" PRIMARY KEY (id) ,
 	CONSTRAINT "contributions_user_created_foreign" FOREIGN KEY (user_created) REFERENCES directus_users(id) ,
-	CONSTRAINT "contributions_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id) 
+	CONSTRAINT "contributions_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id)
 );
 
 GRANT SELECT ON TABLE "public"."contributions" TO directus, api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS "public"."timedmetadata_contributions" (
 	"contributions_id" int4 NULL  ,
 	CONSTRAINT "timedmetadata_contributions_pkey" PRIMARY KEY (id) ,
 	CONSTRAINT "timedmetadata_contributions_contributions_id_foreign" FOREIGN KEY (contributions_id) REFERENCES contributions(id) ON DELETE CASCADE ,
-	CONSTRAINT "timedmetadata_contributions_timedmetadata_id_foreign" FOREIGN KEY (timedmetadata_id) REFERENCES timedmetadata(id) ON DELETE CASCADE 
+	CONSTRAINT "timedmetadata_contributions_timedmetadata_id_foreign" FOREIGN KEY (timedmetadata_id) REFERENCES timedmetadata(id) ON DELETE CASCADE
 );
 
 GRANT SELECT ON TABLE "public"."timedmetadata_contributions" TO directus, api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -192,7 +192,7 @@ CREATE TABLE IF NOT EXISTS "public"."timedmetadata_styledimages" (
 	"styledimages_id" uuid NULL  ,
 	CONSTRAINT "timedmetadata_styledimages_pkey" PRIMARY KEY (id) ,
 	CONSTRAINT "timedmetadata_styledimages_styledimages_id_foreign" FOREIGN KEY (styledimages_id) REFERENCES styledimages(id) ON DELETE CASCADE ,
-	CONSTRAINT "timedmetadata_styledimages_timedmetadata_id_foreign" FOREIGN KEY (timedmetadata_id) REFERENCES timedmetadata(id) ON DELETE CASCADE 
+	CONSTRAINT "timedmetadata_styledimages_timedmetadata_id_foreign" FOREIGN KEY (timedmetadata_id) REFERENCES timedmetadata(id) ON DELETE CASCADE
 );
 
 GRANT SELECT ON TABLE "public"."timedmetadata_styledimages" TO directus, api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -228,7 +228,7 @@ CREATE TABLE IF NOT EXISTS "public"."mediaitems_contributions" (
 	"contributions_id" int4 NULL  ,
 	CONSTRAINT "mediaitems_contributions_pkey" PRIMARY KEY (id) ,
 	CONSTRAINT "mediaitems_contributions_contributions_id_foreign" FOREIGN KEY (contributions_id) REFERENCES contributions(id) ON DELETE SET NULL ,
-	CONSTRAINT "mediaitems_contributions_mediaitems_id_foreign" FOREIGN KEY (mediaitems_id) REFERENCES mediaitems(id) ON DELETE SET NULL 
+	CONSTRAINT "mediaitems_contributions_mediaitems_id_foreign" FOREIGN KEY (mediaitems_id) REFERENCES mediaitems(id) ON DELETE SET NULL
 );
 
 GRANT SELECT ON TABLE "public"."mediaitems_contributions" TO directus, api; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -407,26 +407,6 @@ ALTER TABLE IF EXISTS "public"."mediaitems" DROP CONSTRAINT IF EXISTS "mediaitem
 
 --- BEGIN DROP TABLE "public"."contributions" ---
 
-DROP TABLE IF EXISTS "public"."contributions";
-
---- END DROP TABLE "public"."contributions" ---
-
---- BEGIN DROP TABLE "public"."timedmetadata_contributions" ---
-
-DROP TABLE IF EXISTS "public"."timedmetadata_contributions";
-
---- END DROP TABLE "public"."timedmetadata_contributions" ---
-
---- BEGIN DROP TABLE "public"."timedmetadata_styledimages" ---
-
-DROP TABLE IF EXISTS "public"."timedmetadata_styledimages";
-
---- END DROP TABLE "public"."timedmetadata_styledimages" ---
-
---- BEGIN DROP TABLE "public"."mediaitems_contributions" ---
-
-DROP TABLE IF EXISTS "public"."mediaitems_contributions";
-
 --- END DROP TABLE "public"."mediaitems_contributions" ---
 
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_collections" RECORDS ---
@@ -564,3 +544,24 @@ DELETE FROM "public"."directus_relations" WHERE "id" = 456;
 DELETE FROM "public"."directus_relations" WHERE "id" = 466;
 
 --- END SYNCHRONIZE TABLE "public"."directus_relations" RECORDS ---
+
+--- BEGIN DROP TABLE "public"."timedmetadata_contributions" ---
+
+DROP TABLE IF EXISTS "public"."timedmetadata_contributions";
+
+--- END DROP TABLE "public"."timedmetadata_contributions" ---
+
+--- BEGIN DROP TABLE "public"."timedmetadata_styledimages" ---
+
+DROP TABLE IF EXISTS "public"."timedmetadata_styledimages";
+
+--- END DROP TABLE "public"."timedmetadata_styledimages" ---
+
+--- BEGIN DROP TABLE "public"."mediaitems_contributions" ---
+
+DROP TABLE IF EXISTS "public"."mediaitems_contributions";
+
+DROP TABLE IF EXISTS "public"."contributions";
+
+--- END DROP TABLE "public"."contributions" ---
+
