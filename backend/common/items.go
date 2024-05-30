@@ -218,6 +218,7 @@ var (
 	ContentTypeOther     = ContentType{Value: "other"}
 	ContentTypeTheme     = ContentType{Value: "theme"}
 	ContentTypeInterview = ContentType{Value: "interview"}
+	ContentTypeUnknown   = ContentType{Value: "unknown"}
 	ContentTypes         = enum.New(
 		ContentTypeSong,
 		ContentTypeSpeech,
@@ -226,6 +227,7 @@ var (
 		ContentTypeOther,
 		ContentTypeTheme,
 		ContentTypeInterview,
+		ContentTypeUnknown,
 	)
 )
 

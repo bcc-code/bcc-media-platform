@@ -26,6 +26,7 @@ WITH RelevantContributions AS (
     OR (NOT m.timedmetadata_from_asset AND tm.mediaitem_id = m.id)
   INNER JOIN contributions c ON c.timedmetadata_id = tm.id
   and c.person_id = ANY (@person_ids::uuid[])
+  WHERE tm.status = 'published'
 )
 SELECT
   rc.type,

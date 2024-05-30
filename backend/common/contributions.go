@@ -6,10 +6,11 @@ import (
 )
 
 type Contribution struct {
-	ItemID   string    `json:"itemId"`
-	ItemType string    `json:"itemType"`
-	Type     string    `json:"type"`
-	PersonID uuid.UUID `json:"personId"`
+	ItemID      string      `json:"itemId"`
+	ItemType    string      `json:"itemType"`
+	Type        string      `json:"type"`
+	PersonID    uuid.UUID   `json:"personId"`
+	ContentType ContentType `json:"contentType"`
 }
 type ContributionType enum.Member[string]
 
