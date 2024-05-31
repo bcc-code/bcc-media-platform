@@ -78,7 +78,8 @@ WITH RelevantContributions AS (
     c.type,
     c.person_id,
     'episode' as item_type,
-    m.id as mediaitem_id
+    m.id as mediaitem_id,
+    m.content_type
   FROM
     public.mediaitems m
   INNER JOIN contributions c ON c.mediaitem_id = m.id
@@ -91,7 +92,8 @@ WITH RelevantContributions AS (
     c.type,
     c.person_id,
     'chapter' as item_type,
-    m.id as mediaitem_id
+    m.id as mediaitem_id,
+    COALESCE(tm.content_type, m.content_type)
   FROM timedmetadata tm
   INNER JOIN mediaitems m ON
     (m.timedmetadata_from_asset AND tm.asset_id = m.asset_id)
@@ -104,7 +106,8 @@ SELECT
   rc.type,
   rc.person_id,
   rc.item_type,
-  rc.item_id
+  rc.item_id,
+  COALESCE(rc.content_type, 'unknown')
 FROM
   RelevantContributions rc
   JOIN public.mediaitems m ON rc.mediaitem_id = m.id
@@ -130,10 +133,11 @@ type getContributionIDsForPersonsWithRolesParams struct {
 }
 
 type getContributionIDsForPersonsWithRolesRow struct {
-	Type     string    `db:"type" json:"type"`
-	PersonID uuid.UUID `db:"person_id" json:"personId"`
-	ItemType string    `db:"item_type" json:"itemType"`
-	ItemID   string    `db:"item_id" json:"itemId"`
+	Type        string    `db:"type" json:"type"`
+	PersonID    uuid.UUID `db:"person_id" json:"personId"`
+	ItemType    string    `db:"item_type" json:"itemType"`
+	ItemID      string    `db:"item_id" json:"itemId"`
+	ContentType string    `db:"content_type" json:"contentType"`
 }
 
 func (q *Queries) getContributionIDsForPersonsWithRoles(ctx context.Context, arg getContributionIDsForPersonsWithRolesParams) ([]getContributionIDsForPersonsWithRolesRow, error) {
@@ -150,6 +154,7 @@ func (q *Queries) getContributionIDsForPersonsWithRoles(ctx context.Context, arg
 			&i.PersonID,
 			&i.ItemType,
 			&i.ItemID,
+			&i.ContentType,
 		); err != nil {
 			return nil, err
 		}

@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/migrations/00001_init.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/migrations/00011_applications.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/migrations/special/post/01-admin-user.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/queries/contributions.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/queries/timedmetadata.sql" dialect="PostgreSQL" />
     <file url="PROJECT" dialect="PostgreSQL" />
   </component>
   <component name="SqlResolveMappings">

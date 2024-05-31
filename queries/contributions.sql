@@ -6,7 +6,8 @@ WITH RelevantContributions AS (
     c.type,
     c.person_id,
     'episode' as item_type,
-    m.id as mediaitem_id
+    m.id as mediaitem_id,
+    m.content_type
   FROM
     public.mediaitems m
   INNER JOIN contributions c ON c.mediaitem_id = m.id
@@ -19,7 +20,8 @@ WITH RelevantContributions AS (
     c.type,
     c.person_id,
     'chapter' as item_type,
-    m.id as mediaitem_id
+    m.id as mediaitem_id,
+    COALESCE(tm.content_type, m.content_type)
   FROM timedmetadata tm
   INNER JOIN mediaitems m ON
     (m.timedmetadata_from_asset AND tm.asset_id = m.asset_id)
@@ -32,7 +34,8 @@ SELECT
   rc.type,
   rc.person_id,
   rc.item_type,
-  rc.item_id
+  rc.item_id,
+  COALESCE(rc.content_type, 'unknown')
 FROM
   RelevantContributions rc
   JOIN public.mediaitems m ON rc.mediaitem_id = m.id

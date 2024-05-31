@@ -18,6 +18,21 @@ import (
 )
 
 // Title is the resolver for the title field.
+func (r *contentTypeResolver) Title(ctx context.Context, obj *model.ContentType) (string, error) {
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+	phrase, _ := r.Loaders.PhraseLoader.Get(ctx, obj.Code)
+
+	if phrase == nil {
+		return obj.Code, nil
+	}
+
+	val := phrase.Value.Get(languages)
+
+	return val, nil
+}
+
+// Title is the resolver for the title field.
 func (r *contributionTypeResolver) Title(ctx context.Context, obj *model.ContributionType) (string, error) {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
@@ -64,8 +79,31 @@ func (r *personResolver) ContributionTypes(ctx context.Context, obj *model.Perso
 	return mapped, err
 }
 
+// ContributionContentTypes is the resolver for the contributionContentTypes field.
+func (r *personResolver) ContributionContentTypes(ctx context.Context, obj *model.Person) ([]*model.ContentTypeCount, error) {
+	items, err := r.FilteredLoaders(ctx).ContributionsForPersonLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+
+	countsByType := make(map[string]int)
+	for _, c := range items {
+		countsByType[c.ContentType]++
+	}
+
+	var mapped []*model.ContentTypeCount
+	for k, v := range countsByType {
+		mapped = append(mapped, &model.ContentTypeCount{
+			Type:  &model.ContentType{Code: k},
+			Count: v,
+		})
+	}
+
+	return mapped, err
+}
+
 // Contributions is the resolver for the contributions field.
-func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, first *int, offset *int, types []string, shuffle *bool) (*model.ContributionsPagination, error) {
+func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, first *int, offset *int, types []string, contentTypes []string, shuffle *bool) (*model.ContributionsPagination, error) {
 	items, err := r.FilteredLoaders(ctx).ContributionsForPersonLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
@@ -73,12 +111,13 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 
 	if len(types) > 0 {
 		items = lo.Filter(items, func(c *common.Contribution, _ int) bool {
-			for _, t := range types {
-				if c.Type == t {
-					return true
-				}
-			}
-			return false
+			return lo.Contains(types, c.Type)
+		})
+	}
+
+	if len(contentTypes) > 0 {
+		items = lo.Filter(items, func(c *common.Contribution, _ int) bool {
+			return lo.Contains(contentTypes, c.ContentType)
 		})
 	}
 
@@ -87,9 +126,6 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 	}
 
 	page := utils.Paginate(items, first, offset, nil)
-	if err != nil {
-		return nil, err
-	}
 
 	var result []*model.Contribution
 	var wg sync.WaitGroup
@@ -126,6 +162,9 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 	}, nil
 }
 
+// ContentType returns generated.ContentTypeResolver implementation.
+func (r *Resolver) ContentType() generated.ContentTypeResolver { return &contentTypeResolver{r} }
+
 // ContributionType returns generated.ContributionTypeResolver implementation.
 func (r *Resolver) ContributionType() generated.ContributionTypeResolver {
 	return &contributionTypeResolver{r}
@@ -134,5 +173,6 @@ func (r *Resolver) ContributionType() generated.ContributionTypeResolver {
 // Person returns generated.PersonResolver implementation.
 func (r *Resolver) Person() generated.PersonResolver { return &personResolver{r} }
 
+type contentTypeResolver struct{ *Resolver }
 type contributionTypeResolver struct{ *Resolver }
 type personResolver struct{ *Resolver }

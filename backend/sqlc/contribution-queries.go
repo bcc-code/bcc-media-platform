@@ -18,10 +18,11 @@ func (q *RoleQueries) GetContributionsForPersonsWithRoles(ctx context.Context, i
 	}
 	return lo.Map(rows, func(i getContributionIDsForPersonsWithRolesRow, _ int) common.Contribution {
 		return common.Contribution{
-			PersonID: i.PersonID,
-			Type:     i.Type,
-			ItemID:   i.ItemID,
-			ItemType: i.ItemType,
+			PersonID:    i.PersonID,
+			Type:        i.Type,
+			ItemID:      i.ItemID,
+			ItemType:    i.ItemType,
+			ContentType: i.ContentType,
 		}
 	}), nil
 }
