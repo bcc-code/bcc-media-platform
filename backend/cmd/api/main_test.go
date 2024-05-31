@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
-	"github.com/zeebo/assert"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"os"

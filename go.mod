@@ -54,7 +54,6 @@ require (
 	github.com/uptrace/uptrace-go v1.20.0
 	github.com/vektah/gqlparser/v2 v2.5.10
 	github.com/vmihailenco/msgpack/v5 v5.4.0
-	github.com/zeebo/assert v1.3.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.45.0
 	go.opentelemetry.io/otel v1.26.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.19.0
