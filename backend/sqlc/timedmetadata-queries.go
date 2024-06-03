@@ -31,14 +31,14 @@ func (q *Queries) GetTimedMetadata(ctx context.Context, ids []uuid.UUID) ([]comm
 	return lo.Map(rows, func(i getTimedMetadataRow, _ int) common.TimedMetadata {
 		title := toLocaleString(i.Title, i.OriginalTitle.String)
 		description := toLocaleString(i.Description, i.OriginalDescription.String)
-		chapterType := common.ChapterTypes.Parse(i.ChapterType.String)
-		if chapterType == nil {
-			chapterType = &common.ChapterTypeSpeech
+		contentType := common.ContentTypes.Parse(i.ContentType.String)
+		if contentType == nil {
+			contentType = &common.ContentTypeSpeech
 		}
 		return common.TimedMetadata{
 			ID:          i.ID,
 			Type:        i.Type,
-			ChapterType: *chapterType,
+			ContentType: *contentType,
 			PersonIDs:   i.PersonIds,
 			SongID:      i.SongID,
 			Timestamp:   float64(i.Seconds),

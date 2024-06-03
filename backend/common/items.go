@@ -206,26 +206,28 @@ type Stream struct {
 	ConfigurationId   null.String `json:"configurationId"`
 }
 
-// ChapterType is a chapter type
-type ChapterType enum.Member[string]
+// ContentType is a chapter type
+type ContentType enum.Member[string]
 
 // Chapter types
 var (
-	ChapterTypeSong      = ChapterType{Value: "song"}
-	ChapterTypeSpeech    = ChapterType{Value: "speech"}
-	ChapterTypeTestimony = ChapterType{Value: "testimony"}
-	ChapterTypeSingAlong = ChapterType{Value: "sing_along"}
-	ChapterTypeOther     = ChapterType{Value: "other"}
-	ChapterTypeTheme     = ChapterType{Value: "theme"}
-	ChapterTypeInterview = ChapterType{Value: "interview"}
-	ChapterTypes         = enum.New(
-		ChapterTypeSong,
-		ChapterTypeSpeech,
-		ChapterTypeTestimony,
-		ChapterTypeSingAlong,
-		ChapterTypeOther,
-		ChapterTypeTheme,
-		ChapterTypeInterview,
+	ContentTypeSong      = ContentType{Value: "song"}
+	ContentTypeSpeech    = ContentType{Value: "speech"}
+	ContentTypeTestimony = ContentType{Value: "testimony"}
+	ContentTypeSingAlong = ContentType{Value: "sing_along"}
+	ContentTypeOther     = ContentType{Value: "other"}
+	ContentTypeTheme     = ContentType{Value: "theme"}
+	ContentTypeInterview = ContentType{Value: "interview"}
+	ContentTypeUnknown   = ContentType{Value: "unknown"}
+	ContentTypes         = enum.New(
+		ContentTypeSong,
+		ContentTypeSpeech,
+		ContentTypeTestimony,
+		ContentTypeSingAlong,
+		ContentTypeOther,
+		ContentTypeTheme,
+		ContentTypeInterview,
+		ContentTypeUnknown,
 	)
 )
 
@@ -237,7 +239,7 @@ type TimedMetadata struct {
 	Duration    float64
 	Title       LocaleString `json:"title"`
 	Description LocaleString `json:"description"`
-	ChapterType ChapterType
+	ContentType ContentType
 	PersonIDs   []uuid.UUID
 	SongID      uuid.NullUUID
 	MediaItemID uuid.NullUUID

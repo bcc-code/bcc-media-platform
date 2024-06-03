@@ -233,8 +233,8 @@ func main() {
 	task := flag.String("task", "", "")
 	host := flag.String("host", "", "")
 	flag.Parse()
-	projectId := "btv-local"
-	topicId := "background-jobs"
+	projectId := "btv-platform-prod-2"
+	topicId := "background_worker"
 
 	if host != nil && *host != "" {
 		log.Default().Println("Setting host")

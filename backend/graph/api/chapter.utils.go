@@ -15,14 +15,14 @@ func resolveChapter(ctx context.Context, tm *common.TimedMetadata, loaders *comm
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 	title := tm.Title.Get(languages)
-	phrase, _ := loaders.PhraseLoader.Get(ctx, tm.ChapterType.Value)
+	phrase, _ := loaders.PhraseLoader.Get(ctx, tm.ContentType.Value)
 	emptyTitle := title == ""
 	if emptyTitle && phrase != nil {
 		title = phrase.Value.Get(languages)
 	}
 
-	switch tm.ChapterType {
-	case common.ChapterTypeSong, common.ChapterTypeSingAlong:
+	switch tm.ContentType {
+	case common.ContentTypeSong, common.ContentTypeSingAlong:
 		if !tm.SongID.Valid {
 			break
 		}
@@ -39,7 +39,7 @@ func resolveChapter(ctx context.Context, tm *common.TimedMetadata, loaders *comm
 		} else {
 			title = strings.Replace(title, "{{song.title}}", song.Title.Get(languages), -1)
 		}
-	case common.ChapterTypeSpeech, common.ChapterTypeInterview, common.ChapterTypeTestimony:
+	case common.ContentTypeSpeech, common.ContentTypeInterview, common.ContentTypeTestimony:
 		if len(tm.PersonIDs) != 1 {
 			break
 		}

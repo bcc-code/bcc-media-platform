@@ -336,6 +336,16 @@ type ConfirmAchievementResult struct {
 	Success bool `json:"success"`
 }
 
+type ContentType struct {
+	Code  string `json:"code"`
+	Title string `json:"title"`
+}
+
+type ContentTypeCount struct {
+	Type  *ContentType `json:"type"`
+	Count int          `json:"count"`
+}
+
 type ContextCollection struct {
 	ID    string                 `json:"id"`
 	Slug  *string                `json:"slug,omitempty"`
@@ -345,8 +355,9 @@ type ContextCollection struct {
 func (ContextCollection) IsEpisodeContextUnion() {}
 
 type Contribution struct {
-	Type *ContributionType `json:"type"`
-	Item ContributionItem  `json:"item"`
+	Type        *ContributionType `json:"type"`
+	ContentType *ContentType      `json:"contentType"`
+	Item        ContributionItem  `json:"item"`
 }
 
 type ContributionType struct {
@@ -900,11 +911,12 @@ func (this PageDetailsSection) GetTitle() *string       { return this.Title }
 func (this PageDetailsSection) GetDescription() *string { return this.Description }
 
 type Person struct {
-	ID                string                   `json:"id"`
-	Name              string                   `json:"name"`
-	Image             *string                  `json:"image,omitempty"`
-	ContributionTypes []*ContributionTypeCount `json:"contributionTypes"`
-	Contributions     *ContributionsPagination `json:"contributions"`
+	ID                       string                   `json:"id"`
+	Name                     string                   `json:"name"`
+	Image                    *string                  `json:"image,omitempty"`
+	ContributionTypes        []*ContributionTypeCount `json:"contributionTypes"`
+	ContributionContentTypes []*ContentTypeCount      `json:"contributionContentTypes"`
+	Contributions            *ContributionsPagination `json:"contributions"`
 }
 
 func (Person) IsSectionItemType() {}

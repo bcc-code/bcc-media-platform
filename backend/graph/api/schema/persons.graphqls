@@ -8,6 +8,16 @@ type ContributionTypeCount {
     count: Int!
 }
 
+type ContentType {
+    code: String!
+    title: String! @goField(forceResolver: true)
+}
+
+type ContentTypeCount {
+    type: ContentType!
+    count: Int!
+}
+
 type ContributionsPagination implements Pagination {
     total: Int!
     first: Int!
@@ -22,10 +32,12 @@ type Person {
     name: String!
     image(style: ImageStyle): String @goField(forceResolver: true)
     contributionTypes: [ContributionTypeCount!]! @goField(forceResolver: true)
-    contributions(first: Int, offset: Int, types: [String!], shuffle: Boolean): ContributionsPagination! @goField(forceResolver: true)
+    contributionContentTypes: [ContentTypeCount!]! @goField(forceResolver: true)
+    contributions(first: Int, offset: Int, types: [String!], contentTypes: [String!], shuffle: Boolean): ContributionsPagination! @goField(forceResolver: true)
 }
 
 type Contribution {
     type: ContributionType!
+    contentType: ContentType!
     item: ContributionItem!
 }

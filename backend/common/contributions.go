@@ -10,6 +10,7 @@ type Contribution struct {
 	ItemType string    `json:"itemType"`
 	Type     string    `json:"type"`
 	PersonID uuid.UUID `json:"personId"`
+	ContentType string `json:"contentType"`
 }
 type ContributionType enum.Member[string]
 

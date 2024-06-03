@@ -2,7 +2,7 @@ package asset
 
 // TimedMetadata is the JSON structure for the timed metadata JSON file
 type TimedMetadata struct {
-	ChapterType    string   `json:"chapter_type"`
+	ContentType    string   `json:"content_type"`
 	Timestamp      float64  `json:"timestamp"`
 	Label          string   `json:"label"`
 	Title          string   `json:"title"`

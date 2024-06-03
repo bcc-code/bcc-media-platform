@@ -29,7 +29,8 @@ func resolveContribution(ctx context.Context, i *common.Contribution, loaders *c
 	}
 
 	return &model.Contribution{
-		Type: &model.ContributionType{Code: i.Type},
-		Item: item,
+		ContentType: &model.ContentType{Code: i.ContentType},
+		Type:        &model.ContributionType{Code: i.Type},
+		Item:        item,
 	}, nil
 }
