@@ -122,7 +122,7 @@ func ingestOneTimedMetadata(ctx context.Context, queries *sqlc.Queries, inputTm 
 		for _, p := range personIDs {
 			err = queries.InsertContribution(ctx, sqlc.InsertContributionParams{
 				PersonID:        p,
-				Type:            MapContributionTypeFromChapterType(*t).Value,
+				Type:            MapContributionTypeFromContentType(*t).Value,
 				TimedmetadataID: uuid.NullUUID{UUID: tmID, Valid: true},
 			})
 
@@ -152,8 +152,8 @@ func ingestOneTimedMetadata(ctx context.Context, queries *sqlc.Queries, inputTm 
 	return nil
 }
 
-// MapContributionTypeFromChapterType guesses the contribution type based on the chapter type
-func MapContributionTypeFromChapterType(t common.ContentType) common.ContributionType {
+// MapContributionTypeFromContentType guesses the contribution type based on the chapter type
+func MapContributionTypeFromContentType(t common.ContentType) common.ContributionType {
 	switch t {
 	case common.ContentTypeInterview, common.ContentTypeSpeech, common.ContentTypeTestimony, common.ContentTypeTheme:
 		return common.ContributionTypeSpeaker

@@ -174,7 +174,7 @@ type TimedMetadata struct {
 	Timestamp   float64             `json:"timestamp"`
 	Title       bigquery.NullString `json:"title"`
 	Description bigquery.NullString `json:"description"`
-	ChapterType bigquery.NullString `json:"chapterType"`
+	ContentType bigquery.NullString `json:"contentType"`
 	PersonIDs   string              `json:"personIds"`
 	SongID      uuid.NullUUID       `json:"songId"`
 }
@@ -186,7 +186,7 @@ func TimedMetadataFromCommon(tm common.TimedMetadata, _ int) TimedMetadata {
 		Title:       nullStr(tm.Title.GetValueOrNil(statsLanguages)),
 		Description: nullStr(tm.Description.GetValueOrNil(statsLanguages)),
 		Timestamp:   tm.Timestamp,
-		ChapterType: nullStr(&tm.ContentType.Value),
+		ContentType: nullStr(&tm.ContentType.Value),
 		PersonIDs:   asJsonString(tm.PersonIDs),
 		SongID:      tm.SongID,
 	}

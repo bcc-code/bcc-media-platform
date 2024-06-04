@@ -186,8 +186,8 @@ func TestIngestTimedMetadata(t *testing.T) {
 				if len(contributions) != 1 {
 					t.Errorf("expected 1 contribution for person %s on timedmetadata %s, got %d", personID, imported.ID, len(contributions))
 				}
-				inputChapterType := *common.ChapterTypes.Parse(input.ChapterType)
-				expectedCntributionType := asset.MapContributionTypeFromChapterType(inputChapterType)
+				inputContentType := *common.ContentTypes.Parse(input.ContentType)
+				expectedCntributionType := asset.MapContributionTypeFromContentType(inputContentType)
 				if contributions[0].Type != expectedCntributionType.Value {
 					t.Errorf("expected contribution type %s, got %s", expectedCntributionType, contributions[0].Type)
 				}
