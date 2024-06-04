@@ -59,7 +59,7 @@ func ValidateAccess[k comparable](
 	if !(availability.Published || availability.Unlisted) ||
 		availability.To.Before(time.Now()) ||
 		(conditions.FromDate && availability.From.After(time.Now())) {
-		return merry.Wrap(fmt.Errorf("item ID: %s, ERR: %w", id, ErrItemNotPublished))
+		return merry.Wrap(fmt.Errorf("item ID: %v, ERR: %w", id, ErrItemNotPublished))
 	}
 
 	if len(lo.Intersect(rs, roles.Access)) == 0 {
