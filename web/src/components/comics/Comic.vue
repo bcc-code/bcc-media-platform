@@ -16,7 +16,7 @@ const props = defineProps<{
 const comics = [
     {
         id: "15yearmentor-1",
-        title: "A mentor at 15 years old? - Part 1:1",
+        title: "A mentor at 15 years old? - Episode 1",
         images: [
             "https://imgix.bcc.media/27743d87-9107-4cda-88e0-beda3baff72f.png",
             "https://imgix.bcc.media/e2240dde-f0d7-446a-84f4-b747bd28c790.png",
@@ -25,13 +25,21 @@ const comics = [
     },
     {
         id: "15yearmentor-2",
-        title: "A mentor at 15 years old? - Part 1:2",
+        title: "A mentor at 15 years old? - Episode 2",
         images: [
             "https://imgix.bcc.media/bd468d45-b0c1-4379-b23f-1b605761ae37.png",
             "https://imgix.bcc.media/8dd8ecce-2016-408f-92c5-caa71ef79278.png",
             "https://imgix.bcc.media/d91c1fed-b2e4-4a8b-8548-aa0abd6bafdf.png",
         ],
     },
+    {
+        id: "15yearmentor-3",
+        title: "A mentor at 15 years old? - Episode 3",
+        images: [
+            "https://imgix.bcc.media/18268a0d-9fa1-448f-a073-d9f77990f96c.png",
+            "https://imgix.bcc.media/16949bac-a7c6-489b-8947-13f1b513dcef.png",
+        ],
+    }
 ]
 
 const comic = ref(
