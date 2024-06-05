@@ -36,6 +36,7 @@ func (f FeatureFlags) List() []string {
 	var flags []string
 	for _, flag := range f {
 		r := flag.Key
+		flags = append(flags, r)
 		if flag.Variant != "" {
 			r += ":" + flag.Variant
 		}
