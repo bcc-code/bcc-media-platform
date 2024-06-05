@@ -39,7 +39,7 @@ const comics = [
             "https://imgix.bcc.media/18268a0d-9fa1-448f-a073-d9f77990f96c.png",
             "https://imgix.bcc.media/16949bac-a7c6-489b-8947-13f1b513dcef.png",
         ],
-    }
+    },
 ]
 
 const comic = ref(
