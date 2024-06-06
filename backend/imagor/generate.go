@@ -10,21 +10,18 @@ import (
 )
 
 type ImagorService struct {
-	resty      *resty.Client
-	baseUrl    string
-	signingKey string
+	resty   *resty.Client
+	baseUrl string
+	secret  string
 }
 
 // NewImagorService creates a new ImagorService
-//
-// baseUrl: the base URL of the Imagor service
-// signingKey: the key used to sign URLs
-func NewImagorService(baseUrl, signingKey string) *ImagorService {
+func NewImagorService(baseUrl, secret string) *ImagorService {
 	restyClient := resty.New().SetBaseURL(baseUrl).SetRetryCount(2)
 	return &ImagorService{
-		baseUrl:    baseUrl,
-		signingKey: signingKey,
-		resty:      restyClient,
+		baseUrl: baseUrl,
+		secret:  secret,
+		resty:   restyClient,
 	}
 }
 
@@ -65,10 +62,10 @@ func (i *ImagorService) GenerateImageForUrl(params GenerateImageForUrlParams) (i
 
 func (i *ImagorService) executeWithParams(params imagorpath.Params) (*resty.Response, error) {
 	var path string
-	if i.signingKey == "" {
+	if i.secret == "" {
 		path = imagorpath.GenerateUnsafe(params)
 	} else {
-		path = imagorpath.Generate(params, imagorpath.NewDefaultSigner(i.signingKey))
+		path = imagorpath.Generate(params, imagorpath.NewDefaultSigner(i.secret))
 	}
 
 	resp, err := i.resty.R().SetDoNotParseResponse(true).Get(path)

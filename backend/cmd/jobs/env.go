@@ -33,8 +33,8 @@ type cloudTasks struct {
 }
 
 type imagorConfig struct {
-	baseURL    string
-	signingKey string
+	baseURL string
+	secret  string
 }
 
 type envConfig struct {
@@ -130,8 +130,8 @@ func getEnvConfig() envConfig {
 			DatasetID: os.Getenv("BIGQUERY_DATASET"),
 		},
 		Imagor: imagorConfig{
-			baseURL:    os.Getenv("IMAGOR_VIDEO_BASE_URL"),
-			signingKey: os.Getenv("IMAGOR_SIGNING_KEY"),
+			baseURL: os.Getenv("IMAGOR_VIDEO_BASE_URL"),
+			secret:  os.Getenv("IMAGOR_SECRET"),
 		},
 	}
 }

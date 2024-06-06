@@ -136,7 +136,7 @@ func main() {
 		return
 	}
 
-	imagorService := imagor.NewImagorService(config.Imagor.baseURL, config.Imagor.signingKey)
+	imagorService := imagor.NewImagorService(config.Imagor.baseURL, config.Imagor.secret)
 
 	services := server.ExternalServices{
 		Database:          db,
