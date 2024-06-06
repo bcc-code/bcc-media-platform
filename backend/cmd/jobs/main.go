@@ -13,6 +13,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
 	"github.com/bcc-code/bcc-media-platform/backend/events"
 	"github.com/bcc-code/bcc-media-platform/backend/files"
+	"github.com/bcc-code/bcc-media-platform/backend/imagor"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/bcc-code/bcc-media-platform/backend/notifications"
 	"github.com/bcc-code/bcc-media-platform/backend/push"
@@ -135,6 +136,8 @@ func main() {
 		return
 	}
 
+	imagorService := imagor.NewImagorService(config.Imagor.baseURL, config.Imagor.secret)
+
 	services := server.ExternalServices{
 		Database:          db,
 		S3Client:          s3Client,
@@ -147,6 +150,7 @@ func main() {
 		Scheduler:         sr,
 		StatisticsHandler: statisticsHandler,
 		FileService:       fileService,
+		ImagorService:     imagorService,
 	}
 
 	handlers := server.NewServer(services, serverConfig)

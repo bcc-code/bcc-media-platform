@@ -32,6 +32,11 @@ type cloudTasks struct {
 	QueueID string
 }
 
+type imagorConfig struct {
+	baseURL string
+	secret  string
+}
+
 type envConfig struct {
 	AWS               awsConfig
 	AzureStorage      files.AzureConfig
@@ -49,6 +54,7 @@ type envConfig struct {
 	Auth0             auth0.Config
 	Members           members.Config
 	BigQuery          statistics.BigQueryConfig
+	Imagor            imagorConfig
 }
 
 func getEnvConfig() envConfig {
@@ -122,6 +128,10 @@ func getEnvConfig() envConfig {
 		BigQuery: statistics.BigQueryConfig{
 			ProjectID: os.Getenv("BIGQUERY_PROJECT"), // Export disabed if empty
 			DatasetID: os.Getenv("BIGQUERY_DATASET"),
+		},
+		Imagor: imagorConfig{
+			baseURL: os.Getenv("IMAGOR_VIDEO_BASE_URL"),
+			secret:  os.Getenv("IMAGOR_SECRET"),
 		},
 	}
 }

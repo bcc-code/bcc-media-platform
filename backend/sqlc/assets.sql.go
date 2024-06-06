@@ -33,6 +33,7 @@ const assetIDsByMediabankenID = `-- name: AssetIDsByMediabankenID :many
 SELECT id
 FROM assets
 WHERE mediabanken_id = $1::varchar
+ORDER BY date_created DESC
 `
 
 func (q *Queries) AssetIDsByMediabankenID(ctx context.Context, mediabankenID string) ([]int32, error) {
@@ -67,6 +68,20 @@ WHERE main_storage_path = $1
 func (q *Queries) DeletePath(ctx context.Context, path null_v4.String) error {
 	_, err := q.db.ExecContext(ctx, deletePath, path)
 	return err
+}
+
+const getAssetStoragePath = `-- name: GetAssetStoragePath :one
+SELECT main_storage_path
+FROM assets
+WHERE id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetAssetStoragePath(ctx context.Context, id int32) (null_v4.String, error) {
+	row := q.db.QueryRowContext(ctx, getAssetStoragePath, id)
+	var main_storage_path null_v4.String
+	err := row.Scan(&main_storage_path)
+	return main_storage_path, err
 }
 
 const insertAsset = `-- name: InsertAsset :one

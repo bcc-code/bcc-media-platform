@@ -6,7 +6,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
-	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -38,7 +37,7 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	}
 
 	if len(assetIDs) == 0 {
-		return merry.New("asset not found", merry.WithUserMessage("asset not found for VXID: "+params.VXID))
+		return merry.New("no assets found", merry.WithUserMessage("no assets found for VXID: "+params.VXID))
 	}
 
 	for _, assetID := range assetIDs {
@@ -48,22 +47,20 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 		}
 	}
 
+	newestAssetID := assetIDs[0]
+
 	var timedMetadatas []TimedMetadata
 	err = readJSONFromS3(ctx, s3client, config.GetIngestBucket(), params.JSONPath, &timedMetadatas)
 	if err != nil {
 		return merry.Wrap(err)
 	}
-	imagePaths := lo.FilterMap(timedMetadatas, func(t TimedMetadata, _ int) (string, bool) {
-		return t.ImageFilename, t.ImageFilename != ""
-	})
-
-	imageIDs, err := ingestImagesFromS3(ctx, imagePaths, services, config)
-	if err != nil {
-		return merry.Wrap(err)
-	}
 
 	for _, inputTm := range timedMetadatas {
-		err = ingestOneTimedMetadata(ctx, qtx, inputTm, assetIDs, imageIDs)
+		imageFileID, err := generateImageForAssetAtTime(ctx, services, config, newestAssetID, inputTm.Timestamp)
+		if err != nil {
+			return merry.Wrap(err)
+		}
+		err = ingestOneTimedMetadata(ctx, qtx, inputTm, assetIDs, imageFileID)
 		if err != nil {
 			return merry.Wrap(err)
 		}
@@ -78,7 +75,7 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 }
 
 // ingestOneTimedMetadata creates one timed metadata with contributions, song, etc.
-func ingestOneTimedMetadata(ctx context.Context, queries *sqlc.Queries, inputTm TimedMetadata, assetIDs []int32, imageIDs map[string]string) error {
+func ingestOneTimedMetadata(ctx context.Context, queries *sqlc.Queries, inputTm TimedMetadata, assetIDs []int32, imageID *string) error {
 	t := common.ContentTypes.Parse(inputTm.ContentType)
 	if t == nil {
 		log.L.Warn().Msg("Skipping. Unknown chapter type: " + inputTm.ContentType)
@@ -130,11 +127,11 @@ func ingestOneTimedMetadata(ctx context.Context, queries *sqlc.Queries, inputTm 
 				return merry.Wrap(err)
 			}
 		}
-		if imageId, exists := imageIDs[inputTm.ImageFilename]; exists {
+		if imageID != nil {
 			styledId, err := queries.InsertStyledImage(ctx, sqlc.InsertStyledImageParams{
 				Language: (*utils.FallbackLanguages())[0],
 				Style:    common.ImageStyleDefault,
-				File:     uuid.MustParse(imageId),
+				File:     uuid.MustParse(*imageID),
 			})
 			if err != nil {
 				return merry.Wrap(err)
