@@ -38,6 +38,60 @@ const comics = [
         images: [
             "https://imgix.bcc.media/18268a0d-9fa1-448f-a073-d9f77990f96c.png",
             "https://imgix.bcc.media/16949bac-a7c6-489b-8947-13f1b513dcef.png",
+            "https://imgix.bcc.media/9ef9e297-53b2-4457-a128-d949b0b1b6cd.png",
+        ],
+    },
+    {
+        id: "15yearmentor-4",
+        title: "A mentor at 15 years old? - Episode 4",
+        images: [
+            "https://imgix.bcc.media/53d9f4ac-fc19-4c0a-8644-c81b1da1ce14.png",
+            "https://imgix.bcc.media/2ba9e50c-9b31-42ef-bb6a-5a8f7582fd35.png",
+            "https://imgix.bcc.media/19ee3b8e-7b4f-47f8-9fbd-5625f09673af.png",
+            "https://imgix.bcc.media/28d24c47-8865-4fbe-89ef-e05cc735d9ba.png",
+        ],
+    },
+    {
+        id: "15yearmentor-5",
+        title: "A mentor at 15 years old? - Episode 5",
+        images: [
+            "https://imgix.bcc.media/10fd1f21-621a-487f-9b66-9f1dd302b14c.png",
+            "https://imgix.bcc.media/451ace85-45ac-4613-a581-a6337b907b9b.png",
+        ],
+    },
+    {
+        id: "15yearmentor-6",
+        title: "A mentor at 15 years old? - Episode 6",
+        images: [
+            "https://imgix.bcc.media/f3f66250-ff04-4574-ba09-eb6e455f34b0.png",
+            "https://imgix.bcc.media/823eb03f-a944-4404-8994-90083588102c.png",
+            "https://imgix.bcc.media/823eb03f-a944-4404-8994-90083588102c.png",
+        ],
+    },
+    {
+        id: "15yearmentor-7",
+        title: "A mentor at 15 years old? - Episode 7",
+        images: [
+            "https://imgix.bcc.media/d51ec4aa-94f3-4e95-ab31-928ff2fcc721.png",
+            "https://imgix.bcc.media/4020035c-414d-457e-b581-42880031b3f0.png",
+        ],
+    },
+    {
+        id: "15yearmentor-8",
+        title: "A mentor at 15 years old? - Episode 8",
+        images: [
+            "https://imgix.bcc.media/dc323ca3-3e28-4f41-8ecf-25a19064e867.png",
+            "https://imgix.bcc.media/0fa88db7-42c8-40dc-adfe-265b83093d44.png",
+            "https://imgix.bcc.media/5ac0256e-9343-40b3-a492-c50b54121d00.png",
+        ],
+    },
+    {
+        id: "15yearmentor-9",
+        title: "A mentor at 15 years old? - Episode 9",
+        images: [
+            "https://imgix.bcc.media/f7230736-4c6d-4573-bd77-592596847ea2.png",
+            "https://imgix.bcc.media/12ec4fe6-cfd6-46ed-98f2-85ec96f3ee91.png",
+            "https://imgix.bcc.media/6ef3f3ca-040a-4f30-bcec-c2cfab8b3323.png"
         ],
     },
 ]
