@@ -77,3 +77,14 @@ module "imgx_cdn" {
     aws.us_east_1 = aws.us_east_1
   }
 }
+
+module "imagorvideo" {
+  source     = "./imagorvideo"
+  env        = var.env
+  project_id = google_project.brunstadtv.project_id
+  gcp_region = var.gcp-region
+  providers = {
+    google      = google
+    google-beta = google-beta
+  }
+}

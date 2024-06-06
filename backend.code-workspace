@@ -11,6 +11,9 @@
     },
     {
       "path": "cms"
+    },
+    {
+      "path": "infra"
     }
   ],
   "settings": {
