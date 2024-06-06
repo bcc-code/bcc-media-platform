@@ -2,7 +2,6 @@ package asset
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -32,10 +31,6 @@ func getSignedAudiolessVideoURLForAssetID(context context.Context, services exte
 		return nil, merry.Wrap(err)
 	}
 
-	if len(objects.Contents) == 0 {
-		return nil, merry.New("no objects found", merry.WithUserMessage("no objects found for assetID: "+string(assetID)))
-	}
-
 	// Find the biggest mp4 file
 	var biggestObject *types.Object
 	for _, object := range objects.Contents {
@@ -45,7 +40,6 @@ func getSignedAudiolessVideoURLForAssetID(context context.Context, services exte
 		if biggestObject == nil || object.Size > biggestObject.Size {
 			x := object
 			biggestObject = &x
-			fmt.Printf("biggestObject: %v\n", *biggestObject.Key)
 		}
 	}
 
