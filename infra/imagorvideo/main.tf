@@ -110,8 +110,18 @@ resource "google_cloud_run_service" "imagorvideo" {
 }
 
 resource "google_cloud_run_service_iam_policy" "noauth_imagorvideo" {
-  project     = google_project.brunstadtv.project_id
+  project     = var.project_id
   service     = google_cloud_run_service.imagorvideo.name
   location    = google_cloud_run_service.imagorvideo.location
   policy_data = data.google_iam_policy.noauth.policy_data
+}
+
+
+data "google_iam_policy" "noauth" {
+  binding {
+    role = "roles/run.invoker"
+    members = [
+      "allUsers",
+    ]
+  }
 }
