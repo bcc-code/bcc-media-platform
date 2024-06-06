@@ -3,7 +3,6 @@ package imagor
 import (
 	"fmt"
 	"io"
-	"net/http"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/cshum/imagor/imagorpath"
@@ -11,6 +10,7 @@ import (
 )
 
 type ImagorService struct {
+	resty      *resty.Client
 	baseUrl    string
 	signingKey string
 }
@@ -20,9 +20,11 @@ type ImagorService struct {
 // baseUrl: the base URL of the Imagor service
 // signingKey: the key used to sign URLs
 func NewImagorService(baseUrl, signingKey string) *ImagorService {
+	restyClient := resty.New().SetBaseURL(baseUrl).SetRetryCount(2)
 	return &ImagorService{
 		baseUrl:    baseUrl,
 		signingKey: signingKey,
+		resty:      restyClient,
 	}
 }
 
@@ -69,14 +71,12 @@ func (i *ImagorService) executeWithParams(params imagorpath.Params) (*resty.Resp
 		path = imagorpath.Generate(params, imagorpath.NewDefaultSigner(i.signingKey))
 	}
 
-	client := resty.New().SetBaseURL(i.baseUrl)
-
-	resp, err := client.R().SetDoNotParseResponse(true).Get(path)
+	resp, err := i.resty.R().SetDoNotParseResponse(true).Get(path)
 	if err != nil {
 		return nil, merry.Wrap(err)
 	}
 
-	if resp.StatusCode() != http.StatusOK {
+	if !resp.IsSuccess() {
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode())
 	}
 
