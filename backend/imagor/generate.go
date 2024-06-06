@@ -7,6 +7,7 @@ import (
 
 	"github.com/ansel1/merry/v2"
 	"github.com/cshum/imagor/imagorpath"
+	"github.com/go-resty/resty/v2"
 )
 
 type ImagorService struct {
@@ -57,31 +58,26 @@ func (i *ImagorService) GenerateImageForUrl(params GenerateImageForUrlParams) (i
 	if err != nil {
 		return nil, merry.Wrap(err)
 	}
-
-	return resp.Body, nil
+	return resp.RawBody(), nil
 }
 
-func (i *ImagorService) executeWithParams(params imagorpath.Params) (*http.Response, error) {
+func (i *ImagorService) executeWithParams(params imagorpath.Params) (*resty.Response, error) {
 	var path string
 	if i.signingKey == "" {
 		path = imagorpath.GenerateUnsafe(params)
 	} else {
 		path = imagorpath.Generate(params, imagorpath.NewDefaultSigner(i.signingKey))
 	}
-	imagorUrl := fmt.Sprintf("%s/%s", i.baseUrl, path)
-	req, err := http.NewRequest("GET", imagorUrl, nil)
+
+	client := resty.New().SetBaseURL(i.baseUrl)
+
+	resp, err := client.R().SetDoNotParseResponse(true).Get(path)
 	if err != nil {
 		return nil, merry.Wrap(err)
 	}
 
-	client := http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, merry.Wrap(err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	if resp.StatusCode() != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode())
 	}
 
 	return resp, nil
