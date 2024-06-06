@@ -11,9 +11,14 @@ terraform {
   }
 }
 
+output "url" {
+  value = google_cloud_run_service.imagorvideo.status[0].url
+}
+
 output "secret" {
   value = random_password.imagorvideo.result
 }
+
 
 variable "project_id" {
   description = "The project id"
