@@ -19,5 +19,5 @@ type File struct {
 }
 
 type Service interface {
-	UploadFile(context.Context, UploadFileParams) (File, error)
+	UploadFile(context.Context, UploadFileParams) (*File, error)
 }

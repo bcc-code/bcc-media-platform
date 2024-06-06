@@ -8,6 +8,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
 	"github.com/bcc-code/bcc-media-platform/backend/events"
 	"github.com/bcc-code/bcc-media-platform/backend/files"
+	"github.com/bcc-code/bcc-media-platform/backend/imagor"
 	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
 	"github.com/bcc-code/bcc-media-platform/backend/scheduler"
 	"github.com/bcc-code/bcc-media-platform/backend/search"
@@ -28,6 +29,7 @@ type ExternalServices struct {
 	Scheduler         *scheduler.Service
 	StatisticsHandler *statistics.Handler
 	FileService       files.Service
+	ImagorService     *imagor.ImagorService
 }
 
 // GetDatabase as stored in the struct
@@ -76,4 +78,8 @@ func (e ExternalServices) GetStatisticHandler() *statistics.Handler {
 
 func (e ExternalServices) GetFileService() files.Service {
 	return e.FileService
+}
+
+func (e ExternalServices) GetImagorService() *imagor.ImagorService {
+	return e.ImagorService
 }

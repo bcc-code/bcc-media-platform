@@ -83,7 +83,8 @@ LIMIT 1;
 -- name: AssetIDsByMediabankenID :many
 SELECT id
 FROM assets
-WHERE mediabanken_id = @mediabanken_id::varchar;
+WHERE mediabanken_id = @mediabanken_id::varchar
+ORDER BY date_created DESC;
 
 -- name: InsertAsset :one
 INSERT INTO assets (duration, encoding_version, legacy_id, main_storage_path,
@@ -135,3 +136,8 @@ INSERT INTO assetstreams_subtitle_languages (assetstreams_id, languages_code)
 VALUES (@assetstreams_id, @languages_code)
 RETURNING id;
 
+-- name: GetAssetStoragePath :one
+SELECT main_storage_path
+FROM assets
+WHERE id = @id
+LIMIT 1;

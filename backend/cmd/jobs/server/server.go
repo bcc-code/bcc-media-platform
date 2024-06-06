@@ -46,7 +46,6 @@ var (
 )
 
 // NewServer returns a new Server for handling the HTTP requests
-// Yes, go, I know it's "annoying to work with" but in this case you will have to deal with it
 func NewServer(s ExternalServices, c ConfigData) *Server {
 	return &Server{
 		services: s,
