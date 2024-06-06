@@ -93,6 +93,16 @@ resource "google_cloud_run_service" "background_worker" {
           value = google_sql_user.background_worker.name
         }
 
+        env {
+          name  = "IMAGOR_VIDEO_BASE_URL"
+          value = "${module.imagorvideo.url}/"
+        }
+
+        env {
+          name  = "IMAGOR_SECRET"
+          value = module.imagorvideo.secret
+        }
+
         dynamic "env" {
           for_each = module.background_worker_secrets.data
           iterator = v
