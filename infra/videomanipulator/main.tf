@@ -12,11 +12,11 @@ terraform {
 }
 
 output "url" {
-  value = google_cloud_run_service.imagorvideo.status[0].url
+  value = google_cloud_run_service.videomanipulator.status[0].url
 }
 
-output "secret" {
-  value = random_password.imagorvideo.result
+output "api_key" {
+  value = random_password.api_key.result
 }
 
 
@@ -32,22 +32,22 @@ variable "gcp_region" {
   description = "The region to deploy to"
 }
 
-resource "google_service_account" "imagorvideo" {
+resource "google_service_account" "videomanipulator" {
   project      = var.project_id
-  account_id   = "imagorvideo"
-  display_name = "Service Account for imagorvideo cloudrun instance"
+  account_id   = "videomanipulator"
+  display_name = "Service Account for videomanipulator cloudrun instance"
 }
 
-resource "random_password" "imagorvideo" {
+resource "random_password" "api_key" {
   length           = 16
   special          = true
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
-resource "google_cloud_run_service" "imagorvideo" {
+resource "google_cloud_run_service" "videomanipulator" {
   project  = var.project_id
   provider = google-beta
-  name     = "imagorvideo-${var.env}"
+  name     = "videomanipulator-${var.env}"
   location = var.gcp_region
 
   autogenerate_revision_name = true
@@ -69,10 +69,10 @@ resource "google_cloud_run_service" "imagorvideo" {
     spec {
       container_concurrency = 100
       timeout_seconds       = 60
-      service_account_name  = google_service_account.imagorvideo.email
+      service_account_name  = google_service_account.videomanipulator.email
 
       containers {
-        image = "shumc/imagorvideo:0.4.11"
+        image = "europe-west4-docker.pkg.dev/utils-332514/btv-platform/videomanipulator:latest"
 
         ports {
           name           = "http1"
@@ -80,8 +80,8 @@ resource "google_cloud_run_service" "imagorvideo" {
         }
 
         env {
-          name  = "IMAGOR_SECRET"
-          value = random_password.imagorvideo.result
+          name  = "API_KEY"
+          value = random_password.api_key.result
         }
 
         resources {
@@ -114,10 +114,10 @@ resource "google_cloud_run_service" "imagorvideo" {
   }
 }
 
-resource "google_cloud_run_service_iam_policy" "noauth_imagorvideo" {
+resource "google_cloud_run_service_iam_policy" "noauth" {
   project     = var.project_id
-  service     = google_cloud_run_service.imagorvideo.name
-  location    = google_cloud_run_service.imagorvideo.location
+  service     = google_cloud_run_service.videomanipulator.name
+  location    = google_cloud_run_service.videomanipulator.location
   policy_data = data.google_iam_policy.noauth.policy_data
 }
 

@@ -13,7 +13,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
 	"github.com/bcc-code/bcc-media-platform/backend/events"
 	"github.com/bcc-code/bcc-media-platform/backend/files"
-	"github.com/bcc-code/bcc-media-platform/backend/imagor"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/bcc-code/bcc-media-platform/backend/notifications"
 	"github.com/bcc-code/bcc-media-platform/backend/push"
@@ -24,6 +23,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/statistics"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/bcc-media-platform/backend/version"
+	"github.com/bcc-code/bcc-media-platform/backend/videomanipulator"
 	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/bsm/redislock"
 	"github.com/gin-gonic/gin"
@@ -136,21 +136,21 @@ func main() {
 		return
 	}
 
-	imagorService := imagor.NewImagorService(config.Imagor.baseURL, config.Imagor.secret)
+	videomanipulatorService := videomanipulator.NewVideoManipulatorService(config.VideoManipulator.baseURL, config.VideoManipulator.apiKey)
 
 	services := server.ExternalServices{
-		Database:          db,
-		S3Client:          s3Client,
-		MediaPackageVOD:   mediaPackageVOD,
-		SearchService:     searchService,
-		EventHandler:      eventHandler,
-		Queries:           queries,
-		RemoteCache:       remotecache.New(rdb, locker),
-		CrowdinClient:     crowdinClient,
-		Scheduler:         sr,
-		StatisticsHandler: statisticsHandler,
-		FileService:       fileService,
-		ImagorService:     imagorService,
+		Database:                db,
+		S3Client:                s3Client,
+		MediaPackageVOD:         mediaPackageVOD,
+		SearchService:           searchService,
+		EventHandler:            eventHandler,
+		Queries:                 queries,
+		RemoteCache:             remotecache.New(rdb, locker),
+		CrowdinClient:           crowdinClient,
+		Scheduler:               sr,
+		StatisticsHandler:       statisticsHandler,
+		FileService:             fileService,
+		VideoManipulatorService: videomanipulatorService,
 	}
 
 	handlers := server.NewServer(services, serverConfig)

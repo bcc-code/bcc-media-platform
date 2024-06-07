@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	"github.com/bcc-code/bcc-media-platform/backend/files"
-	"github.com/bcc-code/bcc-media-platform/backend/imagor"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/videomanipulator"
 	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/guregu/null.v4"
 
@@ -53,7 +53,7 @@ type externalServices interface {
 	GetQueries() *sqlc.Queries
 	GetDatabase() *sql.DB
 	GetFileService() files.Service
-	GetImagorService() *imagor.ImagorService
+	GetVideoManipulatorService() *videomanipulator.VideoManipulatorService
 }
 
 type config interface {

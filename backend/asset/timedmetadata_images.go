@@ -6,7 +6,7 @@ import (
 
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/files"
-	"github.com/bcc-code/bcc-media-platform/backend/imagor"
+	"github.com/bcc-code/bcc-media-platform/backend/videomanipulator"
 	"github.com/google/uuid"
 )
 
@@ -16,9 +16,9 @@ func generateImageForAssetAtTime(ctx context.Context, services externalServices,
 		return nil, merry.Wrap(err)
 	}
 
-	imagorService := services.GetImagorService()
+	videoManipulator := services.GetVideoManipulatorService()
 
-	image, err := imagorService.GenerateImageForUrl(imagor.GenerateImageForUrlParams{
+	image, err := videoManipulator.GenerateImageForUrl(videomanipulator.GenerateImageForUrlParams{
 		VideoUrl: *u,
 		Seconds:  timestamp,
 	})
