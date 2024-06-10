@@ -78,7 +78,8 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 func ingestOneTimedMetadata(ctx context.Context, queries *sqlc.Queries, inputTm TimedMetadata, assetIDs []int32, imageID *string) error {
 	t := common.ContentTypes.Parse(inputTm.ContentType)
 	if t == nil {
-		log.L.Warn().Msg("Skipping. Unknown chapter type: " + inputTm.ContentType)
+		log.L.Warn().Msgf("Unknown content type: %s. Falling back to '%s'.", inputTm.ContentType, common.ContentTypeOther.Value)
+		t = &common.ContentTypeOther
 		return nil
 	}
 	realTm := sqlc.InsertTimedMetadataParams{
