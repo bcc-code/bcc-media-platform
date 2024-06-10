@@ -94,13 +94,13 @@ resource "google_cloud_run_service" "background_worker" {
         }
 
         env {
-          name  = "IMAGOR_VIDEO_BASE_URL"
-          value = "${module.imagorvideo.url}/"
+          name  = "VIDEOMANIPULATOR_BASE_URL"
+          value = "${module.videomanipulator.url}/"
         }
 
         env {
-          name  = "IMAGOR_SECRET"
-          value = module.imagorvideo.secret
+          name  = "VIDEOMANIPULATOR_API_KEY"
+          value = module.videomanipulator.api_key
         }
 
         dynamic "env" {

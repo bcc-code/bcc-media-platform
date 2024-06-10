@@ -27,7 +27,6 @@ require (
 	github.com/bcc-code/mediabank-bridge v1.1.1
 	github.com/bsm/redislock v0.9.4
 	github.com/cloudevents/sdk-go/v2 v2.15.2
-	github.com/cshum/imagor v1.4.12
 	github.com/davecgh/go-spew v1.1.1
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-contrib/pprof v1.4.0
@@ -61,7 +60,6 @@ require (
 	go.opentelemetry.io/otel/sdk v1.27.0
 	go.opentelemetry.io/otel/trace v1.27.0
 	golang.org/x/net v0.25.0
-	golang.org/x/sync v0.7.0
 	google.golang.org/api v0.182.0
 	google.golang.org/protobuf v1.34.1
 	gopkg.in/guregu/null.v4 v4.0.0
@@ -178,6 +176,7 @@ require (
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/oauth2 v0.20.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
 	golang.org/x/time v0.5.0 // indirect

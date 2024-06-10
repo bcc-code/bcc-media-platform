@@ -1,0 +1,6 @@
+FROM alpine:latest
+COPY version.json /
+COPY bin /app
+RUN apk update
+RUN apk add --no-cache ffmpeg
+CMD ["/app"]

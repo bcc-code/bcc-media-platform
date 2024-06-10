@@ -72,6 +72,11 @@ if [ -f "rewriter.txt" ]; then
 	route REWRITER rewriter.txt
 fi
 
+if [ -f "videomanipulator.txt" ]; then
+	deploy VIDEOMANIPULATOR videomanipulator.txt
+	route VIDEOMANIPULATOR videomanipulator.txt
+fi
+
 if [ -f "cms.txt" ]; then
 	deploy CMS cms.txt
 	route CMS cms.txt

@@ -19,11 +19,6 @@ services:
     image: redis
     ports:
     - "6378:6379"
-  imagor:
-    image: shumc/imagorvideo
-    ports:
-    - "8005:8000"
-    command: ["-imagor-unsafe"]
 
 volumes:
   db-data:

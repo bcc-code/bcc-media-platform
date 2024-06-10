@@ -8,28 +8,28 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
 	"github.com/bcc-code/bcc-media-platform/backend/events"
 	"github.com/bcc-code/bcc-media-platform/backend/files"
-	"github.com/bcc-code/bcc-media-platform/backend/imagor"
 	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
 	"github.com/bcc-code/bcc-media-platform/backend/scheduler"
 	"github.com/bcc-code/bcc-media-platform/backend/search"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/statistics"
+	"github.com/bcc-code/bcc-media-platform/backend/videomanipulator"
 )
 
 // ExternalServices used by the Server
 type ExternalServices struct {
-	S3Client          *s3.Client
-	MediaPackageVOD   *mediapackagevod.Client
-	SearchService     *search.Service
-	EventHandler      *events.Handler
-	Database          *sql.DB
-	RemoteCache       *remotecache.Client
-	Queries           *sqlc.Queries
-	CrowdinClient     *crowdin.Client
-	Scheduler         *scheduler.Service
-	StatisticsHandler *statistics.Handler
-	FileService       files.Service
-	ImagorService     *imagor.ImagorService
+	S3Client                *s3.Client
+	MediaPackageVOD         *mediapackagevod.Client
+	SearchService           *search.Service
+	EventHandler            *events.Handler
+	Database                *sql.DB
+	RemoteCache             *remotecache.Client
+	Queries                 *sqlc.Queries
+	CrowdinClient           *crowdin.Client
+	Scheduler               *scheduler.Service
+	StatisticsHandler       *statistics.Handler
+	FileService             files.Service
+	VideoManipulatorService *videomanipulator.VideoManipulatorService
 }
 
 // GetDatabase as stored in the struct
@@ -80,6 +80,6 @@ func (e ExternalServices) GetFileService() files.Service {
 	return e.FileService
 }
 
-func (e ExternalServices) GetImagorService() *imagor.ImagorService {
-	return e.ImagorService
+func (e ExternalServices) GetVideoManipulatorService() *videomanipulator.VideoManipulatorService {
+	return e.VideoManipulatorService
 }
