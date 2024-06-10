@@ -15,12 +15,16 @@ func main() {
 	router := gin.Default()
 	apiKey := os.Getenv("API_KEY")
 
+	if os.Getenv("ENVIRONMENT") != "development" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	if strings.TrimSpace(apiKey) == "" {
 		panic("API_KEY environment variable is required")
 	}
 
 	router.Use(func(c *gin.Context) {
-		a := c.GetHeader("X-API-Key")
+		a := c.GetHeader("x-api-key")
 		if a != apiKey {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API Key"})
 			c.Abort()

@@ -15,11 +15,14 @@ type VideoManipulatorService struct {
 }
 
 // NewVideoManipulatorService creates a new VideoManipulatorService
-func NewVideoManipulatorService(baseUrl, secret string) *VideoManipulatorService {
-	restyClient := resty.New().SetBaseURL(baseUrl).SetRetryCount(2)
+func NewVideoManipulatorService(baseUrl, apiKey string) *VideoManipulatorService {
+	restyClient := resty.New().
+		SetRetryCount(2).
+		SetBaseURL(baseUrl).
+		SetHeader("x-api-key", apiKey)
 	return &VideoManipulatorService{
 		baseUrl: baseUrl,
-		secret:  secret,
+		secret:  apiKey,
 		resty:   restyClient,
 	}
 }
