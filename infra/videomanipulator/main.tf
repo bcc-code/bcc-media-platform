@@ -72,7 +72,7 @@ resource "google_cloud_run_service" "videomanipulator" {
       service_account_name  = google_service_account.videomanipulator.email
 
       containers {
-        image = "europe-west4-docker.pkg.dev/utils-332514/btv-platform/videomanipulator:latest"
+        image = "europe-west4-docker.pkg.dev/utils-332514/btv-platform/videomanipulator:master"
 
         ports {
           name           = "http1"
