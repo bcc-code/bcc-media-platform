@@ -38,6 +38,7 @@ function allow_loose {
 artifact pull workflow api.txt || true
 artifact pull workflow jobs.txt || true
 artifact pull workflow rewriter.txt || true
+artifact pull workflow videomanipulator.txt || true
 artifact pull workflow cms.txt || true
 artifact pull workflow migrations.txt
 
