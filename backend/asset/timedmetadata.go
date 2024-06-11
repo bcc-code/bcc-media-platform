@@ -2,6 +2,7 @@ package asset
 
 import (
 	"context"
+	"sync"
 
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
@@ -22,8 +23,18 @@ type IngestTimedMetadataParams struct {
 
 // Ingest timedmetadata from a JSON file based on the vxID
 func IngestTimedMetadata(ctx context.Context, services externalServices, config config, params IngestTimedMetadataParams) error {
-	queries := services.GetQueries()
 	s3client := services.GetS3Client()
+	var timedMetadatas []TimedMetadata
+	err := readJSONFromS3(ctx, s3client, config.GetIngestBucket(), params.JSONPath, &timedMetadatas)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	if len(timedMetadatas) == 0 {
+		return merry.New("no timed metadata found", merry.WithUserMessage("no timed metadata found in JSON file"))
+	}
+
+	queries := services.GetQueries()
 	db := services.GetDatabase()
 	tx, err := db.Begin()
 	if err != nil {
@@ -48,13 +59,9 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 		}
 	}
 
-	var timedMetadatas []TimedMetadata
-	err = readJSONFromS3(ctx, s3client, config.GetIngestBucket(), params.JSONPath, &timedMetadatas)
-	if err != nil {
-		return merry.Wrap(err)
-	}
-
 	var eg errgroup.Group
+	// We lock because of https://github.com/lib/pq/issues/635
+	insertLock := sync.Mutex{}
 	for _, inputTm := range timedMetadatas {
 		inputTm := inputTm
 		eg.Go(func() error {
@@ -67,6 +74,8 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 				}
 				break
 			}
+			insertLock.Lock()
+			defer insertLock.Unlock()
 			err = ingestOneTimedMetadata(ctx, qtx, inputTm, assetIDs, imageFileID)
 			if err != nil {
 				return merry.Wrap(err)
@@ -84,6 +93,8 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	if err != nil {
 		return merry.Wrap(err)
 	}
+
+	log.L.Trace().Msgf("Ingested %d timed metadata for VXID %s into assets %v", len(timedMetadatas), params.VXID, assetIDs)
 
 	return nil
 }
