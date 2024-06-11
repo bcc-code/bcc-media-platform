@@ -2,6 +2,7 @@ package tests
 
 import (
 	"bytes"
+	"cmp"
 	"context"
 	"database/sql"
 	"encoding/base64"
@@ -9,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -43,9 +45,9 @@ func TestIngestTimedMetadata(t *testing.T) {
 	queries := sqlc.New(db)
 
 	// Add test data
-	vxID := lo.Must(uuid.NewRandom())
+	vxID := lo.Must(uuid.NewRandom()).String()
 	assetID, err := queries.InsertAsset(ctx, sqlc.InsertAssetParams{
-		MediabankenID: null.StringFrom(vxID.String()),
+		MediabankenID: null.StringFrom(vxID),
 		Name:          "test",
 		Status:        null.StringFrom("published"),
 	})
@@ -55,36 +57,33 @@ func TestIngestTimedMetadata(t *testing.T) {
 
 	var inputData = []asset.TimedMetadata{
 		{
-			ContentType:   common.ContentTypeOther.Value,
-			Timestamp:     20,
-			Label:         "Some chapter",
-			Title:         "Some title",
-			Description:   "Some description",
-			Highlight:     false,
-			ImageFilename: "image.jpg",
-			Persons:       []string{"Person1", "God"},
-		},
-		{
-			ContentType:   common.ContentTypeSpeech.Value,
-			Timestamp:     0,
-			Label:         "The Beginning, label",
-			Title:         "The Beginning",
-			Description:   "The beginning of the story",
-			Highlight:     true,
-			ImageFilename: "img.jpg",
-			Persons:       []string{"God", "Adam", "Eve"},
+			ContentType: common.ContentTypeSpeech.Value,
+			Timestamp:   0,
+			Label:       "The Beginning, label",
+			Title:       "The Beginning",
+			Description: "The beginning of the story",
+			Highlight:   true,
+			Persons:     []string{"God", "Adam", "Eve"},
 		},
 		{
 			ContentType:    common.ContentTypeSpeech.Value,
-			Timestamp:      0,
+			Timestamp:      1,
 			Label:          "The Beginning, label",
 			Title:          "The Beginning",
 			Description:    "The beginning of the story",
 			Highlight:      true,
-			ImageFilename:  "image.jpg",
 			Persons:        []string{"God", "Adam", "Eve"},
 			SongCollection: "WOTL",
 			SongNumber:     "123",
+		},
+		{
+			ContentType: common.ContentTypeOther.Value,
+			Timestamp:   20,
+			Label:       "Some chapter",
+			Title:       "Some title",
+			Description: "Some description",
+			Highlight:   false,
+			Persons:     []string{"Person1", "God"},
 		},
 	}
 
@@ -99,7 +98,7 @@ func TestIngestTimedMetadata(t *testing.T) {
 	e.SetSource(events.SourceMediaBanken)
 	e.SetType(events.TypeAssetTimedMetadataDelivered)
 	e.SetData(cloudevents.ApplicationJSON, &events.AssetTimedMetadataDelivered{
-		VXID:     vxID.String(),
+		VXID:     vxID,
 		JSONPath: "testdata/tm.json",
 	})
 
@@ -144,6 +143,10 @@ func TestIngestTimedMetadata(t *testing.T) {
 		t.Errorf("length mismatch")
 	}
 
+	slices.SortStableFunc(fullTimedMetadata, func(i, j common.TimedMetadata) int {
+		return cmp.Compare(i.Timestamp, j.Timestamp)
+	})
+
 	for index, input := range inputData {
 		imported := fullTimedMetadata[index]
 		test.Eq(t, input.ContentType, imported.ContentType.Value)
@@ -157,9 +160,8 @@ func TestIngestTimedMetadata(t *testing.T) {
 			}))
 			test.Eq(t, songId, imported.SongID.UUID)
 		}
-		if input.ImageFilename != "" {
-			image := imported.Images.GetDefault(*utils.FallbackLanguages(), common.ImageStyleDefault)
-			test.StrContains(t, *image, input.ImageFilename)
+		if len(imported.Images) != 1 {
+			t.Errorf("GetTimedMetadata: expected every timedmetadata to have 1 image")
 		}
 		if len(input.Persons) > 0 {
 			if len(input.Persons) != len(imported.PersonIDs) {
