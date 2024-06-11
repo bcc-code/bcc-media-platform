@@ -21,6 +21,6 @@ data "google_iam_policy" "videomanipulator-actas" {
 }
 
 resource "google_service_account_iam_policy" "videomanipulator-iam" {
-  service_account_id = module.videomanipulator.service_account.email
+  service_account_id = module.videomanipulator.service_account.name
   policy_data        = data.google_iam_policy.videomanipulator-actas.policy_data
 }
