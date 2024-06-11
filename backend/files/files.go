@@ -9,6 +9,8 @@ type UploadFileParams struct {
 	File        io.Reader
 	FileName    string
 	ContentType string
+	Title       *string
+	Description *string
 }
 
 type File struct {

@@ -32,10 +32,15 @@ type GenerateImageForUrlParams struct {
 	Seconds  float64 `json:"seconds"`
 }
 
+type GenerateImageForUrlResult struct {
+	Reader      io.ReadCloser
+	ContentType string
+}
+
 // GenerateImageForUrl generates an image from a video URL
 //
 // IMPORTANT: the caller is responsible for closing the returned io.ReadCloser
-func (i *VideoManipulatorService) GenerateImageForUrl(params GenerateImageForUrlParams) (io.ReadCloser, error) {
+func (i *VideoManipulatorService) GenerateImageForUrl(params GenerateImageForUrlParams) (*GenerateImageForUrlResult, error) {
 	resp, err := i.resty.R().SetDoNotParseResponse(true).SetBody(params).Post("/image")
 	if err != nil {
 		return nil, merry.Wrap(err)
@@ -45,5 +50,8 @@ func (i *VideoManipulatorService) GenerateImageForUrl(params GenerateImageForUrl
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode())
 	}
 
-	return resp.RawBody(), nil
+	return &GenerateImageForUrlResult{
+		Reader:      resp.RawBody(),
+		ContentType: resp.Header().Get("Content-Type"),
+	}, nil
 }

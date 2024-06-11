@@ -1,6 +1,7 @@
 package files
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"image"
@@ -10,6 +11,8 @@ import (
 	"io"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blob"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blockblob"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/google/uuid"
 	"gopkg.in/guregu/null.v4"
@@ -30,18 +33,26 @@ func (s *azureFileService) UploadFile(ctx context.Context, params UploadFilePara
 	if params.File == nil || params.FileName == "" {
 		return nil, fmt.Errorf("file and filename are required")
 	}
+
 	var err error
+	buffer := &bytes.Buffer{}
+	tee := io.TeeReader(params.File, buffer)
+
+	_, err = s.client.UploadStream(ctx, s.container, params.FileName, tee, &blockblob.UploadStreamOptions{
+		HTTPHeaders: &blob.HTTPHeaders{
+			BlobContentType: &params.ContentType,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	var width, height int
 	if params.ContentType == "image/jpeg" || params.ContentType == "image/png" {
-		width, height, err = getImageDimensions(params.File)
+		width, height, err = getImageDimensions(buffer)
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	_, err = s.client.UploadStream(ctx, s.container, params.FileName, params.File, nil)
-	if err != nil {
-		return nil, err
 	}
 
 	randomId, err := uuid.NewRandom()
@@ -56,6 +67,8 @@ func (s *azureFileService) UploadFile(ctx context.Context, params UploadFilePara
 		Type:         null.StringFrom(params.ContentType),
 		Width:        null.IntFrom(int64(width)),
 		Height:       null.IntFrom(int64(height)),
+		Title:        null.StringFromPtr(params.Title),
+		Description:  null.StringFromPtr(params.Description),
 	})
 	if err != nil {
 		return nil, err

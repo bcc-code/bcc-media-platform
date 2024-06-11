@@ -25,14 +25,20 @@ func generateImageForAssetAtTime(ctx context.Context, services externalServices,
 	if err != nil {
 		return nil, merry.Wrap(err)
 	}
-	defer image.Close()
+	defer image.Reader.Close()
+
+	filename := fmt.Sprintf("image-%d-%f-%s.jpg", assetID, timestamp, uuid.NewString())
 
 	fs := services.GetFileService()
-	filename := fmt.Sprintf("image-%d-%f-%s.jpg", assetID, timestamp, uuid.NewString())
+	title := fmt.Sprintf("Asset %d@%.1fs", assetID, timestamp)
+	hms := secondsToHMS(timestamp)
+	description := fmt.Sprintf("Image for asset %d at %.2fs (%s)", assetID, timestamp, hms)
 	f, err := fs.UploadFile(ctx, files.UploadFileParams{
-		File:        image,
+		File:        image.Reader,
 		FileName:    filename,
-		ContentType: "image/jpeg",
+		ContentType: image.ContentType,
+		Title:       &title,
+		Description: &description,
 	})
 	if err != nil {
 		return nil, merry.Wrap(err)
@@ -40,4 +46,8 @@ func generateImageForAssetAtTime(ctx context.Context, services externalServices,
 
 	return &f.ID, nil
 
+}
+
+func secondsToHMS(seconds float64) string {
+	return fmt.Sprintf("%02d:%02d:%02d", int(seconds/3600), int(seconds/60)%60, int(seconds)%60)
 }
