@@ -82,13 +82,3 @@ module "imgx_cdn" {
   }
 }
 
-module "videomanipulator" {
-  source     = "./videomanipulator"
-  env        = var.env
-  project_id = google_project.brunstadtv.project_id
-  gcp_region = var.gcp-region
-  providers = {
-    google      = google
-    google-beta = google-beta
-  }
-}

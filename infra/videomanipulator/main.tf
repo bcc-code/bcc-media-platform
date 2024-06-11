@@ -19,6 +19,10 @@ output "api_key" {
   value = random_password.api_key.result
 }
 
+output "service_account" {
+  value = google_service_account.videomanipulator
+}
+
 
 variable "project_id" {
   description = "The project id"
