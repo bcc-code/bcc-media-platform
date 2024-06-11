@@ -28,8 +28,8 @@ func NewVideoManipulatorService(baseUrl, apiKey string) *VideoManipulatorService
 }
 
 type GenerateImageForUrlParams struct {
-	VideoUrl string
-	Seconds  float64
+	VideoUrl string  `json:"video_url"`
+	Seconds  float64 `json:"seconds"`
 }
 
 // GenerateImageForUrl generates an image from a video URL

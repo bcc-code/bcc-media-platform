@@ -40,19 +40,26 @@ func main() {
 			return
 		}
 
-		cmd := exec.Command("ffmpeg", "-ss", fmt.Sprintf("%.2f", input.Seconds), "-i", input.VideoUrl, "-q:v", "1", "-frames:v", "1", "-f", "image2", "-")
-		pipe, err := cmd.StdoutPipe()
+		if input.VideoUrl == "" || input.Seconds < 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+			return
+		}
+
+		logLevel := "debug"
+		if os.Getenv("ENVIRONMENT") != "development" {
+			logLevel = "error"
+		}
+
+		cmd := exec.Command("ffmpeg", "-loglevel", logLevel, "-ss", fmt.Sprintf("%.2f", input.Seconds), "-i", input.VideoUrl, "-q:v", "1", "-frames:v", "1", "-c:v", "mjpeg", "-f", "image2pipe", "-")
+		cmd.Stderr = os.Stderr
+		output, err := cmd.Output()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
-		if err := cmd.Start(); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
+		c.Data(http.StatusOK, "image/jpeg", output)
 
-		c.DataFromReader(http.StatusOK, -1, "image/jpeg", pipe, map[string]string{})
 	})
 
 	port := os.Getenv("PORT")
@@ -60,5 +67,5 @@ func main() {
 		port = "8005"
 	}
 
-	router.Run(fmt.Sprintf(":%s", os.Getenv("PORT")))
+	router.Run(fmt.Sprintf(":%s", port))
 }

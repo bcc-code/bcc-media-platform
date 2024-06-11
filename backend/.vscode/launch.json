@@ -27,7 +27,8 @@
       "type": "go",
       "request": "launch",
       "mode": "debug",
-      "program": "${workspaceFolder}/cmd/videomanipulator"
+      "program": "${workspaceFolder}/cmd/videomanipulator",
+      "envFile": "${workspaceFolder}/cmd/videomanipulator/.env"
     }
   ]
 }
