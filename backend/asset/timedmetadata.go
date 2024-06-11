@@ -56,7 +56,7 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	}
 
 	for _, inputTm := range timedMetadatas {
-		imageFileID, err := generateImageForAssetAtTime(ctx, services, config, newestAssetID, inputTm.Timestamp)
+		imageFileID, err := generateImageForAssetAtTime(ctx, services, config, newestAssetID, inputTm.Timestamp+10)
 		if err != nil {
 			return merry.Wrap(err)
 		}
