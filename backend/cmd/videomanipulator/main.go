@@ -12,12 +12,11 @@ import (
 )
 
 func main() {
-	router := gin.Default()
-	apiKey := os.Getenv("API_KEY")
-
 	if os.Getenv("ENVIRONMENT") != "development" {
 		gin.SetMode(gin.ReleaseMode)
 	}
+	router := gin.Default()
+	apiKey := os.Getenv("API_KEY")
 
 	if strings.TrimSpace(apiKey) == "" {
 		panic("API_KEY environment variable is required")
