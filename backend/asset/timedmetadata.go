@@ -44,15 +44,7 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	}
 
 	queries := services.GetQueries()
-	db := services.GetDatabase()
-	tx, err := db.Begin()
-	if err != nil {
-		return merry.Wrap(err)
-	}
-	defer tx.Rollback()
-	qtx := queries.WithTx(tx)
-
-	assetIDs, err := qtx.AssetIDsByMediabankenID(ctx, params.VXID)
+	assetIDs, err := queries.AssetIDsByMediabankenID(ctx, params.VXID)
 	if err != nil {
 		return merry.Wrap(err)
 	}
@@ -62,7 +54,7 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	}
 
 	for _, assetID := range assetIDs {
-		err = qtx.ClearAssetTimedMetadata(ctx, null.IntFrom(int64(assetID)))
+		err = queries.ClearAssetTimedMetadata(ctx, null.IntFrom(int64(assetID)))
 		if err != nil {
 			return merry.Wrap(err)
 		}
@@ -88,7 +80,7 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 			}
 			insertLock.Lock()
 			defer insertLock.Unlock()
-			err = ingestOneTimedMetadata(ctx, qtx, inputTm, assetIDs, imageFileID)
+			err = ingestOneTimedMetadata(ctx, queries, inputTm, assetIDs, imageFileID)
 			if err != nil {
 				return merry.Wrap(err)
 			}
@@ -101,12 +93,6 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 		return merry.Wrap(err)
 	}
 	span.AddEvent("ingested all timed metadata")
-
-	err = tx.Commit()
-	if err != nil {
-		return merry.Wrap(err)
-	}
-	span.AddEvent("committed transaction")
 
 	log.L.Trace().Msgf("Ingested %d timed metadata for VXID %s into assets %v", len(timedMetadatas), params.VXID, assetIDs)
 
