@@ -8,16 +8,20 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/files"
 	"github.com/bcc-code/bcc-media-platform/backend/videomanipulator"
 	"github.com/google/uuid"
+	"go.opentelemetry.io/otel"
 )
 
 func generateImageForAssetAtTime(ctx context.Context, services externalServices, config config, assetID int32, timestamp float64) (*string, error) {
+	ctx, span := otel.Tracer("timedmetadata").Start(ctx, "generateImageForAssetAtTime")
+	defer span.End()
+
 	u, err := getSignedAudiolessVideoURLForAssetID(ctx, services, config, assetID)
 	if err != nil {
 		return nil, merry.Wrap(err)
 	}
+	span.AddEvent("got video url")
 
 	videoManipulator := services.GetVideoManipulatorService()
-
 	image, err := videoManipulator.GenerateImageForUrl(videomanipulator.GenerateImageForUrlParams{
 		VideoUrl: *u,
 		Seconds:  timestamp,
@@ -26,8 +30,7 @@ func generateImageForAssetAtTime(ctx context.Context, services externalServices,
 		return nil, merry.Wrap(err)
 	}
 	defer image.Reader.Close()
-
-	filename := fmt.Sprintf("image-%d-%f-%s.jpg", assetID, timestamp, uuid.NewString())
+	span.AddEvent("generated image for video")
 
 	fs := services.GetFileService()
 	title := fmt.Sprintf("Asset %d@%.1fs", assetID, timestamp)
@@ -35,7 +38,7 @@ func generateImageForAssetAtTime(ctx context.Context, services externalServices,
 	description := fmt.Sprintf("Image for asset %d at %.2fs (%s)", assetID, timestamp, hms)
 	f, err := fs.UploadFile(ctx, files.UploadFileParams{
 		File:        image.Reader,
-		FileName:    filename,
+		FileName:    fmt.Sprintf("image-%d-%f-%s.jpg", assetID, timestamp, uuid.NewString()),
 		ContentType: image.ContentType,
 		Title:       &title,
 		Description: &description,
@@ -43,6 +46,7 @@ func generateImageForAssetAtTime(ctx context.Context, services externalServices,
 	if err != nil {
 		return nil, merry.Wrap(err)
 	}
+	span.AddEvent("uploaded image")
 
 	return &f.ID, nil
 

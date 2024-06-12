@@ -7,6 +7,9 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/guregu/null.v4"
 
@@ -23,6 +26,12 @@ type IngestTimedMetadataParams struct {
 
 // Ingest timedmetadata from a JSON file based on the vxID
 func IngestTimedMetadata(ctx context.Context, services externalServices, config config, params IngestTimedMetadataParams) error {
+	ctx, span := otel.Tracer("timedmetadata").Start(ctx, "ingest", trace.WithAttributes(
+		attribute.String("vxid", params.VXID),
+		attribute.String("json_path", params.JSONPath)),
+	)
+	defer span.End()
+
 	s3client := services.GetS3Client()
 	var timedMetadatas []TimedMetadata
 	err := readJSONFromS3(ctx, s3client, config.GetIngestBucket(), params.JSONPath, &timedMetadatas)
@@ -65,6 +74,9 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	for _, inputTm := range timedMetadatas {
 		inputTm := inputTm
 		eg.Go(func() error {
+			ctx, span := otel.Tracer("timedmetadata").Start(ctx, "ingest loop goroutine")
+			defer span.End()
+
 			var imageFileID *string
 			for _, assetID := range assetIDs {
 				imageFileID, err = generateImageForAssetAtTime(ctx, services, config, assetID, inputTm.Timestamp+10)
@@ -88,11 +100,13 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	if err != nil {
 		return merry.Wrap(err)
 	}
+	span.AddEvent("ingested all timed metadata")
 
 	err = tx.Commit()
 	if err != nil {
 		return merry.Wrap(err)
 	}
+	span.AddEvent("committed transaction")
 
 	log.L.Trace().Msgf("Ingested %d timed metadata for VXID %s into assets %v", len(timedMetadatas), params.VXID, assetIDs)
 
@@ -101,6 +115,9 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 
 // ingestOneTimedMetadata creates one timed metadata with contributions, song, etc.
 func ingestOneTimedMetadata(ctx context.Context, queries *sqlc.Queries, inputTm TimedMetadata, assetIDs []int32, imageID *string) error {
+	ctx, span := otel.Tracer("timedmetadata").Start(ctx, "ingestOneTimedMetadata")
+	defer span.End()
+
 	t := common.ContentTypes.Parse(inputTm.ContentType)
 	if t == nil {
 		log.L.Warn().Msgf("Unknown content type: %s. Falling back to '%s'.", inputTm.ContentType, common.ContentTypeOther.Value)

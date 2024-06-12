@@ -158,6 +158,7 @@ func (s Server) ProcessMessage(c *gin.Context) {
 			Err(err).
 			Str("msg", spew.Sdump(msg)).
 			Msgf("Error processing message. See log for more details")
+		span.SetStatus(codes.Error, err.Error())
 		c.JSON(http.StatusOK, map[string]string{"error": err.Error()})
 		return
 	}
