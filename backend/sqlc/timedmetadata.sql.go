@@ -147,27 +147,26 @@ INSERT INTO timedmetadata (
   song_id
 )
 VALUES (
+  gen_random_uuid(),
   $1,
+  NOW(),
+  NOW(),
   $2,
-  NOW(),
-  NOW(),
   $3,
   $4,
-  $5,
-  $6::varchar,
-  $7,
-  $8::real,
-  $9::varchar,
+  $5::varchar,
+  $6,
+  $7::real,
+  $8::varchar,
+  $9,
   $10,
   $11,
-  $12,
-  $13
+  $12
 )
 RETURNING id
 `
 
 type InsertTimedMetadataParams struct {
-	ID          uuid.UUID      `db:"id" json:"id"`
 	Status      string         `db:"status" json:"status"`
 	Label       string         `db:"label" json:"label"`
 	Type        string         `db:"type" json:"type"`
@@ -184,7 +183,6 @@ type InsertTimedMetadataParams struct {
 
 func (q *Queries) InsertTimedMetadata(ctx context.Context, arg InsertTimedMetadataParams) (uuid.UUID, error) {
 	row := q.db.QueryRowContext(ctx, insertTimedMetadata,
-		arg.ID,
 		arg.Status,
 		arg.Label,
 		arg.Type,
@@ -241,28 +239,41 @@ func (q *Queries) getEpisodeIDsForTimedMetadatas(ctx context.Context, dollar_1 [
 }
 
 const getTimedMetadata = `-- name: getTimedMetadata :many
-SELECT md.id,
-       md.type,
-       md.content_type,
-       md.song_id,
-       (SELECT array_agg(c.person_id) FROM "contributions" c WHERE c.timedmetadata_id = md.id)::uuid[] AS person_ids,
-       md.title                                                  AS original_title,
-       md.description                                            AS original_description,
+SELECT tm.id,
+       tm.type,
+       tm.content_type,
+       tm.song_id,
+       (SELECT array_agg(c.person_id) FROM "contributions" c WHERE c.timedmetadata_id = tm.id)::uuid[] AS person_ids,
+       tm.title                                                  AS original_title,
+       tm.description                                            AS original_description,
        COALESCE((SELECT json_object_agg(ts.languages_code, ts.title)
                  FROM timedmetadata_translations ts
-                 WHERE ts.timedmetadata_id = md.id), '{}')::json AS title,
+                 WHERE ts.timedmetadata_id = tm.id), '{}')::json AS title,
        COALESCE((SELECT json_object_agg(ts.languages_code, ts.description)
                  FROM timedmetadata_translations ts
-                 WHERE ts.timedmetadata_id = md.id), '{}')::json AS description,
-       md.seconds,
-       md.highlight,
-       md.mediaitem_id,
+                 WHERE ts.timedmetadata_id = tm.id), '{}')::json AS description,
+       tm.seconds,
+       tm.highlight,
+       tm.mediaitem_id,
        COALESCE(images.images, '{}'::json)            AS images,
-       COALESCE((SELECT nextMd.seconds - md.seconds FROM timedmetadata nextMd
-                 WHERE nextMd.mediaitem_id = md.mediaitem_id or nextMd.asset_id = md.asset_id
-                   AND nextMd.seconds > md.seconds
-                 ORDER BY nextMd.seconds LIMIT 1), 0)::float as duration
-FROM timedmetadata md
+       COALESCE((
+          -- if there is a next timedmetadata, calculate the duration between the current and the next timedmetadata
+          SELECT nextTm.seconds - tm.seconds
+          FROM timedmetadata nextTm
+          WHERE (nextTm.mediaitem_id = tm.mediaitem_id OR nextTm.asset_id = tm.asset_id)
+          AND nextTm.seconds > tm.seconds
+          ORDER BY nextTm.seconds
+          LIMIT 1
+        ), (
+          -- if there is no next timedmetadata, calculate the duration of the asset
+          SELECT asset.duration - tm.seconds
+          FROM assets asset
+          WHERE asset.id = tm.asset_id
+          OR asset.id = mi.asset_id
+          LIMIT 1
+        ), 0)::float as duration
+FROM timedmetadata tm
+LEFT JOIN mediaitems mi ON (mi.id = tm.mediaitem_id)
 LEFT JOIN (
     SELECT
     simg.timedmetadata_id,
@@ -272,8 +283,8 @@ LEFT JOIN (
     JOIN directus_files df ON (img.file = df.id)
     WHERE simg.timedmetadata_id = ANY($1::uuid[])
     GROUP BY simg.timedmetadata_id
-) images ON (images.timedmetadata_id = md.id)
-WHERE md.id = ANY ($1::uuid[])
+) images ON (images.timedmetadata_id = tm.id)
+WHERE tm.id = ANY ($1::uuid[])
 `
 
 type getTimedMetadataRow struct {

@@ -34,6 +34,72 @@ import (
 
 const dbConnectionString = "postgres://bccm@localhost:5432/bccm?sslmode=disable"
 
+func TestTimedMetadataDurations(t *testing.T) {
+	if utils.SkipTestIfCI(t) {
+		return
+	}
+	ctx := context.Background()
+
+	db := lo.Must(sql.Open("postgres", dbConnectionString))
+	defer db.Close()
+	queries := sqlc.New(db)
+
+	vxID := lo.Must(uuid.NewRandom()).String()
+	assetID := lo.Must(queries.InsertAsset(ctx, sqlc.InsertAssetParams{
+		MediabankenID: null.StringFrom(vxID),
+		Name:          "test",
+		Status:        null.StringFrom("published"),
+		Duration:      70,
+	}))
+
+	tm10sec := lo.Must(queries.InsertTimedMetadata(ctx, sqlc.InsertTimedMetadataParams{
+		AssetID:     null.IntFrom(int64(assetID)),
+		ContentType: null.StringFrom(common.ContentTypeSpeech.Value),
+		Seconds:     10,
+		Title:       "@10",
+		Highlight:   true,
+		Type:        "chapter",
+	}))
+
+	tm30sec := lo.Must(queries.InsertTimedMetadata(ctx, sqlc.InsertTimedMetadataParams{
+		AssetID:     null.IntFrom(int64(assetID)),
+		ContentType: null.StringFrom(common.ContentTypeSpeech.Value),
+		Seconds:     30,
+		Title:       "@30",
+		Highlight:   true,
+		Type:        "chapter",
+	}))
+
+	mediaItemID := lo.Must(queries.InsertMediaItem(ctx, sqlc.InsertMediaItemParams{
+		AssetID:     null.IntFrom(int64(assetID)),
+		PublishedAt: null.TimeFrom(time.Now().Add(-1 * time.Hour)),
+		Label:       "test",
+		ContentType: null.StringFrom(common.ContentTypeSpeech.Value),
+	}))
+
+	tmMediaItemID := lo.Must(queries.InsertTimedMetadata(ctx, sqlc.InsertTimedMetadataParams{
+		MediaitemID: uuid.NullUUID{UUID: mediaItemID, Valid: true},
+		ContentType: null.StringFrom(common.ContentTypeSpeech.Value),
+		Seconds:     10,
+		Title:       "The Beginning",
+		Description: "The beginning of the story",
+		Highlight:   true,
+		Type:        "chapter",
+	}))
+
+	tm10secResult := lo.Must(queries.GetTimedMetadata(ctx, []uuid.UUID{tm10sec}))
+	test.Eq(t, 10, tm10secResult[0].Timestamp)
+	test.Eq(t, 20, tm10secResult[0].Duration)
+
+	tm30secResult := lo.Must(queries.GetTimedMetadata(ctx, []uuid.UUID{tm30sec}))
+	test.Eq(t, 30, tm30secResult[0].Timestamp)
+	test.Eq(t, 40, tm30secResult[0].Duration)
+
+	tmMediaItemResult := lo.Must(queries.GetTimedMetadata(ctx, []uuid.UUID{tmMediaItemID}))
+	test.Eq(t, 10, tmMediaItemResult[0].Timestamp)
+	test.Eq(t, 60, tmMediaItemResult[0].Duration)
+}
+
 func TestIngestTimedMetadataAvoidDurationMismatch(t *testing.T) {
 	if utils.SkipTestIfCI(t) {
 		return
