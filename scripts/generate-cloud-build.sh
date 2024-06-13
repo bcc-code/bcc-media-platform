@@ -4,6 +4,8 @@ CB="run-deploy.yaml"
 ROUTE="run-route.yaml"
 M="migrations.yaml"
 
+services=("API api.txt" "JOBS jobs.txt" "REWRITER rewriter.txt" "VIDEOMANIPULATOR videomanipulator.txt" "CMS cms.txt")
+
 function deploy {
 	echo "- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'" >> $CB
 	echo "  waitFor: ['-']" >> $CB
@@ -35,11 +37,6 @@ function allow_loose {
 	echo "   substitution_option: 'ALLOW_LOOSE'" >> $1
 }
 
-artifact pull workflow api.txt || true
-artifact pull workflow jobs.txt || true
-artifact pull workflow rewriter.txt || true
-artifact pull workflow videomanipulator.txt || true
-artifact pull workflow cms.txt || true
 artifact pull workflow migrations.txt
 
 # We always have migrations
@@ -47,8 +44,18 @@ echo "steps:" > $M
 migrations $(cat migrations.txt)
 artifact push workflow $M
 
-if [ ! -f "api.txt" ] && [ ! -f "jobs.txt" ] && [ ! -f "cms.txt" ] && [ ! -f "rewriter.txt" ]; then
-	# Nothing to do here, skip making workflows
+# Pull files
+SHOULD_DEPLOY=false
+for service in "${services[@]}"; do
+	file=$(echo $service | cut -d' ' -f2)
+	artifact pull workflow $file || true
+	if [ -f "$file" ]; then
+		SHOULD_DEPLOY=true
+	fi
+done
+
+# Quit if no services to deploy
+if [ "$SHOULD_DEPLOY" = false ]; then
 	exit 0
 fi
 
@@ -58,30 +65,15 @@ echo "steps:" >> $CB
 allow_loose $ROUTE
 echo "steps:" >> $ROUTE
 
-if [ -f "api.txt" ]; then
-	deploy API api.txt
-	route API api.txt
-fi
+for service in "${services[@]}"; do
+    name=$(echo $service | cut -d' ' -f1)
+    file=$(echo $service | cut -d' ' -f2)
 
-if [ -f "jobs.txt" ]; then
-	deploy JOBS jobs.txt
-	route JOBS jobs.txt
-fi
-
-if [ -f "rewriter.txt" ]; then
-	deploy REWRITER rewriter.txt
-	route REWRITER rewriter.txt
-fi
-
-if [ -f "videomanipulator.txt" ]; then
-	deploy VIDEOMANIPULATOR videomanipulator.txt
-	route VIDEOMANIPULATOR videomanipulator.txt
-fi
-
-if [ -f "cms.txt" ]; then
-	deploy CMS cms.txt
-	route CMS cms.txt
-fi
+    if [ -f "$file" ]; then
+        deploy $name $file
+        route $name $file
+    fi
+done
 
 artifact push workflow $CB
 artifact push workflow $ROUTE
