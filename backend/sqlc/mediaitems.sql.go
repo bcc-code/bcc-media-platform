@@ -7,8 +7,10 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const getMediaItemByID = `-- name: GetMediaItemByID :one
@@ -45,4 +47,101 @@ func (q *Queries) GetMediaItemByID(ctx context.Context, id uuid.UUID) (Mediaitem
 		&i.PrimaryEpisodeID,
 	)
 	return i, err
+}
+
+const insertMediaItem = `-- name: InsertMediaItem :one
+INSERT INTO mediaitems (
+    id,
+    label,
+    title,
+    description,
+    type,
+    asset_id,
+    parent_episode_id,
+    parent_starts_at,
+    parent_ends_at,
+    published_at,
+    production_date,
+    parent_id,
+    content_type,
+    audience,
+    agerating_code,
+    translations_required,
+    timedmetadata_from_asset,
+    available_from,
+    available_to,
+    primary_episode_id
+)
+VALUES (
+    gen_random_uuid(),
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    $14,
+    $15,
+    $16,
+    $17,
+    $18,
+    $19
+)
+RETURNING id
+`
+
+type InsertMediaItemParams struct {
+	Label                  string          `db:"label" json:"label"`
+	Title                  null_v4.String  `db:"title" json:"title"`
+	Description            null_v4.String  `db:"description" json:"description"`
+	Type                   string          `db:"type" json:"type"`
+	AssetID                null_v4.Int     `db:"asset_id" json:"assetId"`
+	ParentEpisodeID        null_v4.Int     `db:"parent_episode_id" json:"parentEpisodeId"`
+	ParentStartsAt         sql.NullFloat64 `db:"parent_starts_at" json:"parentStartsAt"`
+	ParentEndsAt           sql.NullFloat64 `db:"parent_ends_at" json:"parentEndsAt"`
+	PublishedAt            null_v4.Time    `db:"published_at" json:"publishedAt"`
+	ProductionDate         null_v4.Time    `db:"production_date" json:"productionDate"`
+	ParentID               uuid.NullUUID   `db:"parent_id" json:"parentId"`
+	ContentType            null_v4.String  `db:"content_type" json:"contentType"`
+	Audience               null_v4.String  `db:"audience" json:"audience"`
+	AgeratingCode          null_v4.String  `db:"agerating_code" json:"ageratingCode"`
+	TranslationsRequired   bool            `db:"translations_required" json:"translationsRequired"`
+	TimedmetadataFromAsset bool            `db:"timedmetadata_from_asset" json:"timedmetadataFromAsset"`
+	AvailableFrom          null_v4.Time    `db:"available_from" json:"availableFrom"`
+	AvailableTo            null_v4.Time    `db:"available_to" json:"availableTo"`
+	PrimaryEpisodeID       null_v4.Int     `db:"primary_episode_id" json:"primaryEpisodeId"`
+}
+
+func (q *Queries) InsertMediaItem(ctx context.Context, arg InsertMediaItemParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, insertMediaItem,
+		arg.Label,
+		arg.Title,
+		arg.Description,
+		arg.Type,
+		arg.AssetID,
+		arg.ParentEpisodeID,
+		arg.ParentStartsAt,
+		arg.ParentEndsAt,
+		arg.PublishedAt,
+		arg.ProductionDate,
+		arg.ParentID,
+		arg.ContentType,
+		arg.Audience,
+		arg.AgeratingCode,
+		arg.TranslationsRequired,
+		arg.TimedmetadataFromAsset,
+		arg.AvailableFrom,
+		arg.AvailableTo,
+		arg.PrimaryEpisodeID,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
 }

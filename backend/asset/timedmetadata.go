@@ -152,7 +152,6 @@ func ingestOneTimedMetadata(ctx context.Context, queries *sqlc.Queries, inputTm 
 	}
 
 	for _, assetID := range assetIDs {
-		realTm.ID = uuid.New()
 		realTm.AssetID = null.IntFrom(int64(assetID))
 		tmID, err := queries.InsertTimedMetadata(ctx, realTm)
 		if err != nil {
