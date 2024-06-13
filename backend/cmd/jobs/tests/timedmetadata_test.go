@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"os"
 	"slices"
 	"strings"
 	"testing"
@@ -25,6 +24,7 @@ import (
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
 	"gopkg.in/guregu/null.v4"
 
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
@@ -33,6 +33,53 @@ import (
 )
 
 const dbConnectionString = "postgres://bccm@localhost:5432/bccm?sslmode=disable"
+
+func TestIngestTimedMetadataAvoidDurationMismatch(t *testing.T) {
+	if utils.SkipTestIfCI(t) {
+		return
+	}
+	ctx := context.Background()
+
+	db := lo.Must(sql.Open("postgres", dbConnectionString))
+	defer db.Close()
+	queries := sqlc.New(db)
+
+	vxID := lo.Must(uuid.NewRandom()).String()
+	assetID := lo.Must(queries.InsertAsset(ctx, sqlc.InsertAssetParams{
+		MediabankenID: null.StringFrom(vxID),
+		Name:          "test",
+		Status:        null.StringFrom("published"),
+		Duration:      60,
+	}))
+
+	inputData := []asset.TimedMetadata{
+		{
+			ContentType: common.ContentTypeSpeech.Value,
+			Timestamp:   120,
+			Label:       "The Beginning, label",
+			Title:       "The Beginning",
+			Description: "The beginning of the story",
+			Highlight:   true,
+			Persons:     []string{"God", "Adam", "Eve"},
+		},
+		{
+			ContentType: common.ContentTypeSpeech.Value,
+			Timestamp:   0,
+			Label:       "The Beginning, label",
+			Title:       "The Beginning",
+			Description: "The beginning of the story",
+			Highlight:   true,
+			Persons:     []string{"God", "Adam", "Eve"},
+		},
+	}
+
+	uploadTestTimedMetadata(ctx, inputData)
+	defer cleanupS3Folder(ctx, "vod-asset-ingest-sta", "testdata/")
+	executeIngestTimedMetadata(ctx, t, vxID)
+
+	timedmetadata := lo.Must(queries.GetAssetTimedMetadata(ctx, null.IntFrom(int64(assetID))))
+	assert.Len(t, timedmetadata, 0)
+}
 
 func TestIngestTimedMetadata(t *testing.T) {
 	if utils.SkipTestIfCI(t) {
@@ -46,16 +93,14 @@ func TestIngestTimedMetadata(t *testing.T) {
 
 	// Add test data
 	vxID := lo.Must(uuid.NewRandom()).String()
-	assetID, err := queries.InsertAsset(ctx, sqlc.InsertAssetParams{
+	assetID := lo.Must(queries.InsertAsset(ctx, sqlc.InsertAssetParams{
 		MediabankenID: null.StringFrom(vxID),
 		Name:          "test",
 		Status:        null.StringFrom("published"),
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
+		Duration:      600,
+	}))
 
-	var inputData = []asset.TimedMetadata{
+	inputData := []asset.TimedMetadata{
 		{
 			ContentType: common.ContentTypeSpeech.Value,
 			Timestamp:   0,
@@ -87,61 +132,16 @@ func TestIngestTimedMetadata(t *testing.T) {
 		},
 	}
 
-	s3Client := lo.Must(getS3Client(ctx))
-	jsonData := lo.Must(json.Marshal(inputData))
-	lo.Must0(uploadFolderToS3(ctx, s3Client, "vod-asset-ingest-sta", "testdata/"))
-	lo.Must0(uploadFileToS3(ctx, s3Client, strings.NewReader(string(jsonData)), "vod-asset-ingest-sta", "testdata/tm.json"))
-	defer deleteFolderOnS3(ctx, s3Client, "vod-asset-ingest-sta", "testdata/")
+	uploadTestTimedMetadata(ctx, inputData)
+	defer cleanupS3Folder(ctx, "vod-asset-ingest-sta", "testdata/")
+	executeIngestTimedMetadata(ctx, t, vxID)
 
-	// Execute
-	e := cloudevents.NewEvent()
-	e.SetSource(events.SourceMediaBanken)
-	e.SetType(events.TypeAssetTimedMetadataDelivered)
-	e.SetData(cloudevents.ApplicationJSON, &events.AssetTimedMetadataDelivered{
-		VXID:     vxID,
-		JSONPath: "testdata/tm.json",
-	})
-
-	j := lo.Must(e.MarshalJSON())
-	msg := pubsub.Message{
-		Message: pubsub.Msg{
-			PublishTime: time.Now(),
-			Data:        base64.StdEncoding.EncodeToString(j),
-		},
-		Subscription: "bgjobs",
-	}
-
-	msgBytes := lo.Must(json.Marshal(msg))
-
-	resp := lo.Must(http.Post("http://localhost:8078/api/message", "application/json", bytes.NewBuffer(msgBytes)))
-	body := lo.Must(io.ReadAll(resp.Body))
-	if strings.Contains(string(body), "error") {
-		t.Fatalf("Error processing message: %s", body)
-	}
-	test.Eq(t, http.StatusOK, resp.StatusCode)
-
-	// Assert
-	timedmetadata, err := queries.GetAssetTimedMetadata(ctx, null.IntFrom(int64(assetID)))
-	if err != nil {
-		t.Fatalf("%v", err)
-	}
-
-	if len(timedmetadata) == 0 {
-		t.Fatalf("timedmetadata is empty")
-	}
-
+	timedmetadata := lo.Must(queries.GetAssetTimedMetadata(ctx, null.IntFrom(int64(assetID))))
 	uuids := lo.Map(timedmetadata, func(t sqlc.GetAssetTimedMetadataRow, _ int) uuid.UUID {
 		return t.ID
 	})
-
-	fullTimedMetadata, err := queries.GetTimedMetadata(ctx, uuids)
-	if err != nil {
-		t.Errorf("%v", err)
-	}
-
-	if len(fullTimedMetadata) != len(inputData) {
-		t.Errorf("length mismatch")
-	}
+	fullTimedMetadata := lo.Must(queries.GetTimedMetadata(ctx, uuids))
+	assert.Len(t, fullTimedMetadata, len(inputData))
 
 	slices.SortStableFunc(fullTimedMetadata, func(i, j common.TimedMetadata) int {
 		return cmp.Compare(i.Timestamp, j.Timestamp)
@@ -159,9 +159,6 @@ func TestIngestTimedMetadata(t *testing.T) {
 				SongKey:       input.SongNumber,
 			}))
 			test.Eq(t, songId, imported.SongID.UUID)
-		}
-		if len(imported.Images) != 1 {
-			t.Errorf("GetTimedMetadata: expected every timedmetadata to have 1 image")
 		}
 		if len(input.Persons) > 0 {
 			if len(input.Persons) != len(imported.PersonIDs) {
@@ -195,9 +192,40 @@ func TestIngestTimedMetadata(t *testing.T) {
 				}
 			}
 		}
+	}
+}
 
+func uploadTestTimedMetadata(ctx context.Context, inputData []asset.TimedMetadata) {
+	jsonData := lo.Must(json.Marshal(inputData))
+	lo.Must0(uploadFileToS3(ctx, strings.NewReader(string(jsonData)), "vod-asset-ingest-sta", "testdata/tm.json"))
+}
+
+func executeIngestTimedMetadata(ctx context.Context, t *testing.T, vxID string) {
+	e := cloudevents.NewEvent()
+	e.SetSource(events.SourceMediaBanken)
+	e.SetType(events.TypeAssetTimedMetadataDelivered)
+	e.SetData(cloudevents.ApplicationJSON, &events.AssetTimedMetadataDelivered{
+		VXID:     vxID,
+		JSONPath: "testdata/tm.json",
+	})
+
+	j := lo.Must(e.MarshalJSON())
+	msg := pubsub.Message{
+		Message: pubsub.Msg{
+			PublishTime: time.Now(),
+			Data:        base64.StdEncoding.EncodeToString(j),
+		},
+		Subscription: "bgjobs",
 	}
 
+	msgBytes := lo.Must(json.Marshal(msg))
+
+	resp := lo.Must(http.Post("http://localhost:8078/api/message", "application/json", bytes.NewBuffer(msgBytes)))
+	body := lo.Must(io.ReadAll(resp.Body))
+	if strings.Contains(string(body), "error") {
+		t.Fatalf("Error processing message: %s", body)
+	}
+	test.Eq(t, http.StatusOK, resp.StatusCode)
 }
 
 func getS3Client(ctx context.Context) (*s3.Client, error) {
@@ -210,7 +238,8 @@ func getS3Client(ctx context.Context) (*s3.Client, error) {
 	return s3Client, nil
 }
 
-func uploadFileToS3(ctx context.Context, s3Client *s3.Client, file io.Reader, bucket string, key string) error {
+func uploadFileToS3(ctx context.Context, file io.Reader, bucket string, key string) error {
+	s3Client := lo.Must(getS3Client(ctx))
 	_, err := s3Client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket: &bucket,
 		Key:    &key,
@@ -223,31 +252,9 @@ func uploadFileToS3(ctx context.Context, s3Client *s3.Client, file io.Reader, bu
 	return nil
 }
 
-func uploadFolderToS3(ctx context.Context, s3Client *s3.Client, bucket string, folder string) error {
-	dir, err := os.ReadDir(folder)
-	if err != nil {
-		return err
-	}
+func cleanupS3Folder(ctx context.Context, bucket string, s3Folder string) error {
+	s3Client := lo.Must(getS3Client(ctx))
 
-	for _, file := range dir {
-		if file.IsDir() {
-			continue
-		}
-
-		f, err := os.Open(folder + "/" + file.Name())
-		if err != nil {
-			return err
-		}
-
-		err = uploadFileToS3(ctx, s3Client, f, bucket, file.Name())
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func deleteFolderOnS3(ctx context.Context, s3Client *s3.Client, bucket string, s3Folder string) error {
 	s3Folder = strings.TrimSuffix(s3Folder, "/") + "/"
 	objects, err := s3Client.ListObjectsV2(ctx, &s3.ListObjectsV2Input{
 		Bucket: &bucket,

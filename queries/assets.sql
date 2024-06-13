@@ -80,10 +80,10 @@ FROM assets
 WHERE aws_arn = @aws_arn::varchar
 LIMIT 1;
 
--- name: AssetIDsByMediabankenID :many
+-- name: AssetIDsByMediabankenIDAndMinimumDuration :many
 SELECT id
 FROM assets
-WHERE mediabanken_id = @mediabanken_id::varchar
+WHERE mediabanken_id = @mediabanken_id::varchar AND duration > @minimum_duration::int
 ORDER BY date_created DESC;
 
 -- name: InsertAsset :one

@@ -1,6 +1,7 @@
 package asset
 
 import (
+	"cmp"
 	"context"
 	"sync"
 
@@ -10,6 +11,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+	"golang.org/x/exp/slices"
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/guregu/null.v4"
 
@@ -43,14 +45,25 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 		return merry.New("no timed metadata found", merry.WithUserMessage("no timed metadata found in JSON file"))
 	}
 
+	slices.SortStableFunc(timedMetadatas, func(i, j TimedMetadata) int {
+		return cmp.Compare(i.Timestamp, j.Timestamp)
+	})
+
+	biggestTimestamp := timedMetadatas[len(timedMetadatas)-1].Timestamp
+
 	queries := services.GetQueries()
-	assetIDs, err := queries.AssetIDsByMediabankenID(ctx, params.VXID)
+	assetIDs, err := queries.AssetIDsByMediabankenIDAndMinimumDuration(ctx, sqlc.AssetIDsByMediabankenIDAndMinimumDurationParams{
+		MediabankenID:   params.VXID,
+		MinimumDuration: int32(biggestTimestamp),
+	})
 	if err != nil {
 		return merry.Wrap(err)
 	}
 
 	if len(assetIDs) == 0 {
-		return merry.New("no assets found", merry.WithUserMessage("no assets found for VXID: "+params.VXID))
+		span.AddEvent("no assets found for VXID")
+		log.L.Trace().Msgf("Timedmetadata ingest: No assets found for VXID %s", params.VXID)
+		return nil
 	}
 
 	for _, assetID := range assetIDs {

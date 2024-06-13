@@ -29,15 +29,20 @@ func (q *Queries) AssetIDByARN(ctx context.Context, awsArn string) (int32, error
 	return id, err
 }
 
-const assetIDsByMediabankenID = `-- name: AssetIDsByMediabankenID :many
+const assetIDsByMediabankenIDAndMinimumDuration = `-- name: AssetIDsByMediabankenIDAndMinimumDuration :many
 SELECT id
 FROM assets
-WHERE mediabanken_id = $1::varchar
+WHERE mediabanken_id = $1::varchar AND duration > $2::int
 ORDER BY date_created DESC
 `
 
-func (q *Queries) AssetIDsByMediabankenID(ctx context.Context, mediabankenID string) ([]int32, error) {
-	rows, err := q.db.QueryContext(ctx, assetIDsByMediabankenID, mediabankenID)
+type AssetIDsByMediabankenIDAndMinimumDurationParams struct {
+	MediabankenID   string `db:"mediabanken_id" json:"mediabankenId"`
+	MinimumDuration int32  `db:"minimum_duration" json:"minimumDuration"`
+}
+
+func (q *Queries) AssetIDsByMediabankenIDAndMinimumDuration(ctx context.Context, arg AssetIDsByMediabankenIDAndMinimumDurationParams) ([]int32, error) {
+	rows, err := q.db.QueryContext(ctx, assetIDsByMediabankenIDAndMinimumDuration, arg.MediabankenID, arg.MinimumDuration)
 	if err != nil {
 		return nil, err
 	}
