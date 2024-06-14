@@ -137,13 +137,15 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 
 	page := utils.Paginate(items, first, offset, nil)
 
-	var result []*model.Contribution
 	var wg sync.WaitGroup
 	var errors []error
 	mu := sync.Mutex{}
 	wg.Add(len(page.Items))
-	for _, c := range page.Items {
-		go func(c *common.Contribution) {
+	result := make([]*model.Contribution, len(page.Items))
+	for i, c := range page.Items {
+		i := i
+		c := c
+		go func() {
 			defer wg.Done()
 			contribution, err := resolveContribution(ctx, c, r.Loaders)
 			mu.Lock()
@@ -155,8 +157,8 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 			if contribution == nil {
 				return
 			}
-			result = append(result, contribution)
-		}(c)
+			result[i] = contribution
+		}()
 	}
 	wg.Wait()
 
@@ -168,7 +170,9 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 		Offset: page.Offset,
 		First:  page.First,
 		Total:  page.Total,
-		Items:  result,
+		Items: lo.Filter(result, func(c *model.Contribution, _ int) bool {
+			return c != nil
+		}),
 	}, nil
 }
 
