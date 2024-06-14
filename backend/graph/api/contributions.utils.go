@@ -2,10 +2,12 @@ package graph
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
+	"github.com/rs/zerolog/log"
 )
 
 func resolveContribution(ctx context.Context, i *common.Contribution, loaders *common.BatchLoaders) (*model.Contribution, error) {
@@ -21,11 +23,15 @@ func resolveContribution(ctx context.Context, i *common.Contribution, loaders *c
 		item = model.EpisodeFrom(ctx, ep)
 	case "chapter":
 		id := utils.AsUuid(i.ItemID)
-		tm, err := loaders.TimedMetadataLoader.Get(ctx, id)
-		if err != nil || tm == nil {
+		episodeID, err := loaders.MediaItemPrimaryEpisodeIDLoader.Get(ctx, i.MediaItemID)
+		if episodeID == nil || err != nil {
+			log.Error().Err(err).Msg("failed to get primary episode id")
 			return nil, err
 		}
-		item = resolveChapter(ctx, tm, loaders)
+		item, err = resolveChapter(ctx, loaders, strconv.Itoa(*episodeID), id)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &model.Contribution{

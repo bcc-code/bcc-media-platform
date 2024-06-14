@@ -92,12 +92,12 @@ type BatchLoaders struct {
 
 	PromptLoader *loaders.Loader[uuid.UUID, *Prompt]
 
-	TimedMetadataEpisodeIDLoader *loaders.Loader[uuid.UUID, *int]
-	TimedMetadataLoader          *loaders.Loader[uuid.UUID, *TimedMetadata]
-	PersonLoader                 *loaders.Loader[uuid.UUID, *Person]
-	SongLoader                   *loaders.Loader[uuid.UUID, *Song]
-	PhraseLoader                 *loaders.Loader[string, *Phrase]
-	ContributionsLoader          *loaders.Loader[int32, *Contribution]
+	MediaItemPrimaryEpisodeIDLoader *loaders.Loader[uuid.UUID, *int]
+	TimedMetadataLoader             *loaders.Loader[uuid.UUID, *TimedMetadata]
+	PersonLoader                    *loaders.Loader[uuid.UUID, *Person]
+	SongLoader                      *loaders.Loader[uuid.UUID, *Song]
+	PhraseLoader                    *loaders.Loader[string, *Phrase]
+	ContributionsLoader             *loaders.Loader[int32, *Contribution]
 }
 
 // FilteredLoaders contains loaders that will be filtered by permissions.

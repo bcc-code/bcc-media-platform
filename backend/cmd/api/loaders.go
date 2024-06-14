@@ -257,7 +257,7 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 		SongLoader: loaders.New(ctx, queries.GetSongs, loaders.WithName("song-loader"), loaders.WithKeyFunc(func(i common.Song) uuid.UUID {
 			return i.ID
 		})),
-		TimedMetadataEpisodeIDLoader: loaders.NewConversionLoader(ctx, queries.GetEpisodeIDForTimedMetadatas, loaders.WithMemoryCache(time.Second*30), loaders.WithName("timedmetadata-episode-id")),
+		MediaItemPrimaryEpisodeIDLoader: loaders.NewConversionLoader(ctx, queries.GetPrimaryEpisodeIDForMediaItems, loaders.WithName("media-primary-episode")),
 		TimedMetadataLoader: loaders.New(ctx, queries.GetTimedMetadata, loaders.WithName("timedmetadata-loader"), loaders.WithKeyFunc(func(i common.TimedMetadata) uuid.UUID {
 			return i.ID
 		})),
