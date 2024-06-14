@@ -14,6 +14,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
+	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/samber/lo"
 )
 
@@ -86,16 +87,25 @@ func (r *personResolver) ContributionContentTypes(ctx context.Context, obj *mode
 		return nil, err
 	}
 
-	countsByType := make(map[string]int)
+	countsByType := make(map[common.ContentType]int)
 	for _, c := range items {
-		countsByType[c.ContentType]++
+		t := common.ContentTypes.Parse(c.ContentType)
+		if t == nil {
+			log.L.Warn().Msgf("Unknown content type: %s", c.ContentType)
+			continue
+		}
+		countsByType[*t]++
 	}
 
 	var mapped []*model.ContentTypeCount
-	for k, v := range countsByType {
+	for _, t := range common.OrderedContentTypes {
+		count, ok := countsByType[t]
+		if !ok {
+			continue
+		}
 		mapped = append(mapped, &model.ContentTypeCount{
-			Type:  &model.ContentType{Code: k},
-			Count: v,
+			Type:  &model.ContentType{Code: t.Value},
+			Count: count,
 		})
 	}
 
