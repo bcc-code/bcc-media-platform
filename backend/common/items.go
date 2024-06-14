@@ -206,10 +206,16 @@ type Stream struct {
 	ConfigurationId   null.String `json:"configurationId"`
 }
 
-// ContentType is a chapter type
 type ContentType enum.Member[string]
 
-// Chapter types
+var OrderedContentTypes = []ContentType{
+	ContentTypeSpeech,
+	ContentTypeInterview,
+	ContentTypeTheme,
+	ContentTypeSong,
+	ContentTypeOther,
+	ContentTypeSingAlong,
+}
 var (
 	ContentTypeSong      = ContentType{Value: "song"}
 	ContentTypeSpeech    = ContentType{Value: "speech"}
@@ -218,15 +224,7 @@ var (
 	ContentTypeOther     = ContentType{Value: "other"}
 	ContentTypeTheme     = ContentType{Value: "theme"}
 	ContentTypeInterview = ContentType{Value: "interview"}
-	ContentTypes         = enum.New(
-		ContentTypeSong,
-		ContentTypeSpeech,
-		ContentTypeTestimony,
-		ContentTypeSingAlong,
-		ContentTypeOther,
-		ContentTypeTheme,
-		ContentTypeInterview,
-	)
+	ContentTypes         = enum.New(OrderedContentTypes...)
 )
 
 // TimedMetadata item type
