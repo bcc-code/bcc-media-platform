@@ -464,7 +464,7 @@ import { useGetCalendarStatusQuery, useGetMeQuery } from "@/graph/generated"
 import ContactForm from "@/components/support/ContactForm.vue"
 import FAQ from "../support/FAQ.vue"
 
-const { data: meQuery, fetching, executeQuery } = useGetMeQuery()
+const { data: meQuery, fetching } = useGetMeQuery({ variables: {} })
 
 const { query } = useSearch()
 

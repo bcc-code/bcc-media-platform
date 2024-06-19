@@ -27,7 +27,7 @@ watch(
     }
 )
 
-const { data, fetching } = useApplicationQuery()
+const { data, fetching } = useApplicationQuery({variables: {}})
 
 const { setTitle } = useTitle()
 

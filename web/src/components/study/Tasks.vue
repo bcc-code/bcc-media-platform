@@ -367,7 +367,7 @@ const {
     executeQuery: refreshConsent,
     resume: resumeConsentQuery,
     stale: staleq,
-} = useGetFirstSotmLessonForConsentQuery()
+} = useGetFirstSotmLessonForConsentQuery({ variables: {} })
 const {
     fetching: consentSaving,
     executeMutation: setConsentTrue,

@@ -52,6 +52,7 @@ const { authenticated, shouldSignIn } = useAuth()
 
 const analyticsQuery = useGetMeQuery({
     pause: true,
+    variables: {},
 })
 
 const { load } = useCalendar()

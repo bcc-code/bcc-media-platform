@@ -73,7 +73,7 @@ import { VButton } from "."
 
 const { accepted, preferences, statistics } = useCookies()
 
-const { executeQuery } = useGetMeQuery()
+const { executeQuery } = useGetMeQuery({variables: {}})
 
 const accept = () => {
     accepted.value = true

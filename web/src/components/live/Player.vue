@@ -12,6 +12,7 @@ import { onMounted, onUnmounted, ref } from "vue"
 import { useRoute } from "vue-router"
 import { current as currentLanguage } from "@/services/language"
 import { getSessionId } from "rudder-sdk-js"
+import { currentApp } from "@/services/app"
 
 const err = ref(null as string | null)
 
@@ -19,7 +20,7 @@ let player: Player | null = null
 
 const route = useRoute()
 
-const { data, executeQuery } = useGetMeQuery()
+const { data, executeQuery } = useGetMeQuery({ variables: {} })
 
 const onSpaceBar = (event: KeyboardEvent) => {
     if (event.type === "keydown") {
@@ -79,6 +80,7 @@ onMounted(async () => {
             autoplay: true,
         },
         npaw: {
+            appName: currentApp.value,
             enabled: !!import.meta.env.VITE_NPAW_ACCOUNT_CODE,
             accountCode: import.meta.env.VITE_NPAW_ACCOUNT_CODE,
             tracking: {

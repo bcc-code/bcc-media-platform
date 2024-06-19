@@ -50,7 +50,7 @@ const lanTo3letter: {
 
 const route = useRoute()
 
-const { data, executeQuery } = useGetMeQuery()
+const { data, executeQuery } = useGetMeQuery({ variables: {} })
 
 const props = defineProps<{
     context: EpisodeContext

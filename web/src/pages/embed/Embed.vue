@@ -31,6 +31,7 @@ if (!!router.currentRoute.value.query["bg"]) {
 
 const analyticsQuery = useGetMeQuery({
     pause: true,
+    variables: {},
 })
 
 onMounted(async () => {

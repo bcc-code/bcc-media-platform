@@ -19,7 +19,7 @@ defineEmits<{
     (e: "update:show", v: boolean): void
 }>()
 
-const { data, fetching } = useGetFaqQuery()
+const { data, fetching } = useGetFaqQuery({ variables: {} })
 </script>
 <template>
     <TransitionRoot

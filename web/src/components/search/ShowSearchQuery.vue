@@ -49,7 +49,7 @@
 import { SearchQuery, useGetDefaultEpisodeIdQuery } from "@/graph/generated"
 import { nextTick, ref } from "vue"
 import { Swiper, SwiperSlide } from "swiper/vue"
-import { Navigation } from "swiper"
+import { Navigation } from "swiper/modules"
 import { useI18n } from "vue-i18n"
 import { goToEpisode } from "@/utils/items"
 import breakpoints from "../sections/item/breakpoints"

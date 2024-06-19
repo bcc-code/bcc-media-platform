@@ -62,7 +62,9 @@
 </template>
 <script lang="ts" setup>
 import { Section } from "../types"
-import TSwiper, { Navigation, Pagination, SwiperOptions } from "swiper"
+import TSwiper from "swiper"
+import type { SwiperOptions } from "swiper/types"
+import { Navigation, Pagination } from "swiper/modules"
 import { Swiper, SwiperSlide } from "swiper/vue"
 import breakpoints from "./breakpoints"
 import { computed, ref } from "vue"

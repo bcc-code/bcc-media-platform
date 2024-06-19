@@ -16,7 +16,7 @@ const props = defineProps<{
 const subMutation = useSubscribeToTopicMutation()
 const unsubMutation = useUnsubscribeToTopicMutation()
 
-const query = useGetSubscriptionsQuery()
+const query = useGetSubscriptionsQuery({variables: {}})
 const subscribed = ref<boolean | undefined>(false)
 watch(query.data, () => {
     subscribed.value = query.data?.value?.subscriptions.some(

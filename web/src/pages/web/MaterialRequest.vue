@@ -18,7 +18,7 @@ import no from "./terms/no"
 
 const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0()
 
-const { data, fetching } = useGetMeQuery()
+const { data, fetching } = useGetMeQuery({variables: {}})
 
 while (fetching.value) {
     await new Promise((r) => setTimeout(r, 500))
