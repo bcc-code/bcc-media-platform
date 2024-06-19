@@ -74,7 +74,7 @@ body {
 }
 
 .fade-expo-1s {
-    animation: fade-in 1s cubic-bezier(0.19, 1, 0.22, 1)
+    animation: fade-in 1s  cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes fade-in {

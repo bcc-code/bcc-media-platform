@@ -4,9 +4,14 @@
         background-color="#000000aa"
         contents-color="var(--color-background-1)"
         border-top-radius="16px"
+        snap-point="70dvh"
         @close="cancel"
     >
-        <div class="h-1 bg-label-4 rounded-full w-10 mx-auto"></div>
+        <template #drag-handle>
+            <div class="flex items-center h-full">
+                <div class="h-1 bg-label-4 rounded-full w-10 mx-auto"></div>
+            </div>
+        </template>
         <div class="relative text-white">
             <div
                 v-show="fetching"
@@ -54,10 +59,9 @@
                         v-if="_visible"
                         v-model="comment"
                         name="comment"
-                        @focus="onCommentFocus"
                         :placeholder="t('feedback.placeholder')"
                         rows="6"
-                        class="mt-2 w-full ellipsis rounded-xl text-lg pl-4 pr-6 py-3 bg-background-2 border border-transparent focus:border-tint-1 focus:outline-none placeholder:text-label-4 feedback-comment resize-none"
+                        class="mt-2 w-full ellipsis rounded-xl text-lg pl-4 pr-6 py-3 bg-background-2 border border-transparent focus:border-tint-1 focus:outline-none placeholder:text-label-4 text-style-body-1 resize-none"
                     ></textarea>
                 </div>
                 <div v-if="error" class="text-red my-4 text-center">
@@ -88,11 +92,9 @@
 import { computed, ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { VButton } from ".."
-import FeedbackBottomSheet from "../feedback/FeedbackBottomSheet.vue"
 import FeedbackRating from "./FeedbackRating.vue"
 import swipeModal from "@takuma-ru/vue-swipe-modal"
 import { useSendEpisodeFeedbackMutation } from "@/graph/generated"
-import { exec } from "child_process"
 import Loader from "../Loader.vue"
 const { fetching, executeMutation, error, data } =
     useSendEpisodeFeedbackMutation()
@@ -132,14 +134,6 @@ const _visible = computed({
     },
 })
 
-const onCommentFocus = (e: FocusEvent) => {
-    /* const modalContents = document.getElementsByClassName("modal-contents")[0]
-    if (modalContents && flutter) {
-        modalContents.scrollTop = 1000
-        setTimeout(() => (modalContents.scrollTop = 1000), 500)
-    } */
-}
-
 const cancel = (e: Event) => {
     emit("update:selected", null)
     emit("update:visible", false)
@@ -157,18 +151,9 @@ const sendFeedback = async () => {
 }
 </script>
 <style scoped>
-.feedback-comment::placeholder {
-    /* body1 */
-    font-size: 1.188rem;
-    font-family: "Barlow";
-    font-weight: 400;
-    font-style: normal;
-    line-height: 24px;
-    text-decoration: none;
-    text-transform: none;
-}
-
-:root {
-    --contents-height: 100vh;
+.modal-style {
+    color: white !important;
+    border-radius: 16px 16px 0 0 !important;
+    background-color: var(--color-background-1) !important;
 }
 </style>

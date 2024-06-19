@@ -3,9 +3,8 @@
         <div
             v-if="initializing"
             class="flex h-full items-center justify-center"
-        >
-        </div>
-        <router-view v-else v-slot="{ Component }">
+        ></div>
+        <router-view v-else v-slot="{ Component }" class="fade-expo-1s">
             <transition name="slide-fade" mode="out-in">
                 <component :key="$route.name" :is="Component" />
             </transition>

@@ -17,7 +17,7 @@
                         {{ t("lesson.watchAgain.description") }}
                     </p>
                     <div
-                        class="cursor-pointer mt-4 rounded-xl aspect-video bg-background-2 overflow-hidden relative z-10 relative"
+                        class="cursor-pointer mt-4 rounded-xl aspect-video bg-background-2 overflow-hidden z-10 relative"
                         @click="playAgain"
                     >
                         <div
@@ -122,6 +122,7 @@ import router from "@/router"
 import FeedbackRatingAndForm from "../feedback/FeedbackRatingAndForm.vue"
 
 const { t } = useI18n()
+const props = defineProps<{ lesson: GetStudyLessonQuery }>()
 const episode = computed(() => props.lesson.episode)
 
 const feedbackSentPreviously =
@@ -152,7 +153,6 @@ const isProbablyAnimation = computed(
         ].includes(episode.value.id)
 )
 
-const props = defineProps<{ lesson: GetStudyLessonQuery }>()
 const emit = defineEmits<{
     (e: "navigate", i: Page): any
 }>()
@@ -165,4 +165,3 @@ const playAgain = () => {
     router.push("/episode/" + episode.value.id)
 }
 </script>
-@/services/webviews/mainHandler
