@@ -4,7 +4,6 @@
             v-if="initializing"
             class="flex h-full items-center justify-center"
         >
-            <div class="m-auto"><Loader variant="spinner"></Loader></div>
         </div>
         <router-view v-else v-slot="{ Component }">
             <transition name="slide-fade" mode="out-in">

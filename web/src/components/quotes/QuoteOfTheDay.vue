@@ -50,7 +50,7 @@ const { locale } = useI18n()
 let localizedQuotesPromise =
     localized[`../../utils/quotes/localized/${locale.value}.json`]?.()
 
-const { isLoading, state: localizedQuotes } = useAsyncState(
+const { state: localizedQuotes } = useAsyncState(
     localizedQuotesPromise,
     undefined
 )
@@ -125,15 +125,15 @@ onMounted(async () => {
         style="max-height: 100%; overflow-y: auto"
         @dblclick="setRead(false)"
     >
-        <div v-if="isLoading || !quote"></div>
         <Quote
-            v-else-if="quote"
             :quote="quoteText"
             :author="quote.author"
             :source="quote.source"
-            class="px-8 pt-3 pb-2"
+            class="px-8 pt-3 pb-2 fade-expo-1s"
         />
-        <div class="flex gap-2 mx-5 w-full pt-1 items-center justify-center">
+        <div
+            class="flex gap-2 mx-5 w-full pt-1 items-center justify-center fade-expo-1s"
+        >
             <transition
                 enter-active-class="transition duration-150 ease-out"
                 enter-from-class="opacity-0"
