@@ -138,7 +138,7 @@ func jwksHandler(config *redirectConfig) gin.HandlerFunc {
 	}
 }
 
-func main() {
+func setup() (*gin.Engine, envConfig) {
 	ctx := context.Background()
 	start := time.Now()
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
@@ -280,7 +280,13 @@ func main() {
 
 	log.L.Info().Msgf("Time to start: %d", time.Now().Sub(start).Nanoseconds())
 
-	err = r.Run(":" + config.Port)
+	return r, config
+}
+
+func main() {
+	r, config := setup()
+
+	err := r.Run(":" + config.Port)
 	if err != nil {
 		return
 	}
