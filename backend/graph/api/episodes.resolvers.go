@@ -7,7 +7,6 @@ package graph
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -18,7 +17,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
-	"github.com/google/uuid"
 	"github.com/samber/lo"
 	null "gopkg.in/guregu/null.v4"
 )
@@ -27,17 +25,6 @@ import (
 func (r *chapterResolver) Episode(ctx context.Context, obj *model.Chapter) (*model.Episode, error) {
 	if obj.Episode != nil && obj.Episode.ID != "" {
 		return r.QueryRoot().Episode(ctx, obj.Episode.ID, nil)
-	}
-	tmID := utils.AsUuid(obj.ID)
-	if tmID == uuid.Nil {
-		return nil, nil
-	}
-	epID, err := r.Loaders.TimedMetadataEpisodeIDLoader.Get(ctx, tmID)
-	if err != nil {
-		return nil, err
-	}
-	if epID != nil {
-		return r.QueryRoot().Episode(ctx, fmt.Sprint(*epID), nil)
 	}
 	return nil, nil
 }
@@ -228,9 +215,15 @@ func (r *episodeResolver) Chapters(ctx context.Context, obj *model.Episode) ([]*
 		return i.ContentType.Value
 	})))
 
-	return lo.Map(metadataItems, func(i *common.TimedMetadata, _ int) *model.Chapter {
-		return resolveChapter(ctx, i, r.Loaders)
-	}), nil
+	var out []*model.Chapter
+	for _, tm := range metadataItems {
+		chapter, err := resolveChapter(ctx, r.Loaders, obj.ID, tm.ID)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, chapter)
+	}
+	return out, nil
 }
 
 // Season is the resolver for the season field.

@@ -1,11 +1,3 @@
--- name: getEpisodeIDsForTimedMetadatas :many
-SELECT
-tm.id,
-m.primary_episode_id
-FROM timedmetadata tm
-LEFT JOIN mediaitems m on (m.id = tm.mediaitem_id) OR (m.timedmetadata_from_asset AND m.asset_id = tm.asset_id)
-WHERE tm.id = ANY ($1::uuid[]);
-
 -- name: getTimedMetadata :many
 SELECT tm.id,
        tm.type,

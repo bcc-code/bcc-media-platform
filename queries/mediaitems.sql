@@ -1,6 +1,11 @@
 -- name: GetMediaItemByID :one
 SELECT * FROM mediaitems WHERE id = @id::uuid;
 
+-- name: getPrimaryEpisodeIDForMediaItems :many
+SELECT id, primary_episode_id
+FROM mediaitems
+WHERE id = ANY(@ids::uuid[]);
+
 -- name: InsertMediaItem :one
 INSERT INTO mediaitems (
     id,

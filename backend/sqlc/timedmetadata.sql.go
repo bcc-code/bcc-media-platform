@@ -201,43 +201,6 @@ func (q *Queries) InsertTimedMetadata(ctx context.Context, arg InsertTimedMetada
 	return id, err
 }
 
-const getEpisodeIDsForTimedMetadatas = `-- name: getEpisodeIDsForTimedMetadatas :many
-SELECT
-tm.id,
-m.primary_episode_id
-FROM timedmetadata tm
-LEFT JOIN mediaitems m on (m.id = tm.mediaitem_id) OR (m.timedmetadata_from_asset AND m.asset_id = tm.asset_id)
-WHERE tm.id = ANY ($1::uuid[])
-`
-
-type getEpisodeIDsForTimedMetadatasRow struct {
-	ID               uuid.UUID   `db:"id" json:"id"`
-	PrimaryEpisodeID null_v4.Int `db:"primary_episode_id" json:"primaryEpisodeId"`
-}
-
-func (q *Queries) getEpisodeIDsForTimedMetadatas(ctx context.Context, dollar_1 []uuid.UUID) ([]getEpisodeIDsForTimedMetadatasRow, error) {
-	rows, err := q.db.QueryContext(ctx, getEpisodeIDsForTimedMetadatas, pq.Array(dollar_1))
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []getEpisodeIDsForTimedMetadatasRow
-	for rows.Next() {
-		var i getEpisodeIDsForTimedMetadatasRow
-		if err := rows.Scan(&i.ID, &i.PrimaryEpisodeID); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getTimedMetadata = `-- name: getTimedMetadata :many
 SELECT tm.id,
        tm.type,

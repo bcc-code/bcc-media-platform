@@ -35,6 +35,7 @@ SELECT
   rc.person_id,
   rc.item_type,
   rc.item_id,
+  rc.mediaitem_id,
   COALESCE(rc.content_type, 'unknown')
 FROM
   RelevantContributions rc

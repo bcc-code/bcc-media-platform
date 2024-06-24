@@ -9,9 +9,15 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
+	"github.com/google/uuid"
 )
 
-func resolveChapter(ctx context.Context, tm *common.TimedMetadata, loaders *common.BatchLoaders) *model.Chapter {
+func resolveChapter(ctx context.Context, loaders *common.BatchLoaders, episodeID string, id uuid.UUID) (*model.Chapter, error) {
+	tm, err := loaders.TimedMetadataLoader.Get(ctx, id)
+	if err != nil || tm == nil {
+		return nil, err
+	}
+
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
 	title := tm.Title.Get(languages)
@@ -66,5 +72,8 @@ func resolveChapter(ctx context.Context, tm *common.TimedMetadata, loaders *comm
 		Start:       int(tm.Timestamp),
 		Duration:    int(tm.Duration),
 		Image:       imageOrFallback(ctx, tm.Images, nil),
-	}
+		Episode: &model.Episode{
+			ID: episodeID,
+		},
+	}, nil
 }

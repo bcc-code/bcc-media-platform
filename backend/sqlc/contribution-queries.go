@@ -23,6 +23,7 @@ func (q *RoleQueries) GetContributionsForPersonsWithRoles(ctx context.Context, i
 			ItemID:      i.ItemID,
 			ItemType:    i.ItemType,
 			ContentType: i.ContentType,
+			MediaItemID: i.MediaitemID,
 		}
 	}), nil
 }

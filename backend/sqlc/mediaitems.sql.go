@@ -10,6 +10,7 @@ import (
 	"database/sql"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
@@ -144,4 +145,38 @@ func (q *Queries) InsertMediaItem(ctx context.Context, arg InsertMediaItemParams
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
+}
+
+const getPrimaryEpisodeIDForMediaItems = `-- name: getPrimaryEpisodeIDForMediaItems :many
+SELECT id, primary_episode_id
+FROM mediaitems
+WHERE id = ANY($1::uuid[])
+`
+
+type getPrimaryEpisodeIDForMediaItemsRow struct {
+	ID               uuid.UUID   `db:"id" json:"id"`
+	PrimaryEpisodeID null_v4.Int `db:"primary_episode_id" json:"primaryEpisodeId"`
+}
+
+func (q *Queries) getPrimaryEpisodeIDForMediaItems(ctx context.Context, ids []uuid.UUID) ([]getPrimaryEpisodeIDForMediaItemsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getPrimaryEpisodeIDForMediaItems, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getPrimaryEpisodeIDForMediaItemsRow
+	for rows.Next() {
+		var i getPrimaryEpisodeIDForMediaItemsRow
+		if err := rows.Scan(&i.ID, &i.PrimaryEpisodeID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

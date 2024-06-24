@@ -107,6 +107,7 @@ SELECT
   rc.person_id,
   rc.item_type,
   rc.item_id,
+  rc.mediaitem_id,
   COALESCE(rc.content_type, 'unknown')
 FROM
   RelevantContributions rc
@@ -137,6 +138,7 @@ type getContributionIDsForPersonsWithRolesRow struct {
 	PersonID    uuid.UUID `db:"person_id" json:"personId"`
 	ItemType    string    `db:"item_type" json:"itemType"`
 	ItemID      string    `db:"item_id" json:"itemId"`
+	MediaitemID uuid.UUID `db:"mediaitem_id" json:"mediaitemId"`
 	ContentType string    `db:"content_type" json:"contentType"`
 }
 
@@ -154,6 +156,7 @@ func (q *Queries) getContributionIDsForPersonsWithRoles(ctx context.Context, arg
 			&i.PersonID,
 			&i.ItemType,
 			&i.ItemID,
+			&i.MediaitemID,
 			&i.ContentType,
 		); err != nil {
 			return nil, err
