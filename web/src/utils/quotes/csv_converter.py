@@ -1,3 +1,16 @@
+# Note: this can be used for more than quotes
+# 
+# It's a generic utility to convert a csv dataset into to a localizable and frontend friendly format.
+# Only works with CSV files that have a single field to translate but can be easily modified to support more.
+#
+# CSV requirements: ;-delimited csv. And some sort of "id" column to use as the key.
+# - full.json -> contains all the fields from the csv.
+# - localizable.json -> contains only the id and the field to translate. this can be uploaded to a translation tool like Crowdin
+#
+# How to use the resulting files in frontend:
+# - Load the full.json file in the frontend to list all the rows or whatever you need.
+# - Depending on the users language, load one of the localized files and use the id as the key to get the localized field.
+
 import csv
 import json
 import sys
