@@ -147,7 +147,7 @@
     "footer": {
         "cookies": "Cookie-uri",
         "privacyPolicy": "Politica de Confidențialitate",
-        "information": "",
+        "information": "BCC Media este o fundație media din cadrul [BCC federation](https://bcc.no) care produce și distribuie conținut cu valori pozitive și creștine.",
         "headOffice": "Sediul central",
         "contactUs": "Contactează-ne",
         "downloadApp": "Descarcă aplicația noastră",
@@ -162,9 +162,9 @@
         "membersOnly": "Acest video este accesibil doar pentru utilizatorii conectați cu cont personal."
     },
     "quotes": {
-        "quoteOfTheDay": "",
-        "markAsRead": "",
-        "markAsUnread": ""
+        "quoteOfTheDay": "Citatul zilei",
+        "markAsRead": "Marchează ca citit",
+        "markAsUnread": "Marchează ca necitit"
     },
     "feedback": {
         "appreciated": "Apreciem feedbackul tău.",
@@ -173,7 +173,7 @@
         "howEasyToUnderstand": "Cât de ușor a fost să înțelegi videoul?",
         "anonymousInfo": "Evaluarea ta va fi transmisă în mod anonim",
         "placeholder": "Te rugăm să fii cât mai detaliat posibil pentru a ne ajuta să înțelegem.",
-        "giveFeedback": ""
+        "giveFeedback": "Oferă recenzie"
     },
     "contactLocalBukIfWrong": "Contactează persoana responsabilă din asociața ta locală BUK dacă tu crezi că acest lucru este greșit.",
     "thankYou": "Mulțumim!",
@@ -209,7 +209,7 @@
         "watchOnOurApp": "Descarcă aplicația mobilă pentru a viziona scurtmetraje."
     },
     "subscriptions": {
-        "subscribe": "",
-        "unsubscribe": ""
+        "subscribe": "Abonare",
+        "unsubscribe": "Dezabonare"
     }
 }

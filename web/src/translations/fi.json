@@ -147,7 +147,7 @@
     "footer": {
         "cookies": "Evästeet",
         "privacyPolicy": "Tietosuojakäytäntö",
-        "information": "",
+        "information": "BCC Media on [BCC Liiton](https://bcc.no) mediayksikkö. Se tuottaa ja toimittaa positiivista Kristillisten arvojen mukaista sisältöä.",
         "headOffice": "Pääkonttori",
         "contactUs": "Yhteydenotto",
         "downloadApp": "Lataa sovelluksemme",
@@ -162,9 +162,9 @@
         "membersOnly": "Tämä video näkyy vain sisäänkirjautuneille."
     },
     "quotes": {
-        "quoteOfTheDay": "",
-        "markAsRead": "",
-        "markAsUnread": ""
+        "quoteOfTheDay": "Päivän sitaatti",
+        "markAsRead": "Merkitse luetuksi",
+        "markAsUnread": "Merkitse lukemattomaksi"
     },
     "feedback": {
         "appreciated": "Kiitos palautteesta.",
@@ -173,7 +173,7 @@
         "howEasyToUnderstand": "Kuinka helppoa oli ymmärtää videon sisältö?",
         "anonymousInfo": "Arvostelusi tallentuu nimettömänä",
         "placeholder": "Jotta voisimme mahdollisimman hyvin ymmärtää, pyydämme selittämään yksityiskohtaisesti.",
-        "giveFeedback": ""
+        "giveFeedback": "Anna palautetta"
     },
     "contactLocalBukIfWrong": "Jos pidät tätä vääränä ota yhteyttä paikalliseen BUK-vastuuhenkilöön.",
     "thankYou": "Kiitoksia!",
@@ -209,7 +209,7 @@
         "watchOnOurApp": "Lyhytvideoita katsellaksesi asenna kännykkäsovellus."
     },
     "subscriptions": {
-        "subscribe": "",
-        "unsubscribe": ""
+        "subscribe": "Tilaa",
+        "unsubscribe": "Lopeta tilaus"
     }
 }

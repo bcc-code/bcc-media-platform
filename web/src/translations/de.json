@@ -17,7 +17,7 @@
         "start": "Start",
         "skip": "Überspringen",
         "join": "Beitreten",
-        "open": "Offen"
+        "open": "Öffnen"
     },
     "download": {
         "resolution": "Auflösung",
@@ -106,7 +106,7 @@
     },
     "study": {
         "startStudy": "Untersuchung starten",
-        "continueStudy": "Untersuchung fortsetzen"
+        "continueStudy": "Bibelstudium fortsetzen"
     },
     "competition": {
         "title": "Verdopple deine Chancen",
@@ -147,7 +147,7 @@
     "footer": {
         "cookies": "Cookies",
         "privacyPolicy": "Datenschutz",
-        "information": "",
+        "information": "BCC Media ist eine Medienstiftung im BCC-Verbund (https://bcc.no), welche Inhalte mit positiven und christlichen Werten produziert und verbreitet.",
         "headOffice": "Direktion",
         "contactUs": "Kontaktiere uns",
         "downloadApp": "Lade unsere App herunter",
@@ -162,9 +162,9 @@
         "membersOnly": "Dieses Video ist nur zugänglich für Nutzer, die eingeloggt sind."
     },
     "quotes": {
-        "quoteOfTheDay": "",
-        "markAsRead": "",
-        "markAsUnread": ""
+        "quoteOfTheDay": "Zitat des Tages",
+        "markAsRead": "Als gelesen markieren",
+        "markAsUnread": "Als ungelesen markieren"
     },
     "feedback": {
         "appreciated": "Wir schätzen dein Feedback.",
@@ -173,7 +173,7 @@
         "howEasyToUnderstand": "Wie einfach war es, das Video zu verstehen?",
         "anonymousInfo": "Deine Bewertung wird anonym eingereicht",
         "placeholder": "Bitte sei so detailliert wie möglich, sodass wir es verstehen.",
-        "giveFeedback": ""
+        "giveFeedback": "Feedback geben"
     },
     "contactLocalBukIfWrong": "Kontaktiere die Person, die in deiner Gemeinde für BUK verantwortlich ist, wenn du denkst, dass das falsch ist.",
     "thankYou": "Vielen Dank!",
@@ -209,7 +209,7 @@
         "watchOnOurApp": "Lade die mobile App herunter, um Kurzfilme anzusehen."
     },
     "subscriptions": {
-        "subscribe": "",
-        "unsubscribe": ""
+        "subscribe": "Abonnieren",
+        "unsubscribe": "Abbestellen"
     }
 }

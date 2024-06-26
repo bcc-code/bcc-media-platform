@@ -55,7 +55,7 @@
         "returnHome": "Вернуться домой"
     },
     "common": {
-        "new": "",
+        "new": "Новое",
         "newEpisodes": "Новые эпизоды"
     },
     "episode": {
@@ -147,7 +147,7 @@
     "footer": {
         "cookies": " Файлы cookies",
         "privacyPolicy": "Политика конфиденциальности",
-        "information": "",
+        "information": "BCC Media — это медиа-фонд в организации BCC, который производит и распространяет контент с позитивными и христианскими ценностями.",
         "headOffice": "Главный офис",
         "contactUs": "Свяжитесь с нами",
         "downloadApp": "Загрузите наше приложение",
@@ -162,9 +162,9 @@
         "membersOnly": "Видео доступно только авторизованным пользователям."
     },
     "quotes": {
-        "quoteOfTheDay": "",
-        "markAsRead": "",
-        "markAsUnread": ""
+        "quoteOfTheDay": "Цитата дня",
+        "markAsRead": "Отметить как прочитанное",
+        "markAsUnread": "Отметить как непрочитанное"
     },
     "feedback": {
         "appreciated": "Мы ценим Ваш отзыв.",
@@ -173,7 +173,7 @@
         "howEasyToUnderstand": "Насколько легко было понять видео?",
         "anonymousInfo": "Ваша оценка будет отправлена ​​анонимно",
         "placeholder": "Пожалуйста, напишите как можно более подробно, чтобы помочь нам понять.",
-        "giveFeedback": ""
+        "giveFeedback": "Дать обратную связь"
     },
     "contactLocalBukIfWrong": "Свяжитесь с ответственным за BUK в вашей поместной церкви, если считаете, что здесь есть ошибка.",
     "thankYou": "Спасибо!",
@@ -209,7 +209,7 @@
         "watchOnOurApp": "Загрузите мобильное приложение для просмотра коротких видео."
     },
     "subscriptions": {
-        "subscribe": "",
-        "unsubscribe": ""
+        "subscribe": "Подписаться",
+        "unsubscribe": "Отписаться"
     }
 }
