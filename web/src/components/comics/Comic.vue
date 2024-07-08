@@ -99,7 +99,7 @@ const comics = [
         title: "A mentor at 15 years old? - Episode 10",
         images: [
             "https://imgix.bcc.media/7a8f2944-bd19-443d-af75-c1ae1be026fd.png",
-            "https://imgix.bcc.media/0c1eb0ca-ee61-4b6f-b10e-a0b9aea904df.png,
+            "https://imgix.bcc.media/0c1eb0ca-ee61-4b6f-b10e-a0b9aea904df.png",
             "https://imgix.bcc.media/61ca2530-983c-4c94-afe4-48017f922b86.png",
             "https://imgix.bcc.media/0f2ed079-a392-423f-9416-5492501a9cc3.png",
         ],
