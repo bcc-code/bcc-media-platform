@@ -38,17 +38,6 @@ export type AgeGroup =
 
 type ElementType = SectionItemFragment["item"]["__typename"] | "Comic" | "Quote"
 
-type VideoEvent = {
-    sessionId: string
-    livestream: boolean
-    contentPodId: string
-    position?: number
-    totalLength: number
-    videoPlayer: "videojs"
-    fullScreen: boolean
-    hasVideo: true
-}
-
 export type Events = {
     section_clicked: {
         sectionId: string
@@ -101,17 +90,12 @@ export type Events = {
     logout: undefined
     airplay_started: undefined
     chromecast_started: undefined
-    playback_started: VideoEvent
-    playback_paused: VideoEvent
-    playback_ended: VideoEvent
-    playback_interrupted: VideoEvent
-    playback_buffering_started: VideoEvent
     episode_download: {
         episodeId: string
         fileName: string
         audioLanguage: string
         resolution: string
-    },
+    }
     interaction: {
         interaction: string
         contextElementType: ElementType
