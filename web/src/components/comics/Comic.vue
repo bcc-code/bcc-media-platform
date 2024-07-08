@@ -94,6 +94,27 @@ const comics = [
             "https://imgix.bcc.media/6ef3f3ca-040a-4f30-bcec-c2cfab8b3323.png"
         ],
     },
+    {
+        id: "15yearmentor-10",
+        title: "A mentor at 15 years old? - Episode 10",
+        images: [
+            "https://imgix.bcc.media/7a8f2944-bd19-443d-af75-c1ae1be026fd.png",
+            "https://imgix.bcc.media/0c1eb0ca-ee61-4b6f-b10e-a0b9aea904df.png,
+            "https://imgix.bcc.media/61ca2530-983c-4c94-afe4-48017f922b86.png",
+            "https://imgix.bcc.media/0f2ed079-a392-423f-9416-5492501a9cc3.png",
+        ],
+    },
+    {
+        id: "15yearmentor-11",
+        title: "A mentor at 15 years old? - Episode 11",
+        images: [
+            "https://imgix.bcc.media/34ce472e-6f72-40d2-b087-a1fb49ee7a64.png",
+            "https://imgix.bcc.media/2ae9af90-59fd-4e94-846c-dede67a832bb.png",
+            "https://imgix.bcc.media/788196c0-ad43-4ba0-8d4f-2ed30ac78b9b.png",
+            "https://imgix.bcc.media/5b8a73d5-3c2c-4cf5-a41b-df3eb19c7815.png",
+            "https://imgix.bcc.media/3e45d7b0-e182-47bb-a823-8f6d10684792.png",
+        ],
+    },
 ]
 
 const comic = ref(
@@ -191,18 +212,6 @@ const trackSubscribeClick = () => {
                 v-for="image in comic.images"
                 :key="image"
                 :url="image"
-            />
-        </div>
-        <div
-            class="mt-8 flex items-center justify-center flex-col bg-background-2 rounded-2xl px-8 py-8 mx-4"
-        >
-            <h3 class="text-style-title-2 text-center">
-                Subscribe to get notified about new comics!
-            </h3>
-            <SubscribeButton
-                class="mt-4"
-                :topic="SubscriptionTopic.Comics"
-                @click="trackSubscribeClick"
             />
         </div>
         <div class="h-96 mt-48">&nbsp;</div>
