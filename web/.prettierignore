@@ -5,3 +5,5 @@ build
 public
 pnpm-lock.yaml
 src/graph/generated.ts
+src/utils/quotes/localized/*
+src/translations/*
