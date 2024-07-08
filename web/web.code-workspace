@@ -1,17 +1,33 @@
 {
+    "extensions": {
+        "recommendations": [
+            "vue.volar",
+            "esbenp.prettier-vscode",
+            "bradlc.vscode-tailwindcss",
+        ],
+    },
     "folders": [
         {
-            "path": "."
+            "path": ".",
         },
         {
-            "path": "../packages/video-player"
+            "path": "../packages/video-player",
         },
         {
-            "path": "../cms"
+            "path": "../cms",
         },
         {
-            "path": "../packages/directus-modules"
-        }
+            "path": "../packages/directus-modules",
+        },
     ],
-    "settings": {}
+    "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "[vue]": {
+            "editor.defaultFormatter": "esbenp.prettier-vscode",
+        },
+        "[typescript]": {
+            "editor.defaultFormatter": "esbenp.prettier-vscode",
+        },
+    },
 }
