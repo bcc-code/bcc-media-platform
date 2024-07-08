@@ -91,7 +91,7 @@ const comics = [
         images: [
             "https://imgix.bcc.media/f7230736-4c6d-4573-bd77-592596847ea2.png",
             "https://imgix.bcc.media/12ec4fe6-cfd6-46ed-98f2-85ec96f3ee91.png",
-            "https://imgix.bcc.media/6ef3f3ca-040a-4f30-bcec-c2cfab8b3323.png"
+            "https://imgix.bcc.media/6ef3f3ca-040a-4f30-bcec-c2cfab8b3323.png",
         ],
     },
     {

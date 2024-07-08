@@ -7,11 +7,7 @@ fragment SimpleEpisode on Episode {
     duration
 }
 
-query getSeasonOnEpisodePage(
-    $seasonId: ID!
-    $firstEpisodes: Int
-    $offsetEpisodes: Int
-) {
+query getSeasonOnEpisodePage($seasonId: ID!, $firstEpisodes: Int, $offsetEpisodes: Int) {
     season(id: $seasonId) {
         id
         title
@@ -127,18 +123,8 @@ query getEpisode($episodeId: ID!, $context: EpisodeContext) {
     }
 }
 
-mutation updateEpisodeProgress(
-    $episodeId: ID!
-    $progress: Int
-    $duration: Int
-    $context: EpisodeContext!
-) {
-    setEpisodeProgress(
-        id: $episodeId
-        progress: $progress
-        duration: $duration
-        context: $context
-    ) {
+mutation updateEpisodeProgress($episodeId: ID!, $progress: Int, $duration: Int, $context: EpisodeContext!) {
+    setEpisodeProgress(id: $episodeId, progress: $progress, duration: $duration, context: $context) {
         progress
     }
 }

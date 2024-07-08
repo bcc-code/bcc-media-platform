@@ -44,15 +44,15 @@ export const goToEpisode = (
 }
 
 export const goToLink = async (item: Partial<Link>) => {
-    if (!item.url) return;
+    if (!item.url) return
     window.location.assign(item.url)
 }
 export const goToPlaylist = async (playlistId: string) => {
     const result = await client
-        .query<GetPlaylistEpisodeQuery, GetPlaylistEpisodeQueryVariables>(
-            GetPlaylistEpisodeDocument,
-            { id: playlistId }
-        )
+        .query<
+            GetPlaylistEpisodeQuery,
+            GetPlaylistEpisodeQueryVariables
+        >(GetPlaylistEpisodeDocument, { id: playlistId })
         .toPromise()
     for (const i of result.data?.playlist.items.items ?? []) {
         if (i.__typename === "Episode") {
@@ -164,7 +164,7 @@ export const goToSectionItem = async (
             await goToPlaylist(item.item.item.id)
             break
         case "Link":
-            await goToLink(item.item.item);
+            await goToLink(item.item.item)
     }
 }
 

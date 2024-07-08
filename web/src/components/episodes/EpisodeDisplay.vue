@@ -128,7 +128,12 @@
                                     )
                                 "
                                 :current-id="episode.id"
-                                @item-click="(i) => setEpisode(uuid ? (i as any).uuid : i.id)"
+                                @item-click="
+                                    (i) =>
+                                        setEpisode(
+                                            uuid ? (i as any).uuid : i.id
+                                        )
+                                "
                             ></ItemList>
                         </div>
                         <div
@@ -143,7 +148,12 @@
                             <ItemList
                                 :items="seasonEpisodes"
                                 :current-id="episode.id"
-                                @item-click="(i) => setEpisode(uuid ? (i as any).uuid : i.id)"
+                                @item-click="
+                                    (i) =>
+                                        setEpisode(
+                                            uuid ? (i as any).uuid : i.id
+                                        )
+                                "
                             ></ItemList>
                         </div>
                         <div v-else-if="effectiveView === 'download'">

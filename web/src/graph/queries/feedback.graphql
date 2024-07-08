@@ -1,7 +1,3 @@
 mutation SendEpisodeFeedback($episodeId: ID!, $rating: Int!, $message: String) {
-    sendEpisodeFeedback(
-        episodeId: $episodeId
-        rating: $rating
-        message: $message
-    )
+    sendEpisodeFeedback(episodeId: $episodeId, rating: $rating, message: $message)
 }

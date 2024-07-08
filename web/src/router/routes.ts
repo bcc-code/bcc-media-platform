@@ -102,7 +102,8 @@ export default [
             {
                 name: "quote-of-the-day",
                 path: "quote-of-the-day",
-                component: () => import("@/components/quotes/QuoteOfTheDay.vue"),
+                component: () =>
+                    import("@/components/quotes/QuoteOfTheDay.vue"),
                 props: true,
             },
         ],

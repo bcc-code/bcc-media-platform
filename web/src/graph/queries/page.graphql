@@ -1,10 +1,4 @@
-query getPage(
-    $code: String!
-    $first: Int
-    $offset: Int
-    $sectionFirst: Int
-    $sectionOffset: Int
-) {
+query getPage($code: String!, $first: Int, $offset: Int, $sectionFirst: Int, $sectionOffset: Int) {
     page(code: $code) {
         id
         title
@@ -108,13 +102,7 @@ fragment StudyTopicSectionItem on StudyTopic {
     }
 }
 
-query getSectionsForPage(
-    $code: String!
-    $first: Int
-    $offset: Int
-    $sectionFirst: Int
-    $sectionOffset: Int
-) {
+query getSectionsForPage($code: String!, $first: Int, $offset: Int, $sectionFirst: Int, $sectionOffset: Int) {
     page(code: $code) {
         id
         sections(first: $first, offset: $offset) {

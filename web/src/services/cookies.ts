@@ -29,8 +29,7 @@ try {
             )
         }
     )
-} catch { }
-
+} catch {}
 
 export const useCookies = () => {
     if (webViewMain) {

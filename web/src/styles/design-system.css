@@ -1,7 +1,6 @@
 /* Codegen with figma plugin: "CSSGen": https://www.figma.com/community/plugin/742750636238601912/CSSGen. */
 /* Best I could find, the tailwind ones were pretty bad. */
 
-
 :root {
     --color-tint-1: rgba(110, 176, 230, 1);
     --color-tint-2: rgba(230, 60, 98, 1);
@@ -17,7 +16,6 @@
     --color-light-1: rgba(230, 235, 242, 1);
     --color-dark-transparent: rgba(24, 24, 24, 0.7);
 }
-
 
 @tailwind components;
 
@@ -164,5 +162,4 @@
         text-decoration: none;
         text-transform: uppercase;
     }
-
 }

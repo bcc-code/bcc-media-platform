@@ -19,7 +19,7 @@ class MainWebViewHandler {
         this.handlerName = webView.type == "flutter" ? "flutter_main" : "main"
         this.getSupportedFeatures().then((features) => {
             this.supportedFeatures = features
-        });
+        })
     }
 
     navigate(path: string): Promise<any> | null {
