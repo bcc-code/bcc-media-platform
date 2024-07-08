@@ -179,32 +179,6 @@ export const comingSoon = (item: SectionItemFragment) => {
     return false
 }
 
-export const isLive = (
-    item: SectionItemFragment,
-    currentDay: NonNullable<GetCalendarDayQuery["calendar"]>["day"] | null
-) => {
-    if (!currentDay) return false
-    switch (item.item.__typename) {
-        case "Episode":
-            if (!item.item.locked) return false
-            for (const e of currentDay.entries ?? []) {
-                if (
-                    e.__typename === "EpisodeCalendarEntry" &&
-                    e.episode?.id === item.item.id
-                ) {
-                    const now = new Date().getTime()
-                    const start = new Date(e.start).getTime()
-                    const end = new Date(e.end).getTime()
-                    if (start <= now && end >= now) {
-                        return true
-                    }
-                    console.log(now, start, end)
-                }
-            }
-    }
-    return false
-}
-
 export const episodeComingSoon = (episode: {
     publishDate?: string | null | undefined
 }) => {

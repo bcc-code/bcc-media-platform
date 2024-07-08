@@ -57,19 +57,9 @@ export default [
                 props: true,
             },
             {
-                name: "calendar",
-                path: "/calendar",
-                component: () => import("@/pages/calendar/Calendar.vue"),
-            },
-            {
                 name: "search",
                 path: "/search",
                 component: () => import("@/pages/search/Search.vue"),
-            },
-            {
-                name: "live",
-                path: "/live",
-                component: () => import("@/pages/live/Live.vue"),
             },
             {
                 name: "series-redirect",

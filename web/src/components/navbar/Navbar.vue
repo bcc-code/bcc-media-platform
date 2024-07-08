@@ -15,20 +15,9 @@
                         />
                     </div>
                     <div class="hidden lg:flex my-auto space-x-2">
-                        <div
-                            v-for="item in getNavigation(
-                                authenticated && meQuery?.me.bccMember
-                            )"
-                            class="relative"
-                        >
-                            <NavLink
-                                :icon="item.icon"
-                                :to="item.to"
-                                :ping="item.ping"
-                            >
-                                {{ $t(item.name) }}</NavLink
-                            >
-                        </div>
+                        <NavLink :icon="HomeIcon" to="/">
+                            {{ $t("page.home") }}
+                        </NavLink>
                         <SearchInput v-model="query"></SearchInput>
                     </div>
                     <div class="hidden lg:flex ml-auto gap-4">
@@ -417,15 +406,8 @@
                     </div>
                 </div>
                 <div class="flex lg:hidden justify-between mx-8">
-                    <NavLink
-                        v-for="item in getNavigation(
-                            authenticated && meQuery?.me.bccMember
-                        )"
-                        :to="item.to"
-                        :icon="item.icon"
-                        :ping="item.ping"
-                    >
-                        {{ $t(item.name) }}
+                    <NavLink :icon="HomeIcon" to="/">
+                        {{ $t("page.home") }}
                     </NavLink>
                     <NavLink :icon="SearchIcon" :to="{ name: 'search' }">
                         {{ $t("page.search") }}</NavLink
@@ -449,18 +431,11 @@ import {
 } from "@headlessui/vue"
 import { useAuth } from "@/services/auth"
 import { current, setLanguage, languages } from "@/services/language"
-import {
-    CalendarIcon,
-    HomeIcon,
-    LiveIcon,
-    ProfileIcon,
-    QuestionIcon,
-    SearchIcon,
-} from "../icons"
-import { computed, onMounted, ref } from "vue"
+import { HomeIcon, ProfileIcon, QuestionIcon, SearchIcon } from "../icons"
+import { onMounted, ref } from "vue"
 import SearchInput from "../SearchInput.vue"
 import { useSearch } from "@/utils/search"
-import { useGetCalendarStatusQuery, useGetMeQuery } from "@/graph/generated"
+import { useGetMeQuery } from "@/graph/generated"
 import ContactForm from "@/components/support/ContactForm.vue"
 import FAQ from "../support/FAQ.vue"
 
@@ -479,51 +454,7 @@ onMounted(() => {
     }
 })
 
-const isLive = computed(() => {
-    const now = new Date()
-    return (
-        data.value?.calendar?.day.entries.some(
-            (i) => new Date(i.start) < now && new Date(i.end) > now
-        ) === true
-    )
-})
-
-const getNavigation = (showLive?: boolean) => {
-    const n: {
-        name: string
-        to: RouteLocationRaw
-        icon?: any
-        ping?: boolean
-    }[] = [
-        {
-            name: "page.home",
-            to: {
-                name: "front-page",
-            },
-            icon: HomeIcon,
-        },
-    ]
-
-    if (showLive) {
-        n.push({
-            name: "page.live",
-            to: {
-                name: "live",
-            },
-            icon: LiveIcon,
-        })
-    }
-
-    return n
-}
-
 const showContactForm = ref(false)
-
-const { data } = useGetCalendarStatusQuery({
-    variables: {
-        day: new Date(),
-    },
-})
 
 const showFAQ = ref(false)
 </script>

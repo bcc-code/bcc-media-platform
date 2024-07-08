@@ -6,7 +6,6 @@ type StringWithAutocomplete<T> = T | (string & {})
 export type Page = StringWithAutocomplete<
     | "about"
     | "calendar"
-    | "livestream"
     | "login"
     | "profileEdit"
     | "profile"

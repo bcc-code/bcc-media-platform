@@ -182,10 +182,6 @@ const load = async () => {
             player.value.currentTime(seekTo)
         }
 
-        // player.value.on("play", analytics.track("playback_started", ))
-        // player.value.on("ended", analytics.track("playback_ended", undefined))
-        // player.value.on("pause", analytics.track("playback_paused", undefined))
-        // player.value.on("error", analytics.track("playback_interrupted", undefined))
         if (isAuthenticated.value) {
             player.value.on("timeupdate", checkProgress)
         }
