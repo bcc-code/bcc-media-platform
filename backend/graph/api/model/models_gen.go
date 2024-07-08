@@ -882,6 +882,9 @@ type MessageStyle struct {
 	Border     string `json:"border"`
 }
 
+type MutationRoot struct {
+}
+
 type NameOptions struct {
 	First string `json:"first"`
 	Last  string `json:"last"`
@@ -1007,6 +1010,9 @@ func (this PosterTask) GetCompleted() bool { return this.Completed }
 type Profile struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
+}
+
+type QueryRoot struct {
 }
 
 type Question struct {

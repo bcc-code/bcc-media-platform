@@ -9375,7 +9375,7 @@ func (ec *executionContext) _Achievement_id(ctx context.Context, field graphql.C
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Achievement_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Achievement_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Achievement",
 		Field:      field,
@@ -9419,7 +9419,7 @@ func (ec *executionContext) _Achievement_title(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Achievement_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Achievement_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Achievement",
 		Field:      field,
@@ -9460,7 +9460,7 @@ func (ec *executionContext) _Achievement_description(ctx context.Context, field 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Achievement_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Achievement_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Achievement",
 		Field:      field,
@@ -9501,7 +9501,7 @@ func (ec *executionContext) _Achievement_image(ctx context.Context, field graphq
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Achievement_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Achievement_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Achievement",
 		Field:      field,
@@ -9545,7 +9545,7 @@ func (ec *executionContext) _Achievement_achieved(ctx context.Context, field gra
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Achievement_achieved(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Achievement_achieved(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Achievement",
 		Field:      field,
@@ -9586,7 +9586,7 @@ func (ec *executionContext) _Achievement_achievedAt(ctx context.Context, field g
 	return ec.marshalODate2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Achievement_achievedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Achievement_achievedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Achievement",
 		Field:      field,
@@ -9627,7 +9627,7 @@ func (ec *executionContext) _Achievement_group(ctx context.Context, field graphq
 	return ec.marshalOAchievementGroup2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐAchievementGroup(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Achievement_group(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Achievement_group(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Achievement",
 		Field:      field,
@@ -9679,7 +9679,7 @@ func (ec *executionContext) _AchievementGroup_id(ctx context.Context, field grap
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AchievementGroup_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AchievementGroup_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AchievementGroup",
 		Field:      field,
@@ -9723,7 +9723,7 @@ func (ec *executionContext) _AchievementGroup_title(ctx context.Context, field g
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AchievementGroup_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AchievementGroup_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AchievementGroup",
 		Field:      field,
@@ -9832,7 +9832,7 @@ func (ec *executionContext) _AchievementGroupPagination_offset(ctx context.Conte
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AchievementGroupPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AchievementGroupPagination_offset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AchievementGroupPagination",
 		Field:      field,
@@ -9876,7 +9876,7 @@ func (ec *executionContext) _AchievementGroupPagination_first(ctx context.Contex
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AchievementGroupPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AchievementGroupPagination_first(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AchievementGroupPagination",
 		Field:      field,
@@ -9920,7 +9920,7 @@ func (ec *executionContext) _AchievementGroupPagination_total(ctx context.Contex
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AchievementGroupPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AchievementGroupPagination_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AchievementGroupPagination",
 		Field:      field,
@@ -9964,7 +9964,7 @@ func (ec *executionContext) _AchievementGroupPagination_items(ctx context.Contex
 	return ec.marshalNAchievementGroup2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐAchievementGroupᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AchievementGroupPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AchievementGroupPagination_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AchievementGroupPagination",
 		Field:      field,
@@ -10016,7 +10016,7 @@ func (ec *executionContext) _AchievementPagination_offset(ctx context.Context, f
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AchievementPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AchievementPagination_offset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AchievementPagination",
 		Field:      field,
@@ -10060,7 +10060,7 @@ func (ec *executionContext) _AchievementPagination_first(ctx context.Context, fi
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AchievementPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AchievementPagination_first(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AchievementPagination",
 		Field:      field,
@@ -10104,7 +10104,7 @@ func (ec *executionContext) _AchievementPagination_total(ctx context.Context, fi
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AchievementPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AchievementPagination_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AchievementPagination",
 		Field:      field,
@@ -10148,7 +10148,7 @@ func (ec *executionContext) _AchievementPagination_items(ctx context.Context, fi
 	return ec.marshalNAchievement2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐAchievementᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AchievementPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AchievementPagination_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AchievementPagination",
 		Field:      field,
@@ -10208,7 +10208,7 @@ func (ec *executionContext) _AchievementSection_id(ctx context.Context, field gr
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AchievementSection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AchievementSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AchievementSection",
 		Field:      field,
@@ -10249,7 +10249,7 @@ func (ec *executionContext) _AchievementSection_title(ctx context.Context, field
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AchievementSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AchievementSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AchievementSection",
 		Field:      field,
@@ -10290,7 +10290,7 @@ func (ec *executionContext) _AchievementSection_description(ctx context.Context,
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AchievementSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AchievementSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AchievementSection",
 		Field:      field,
@@ -10334,7 +10334,7 @@ func (ec *executionContext) _AddToCollectionResult_entryId(ctx context.Context, 
 	return ec.marshalNUUID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AddToCollectionResult_entryId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AddToCollectionResult_entryId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AddToCollectionResult",
 		Field:      field,
@@ -10378,7 +10378,7 @@ func (ec *executionContext) _AddToCollectionResult_collection(ctx context.Contex
 	return ec.marshalNUserCollection2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollection(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AddToCollectionResult_collection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AddToCollectionResult_collection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AddToCollectionResult",
 		Field:      field,
@@ -10430,7 +10430,7 @@ func (ec *executionContext) _Alternative_id(ctx context.Context, field graphql.C
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Alternative_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Alternative_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Alternative",
 		Field:      field,
@@ -10474,7 +10474,7 @@ func (ec *executionContext) _Alternative_title(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Alternative_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Alternative_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Alternative",
 		Field:      field,
@@ -10515,7 +10515,7 @@ func (ec *executionContext) _Alternative_isCorrect(ctx context.Context, field gr
 	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Alternative_isCorrect(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Alternative_isCorrect(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Alternative",
 		Field:      field,
@@ -10559,7 +10559,7 @@ func (ec *executionContext) _Alternative_selected(ctx context.Context, field gra
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Alternative_selected(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Alternative_selected(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Alternative",
 		Field:      field,
@@ -10603,7 +10603,7 @@ func (ec *executionContext) _AlternativesTask_id(ctx context.Context, field grap
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AlternativesTask_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AlternativesTask_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AlternativesTask",
 		Field:      field,
@@ -10647,7 +10647,7 @@ func (ec *executionContext) _AlternativesTask_title(ctx context.Context, field g
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AlternativesTask_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AlternativesTask_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AlternativesTask",
 		Field:      field,
@@ -10691,7 +10691,7 @@ func (ec *executionContext) _AlternativesTask_completed(ctx context.Context, fie
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AlternativesTask_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AlternativesTask_completed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AlternativesTask",
 		Field:      field,
@@ -10735,7 +10735,7 @@ func (ec *executionContext) _AlternativesTask_alternatives(ctx context.Context, 
 	return ec.marshalNAlternative2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐAlternativeᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AlternativesTask_alternatives(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AlternativesTask_alternatives(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AlternativesTask",
 		Field:      field,
@@ -10789,7 +10789,7 @@ func (ec *executionContext) _AlternativesTask_competitionMode(ctx context.Contex
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AlternativesTask_competitionMode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AlternativesTask_competitionMode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AlternativesTask",
 		Field:      field,
@@ -10833,7 +10833,7 @@ func (ec *executionContext) _AlternativesTask_locked(ctx context.Context, field 
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AlternativesTask_locked(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AlternativesTask_locked(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AlternativesTask",
 		Field:      field,
@@ -10877,7 +10877,7 @@ func (ec *executionContext) _Analytics_anonymousId(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Analytics_anonymousId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Analytics_anonymousId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Analytics",
 		Field:      field,
@@ -10921,7 +10921,7 @@ func (ec *executionContext) _AnswerSurveyQuestionResult_id(ctx context.Context, 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AnswerSurveyQuestionResult_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AnswerSurveyQuestionResult_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AnswerSurveyQuestionResult",
 		Field:      field,
@@ -10965,7 +10965,7 @@ func (ec *executionContext) _Application_id(ctx context.Context, field graphql.C
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Application_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Application_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
@@ -11009,7 +11009,7 @@ func (ec *executionContext) _Application_code(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Application_code(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Application_code(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
@@ -11053,7 +11053,7 @@ func (ec *executionContext) _Application_clientVersion(ctx context.Context, fiel
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Application_clientVersion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Application_clientVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
@@ -11094,7 +11094,7 @@ func (ec *executionContext) _Application_page(ctx context.Context, field graphql
 	return ec.marshalOPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Application_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Application_page(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
@@ -11151,7 +11151,7 @@ func (ec *executionContext) _Application_searchPage(ctx context.Context, field g
 	return ec.marshalOPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Application_searchPage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Application_searchPage(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
@@ -11208,7 +11208,7 @@ func (ec *executionContext) _Application_gamesPage(ctx context.Context, field gr
 	return ec.marshalOPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Application_gamesPage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Application_gamesPage(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
@@ -11268,7 +11268,7 @@ func (ec *executionContext) _Application_livestreamEnabled(ctx context.Context, 
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Application_livestreamEnabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Application_livestreamEnabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
@@ -11312,7 +11312,7 @@ func (ec *executionContext) _AvatarSection_id(ctx context.Context, field graphql
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AvatarSection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AvatarSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AvatarSection",
 		Field:      field,
@@ -11353,7 +11353,7 @@ func (ec *executionContext) _AvatarSection_metadata(ctx context.Context, field g
 	return ec.marshalOItemSectionMetadata2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionMetadata(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AvatarSection_metadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AvatarSection_metadata(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AvatarSection",
 		Field:      field,
@@ -11408,7 +11408,7 @@ func (ec *executionContext) _AvatarSection_title(ctx context.Context, field grap
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AvatarSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AvatarSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AvatarSection",
 		Field:      field,
@@ -11449,7 +11449,7 @@ func (ec *executionContext) _AvatarSection_description(ctx context.Context, fiel
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AvatarSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AvatarSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AvatarSection",
 		Field:      field,
@@ -11493,7 +11493,7 @@ func (ec *executionContext) _AvatarSection_size(ctx context.Context, field graph
 	return ec.marshalNSectionSize2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSectionSize(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AvatarSection_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AvatarSection_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AvatarSection",
 		Field:      field,
@@ -11793,7 +11793,7 @@ func (ec *executionContext) _CalendarDay_events(ctx context.Context, field graph
 	return ec.marshalNEvent2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEventᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CalendarDay_events(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CalendarDay_events(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CalendarDay",
 		Field:      field,
@@ -11851,7 +11851,7 @@ func (ec *executionContext) _CalendarDay_entries(ctx context.Context, field grap
 	return ec.marshalNCalendarEntry2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntryᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CalendarDay_entries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CalendarDay_entries(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CalendarDay",
 		Field:      field,
@@ -11895,7 +11895,7 @@ func (ec *executionContext) _CalendarPeriod_activeDays(ctx context.Context, fiel
 	return ec.marshalNDate2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CalendarPeriod_activeDays(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CalendarPeriod_activeDays(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CalendarPeriod",
 		Field:      field,
@@ -11939,7 +11939,7 @@ func (ec *executionContext) _CalendarPeriod_events(ctx context.Context, field gr
 	return ec.marshalNEvent2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEventᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CalendarPeriod_events(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CalendarPeriod_events(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CalendarPeriod",
 		Field:      field,
@@ -11997,7 +11997,7 @@ func (ec *executionContext) _CardListSection_id(ctx context.Context, field graph
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CardListSection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CardListSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CardListSection",
 		Field:      field,
@@ -12038,7 +12038,7 @@ func (ec *executionContext) _CardListSection_metadata(ctx context.Context, field
 	return ec.marshalOItemSectionMetadata2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionMetadata(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CardListSection_metadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CardListSection_metadata(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CardListSection",
 		Field:      field,
@@ -12093,7 +12093,7 @@ func (ec *executionContext) _CardListSection_title(ctx context.Context, field gr
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CardListSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CardListSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CardListSection",
 		Field:      field,
@@ -12134,7 +12134,7 @@ func (ec *executionContext) _CardListSection_description(ctx context.Context, fi
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CardListSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CardListSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CardListSection",
 		Field:      field,
@@ -12178,7 +12178,7 @@ func (ec *executionContext) _CardListSection_size(ctx context.Context, field gra
 	return ec.marshalNCardSectionSize2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCardSectionSize(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CardListSection_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CardListSection_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CardListSection",
 		Field:      field,
@@ -12287,7 +12287,7 @@ func (ec *executionContext) _CardSection_id(ctx context.Context, field graphql.C
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CardSection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CardSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CardSection",
 		Field:      field,
@@ -12328,7 +12328,7 @@ func (ec *executionContext) _CardSection_metadata(ctx context.Context, field gra
 	return ec.marshalOItemSectionMetadata2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionMetadata(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CardSection_metadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CardSection_metadata(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CardSection",
 		Field:      field,
@@ -12383,7 +12383,7 @@ func (ec *executionContext) _CardSection_title(ctx context.Context, field graphq
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CardSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CardSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CardSection",
 		Field:      field,
@@ -12424,7 +12424,7 @@ func (ec *executionContext) _CardSection_description(ctx context.Context, field 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CardSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CardSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CardSection",
 		Field:      field,
@@ -12468,7 +12468,7 @@ func (ec *executionContext) _CardSection_size(ctx context.Context, field graphql
 	return ec.marshalNCardSectionSize2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCardSectionSize(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CardSection_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CardSection_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CardSection",
 		Field:      field,
@@ -12577,7 +12577,7 @@ func (ec *executionContext) _Chapter_id(ctx context.Context, field graphql.Colle
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Chapter_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Chapter_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Chapter",
 		Field:      field,
@@ -12621,7 +12621,7 @@ func (ec *executionContext) _Chapter_start(ctx context.Context, field graphql.Co
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Chapter_start(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Chapter_start(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Chapter",
 		Field:      field,
@@ -12665,7 +12665,7 @@ func (ec *executionContext) _Chapter_title(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Chapter_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Chapter_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Chapter",
 		Field:      field,
@@ -12706,7 +12706,7 @@ func (ec *executionContext) _Chapter_image(ctx context.Context, field graphql.Co
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Chapter_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Chapter_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Chapter",
 		Field:      field,
@@ -12747,7 +12747,7 @@ func (ec *executionContext) _Chapter_description(ctx context.Context, field grap
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Chapter_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Chapter_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Chapter",
 		Field:      field,
@@ -12791,7 +12791,7 @@ func (ec *executionContext) _Chapter_duration(ctx context.Context, field graphql
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Chapter_duration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Chapter_duration(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Chapter",
 		Field:      field,
@@ -12832,7 +12832,7 @@ func (ec *executionContext) _Chapter_episode(ctx context.Context, field graphql.
 	return ec.marshalOEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Chapter_episode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Chapter_episode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Chapter",
 		Field:      field,
@@ -13015,7 +13015,7 @@ func (ec *executionContext) _ConfirmAchievementResult_success(ctx context.Contex
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ConfirmAchievementResult_success(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ConfirmAchievementResult_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ConfirmAchievementResult",
 		Field:      field,
@@ -13059,7 +13059,7 @@ func (ec *executionContext) _ContentType_code(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ContentType_code(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ContentType_code(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContentType",
 		Field:      field,
@@ -13103,7 +13103,7 @@ func (ec *executionContext) _ContentType_title(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ContentType_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ContentType_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContentType",
 		Field:      field,
@@ -13147,7 +13147,7 @@ func (ec *executionContext) _ContentTypeCount_type(ctx context.Context, field gr
 	return ec.marshalNContentType2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContentType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ContentTypeCount_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ContentTypeCount_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContentTypeCount",
 		Field:      field,
@@ -13197,7 +13197,7 @@ func (ec *executionContext) _ContentTypeCount_count(ctx context.Context, field g
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ContentTypeCount_count(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ContentTypeCount_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContentTypeCount",
 		Field:      field,
@@ -13241,7 +13241,7 @@ func (ec *executionContext) _ContextCollection_id(ctx context.Context, field gra
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ContextCollection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ContextCollection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContextCollection",
 		Field:      field,
@@ -13282,7 +13282,7 @@ func (ec *executionContext) _ContextCollection_slug(ctx context.Context, field g
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ContextCollection_slug(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ContextCollection_slug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContextCollection",
 		Field:      field,
@@ -13388,7 +13388,7 @@ func (ec *executionContext) _Contribution_type(ctx context.Context, field graphq
 	return ec.marshalNContributionType2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Contribution_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Contribution_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Contribution",
 		Field:      field,
@@ -13438,7 +13438,7 @@ func (ec *executionContext) _Contribution_contentType(ctx context.Context, field
 	return ec.marshalNContentType2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContentType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Contribution_contentType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Contribution_contentType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Contribution",
 		Field:      field,
@@ -13488,7 +13488,7 @@ func (ec *executionContext) _Contribution_item(ctx context.Context, field graphq
 	return ec.marshalNContributionItem2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionItem(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Contribution_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Contribution_item(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Contribution",
 		Field:      field,
@@ -13532,7 +13532,7 @@ func (ec *executionContext) _ContributionType_code(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ContributionType_code(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ContributionType_code(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContributionType",
 		Field:      field,
@@ -13576,7 +13576,7 @@ func (ec *executionContext) _ContributionType_title(ctx context.Context, field g
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ContributionType_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ContributionType_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContributionType",
 		Field:      field,
@@ -13620,7 +13620,7 @@ func (ec *executionContext) _ContributionTypeCount_type(ctx context.Context, fie
 	return ec.marshalNContributionType2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ContributionTypeCount_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ContributionTypeCount_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContributionTypeCount",
 		Field:      field,
@@ -13670,7 +13670,7 @@ func (ec *executionContext) _ContributionTypeCount_count(ctx context.Context, fi
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ContributionTypeCount_count(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ContributionTypeCount_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContributionTypeCount",
 		Field:      field,
@@ -13714,7 +13714,7 @@ func (ec *executionContext) _ContributionsPagination_total(ctx context.Context, 
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ContributionsPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ContributionsPagination_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContributionsPagination",
 		Field:      field,
@@ -13758,7 +13758,7 @@ func (ec *executionContext) _ContributionsPagination_first(ctx context.Context, 
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ContributionsPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ContributionsPagination_first(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContributionsPagination",
 		Field:      field,
@@ -13802,7 +13802,7 @@ func (ec *executionContext) _ContributionsPagination_offset(ctx context.Context,
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ContributionsPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ContributionsPagination_offset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContributionsPagination",
 		Field:      field,
@@ -13846,7 +13846,7 @@ func (ec *executionContext) _ContributionsPagination_items(ctx context.Context, 
 	return ec.marshalNContribution2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ContributionsPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ContributionsPagination_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContributionsPagination",
 		Field:      field,
@@ -13898,7 +13898,7 @@ func (ec *executionContext) _DefaultGridSection_id(ctx context.Context, field gr
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_DefaultGridSection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_DefaultGridSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DefaultGridSection",
 		Field:      field,
@@ -13939,7 +13939,7 @@ func (ec *executionContext) _DefaultGridSection_metadata(ctx context.Context, fi
 	return ec.marshalOItemSectionMetadata2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionMetadata(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_DefaultGridSection_metadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_DefaultGridSection_metadata(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DefaultGridSection",
 		Field:      field,
@@ -13994,7 +13994,7 @@ func (ec *executionContext) _DefaultGridSection_title(ctx context.Context, field
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_DefaultGridSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_DefaultGridSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DefaultGridSection",
 		Field:      field,
@@ -14035,7 +14035,7 @@ func (ec *executionContext) _DefaultGridSection_description(ctx context.Context,
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_DefaultGridSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_DefaultGridSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DefaultGridSection",
 		Field:      field,
@@ -14079,7 +14079,7 @@ func (ec *executionContext) _DefaultGridSection_size(ctx context.Context, field 
 	return ec.marshalNGridSectionSize2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐGridSectionSize(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_DefaultGridSection_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_DefaultGridSection_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DefaultGridSection",
 		Field:      field,
@@ -14188,7 +14188,7 @@ func (ec *executionContext) _DefaultSection_id(ctx context.Context, field graphq
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_DefaultSection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_DefaultSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DefaultSection",
 		Field:      field,
@@ -14229,7 +14229,7 @@ func (ec *executionContext) _DefaultSection_metadata(ctx context.Context, field 
 	return ec.marshalOItemSectionMetadata2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionMetadata(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_DefaultSection_metadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_DefaultSection_metadata(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DefaultSection",
 		Field:      field,
@@ -14284,7 +14284,7 @@ func (ec *executionContext) _DefaultSection_title(ctx context.Context, field gra
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_DefaultSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_DefaultSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DefaultSection",
 		Field:      field,
@@ -14325,7 +14325,7 @@ func (ec *executionContext) _DefaultSection_description(ctx context.Context, fie
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_DefaultSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_DefaultSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DefaultSection",
 		Field:      field,
@@ -14369,7 +14369,7 @@ func (ec *executionContext) _DefaultSection_size(ctx context.Context, field grap
 	return ec.marshalNSectionSize2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSectionSize(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_DefaultSection_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_DefaultSection_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DefaultSection",
 		Field:      field,
@@ -14478,7 +14478,7 @@ func (ec *executionContext) _Device_token(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Device_token(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Device_token(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Device",
 		Field:      field,
@@ -14522,7 +14522,7 @@ func (ec *executionContext) _Device_updatedAt(ctx context.Context, field graphql
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Device_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Device_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Device",
 		Field:      field,
@@ -14566,7 +14566,7 @@ func (ec *executionContext) _Episode_id(ctx context.Context, field graphql.Colle
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -14610,7 +14610,7 @@ func (ec *executionContext) _Episode_uuid(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_uuid(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_uuid(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -14654,7 +14654,7 @@ func (ec *executionContext) _Episode_status(ctx context.Context, field graphql.C
 	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -14698,7 +14698,7 @@ func (ec *executionContext) _Episode_type(ctx context.Context, field graphql.Col
 	return ec.marshalNEpisodeType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -14739,7 +14739,7 @@ func (ec *executionContext) _Episode_legacyID(ctx context.Context, field graphql
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_legacyID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_legacyID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -14780,7 +14780,7 @@ func (ec *executionContext) _Episode_legacyProgramID(ctx context.Context, field 
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_legacyProgramID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_legacyProgramID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -14824,7 +14824,7 @@ func (ec *executionContext) _Episode_locked(ctx context.Context, field graphql.C
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_locked(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_locked(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -14868,7 +14868,7 @@ func (ec *executionContext) _Episode_publishDate(ctx context.Context, field grap
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_publishDate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_publishDate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -14912,7 +14912,7 @@ func (ec *executionContext) _Episode_productionDate(ctx context.Context, field g
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_productionDate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_productionDate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -14956,7 +14956,7 @@ func (ec *executionContext) _Episode_productionDateInTitle(ctx context.Context, 
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_productionDateInTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_productionDateInTitle(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15000,7 +15000,7 @@ func (ec *executionContext) _Episode_availableFrom(ctx context.Context, field gr
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_availableFrom(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_availableFrom(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15044,7 +15044,7 @@ func (ec *executionContext) _Episode_availableTo(ctx context.Context, field grap
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_availableTo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_availableTo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15088,7 +15088,7 @@ func (ec *executionContext) _Episode_ageRating(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_ageRating(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_ageRating(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15132,7 +15132,7 @@ func (ec *executionContext) _Episode_originalTitle(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_originalTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_originalTitle(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15176,7 +15176,7 @@ func (ec *executionContext) _Episode_title(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15220,7 +15220,7 @@ func (ec *executionContext) _Episode_description(ctx context.Context, field grap
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15264,7 +15264,7 @@ func (ec *executionContext) _Episode_extraDescription(ctx context.Context, field
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_extraDescription(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_extraDescription(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15357,7 +15357,7 @@ func (ec *executionContext) _Episode_imageUrl(ctx context.Context, field graphql
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_imageUrl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_imageUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15401,7 +15401,7 @@ func (ec *executionContext) _Episode_streams(ctx context.Context, field graphql.
 	return ec.marshalNStream2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStreamᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_streams(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_streams(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15538,7 +15538,7 @@ func (ec *executionContext) _Episode_chapters(ctx context.Context, field graphql
 	return ec.marshalNChapter2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐChapterᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_chapters(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_chapters(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15598,7 +15598,7 @@ func (ec *executionContext) _Episode_assetVersion(ctx context.Context, field gra
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_assetVersion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_assetVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15639,7 +15639,7 @@ func (ec *executionContext) _Episode_season(ctx context.Context, field graphql.C
 	return ec.marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSeason(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_season(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_season(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15711,7 +15711,7 @@ func (ec *executionContext) _Episode_duration(ctx context.Context, field graphql
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_duration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_duration(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15752,7 +15752,7 @@ func (ec *executionContext) _Episode_progress(ctx context.Context, field graphql
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_progress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_progress(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15796,7 +15796,7 @@ func (ec *executionContext) _Episode_watched(ctx context.Context, field graphql.
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_watched(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_watched(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15840,7 +15840,7 @@ func (ec *executionContext) _Episode_audioLanguages(ctx context.Context, field g
 	return ec.marshalNLanguage2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_audioLanguages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_audioLanguages(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15884,7 +15884,7 @@ func (ec *executionContext) _Episode_subtitleLanguages(ctx context.Context, fiel
 	return ec.marshalNLanguage2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_subtitleLanguages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_subtitleLanguages(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -15925,7 +15925,7 @@ func (ec *executionContext) _Episode_context(ctx context.Context, field graphql.
 	return ec.marshalOEpisodeContextUnion2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeContextUnion(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_context(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_context(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -16031,7 +16031,7 @@ func (ec *executionContext) _Episode_images(ctx context.Context, field graphql.C
 	return ec.marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐImageᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_images(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_images(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -16078,7 +16078,7 @@ func (ec *executionContext) _Episode_number(ctx context.Context, field graphql.C
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_number(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_number(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -16187,7 +16187,7 @@ func (ec *executionContext) _Episode_shareRestriction(ctx context.Context, field
 	return ec.marshalNShareRestriction2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShareRestriction(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_shareRestriction(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_shareRestriction(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -16231,7 +16231,7 @@ func (ec *executionContext) _Episode_inMyList(ctx context.Context, field graphql
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_inMyList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_inMyList(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -16408,7 +16408,7 @@ func (ec *executionContext) _Episode_cursor(ctx context.Context, field graphql.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Episode_cursor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Episode_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
@@ -16452,7 +16452,7 @@ func (ec *executionContext) _EpisodeCalendarEntry_id(ctx context.Context, field 
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeCalendarEntry_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeCalendarEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeCalendarEntry",
 		Field:      field,
@@ -16493,7 +16493,7 @@ func (ec *executionContext) _EpisodeCalendarEntry_event(ctx context.Context, fie
 	return ec.marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEvent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeCalendarEntry_event(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeCalendarEntry_event(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeCalendarEntry",
 		Field:      field,
@@ -16551,7 +16551,7 @@ func (ec *executionContext) _EpisodeCalendarEntry_title(ctx context.Context, fie
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeCalendarEntry_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeCalendarEntry_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeCalendarEntry",
 		Field:      field,
@@ -16595,7 +16595,7 @@ func (ec *executionContext) _EpisodeCalendarEntry_description(ctx context.Contex
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeCalendarEntry_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeCalendarEntry_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeCalendarEntry",
 		Field:      field,
@@ -16639,7 +16639,7 @@ func (ec *executionContext) _EpisodeCalendarEntry_start(ctx context.Context, fie
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeCalendarEntry_start(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeCalendarEntry_start(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeCalendarEntry",
 		Field:      field,
@@ -16683,7 +16683,7 @@ func (ec *executionContext) _EpisodeCalendarEntry_end(ctx context.Context, field
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeCalendarEntry_end(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeCalendarEntry_end(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeCalendarEntry",
 		Field:      field,
@@ -16727,7 +16727,7 @@ func (ec *executionContext) _EpisodeCalendarEntry_isReplay(ctx context.Context, 
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeCalendarEntry_isReplay(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeCalendarEntry_isReplay(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeCalendarEntry",
 		Field:      field,
@@ -16768,7 +16768,7 @@ func (ec *executionContext) _EpisodeCalendarEntry_episode(ctx context.Context, f
 	return ec.marshalOEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeCalendarEntry",
 		Field:      field,
@@ -16890,7 +16890,7 @@ func (ec *executionContext) _EpisodePagination_total(ctx context.Context, field 
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodePagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodePagination_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodePagination",
 		Field:      field,
@@ -16934,7 +16934,7 @@ func (ec *executionContext) _EpisodePagination_first(ctx context.Context, field 
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodePagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodePagination_first(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodePagination",
 		Field:      field,
@@ -16978,7 +16978,7 @@ func (ec *executionContext) _EpisodePagination_offset(ctx context.Context, field
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodePagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodePagination_offset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodePagination",
 		Field:      field,
@@ -17022,7 +17022,7 @@ func (ec *executionContext) _EpisodePagination_items(ctx context.Context, field 
 	return ec.marshalNEpisode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodePagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodePagination_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodePagination",
 		Field:      field,
@@ -17144,7 +17144,7 @@ func (ec *executionContext) _EpisodeSearchItem_id(ctx context.Context, field gra
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17185,7 +17185,7 @@ func (ec *executionContext) _EpisodeSearchItem_legacyID(ctx context.Context, fie
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_legacyID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_legacyID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17226,7 +17226,7 @@ func (ec *executionContext) _EpisodeSearchItem_legacyProgramID(ctx context.Conte
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_legacyProgramID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_legacyProgramID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17270,7 +17270,7 @@ func (ec *executionContext) _EpisodeSearchItem_duration(ctx context.Context, fie
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_duration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_duration(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17314,7 +17314,7 @@ func (ec *executionContext) _EpisodeSearchItem_ageRating(ctx context.Context, fi
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_ageRating(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_ageRating(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17358,7 +17358,7 @@ func (ec *executionContext) _EpisodeSearchItem_collection(ctx context.Context, f
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_collection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_collection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17402,7 +17402,7 @@ func (ec *executionContext) _EpisodeSearchItem_title(ctx context.Context, field 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17443,7 +17443,7 @@ func (ec *executionContext) _EpisodeSearchItem_header(ctx context.Context, field
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_header(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_header(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17484,7 +17484,7 @@ func (ec *executionContext) _EpisodeSearchItem_description(ctx context.Context, 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17525,7 +17525,7 @@ func (ec *executionContext) _EpisodeSearchItem_highlight(ctx context.Context, fi
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_highlight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_highlight(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17566,7 +17566,7 @@ func (ec *executionContext) _EpisodeSearchItem_image(ctx context.Context, field 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17610,7 +17610,7 @@ func (ec *executionContext) _EpisodeSearchItem_url(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17651,7 +17651,7 @@ func (ec *executionContext) _EpisodeSearchItem_showId(ctx context.Context, field
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_showId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_showId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17692,7 +17692,7 @@ func (ec *executionContext) _EpisodeSearchItem_showTitle(ctx context.Context, fi
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_showTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_showTitle(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17733,7 +17733,7 @@ func (ec *executionContext) _EpisodeSearchItem_show(ctx context.Context, field g
 	return ec.marshalOShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_show(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_show(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17802,7 +17802,7 @@ func (ec *executionContext) _EpisodeSearchItem_seasonId(ctx context.Context, fie
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_seasonId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_seasonId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17843,7 +17843,7 @@ func (ec *executionContext) _EpisodeSearchItem_seasonTitle(ctx context.Context, 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_seasonTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_seasonTitle(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17884,7 +17884,7 @@ func (ec *executionContext) _EpisodeSearchItem_season(ctx context.Context, field
 	return ec.marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSeason(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EpisodeSearchItem_season(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EpisodeSearchItem_season(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EpisodeSearchItem",
 		Field:      field,
@@ -17956,7 +17956,7 @@ func (ec *executionContext) _Event_id(ctx context.Context, field graphql.Collect
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Event_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Event_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Event",
 		Field:      field,
@@ -18000,7 +18000,7 @@ func (ec *executionContext) _Event_title(ctx context.Context, field graphql.Coll
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Event_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Event_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Event",
 		Field:      field,
@@ -18044,7 +18044,7 @@ func (ec *executionContext) _Event_start(ctx context.Context, field graphql.Coll
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Event_start(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Event_start(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Event",
 		Field:      field,
@@ -18088,7 +18088,7 @@ func (ec *executionContext) _Event_end(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Event_end(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Event_end(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Event",
 		Field:      field,
@@ -18132,7 +18132,7 @@ func (ec *executionContext) _Event_image(ctx context.Context, field graphql.Coll
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Event_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Event_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Event",
 		Field:      field,
@@ -18176,7 +18176,7 @@ func (ec *executionContext) _Event_entries(ctx context.Context, field graphql.Co
 	return ec.marshalNCalendarEntry2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntryᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Event_entries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Event_entries(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Event",
 		Field:      field,
@@ -18220,7 +18220,7 @@ func (ec *executionContext) _Export_dbVersion(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Export_dbVersion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Export_dbVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Export",
 		Field:      field,
@@ -18264,7 +18264,7 @@ func (ec *executionContext) _Export_url(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Export_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Export_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Export",
 		Field:      field,
@@ -18498,7 +18498,7 @@ func (ec *executionContext) _FAQCategory_id(ctx context.Context, field graphql.C
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_FAQCategory_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_FAQCategory_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "FAQCategory",
 		Field:      field,
@@ -18542,7 +18542,7 @@ func (ec *executionContext) _FAQCategory_title(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_FAQCategory_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_FAQCategory_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "FAQCategory",
 		Field:      field,
@@ -18648,7 +18648,7 @@ func (ec *executionContext) _FAQCategoryPagination_total(ctx context.Context, fi
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_FAQCategoryPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_FAQCategoryPagination_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "FAQCategoryPagination",
 		Field:      field,
@@ -18692,7 +18692,7 @@ func (ec *executionContext) _FAQCategoryPagination_first(ctx context.Context, fi
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_FAQCategoryPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_FAQCategoryPagination_first(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "FAQCategoryPagination",
 		Field:      field,
@@ -18736,7 +18736,7 @@ func (ec *executionContext) _FAQCategoryPagination_offset(ctx context.Context, f
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_FAQCategoryPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_FAQCategoryPagination_offset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "FAQCategoryPagination",
 		Field:      field,
@@ -18780,7 +18780,7 @@ func (ec *executionContext) _FAQCategoryPagination_items(ctx context.Context, fi
 	return ec.marshalNFAQCategory2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐFAQCategoryᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_FAQCategoryPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_FAQCategoryPagination_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "FAQCategoryPagination",
 		Field:      field,
@@ -18832,7 +18832,7 @@ func (ec *executionContext) _FeaturedSection_id(ctx context.Context, field graph
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_FeaturedSection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_FeaturedSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "FeaturedSection",
 		Field:      field,
@@ -18873,7 +18873,7 @@ func (ec *executionContext) _FeaturedSection_metadata(ctx context.Context, field
 	return ec.marshalOItemSectionMetadata2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionMetadata(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_FeaturedSection_metadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_FeaturedSection_metadata(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "FeaturedSection",
 		Field:      field,
@@ -18928,7 +18928,7 @@ func (ec *executionContext) _FeaturedSection_title(ctx context.Context, field gr
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_FeaturedSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_FeaturedSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "FeaturedSection",
 		Field:      field,
@@ -18969,7 +18969,7 @@ func (ec *executionContext) _FeaturedSection_description(ctx context.Context, fi
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_FeaturedSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_FeaturedSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "FeaturedSection",
 		Field:      field,
@@ -19013,7 +19013,7 @@ func (ec *executionContext) _FeaturedSection_size(ctx context.Context, field gra
 	return ec.marshalNSectionSize2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSectionSize(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_FeaturedSection_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_FeaturedSection_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "FeaturedSection",
 		Field:      field,
@@ -19122,7 +19122,7 @@ func (ec *executionContext) _File_id(ctx context.Context, field graphql.Collecte
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_File_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_File_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "File",
 		Field:      field,
@@ -19166,7 +19166,7 @@ func (ec *executionContext) _File_url(ctx context.Context, field graphql.Collect
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_File_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_File_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "File",
 		Field:      field,
@@ -19207,7 +19207,7 @@ func (ec *executionContext) _File_videoLanguage(ctx context.Context, field graph
 	return ec.marshalOLanguage2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_File_videoLanguage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_File_videoLanguage(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "File",
 		Field:      field,
@@ -19251,7 +19251,7 @@ func (ec *executionContext) _File_audioLanguage(ctx context.Context, field graph
 	return ec.marshalNLanguage2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_File_audioLanguage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_File_audioLanguage(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "File",
 		Field:      field,
@@ -19292,7 +19292,7 @@ func (ec *executionContext) _File_subtitleLanguage(ctx context.Context, field gr
 	return ec.marshalOLanguage2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_File_subtitleLanguage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_File_subtitleLanguage(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "File",
 		Field:      field,
@@ -19336,7 +19336,7 @@ func (ec *executionContext) _File_size(ctx context.Context, field graphql.Collec
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_File_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_File_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "File",
 		Field:      field,
@@ -19380,7 +19380,7 @@ func (ec *executionContext) _File_fileName(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_File_fileName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_File_fileName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "File",
 		Field:      field,
@@ -19424,7 +19424,7 @@ func (ec *executionContext) _File_mimeType(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_File_mimeType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_File_mimeType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "File",
 		Field:      field,
@@ -19465,7 +19465,7 @@ func (ec *executionContext) _File_resolution(ctx context.Context, field graphql.
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_File_resolution(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_File_resolution(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "File",
 		Field:      field,
@@ -19509,7 +19509,7 @@ func (ec *executionContext) _Game_id(ctx context.Context, field graphql.Collecte
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Game_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Game_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Game",
 		Field:      field,
@@ -19553,7 +19553,7 @@ func (ec *executionContext) _Game_title(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Game_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Game_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Game",
 		Field:      field,
@@ -19594,7 +19594,7 @@ func (ec *executionContext) _Game_description(ctx context.Context, field graphql
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Game_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Game_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Game",
 		Field:      field,
@@ -19638,7 +19638,7 @@ func (ec *executionContext) _Game_url(ctx context.Context, field graphql.Collect
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Game_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Game_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Game",
 		Field:      field,
@@ -19734,7 +19734,7 @@ func (ec *executionContext) _GlobalConfig_liveOnline(ctx context.Context, field 
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_GlobalConfig_liveOnline(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_GlobalConfig_liveOnline(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "GlobalConfig",
 		Field:      field,
@@ -19778,7 +19778,7 @@ func (ec *executionContext) _GlobalConfig_npawEnabled(ctx context.Context, field
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_GlobalConfig_npawEnabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_GlobalConfig_npawEnabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "GlobalConfig",
 		Field:      field,
@@ -19822,7 +19822,7 @@ func (ec *executionContext) _IconGridSection_id(ctx context.Context, field graph
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_IconGridSection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_IconGridSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IconGridSection",
 		Field:      field,
@@ -19863,7 +19863,7 @@ func (ec *executionContext) _IconGridSection_metadata(ctx context.Context, field
 	return ec.marshalOItemSectionMetadata2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionMetadata(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_IconGridSection_metadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_IconGridSection_metadata(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IconGridSection",
 		Field:      field,
@@ -19918,7 +19918,7 @@ func (ec *executionContext) _IconGridSection_title(ctx context.Context, field gr
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_IconGridSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_IconGridSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IconGridSection",
 		Field:      field,
@@ -19959,7 +19959,7 @@ func (ec *executionContext) _IconGridSection_description(ctx context.Context, fi
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_IconGridSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_IconGridSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IconGridSection",
 		Field:      field,
@@ -20003,7 +20003,7 @@ func (ec *executionContext) _IconGridSection_size(ctx context.Context, field gra
 	return ec.marshalNGridSectionSize2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐGridSectionSize(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_IconGridSection_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_IconGridSection_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IconGridSection",
 		Field:      field,
@@ -20112,7 +20112,7 @@ func (ec *executionContext) _IconSection_id(ctx context.Context, field graphql.C
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_IconSection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_IconSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IconSection",
 		Field:      field,
@@ -20153,7 +20153,7 @@ func (ec *executionContext) _IconSection_metadata(ctx context.Context, field gra
 	return ec.marshalOItemSectionMetadata2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionMetadata(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_IconSection_metadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_IconSection_metadata(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IconSection",
 		Field:      field,
@@ -20208,7 +20208,7 @@ func (ec *executionContext) _IconSection_title(ctx context.Context, field graphq
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_IconSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_IconSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IconSection",
 		Field:      field,
@@ -20249,7 +20249,7 @@ func (ec *executionContext) _IconSection_description(ctx context.Context, field 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_IconSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_IconSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IconSection",
 		Field:      field,
@@ -20358,7 +20358,7 @@ func (ec *executionContext) _Image_style(ctx context.Context, field graphql.Coll
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Image_style(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Image_style(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Image",
 		Field:      field,
@@ -20402,7 +20402,7 @@ func (ec *executionContext) _Image_url(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Image_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Image_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Image",
 		Field:      field,
@@ -20446,7 +20446,7 @@ func (ec *executionContext) _ItemSectionMetadata_continueWatching(ctx context.Co
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ItemSectionMetadata_continueWatching(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ItemSectionMetadata_continueWatching(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ItemSectionMetadata",
 		Field:      field,
@@ -20490,7 +20490,7 @@ func (ec *executionContext) _ItemSectionMetadata_myList(ctx context.Context, fie
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ItemSectionMetadata_myList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ItemSectionMetadata_myList(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ItemSectionMetadata",
 		Field:      field,
@@ -20534,7 +20534,7 @@ func (ec *executionContext) _ItemSectionMetadata_secondaryTitles(ctx context.Con
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ItemSectionMetadata_secondaryTitles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ItemSectionMetadata_secondaryTitles(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ItemSectionMetadata",
 		Field:      field,
@@ -20578,7 +20578,7 @@ func (ec *executionContext) _ItemSectionMetadata_collectionId(ctx context.Contex
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ItemSectionMetadata_collectionId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ItemSectionMetadata_collectionId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ItemSectionMetadata",
 		Field:      field,
@@ -20622,7 +20622,7 @@ func (ec *executionContext) _ItemSectionMetadata_useContext(ctx context.Context,
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ItemSectionMetadata_useContext(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ItemSectionMetadata_useContext(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ItemSectionMetadata",
 		Field:      field,
@@ -20666,7 +20666,7 @@ func (ec *executionContext) _ItemSectionMetadata_prependLiveElement(ctx context.
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ItemSectionMetadata_prependLiveElement(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ItemSectionMetadata_prependLiveElement(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ItemSectionMetadata",
 		Field:      field,
@@ -20710,7 +20710,7 @@ func (ec *executionContext) _LabelSection_id(ctx context.Context, field graphql.
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LabelSection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LabelSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LabelSection",
 		Field:      field,
@@ -20751,7 +20751,7 @@ func (ec *executionContext) _LabelSection_metadata(ctx context.Context, field gr
 	return ec.marshalOItemSectionMetadata2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionMetadata(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LabelSection_metadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LabelSection_metadata(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LabelSection",
 		Field:      field,
@@ -20806,7 +20806,7 @@ func (ec *executionContext) _LabelSection_title(ctx context.Context, field graph
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LabelSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LabelSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LabelSection",
 		Field:      field,
@@ -20847,7 +20847,7 @@ func (ec *executionContext) _LabelSection_description(ctx context.Context, field
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LabelSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LabelSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LabelSection",
 		Field:      field,
@@ -20956,7 +20956,7 @@ func (ec *executionContext) _LegacyIDLookup_id(ctx context.Context, field graphq
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LegacyIDLookup_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LegacyIDLookup_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LegacyIDLookup",
 		Field:      field,
@@ -21000,7 +21000,7 @@ func (ec *executionContext) _Lesson_id(ctx context.Context, field graphql.Collec
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Lesson_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Lesson_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Lesson",
 		Field:      field,
@@ -21044,7 +21044,7 @@ func (ec *executionContext) _Lesson_title(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Lesson_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Lesson_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Lesson",
 		Field:      field,
@@ -21088,7 +21088,7 @@ func (ec *executionContext) _Lesson_description(ctx context.Context, field graph
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Lesson_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Lesson_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Lesson",
 		Field:      field,
@@ -21249,7 +21249,7 @@ func (ec *executionContext) _Lesson_topic(ctx context.Context, field graphql.Col
 	return ec.marshalNStudyTopic2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStudyTopic(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Lesson_topic(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Lesson_topic(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Lesson",
 		Field:      field,
@@ -21308,7 +21308,7 @@ func (ec *executionContext) _Lesson_defaultEpisode(ctx context.Context, field gr
 	return ec.marshalOEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Lesson_defaultEpisode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Lesson_defaultEpisode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Lesson",
 		Field:      field,
@@ -21560,7 +21560,7 @@ func (ec *executionContext) _Lesson_progress(ctx context.Context, field graphql.
 	return ec.marshalNTasksProgress2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐTasksProgress(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Lesson_progress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Lesson_progress(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Lesson",
 		Field:      field,
@@ -21610,7 +21610,7 @@ func (ec *executionContext) _Lesson_completed(ctx context.Context, field graphql
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Lesson_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Lesson_completed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Lesson",
 		Field:      field,
@@ -21654,7 +21654,7 @@ func (ec *executionContext) _Lesson_locked(ctx context.Context, field graphql.Co
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Lesson_locked(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Lesson_locked(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Lesson",
 		Field:      field,
@@ -21695,7 +21695,7 @@ func (ec *executionContext) _Lesson_previous(ctx context.Context, field graphql.
 	return ec.marshalOLesson2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLesson(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Lesson_previous(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Lesson_previous(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Lesson",
 		Field:      field,
@@ -21766,7 +21766,7 @@ func (ec *executionContext) _Lesson_next(ctx context.Context, field graphql.Coll
 	return ec.marshalOLesson2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLesson(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Lesson_next(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Lesson_next(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Lesson",
 		Field:      field,
@@ -21840,7 +21840,7 @@ func (ec *executionContext) _LessonPagination_offset(ctx context.Context, field 
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LessonPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LessonPagination_offset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LessonPagination",
 		Field:      field,
@@ -21884,7 +21884,7 @@ func (ec *executionContext) _LessonPagination_first(ctx context.Context, field g
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LessonPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LessonPagination_first(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LessonPagination",
 		Field:      field,
@@ -21928,7 +21928,7 @@ func (ec *executionContext) _LessonPagination_total(ctx context.Context, field g
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LessonPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LessonPagination_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LessonPagination",
 		Field:      field,
@@ -21972,7 +21972,7 @@ func (ec *executionContext) _LessonPagination_items(ctx context.Context, field g
 	return ec.marshalNLesson2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLessonᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LessonPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LessonPagination_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LessonPagination",
 		Field:      field,
@@ -22046,7 +22046,7 @@ func (ec *executionContext) _LessonsProgress_total(ctx context.Context, field gr
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LessonsProgress_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LessonsProgress_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LessonsProgress",
 		Field:      field,
@@ -22090,7 +22090,7 @@ func (ec *executionContext) _LessonsProgress_completed(ctx context.Context, fiel
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LessonsProgress_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LessonsProgress_completed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LessonsProgress",
 		Field:      field,
@@ -22134,7 +22134,7 @@ func (ec *executionContext) _Link_id(ctx context.Context, field graphql.Collecte
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Link_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Link_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Link",
 		Field:      field,
@@ -22178,7 +22178,7 @@ func (ec *executionContext) _Link_url(ctx context.Context, field graphql.Collect
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Link_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Link_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Link",
 		Field:      field,
@@ -22222,7 +22222,7 @@ func (ec *executionContext) _Link_title(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Link_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Link_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Link",
 		Field:      field,
@@ -22263,7 +22263,7 @@ func (ec *executionContext) _Link_description(ctx context.Context, field graphql
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Link_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Link_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Link",
 		Field:      field,
@@ -22307,7 +22307,7 @@ func (ec *executionContext) _Link_type(ctx context.Context, field graphql.Collec
 	return ec.marshalNLinkType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLinkType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Link_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Link_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Link",
 		Field:      field,
@@ -22403,7 +22403,7 @@ func (ec *executionContext) _LinkPagination_total(ctx context.Context, field gra
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LinkPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LinkPagination_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LinkPagination",
 		Field:      field,
@@ -22447,7 +22447,7 @@ func (ec *executionContext) _LinkPagination_first(ctx context.Context, field gra
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LinkPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LinkPagination_first(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LinkPagination",
 		Field:      field,
@@ -22491,7 +22491,7 @@ func (ec *executionContext) _LinkPagination_offset(ctx context.Context, field gr
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LinkPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LinkPagination_offset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LinkPagination",
 		Field:      field,
@@ -22535,7 +22535,7 @@ func (ec *executionContext) _LinkPagination_items(ctx context.Context, field gra
 	return ec.marshalNLink2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLinkᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LinkPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LinkPagination_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LinkPagination",
 		Field:      field,
@@ -22593,7 +22593,7 @@ func (ec *executionContext) _LinkTask_id(ctx context.Context, field graphql.Coll
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LinkTask_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LinkTask_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LinkTask",
 		Field:      field,
@@ -22637,7 +22637,7 @@ func (ec *executionContext) _LinkTask_title(ctx context.Context, field graphql.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LinkTask_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LinkTask_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LinkTask",
 		Field:      field,
@@ -22681,7 +22681,7 @@ func (ec *executionContext) _LinkTask_completed(ctx context.Context, field graph
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LinkTask_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LinkTask_completed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LinkTask",
 		Field:      field,
@@ -22725,7 +22725,7 @@ func (ec *executionContext) _LinkTask_link(ctx context.Context, field graphql.Co
 	return ec.marshalNLink2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLink(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LinkTask_link(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LinkTask_link(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LinkTask",
 		Field:      field,
@@ -22780,7 +22780,7 @@ func (ec *executionContext) _LinkTask_secondaryTitle(ctx context.Context, field 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LinkTask_secondaryTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LinkTask_secondaryTitle(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LinkTask",
 		Field:      field,
@@ -22821,7 +22821,7 @@ func (ec *executionContext) _LinkTask_description(ctx context.Context, field gra
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LinkTask_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LinkTask_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LinkTask",
 		Field:      field,
@@ -22865,7 +22865,7 @@ func (ec *executionContext) _ListSection_id(ctx context.Context, field graphql.C
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ListSection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ListSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ListSection",
 		Field:      field,
@@ -22906,7 +22906,7 @@ func (ec *executionContext) _ListSection_metadata(ctx context.Context, field gra
 	return ec.marshalOItemSectionMetadata2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionMetadata(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ListSection_metadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ListSection_metadata(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ListSection",
 		Field:      field,
@@ -22961,7 +22961,7 @@ func (ec *executionContext) _ListSection_title(ctx context.Context, field graphq
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ListSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ListSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ListSection",
 		Field:      field,
@@ -23002,7 +23002,7 @@ func (ec *executionContext) _ListSection_description(ctx context.Context, field 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ListSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ListSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ListSection",
 		Field:      field,
@@ -23046,7 +23046,7 @@ func (ec *executionContext) _ListSection_size(ctx context.Context, field graphql
 	return ec.marshalNSectionSize2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSectionSize(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ListSection_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ListSection_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ListSection",
 		Field:      field,
@@ -23155,7 +23155,7 @@ func (ec *executionContext) _Message_title(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Message_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Message_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Message",
 		Field:      field,
@@ -23199,7 +23199,7 @@ func (ec *executionContext) _Message_content(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Message_content(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Message_content(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Message",
 		Field:      field,
@@ -23243,7 +23243,7 @@ func (ec *executionContext) _Message_style(ctx context.Context, field graphql.Co
 	return ec.marshalNMessageStyle2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐMessageStyle(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Message_style(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Message_style(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Message",
 		Field:      field,
@@ -23295,7 +23295,7 @@ func (ec *executionContext) _MessageSection_id(ctx context.Context, field graphq
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MessageSection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MessageSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MessageSection",
 		Field:      field,
@@ -23336,7 +23336,7 @@ func (ec *executionContext) _MessageSection_title(ctx context.Context, field gra
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MessageSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MessageSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MessageSection",
 		Field:      field,
@@ -23377,7 +23377,7 @@ func (ec *executionContext) _MessageSection_description(ctx context.Context, fie
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MessageSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MessageSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MessageSection",
 		Field:      field,
@@ -23418,7 +23418,7 @@ func (ec *executionContext) _MessageSection_messages(ctx context.Context, field 
 	return ec.marshalOMessage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐMessageᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MessageSection_messages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MessageSection_messages(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MessageSection",
 		Field:      field,
@@ -23470,7 +23470,7 @@ func (ec *executionContext) _MessageStyle_text(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MessageStyle_text(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MessageStyle_text(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MessageStyle",
 		Field:      field,
@@ -23514,7 +23514,7 @@ func (ec *executionContext) _MessageStyle_background(ctx context.Context, field 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MessageStyle_background(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MessageStyle_background(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MessageStyle",
 		Field:      field,
@@ -23558,7 +23558,7 @@ func (ec *executionContext) _MessageStyle_border(ctx context.Context, field grap
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MessageStyle_border(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MessageStyle_border(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MessageStyle",
 		Field:      field,
@@ -24731,7 +24731,7 @@ func (ec *executionContext) _MutationRoot_sendVerificationEmail(ctx context.Cont
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MutationRoot_sendVerificationEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MutationRoot_sendVerificationEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MutationRoot",
 		Field:      field,
@@ -24885,7 +24885,7 @@ func (ec *executionContext) _Page_id(ctx context.Context, field graphql.Collecte
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Page_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Page_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Page",
 		Field:      field,
@@ -24929,7 +24929,7 @@ func (ec *executionContext) _Page_code(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Page_code(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Page_code(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Page",
 		Field:      field,
@@ -24973,7 +24973,7 @@ func (ec *executionContext) _Page_title(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Page_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Page_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Page",
 		Field:      field,
@@ -25014,7 +25014,7 @@ func (ec *executionContext) _Page_description(ctx context.Context, field graphql
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Page_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Page_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Page",
 		Field:      field,
@@ -25110,7 +25110,7 @@ func (ec *executionContext) _Page_images(ctx context.Context, field graphql.Coll
 	return ec.marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐImageᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Page_images(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Page_images(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Page",
 		Field:      field,
@@ -25225,7 +25225,7 @@ func (ec *executionContext) _PageDetailsSection_id(ctx context.Context, field gr
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PageDetailsSection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PageDetailsSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PageDetailsSection",
 		Field:      field,
@@ -25266,7 +25266,7 @@ func (ec *executionContext) _PageDetailsSection_title(ctx context.Context, field
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PageDetailsSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PageDetailsSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PageDetailsSection",
 		Field:      field,
@@ -25307,7 +25307,7 @@ func (ec *executionContext) _PageDetailsSection_description(ctx context.Context,
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PageDetailsSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PageDetailsSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PageDetailsSection",
 		Field:      field,
@@ -25351,7 +25351,7 @@ func (ec *executionContext) _Person_id(ctx context.Context, field graphql.Collec
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Person_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Person_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Person",
 		Field:      field,
@@ -25395,7 +25395,7 @@ func (ec *executionContext) _Person_name(ctx context.Context, field graphql.Coll
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Person_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Person_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Person",
 		Field:      field,
@@ -25491,7 +25491,7 @@ func (ec *executionContext) _Person_contributionTypes(ctx context.Context, field
 	return ec.marshalNContributionTypeCount2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionTypeCountᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Person_contributionTypes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Person_contributionTypes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Person",
 		Field:      field,
@@ -25541,7 +25541,7 @@ func (ec *executionContext) _Person_contributionContentTypes(ctx context.Context
 	return ec.marshalNContentTypeCount2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContentTypeCountᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Person_contributionContentTypes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Person_contributionContentTypes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Person",
 		Field:      field,
@@ -25656,7 +25656,7 @@ func (ec *executionContext) _Playlist_id(ctx context.Context, field graphql.Coll
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Playlist_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Playlist_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Playlist",
 		Field:      field,
@@ -25700,7 +25700,7 @@ func (ec *executionContext) _Playlist_title(ctx context.Context, field graphql.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Playlist_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Playlist_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Playlist",
 		Field:      field,
@@ -25741,7 +25741,7 @@ func (ec *executionContext) _Playlist_description(ctx context.Context, field gra
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Playlist_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Playlist_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Playlist",
 		Field:      field,
@@ -25902,7 +25902,7 @@ func (ec *executionContext) _PlaylistItemPagination_total(ctx context.Context, f
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PlaylistItemPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PlaylistItemPagination_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PlaylistItemPagination",
 		Field:      field,
@@ -25946,7 +25946,7 @@ func (ec *executionContext) _PlaylistItemPagination_first(ctx context.Context, f
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PlaylistItemPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PlaylistItemPagination_first(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PlaylistItemPagination",
 		Field:      field,
@@ -25990,7 +25990,7 @@ func (ec *executionContext) _PlaylistItemPagination_offset(ctx context.Context, 
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PlaylistItemPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PlaylistItemPagination_offset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PlaylistItemPagination",
 		Field:      field,
@@ -26034,7 +26034,7 @@ func (ec *executionContext) _PlaylistItemPagination_items(ctx context.Context, f
 	return ec.marshalNPlaylistItem2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPlaylistItemᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PlaylistItemPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PlaylistItemPagination_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PlaylistItemPagination",
 		Field:      field,
@@ -26078,7 +26078,7 @@ func (ec *executionContext) _PosterGridSection_id(ctx context.Context, field gra
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PosterGridSection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PosterGridSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PosterGridSection",
 		Field:      field,
@@ -26119,7 +26119,7 @@ func (ec *executionContext) _PosterGridSection_metadata(ctx context.Context, fie
 	return ec.marshalOItemSectionMetadata2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionMetadata(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PosterGridSection_metadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PosterGridSection_metadata(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PosterGridSection",
 		Field:      field,
@@ -26174,7 +26174,7 @@ func (ec *executionContext) _PosterGridSection_title(ctx context.Context, field 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PosterGridSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PosterGridSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PosterGridSection",
 		Field:      field,
@@ -26215,7 +26215,7 @@ func (ec *executionContext) _PosterGridSection_description(ctx context.Context, 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PosterGridSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PosterGridSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PosterGridSection",
 		Field:      field,
@@ -26259,7 +26259,7 @@ func (ec *executionContext) _PosterGridSection_size(ctx context.Context, field g
 	return ec.marshalNGridSectionSize2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐGridSectionSize(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PosterGridSection_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PosterGridSection_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PosterGridSection",
 		Field:      field,
@@ -26368,7 +26368,7 @@ func (ec *executionContext) _PosterSection_id(ctx context.Context, field graphql
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PosterSection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PosterSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PosterSection",
 		Field:      field,
@@ -26409,7 +26409,7 @@ func (ec *executionContext) _PosterSection_metadata(ctx context.Context, field g
 	return ec.marshalOItemSectionMetadata2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐItemSectionMetadata(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PosterSection_metadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PosterSection_metadata(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PosterSection",
 		Field:      field,
@@ -26464,7 +26464,7 @@ func (ec *executionContext) _PosterSection_title(ctx context.Context, field grap
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PosterSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PosterSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PosterSection",
 		Field:      field,
@@ -26505,7 +26505,7 @@ func (ec *executionContext) _PosterSection_description(ctx context.Context, fiel
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PosterSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PosterSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PosterSection",
 		Field:      field,
@@ -26549,7 +26549,7 @@ func (ec *executionContext) _PosterSection_size(ctx context.Context, field graph
 	return ec.marshalNSectionSize2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSectionSize(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PosterSection_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PosterSection_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PosterSection",
 		Field:      field,
@@ -26658,7 +26658,7 @@ func (ec *executionContext) _PosterTask_id(ctx context.Context, field graphql.Co
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PosterTask_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PosterTask_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PosterTask",
 		Field:      field,
@@ -26702,7 +26702,7 @@ func (ec *executionContext) _PosterTask_title(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PosterTask_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PosterTask_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PosterTask",
 		Field:      field,
@@ -26746,7 +26746,7 @@ func (ec *executionContext) _PosterTask_completed(ctx context.Context, field gra
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PosterTask_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PosterTask_completed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PosterTask",
 		Field:      field,
@@ -26790,7 +26790,7 @@ func (ec *executionContext) _PosterTask_image(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PosterTask_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PosterTask_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PosterTask",
 		Field:      field,
@@ -26834,7 +26834,7 @@ func (ec *executionContext) _Profile_id(ctx context.Context, field graphql.Colle
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Profile_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Profile_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Profile",
 		Field:      field,
@@ -26878,7 +26878,7 @@ func (ec *executionContext) _Profile_name(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Profile_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Profile_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Profile",
 		Field:      field,
@@ -26993,7 +26993,7 @@ func (ec *executionContext) _QueryRoot_languages(ctx context.Context, field grap
 	return ec.marshalNLanguage2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QueryRoot_languages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QueryRoot_languages(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QueryRoot",
 		Field:      field,
@@ -28121,7 +28121,7 @@ func (ec *executionContext) _QueryRoot_pendingAchievements(ctx context.Context, 
 	return ec.marshalNAchievement2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐAchievementᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QueryRoot_pendingAchievements(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QueryRoot_pendingAchievements(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QueryRoot",
 		Field:      field,
@@ -28535,7 +28535,7 @@ func (ec *executionContext) _QueryRoot_calendar(ctx context.Context, field graph
 	return ec.marshalOCalendar2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendar(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QueryRoot_calendar(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QueryRoot_calendar(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QueryRoot",
 		Field:      field,
@@ -28653,7 +28653,7 @@ func (ec *executionContext) _QueryRoot_faq(ctx context.Context, field graphql.Co
 	return ec.marshalNFAQ2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐFaq(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QueryRoot_faq(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QueryRoot_faq(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QueryRoot",
 		Field:      field,
@@ -28705,7 +28705,7 @@ func (ec *executionContext) _QueryRoot_me(ctx context.Context, field graphql.Col
 	return ec.marshalNUser2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QueryRoot_me(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QueryRoot_me(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QueryRoot",
 		Field:      field,
@@ -28775,7 +28775,7 @@ func (ec *executionContext) _QueryRoot_myList(ctx context.Context, field graphql
 	return ec.marshalNUserCollection2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollection(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QueryRoot_myList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QueryRoot_myList(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QueryRoot",
 		Field:      field,
@@ -28890,7 +28890,7 @@ func (ec *executionContext) _QueryRoot_config(ctx context.Context, field graphql
 	return ec.marshalNConfig2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐConfig(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QueryRoot_config(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QueryRoot_config(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QueryRoot",
 		Field:      field,
@@ -28938,7 +28938,7 @@ func (ec *executionContext) _QueryRoot_profiles(ctx context.Context, field graph
 	return ec.marshalNProfile2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐProfileᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QueryRoot_profiles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QueryRoot_profiles(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QueryRoot",
 		Field:      field,
@@ -28988,7 +28988,7 @@ func (ec *executionContext) _QueryRoot_profile(ctx context.Context, field graphq
 	return ec.marshalNProfile2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐProfile(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QueryRoot_profile(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QueryRoot_profile(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QueryRoot",
 		Field:      field,
@@ -29152,7 +29152,7 @@ func (ec *executionContext) _QueryRoot_subscriptions(ctx context.Context, field 
 	return ec.marshalNSubscriptionTopic2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubscriptionTopicᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QueryRoot_subscriptions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QueryRoot_subscriptions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QueryRoot",
 		Field:      field,
@@ -29267,7 +29267,7 @@ func (ec *executionContext) _QueryRoot___schema(ctx context.Context, field graph
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QueryRoot___schema(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QueryRoot___schema(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QueryRoot",
 		Field:      field,
@@ -29325,7 +29325,7 @@ func (ec *executionContext) _Question_id(ctx context.Context, field graphql.Coll
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Question_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Question_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Question",
 		Field:      field,
@@ -29369,7 +29369,7 @@ func (ec *executionContext) _Question_category(ctx context.Context, field graphq
 	return ec.marshalNFAQCategory2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐFAQCategory(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Question_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Question_category(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Question",
 		Field:      field,
@@ -29421,7 +29421,7 @@ func (ec *executionContext) _Question_question(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Question_question(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Question_question(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Question",
 		Field:      field,
@@ -29465,7 +29465,7 @@ func (ec *executionContext) _Question_answer(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Question_answer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Question_answer(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Question",
 		Field:      field,
@@ -29509,7 +29509,7 @@ func (ec *executionContext) _QuestionPagination_total(ctx context.Context, field
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QuestionPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QuestionPagination_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QuestionPagination",
 		Field:      field,
@@ -29553,7 +29553,7 @@ func (ec *executionContext) _QuestionPagination_first(ctx context.Context, field
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QuestionPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QuestionPagination_first(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QuestionPagination",
 		Field:      field,
@@ -29597,7 +29597,7 @@ func (ec *executionContext) _QuestionPagination_offset(ctx context.Context, fiel
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QuestionPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QuestionPagination_offset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QuestionPagination",
 		Field:      field,
@@ -29641,7 +29641,7 @@ func (ec *executionContext) _QuestionPagination_items(ctx context.Context, field
 	return ec.marshalNQuestion2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐQuestionᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QuestionPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QuestionPagination_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QuestionPagination",
 		Field:      field,
@@ -29695,7 +29695,7 @@ func (ec *executionContext) _QuoteTask_id(ctx context.Context, field graphql.Col
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QuoteTask_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QuoteTask_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QuoteTask",
 		Field:      field,
@@ -29739,7 +29739,7 @@ func (ec *executionContext) _QuoteTask_title(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QuoteTask_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QuoteTask_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QuoteTask",
 		Field:      field,
@@ -29783,7 +29783,7 @@ func (ec *executionContext) _QuoteTask_completed(ctx context.Context, field grap
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QuoteTask_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QuoteTask_completed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QuoteTask",
 		Field:      field,
@@ -29827,7 +29827,7 @@ func (ec *executionContext) _QuoteTask_image(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_QuoteTask_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_QuoteTask_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QuoteTask",
 		Field:      field,
@@ -29871,7 +29871,7 @@ func (ec *executionContext) _RedirectLink_url(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RedirectLink_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RedirectLink_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RedirectLink",
 		Field:      field,
@@ -29915,7 +29915,7 @@ func (ec *executionContext) _RedirectLink_requiresAuthentication(ctx context.Con
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RedirectLink_requiresAuthentication(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RedirectLink_requiresAuthentication(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RedirectLink",
 		Field:      field,
@@ -29959,7 +29959,7 @@ func (ec *executionContext) _RedirectParam_key(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RedirectParam_key(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RedirectParam_key(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RedirectParam",
 		Field:      field,
@@ -30003,7 +30003,7 @@ func (ec *executionContext) _RedirectParam_value(ctx context.Context, field grap
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RedirectParam_value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RedirectParam_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RedirectParam",
 		Field:      field,
@@ -30047,7 +30047,7 @@ func (ec *executionContext) _SearchResult_hits(ctx context.Context, field graphq
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SearchResult_hits(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SearchResult_hits(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SearchResult",
 		Field:      field,
@@ -30091,7 +30091,7 @@ func (ec *executionContext) _SearchResult_page(ctx context.Context, field graphq
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SearchResult_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SearchResult_page(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SearchResult",
 		Field:      field,
@@ -30135,7 +30135,7 @@ func (ec *executionContext) _SearchResult_result(ctx context.Context, field grap
 	return ec.marshalNSearchResultItem2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSearchResultItemᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SearchResult_result(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SearchResult_result(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SearchResult",
 		Field:      field,
@@ -30179,7 +30179,7 @@ func (ec *executionContext) _Season_id(ctx context.Context, field graphql.Collec
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Season_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Season_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Season",
 		Field:      field,
@@ -30220,7 +30220,7 @@ func (ec *executionContext) _Season_legacyID(ctx context.Context, field graphql.
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Season_legacyID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Season_legacyID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Season",
 		Field:      field,
@@ -30264,7 +30264,7 @@ func (ec *executionContext) _Season_status(ctx context.Context, field graphql.Co
 	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Season_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Season_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Season",
 		Field:      field,
@@ -30308,7 +30308,7 @@ func (ec *executionContext) _Season_ageRating(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Season_ageRating(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Season_ageRating(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Season",
 		Field:      field,
@@ -30352,7 +30352,7 @@ func (ec *executionContext) _Season_title(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Season_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Season_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Season",
 		Field:      field,
@@ -30396,7 +30396,7 @@ func (ec *executionContext) _Season_description(ctx context.Context, field graph
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Season_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Season_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Season",
 		Field:      field,
@@ -30489,7 +30489,7 @@ func (ec *executionContext) _Season_imageUrl(ctx context.Context, field graphql.
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Season_imageUrl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Season_imageUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Season",
 		Field:      field,
@@ -30533,7 +30533,7 @@ func (ec *executionContext) _Season_images(ctx context.Context, field graphql.Co
 	return ec.marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐImageᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Season_images(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Season_images(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Season",
 		Field:      field,
@@ -30583,7 +30583,7 @@ func (ec *executionContext) _Season_number(ctx context.Context, field graphql.Co
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Season_number(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Season_number(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Season",
 		Field:      field,
@@ -30627,7 +30627,7 @@ func (ec *executionContext) _Season_show(ctx context.Context, field graphql.Coll
 	return ec.marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Season_show(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Season_show(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Season",
 		Field:      field,
@@ -30699,7 +30699,7 @@ func (ec *executionContext) _Season_defaultEpisode(ctx context.Context, field gr
 	return ec.marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Season_defaultEpisode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Season_defaultEpisode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Season",
 		Field:      field,
@@ -30886,7 +30886,7 @@ func (ec *executionContext) _SeasonCalendarEntry_id(ctx context.Context, field g
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonCalendarEntry_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonCalendarEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonCalendarEntry",
 		Field:      field,
@@ -30927,7 +30927,7 @@ func (ec *executionContext) _SeasonCalendarEntry_event(ctx context.Context, fiel
 	return ec.marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEvent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonCalendarEntry_event(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonCalendarEntry_event(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonCalendarEntry",
 		Field:      field,
@@ -30985,7 +30985,7 @@ func (ec *executionContext) _SeasonCalendarEntry_title(ctx context.Context, fiel
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonCalendarEntry_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonCalendarEntry_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonCalendarEntry",
 		Field:      field,
@@ -31029,7 +31029,7 @@ func (ec *executionContext) _SeasonCalendarEntry_description(ctx context.Context
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonCalendarEntry_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonCalendarEntry_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonCalendarEntry",
 		Field:      field,
@@ -31073,7 +31073,7 @@ func (ec *executionContext) _SeasonCalendarEntry_start(ctx context.Context, fiel
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonCalendarEntry_start(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonCalendarEntry_start(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonCalendarEntry",
 		Field:      field,
@@ -31117,7 +31117,7 @@ func (ec *executionContext) _SeasonCalendarEntry_end(ctx context.Context, field 
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonCalendarEntry_end(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonCalendarEntry_end(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonCalendarEntry",
 		Field:      field,
@@ -31158,7 +31158,7 @@ func (ec *executionContext) _SeasonCalendarEntry_season(ctx context.Context, fie
 	return ec.marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSeason(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonCalendarEntry_season(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonCalendarEntry_season(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonCalendarEntry",
 		Field:      field,
@@ -31230,7 +31230,7 @@ func (ec *executionContext) _SeasonPagination_total(ctx context.Context, field g
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonPagination_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonPagination",
 		Field:      field,
@@ -31274,7 +31274,7 @@ func (ec *executionContext) _SeasonPagination_first(ctx context.Context, field g
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonPagination_first(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonPagination",
 		Field:      field,
@@ -31318,7 +31318,7 @@ func (ec *executionContext) _SeasonPagination_offset(ctx context.Context, field 
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonPagination_offset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonPagination",
 		Field:      field,
@@ -31362,7 +31362,7 @@ func (ec *executionContext) _SeasonPagination_items(ctx context.Context, field g
 	return ec.marshalNSeason2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSeasonᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonPagination_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonPagination",
 		Field:      field,
@@ -31434,7 +31434,7 @@ func (ec *executionContext) _SeasonSearchItem_id(ctx context.Context, field grap
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonSearchItem_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonSearchItem_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonSearchItem",
 		Field:      field,
@@ -31475,7 +31475,7 @@ func (ec *executionContext) _SeasonSearchItem_legacyID(ctx context.Context, fiel
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonSearchItem_legacyID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonSearchItem_legacyID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonSearchItem",
 		Field:      field,
@@ -31519,7 +31519,7 @@ func (ec *executionContext) _SeasonSearchItem_ageRating(ctx context.Context, fie
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonSearchItem_ageRating(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonSearchItem_ageRating(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonSearchItem",
 		Field:      field,
@@ -31563,7 +31563,7 @@ func (ec *executionContext) _SeasonSearchItem_collection(ctx context.Context, fi
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonSearchItem_collection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonSearchItem_collection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonSearchItem",
 		Field:      field,
@@ -31607,7 +31607,7 @@ func (ec *executionContext) _SeasonSearchItem_title(ctx context.Context, field g
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonSearchItem_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonSearchItem_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonSearchItem",
 		Field:      field,
@@ -31648,7 +31648,7 @@ func (ec *executionContext) _SeasonSearchItem_header(ctx context.Context, field 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonSearchItem_header(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonSearchItem_header(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonSearchItem",
 		Field:      field,
@@ -31689,7 +31689,7 @@ func (ec *executionContext) _SeasonSearchItem_description(ctx context.Context, f
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonSearchItem_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonSearchItem_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonSearchItem",
 		Field:      field,
@@ -31730,7 +31730,7 @@ func (ec *executionContext) _SeasonSearchItem_highlight(ctx context.Context, fie
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonSearchItem_highlight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonSearchItem_highlight(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonSearchItem",
 		Field:      field,
@@ -31771,7 +31771,7 @@ func (ec *executionContext) _SeasonSearchItem_image(ctx context.Context, field g
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonSearchItem_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonSearchItem_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonSearchItem",
 		Field:      field,
@@ -31815,7 +31815,7 @@ func (ec *executionContext) _SeasonSearchItem_url(ctx context.Context, field gra
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonSearchItem_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonSearchItem_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonSearchItem",
 		Field:      field,
@@ -31859,7 +31859,7 @@ func (ec *executionContext) _SeasonSearchItem_showId(ctx context.Context, field 
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonSearchItem_showId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonSearchItem_showId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonSearchItem",
 		Field:      field,
@@ -31903,7 +31903,7 @@ func (ec *executionContext) _SeasonSearchItem_showTitle(ctx context.Context, fie
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonSearchItem_showTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonSearchItem_showTitle(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonSearchItem",
 		Field:      field,
@@ -31947,7 +31947,7 @@ func (ec *executionContext) _SeasonSearchItem_show(ctx context.Context, field gr
 	return ec.marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SeasonSearchItem_show(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SeasonSearchItem_show(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SeasonSearchItem",
 		Field:      field,
@@ -32019,7 +32019,7 @@ func (ec *executionContext) _SectionItem_id(ctx context.Context, field graphql.C
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SectionItem_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SectionItem_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SectionItem",
 		Field:      field,
@@ -32063,7 +32063,7 @@ func (ec *executionContext) _SectionItem_sort(ctx context.Context, field graphql
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SectionItem_sort(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SectionItem_sort(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SectionItem",
 		Field:      field,
@@ -32107,7 +32107,7 @@ func (ec *executionContext) _SectionItem_title(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SectionItem_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SectionItem_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SectionItem",
 		Field:      field,
@@ -32151,7 +32151,7 @@ func (ec *executionContext) _SectionItem_description(ctx context.Context, field 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SectionItem_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SectionItem_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SectionItem",
 		Field:      field,
@@ -32192,7 +32192,7 @@ func (ec *executionContext) _SectionItem_image(ctx context.Context, field graphq
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SectionItem_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SectionItem_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SectionItem",
 		Field:      field,
@@ -32236,7 +32236,7 @@ func (ec *executionContext) _SectionItem_item(ctx context.Context, field graphql
 	return ec.marshalNSectionItemType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSectionItemType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SectionItem_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SectionItem_item(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SectionItem",
 		Field:      field,
@@ -32280,7 +32280,7 @@ func (ec *executionContext) _SectionItemPagination_first(ctx context.Context, fi
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SectionItemPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SectionItemPagination_first(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SectionItemPagination",
 		Field:      field,
@@ -32324,7 +32324,7 @@ func (ec *executionContext) _SectionItemPagination_offset(ctx context.Context, f
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SectionItemPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SectionItemPagination_offset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SectionItemPagination",
 		Field:      field,
@@ -32368,7 +32368,7 @@ func (ec *executionContext) _SectionItemPagination_total(ctx context.Context, fi
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SectionItemPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SectionItemPagination_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SectionItemPagination",
 		Field:      field,
@@ -32412,7 +32412,7 @@ func (ec *executionContext) _SectionItemPagination_items(ctx context.Context, fi
 	return ec.marshalNSectionItem2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSectionItemᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SectionItemPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SectionItemPagination_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SectionItemPagination",
 		Field:      field,
@@ -32470,7 +32470,7 @@ func (ec *executionContext) _SectionPagination_total(ctx context.Context, field 
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SectionPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SectionPagination_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SectionPagination",
 		Field:      field,
@@ -32514,7 +32514,7 @@ func (ec *executionContext) _SectionPagination_first(ctx context.Context, field 
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SectionPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SectionPagination_first(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SectionPagination",
 		Field:      field,
@@ -32558,7 +32558,7 @@ func (ec *executionContext) _SectionPagination_offset(ctx context.Context, field
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SectionPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SectionPagination_offset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SectionPagination",
 		Field:      field,
@@ -32602,7 +32602,7 @@ func (ec *executionContext) _SectionPagination_items(ctx context.Context, field 
 	return ec.marshalNSection2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSectionᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SectionPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SectionPagination_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SectionPagination",
 		Field:      field,
@@ -32646,7 +32646,7 @@ func (ec *executionContext) _Short_id(ctx context.Context, field graphql.Collect
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Short_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Short_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Short",
 		Field:      field,
@@ -32690,7 +32690,7 @@ func (ec *executionContext) _Short_title(ctx context.Context, field graphql.Coll
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Short_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Short_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Short",
 		Field:      field,
@@ -32734,7 +32734,7 @@ func (ec *executionContext) _Short_originalTitle(ctx context.Context, field grap
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Short_originalTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Short_originalTitle(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Short",
 		Field:      field,
@@ -32775,7 +32775,7 @@ func (ec *executionContext) _Short_description(ctx context.Context, field graphq
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Short_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Short_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Short",
 		Field:      field,
@@ -32871,7 +32871,7 @@ func (ec *executionContext) _Short_streams(ctx context.Context, field graphql.Co
 	return ec.marshalNStream2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStreamᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Short_streams(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Short_streams(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Short",
 		Field:      field,
@@ -32933,7 +32933,7 @@ func (ec *executionContext) _Short_files(ctx context.Context, field graphql.Coll
 	return ec.marshalNFile2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐFileᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Short_files(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Short_files(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Short",
 		Field:      field,
@@ -32994,7 +32994,7 @@ func (ec *executionContext) _Short_source(ctx context.Context, field graphql.Col
 	return ec.marshalOSubclipSource2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubclipSource(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Short_source(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Short_source(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Short",
 		Field:      field,
@@ -33046,7 +33046,7 @@ func (ec *executionContext) _Short_inMyList(ctx context.Context, field graphql.C
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Short_inMyList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Short_inMyList(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Short",
 		Field:      field,
@@ -33090,7 +33090,7 @@ func (ec *executionContext) _ShortsPagination_cursor(ctx context.Context, field 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShortsPagination_cursor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShortsPagination_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShortsPagination",
 		Field:      field,
@@ -33134,7 +33134,7 @@ func (ec *executionContext) _ShortsPagination_nextCursor(ctx context.Context, fi
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShortsPagination_nextCursor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShortsPagination_nextCursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShortsPagination",
 		Field:      field,
@@ -33178,7 +33178,7 @@ func (ec *executionContext) _ShortsPagination_shorts(ctx context.Context, field 
 	return ec.marshalNShort2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShortᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShortsPagination_shorts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShortsPagination_shorts(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShortsPagination",
 		Field:      field,
@@ -33242,7 +33242,7 @@ func (ec *executionContext) _Show_id(ctx context.Context, field graphql.Collecte
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Show_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Show_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Show",
 		Field:      field,
@@ -33283,7 +33283,7 @@ func (ec *executionContext) _Show_legacyID(ctx context.Context, field graphql.Co
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Show_legacyID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Show_legacyID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Show",
 		Field:      field,
@@ -33327,7 +33327,7 @@ func (ec *executionContext) _Show_status(ctx context.Context, field graphql.Coll
 	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Show_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Show_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Show",
 		Field:      field,
@@ -33371,7 +33371,7 @@ func (ec *executionContext) _Show_type(ctx context.Context, field graphql.Collec
 	return ec.marshalNShowType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShowType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Show_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Show_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Show",
 		Field:      field,
@@ -33415,7 +33415,7 @@ func (ec *executionContext) _Show_title(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Show_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Show_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Show",
 		Field:      field,
@@ -33459,7 +33459,7 @@ func (ec *executionContext) _Show_description(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Show_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Show_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Show",
 		Field:      field,
@@ -33552,7 +33552,7 @@ func (ec *executionContext) _Show_imageUrl(ctx context.Context, field graphql.Co
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Show_imageUrl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Show_imageUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Show",
 		Field:      field,
@@ -33596,7 +33596,7 @@ func (ec *executionContext) _Show_images(ctx context.Context, field graphql.Coll
 	return ec.marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐImageᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Show_images(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Show_images(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Show",
 		Field:      field,
@@ -33646,7 +33646,7 @@ func (ec *executionContext) _Show_episodeCount(ctx context.Context, field graphq
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Show_episodeCount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Show_episodeCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Show",
 		Field:      field,
@@ -33690,7 +33690,7 @@ func (ec *executionContext) _Show_seasonCount(ctx context.Context, field graphql
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Show_seasonCount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Show_seasonCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Show",
 		Field:      field,
@@ -33799,7 +33799,7 @@ func (ec *executionContext) _Show_defaultEpisode(ctx context.Context, field grap
 	return ec.marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Show_defaultEpisode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Show_defaultEpisode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Show",
 		Field:      field,
@@ -33921,7 +33921,7 @@ func (ec *executionContext) _ShowCalendarEntry_id(ctx context.Context, field gra
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowCalendarEntry_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowCalendarEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowCalendarEntry",
 		Field:      field,
@@ -33962,7 +33962,7 @@ func (ec *executionContext) _ShowCalendarEntry_event(ctx context.Context, field 
 	return ec.marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEvent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowCalendarEntry_event(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowCalendarEntry_event(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowCalendarEntry",
 		Field:      field,
@@ -34020,7 +34020,7 @@ func (ec *executionContext) _ShowCalendarEntry_title(ctx context.Context, field 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowCalendarEntry_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowCalendarEntry_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowCalendarEntry",
 		Field:      field,
@@ -34064,7 +34064,7 @@ func (ec *executionContext) _ShowCalendarEntry_description(ctx context.Context, 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowCalendarEntry_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowCalendarEntry_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowCalendarEntry",
 		Field:      field,
@@ -34108,7 +34108,7 @@ func (ec *executionContext) _ShowCalendarEntry_start(ctx context.Context, field 
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowCalendarEntry_start(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowCalendarEntry_start(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowCalendarEntry",
 		Field:      field,
@@ -34152,7 +34152,7 @@ func (ec *executionContext) _ShowCalendarEntry_end(ctx context.Context, field gr
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowCalendarEntry_end(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowCalendarEntry_end(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowCalendarEntry",
 		Field:      field,
@@ -34193,7 +34193,7 @@ func (ec *executionContext) _ShowCalendarEntry_show(ctx context.Context, field g
 	return ec.marshalOShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowCalendarEntry_show(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowCalendarEntry_show(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowCalendarEntry",
 		Field:      field,
@@ -34265,7 +34265,7 @@ func (ec *executionContext) _ShowSearchItem_id(ctx context.Context, field graphq
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowSearchItem_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowSearchItem_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowSearchItem",
 		Field:      field,
@@ -34306,7 +34306,7 @@ func (ec *executionContext) _ShowSearchItem_legacyID(ctx context.Context, field 
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowSearchItem_legacyID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowSearchItem_legacyID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowSearchItem",
 		Field:      field,
@@ -34350,7 +34350,7 @@ func (ec *executionContext) _ShowSearchItem_collection(ctx context.Context, fiel
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowSearchItem_collection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowSearchItem_collection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowSearchItem",
 		Field:      field,
@@ -34394,7 +34394,7 @@ func (ec *executionContext) _ShowSearchItem_title(ctx context.Context, field gra
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowSearchItem_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowSearchItem_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowSearchItem",
 		Field:      field,
@@ -34435,7 +34435,7 @@ func (ec *executionContext) _ShowSearchItem_header(ctx context.Context, field gr
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowSearchItem_header(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowSearchItem_header(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowSearchItem",
 		Field:      field,
@@ -34476,7 +34476,7 @@ func (ec *executionContext) _ShowSearchItem_description(ctx context.Context, fie
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowSearchItem_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowSearchItem_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowSearchItem",
 		Field:      field,
@@ -34517,7 +34517,7 @@ func (ec *executionContext) _ShowSearchItem_highlight(ctx context.Context, field
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowSearchItem_highlight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowSearchItem_highlight(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowSearchItem",
 		Field:      field,
@@ -34558,7 +34558,7 @@ func (ec *executionContext) _ShowSearchItem_image(ctx context.Context, field gra
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowSearchItem_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowSearchItem_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowSearchItem",
 		Field:      field,
@@ -34602,7 +34602,7 @@ func (ec *executionContext) _ShowSearchItem_url(ctx context.Context, field graph
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowSearchItem_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowSearchItem_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowSearchItem",
 		Field:      field,
@@ -34646,7 +34646,7 @@ func (ec *executionContext) _ShowSearchItem_show(ctx context.Context, field grap
 	return ec.marshalNShow2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐShow(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ShowSearchItem_show(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ShowSearchItem_show(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ShowSearchItem",
 		Field:      field,
@@ -34718,7 +34718,7 @@ func (ec *executionContext) _SimpleCalendarEntry_id(ctx context.Context, field g
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SimpleCalendarEntry_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SimpleCalendarEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SimpleCalendarEntry",
 		Field:      field,
@@ -34759,7 +34759,7 @@ func (ec *executionContext) _SimpleCalendarEntry_event(ctx context.Context, fiel
 	return ec.marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEvent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SimpleCalendarEntry_event(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SimpleCalendarEntry_event(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SimpleCalendarEntry",
 		Field:      field,
@@ -34817,7 +34817,7 @@ func (ec *executionContext) _SimpleCalendarEntry_title(ctx context.Context, fiel
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SimpleCalendarEntry_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SimpleCalendarEntry_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SimpleCalendarEntry",
 		Field:      field,
@@ -34861,7 +34861,7 @@ func (ec *executionContext) _SimpleCalendarEntry_description(ctx context.Context
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SimpleCalendarEntry_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SimpleCalendarEntry_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SimpleCalendarEntry",
 		Field:      field,
@@ -34905,7 +34905,7 @@ func (ec *executionContext) _SimpleCalendarEntry_start(ctx context.Context, fiel
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SimpleCalendarEntry_start(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SimpleCalendarEntry_start(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SimpleCalendarEntry",
 		Field:      field,
@@ -34949,7 +34949,7 @@ func (ec *executionContext) _SimpleCalendarEntry_end(ctx context.Context, field 
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SimpleCalendarEntry_end(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SimpleCalendarEntry_end(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SimpleCalendarEntry",
 		Field:      field,
@@ -34993,7 +34993,7 @@ func (ec *executionContext) _Stream_id(ctx context.Context, field graphql.Collec
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Stream_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Stream_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Stream",
 		Field:      field,
@@ -35037,7 +35037,7 @@ func (ec *executionContext) _Stream_url(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Stream_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Stream_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Stream",
 		Field:      field,
@@ -35081,7 +35081,7 @@ func (ec *executionContext) _Stream_expiresAt(ctx context.Context, field graphql
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Stream_expiresAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Stream_expiresAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Stream",
 		Field:      field,
@@ -35122,7 +35122,7 @@ func (ec *executionContext) _Stream_videoLanguage(ctx context.Context, field gra
 	return ec.marshalOLanguage2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Stream_videoLanguage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Stream_videoLanguage(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Stream",
 		Field:      field,
@@ -35166,7 +35166,7 @@ func (ec *executionContext) _Stream_audioLanguages(ctx context.Context, field gr
 	return ec.marshalNLanguage2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Stream_audioLanguages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Stream_audioLanguages(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Stream",
 		Field:      field,
@@ -35210,7 +35210,7 @@ func (ec *executionContext) _Stream_subtitleLanguages(ctx context.Context, field
 	return ec.marshalNLanguage2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Stream_subtitleLanguages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Stream_subtitleLanguages(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Stream",
 		Field:      field,
@@ -35254,7 +35254,7 @@ func (ec *executionContext) _Stream_type(ctx context.Context, field graphql.Coll
 	return ec.marshalNStreamType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStreamType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Stream_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Stream_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Stream",
 		Field:      field,
@@ -35298,7 +35298,7 @@ func (ec *executionContext) _Stream_downloadable(ctx context.Context, field grap
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Stream_downloadable(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Stream_downloadable(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Stream",
 		Field:      field,
@@ -35342,7 +35342,7 @@ func (ec *executionContext) _StudyTopic_id(ctx context.Context, field graphql.Co
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_StudyTopic_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_StudyTopic_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "StudyTopic",
 		Field:      field,
@@ -35386,7 +35386,7 @@ func (ec *executionContext) _StudyTopic_title(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_StudyTopic_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_StudyTopic_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "StudyTopic",
 		Field:      field,
@@ -35430,7 +35430,7 @@ func (ec *executionContext) _StudyTopic_description(ctx context.Context, field g
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_StudyTopic_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_StudyTopic_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "StudyTopic",
 		Field:      field,
@@ -35526,7 +35526,7 @@ func (ec *executionContext) _StudyTopic_images(ctx context.Context, field graphq
 	return ec.marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐImageᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_StudyTopic_images(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_StudyTopic_images(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "StudyTopic",
 		Field:      field,
@@ -35576,7 +35576,7 @@ func (ec *executionContext) _StudyTopic_defaultLesson(ctx context.Context, field
 	return ec.marshalNLesson2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLesson(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_StudyTopic_defaultLesson(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_StudyTopic_defaultLesson(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "StudyTopic",
 		Field:      field,
@@ -35715,7 +35715,7 @@ func (ec *executionContext) _StudyTopic_progress(ctx context.Context, field grap
 	return ec.marshalNLessonsProgress2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLessonsProgress(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_StudyTopic_progress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_StudyTopic_progress(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "StudyTopic",
 		Field:      field,
@@ -35765,7 +35765,7 @@ func (ec *executionContext) _SubclipSource_item(ctx context.Context, field graph
 	return ec.marshalNSubclipSourceItem2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSubclipSourceItem(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SubclipSource_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SubclipSource_item(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SubclipSource",
 		Field:      field,
@@ -35806,7 +35806,7 @@ func (ec *executionContext) _SubclipSource_start(ctx context.Context, field grap
 	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SubclipSource_start(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SubclipSource_start(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SubclipSource",
 		Field:      field,
@@ -35847,7 +35847,7 @@ func (ec *executionContext) _SubclipSource_end(ctx context.Context, field graphq
 	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SubclipSource_end(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SubclipSource_end(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SubclipSource",
 		Field:      field,
@@ -35891,7 +35891,7 @@ func (ec *executionContext) _Survey_id(ctx context.Context, field graphql.Collec
 	return ec.marshalNUUID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Survey_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Survey_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Survey",
 		Field:      field,
@@ -35935,7 +35935,7 @@ func (ec *executionContext) _Survey_title(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Survey_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Survey_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Survey",
 		Field:      field,
@@ -35976,7 +35976,7 @@ func (ec *executionContext) _Survey_description(ctx context.Context, field graph
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Survey_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Survey_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Survey",
 		Field:      field,
@@ -36085,7 +36085,7 @@ func (ec *executionContext) _SurveyPrompt_id(ctx context.Context, field graphql.
 	return ec.marshalNUUID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SurveyPrompt_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyPrompt_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SurveyPrompt",
 		Field:      field,
@@ -36129,7 +36129,7 @@ func (ec *executionContext) _SurveyPrompt_title(ctx context.Context, field graph
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SurveyPrompt_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyPrompt_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SurveyPrompt",
 		Field:      field,
@@ -36170,7 +36170,7 @@ func (ec *executionContext) _SurveyPrompt_secondaryTitle(ctx context.Context, fi
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SurveyPrompt_secondaryTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyPrompt_secondaryTitle(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SurveyPrompt",
 		Field:      field,
@@ -36214,7 +36214,7 @@ func (ec *executionContext) _SurveyPrompt_from(ctx context.Context, field graphq
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SurveyPrompt_from(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyPrompt_from(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SurveyPrompt",
 		Field:      field,
@@ -36258,7 +36258,7 @@ func (ec *executionContext) _SurveyPrompt_to(ctx context.Context, field graphql.
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SurveyPrompt_to(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyPrompt_to(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SurveyPrompt",
 		Field:      field,
@@ -36302,7 +36302,7 @@ func (ec *executionContext) _SurveyPrompt_survey(ctx context.Context, field grap
 	return ec.marshalNSurvey2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSurvey(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SurveyPrompt_survey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyPrompt_survey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SurveyPrompt",
 		Field:      field,
@@ -36356,7 +36356,7 @@ func (ec *executionContext) _SurveyQuestionPagination_first(ctx context.Context,
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SurveyQuestionPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyQuestionPagination_first(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SurveyQuestionPagination",
 		Field:      field,
@@ -36400,7 +36400,7 @@ func (ec *executionContext) _SurveyQuestionPagination_offset(ctx context.Context
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SurveyQuestionPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyQuestionPagination_offset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SurveyQuestionPagination",
 		Field:      field,
@@ -36444,7 +36444,7 @@ func (ec *executionContext) _SurveyQuestionPagination_total(ctx context.Context,
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SurveyQuestionPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyQuestionPagination_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SurveyQuestionPagination",
 		Field:      field,
@@ -36488,7 +36488,7 @@ func (ec *executionContext) _SurveyQuestionPagination_items(ctx context.Context,
 	return ec.marshalNSurveyQuestion2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐSurveyQuestionᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SurveyQuestionPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyQuestionPagination_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SurveyQuestionPagination",
 		Field:      field,
@@ -36532,7 +36532,7 @@ func (ec *executionContext) _SurveyRatingQuestion_id(ctx context.Context, field 
 	return ec.marshalNUUID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SurveyRatingQuestion_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyRatingQuestion_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SurveyRatingQuestion",
 		Field:      field,
@@ -36576,7 +36576,7 @@ func (ec *executionContext) _SurveyRatingQuestion_title(ctx context.Context, fie
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SurveyRatingQuestion_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyRatingQuestion_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SurveyRatingQuestion",
 		Field:      field,
@@ -36617,7 +36617,7 @@ func (ec *executionContext) _SurveyRatingQuestion_description(ctx context.Contex
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SurveyRatingQuestion_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyRatingQuestion_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SurveyRatingQuestion",
 		Field:      field,
@@ -36661,7 +36661,7 @@ func (ec *executionContext) _SurveyTextQuestion_id(ctx context.Context, field gr
 	return ec.marshalNUUID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SurveyTextQuestion_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyTextQuestion_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SurveyTextQuestion",
 		Field:      field,
@@ -36705,7 +36705,7 @@ func (ec *executionContext) _SurveyTextQuestion_title(ctx context.Context, field
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SurveyTextQuestion_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyTextQuestion_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SurveyTextQuestion",
 		Field:      field,
@@ -36746,7 +36746,7 @@ func (ec *executionContext) _SurveyTextQuestion_description(ctx context.Context,
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SurveyTextQuestion_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SurveyTextQuestion_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SurveyTextQuestion",
 		Field:      field,
@@ -36790,7 +36790,7 @@ func (ec *executionContext) _TaskPagination_offset(ctx context.Context, field gr
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TaskPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TaskPagination_offset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TaskPagination",
 		Field:      field,
@@ -36834,7 +36834,7 @@ func (ec *executionContext) _TaskPagination_first(ctx context.Context, field gra
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TaskPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TaskPagination_first(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TaskPagination",
 		Field:      field,
@@ -36878,7 +36878,7 @@ func (ec *executionContext) _TaskPagination_total(ctx context.Context, field gra
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TaskPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TaskPagination_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TaskPagination",
 		Field:      field,
@@ -36922,7 +36922,7 @@ func (ec *executionContext) _TaskPagination_items(ctx context.Context, field gra
 	return ec.marshalNTask2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐTaskᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TaskPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TaskPagination_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TaskPagination",
 		Field:      field,
@@ -36966,7 +36966,7 @@ func (ec *executionContext) _TasksProgress_total(ctx context.Context, field grap
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TasksProgress_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TasksProgress_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TasksProgress",
 		Field:      field,
@@ -37010,7 +37010,7 @@ func (ec *executionContext) _TasksProgress_completed(ctx context.Context, field 
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TasksProgress_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TasksProgress_completed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TasksProgress",
 		Field:      field,
@@ -37054,7 +37054,7 @@ func (ec *executionContext) _TextTask_id(ctx context.Context, field graphql.Coll
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TextTask_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TextTask_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TextTask",
 		Field:      field,
@@ -37098,7 +37098,7 @@ func (ec *executionContext) _TextTask_title(ctx context.Context, field graphql.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TextTask_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TextTask_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TextTask",
 		Field:      field,
@@ -37142,7 +37142,7 @@ func (ec *executionContext) _TextTask_completed(ctx context.Context, field graph
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TextTask_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TextTask_completed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TextTask",
 		Field:      field,
@@ -37183,7 +37183,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -37227,7 +37227,7 @@ func (ec *executionContext) _User_anonymous(ctx context.Context, field graphql.C
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_anonymous(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_anonymous(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -37271,7 +37271,7 @@ func (ec *executionContext) _User_bccMember(ctx context.Context, field graphql.C
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_bccMember(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_bccMember(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -37312,7 +37312,7 @@ func (ec *executionContext) _User_audience(ctx context.Context, field graphql.Co
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_audience(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_audience(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -37353,7 +37353,7 @@ func (ec *executionContext) _User_email(ctx context.Context, field graphql.Colle
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_email(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_email(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -37397,7 +37397,7 @@ func (ec *executionContext) _User_emailVerified(ctx context.Context, field graph
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_emailVerified(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_emailVerified(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -37441,7 +37441,7 @@ func (ec *executionContext) _User_roles(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_roles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_roles(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -37485,7 +37485,7 @@ func (ec *executionContext) _User_analytics(ctx context.Context, field graphql.C
 	return ec.marshalNAnalytics2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐAnalytics(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_analytics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_analytics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -37533,7 +37533,7 @@ func (ec *executionContext) _User_gender(ctx context.Context, field graphql.Coll
 	return ec.marshalNGender2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐGender(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_gender(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_gender(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -37577,7 +37577,7 @@ func (ec *executionContext) _User_firstName(ctx context.Context, field graphql.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_firstName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_firstName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -37621,7 +37621,7 @@ func (ec *executionContext) _User_displayName(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_displayName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_displayName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -37665,7 +37665,7 @@ func (ec *executionContext) _User_completedRegistration(ctx context.Context, fie
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_completedRegistration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_completedRegistration(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -37709,7 +37709,7 @@ func (ec *executionContext) _UserCollection_id(ctx context.Context, field graphq
 	return ec.marshalNUUID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserCollection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserCollection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserCollection",
 		Field:      field,
@@ -37753,7 +37753,7 @@ func (ec *executionContext) _UserCollection_title(ctx context.Context, field gra
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserCollection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserCollection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserCollection",
 		Field:      field,
@@ -37862,7 +37862,7 @@ func (ec *executionContext) _UserCollectionEntry_id(ctx context.Context, field g
 	return ec.marshalNUUID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserCollectionEntry_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserCollectionEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserCollectionEntry",
 		Field:      field,
@@ -37903,7 +37903,7 @@ func (ec *executionContext) _UserCollectionEntry_item(ctx context.Context, field
 	return ec.marshalOUserCollectionEntryItem2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntryItem(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserCollectionEntry_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserCollectionEntry_item(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserCollectionEntry",
 		Field:      field,
@@ -37947,7 +37947,7 @@ func (ec *executionContext) _UserCollectionEntryPagination_total(ctx context.Con
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserCollectionEntryPagination_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserCollectionEntryPagination_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserCollectionEntryPagination",
 		Field:      field,
@@ -37991,7 +37991,7 @@ func (ec *executionContext) _UserCollectionEntryPagination_offset(ctx context.Co
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserCollectionEntryPagination_offset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserCollectionEntryPagination_offset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserCollectionEntryPagination",
 		Field:      field,
@@ -38035,7 +38035,7 @@ func (ec *executionContext) _UserCollectionEntryPagination_first(ctx context.Con
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserCollectionEntryPagination_first(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserCollectionEntryPagination_first(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserCollectionEntryPagination",
 		Field:      field,
@@ -38079,7 +38079,7 @@ func (ec *executionContext) _UserCollectionEntryPagination_items(ctx context.Con
 	return ec.marshalNUserCollectionEntry2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐUserCollectionEntryᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserCollectionEntryPagination_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserCollectionEntryPagination_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserCollectionEntryPagination",
 		Field:      field,
@@ -38129,7 +38129,7 @@ func (ec *executionContext) _VideoTask_id(ctx context.Context, field graphql.Col
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VideoTask_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VideoTask_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "VideoTask",
 		Field:      field,
@@ -38173,7 +38173,7 @@ func (ec *executionContext) _VideoTask_title(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VideoTask_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VideoTask_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "VideoTask",
 		Field:      field,
@@ -38217,7 +38217,7 @@ func (ec *executionContext) _VideoTask_completed(ctx context.Context, field grap
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VideoTask_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VideoTask_completed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "VideoTask",
 		Field:      field,
@@ -38261,7 +38261,7 @@ func (ec *executionContext) _VideoTask_episode(ctx context.Context, field graphq
 	return ec.marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VideoTask_episode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VideoTask_episode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "VideoTask",
 		Field:      field,
@@ -38380,7 +38380,7 @@ func (ec *executionContext) _VideoTask_secondaryTitle(ctx context.Context, field
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VideoTask_secondaryTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VideoTask_secondaryTitle(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "VideoTask",
 		Field:      field,
@@ -38421,7 +38421,7 @@ func (ec *executionContext) _VideoTask_description(ctx context.Context, field gr
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VideoTask_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VideoTask_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "VideoTask",
 		Field:      field,
@@ -38465,7 +38465,7 @@ func (ec *executionContext) _WebSection_id(ctx context.Context, field graphql.Co
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WebSection_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WebSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WebSection",
 		Field:      field,
@@ -38506,7 +38506,7 @@ func (ec *executionContext) _WebSection_title(ctx context.Context, field graphql
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WebSection_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WebSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WebSection",
 		Field:      field,
@@ -38547,7 +38547,7 @@ func (ec *executionContext) _WebSection_description(ctx context.Context, field g
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WebSection_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WebSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WebSection",
 		Field:      field,
@@ -38591,7 +38591,7 @@ func (ec *executionContext) _WebSection_url(ctx context.Context, field graphql.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WebSection_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WebSection_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WebSection",
 		Field:      field,
@@ -38635,7 +38635,7 @@ func (ec *executionContext) _WebSection_widthRatio(ctx context.Context, field gr
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WebSection_widthRatio(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WebSection_widthRatio(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WebSection",
 		Field:      field,
@@ -38676,7 +38676,7 @@ func (ec *executionContext) _WebSection_aspectRatio(ctx context.Context, field g
 	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WebSection_aspectRatio(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WebSection_aspectRatio(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WebSection",
 		Field:      field,
@@ -38717,7 +38717,7 @@ func (ec *executionContext) _WebSection_height(ctx context.Context, field graphq
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WebSection_height(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WebSection_height(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WebSection",
 		Field:      field,
@@ -38761,7 +38761,7 @@ func (ec *executionContext) _WebSection_authentication(ctx context.Context, fiel
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WebSection_authentication(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WebSection_authentication(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WebSection",
 		Field:      field,
@@ -38805,7 +38805,7 @@ func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Directive_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Directive_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Directive",
 		Field:      field,
@@ -38846,7 +38846,7 @@ func (ec *executionContext) ___Directive_description(ctx context.Context, field 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Directive_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Directive_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Directive",
 		Field:      field,
@@ -38890,7 +38890,7 @@ func (ec *executionContext) ___Directive_locations(ctx context.Context, field gr
 	return ec.marshalN__DirectiveLocation2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Directive_locations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Directive_locations(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Directive",
 		Field:      field,
@@ -38934,7 +38934,7 @@ func (ec *executionContext) ___Directive_args(ctx context.Context, field graphql
 	return ec.marshalN__InputValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValueᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Directive_args(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Directive_args(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Directive",
 		Field:      field,
@@ -38988,7 +38988,7 @@ func (ec *executionContext) ___Directive_isRepeatable(ctx context.Context, field
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Directive_isRepeatable(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Directive_isRepeatable(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Directive",
 		Field:      field,
@@ -39032,7 +39032,7 @@ func (ec *executionContext) ___EnumValue_name(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___EnumValue_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___EnumValue_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__EnumValue",
 		Field:      field,
@@ -39073,7 +39073,7 @@ func (ec *executionContext) ___EnumValue_description(ctx context.Context, field 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___EnumValue_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___EnumValue_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__EnumValue",
 		Field:      field,
@@ -39117,7 +39117,7 @@ func (ec *executionContext) ___EnumValue_isDeprecated(ctx context.Context, field
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___EnumValue_isDeprecated(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___EnumValue_isDeprecated(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__EnumValue",
 		Field:      field,
@@ -39158,7 +39158,7 @@ func (ec *executionContext) ___EnumValue_deprecationReason(ctx context.Context, 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___EnumValue_deprecationReason(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___EnumValue_deprecationReason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__EnumValue",
 		Field:      field,
@@ -39202,7 +39202,7 @@ func (ec *executionContext) ___Field_name(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Field_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Field_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Field",
 		Field:      field,
@@ -39243,7 +39243,7 @@ func (ec *executionContext) ___Field_description(ctx context.Context, field grap
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Field_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Field_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Field",
 		Field:      field,
@@ -39287,7 +39287,7 @@ func (ec *executionContext) ___Field_args(ctx context.Context, field graphql.Col
 	return ec.marshalN__InputValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValueᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Field_args(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Field_args(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Field",
 		Field:      field,
@@ -39341,7 +39341,7 @@ func (ec *executionContext) ___Field_type(ctx context.Context, field graphql.Col
 	return ec.marshalN__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Field_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Field_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Field",
 		Field:      field,
@@ -39407,7 +39407,7 @@ func (ec *executionContext) ___Field_isDeprecated(ctx context.Context, field gra
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Field_isDeprecated(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Field_isDeprecated(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Field",
 		Field:      field,
@@ -39448,7 +39448,7 @@ func (ec *executionContext) ___Field_deprecationReason(ctx context.Context, fiel
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Field_deprecationReason(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Field_deprecationReason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Field",
 		Field:      field,
@@ -39492,7 +39492,7 @@ func (ec *executionContext) ___InputValue_name(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___InputValue_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___InputValue_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__InputValue",
 		Field:      field,
@@ -39533,7 +39533,7 @@ func (ec *executionContext) ___InputValue_description(ctx context.Context, field
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___InputValue_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___InputValue_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__InputValue",
 		Field:      field,
@@ -39577,7 +39577,7 @@ func (ec *executionContext) ___InputValue_type(ctx context.Context, field graphq
 	return ec.marshalN__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___InputValue_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___InputValue_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__InputValue",
 		Field:      field,
@@ -39640,7 +39640,7 @@ func (ec *executionContext) ___InputValue_defaultValue(ctx context.Context, fiel
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___InputValue_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___InputValue_defaultValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__InputValue",
 		Field:      field,
@@ -39681,7 +39681,7 @@ func (ec *executionContext) ___Schema_description(ctx context.Context, field gra
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Schema_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Schema_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Schema",
 		Field:      field,
@@ -39725,7 +39725,7 @@ func (ec *executionContext) ___Schema_types(ctx context.Context, field graphql.C
 	return ec.marshalN__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐTypeᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Schema_types(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Schema_types(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Schema",
 		Field:      field,
@@ -39791,7 +39791,7 @@ func (ec *executionContext) ___Schema_queryType(ctx context.Context, field graph
 	return ec.marshalN__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Schema_queryType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Schema_queryType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Schema",
 		Field:      field,
@@ -39854,7 +39854,7 @@ func (ec *executionContext) ___Schema_mutationType(ctx context.Context, field gr
 	return ec.marshalO__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Schema_mutationType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Schema_mutationType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Schema",
 		Field:      field,
@@ -39917,7 +39917,7 @@ func (ec *executionContext) ___Schema_subscriptionType(ctx context.Context, fiel
 	return ec.marshalO__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Schema_subscriptionType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Schema_subscriptionType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Schema",
 		Field:      field,
@@ -39983,7 +39983,7 @@ func (ec *executionContext) ___Schema_directives(ctx context.Context, field grap
 	return ec.marshalN__Directive2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirectiveᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Schema_directives(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Schema_directives(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Schema",
 		Field:      field,
@@ -40039,7 +40039,7 @@ func (ec *executionContext) ___Type_kind(ctx context.Context, field graphql.Coll
 	return ec.marshalN__TypeKind2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Type_kind(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Type_kind(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Type",
 		Field:      field,
@@ -40080,7 +40080,7 @@ func (ec *executionContext) ___Type_name(ctx context.Context, field graphql.Coll
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Type_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Type_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Type",
 		Field:      field,
@@ -40121,7 +40121,7 @@ func (ec *executionContext) ___Type_description(ctx context.Context, field graph
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Type_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Type_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Type",
 		Field:      field,
@@ -40228,7 +40228,7 @@ func (ec *executionContext) ___Type_interfaces(ctx context.Context, field graphq
 	return ec.marshalO__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐTypeᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Type_interfaces(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Type_interfaces(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Type",
 		Field:      field,
@@ -40291,7 +40291,7 @@ func (ec *executionContext) ___Type_possibleTypes(ctx context.Context, field gra
 	return ec.marshalO__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐTypeᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Type_possibleTypes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Type_possibleTypes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Type",
 		Field:      field,
@@ -40416,7 +40416,7 @@ func (ec *executionContext) ___Type_inputFields(ctx context.Context, field graph
 	return ec.marshalO__InputValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValueᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Type_inputFields(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Type_inputFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Type",
 		Field:      field,
@@ -40467,7 +40467,7 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 	return ec.marshalO__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Type_ofType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Type_ofType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Type",
 		Field:      field,
@@ -40530,7 +40530,7 @@ func (ec *executionContext) ___Type_specifiedByURL(ctx context.Context, field gr
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Type",
 		Field:      field,
@@ -40562,8 +40562,6 @@ func (ec *executionContext) unmarshalInputBirthOptions(ctx context.Context, obj 
 		}
 		switch k {
 		case "year":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("year"))
 			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
@@ -40591,8 +40589,6 @@ func (ec *executionContext) unmarshalInputEmailOptions(ctx context.Context, obj 
 		}
 		switch k {
 		case "name":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -40600,8 +40596,6 @@ func (ec *executionContext) unmarshalInputEmailOptions(ctx context.Context, obj 
 			}
 			it.Name = data
 		case "email":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -40629,8 +40623,6 @@ func (ec *executionContext) unmarshalInputEpisodeContext(ctx context.Context, ob
 		}
 		switch k {
 		case "collectionId":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("collectionId"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
@@ -40638,8 +40630,6 @@ func (ec *executionContext) unmarshalInputEpisodeContext(ctx context.Context, ob
 			}
 			it.CollectionID = data
 		case "playlistId":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("playlistId"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
@@ -40647,8 +40637,6 @@ func (ec *executionContext) unmarshalInputEpisodeContext(ctx context.Context, ob
 			}
 			it.PlaylistID = data
 		case "shuffle":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shuffle"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
@@ -40656,8 +40644,6 @@ func (ec *executionContext) unmarshalInputEpisodeContext(ctx context.Context, ob
 			}
 			it.Shuffle = data
 		case "cursor":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
@@ -40685,8 +40671,6 @@ func (ec *executionContext) unmarshalInputLegacyIDLookupOptions(ctx context.Cont
 		}
 		switch k {
 		case "episodeID":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("episodeID"))
 			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
@@ -40694,8 +40678,6 @@ func (ec *executionContext) unmarshalInputLegacyIDLookupOptions(ctx context.Cont
 			}
 			it.EpisodeID = data
 		case "programID":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("programID"))
 			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
@@ -40723,8 +40705,6 @@ func (ec *executionContext) unmarshalInputNameOptions(ctx context.Context, obj i
 		}
 		switch k {
 		case "first":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -40732,8 +40712,6 @@ func (ec *executionContext) unmarshalInputNameOptions(ctx context.Context, obj i
 			}
 			it.First = data
 		case "last":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -40798,6 +40776,13 @@ func (ec *executionContext) _CollectionItem(ctx context.Context, sel ast.Selecti
 			return graphql.Null
 		}
 		return ec._Episode(ctx, sel, obj)
+	case model.Short:
+		return ec._Short(ctx, sel, &obj)
+	case *model.Short:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Short(ctx, sel, obj)
 	case model.Chapter:
 		return ec._Chapter(ctx, sel, &obj)
 	case *model.Chapter:
@@ -40831,13 +40816,6 @@ func (ec *executionContext) _CollectionItem(ctx context.Context, sel ast.Selecti
 			return graphql.Null
 		}
 		return ec._Season(ctx, sel, obj)
-	case model.Short:
-		return ec._Short(ctx, sel, &obj)
-	case *model.Short:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Short(ctx, sel, obj)
 	case model.Show:
 		return ec._Show(ctx, sel, &obj)
 	case *model.Show:
@@ -40937,27 +40915,27 @@ func (ec *executionContext) _ItemSection(ctx context.Context, sel ast.SelectionS
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case model.PosterSection:
-		return ec._PosterSection(ctx, sel, &obj)
-	case *model.PosterSection:
+	case model.DefaultGridSection:
+		return ec._DefaultGridSection(ctx, sel, &obj)
+	case *model.DefaultGridSection:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PosterSection(ctx, sel, obj)
-	case model.FeaturedSection:
-		return ec._FeaturedSection(ctx, sel, &obj)
-	case *model.FeaturedSection:
+		return ec._DefaultGridSection(ctx, sel, obj)
+	case model.IconGridSection:
+		return ec._IconGridSection(ctx, sel, &obj)
+	case *model.IconGridSection:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._FeaturedSection(ctx, sel, obj)
-	case model.DefaultSection:
-		return ec._DefaultSection(ctx, sel, &obj)
-	case *model.DefaultSection:
+		return ec._IconGridSection(ctx, sel, obj)
+	case model.PosterGridSection:
+		return ec._PosterGridSection(ctx, sel, &obj)
+	case *model.PosterGridSection:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._DefaultSection(ctx, sel, obj)
+		return ec._PosterGridSection(ctx, sel, obj)
 	case model.CardSection:
 		return ec._CardSection(ctx, sel, &obj)
 	case *model.CardSection:
@@ -40984,27 +40962,27 @@ func (ec *executionContext) _ItemSection(ctx context.Context, sel ast.SelectionS
 			return graphql.Null
 		}
 		return ec._GridSection(ctx, sel, obj)
-	case model.DefaultGridSection:
-		return ec._DefaultGridSection(ctx, sel, &obj)
-	case *model.DefaultGridSection:
+	case model.PosterSection:
+		return ec._PosterSection(ctx, sel, &obj)
+	case *model.PosterSection:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._DefaultGridSection(ctx, sel, obj)
-	case model.PosterGridSection:
-		return ec._PosterGridSection(ctx, sel, &obj)
-	case *model.PosterGridSection:
+		return ec._PosterSection(ctx, sel, obj)
+	case model.DefaultSection:
+		return ec._DefaultSection(ctx, sel, &obj)
+	case *model.DefaultSection:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PosterGridSection(ctx, sel, obj)
-	case model.IconGridSection:
-		return ec._IconGridSection(ctx, sel, &obj)
-	case *model.IconGridSection:
+		return ec._DefaultSection(ctx, sel, obj)
+	case model.FeaturedSection:
+		return ec._FeaturedSection(ctx, sel, &obj)
+	case *model.FeaturedSection:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._IconGridSection(ctx, sel, obj)
+		return ec._FeaturedSection(ctx, sel, obj)
 	case model.IconSection:
 		return ec._IconSection(ctx, sel, &obj)
 	case *model.IconSection:
@@ -41241,32 +41219,27 @@ func (ec *executionContext) _Section(ctx context.Context, sel ast.SelectionSet, 
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case model.ItemSection:
+	case model.DefaultGridSection:
+		return ec._DefaultGridSection(ctx, sel, &obj)
+	case *model.DefaultGridSection:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ItemSection(ctx, sel, obj)
-	case model.PosterSection:
-		return ec._PosterSection(ctx, sel, &obj)
-	case *model.PosterSection:
+		return ec._DefaultGridSection(ctx, sel, obj)
+	case model.IconGridSection:
+		return ec._IconGridSection(ctx, sel, &obj)
+	case *model.IconGridSection:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PosterSection(ctx, sel, obj)
-	case model.FeaturedSection:
-		return ec._FeaturedSection(ctx, sel, &obj)
-	case *model.FeaturedSection:
+		return ec._IconGridSection(ctx, sel, obj)
+	case model.PosterGridSection:
+		return ec._PosterGridSection(ctx, sel, &obj)
+	case *model.PosterGridSection:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._FeaturedSection(ctx, sel, obj)
-	case model.DefaultSection:
-		return ec._DefaultSection(ctx, sel, &obj)
-	case *model.DefaultSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._DefaultSection(ctx, sel, obj)
+		return ec._PosterGridSection(ctx, sel, obj)
 	case model.CardSection:
 		return ec._CardSection(ctx, sel, &obj)
 	case *model.CardSection:
@@ -41274,6 +41247,13 @@ func (ec *executionContext) _Section(ctx context.Context, sel ast.SelectionSet, 
 			return graphql.Null
 		}
 		return ec._CardSection(ctx, sel, obj)
+	case model.PosterSection:
+		return ec._PosterSection(ctx, sel, &obj)
+	case *model.PosterSection:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PosterSection(ctx, sel, obj)
 	case model.ListSection:
 		return ec._ListSection(ctx, sel, &obj)
 	case *model.ListSection:
@@ -41293,27 +41273,27 @@ func (ec *executionContext) _Section(ctx context.Context, sel ast.SelectionSet, 
 			return graphql.Null
 		}
 		return ec._GridSection(ctx, sel, obj)
-	case model.DefaultGridSection:
-		return ec._DefaultGridSection(ctx, sel, &obj)
-	case *model.DefaultGridSection:
+	case model.DefaultSection:
+		return ec._DefaultSection(ctx, sel, &obj)
+	case *model.DefaultSection:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._DefaultGridSection(ctx, sel, obj)
-	case model.PosterGridSection:
-		return ec._PosterGridSection(ctx, sel, &obj)
-	case *model.PosterGridSection:
+		return ec._DefaultSection(ctx, sel, obj)
+	case model.FeaturedSection:
+		return ec._FeaturedSection(ctx, sel, &obj)
+	case *model.FeaturedSection:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PosterGridSection(ctx, sel, obj)
-	case model.IconGridSection:
-		return ec._IconGridSection(ctx, sel, &obj)
-	case *model.IconGridSection:
+		return ec._FeaturedSection(ctx, sel, obj)
+	case model.AvatarSection:
+		return ec._AvatarSection(ctx, sel, &obj)
+	case *model.AvatarSection:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._IconGridSection(ctx, sel, obj)
+		return ec._AvatarSection(ctx, sel, obj)
 	case model.IconSection:
 		return ec._IconSection(ctx, sel, &obj)
 	case *model.IconSection:
@@ -41328,13 +41308,11 @@ func (ec *executionContext) _Section(ctx context.Context, sel ast.SelectionSet, 
 			return graphql.Null
 		}
 		return ec._LabelSection(ctx, sel, obj)
-	case model.AvatarSection:
-		return ec._AvatarSection(ctx, sel, &obj)
-	case *model.AvatarSection:
+	case model.ItemSection:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._AvatarSection(ctx, sel, obj)
+		return ec._ItemSection(ctx, sel, obj)
 	case model.MessageSection:
 		return ec._MessageSection(ctx, sel, &obj)
 	case *model.MessageSection:
@@ -41372,6 +41350,20 @@ func (ec *executionContext) _SectionItemType(ctx context.Context, sel ast.Select
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
+	case model.Episode:
+		return ec._Episode(ctx, sel, &obj)
+	case *model.Episode:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Episode(ctx, sel, obj)
+	case model.Short:
+		return ec._Short(ctx, sel, &obj)
+	case *model.Short:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Short(ctx, sel, obj)
 	case model.Show:
 		return ec._Show(ctx, sel, &obj)
 	case *model.Show:
@@ -41386,27 +41378,6 @@ func (ec *executionContext) _SectionItemType(ctx context.Context, sel ast.Select
 			return graphql.Null
 		}
 		return ec._Season(ctx, sel, obj)
-	case model.Episode:
-		return ec._Episode(ctx, sel, &obj)
-	case *model.Episode:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Episode(ctx, sel, obj)
-	case model.Page:
-		return ec._Page(ctx, sel, &obj)
-	case *model.Page:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Page(ctx, sel, obj)
-	case model.Link:
-		return ec._Link(ctx, sel, &obj)
-	case *model.Link:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Link(ctx, sel, obj)
 	case model.StudyTopic:
 		return ec._StudyTopic(ctx, sel, &obj)
 	case *model.StudyTopic:
@@ -41428,13 +41399,20 @@ func (ec *executionContext) _SectionItemType(ctx context.Context, sel ast.Select
 			return graphql.Null
 		}
 		return ec._Playlist(ctx, sel, obj)
-	case model.Short:
-		return ec._Short(ctx, sel, &obj)
-	case *model.Short:
+	case model.Page:
+		return ec._Page(ctx, sel, &obj)
+	case *model.Page:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Short(ctx, sel, obj)
+		return ec._Page(ctx, sel, obj)
+	case model.Link:
+		return ec._Link(ctx, sel, &obj)
+	case *model.Link:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Link(ctx, sel, obj)
 	case model.Person:
 		return ec._Person(ctx, sel, &obj)
 	case *model.Person:
@@ -41541,13 +41519,6 @@ func (ec *executionContext) _UserCollectionEntryItem(ctx context.Context, sel as
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case model.Show:
-		return ec._Show(ctx, sel, &obj)
-	case *model.Show:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Show(ctx, sel, obj)
 	case model.Episode:
 		return ec._Episode(ctx, sel, &obj)
 	case *model.Episode:
@@ -41562,6 +41533,13 @@ func (ec *executionContext) _UserCollectionEntryItem(ctx context.Context, sel as
 			return graphql.Null
 		}
 		return ec._Short(ctx, sel, obj)
+	case model.Show:
+		return ec._Show(ctx, sel, &obj)
+	case *model.Show:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Show(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -41635,7 +41613,7 @@ func (ec *executionContext) _Achievement(ctx context.Context, sel ast.SelectionS
 		case "achievedAt":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -41668,7 +41646,7 @@ func (ec *executionContext) _Achievement(ctx context.Context, sel ast.SelectionS
 		case "group":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -42373,7 +42351,7 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 		case "page":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -42406,7 +42384,7 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 		case "searchPage":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -42439,7 +42417,7 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 		case "gamesPage":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -43023,7 +43001,7 @@ func (ec *executionContext) _Chapter(ctx context.Context, sel ast.SelectionSet, 
 		case "episode":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -43325,7 +43303,7 @@ func (ec *executionContext) _ContextCollection(ctx context.Context, sel ast.Sele
 		case "items":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -44033,7 +44011,7 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 		case "image":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -44181,7 +44159,7 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 		case "season":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -44219,7 +44197,7 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 		case "progress":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -44298,7 +44276,7 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 		case "context":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -44331,7 +44309,7 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 		case "relatedItems":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -44590,7 +44568,7 @@ func (ec *executionContext) _EpisodeCalendarEntry(ctx context.Context, sel ast.S
 		case "event":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -44710,7 +44688,7 @@ func (ec *executionContext) _EpisodeCalendarEntry(ctx context.Context, sel ast.S
 		case "episode":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -44877,7 +44855,7 @@ func (ec *executionContext) _EpisodeSearchItem(ctx context.Context, sel ast.Sele
 		case "show":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -44914,7 +44892,7 @@ func (ec *executionContext) _EpisodeSearchItem(ctx context.Context, sel ast.Sele
 		case "season":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -45120,7 +45098,7 @@ func (ec *executionContext) _FAQ(ctx context.Context, sel ast.SelectionSet, obj 
 		case "categories":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -45269,7 +45247,7 @@ func (ec *executionContext) _FAQCategory(ctx context.Context, sel ast.SelectionS
 		case "questions":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -45563,7 +45541,7 @@ func (ec *executionContext) _Game(ctx context.Context, sel ast.SelectionSet, obj
 		case "image":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -46084,7 +46062,7 @@ func (ec *executionContext) _Lesson(ctx context.Context, sel ast.SelectionSet, o
 		case "image":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -46189,7 +46167,7 @@ func (ec *executionContext) _Lesson(ctx context.Context, sel ast.SelectionSet, o
 		case "defaultEpisode":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -46402,7 +46380,7 @@ func (ec *executionContext) _Lesson(ctx context.Context, sel ast.SelectionSet, o
 		case "previous":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -46435,7 +46413,7 @@ func (ec *executionContext) _Lesson(ctx context.Context, sel ast.SelectionSet, o
 		case "next":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -46653,7 +46631,7 @@ func (ec *executionContext) _Link(ctx context.Context, sel ast.SelectionSet, obj
 		case "image":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -47038,7 +47016,7 @@ func (ec *executionContext) _MessageSection(ctx context.Context, sel ast.Selecti
 		case "messages":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -47357,7 +47335,7 @@ func (ec *executionContext) _Page(ctx context.Context, sel ast.SelectionSet, obj
 		case "image":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -47518,7 +47496,7 @@ func (ec *executionContext) _Person(ctx context.Context, sel ast.SelectionSet, o
 		case "image":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -47705,7 +47683,7 @@ func (ec *executionContext) _Playlist(ctx context.Context, sel ast.SelectionSet,
 		case "image":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -48655,7 +48633,7 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 		case "calendar":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -48674,7 +48652,7 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 		case "event":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -49343,7 +49321,7 @@ func (ec *executionContext) _Season(ctx context.Context, sel ast.SelectionSet, o
 		case "image":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -49535,7 +49513,7 @@ func (ec *executionContext) _SeasonCalendarEntry(ctx context.Context, sel ast.Se
 		case "event":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -49650,7 +49628,7 @@ func (ec *executionContext) _SeasonCalendarEntry(ctx context.Context, sel ast.Se
 		case "season":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -49906,7 +49884,7 @@ func (ec *executionContext) _SectionItem(ctx context.Context, sel ast.SelectionS
 		case "image":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -50134,7 +50112,7 @@ func (ec *executionContext) _Short(ctx context.Context, sel ast.SelectionSet, ob
 		case "image":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -50239,7 +50217,7 @@ func (ec *executionContext) _Short(ctx context.Context, sel ast.SelectionSet, ob
 		case "source":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -50418,7 +50396,7 @@ func (ec *executionContext) _Show(ctx context.Context, sel ast.SelectionSet, obj
 		case "image":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -50641,7 +50619,7 @@ func (ec *executionContext) _ShowCalendarEntry(ctx context.Context, sel ast.Sele
 		case "event":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -50756,7 +50734,7 @@ func (ec *executionContext) _ShowCalendarEntry(ctx context.Context, sel ast.Sele
 		case "show":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -50928,7 +50906,7 @@ func (ec *executionContext) _SimpleCalendarEntry(ctx context.Context, sel ast.Se
 		case "event":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -51101,7 +51079,7 @@ func (ec *executionContext) _StudyTopic(ctx context.Context, sel ast.SelectionSe
 		case "image":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -52054,7 +52032,7 @@ func (ec *executionContext) _UserCollectionEntry(ctx context.Context, sel ast.Se
 		case "item":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
