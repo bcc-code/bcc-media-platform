@@ -3,8 +3,9 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"time"
+
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/samber/lo"
@@ -67,6 +68,7 @@ func mapToSections(items []getSectionsRow) []common.Section {
 				MyList:             s.AdvancedType.String == "my_list",
 				UseContext:         s.UseContext.Bool,
 				PrependLiveElement: s.PrependLiveElement.Bool,
+				Limit:              int(s.Limit.ValueOrZero()),
 			},
 		}
 	})

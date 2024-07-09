@@ -31,7 +31,7 @@ func getSectionItemsForCollectionPage(ctx context.Context, r *Resolver, collecti
 		return nil, err
 	}
 
-	entries, err := r.GetPersonalizedCollectionItems(ctx, collectionId)
+	entries, err := r.GetCollectionEntries(ctx, collectionId)
 	if err != nil {
 		return nil, err
 	}

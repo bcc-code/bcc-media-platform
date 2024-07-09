@@ -109,7 +109,7 @@ func collectionEntriesToModels(ctx context.Context, ls *common.BatchLoaders, ent
 	return items, nil
 }
 
-func (r *Resolver) GetPersonalizedCollectionItems(ctx context.Context, collectionId int) ([]collection.Entry, error) {
+func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int) ([]collection.Entry, error) {
 	ls := r.GetLoaders()
 	filteredLoaders := r.FilteredLoaders(ctx)
 	col, err := ls.CollectionLoader.Get(ctx, collectionId)
@@ -117,7 +117,7 @@ func (r *Resolver) GetPersonalizedCollectionItems(ctx context.Context, collectio
 		return nil, err
 	}
 
-	entries, err := collection.GetCollectionEntries(ctx, ls, filteredLoaders, collectionId)
+	entries, err := collection.GetBaseCollectionEntries(ctx, ls, filteredLoaders, collectionId)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (r *Resolver) GetPersonalizedCollectionItems(ctx context.Context, collectio
 		}
 		entries = filterWithIds(col, entries, ids)
 	case "shorts":
-		ids, err := r.resolveShortsCollection(ctx, ls)
+		ids, err := r.resolveShortsCollection(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -150,7 +150,7 @@ func (r *Resolver) GetPersonalizedCollectionItems(ctx context.Context, collectio
 // returns only the items and no additional metadata like sort or other relational data
 // it will also filter out items that don't conform to the interface or type T
 func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, first, offset *int, collections ...common.ItemCollection) (*utils.PaginationResult[T], error) {
-	entries, err := r.GetPersonalizedCollectionItems(ctx, collectionID)
+	entries, err := r.GetCollectionEntries(ctx, collectionID)
 	if err != nil {
 		return nil, err
 	}

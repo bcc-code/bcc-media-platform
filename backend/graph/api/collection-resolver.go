@@ -120,7 +120,7 @@ func resolveMyListCollection(ctx context.Context, ls *common.BatchLoaders) ([]*i
 	return ids, nil
 }
 
-func (r *Resolver) resolveShortsCollection(ctx context.Context, ls *common.BatchLoaders) ([]uuid.UUID, error) {
+func (r *Resolver) resolveShortsCollection(ctx context.Context) ([]uuid.UUID, error) {
 	p, err := getProfile(ctx)
 	if err != nil {
 		return nil, err
@@ -269,7 +269,7 @@ func (r *Resolver) sectionCollectionEntryResolver(
 		return nil, err
 	}
 
-	entries, err := r.GetPersonalizedCollectionItems(ctx, collectionId)
+	entries, err := r.GetCollectionEntries(ctx, collectionId)
 	if err != nil {
 		return nil, err
 	}
@@ -307,6 +307,7 @@ func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, 
 		return nil, err
 	}
 
+	first, offset = clampPaginationToLimit(section.Options.Limit, first, offset)
 	pagination, err := r.sectionCollectionEntryResolver(ctx, section, first, offset)
 	if err != nil {
 		return nil, err
@@ -318,4 +319,14 @@ func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, 
 		Offset: pagination.Offset,
 		Items:  pagination.Items,
 	}, nil
+}
+
+func clampPaginationToLimit(limit int, first *int, offset *int) (*int, *int) {
+	if limit != 0 {
+		if first == nil || *first > limit {
+			first = &limit
+			offset = nil
+		}
+	}
+	return first, offset
 }
