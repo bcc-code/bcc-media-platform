@@ -45,8 +45,8 @@ func (r *pageResolver) Image(ctx context.Context, obj *model.Page, style *model.
 
 // Sections is the resolver for the sections field.
 func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int, offset *int) (*model.SectionPagination, error) {
-	if strings.HasPrefix(obj.ID, "c-") {
-		collectionId := strings.TrimPrefix(obj.ID, "c-")
+	if strings.HasPrefix(obj.Code, "c-") {
+		collectionId := strings.TrimPrefix(obj.Code, "c-")
 		intID, err := strconv.ParseInt(collectionId, 10, 64)
 		if err != nil {
 			return nil, err
