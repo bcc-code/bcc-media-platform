@@ -190,32 +190,12 @@ func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.Red
 	}, nil
 }
 
-func resolvePageForCollectionId(ctx context.Context, r *queryRootResolver, collectionId string) (*model.Page, error) {
-	collection, err := r.Loaders.CollectionLoader.Get(ctx, utils.AsInt(collectionId))
-	if err != nil {
-		return nil, err
-	}
-	if collection == nil {
-		return nil, merry.New("collection not found")
-	}
-
-	ginCtx, _ := utils.GinCtx(ctx)
-	languages := user.GetLanguagesFromCtx(ginCtx)
-
-	return &model.Page{
-		ID:          fmt.Sprintf("c-%d", collection.ID),
-		Code:        fmt.Sprintf("c-%d", collection.ID),
-		Title:       collection.Title.Get(languages),
-		Description: nil,
-	}, nil
-}
-
 // Page is the resolver for the page field.
 func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) (*model.Page, error) {
 	if code != nil {
 		if strings.HasPrefix(*code, "c-") {
-			sectionId := (*code)[2:]
-			return resolvePageForCollectionId(ctx, r, sectionId)
+			collectionId := (*code)[2:]
+			return getPageForCollection(ctx, r, collectionId)
 		}
 		intID, err := r.Loaders.PageIDFromCodeLoader.Get(ctx, *code)
 		if err != nil {
@@ -580,6 +560,9 @@ func (r *queryRootResolver) MyList(ctx context.Context) (*model.UserCollection, 
 	}
 	l := r.GetLoaders().ProfileMyListCollectionID
 	id, err := l.Get(ctx, p.ID)
+	if err != nil {
+		return nil, err
+	}
 	if id == nil {
 		uc := common.UserCollection{
 			ID:                 uuid.New(),

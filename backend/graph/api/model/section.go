@@ -35,8 +35,8 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 			CollectionID:       strconv.Itoa(int(s.CollectionID.Int64)),
 			UseContext:         s.Options.UseContext,
 			PrependLiveElement: s.Options.PrependLiveElement,
+			Limit:              &s.Options.Limit,
 			Page: &Page{
-				ID:   fmt.Sprintf("c-%d", s.CollectionID.Int64),
 				Code: fmt.Sprintf("c-%d", s.CollectionID.Int64),
 			},
 		}

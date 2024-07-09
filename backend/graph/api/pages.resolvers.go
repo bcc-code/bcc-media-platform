@@ -51,7 +51,7 @@ func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int
 		if err != nil {
 			return nil, err
 		}
-		return getSectionsForCollection(int(intID))
+		return getSectionsForCollectionPage(int(intID))
 	}
 
 	intID, err := strconv.ParseInt(obj.ID, 10, 64)

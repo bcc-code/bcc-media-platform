@@ -5,12 +5,33 @@ import (
 	"fmt"
 	"strconv"
 
+	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
 
-func getSectionsForCollection(collectionID int) (*model.SectionPagination, error) {
+func getPageForCollection(ctx context.Context, r *queryRootResolver, collectionId string) (*model.Page, error) {
+	collection, err := r.Loaders.CollectionLoader.Get(ctx, utils.AsInt(collectionId))
+	if err != nil {
+		return nil, err
+	}
+	if collection == nil {
+		return nil, merry.New("collection not found")
+	}
+
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+
+	return &model.Page{
+		Code:        fmt.Sprintf("c-%d", collection.ID),
+		Title:       collection.Title.Get(languages),
+		Description: nil,
+	}, nil
+}
+
+func getSectionsForCollectionPage(collectionID int) (*model.SectionPagination, error) {
 	return &model.SectionPagination{
 		Total:  1,
 		First:  1,
