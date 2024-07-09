@@ -320,7 +320,7 @@ func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, 
 		page, err := r.sectionCollectionEntryResolver(ctx, &common.Section{
 			CollectionID: null.IntFrom(int64(*collectionId)),
 			Style:        "default",
-		}, first, offset)
+		}, first, offset, 0)
 		if err != nil {
 			return nil, err
 		}

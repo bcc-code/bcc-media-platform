@@ -257,6 +257,7 @@ func (r *Resolver) sectionCollectionEntryResolver(
 	section *common.Section,
 	first *int,
 	offset *int,
+	limit int,
 ) (*utils.PaginationResult[*model.SectionItem], error) {
 	ls := r.GetLoaders()
 	if !section.CollectionID.Valid {
@@ -272,6 +273,10 @@ func (r *Resolver) sectionCollectionEntryResolver(
 	entries, err := r.GetCollectionEntries(ctx, collectionId)
 	if err != nil {
 		return nil, err
+	}
+
+	if limit > 0 {
+		entries = entries[:limit]
 	}
 
 	pagination := utils.Paginate(entries, first, offset, nil)
@@ -307,8 +312,7 @@ func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, 
 		return nil, err
 	}
 
-	first = clampPaginationToLimit(section.Options.Limit, first)
-	pagination, err := r.sectionCollectionEntryResolver(ctx, section, first, offset)
+	pagination, err := r.sectionCollectionEntryResolver(ctx, section, first, offset, section.Options.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -319,13 +323,4 @@ func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, 
 		Offset: pagination.Offset,
 		Items:  pagination.Items,
 	}, nil
-}
-
-func clampPaginationToLimit(limit int, first *int) *int {
-	if limit != 0 {
-		if first == nil || *first > limit {
-			first = &limit
-		}
-	}
-	return first
 }

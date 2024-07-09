@@ -21,7 +21,7 @@ func (r *contextCollectionResolver) Items(ctx context.Context, obj *model.Contex
 	pagination, err := r.sectionCollectionEntryResolver(ctx, &common.Section{
 		Style:        "default",
 		CollectionID: utils.AsNullInt(&obj.ID),
-	}, first, offset)
+	}, first, offset, 0)
 	if err != nil {
 		return nil, err
 	}
