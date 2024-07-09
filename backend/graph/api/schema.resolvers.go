@@ -9,9 +9,10 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
-	"github.com/Code-Hex/go-generics-cache"
+	cache "github.com/Code-Hex/go-generics-cache"
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/applications"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
@@ -189,15 +190,33 @@ func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.Red
 	}, nil
 }
 
+func resolvePageForCollectionId(ctx context.Context, r *queryRootResolver, collectionId string) (*model.Page, error) {
+	collection, err := r.Loaders.CollectionLoader.Get(ctx, utils.AsInt(collectionId))
+	if err != nil {
+		return nil, err
+	}
+	if collection == nil {
+		return nil, merry.New("collection not found")
+	}
+
+	ginCtx, _ := utils.GinCtx(ctx)
+	languages := user.GetLanguagesFromCtx(ginCtx)
+
+	return &model.Page{
+		ID:          fmt.Sprintf("c-%d", collection.ID),
+		Code:        fmt.Sprintf("c-%d", collection.ID),
+		Title:       collection.Title.Get(languages),
+		Description: nil,
+	}, nil
+}
+
 // Page is the resolver for the page field.
 func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) (*model.Page, error) {
-	if id != nil {
-		return resolverForIntID(ctx, &itemLoaders[int, common.Page]{
-			Item:        r.Loaders.PageLoader,
-			Permissions: r.Loaders.PagePermissionLoader,
-		}, *id, model.PageFrom)
-	}
 	if code != nil {
+		if strings.HasPrefix(*code, "c-") {
+			sectionId := (*code)[2:]
+			return resolvePageForCollectionId(ctx, r, sectionId)
+		}
 		intID, err := r.Loaders.PageIDFromCodeLoader.Get(ctx, *code)
 		if err != nil {
 			return nil, err
@@ -209,6 +228,12 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 			Item:        r.Loaders.PageLoader,
 			Permissions: r.Loaders.PagePermissionLoader,
 		}, *intID, model.PageFrom)
+	}
+	if id != nil {
+		return resolverForIntID(ctx, &itemLoaders[int, common.Page]{
+			Item:        r.Loaders.PageLoader,
+			Permissions: r.Loaders.PagePermissionLoader,
+		}, *id, model.PageFrom)
 	}
 	return nil, merry.Sentinel("Must specify either ID or code", merry.WithHTTPCode(400))
 }

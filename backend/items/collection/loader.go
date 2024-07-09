@@ -3,10 +3,11 @@ package collection
 import (
 	"context"
 	"database/sql"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
-	"github.com/samber/lo/parallel"
 	"sync"
 	"time"
+
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
+	"github.com/samber/lo/parallel"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/mediabank-bridge/log"

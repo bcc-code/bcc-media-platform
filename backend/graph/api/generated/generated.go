@@ -65,6 +65,7 @@ type ResolverRoot interface {
 	Game() GameResolver
 	IconGridSection() IconGridSectionResolver
 	IconSection() IconSectionResolver
+	ItemSectionMetadata() ItemSectionMetadataResolver
 	LabelSection() LabelSectionResolver
 	Lesson() LessonResolver
 	Link() LinkResolver
@@ -474,7 +475,9 @@ type ComplexityRoot struct {
 	ItemSectionMetadata struct {
 		CollectionID       func(childComplexity int) int
 		ContinueWatching   func(childComplexity int) int
+		Limit              func(childComplexity int) int
 		MyList             func(childComplexity int) int
+		Page               func(childComplexity int) int
 		PrependLiveElement func(childComplexity int) int
 		SecondaryTitles    func(childComplexity int) int
 		UseContext         func(childComplexity int) int
@@ -1137,6 +1140,9 @@ type IconGridSectionResolver interface {
 }
 type IconSectionResolver interface {
 	Items(ctx context.Context, obj *model.IconSection, first *int, offset *int) (*model.SectionItemPagination, error)
+}
+type ItemSectionMetadataResolver interface {
+	Page(ctx context.Context, obj *model.ItemSectionMetadata) (*model.Page, error)
 }
 type LabelSectionResolver interface {
 	Items(ctx context.Context, obj *model.LabelSection, first *int, offset *int) (*model.SectionItemPagination, error)
@@ -3096,12 +3102,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ItemSectionMetadata.ContinueWatching(childComplexity), true
 
+	case "ItemSectionMetadata.limit":
+		if e.complexity.ItemSectionMetadata.Limit == nil {
+			break
+		}
+
+		return e.complexity.ItemSectionMetadata.Limit(childComplexity), true
+
 	case "ItemSectionMetadata.myList":
 		if e.complexity.ItemSectionMetadata.MyList == nil {
 			break
 		}
 
 		return e.complexity.ItemSectionMetadata.MyList(childComplexity), true
+
+	case "ItemSectionMetadata.page":
+		if e.complexity.ItemSectionMetadata.Page == nil {
+			break
+		}
+
+		return e.complexity.ItemSectionMetadata.Page(childComplexity), true
 
 	case "ItemSectionMetadata.prependLiveElement":
 		if e.complexity.ItemSectionMetadata.PrependLiveElement == nil {
@@ -6858,6 +6878,8 @@ type SeasonPagination implements Pagination {
     collectionId: ID!
     useContext: Boolean!
     prependLiveElement: Boolean!
+    page: Page @goField(forceResolver: true)
+    limit: Int
 }
 
 interface Section {
@@ -11373,6 +11395,10 @@ func (ec *executionContext) fieldContext_AvatarSection_metadata(_ context.Contex
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
 				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
+			case "page":
+				return ec.fieldContext_ItemSectionMetadata_page(ctx, field)
+			case "limit":
+				return ec.fieldContext_ItemSectionMetadata_limit(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -12058,6 +12084,10 @@ func (ec *executionContext) fieldContext_CardListSection_metadata(_ context.Cont
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
 				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
+			case "page":
+				return ec.fieldContext_ItemSectionMetadata_page(ctx, field)
+			case "limit":
+				return ec.fieldContext_ItemSectionMetadata_limit(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -12348,6 +12378,10 @@ func (ec *executionContext) fieldContext_CardSection_metadata(_ context.Context,
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
 				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
+			case "page":
+				return ec.fieldContext_ItemSectionMetadata_page(ctx, field)
+			case "limit":
+				return ec.fieldContext_ItemSectionMetadata_limit(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -13959,6 +13993,10 @@ func (ec *executionContext) fieldContext_DefaultGridSection_metadata(_ context.C
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
 				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
+			case "page":
+				return ec.fieldContext_ItemSectionMetadata_page(ctx, field)
+			case "limit":
+				return ec.fieldContext_ItemSectionMetadata_limit(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -14249,6 +14287,10 @@ func (ec *executionContext) fieldContext_DefaultSection_metadata(_ context.Conte
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
 				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
+			case "page":
+				return ec.fieldContext_ItemSectionMetadata_page(ctx, field)
+			case "limit":
+				return ec.fieldContext_ItemSectionMetadata_limit(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -18893,6 +18935,10 @@ func (ec *executionContext) fieldContext_FeaturedSection_metadata(_ context.Cont
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
 				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
+			case "page":
+				return ec.fieldContext_ItemSectionMetadata_page(ctx, field)
+			case "limit":
+				return ec.fieldContext_ItemSectionMetadata_limit(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -19883,6 +19929,10 @@ func (ec *executionContext) fieldContext_IconGridSection_metadata(_ context.Cont
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
 				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
+			case "page":
+				return ec.fieldContext_ItemSectionMetadata_page(ctx, field)
+			case "limit":
+				return ec.fieldContext_ItemSectionMetadata_limit(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -20173,6 +20223,10 @@ func (ec *executionContext) fieldContext_IconSection_metadata(_ context.Context,
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
 				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
+			case "page":
+				return ec.fieldContext_ItemSectionMetadata_page(ctx, field)
+			case "limit":
+				return ec.fieldContext_ItemSectionMetadata_limit(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -20679,6 +20733,104 @@ func (ec *executionContext) fieldContext_ItemSectionMetadata_prependLiveElement(
 	return fc, nil
 }
 
+func (ec *executionContext) _ItemSectionMetadata_page(ctx context.Context, field graphql.CollectedField, obj *model.ItemSectionMetadata) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ItemSectionMetadata_page(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ItemSectionMetadata().Page(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Page)
+	fc.Result = res
+	return ec.marshalOPage2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ItemSectionMetadata_page(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ItemSectionMetadata",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Page_id(ctx, field)
+			case "code":
+				return ec.fieldContext_Page_code(ctx, field)
+			case "title":
+				return ec.fieldContext_Page_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Page_description(ctx, field)
+			case "image":
+				return ec.fieldContext_Page_image(ctx, field)
+			case "images":
+				return ec.fieldContext_Page_images(ctx, field)
+			case "sections":
+				return ec.fieldContext_Page_sections(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Page", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ItemSectionMetadata_limit(ctx context.Context, field graphql.CollectedField, obj *model.ItemSectionMetadata) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ItemSectionMetadata_limit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Limit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ItemSectionMetadata_limit(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ItemSectionMetadata",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _LabelSection_id(ctx context.Context, field graphql.CollectedField, obj *model.LabelSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_LabelSection_id(ctx, field)
 	if err != nil {
@@ -20771,6 +20923,10 @@ func (ec *executionContext) fieldContext_LabelSection_metadata(_ context.Context
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
 				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
+			case "page":
+				return ec.fieldContext_ItemSectionMetadata_page(ctx, field)
+			case "limit":
+				return ec.fieldContext_ItemSectionMetadata_limit(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -22926,6 +23082,10 @@ func (ec *executionContext) fieldContext_ListSection_metadata(_ context.Context,
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
 				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
+			case "page":
+				return ec.fieldContext_ItemSectionMetadata_page(ctx, field)
+			case "limit":
+				return ec.fieldContext_ItemSectionMetadata_limit(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -26139,6 +26299,10 @@ func (ec *executionContext) fieldContext_PosterGridSection_metadata(_ context.Co
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
 				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
+			case "page":
+				return ec.fieldContext_ItemSectionMetadata_page(ctx, field)
+			case "limit":
+				return ec.fieldContext_ItemSectionMetadata_limit(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -26429,6 +26593,10 @@ func (ec *executionContext) fieldContext_PosterSection_metadata(_ context.Contex
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
 				return ec.fieldContext_ItemSectionMetadata_prependLiveElement(ctx, field)
+			case "page":
+				return ec.fieldContext_ItemSectionMetadata_page(ctx, field)
+			case "limit":
+				return ec.fieldContext_ItemSectionMetadata_limit(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ItemSectionMetadata", field.Name)
 		},
@@ -45863,33 +46031,68 @@ func (ec *executionContext) _ItemSectionMetadata(ctx context.Context, sel ast.Se
 		case "continueWatching":
 			out.Values[i] = ec._ItemSectionMetadata_continueWatching(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "myList":
 			out.Values[i] = ec._ItemSectionMetadata_myList(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "secondaryTitles":
 			out.Values[i] = ec._ItemSectionMetadata_secondaryTitles(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "collectionId":
 			out.Values[i] = ec._ItemSectionMetadata_collectionId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "useContext":
 			out.Values[i] = ec._ItemSectionMetadata_useContext(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "prependLiveElement":
 			out.Values[i] = ec._ItemSectionMetadata_prependLiveElement(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "page":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ItemSectionMetadata_page(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "limit":
+			out.Values[i] = ec._ItemSectionMetadata_limit(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

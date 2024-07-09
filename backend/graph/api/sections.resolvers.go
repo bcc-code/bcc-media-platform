@@ -53,6 +53,14 @@ func (r *iconSectionResolver) Items(ctx context.Context, obj *model.IconSection,
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 }
 
+// Page is the resolver for the page field.
+func (r *itemSectionMetadataResolver) Page(ctx context.Context, obj *model.ItemSectionMetadata) (*model.Page, error) {
+	if obj.Page == nil {
+		return nil, nil
+	}
+	return r.QueryRoot().Page(ctx, &obj.Page.ID, &obj.Page.Code)
+}
+
 // Items is the resolver for the items field.
 func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSection, first *int, offset *int) (*model.SectionItemPagination, error) {
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
@@ -141,6 +149,11 @@ func (r *Resolver) IconGridSection() generated.IconGridSectionResolver {
 // IconSection returns generated.IconSectionResolver implementation.
 func (r *Resolver) IconSection() generated.IconSectionResolver { return &iconSectionResolver{r} }
 
+// ItemSectionMetadata returns generated.ItemSectionMetadataResolver implementation.
+func (r *Resolver) ItemSectionMetadata() generated.ItemSectionMetadataResolver {
+	return &itemSectionMetadataResolver{r}
+}
+
 // LabelSection returns generated.LabelSectionResolver implementation.
 func (r *Resolver) LabelSection() generated.LabelSectionResolver { return &labelSectionResolver{r} }
 
@@ -171,6 +184,7 @@ type defaultSectionResolver struct{ *Resolver }
 type featuredSectionResolver struct{ *Resolver }
 type iconGridSectionResolver struct{ *Resolver }
 type iconSectionResolver struct{ *Resolver }
+type itemSectionMetadataResolver struct{ *Resolver }
 type labelSectionResolver struct{ *Resolver }
 type listSectionResolver struct{ *Resolver }
 type messageSectionResolver struct{ *Resolver }

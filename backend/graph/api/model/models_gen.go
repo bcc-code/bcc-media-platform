@@ -735,6 +735,8 @@ type ItemSectionMetadata struct {
 	CollectionID       string `json:"collectionId"`
 	UseContext         bool   `json:"useContext"`
 	PrependLiveElement bool   `json:"prependLiveElement"`
+	Page               *Page  `json:"page,omitempty"`
+	Limit              *int   `json:"limit,omitempty"`
 }
 
 type LabelSection struct {

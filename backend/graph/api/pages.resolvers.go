@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
@@ -44,6 +45,15 @@ func (r *pageResolver) Image(ctx context.Context, obj *model.Page, style *model.
 
 // Sections is the resolver for the sections field.
 func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int, offset *int) (*model.SectionPagination, error) {
+	if strings.HasPrefix(obj.ID, "c-") {
+		collectionId := strings.TrimPrefix(obj.ID, "c-")
+		intID, err := strconv.ParseInt(collectionId, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		return getSectionsForCollection(int(intID))
+	}
+
 	intID, err := strconv.ParseInt(obj.ID, 10, 64)
 	if err != nil {
 		return nil, err

@@ -1364,6 +1364,7 @@ type Section struct {
 	EmbedHeight          null_v4.Int     `db:"embed_height" json:"embedHeight"`
 	PrependLiveElement   sql.NullBool    `db:"prepend_live_element" json:"prependLiveElement"`
 	TranslationsRequired bool            `db:"translations_required" json:"translationsRequired"`
+	Limit                null_v4.Int     `db:"limit" json:"limit"`
 }
 
 type SectionsTranslation struct {

@@ -3,7 +3,9 @@ package graph
 import (
 	"context"
 	"strconv"
+	"strings"
 
+	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/items/collection"
@@ -257,50 +259,25 @@ func (r *Resolver) sectionCollectionEntryResolver(
 	offset *int,
 ) (*utils.PaginationResult[*model.SectionItem], error) {
 	ls := r.GetLoaders()
-	filteredLoaders := r.FilteredLoaders(ctx)
 	if !section.CollectionID.Valid {
 		return &utils.PaginationResult[*model.SectionItem]{}, nil
 	}
 
 	collectionId := int(section.CollectionID.ValueOrZero())
-
 	col, err := ls.CollectionLoader.Get(ctx, collectionId)
 	if err != nil {
 		return nil, err
 	}
 
-	entries, err := collection.GetCollectionEntries(ctx, ls, filteredLoaders, collectionId)
+	entries, err := r.GetPersonalizedCollectionItems(ctx, collectionId)
 	if err != nil {
 		return nil, err
 	}
 
-	switch col.AdvancedType.String {
-	case "continue_watching":
-		ids, err := resolveContinueWatchingCollection(ctx, ls)
-		if err != nil {
-			return nil, err
-		}
-		entries = filterWithIds(col, entries, ids)
-	case "my_list":
-		ids, err := resolveMyListCollection(ctx, ls)
-		if err != nil {
-			return nil, err
-		}
-		entries = filterWithIds(col, entries, ids)
-	case "shorts":
-		ids, err := r.resolveShortsCollection(ctx, ls)
-		if err != nil {
-			return nil, err
-		}
-		entries = filterWithUuids(col, common.CollectionShorts, entries, ids)
-	}
-
 	pagination := utils.Paginate(entries, first, offset, nil)
-
-	imageStyle := sectionStyleToImageStyle(section.Style)
-
 	preloadEntryLoaders(ctx, ls, pagination.Items)
 
+	imageStyle := sectionStyleToImageStyle(section.Style)
 	items, err := mapCollectionEntriesToSectionItems(ctx, ls, pagination.Items, imageStyle, col.NumberInTitles)
 	if err != nil {
 		return nil, err
@@ -315,6 +292,14 @@ func (r *Resolver) sectionCollectionEntryResolver(
 }
 
 func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*model.SectionItemPagination, error) {
+	if strings.HasPrefix(id, "c-") {
+		collectionId := utils.AsIntOrNil(strings.TrimPrefix(id, "c-"))
+		if collectionId != nil {
+			return getSectionItemsForCollectionPage(ctx, r, *collectionId, first, offset)
+		}
+		return nil, merry.New("invalid collection id")
+	}
+
 	int64ID, _ := strconv.ParseInt(id, 10, 32)
 
 	section, err := r.Loaders.SectionLoader.Get(ctx, int(int64ID))

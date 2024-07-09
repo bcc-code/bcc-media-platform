@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -9,7 +10,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
 
-// SectionFrom converts common.Page to Section
+// SectionFrom converts common.Section to Section
 func SectionFrom(ctx context.Context, s *common.Section) Section {
 	ginCtx, _ := utils.GinCtx(ctx)
 	languages := user.GetLanguagesFromCtx(ginCtx)
@@ -34,6 +35,10 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 			CollectionID:       strconv.Itoa(int(s.CollectionID.Int64)),
 			UseContext:         s.Options.UseContext,
 			PrependLiveElement: s.Options.PrependLiveElement,
+			Page: &Page{
+				ID:   fmt.Sprintf("c-%d", s.CollectionID.Int64),
+				Code: fmt.Sprintf("c-%d", s.CollectionID.Int64),
+			},
 		}
 
 		switch s.Style {
