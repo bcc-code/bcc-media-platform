@@ -109,30 +109,38 @@ func collectionEntriesToModels(ctx context.Context, ls *common.BatchLoaders, ent
 	return items, nil
 }
 
-func (r *Resolver) getEntriesFromCollection(ctx context.Context, collectionID int) ([]collection.Entry, error) {
-	col, err := r.Loaders.CollectionLoader.Get(ctx, collectionID)
+func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int) ([]collection.Entry, error) {
+	ls := r.GetLoaders()
+	filteredLoaders := r.FilteredLoaders(ctx)
+	col, err := ls.CollectionLoader.Get(ctx, collectionId)
 	if err != nil {
 		return nil, err
 	}
 
-	entries, err := collection.GetCollectionEntries(ctx, r.Loaders, r.GetFilteredLoaders(ctx), collectionID)
+	entries, err := collection.GetBaseCollectionEntries(ctx, ls, filteredLoaders, collectionId)
 	if err != nil {
 		return nil, err
 	}
 
 	switch col.AdvancedType.String {
 	case "continue_watching":
-		ids, err := resolveContinueWatchingCollection(ctx, r.Loaders)
+		ids, err := resolveContinueWatchingCollection(ctx, ls)
 		if err != nil {
 			return nil, err
 		}
 		entries = filterWithIds(col, entries, ids)
 	case "my_list":
-		ids, err := resolveMyListCollection(ctx, r.Loaders)
+		ids, err := resolveMyListCollection(ctx, ls)
 		if err != nil {
 			return nil, err
 		}
 		entries = filterWithIds(col, entries, ids)
+	case "shorts":
+		ids, err := r.resolveShortsCollection(ctx)
+		if err != nil {
+			return nil, err
+		}
+		entries = filterWithUuids(col, common.CollectionShorts, entries, ids)
 	}
 
 	return entries, nil
@@ -142,7 +150,7 @@ func (r *Resolver) getEntriesFromCollection(ctx context.Context, collectionID in
 // returns only the items and no additional metadata like sort or other relational data
 // it will also filter out items that don't conform to the interface or type T
 func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, first, offset *int, collections ...common.ItemCollection) (*utils.PaginationResult[T], error) {
-	entries, err := r.getEntriesFromCollection(ctx, collectionID)
+	entries, err := r.GetCollectionEntries(ctx, collectionID)
 	if err != nil {
 		return nil, err
 	}

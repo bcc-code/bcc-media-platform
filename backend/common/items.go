@@ -319,6 +319,7 @@ type SectionOptions struct {
 	ContinueWatching   bool
 	UseContext         bool
 	PrependLiveElement bool
+	Limit              int
 }
 
 // GetKey returns the key for this item

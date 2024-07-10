@@ -416,7 +416,7 @@ func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqle
 		if c == nil {
 			continue
 		}
-		entries, err := collection.GetCollectionEntries(ctx, q.GetLoaders(), filteredLoaders, c.ID)
+		entries, err := collection.GetBaseCollectionEntries(ctx, q.GetLoaders(), filteredLoaders, c.ID)
 		if err != nil {
 			return merry.Wrap(err)
 		}

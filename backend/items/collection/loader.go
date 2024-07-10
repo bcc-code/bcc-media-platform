@@ -3,10 +3,11 @@ package collection
 import (
 	"context"
 	"database/sql"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
-	"github.com/samber/lo/parallel"
 	"sync"
 	"time"
+
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
+	"github.com/samber/lo/parallel"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/mediabank-bridge/log"
@@ -73,8 +74,10 @@ type Entry struct {
 	Sort       int
 }
 
-// GetCollectionEntries returns entries for the specified collection
-func GetCollectionEntries(ctx context.Context, ls *common.BatchLoaders, filteredLoaders *common.FilteredLoaders, collectionId int) ([]Entry, error) {
+// GetBaseCollectionEntries returns entries for the specified collection, without any special filtering
+//
+// Note: The collection config might specify advanced filtering, like continue watching or my list, which is not handled here
+func GetBaseCollectionEntries(ctx context.Context, ls *common.BatchLoaders, filteredLoaders *common.FilteredLoaders, collectionId int) ([]Entry, error) {
 	col, err := ls.CollectionLoader.Get(ctx, collectionId)
 	if err != nil {
 		return nil, err

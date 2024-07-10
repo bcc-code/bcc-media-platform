@@ -9,9 +9,10 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
-	"github.com/Code-Hex/go-generics-cache"
+	cache "github.com/Code-Hex/go-generics-cache"
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/applications"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
@@ -191,13 +192,11 @@ func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.Red
 
 // Page is the resolver for the page field.
 func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) (*model.Page, error) {
-	if id != nil {
-		return resolverForIntID(ctx, &itemLoaders[int, common.Page]{
-			Item:        r.Loaders.PageLoader,
-			Permissions: r.Loaders.PagePermissionLoader,
-		}, *id, model.PageFrom)
-	}
 	if code != nil {
+		if strings.HasPrefix(*code, "c-") {
+			collectionId := (*code)[2:]
+			return getPageForCollection(ctx, r, collectionId)
+		}
 		intID, err := r.Loaders.PageIDFromCodeLoader.Get(ctx, *code)
 		if err != nil {
 			return nil, err
@@ -209,6 +208,12 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 			Item:        r.Loaders.PageLoader,
 			Permissions: r.Loaders.PagePermissionLoader,
 		}, *intID, model.PageFrom)
+	}
+	if id != nil {
+		return resolverForIntID(ctx, &itemLoaders[int, common.Page]{
+			Item:        r.Loaders.PageLoader,
+			Permissions: r.Loaders.PagePermissionLoader,
+		}, *id, model.PageFrom)
 	}
 	return nil, merry.Sentinel("Must specify either ID or code", merry.WithHTTPCode(400))
 }
@@ -555,6 +560,9 @@ func (r *queryRootResolver) MyList(ctx context.Context) (*model.UserCollection, 
 	}
 	l := r.GetLoaders().ProfileMyListCollectionID
 	id, err := l.Get(ctx, p.ID)
+	if err != nil {
+		return nil, err
+	}
 	if id == nil {
 		uc := common.UserCollection{
 			ID:                 uuid.New(),

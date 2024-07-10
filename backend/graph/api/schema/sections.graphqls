@@ -5,6 +5,8 @@ type ItemSectionMetadata {
     collectionId: ID!
     useContext: Boolean!
     prependLiveElement: Boolean!
+    page: Page @goField(forceResolver: true)
+    limit: Int
 }
 
 interface Section {
