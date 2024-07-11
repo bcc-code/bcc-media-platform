@@ -224,6 +224,7 @@ type ComplexityRoot struct {
 	}
 
 	Chapter struct {
+		ContentType func(childComplexity int) int
 		Description func(childComplexity int) int
 		Duration    func(childComplexity int) int
 		Episode     func(childComplexity int) int
@@ -1868,6 +1869,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CardSection.Title(childComplexity), true
+
+	case "Chapter.contentType":
+		if e.complexity.Chapter.ContentType == nil {
+			break
+		}
+
+		return e.complexity.Chapter.ContentType(childComplexity), true
 
 	case "Chapter.description":
 		if e.complexity.Chapter.Description == nil {
@@ -6247,111 +6255,110 @@ type GlobalConfig {
 #}
 `, BuiltIn: false},
 	{Name: "../schema/episodes.graphqls", Input: `enum EpisodeType {
-  episode
-  standalone
+    episode
+    standalone
 }
 
 union EpisodeContextUnion = Season | ContextCollection
 
 enum ShareRestriction {
-  registered
-  members
-  public
+    registered
+    members
+    public
 }
 
 type Episode implements CollectionItem & PlaylistItem & MediaItem {
-  id: ID!
-  uuid: String!
-  status: Status!
-  type: EpisodeType!
-  legacyID: ID
-  legacyProgramID: ID
-  locked: Boolean! @goField(forceResolver: true)
-  publishDate: Date!
-  productionDate: Date!
-  productionDateInTitle: Boolean!
-  availableFrom: Date! @goField(forceResolver: true)
-  availableTo: Date!
-  ageRating: String!
-  originalTitle: String! @goField(forceResolver: true)
-  title: String! @goField(forceResolver: true)
-  description: String!
-  extraDescription: String!
-  image(style: ImageStyle): String @goField(forceResolver: true)
-  imageUrl: String @deprecated(reason: "Replaced by the image field")
+    id: ID!
+    uuid: String!
+    status: Status!
+    type: EpisodeType!
+    legacyID: ID
+    legacyProgramID: ID
+    locked: Boolean! @goField(forceResolver: true)
+    publishDate: Date!
+    productionDate: Date!
+    productionDateInTitle: Boolean!
+    availableFrom: Date! @goField(forceResolver: true)
+    availableTo: Date!
+    ageRating: String!
+    originalTitle: String! @goField(forceResolver: true)
+    title: String! @goField(forceResolver: true)
+    description: String!
+    extraDescription: String!
+    image(style: ImageStyle): String @goField(forceResolver: true)
+    imageUrl: String @deprecated(reason: "Replaced by the image field")
 
-  streams: [Stream!]! @goField(forceResolver: true)
-  files(audioLanguages: [String!]): [File!]! @goField(forceResolver: true)
-  chapters: [Chapter!]! @goField(forceResolver: true)
-  assetVersion: String!
+    streams: [Stream!]! @goField(forceResolver: true)
+    files(audioLanguages: [String!]): [File!]! @goField(forceResolver: true)
+    chapters: [Chapter!]! @goField(forceResolver: true)
+    assetVersion: String!
 
-  season: Season @goField(forceResolver: true)
-  duration: Int!
-  progress: Int @goField(forceResolver: true)
-  watched: Boolean! @goField(forceResolver: true)
-  audioLanguages: [Language!]!
-  subtitleLanguages: [Language!]!
-  context: EpisodeContextUnion @goField(forceResolver: true)
-  relatedItems(first: Int, offset: Int): SectionItemPagination
-    @goField(forceResolver: true)
-  images: [Image!]!
-  number: Int
-  lessons(first: Int, offset: Int): LessonPagination!
-    @goField(forceResolver: true)
-  shareRestriction: ShareRestriction! @goField(forceResolver: true)
-  inMyList: Boolean! @goField(forceResolver: true)
+    season: Season @goField(forceResolver: true)
+    duration: Int!
+    progress: Int @goField(forceResolver: true)
+    watched: Boolean! @goField(forceResolver: true)
+    audioLanguages: [Language!]!
+    subtitleLanguages: [Language!]!
+    context: EpisodeContextUnion @goField(forceResolver: true)
+    relatedItems(first: Int, offset: Int): SectionItemPagination @goField(forceResolver: true)
+    images: [Image!]!
+    number: Int
+    lessons(first: Int, offset: Int): LessonPagination! @goField(forceResolver: true)
+    shareRestriction: ShareRestriction! @goField(forceResolver: true)
+    inMyList: Boolean! @goField(forceResolver: true)
 
-  """
-  Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
-  """
-  next(limit: Int): [Episode!]! @goField(forceResolver: true)
-  cursor: String! @goField(forceResolver: true)
+    """
+    Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
+    """
+    next(limit: Int): [Episode!]! @goField(forceResolver: true)
+    cursor: String! @goField(forceResolver: true)
 }
 
 type EpisodePagination implements Pagination {
-  total: Int!
-  first: Int!
-  offset: Int!
-  items: [Episode!]!
+    total: Int!
+    first: Int!
+    offset: Int!
+    items: [Episode!]!
 }
 
 type Chapter implements CollectionItem {
-  id: ID!
-  start: Int!
-  title: String!
-  image: String
-  description: String
-  duration: Int!
-  episode: Episode @goField(forceResolver: true)
+    id: ID!
+    start: Int!
+    title: String!
+    image: String
+    description: String
+    duration: Int!
+    episode: Episode @goField(forceResolver: true)
+    contentType: ContentType!
 }
 
 type File {
-  id: ID!
-  url: String!
-  videoLanguage: Language
-  audioLanguage: Language!
-  subtitleLanguage: Language
-  size: Int!
-  fileName: String!
-  mimeType: String!
-  resolution: String
+    id: ID!
+    url: String!
+    videoLanguage: Language
+    audioLanguage: Language!
+    subtitleLanguage: Language
+    size: Int!
+    fileName: String!
+    mimeType: String!
+    resolution: String
 }
 
 enum StreamType {
-  hls_ts
-  hls_cmaf
-  dash
+    hls_ts
+    hls_cmaf
+    dash
 }
 
 type Stream {
-  id: ID!
-  url: String!
-  expiresAt: Date!
-  videoLanguage: Language
-  audioLanguages: [Language!]!
-  subtitleLanguages: [Language!]!
-  type: StreamType!
-  downloadable: Boolean!
+    id: ID!
+    url: String!
+    expiresAt: Date!
+    videoLanguage: Language
+    audioLanguages: [Language!]!
+    subtitleLanguages: [Language!]!
+    type: StreamType!
+    downloadable: Boolean!
 }
 `, BuiltIn: false},
 	{Name: "../schema/export.graphqls", Input: `type Export {
@@ -12957,6 +12964,56 @@ func (ec *executionContext) fieldContext_Chapter_episode(_ context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Chapter_contentType(ctx context.Context, field graphql.CollectedField, obj *model.Chapter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Chapter_contentType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ContentType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ContentType)
+	fc.Result = res
+	return ec.marshalNContentType2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContentType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Chapter_contentType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Chapter",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "code":
+				return ec.fieldContext_ContentType_code(ctx, field)
+			case "title":
+				return ec.fieldContext_ContentType_title(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ContentType", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Config_global(ctx context.Context, field graphql.CollectedField, obj *model.Config) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Config_global(ctx, field)
 	if err != nil {
@@ -15602,6 +15659,8 @@ func (ec *executionContext) fieldContext_Episode_chapters(_ context.Context, fie
 				return ec.fieldContext_Chapter_duration(ctx, field)
 			case "episode":
 				return ec.fieldContext_Chapter_episode(ctx, field)
+			case "contentType":
+				return ec.fieldContext_Chapter_contentType(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Chapter", field.Name)
 		},
@@ -43199,6 +43258,11 @@ func (ec *executionContext) _Chapter(ctx context.Context, sel ast.SelectionSet, 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "contentType":
+			out.Values[i] = ec._Chapter_contentType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

@@ -72,6 +72,7 @@ func resolveChapter(ctx context.Context, loaders *common.BatchLoaders, episodeID
 		Start:       int(tm.Timestamp),
 		Duration:    int(tm.Duration),
 		Image:       imageOrFallback(ctx, tm.Images, nil),
+		ContentType: &model.ContentType{Code: tm.ContentType.Value},
 		Episode: &model.Episode{
 			ID: episodeID,
 		},
