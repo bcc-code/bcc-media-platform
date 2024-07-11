@@ -35,6 +35,7 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     streams: [Stream!]! @goField(forceResolver: true)
     files(audioLanguages: [String!]): [File!]! @goField(forceResolver: true)
     chapters: [Chapter!]! @goField(forceResolver: true)
+    skipToChapter: Chapter @goField(forceResolver: true)
     assetVersion: String!
 
     season: Season @goField(forceResolver: true)

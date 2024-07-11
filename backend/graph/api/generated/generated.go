@@ -336,6 +336,7 @@ type ComplexityRoot struct {
 		RelatedItems          func(childComplexity int, first *int, offset *int) int
 		Season                func(childComplexity int) int
 		ShareRestriction      func(childComplexity int) int
+		SkipToChapter         func(childComplexity int) int
 		Status                func(childComplexity int) int
 		Streams               func(childComplexity int) int
 		SubtitleLanguages     func(childComplexity int) int
@@ -1092,6 +1093,7 @@ type EpisodeResolver interface {
 	Streams(ctx context.Context, obj *model.Episode) ([]*model.Stream, error)
 	Files(ctx context.Context, obj *model.Episode, audioLanguages []string) ([]*model.File, error)
 	Chapters(ctx context.Context, obj *model.Episode) ([]*model.Chapter, error)
+	SkipToChapter(ctx context.Context, obj *model.Episode) (*model.Chapter, error)
 
 	Season(ctx context.Context, obj *model.Episode) (*model.Season, error)
 
@@ -2425,6 +2427,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Episode.ShareRestriction(childComplexity), true
+
+	case "Episode.skipToChapter":
+		if e.complexity.Episode.SkipToChapter == nil {
+			break
+		}
+
+		return e.complexity.Episode.SkipToChapter(childComplexity), true
 
 	case "Episode.status":
 		if e.complexity.Episode.Status == nil {
@@ -6291,6 +6300,7 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     streams: [Stream!]! @goField(forceResolver: true)
     files(audioLanguages: [String!]): [File!]! @goField(forceResolver: true)
     chapters: [Chapter!]! @goField(forceResolver: true)
+    skipToChapter: Chapter @goField(forceResolver: true)
     assetVersion: String!
 
     season: Season @goField(forceResolver: true)
@@ -12925,6 +12935,8 @@ func (ec *executionContext) fieldContext_Chapter_episode(_ context.Context, fiel
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "skipToChapter":
+				return ec.fieldContext_Episode_skipToChapter(ctx, field)
 			case "assetVersion":
 				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
@@ -15668,6 +15680,65 @@ func (ec *executionContext) fieldContext_Episode_chapters(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_skipToChapter(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_skipToChapter(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Episode().SkipToChapter(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Chapter)
+	fc.Result = res
+	return ec.marshalOChapter2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐChapter(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_skipToChapter(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Chapter_id(ctx, field)
+			case "start":
+				return ec.fieldContext_Chapter_start(ctx, field)
+			case "title":
+				return ec.fieldContext_Chapter_title(ctx, field)
+			case "image":
+				return ec.fieldContext_Chapter_image(ctx, field)
+			case "description":
+				return ec.fieldContext_Chapter_description(ctx, field)
+			case "duration":
+				return ec.fieldContext_Chapter_duration(ctx, field)
+			case "episode":
+				return ec.fieldContext_Chapter_episode(ctx, field)
+			case "contentType":
+				return ec.fieldContext_Chapter_contentType(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Chapter", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_assetVersion(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_assetVersion(ctx, field)
 	if err != nil {
@@ -16428,6 +16499,8 @@ func (ec *executionContext) fieldContext_Episode_next(ctx context.Context, field
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "skipToChapter":
+				return ec.fieldContext_Episode_skipToChapter(ctx, field)
 			case "assetVersion":
 				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
@@ -16921,6 +16994,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(_ context.
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "skipToChapter":
+				return ec.fieldContext_Episode_skipToChapter(ctx, field)
 			case "assetVersion":
 				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
@@ -17175,6 +17250,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(_ context.Conte
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "skipToChapter":
+				return ec.fieldContext_Episode_skipToChapter(ctx, field)
 			case "assetVersion":
 				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
@@ -21575,6 +21652,8 @@ func (ec *executionContext) fieldContext_Lesson_defaultEpisode(_ context.Context
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "skipToChapter":
+				return ec.fieldContext_Episode_skipToChapter(ctx, field)
 			case "assetVersion":
 				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
@@ -23931,6 +24010,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "skipToChapter":
+				return ec.fieldContext_Episode_skipToChapter(ctx, field)
 			case "assetVersion":
 				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
@@ -27799,6 +27880,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "skipToChapter":
+				return ec.fieldContext_Episode_skipToChapter(ctx, field)
 			case "assetVersion":
 				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
@@ -27932,6 +28015,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episodes(ctx context.Context,
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "skipToChapter":
+				return ec.fieldContext_Episode_skipToChapter(ctx, field)
 			case "assetVersion":
 				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
@@ -30978,6 +31063,8 @@ func (ec *executionContext) fieldContext_Season_defaultEpisode(_ context.Context
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "skipToChapter":
+				return ec.fieldContext_Episode_skipToChapter(ctx, field)
 			case "assetVersion":
 				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
@@ -34078,6 +34165,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(_ context.Context, 
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "skipToChapter":
+				return ec.fieldContext_Episode_skipToChapter(ctx, field)
 			case "assetVersion":
 				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
@@ -38540,6 +38629,8 @@ func (ec *executionContext) fieldContext_VideoTask_episode(_ context.Context, fi
 				return ec.fieldContext_Episode_files(ctx, field)
 			case "chapters":
 				return ec.fieldContext_Episode_chapters(ctx, field)
+			case "skipToChapter":
+				return ec.fieldContext_Episode_skipToChapter(ctx, field)
 			case "assetVersion":
 				return ec.fieldContext_Episode_assetVersion(ctx, field)
 			case "season":
@@ -44360,6 +44451,39 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "skipToChapter":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_skipToChapter(ctx, field, obj)
 				return res
 			}
 
@@ -55798,6 +55922,13 @@ func (ec *executionContext) marshalOCalendar2ᚖgithubᚗcomᚋbccᚑcodeᚋbcc�
 		return graphql.Null
 	}
 	return ec._Calendar(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOChapter2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐChapter(ctx context.Context, sel ast.SelectionSet, v *model.Chapter) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Chapter(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalODate2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
