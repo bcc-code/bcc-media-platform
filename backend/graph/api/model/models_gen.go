@@ -460,6 +460,7 @@ type Episode struct {
 	Streams               []*Stream              `json:"streams"`
 	Files                 []*File                `json:"files"`
 	Chapters              []*Chapter             `json:"chapters"`
+	SkipToChapter         *Chapter               `json:"skipToChapter,omitempty"`
 	AssetVersion          string                 `json:"assetVersion"`
 	Season                *Season                `json:"season,omitempty"`
 	Duration              int                    `json:"duration"`
