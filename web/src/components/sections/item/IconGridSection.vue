@@ -1,10 +1,12 @@
 <template>
-    <section>
+    <section class="w-full">
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <div class="grid grid-cols-2">
+        <div
+            class="grid w-full grid-flow-dense grid-cols-[repeat(auto-fill,8rem)] lg:grid-cols-[repeat(auto-fill,10rem)]"
+        >
             <div
                 v-for="(i, index) in item.items.items"
-                class="relative mb-5 m-2 lg:m-10"
+                class="relative mb-5 m-2"
                 @click="$emit('clickItem', index)"
             >
                 <div
