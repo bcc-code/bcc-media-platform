@@ -14,9 +14,9 @@
                 >
                     <Image :src="i.image" size-source="width" />
                 </div>
-                <div class="mx-auto">
+                <div class="mx-auto mt-2">
                     <p
-                        class="w-full text-center text-ellipsis text-lg line-clamp-2"
+                        class="w-full text-center text-ellipsis text-style-body-1 line-clamp-2"
                     >
                         {{ i.title }}
                     </p>
