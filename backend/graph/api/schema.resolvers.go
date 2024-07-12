@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Code-Hex/go-generics-cache"
+	cache "github.com/Code-Hex/go-generics-cache"
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/applications"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
@@ -220,6 +220,18 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 
 // Section is the resolver for the section field.
 func (r *queryRootResolver) Section(ctx context.Context, id string, timestamp *string) (model.Section, error) {
+	if strings.HasPrefix(id, "c-") {
+		collectionId := strings.TrimPrefix(id, "c-")
+		intID, err := strconv.ParseInt(collectionId, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		section, err := getSectionsForCollectionPage(int(intID))
+		if err != nil {
+			return nil, err
+		}
+		return section.Items[0], nil
+	}
 	if timestamp != nil {
 		intID, err := strconv.ParseInt(id, 10, 64)
 		if err != nil {
