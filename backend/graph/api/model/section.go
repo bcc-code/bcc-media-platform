@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
@@ -193,6 +194,12 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 		var aspectRatio *float64
 		if s.EmbedAspectRatio.Valid {
 			aspectRatio = &s.EmbedAspectRatio.Float64
+		}
+
+		os := ginCtx.Request.Header.Get("X-OS")
+		isTablet := ginCtx.Request.Header.Get("X-Is-Tablet")
+		if strings.Contains(os, "iOS") && isTablet == "true" {
+			return nil
 		}
 
 		return &WebSection{
