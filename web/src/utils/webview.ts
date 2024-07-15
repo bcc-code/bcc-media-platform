@@ -23,6 +23,11 @@ function getWebView(): WebView | undefined {
             type: "xamarin",
             communication: window.xamarin_webview,
         }
+    } else if (window.flutter_webview_manager) {
+        return {
+            type: "flutter_webview_manager",
+            communication: window.flutter_webview_manager,
+        }
     }
     return undefined
 }
