@@ -70,9 +70,4 @@ html,
 body {
     overscroll-behavior: none;
 }
-html {
-    position: fixed;
-    height: 100%;
-    overflow: hidden;
-}
 </style>
