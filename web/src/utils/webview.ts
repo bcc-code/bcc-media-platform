@@ -80,7 +80,7 @@ function inIframe() {
 
 clearWebViewDataIfRequested()
 let currentWebView = getWebView()
-const delayedWebViewType = !inIframe() ? getDelayedWebViewType() : false
+const delayedWebViewType = inIframe() ? null : getDelayedWebViewType()
 if (currentWebView == null && delayedWebViewType) {
     currentWebView = {
         type: delayedWebViewType,

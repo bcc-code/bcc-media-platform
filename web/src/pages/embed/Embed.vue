@@ -1,5 +1,5 @@
 <template>
-    <div class="h-screen embedded-page">
+    <div class="h-dvh embedded-page">
         <div
             v-if="initializing"
             class="flex h-full items-center justify-center"
@@ -59,5 +59,9 @@ onMounted(async () => {
 <style>
 .bg-background {
     --tw-bg-opacity: 0;
+}
+html,
+body {
+    overscroll-behavior: none;
 }
 </style>
