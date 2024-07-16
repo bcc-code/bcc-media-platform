@@ -1,9 +1,11 @@
 <template>
-    <div class="h-screen embedded-pag">
+    <div class="h-screen embedded-page">
         <div
             v-if="initializing"
             class="flex h-full items-center justify-center"
-        ></div>
+        >
+            <Loader variant="spinner" />
+        </div>
         <router-view v-else v-slot="{ Component }" class="fade-expo-1s">
             <transition name="slide-fade" mode="out-in">
                 <component :key="$route.name" :is="Component" />
@@ -17,9 +19,9 @@ import settings from "@/services/settings"
 import { webViewMain } from "@/services/webviews/mainHandler"
 import { onMounted, ref } from "vue"
 import { init } from "@/services/language"
-import Loader from "@/components/Loader.vue"
 import { useGetMeQuery } from "@/graph/generated"
 import { analytics } from "@/services/analytics"
+import Loader from "@/components/Loader.vue"
 
 const initializing = ref(true)
 
