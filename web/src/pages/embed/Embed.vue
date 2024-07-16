@@ -1,5 +1,5 @@
 <template>
-    <div class="h-dvh embedded-page">
+    <div class="h-dvh w-dvw embedded-page">
         <div
             v-if="initializing"
             class="flex h-full items-center justify-center"
@@ -35,6 +35,12 @@ const analyticsQuery = useGetMeQuery({
 })
 
 onMounted(async () => {
+    const viewport = document.querySelector("meta[name=viewport]")
+    viewport?.setAttribute(
+        "content",
+        "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    )
+
     console.time("embedInit")
     const flutterLocale = await webViewMain?.getLocale()
     if (flutterLocale) {
@@ -63,5 +69,10 @@ onMounted(async () => {
 html,
 body {
     overscroll-behavior: none;
+}
+html {
+    position: fixed;
+    height: 100%;
+    overflow: hidden;
 }
 </style>
