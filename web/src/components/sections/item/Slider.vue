@@ -18,15 +18,16 @@
             @swiper="onswipe"
         >
             <SwiperSlide
-                v-for="(i, index) in item.items.items"
+                v-for="(i, index) in section.items.items"
                 class="relative"
             >
                 <slot :item="i" :index="index"></slot>
                 <div
                     class="absolute right-0 top-0 h-full flex bg-gradient-to-l from-background to-transparent w-40"
                     v-if="
-                        index === item.items.items.length - 1 &&
-                        item.items.total > item.items.offset + item.items.first
+                        index === section.items.items.length - 1 &&
+                        section.items.total >
+                            section.items.offset + section.items.first
                     "
                 ></div>
             </SwiperSlide>
@@ -68,6 +69,7 @@ import { Navigation, Pagination } from "swiper/modules"
 import { Swiper, SwiperSlide } from "swiper/vue"
 import breakpoints from "./breakpoints"
 import { computed, ref } from "vue"
+import { SectionSize } from "@/graph/generated"
 
 const swiperEl = ref(null as HTMLDivElement | null)
 
@@ -77,8 +79,12 @@ const prev = ref(null)
 const showNav = ref(false)
 
 const props = defineProps<{
-    item: Section & {
-        __typename: "DefaultSection" | "PosterSection" | "FeaturedSection"
+    section: Section & {
+        __typename:
+            | "DefaultSection"
+            | "PosterSection"
+            | "FeaturedSection"
+            | "ListSection"
     }
     breakpoints?: {
         [width: number]: SwiperOptions
@@ -89,8 +95,12 @@ const emit = defineEmits<{
     (e: "loadMore"): void
 }>()
 
+const size = computed<SectionSize>(() => {
+    return "size" in props.section ? props.section.size : SectionSize.Medium
+})
+
 const effectiveBreakpoints = computed(() => {
-    return props.breakpoints ?? breakpoints(props.item.size)
+    return props.breakpoints ?? breakpoints(size.value)
 })
 
 const modules = [Navigation, Pagination]
@@ -110,7 +120,7 @@ const onswipe = (swiper: TSwiper) => {
         const pg =
             1 -
             (((bp.slidesPerView as any) ?? 1) + 1) /
-                props.item.items.items.length
+                props.section.items.items.length
         if (swiper.progress > pg) {
             emit("loadMore")
         }

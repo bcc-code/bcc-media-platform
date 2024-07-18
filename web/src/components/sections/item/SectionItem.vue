@@ -1,13 +1,15 @@
 <template>
     <div class="relative">
         <NewPill
-            class="absolute -top-1 -right-1 pointer-events-none"
+            class="absolute -top-1 -right-1 pointer-events-none overflow-hidden"
             :item="i"
             v-if="!comingSoon(i)"
         ></NewPill>
-        <Pill class="absolute -top-1 -right-1 pointer-events-none" v-else>{{
-            $t("episode.comingSoon")
-        }}</Pill>
+        <Pill
+            class="absolute -top-1 -right-1 pointer-events-none overflow-hidden z-50"
+            v-else
+            >{{ $t("episode.comingSoon") }}</Pill
+        >
         <div
             class="flex flex-col mt-2 transition"
             :class="{

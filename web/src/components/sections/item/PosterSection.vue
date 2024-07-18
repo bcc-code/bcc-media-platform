@@ -2,7 +2,7 @@
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <Slider
-            :item="item"
+            :section="item"
             v-slot="{ item: i, index }"
             @load-more="$emit('loadMore')"
         >

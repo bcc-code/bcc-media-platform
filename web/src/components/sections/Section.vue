@@ -1,11 +1,23 @@
 <template>
     <DefaultSection
-        v-if="section.__typename === 'DefaultSection' && hasItems(section)"
+        v-if="
+            (section.__typename === 'DefaultSection' && hasItems(section)) ||
+            (isLargeScreen &&
+                section.__typename === 'ListSection' &&
+                hasItems(section))
+        "
         :item="section"
         :position="index.current"
         @click-item="(i) => $emit('clickItem', i)"
         @load-more="$emit('loadMore')"
     ></DefaultSection>
+    <ListSection
+        v-else-if="section.__typename === 'ListSection' && hasItems(section)"
+        :item="section"
+        :paginate="index.last === index.current"
+        :position="index.current"
+        @click-item="(i) => $emit('clickItem', i)"
+    ></ListSection>
     <DefaultGridSection
         v-else-if="
             section.__typename === 'DefaultGridSection' && hasItems(section)
@@ -59,13 +71,6 @@
         :position="index.current"
         @click-item="(i) => $emit('clickItem', i)"
     ></LabelSection>
-    <ListSection
-        v-else-if="section.__typename === 'ListSection' && hasItems(section)"
-        :item="section"
-        :paginate="index.last === index.current"
-        :position="index.current"
-        @click-item="(i) => $emit('clickItem', i)"
-    ></ListSection>
     <WebSection
         v-else-if="section.__typename === 'WebSection'"
         :item="section"
@@ -96,6 +101,8 @@ import ListSection from "./item/ListSection.vue"
 import WebSection from "./WebSection.vue"
 import MessageSection from "./MessageSection.vue"
 import CardSection from "./item/CardSection.vue"
+import { useWindowSize } from "@vueuse/core"
+import { computed } from "vue"
 
 defineProps<{
     section: Section
@@ -117,4 +124,7 @@ const hasItems = (section: {
 }) => {
     return section.items.items.length > 0
 }
+
+const { width } = useWindowSize()
+const isLargeScreen = computed(() => width.value > 768)
 </script>

@@ -2,7 +2,7 @@
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <Slider
-            :item="item"
+            :section="item"
             v-slot="{ item: i, index }"
             @load-more="$emit('loadMore')"
         >
@@ -24,7 +24,7 @@ import SectionItem from "./SectionItem.vue"
 
 defineProps<{
     position: number
-    item: Section & { __typename: "DefaultSection" }
+    item: Section & { __typename: "DefaultSection" | "ListSection" }
 }>()
 
 defineEmits<{

@@ -2,7 +2,7 @@
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <div
-            class="flex flex-col lg:grid lg:grid-cols-2 gap-4 overflow-y-scroll"
+            class="flex flex-col lg:grid lg:grid-cols-2 gap-4 overflow-x-visible"
         >
             <div
                 v-for="(i, index) in item.items.items"
