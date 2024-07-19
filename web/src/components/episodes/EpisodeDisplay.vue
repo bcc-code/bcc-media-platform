@@ -125,7 +125,7 @@
                 </div>
                 <hr class="border-separator-on-light" />
                 <div>
-                    <Transition name="slide-fade" mode="out-in">
+                    <Transition name="fade" mode="out-in">
                         <EpisodeDetails
                             v-if="effectiveView === 'details'"
                             :episode="episode"
@@ -340,13 +340,14 @@ const effectiveView = computed({
                     return "episodes"
                 }
                 break
+            case "chapters":
+                if (episode.value?.chapters.length) {
+                    return "chapters"
+                }
+                break
             case "details":
             case "download":
                 return v
-        }
-
-        if (episode.value?.chapters.length) {
-            return "chapters"
         }
 
         if (episode.value?.context?.__typename === "ContextCollection") {

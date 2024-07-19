@@ -1,6 +1,14 @@
 <template>
     <section class="overflow-x-hidden">
-        <transition name="fade">
+        <transition
+            mode="out-in"
+            enter-active-class="duration-300 ease-out"
+            enter-from-class="transform opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="duration-200 ease-in"
+            leave-from-class="opacity-100"
+            leave-to-class="transform opacity-0"
+        >
             <div
                 class="px-4 lg:px-20 flex flex-col gap-8 relative"
                 v-if="page && page.sections.items.length"
@@ -28,8 +36,10 @@
             <div v-else-if="!fetching && !loading">
                 <NotFound :title="$t('page.notFound')"></NotFound>
             </div>
-            <div v-else-if="error">{{ error.message }}</div>
-            <!-- <SkeletonSections class="px-4 lg:px-20" v-else></SkeletonSections> -->
+            <div v-else-if="error">3{{ error.message }}</div>
+            <div v-else class="flex w-full h-48 items-center justify-center">
+                <Loader variant="spinner" />
+            </div>
         </transition>
     </section>
 </template>
@@ -45,6 +55,7 @@ import Section from "@/components/sections/Section.vue"
 import { computed, nextTick, onMounted, onUnmounted, ref } from "vue"
 import NotFound from "../NotFound.vue"
 import Loader from "../Loader.vue"
+import SkeletonSections from "./SkeletonSections.vue"
 import { goToSectionItem } from "@/utils/items"
 
 const props = defineProps<{

@@ -6,16 +6,16 @@
                     style="overflow: visible"
                     :breakpoints="{
                         400: {
-                            slidesPerView: 1,
-                            spaceBetween: 4,
+                            slidesPerView: 2,
+                            spaceBetween: 6,
                         },
                         1280: {
-                            slidesPerView: 1,
-                            spaceBetween: 4,
+                            slidesPerView: 2,
+                            spaceBetween: 6,
                         },
                         1920: {
-                            slidesPerView: 1,
-                            spaceBetween: 4,
+                            slidesPerView: 3,
+                            spaceBetween: 6,
                         },
                     }"
                 >
@@ -32,11 +32,11 @@
                             <Image
                                 :src="undefined"
                                 size-source="width"
-                                :ratio="5 / 11"
+                                :ratio="9 / 16"
                                 class="hidden lg:block rounded-xl h-full object-cover"
                             />
                             <div
-                                class="absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent pt-8"
+                                class="absolute bottom-0 w-full text-center bg-gradient-to-t from-background-2 to-transparent pt-8"
                             ></div>
                         </div>
                     </SwiperSlide>
@@ -84,7 +84,9 @@
             </div>
         </section>
         <section>
-            <h1 class="bg-gray opacity-50 mb-4 h-5 rounded-full w-60"></h1>
+            <h1
+                class="bg-background-2 opacity-50 mb-4 h-5 rounded-full w-60"
+            ></h1>
             <div class="relative">
                 <Swiper
                     style="overflow: visible"

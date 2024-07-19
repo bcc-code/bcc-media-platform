@@ -22,17 +22,7 @@ defineEmits<{
 const { data, fetching } = useGetFaqQuery({ variables: {} })
 </script>
 <template>
-    <TransitionRoot
-        as="template"
-        :show="show"
-        enter="duration-100 ease-out"
-        enter-from="opacity-0"
-        enter-to="opacity-100"
-        leave="duration-200 ease-in"
-        leave-from="opacity-100"
-        leave-to="opacity-0"
-        class="absolute top-90"
-    >
+    <TransitionRoot as="template" :show="show">
         <Dialog
             as="div"
             @close="$emit('update:show', false)"
@@ -40,36 +30,36 @@ const { data, fetching } = useGetFaqQuery({ variables: {} })
         >
             <TransitionChild
                 as="template"
-                enter="transition-opacity ease-linear duration-300"
+                enter="transition-opacity ease-out-expo duration-500"
+                leave="transition-opacity ease-out-expo duration-500"
                 enter-from="opacity-0"
-                enter-to="opacity-100"
-                leave="transition-opacity ease-linear duration-300"
-                leave-from="opacity-100"
                 leave-to="opacity-0"
+                leave-from="opacity-100"
+                enter-to="opacity-100"
             >
-                <div class="fixed inset-0 bg-black bg-opacity-30" />
+                <div class="fixed inset-0 bg-slate-800/50 bg-opacity-30" />
             </TransitionChild>
             <div
                 class="flex min-h-full items-center justify-center lg:p-4 text-center fixed inset-0 overflow-y-auto"
             >
                 <TransitionChild
                     as="template"
-                    enter-from="-translate-y-full"
-                    enter-to="translate-y-0"
-                    enter="duration-300 ease-out"
-                    leave="duration-200 ease-in"
-                    leave-from="translate-y-0"
-                    leave-to="-translate-y-full"
+                    enter-from="scale-95 "
+                    enter-to="scale-100"
+                    leave-from="scale-100"
+                    leave-to="scale-95 opacity-0"
                 >
                     <DialogPanel
-                        class="w-full max-w-lg max-h-screen overflow-y-auto transform overflow-hidden rounded-2xl p-4 lg:p-6 text-left align-middle shadow-xl transition-all bg-background"
+                        class="duration-500 ease-out-expo w-full max-w-lg max-h-screen overflow-y-auto overflow-hidden rounded-2xl p-4 lg:p-6 text-left align-middle shadow-xl transition-all bg-background"
                     >
                         <DialogTitle class="flex text-2xl font-bold">
                             <div>{{ $t("support.faq") }}</div>
                             <div class="ml-auto">
-                                <VButton @click="$emit('update:show', false)">{{
-                                    $t("buttons.close")
-                                }}</VButton>
+                                <VButton
+                                    @click="$emit('update:show', false)"
+                                    size="thin"
+                                    >{{ $t("buttons.close") }}</VButton
+                                >
                             </div>
                         </DialogTitle>
                         <DialogDescription class="flex flex-col gap-2 mt-4">
@@ -78,16 +68,16 @@ const { data, fetching } = useGetFaqQuery({ variables: {} })
                                     <Loader />
                                 </div>
                                 <div v-for="c in data?.faq.categories?.items">
-                                    <h3 class="text-lg font-bold">
+                                    <h3 class="text-style-title-2 mb-1">
                                         {{ c.title }}
                                     </h3>
                                     <div class="flex flex-col gap-4">
                                         <div v-for="q in c.questions?.items">
-                                            <h4>
+                                            <h4 class="text-style-body-3 mb-1">
                                                 {{ q.question }}
                                             </h4>
                                             <p
-                                                class="text-sm text-gray prose-p"
+                                                class="text-style-body-3 text-label-3"
                                             >
                                                 {{ q.answer }}
                                             </p>

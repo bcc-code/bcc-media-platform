@@ -51,6 +51,9 @@ module.exports = {
                 "light-1": "var(--color-light-1)",
                 "dark-transparent": "var(--color-dark-transparent)",
             },
+            transitionTimingFunction: {
+                "out-expo": "cubic-bezier(0.16, 1, 0.3, 1)",
+            },
         },
     },
     plugins: [

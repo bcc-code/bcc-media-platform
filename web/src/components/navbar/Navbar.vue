@@ -1,5 +1,9 @@
 <template>
-    <Disclosure as="nav" v-slot="{ open }">
+    <Disclosure
+        as="nav"
+        v-slot="{ open }"
+        class="sticky top-0 z-50 backdrop-blur-md"
+    >
         <div class="mx-auto transition duration-200" v-if="!fetching">
             <div class="lg:flex py-4">
                 <div
@@ -8,8 +12,9 @@
                 >
                     <div class="flex flex-shrink-0 my-auto">
                         <img
-                            @click="$router.push({ name: 'front-page' })"
-                            class="hidden h-8 w-auto lg:block cursor-pointer hover:scale-105 transition"
+                            draggable="false"
+                            @click="onLogoClick"
+                            class="hidden h-8 w-auto lg:block cursor-pointer hover:translate-x-1 duration-500 ease-out-expo transition"
                             src="/logo.svg"
                             alt="BCC Media"
                         />
@@ -358,7 +363,7 @@
     </Disclosure>
 </template>
 <script lang="ts" setup>
-import { RouteLocationRaw, useRoute } from "vue-router"
+import { RouteLocationRaw, useRoute, useRouter } from "vue-router"
 import NavLink from "./NavLink.vue"
 import {
     Disclosure,
@@ -378,7 +383,7 @@ import ContactForm from "@/components/support/ContactForm.vue"
 import FAQ from "../support/FAQ.vue"
 import LanguageSelector from "../LanguageSelector.vue"
 
-const { data: meQuery, fetching } = useGetMeQuery({ variables: {} })
+const { fetching } = useGetMeQuery({ variables: {} })
 
 const { query } = useSearch()
 
@@ -396,4 +401,13 @@ onMounted(() => {
 const showContactForm = ref(false)
 
 const showFAQ = ref(false)
+
+const router = useRouter()
+const onLogoClick = () => {
+    router.push({ name: "front-page" })
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+    })
+}
 </script>
