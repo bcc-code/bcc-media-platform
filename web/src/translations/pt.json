@@ -59,6 +59,7 @@
         "newEpisodes": "Novos episódios "
     },
     "episode": {
+        "chapters": "Capítulo",
         "details": "Detalhes ",
         "episode": "Episódio",
         "episodes": "Episódios",

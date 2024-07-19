@@ -59,6 +59,7 @@
         "newEpisodes": "Novi deli"
     },
     "episode": {
+        "chapters": "Poglavja",
         "details": "Podrobnosti",
         "episode": "Del",
         "episodes": "Deli",

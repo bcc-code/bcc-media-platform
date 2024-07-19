@@ -59,6 +59,7 @@
         "newEpisodes": "Uusia jaksoja"
     },
     "episode": {
+        "chapters": "Luvut",
         "details": "Lisätietoa",
         "episode": "Jakso",
         "episodes": "Jaksot",

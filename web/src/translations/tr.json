@@ -59,6 +59,7 @@
         "newEpisodes": "Yeni bölüm"
     },
     "episode": {
+        "chapters": "",
         "details": "Detaylar",
         "episode": "Bölüm",
         "episodes": "Bölümler",
