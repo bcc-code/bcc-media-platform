@@ -10,6 +10,15 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scrollbar-gutter: stable both-edges;
+    cursor:default;
+}
+
+img {
+    user-select: none;
+}
+
+*:focus-visible {
+    outline: 1px solid var(--color-tint-1)
 }
 
 .slide-fade-enter-active {

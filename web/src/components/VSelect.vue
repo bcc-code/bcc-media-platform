@@ -3,7 +3,7 @@
         <Listbox v-model="selected">
             <div class="relative">
                 <ListboxButton
-                    class="cursor-pointer rounded-full border border-gray bg-secondary py-2 px-3 text-left shadow-sm hover:border-indigo-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                    class="cursor-pointer rounded-full border border-gray bg-secondary py-2 px-3 text-left shadow-sm hover:border-indigo-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:text-sm"
                 >
                     <span class="flex items-center">
                         <span class="block truncate">{{ selected.title }}</span>
@@ -16,7 +16,7 @@
                     leave-to-class="opacity-0"
                 >
                     <ListboxOptions
-                        class="absolute bg-secondary z-10 mt-1 max-h-60 right-0 rounded-md shadow-lg focus:outline-none sm:text-sm overflow-auto"
+                        class="absolute bg-secondary z-10 mt-1 max-h-60 right-0 rounded-md shadow-lg sm:text-sm overflow-auto"
                     >
                         <ListboxOption
                             v-slot="{ active, selected }"

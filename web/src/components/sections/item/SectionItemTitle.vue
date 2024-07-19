@@ -26,7 +26,7 @@
     >
     </ShowTitle>
     <div v-else>
-        <h1 class="text-sm md:text-md lg:text-lg line-clamp-2">
+        <h1 class="text-style-body-2 line-clamp-2">
             {{ i.title }}
         </h1>
     </div>

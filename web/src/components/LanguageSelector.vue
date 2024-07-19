@@ -5,10 +5,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
 
 <template>
     <Menu as="div" class="relative my-auto">
-        <MenuButton
-            :class="false ? '' : 'text-opacity-90'"
-            class="flex hover:bg-bcc-2 transition rounded text-base px-2 p-1 font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
-        >
+        <MenuButton class="flex transition rounded px-2 p-1 font-medium">
             <svg
                 width="24"
                 height="24"
@@ -36,21 +33,23 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
             leave-to-class="translate-y-1 opacity-0"
         >
             <MenuItems
-                class="absolute right-0 mt-2 w-56 origin-top-right divide-y outline outline-bcc-1 divide-gray-100 rounded-md bg-bcc-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
+                class="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-background-2 shadow-2xl z-10"
             >
                 <div class="p-1 max-h-96 overflow-y-scroll">
                     <MenuItem v-slot="{ active }" v-for="l in languages">
                         <div
                             @click="setLanguage(l.code)"
                             :class="[
-                                active ? 'bg-bcc text-white' : 'text-gray-900',
+                                active
+                                    ? 'bg-white/10 text-white'
+                                    : 'text-gray-900',
                                 'w-full rounded-md px-2 py-2 text-sm transition duration-50 cursor-pointer',
                             ]"
                         >
                             <p class="text-base">
                                 {{ l.name }}
                             </p>
-                            <p v-if="l.localizedName" class="text-gray">
+                            <p v-if="l.localizedName" class="text-label-3">
                                 {{ l.localizedName }}
                             </p>
                         </div>

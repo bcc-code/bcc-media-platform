@@ -1,5 +1,5 @@
 <template>
-    <section class="max-w-screen-2xl mx-auto rounded-2xl" v-if="episode">
+    <section class="max-w-screen-lg mx-auto rounded-2xl" v-if="episode">
         <div class="relative aspect-video w-full">
             <div
                 class="h-full w-full bg-secondary rounded-xl opacity-10 absolute"
@@ -16,7 +16,7 @@
             <div class="bg-primary-light p-4 w-full">
                 <div class="flex">
                     <h1
-                        class="text-style-title-2 lg:text-style-headline-2 text-customWhite"
+                        class="text-style-title-2 lg:text-style-headline-2 text-customWhite cursor-text"
                     >
                         {{ episode.title }}
                     </h1>
@@ -46,7 +46,7 @@
                     </h1>
                 </div>
                 <div
-                    class="text-label-3 mt-4 text-style-body-2 lg:text-style-body-2 [&_a]:text-tint-1 [&_a]:underline"
+                    class="text-label-3 mt-4 cursor-text text-style-body-2 lg:text-style-body-2 [&_a]:text-tint-1 [&_a]:underline"
                     v-html="mdToHTML(episode.description)"
                 ></div>
                 <!-- class="text-white mt-2 opacity-70 text-md lg:text-lg" -->
@@ -233,6 +233,7 @@ const { error, executeQuery } = useGetEpisodeQuery({
         episodeId,
         context,
     },
+    requestPolicy: "network-only",
 })
 
 const lesson = computed(() => episode.value?.lessons.items[0])
@@ -262,12 +263,13 @@ const seasonEpisodes = computed(() => {
 const loadSeason = async () => {
     season.value = null
     if (seasonId.value) {
+        await nextTick()
         const r = await seasonQuery.executeQuery()
         season.value = r.data.value?.season ?? null
     }
 }
 
-watch(() => seasonId.value, loadSeason)
+watch(seasonId, loadSeason)
 
 const load = async () => {
     loading.value = true

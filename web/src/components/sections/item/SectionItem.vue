@@ -48,10 +48,10 @@
                         <LockClosedIcon
                             class="h-8 fill-gray my-auto"
                         ></LockClosedIcon>
-                        <p class="font-semibold text-sm text-slate-300">
+                        <p class="text-style-button-1 text-slate-300">
                             {{ $t("episode.comingSoon") }}
                         </p>
-                        <p class="text-base font-semibold text-slate-300">
+                        <p class="text-style-button-1 text-slate-300">
                             {{ new Date(i.item.publishDate).toLocaleString() }}
                         </p>
                     </div>

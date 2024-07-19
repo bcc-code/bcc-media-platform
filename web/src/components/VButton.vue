@@ -1,6 +1,6 @@
 <template>
     <button
-        class="cursor-pointer rounded-full focus:outline-none font-bold leading-normal text-on-tint text-style-button-1 border border-separator-on-light select-none"
+        class="cursor-pointer rounded-full font-bold leading-normal text-on-tint text-style-button-1 border border-separator-on-light select-none"
         :class="styles"
         :disabled="disabled"
     >

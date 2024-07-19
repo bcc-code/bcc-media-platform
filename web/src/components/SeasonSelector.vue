@@ -2,12 +2,10 @@
     <Listbox as="div" v-model="selectedItem" class="mb-2 font-medium">
         <div class="relative mt-1">
             <ListboxButton
-                class="relative w-full border-0 cursor-default rounded-md border py-2 pl-3 pr-10 text-left shadow-sm text-style-button-2"
+                class="relative w-full cursor-default rounded-md py-2 pl-3 pr-10 text-left shadow-sm text-style-button-2"
             >
                 <span class="flex items-center">
-                    <span class="block truncate uppercase">{{
-                        selected?.title
-                    }}</span>
+                    <span class="block truncate">{{ selected?.title }}</span>
                     <ChevronDown
                         class="text-gray-400 stroke-white"
                         aria-hidden="true"
@@ -20,7 +18,7 @@
                 leave-to-class="opacity-0"
             >
                 <ListboxOptions
-                    class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-slate-900 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none text-style-button-2"
+                    class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-slate-900 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5"
                 >
                     <ListboxOption
                         as="template"
@@ -37,12 +35,8 @@
                         >
                             <div class="flex items-center">
                                 <span
-                                    :class="[
-                                        selected
-                                            ? 'font-semibold'
-                                            : 'font-normal',
-                                        'ml-3 block truncate uppercase',
-                                    ]"
+                                    class="text-style-button-2"
+                                    :class="['ml-3 block truncate']"
                                     >{{ s.title }}</span
                                 >
                             </div>

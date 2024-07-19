@@ -8,91 +8,120 @@
             @load-more="$emit('loadMore')"
         >
             <div
-                class="relative h-full cursor-pointer max-h-[60vh] overflow-hidden"
+                class="lg:hidden relative h-full cursor-pointer max-h-[60vh] overflow-hidden"
                 @click="$emit('clickItem', index)"
             >
                 <Image
                     :src="i.image"
                     size-source="width"
                     :ratio="9 / 16"
-                    class="lg:hidden rounded-xl h-full object-cover"
+                    class="rounded-xl h-full object-cover"
                 />
+                <div
+                    class="absolute bottom-0 w-full text-center bg-gradient-to-t h-full to-70% text-balance from-background/50 to-transparent -outline-offset-1 outline outline-2 outline-separator-on-light focus-visible:outline-tint-1 rounded-xl"
+                >
+                    <div
+                        class="bottom-0 absolute pt-8 pb-6 px-8 gap-2 flex flex-col items-center w-full"
+                    >
+                        <h1 class="text-style-headline-2">
+                            {{ i.title }}
+                        </h1>
+                        <p
+                            v-if="(i as any).description"
+                            class="opacity-80 line-clamp-2 px-8 text-style-body-2"
+                        >
+                            {{ (i as any).description }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="hidden lg:block relative h-full cursor-pointer max-h-[60vh] overflow-hidden -outline-offset-1 outline outline-2 outline-separator-on-light rounded-xl focus-visible:outline-tint-1"
+                @click="$emit('clickItem', index)"
+            >
                 <Image
                     :src="i.image"
                     size-source="width"
-                    :ratio="5 / 11"
-                    class="hidden lg:block rounded-xl h-full object-cover"
+                    :ratio="9 / 16"
+                    class="rounded-xl h-full object-cover"
                 />
                 <div
-                    class="lg:hidden absolute bottom-0 w-full text-center bg-gradient-to-t from-background to-transparent pt-8"
-                >
-                    <h1 class="text-2xl font-bold">
-                        {{ i.title }}
-                    </h1>
-                    <p
-                        v-if="(i as any).description"
-                        class="opacity-80 line-clamp-2 px-8 lg:px-16"
-                    >
-                        {{ (i as any).description }}
-                    </p>
-                </div>
-                <div
-                    class="hidden lg:block absolute w-full -bottom-1 left-0 bg-gradient-to-t from-background to-transparent"
-                    :class="{
-                        'p-20': props.item.size === 'medium',
-                        'p-10': props.item.size === 'small',
-                    }"
-                >
-                    <h1 class="text-3xl font-bold">
-                        {{ i.title }}
-                    </h1>
-                    <p
-                        v-if="(i as any).description"
-                        class="opacity-80 text-lg line-clamp-2 max-w-lg"
-                    >
-                        {{ (i as any).description }}
-                    </p>
-                    <button
-                        class="bg-slate-800 px-4 py-2 rounded-full font-bold text-lg hover:scale-105 mt-4"
-                        @click="$emit('clickItem', index)"
-                    >
-                        <div
-                            class="flex"
-                            v-if="
-                                ['Episode', 'Show', 'Season'].includes(
-                                    i.item.__typename
-                                )
-                            "
-                        >
-                            <Play></Play
-                            ><span class="ml-1">{{ $t("page.watchNow") }}</span>
-                        </div>
-                        <div class="flex" v-else>
-                            {{ $t("page.explore") }}
-                        </div>
-                    </button>
-                </div>
-            </div>
-            <div class="lg:hidden text-center mt-2">
-                <button
-                    class="bg-slate-800 px-4 py-1 rounded-full font-bold text-lg flex mx-auto hover:scale-105"
-                    @click="$emit('clickItem', index)"
+                    class="absolute w-full bottom-0 left-0 bg-gradient-to-t h-full to-60% from-background/20 to-transparent"
                 >
                     <div
-                        class="flex"
-                        v-if="
-                            ['Episode', 'Show', 'Season'].includes(
-                                i.item.__typename
-                            )
+                        class="absolute backdrop-blur-3xl -bottom-1 h-2/5 w-full to-transparent"
+                        style="
+                            mask: linear-gradient(
+                                180deg,
+                                transparent,
+                                black 70%
+                            );
+                            -webkit-mask: linear-gradient(
+                                180deg,
+                                transparent,
+                                black 70%
+                            );
                         "
+                    ></div>
+                    <div
+                        class="absolute bottom-0 flex h-full items-end justify-between z-10 w-full gap-4"
+                        :class="{
+                            'px-8 py-6': props.item.size === 'medium',
+                            'px-6 py-4': props.item.size === 'small',
+                        }"
                     >
-                        <Play></Play
-                        ><span class="ml-1">{{ $t("page.watchNow") }}</span>
+                        <div>
+                            <h1
+                                class="font-bold"
+                                :class="{
+                                    'text-style-title-1':
+                                        props.item.size === 'medium',
+                                    'text-style-title-2':
+                                        props.item.size === 'small',
+                                }"
+                            >
+                                {{ i.title }}
+                            </h1>
+                            <p
+                                v-if="(i as any).description"
+                                class="opacity-80 line-clamp-2 max-w-lg"
+                                :class="{
+                                    'text-style-body-2':
+                                        props.item.size === 'medium',
+                                    'text-style-caption-1':
+                                        props.item.size === 'small',
+                                }"
+                            >
+                                {{ (i as any).description }}
+                            </p>
+                        </div>
+                        <div>
+                            <VButton
+                                @click="$emit('clickItem', index)"
+                                color="secondary"
+                                size="thin"
+                            >
+                                <div
+                                    class="flex"
+                                    v-if="
+                                        ['Episode', 'Show', 'Season'].includes(
+                                            i.item.__typename
+                                        )
+                                    "
+                                >
+                                    <Play></Play
+                                    ><span class="ml-1 truncate">{{
+                                        $t("page.watchNow")
+                                    }}</span>
+                                </div>
+                                <div class="flex" v-else>
+                                    {{ $t("page.explore") }}
+                                </div>
+                            </VButton>
+                        </div>
                     </div>
-                    <div class="flex" v-else>
-                        {{ $t("page.explore") }}
-                    </div>
-                </button>
+                </div>
             </div>
         </Slider>
     </section>
@@ -105,6 +134,7 @@ import SectionTitle from "./SectionTitle.vue"
 import Play from "@/components/icons/Play.vue"
 import Image from "@/components/Image.vue"
 import Slider from "./Slider.vue"
+import VButton from "@/components/VButton.vue"
 
 const props = defineProps<{
     position: number
@@ -121,31 +151,47 @@ const options = computed(() => {
         case "small":
             return {
                 400: {
+                    slidesPerView: 1,
+                    spaceBetween: 4,
+                },
+                768: {
                     slidesPerView: 2,
                     spaceBetween: 4,
                 },
                 1280: {
-                    slidesPerView: 2,
-                    spaceBetween: 4,
+                    slidesPerView: 3,
+                    spaceBetween: 8,
                 },
                 1920: {
-                    slidesPerView: 2,
-                    spaceBetween: 4,
+                    slidesPerView: 3,
+                    spaceBetween: 8,
+                },
+                2100: {
+                    slidesPerView: 4,
+                    spaceBetween: 8,
                 },
             }
         case "medium":
             return {
                 400: {
                     slidesPerView: 1,
-                    spaceBetween: 4,
+                    spaceBetween: 6,
+                },
+                768: {
+                    slidesPerView: 1,
+                    spaceBetween: 6,
                 },
                 1280: {
-                    slidesPerView: 1,
-                    spaceBetween: 4,
+                    slidesPerView: 2,
+                    spaceBetween: 8,
                 },
                 1920: {
-                    slidesPerView: 1,
-                    spaceBetween: 4,
+                    slidesPerView: 2,
+                    spaceBetween: 8,
+                },
+                2100: {
+                    slidesPerView: 3,
+                    spaceBetween: 8,
                 },
             }
     }
