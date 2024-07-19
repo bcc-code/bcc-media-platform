@@ -5,6 +5,7 @@
                 class="h-full w-full bg-secondary rounded-xl opacity-10 absolute"
             ></div>
             <EpisodeViewer
+                ref="viewerRef"
                 :context="context"
                 :auto-play="true"
                 class="drop-shadow-xl overflow-hidden"
@@ -87,6 +88,18 @@
                         {{ $t("episode.episodes") }}
                     </button>
                     <button
+                        v-if="episode.chapters.length > 0"
+                        class="bg-primary-light uppercase border-separator-on-light border px-3 py-1 rounded-full transition duration-100"
+                        :class="[
+                            effectiveView === 'chapters'
+                                ? 'opacity-100 border-opacity-40 '
+                                : 'opacity-50 bg-opacity-0 border-opacity-0',
+                        ]"
+                        @click="effectiveView = 'chapters'"
+                    >
+                        {{ $t("episode.chapters") }}
+                    </button>
+                    <button
                         class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
                         :class="[
                             effectiveView === 'details'
@@ -116,6 +129,12 @@
                         <EpisodeDetails
                             v-if="effectiveView === 'details'"
                             :episode="episode"
+                        />
+                        <EpisodeChapterList
+                            v-else-if="effectiveView === 'chapters'"
+                            :chapters="episode.chapters"
+                            :current-time="currentTime"
+                            @chapter-click="onChapterClick"
                         />
                         <div v-else-if="effectiveView === 'context'">
                             <ItemList
@@ -170,13 +189,14 @@
 </template>
 <script lang="ts" setup>
 import {
+    ChapterListChapterFragment,
     EpisodeContext,
     GetEpisodeQuery,
     GetSeasonOnEpisodePageQuery,
     useGetEpisodeQuery,
     useGetSeasonOnEpisodePageQuery,
 } from "@/graph/generated"
-import { computed, nextTick, ref, watch } from "vue"
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue"
 import EpisodeViewer from "@/components/EpisodeViewer.vue"
 import EpisodeDetails from "@/components/episodes/EpisodeDetails.vue"
 import AgeRating from "@/components/episodes/AgeRating.vue"
@@ -188,10 +208,12 @@ import { episodesToListItems, toListItems } from "@/utils/lists"
 import { useAuth } from "@/services/auth"
 import SharePopover from "./SharePopover.vue"
 import LessonButton from "../study/LessonButton.vue"
+import EpisodeChapterList from "./EpisodeChapterList.vue"
 import router from "@/router"
 import { episodeComingSoon } from "../../utils/items"
 import EmbedDownloadables from "../embed/EmbedDownloadables.vue"
 import { mdToHTML } from "@/services/converter"
+import { usePlayerTime } from "@/composables/usePlayerTime"
 
 const props = defineProps<{
     initialEpisodeId: string
@@ -199,6 +221,13 @@ const props = defineProps<{
     uuid?: boolean
     autoPlay?: boolean
 }>()
+
+const viewerRef = ref<InstanceType<typeof EpisodeViewer> | null>(null)
+
+const seekTo = (seconds: number) => {
+    viewerRef.value?.player?.currentTime(seconds)
+}
+const { currentTime } = usePlayerTime(computed(() => viewerRef.value?.player))
 
 const { authenticated } = useAuth()
 
@@ -291,7 +320,9 @@ const load = async () => {
 }
 
 load()
-const view = ref(null as "episodes" | "details" | "context" | "download" | null)
+const view = ref(
+    null as "episodes" | "details" | "context" | "download" | "chapters" | null
+)
 
 const effectiveView = computed({
     get() {
@@ -314,6 +345,10 @@ const effectiveView = computed({
                 return v
         }
 
+        if (episode.value?.chapters.length) {
+            return "chapters"
+        }
+
         if (episode.value?.context?.__typename === "ContextCollection") {
             return "context"
         }
@@ -331,5 +366,13 @@ const loadNext = async () => {
         await nextTick()
         await load()
     }
+}
+
+const onChapterClick = (chapter: ChapterListChapterFragment) => {
+    seekTo(chapter.start)
+    scrollTo({
+        behavior: "smooth",
+        top: 0,
+    })
 }
 </script>

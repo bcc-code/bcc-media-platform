@@ -46,6 +46,11 @@ fragment Stream on Stream {
     videoLanguage
     type
 }
+fragment ChapterListChapter on Chapter {
+    id
+    title
+    start
+}
 
 query getEpisode($episodeId: ID!, $context: EpisodeContext) {
     episode(id: $episodeId, context: $context) {
@@ -61,6 +66,9 @@ query getEpisode($episodeId: ID!, $context: EpisodeContext) {
         availableFrom
         availableTo
         shareRestriction
+        chapters {
+            ...ChapterListChapter
+        }
         streams {
             ...Stream
         }

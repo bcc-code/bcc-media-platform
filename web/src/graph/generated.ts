@@ -198,6 +198,7 @@ export enum CardSectionSize {
 }
 
 export type Chapter = CollectionItem & {
+  contentType: ContentType;
   description?: Maybe<Scalars['String']['output']>;
   duration: Scalars['Int']['output'];
   episode?: Maybe<Episode>;
@@ -347,6 +348,7 @@ export type Episode = CollectionItem & MediaItem & PlaylistItem & {
   relatedItems?: Maybe<SectionItemPagination>;
   season?: Maybe<Season>;
   shareRestriction: ShareRestriction;
+  skipToChapter?: Maybe<Chapter>;
   status: Status;
   streams: Array<Stream>;
   subtitleLanguages: Array<Scalars['Language']['output']>;
@@ -618,7 +620,9 @@ export type ItemSectionItemsArgs = {
 export type ItemSectionMetadata = {
   collectionId: Scalars['ID']['output'];
   continueWatching: Scalars['Boolean']['output'];
+  limit?: Maybe<Scalars['Int']['output']>;
   myList: Scalars['Boolean']['output'];
+  page?: Maybe<Page>;
   prependLiveElement: Scalars['Boolean']['output'];
   secondaryTitles: Scalars['Boolean']['output'];
   useContext: Scalars['Boolean']['output'];
@@ -1689,13 +1693,6 @@ export type WebSection = Section & {
   widthRatio: Scalars['Float']['output'];
 };
 
-export type GetCalendarDayQueryVariables = Exact<{
-  day: Scalars['Date']['input'];
-}>;
-
-
-export type GetCalendarDayQuery = { calendar?: { day: { entries: Array<{ __typename: 'EpisodeCalendarEntry', id: string, title: string, description: string, end: any, start: any, episode?: { id: string, title: string, number?: number | null, publishDate: any, productionDate: any, season?: { number: number, show: { id: string, type: ShowType, title: string } } | null } | null } | { __typename: 'SeasonCalendarEntry', id: string, title: string, description: string, end: any, start: any, season?: { id: string, number: number, title: string, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'ShowCalendarEntry', id: string, title: string, description: string, end: any, start: any, show?: { id: string, type: ShowType, title: string } | null } | { __typename: 'SimpleCalendarEntry', id: string, title: string, description: string, end: any, start: any }>, events: Array<{ id: string, title: string, start: string, end: string }> } } | null };
-
 export type GetMeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -1734,13 +1731,18 @@ export type StreamFragment = { url: string, videoLanguage?: any | null, type: St
 
 export type StreamFragmentVariables = Exact<{ [key: string]: never; }>;
 
+export type ChapterListChapterFragment = { id: string, title: string, start: number };
+
+
+export type ChapterListChapterFragmentVariables = Exact<{ [key: string]: never; }>;
+
 export type GetEpisodeQueryVariables = Exact<{
   episodeId: Scalars['ID']['input'];
   context?: InputMaybe<EpisodeContext>;
 }>;
 
 
-export type GetEpisodeQuery = { episode: { description: string, number?: number | null, progress?: number | null, locked: boolean, originalTitle: string, ageRating: string, productionDate: any, productionDateInTitle: boolean, availableFrom: any, availableTo: any, shareRestriction: ShareRestriction, id: string, uuid: string, title: string, image?: string | null, publishDate: any, duration: number, streams: Array<{ url: string, videoLanguage?: any | null, type: StreamType }>, files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, size: number, resolution?: string | null }>, next: Array<{ id: string }>, lessons: { items: Array<{ id: string, progress: { total: number, completed: number } }> }, context?: { __typename: 'ContextCollection', id: string, slug?: string | null, items?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Game' } | { __typename: 'Link', id: string, url: string } | { __typename: 'Page', id: string, code: string } | { __typename: 'Person' } | { __typename: 'Playlist', id: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Short' } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null } | { __typename: 'Season', id: string } | null, relatedItems?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Game' } | { __typename: 'Link', id: string, url: string } | { __typename: 'Page', id: string, code: string } | { __typename: 'Person' } | { __typename: 'Playlist', id: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Short' } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null, season?: { id: string, title: string, number: number, description: string, show: { id: string, title: string, type: ShowType, description: string, seasons: { items: Array<{ id: string, title: string, number: number }> } } } | null } };
+export type GetEpisodeQuery = { episode: { description: string, number?: number | null, progress?: number | null, locked: boolean, originalTitle: string, ageRating: string, productionDate: any, productionDateInTitle: boolean, availableFrom: any, availableTo: any, shareRestriction: ShareRestriction, id: string, uuid: string, title: string, image?: string | null, publishDate: any, duration: number, chapters: Array<{ id: string, title: string, start: number }>, streams: Array<{ url: string, videoLanguage?: any | null, type: StreamType }>, files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, size: number, resolution?: string | null }>, next: Array<{ id: string }>, lessons: { items: Array<{ id: string, progress: { total: number, completed: number } }> }, context?: { __typename: 'ContextCollection', id: string, slug?: string | null, items?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Game' } | { __typename: 'Link', id: string, url: string } | { __typename: 'Page', id: string, code: string } | { __typename: 'Person' } | { __typename: 'Playlist', id: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Short' } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null } | { __typename: 'Season', id: string } | null, relatedItems?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', id: string, productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Game' } | { __typename: 'Link', id: string, url: string } | { __typename: 'Page', id: string, code: string } | { __typename: 'Person' } | { __typename: 'Playlist', id: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Short' } | { __typename: 'Show', id: string, episodeCount: number, seasonCount: number, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null, season?: { id: string, title: string, number: number, description: string, show: { id: string, title: string, type: ShowType, description: string, seasons: { items: Array<{ id: string, title: string, number: number }> } } } | null } };
 
 export type UpdateEpisodeProgressMutationVariables = Exact<{
   episodeId: Scalars['ID']['input'];
@@ -1787,14 +1789,6 @@ export type GetLegacyIdQueryVariables = Exact<{
 
 
 export type GetLegacyIdQuery = { legacyIDLookup: { id: string } };
-
-export type GetLiveCalendarRangeQueryVariables = Exact<{
-  start: Scalars['Date']['input'];
-  end: Scalars['Date']['input'];
-}>;
-
-
-export type GetLiveCalendarRangeQuery = { calendar?: { period: { activeDays: Array<any>, events: Array<{ title: string, start: string, end: string }> } } | null };
 
 export type GetPageQueryVariables = Exact<{
   code: Scalars['String']['input'];
@@ -2038,6 +2032,13 @@ export const StreamFragmentDoc = gql`
   type
 }
     `;
+export const ChapterListChapterFragmentDoc = gql`
+    fragment ChapterListChapter on Chapter {
+  id
+  title
+  start
+}
+    `;
 export const SectionItemFragmentDoc = gql`
     fragment SectionItem on SectionItem {
   id
@@ -2231,68 +2232,6 @@ export const LessonLinkFragmentDoc = gql`
   url
 }
     `;
-export const GetCalendarDayDocument = gql`
-    query getCalendarDay($day: Date!) {
-  calendar {
-    day(day: $day) {
-      entries {
-        __typename
-        id
-        title
-        description
-        end
-        start
-        ... on EpisodeCalendarEntry {
-          episode {
-            id
-            title
-            number
-            publishDate
-            productionDate
-            season {
-              number
-              show {
-                id
-                type
-                title
-              }
-            }
-          }
-        }
-        ... on SeasonCalendarEntry {
-          season {
-            id
-            number
-            title
-            show {
-              id
-              type
-              title
-            }
-          }
-        }
-        ... on ShowCalendarEntry {
-          show {
-            id
-            type
-            title
-          }
-        }
-      }
-      events {
-        id
-        title
-        start
-        end
-      }
-    }
-  }
-}
-    `;
-
-export function useGetCalendarDayQuery(options: Omit<Urql.UseQueryArgs<never, GetCalendarDayQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetCalendarDayQuery, GetCalendarDayQueryVariables>({ query: GetCalendarDayDocument, ...options });
-};
 export const GetMeDocument = gql`
     query getMe {
   me {
@@ -2362,6 +2301,9 @@ export const GetEpisodeDocument = gql`
     availableFrom
     availableTo
     shareRestriction
+    chapters {
+      ...ChapterListChapter
+    }
     streams {
       ...Stream
     }
@@ -2424,6 +2366,7 @@ export const GetEpisodeDocument = gql`
   }
 }
     ${SimpleEpisodeFragmentDoc}
+${ChapterListChapterFragmentDoc}
 ${StreamFragmentDoc}
 ${LessonProgressOverviewFragmentDoc}
 ${SectionItemFragmentDoc}`;
@@ -2520,24 +2463,6 @@ export const GetLegacyIdDocument = gql`
 
 export function useGetLegacyIdQuery(options: Omit<Urql.UseQueryArgs<never, GetLegacyIdQueryVariables>, 'query'>) {
   return Urql.useQuery<GetLegacyIdQuery, GetLegacyIdQueryVariables>({ query: GetLegacyIdDocument, ...options });
-};
-export const GetLiveCalendarRangeDocument = gql`
-    query getLiveCalendarRange($start: Date!, $end: Date!) {
-  calendar {
-    period(from: $start, to: $end) {
-      events {
-        title
-        start
-        end
-      }
-      activeDays
-    }
-  }
-}
-    `;
-
-export function useGetLiveCalendarRangeQuery(options: Omit<Urql.UseQueryArgs<never, GetLiveCalendarRangeQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetLiveCalendarRangeQuery, GetLiveCalendarRangeQueryVariables>({ query: GetLiveCalendarRangeDocument, ...options });
 };
 export const GetPageDocument = gql`
     query getPage($code: String!, $first: Int, $offset: Int, $sectionFirst: Int, $sectionOffset: Int) {

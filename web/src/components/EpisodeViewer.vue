@@ -268,5 +268,8 @@ onUnmounted(async () => {
     player.value?.dispose()
     window.removeEventListener("keydown", onSpaceBar)
 })
+
+defineExpose({
+    player,
+})
 </script>
-@/components/videojs/Menu
