@@ -20,6 +20,18 @@
                     :index="{ last: page.sections.total - 1, current: i }"
                     @load-more="appendItems(section)"
                     @click-item="(index) => clickItem(i, index)"
+                    v-motion
+                    :initial="{
+                        opacity: 0.01,
+                    }"
+                    :enter="{
+                        opacity: 1,
+                        transition: {
+                            duration: 1500,
+                            ease: TransitionPresets.easeOutExpo,
+                        },
+                    }"
+                    :delay="i < 10 ? i * 100 : 0"
                 >
                 </Section>
                 <div
@@ -57,6 +69,7 @@ import NotFound from "../NotFound.vue"
 import Loader from "../Loader.vue"
 import SkeletonSections from "./SkeletonSections.vue"
 import { goToSectionItem } from "@/utils/items"
+import { TransitionPresets } from "@vueuse/core"
 
 const props = defineProps<{
     pageId: string

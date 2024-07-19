@@ -37,14 +37,14 @@
             </div>
 
             <div
-                class="hidden lg:block relative h-full cursor-pointer max-h-[60vh] overflow-hidden -outline-offset-1 outline outline-2 outline-separator-on-light rounded-xl focus-visible:outline-tint-1"
+                class="hidden lg:block relative h-full cursor-pointer max-h-[60vh] overflow-hidden group -outline-offset-1 outline outline-2 outline-separator-on-light rounded-xl focus-visible:outline-tint-1 transition ease-out-expo duration-300"
                 @click="$emit('clickItem', index)"
             >
                 <Image
                     :src="i.image"
                     size-source="width"
                     :ratio="9 / 16"
-                    class="rounded-xl h-full object-cover"
+                    class="rounded-xl h-full object-cover group-hover:scale-[102%] transition ease-out-expo duration-1000 group-hover:brightness-110"
                 />
                 <div
                     class="absolute w-full bottom-0 left-0 bg-gradient-to-t h-full to-60% from-background/20 to-transparent"

@@ -20,7 +20,7 @@
             @click="!comingSoon(i) ? click() : undefined"
         >
             <div
-                class="relative mb-1 rounded-md w-full overflow-hidden hover:opacity-90 transition"
+                class="relative mb-1 rounded-md w-full overflow-hidden hover:brightness-[1.15] transition group ease-out-expo"
                 :class="aspect"
             >
                 <div v-if="clicked" class="absolute w-full h-full flex">
@@ -28,7 +28,7 @@
                 </div>
                 <Image
                     :src="i.image"
-                    class="rounded-md"
+                    class="rounded-md group-hover:scale-[101%] transition-transform ease-out-expo duration-500"
                     loading="lazy"
                     size-source="height"
                     :ratio="ratio"
