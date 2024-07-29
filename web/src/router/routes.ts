@@ -83,6 +83,13 @@ export default [
         ],
     },
     {
+        name: "live",
+        path: "/live",
+        beforeEnter: () => {
+            window.location.href = "https://live.bcc-connect.org"
+        },
+    },
+    {
         name: "embed",
         path: "/embed",
         component: () => import("@/pages/embed/Embed.vue"),
