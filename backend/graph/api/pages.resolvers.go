@@ -77,7 +77,9 @@ func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int
 		Total:  page.Total,
 		First:  page.First,
 		Offset: page.Offset,
-		Items:  utils.MapWithCtx(ctx, sections, model.SectionFrom),
+		Items: lo.Filter(utils.MapWithCtx(ctx, sections, model.SectionFrom), func(i model.Section, _ int) bool {
+			return i != nil
+		}),
 	}, nil
 }
 
