@@ -18,7 +18,7 @@ func getPageForCollection(ctx context.Context, r *queryRootResolver, collectionI
 		return nil, err
 	}
 	if collection == nil {
-		return nil, merry.New("collection not found")
+		return nil, nil
 	}
 
 	ginCtx, _ := utils.GinCtx(ctx)
