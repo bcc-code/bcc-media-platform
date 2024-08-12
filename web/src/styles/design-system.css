@@ -2,18 +2,18 @@
 /* Best I could find, the tailwind ones were pretty bad. */
 
 :root {
-    --color-tint-1: rgba(110, 176, 230, 1);
-    --color-tint-2: rgba(230, 60, 98, 1);
-    --color-tint-3: rgba(113, 210, 164, 1);
-    --color-on-tint: rgba(255, 255, 255, 1);
-    --color-label-1: rgba(254, 254, 254, 1);
-    --color-label-2: rgba(217, 224, 235, 1);
-    --color-label-3: rgba(180, 192, 210, 1);
-    --color-label-4: rgba(112, 124, 142, 1);
-    --color-background-1: rgba(13, 22, 35, 1);
-    --color-background-2: rgba(29, 40, 56, 1);
-    --color-separator-on-light: rgba(204, 221, 255, 0.1);
-    --color-light-1: rgba(230, 235, 242, 1);
-    --color-dark-transparent: rgba(24, 24, 24, 0.7);
+    --color-tint-1: 110 176 230;
+    --color-tint-2: 230 60 98;
+    --color-tint-3: 113 210 164;
+    --color-on-tint: 255 255 255;
+    --color-label-1: 254 254 254;
+    --color-label-2: 217 224 235;
+    --color-label-3: 180 192 210;
+    --color-label-4: 112 124 142;
+    --color-background-1: 13 22 35;
+    --color-background-2: 29 40 56;
+    --color-separator-on-light: rgb(204 221 255 / 0.1);
+    --color-light-1: 230 235 242;
+    --color-dark-transparent: rgb(24 24 24 / 0.7);
 }
 

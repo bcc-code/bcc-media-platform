@@ -2,7 +2,7 @@
     <Disclosure
         as="nav"
         v-slot="{ open }"
-        class="sticky top-0 z-50 backdrop-blur-md"
+        class="sticky top-0 z-50 backdrop-blur-md bg-gradient-to-b from-background-1/70 to-background-1/20"
     >
         <div class="mx-auto transition duration-200" v-if="!fetching">
             <div class="lg:flex py-4">
@@ -44,7 +44,7 @@
                                     class="flex hover:scale-110 transition rounded-md text-base font-medium text-white hover:text-opacity-100 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
                                 >
                                     <img
-                                        class="w-8 h-8 rounded-full overflow-hidden stroke-primary"
+                                        class="w-8 h-8 rounded-full overflow-hidden stroke-primary object-cover"
                                         v-if="user?.picture"
                                         :src="user.picture"
                                     />
