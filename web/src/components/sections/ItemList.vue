@@ -1,3 +1,23 @@
+<script lang="ts" setup>
+import WithProgressBar from "@/components/episodes/WithProgressBar.vue"
+import Pill from "@/components/Pill.vue"
+import { mdToHTML } from "@/services/converter"
+import { episodeComingSoon } from "@/utils/items"
+import { ListItem } from "@/utils/lists"
+import AgeRating from "../episodes/AgeRating.vue"
+import Image from "../Image.vue"
+
+defineProps<{
+    items: ListItem[]
+    currentId: string
+    viewEpisodeNumber?: boolean
+}>()
+
+defineEmits<{
+    (e: "itemClick", i: ListItem): void
+}>()
+</script>
+
 <template>
     <section>
         <div class="w-full">
@@ -66,22 +86,3 @@
         </div>
     </section>
 </template>
-<script lang="ts" setup>
-import Image from "../Image.vue"
-import WithProgressBar from "@/components/episodes/WithProgressBar.vue"
-import AgeRating from "../episodes/AgeRating.vue"
-import { ListItem } from "@/utils/lists"
-import Pill from "./item/Pill.vue"
-import { comingSoon, episodeComingSoon } from "@/utils/items"
-import { mdToHTML } from "@/services/converter"
-
-defineProps<{
-    items: ListItem[]
-    currentId: string
-    viewEpisodeNumber?: boolean
-}>()
-
-defineEmits<{
-    (e: "itemClick", i: ListItem): void
-}>()
-</script>

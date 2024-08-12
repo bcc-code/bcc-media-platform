@@ -1,6 +1,6 @@
 <template>
     <div
-        class="relative"
+        class="relative min-w-0"
         @mouseenter="showNav = true"
         @mouseleave="showNav = false"
     >
@@ -21,7 +21,7 @@
                 v-for="(i, index) in section.items.items"
                 class="relative"
             >
-                <slot :item="i" :index="index"></slot>
+                <slot :item="i" :index="index" />
                 <div
                     class="absolute right-0 top-0 h-full flex bg-gradient-to-l from-background to-transparent w-40"
                     v-if="
@@ -61,15 +61,16 @@
         </div>
     </div>
 </template>
+
 <script lang="ts" setup>
-import { Section } from "../types"
-import TSwiper from "swiper"
-import type { SwiperOptions } from "swiper/types"
-import { Navigation, Pagination } from "swiper/modules"
-import { Swiper, SwiperSlide } from "swiper/vue"
-import breakpoints from "./breakpoints"
-import { computed, ref } from "vue"
 import { SectionSize } from "@/graph/generated"
+import TSwiper from "swiper"
+import { Navigation, Pagination } from "swiper/modules"
+import type { SwiperOptions } from "swiper/types"
+import { Swiper, SwiperSlide } from "swiper/vue"
+import { computed, ref } from "vue"
+import { Section } from "../types"
+import breakpoints from "./breakpoints"
 
 const swiperEl = ref(null as HTMLDivElement | null)
 

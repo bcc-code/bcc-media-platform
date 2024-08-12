@@ -1,20 +1,18 @@
+import client from "@/graph/client"
 import {
-    GetSectionQuery,
-    SectionItemFragment,
+    CollectionItemThumbnailFragment,
     GetDefaultEpisodeForTopicDocument,
     GetDefaultEpisodeForTopicQuery,
     GetDefaultEpisodeForTopicQueryVariables,
-    GetDefaultEpisodeForShowQuery,
-    GetDefaultEpisodeForShowQueryVariables,
-    GetDefaultEpisodeForShowDocument,
+    GetPlaylistEpisodeDocument,
     GetPlaylistEpisodeQuery,
     GetPlaylistEpisodeQueryVariables,
-    GetPlaylistEpisodeDocument,
+    GetSectionQuery,
     Link,
+    SectionItemFragment
 } from "@/graph/generated"
 import router from "@/router"
 import { analytics, Page } from "@/services/analytics"
-import client from "@/graph/client"
 
 export const goToEpisode = (
     episodeId: string,
@@ -100,19 +98,9 @@ export const goToStudyTopic = async (id: string) => {
 export const goToShow = async (id: string) => {
     // TODO: nothing is as permanent as a temporary solution lol
     // although things can be improved :)
-    const result = await client
-        .query<
-            GetDefaultEpisodeForShowQuery,
-            GetDefaultEpisodeForShowQueryVariables
-        >(GetDefaultEpisodeForShowDocument, { id: id })
-        .toPromise()
-    const episodeId = result.data?.show.defaultEpisode.id
-
     router.push({
-        name: "episode-page",
-        params: {
-            episodeId,
-        },
+        name: "show",
+        params: { showId: id },
     })
 }
 
@@ -166,14 +154,15 @@ export const goToSectionItem = async (
     }
 }
 
-export const comingSoon = (item: SectionItemFragment) => {
-    switch (item.item.__typename) {
+export const comingSoon = (item: CollectionItemThumbnailFragment) => {
+    switch (item.__typename) {
         case "Episode":
             return (
-                item.item.locked &&
-                new Date(item.item.publishDate).getTime() > new Date().getTime()
+                item.locked &&
+                new Date(item.publishDate).getTime() > new Date().getTime()
             )
     }
+
     return false
 }
 
@@ -184,4 +173,21 @@ export const episodeComingSoon = (episode: {
         episode.publishDate != null &&
         new Date(episode.publishDate).getTime() > new Date().getTime()
     )
+}
+
+export function isCollectionItem(
+    item: unknown
+): item is CollectionItemThumbnailFragment {
+    return true
+}
+
+export function isNewEpisode(episode: {
+    publishDate?: string | null | undefined
+    locked?: boolean | null | undefined
+}) {
+    if (episode.locked) return false
+    if (episode.publishDate == null) return false
+    const date = new Date()
+    date.setDate(date.getDate() - 7)
+    return new Date(episode.publishDate).getTime() > (date.getTime())
 }

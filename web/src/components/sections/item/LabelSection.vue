@@ -1,8 +1,8 @@
 <template>
     <section>
-        <h1 class="text-lg" v-if="item.title">
+        <h2 class="text-lg" v-if="item.title">
             {{ item.title }}
-        </h1>
+        </h2>
         <div class="flex gap-2">
             <div
                 v-for="(i, index) in item.items.items"

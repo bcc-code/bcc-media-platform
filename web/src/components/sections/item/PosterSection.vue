@@ -1,29 +1,33 @@
 <template>
     <section>
-        <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
+        <SectionTitle v-if="section.title">{{ section.title }}</SectionTitle>
         <Slider
-            :section="item"
-            v-slot="{ item: i, index }"
+            :section="section"
+            v-slot="{ item, index }"
             @load-more="$emit('loadMore')"
         >
-            <SectionItem
-                :i="i"
+            <CollectionItemThumbnail
+                v-if="isCollectionItem(item)"
+                :item="item"
+                :title="item.title"
+                :image="item.image"
                 @click="$emit('clickItem', index)"
-                :secondary-titles="item.metadata?.secondaryTitles === true"
+                :secondary-titles="section.metadata?.secondaryTitles === true"
                 type="poster"
-            ></SectionItem>
+            />
         </Slider>
     </section>
 </template>
 <script lang="ts" setup>
+import { isCollectionItem } from "@/utils/items"
 import { Section } from "../types"
+import CollectionItemThumbnail from "./CollectionItemThumbnail.vue"
 import SectionTitle from "./SectionTitle.vue"
 import Slider from "./Slider.vue"
-import SectionItem from "./SectionItem.vue"
 
 defineProps<{
     position: number
-    item: Section & { __typename: "PosterSection" }
+    section: Section & { __typename: "PosterSection" }
 }>()
 
 defineEmits<{

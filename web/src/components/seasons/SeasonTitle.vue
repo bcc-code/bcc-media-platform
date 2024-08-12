@@ -4,14 +4,17 @@
             {{ season.show.title }}
         </p>
         <p class="text-sm md:text-md lg:text-lg line-clamp-2">
-            {{ season.title }}
+            {{ title }}
         </p>
     </div>
 </template>
 <script lang="ts" setup>
-import { Season } from "@/graph/generated"
+import { CollectionItemThumbnailFragment } from "@/graph/generated"
 
 defineProps<{
-    season: Season
+    title: string
+    season: CollectionItemThumbnailFragment & {
+        __typename: "Season"
+    }
 }>()
 </script>

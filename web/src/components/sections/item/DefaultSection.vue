@@ -6,21 +6,25 @@
             v-slot="{ item: i, index }"
             @load-more="$emit('loadMore')"
         >
-            <SectionItem
-                :i="i"
+            <CollectionItemThumbnail
+                v-if="isCollectionItem(i.item)"
+                :title="i.title"
+                :image="i.image"
+                :item="i.item"
                 @click="$emit('clickItem', index)"
                 :secondary-titles="item.metadata?.secondaryTitles === true"
                 type="default"
-            ></SectionItem>
+            />
         </Slider>
     </section>
 </template>
-<script lang="ts" setup>
-import { Section } from "../types"
 
+<script lang="ts" setup>
+import { isCollectionItem } from "@/utils/items"
+import type { Section } from "../types"
+import CollectionItemThumbnail from "./CollectionItemThumbnail.vue"
 import SectionTitle from "./SectionTitle.vue"
 import Slider from "./Slider.vue"
-import SectionItem from "./SectionItem.vue"
 
 defineProps<{
     position: number

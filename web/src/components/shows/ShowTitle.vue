@@ -1,7 +1,7 @@
 <template>
     <div>
         <p class="text-style-title-3">
-            {{ show.title }}
+            {{ title }}
         </p>
         <p class="text-label-3 type-body-2 line-clamp-1">
             {{ t("section.item.season", show.seasonCount) }} -
@@ -10,15 +10,15 @@
     </div>
 </template>
 <script lang="ts" setup>
+import { CollectionItemThumbnailFragment } from "@/graph/generated"
 import { useI18n } from "vue-i18n"
 
 const { t } = useI18n()
 
 defineProps<{
-    show: {
-        title: string
-        seasonCount: number
-        episodeCount: number
+    title: string
+    show: CollectionItemThumbnailFragment & {
+        __typename: "Show"
     }
 }>()
 </script>

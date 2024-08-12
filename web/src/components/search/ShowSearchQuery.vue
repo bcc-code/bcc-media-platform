@@ -37,9 +37,7 @@
                             size-source="width"
                         />
                     </div>
-                    <div class="mt-1">
-                        <h1 class="text-md lg:text-xl">{{ i.title }}</h1>
-                    </div>
+                    <p class="mt-1 text-md lg:text-xl">{{ i.title }}</p>
                 </div>
             </SwiperSlide>
         </Swiper>
@@ -51,7 +49,7 @@ import { nextTick, ref } from "vue"
 import { Swiper, SwiperSlide } from "swiper/vue"
 import { Navigation } from "swiper/modules"
 import { useI18n } from "vue-i18n"
-import { goToEpisode } from "@/utils/items"
+import { goToEpisode, goToShow } from "@/utils/items"
 import breakpoints from "../sections/item/breakpoints"
 import { analytics } from "@/services/analytics"
 import Image from "../Image.vue"
@@ -90,14 +88,8 @@ const onclick = async (index: number, id: string) => {
     })
 
     showId.value = id
-    loading.value[id] = true
-    await nextTick()
 
-    await executeQuery()
-
-    if (getDefaultId.value?.show.defaultEpisode) {
-        goToEpisode(getDefaultId.value.show.defaultEpisode.id)
-    }
+    goToShow(id)
 }
 
 const adminOn = localStorage.getItem("admin") === "true"

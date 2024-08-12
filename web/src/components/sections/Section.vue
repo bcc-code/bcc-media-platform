@@ -13,7 +13,7 @@
     ></DefaultSection>
     <ListSection
         v-else-if="section.__typename === 'ListSection' && hasItems(section)"
-        :item="section"
+        :section="section"
         :paginate="index.last === index.current"
         :position="index.current"
         @click-item="(i) => $emit('clickItem', i)"
@@ -22,14 +22,14 @@
         v-else-if="
             section.__typename === 'DefaultGridSection' && hasItems(section)
         "
-        :item="section"
+        :section="section"
         :paginate="index.last === index.current"
         :position="index.current"
         @click-item="(i) => $emit('clickItem', i)"
     ></DefaultGridSection>
     <PosterSection
         v-else-if="section.__typename === 'PosterSection' && hasItems(section)"
-        :item="section"
+        :section="section"
         :position="index.current"
         @click-item="(i) => $emit('clickItem', i)"
         @load-more="$emit('loadMore')"
@@ -38,7 +38,7 @@
         v-else-if="
             section.__typename === 'PosterGridSection' && hasItems(section)
         "
-        :item="section"
+        :section="section"
         :position="index.current"
         @click-item="(i) => $emit('clickItem', i)"
     ></PosterGridSection>
@@ -87,22 +87,23 @@
         @click-item="(i) => $emit('clickItem', i)"
     ></CardSection>
 </template>
+
 <script lang="ts" setup>
-import { Section } from "./types"
-import PosterSection from "./item/PosterSection.vue"
-import FeaturedSection from "./item/FeaturedSection.vue"
-import DefaultSection from "./item/DefaultSection.vue"
-import DefaultGridSection from "./item/DefaultGridSection.vue"
-import PosterGridSection from "./item/PosterGridSection.vue"
-import LabelSection from "./item/LabelSection.vue"
-import IconSection from "./item/IconSection.vue"
-import IconGridSection from "./item/IconGridSection.vue"
-import ListSection from "./item/ListSection.vue"
-import WebSection from "./WebSection.vue"
-import MessageSection from "./MessageSection.vue"
-import CardSection from "./item/CardSection.vue"
 import { useWindowSize } from "@vueuse/core"
 import { computed } from "vue"
+import CardSection from "./item/CardSection.vue"
+import DefaultGridSection from "./item/DefaultGridSection.vue"
+import DefaultSection from "./item/DefaultSection.vue"
+import FeaturedSection from "./item/FeaturedSection.vue"
+import IconGridSection from "./item/IconGridSection.vue"
+import IconSection from "./item/IconSection.vue"
+import LabelSection from "./item/LabelSection.vue"
+import ListSection from "./item/ListSection.vue"
+import PosterGridSection from "./item/PosterGridSection.vue"
+import PosterSection from "./item/PosterSection.vue"
+import MessageSection from "./MessageSection.vue"
+import { Section } from "./types"
+import WebSection from "./WebSection.vue"
 
 defineProps<{
     section: Section

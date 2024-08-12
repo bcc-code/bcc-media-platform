@@ -1,20 +1,25 @@
 <template>
     <section>
-        <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
+        <SectionTitle v-if="section.title">{{ section.title }}</SectionTitle>
         <div
             class="flex flex-col lg:grid lg:grid-cols-2 gap-4 overflow-x-visible"
         >
             <div
-                v-for="(i, index) in item.items.items"
+                v-for="(item, index) in section.items.items"
                 class="relative"
-                :key="i.id + i.item.__typename"
+                :key="item.id + item.item.__typename"
             >
-                <SectionItem
-                    :i="i"
+                <CollectionItemThumbnail
+                    v-if="isCollectionItem(item)"
+                    :item="item"
+                    :title="item.title"
+                    :image="item.image"
                     @click="$emit('clickItem', index)"
-                    :secondary-titles="item.metadata?.secondaryTitles === true"
+                    :secondary-titles="
+                        section.metadata?.secondaryTitles === true
+                    "
                     type="default"
-                ></SectionItem>
+                />
             </div>
         </div>
     </section>
@@ -23,11 +28,12 @@
 import { Section } from "../types"
 
 import SectionTitle from "./SectionTitle.vue"
-import SectionItem from "./SectionItem.vue"
+import CollectionItemThumbnail from "./CollectionItemThumbnail.vue"
+import { isCollectionItem } from "@/utils/items"
 
 defineProps<{
     position: number
-    item: Section & { __typename: "ListSection" }
+    section: Section & { __typename: "ListSection" }
 }>()
 
 defineEmits<{

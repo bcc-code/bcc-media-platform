@@ -1,0 +1,48 @@
+fragment CollectionItemThumbnail on CollectionItem {
+    __typename
+    id
+    ... on Episode {
+        episodeNumber: number
+        productionDate
+        publishDate
+        progress
+        duration
+        locked
+        ageRating
+        description
+        season {
+            id
+            title
+            number
+            show {
+                id
+                type
+                title
+            }
+        }
+    }
+    ... on Season {
+        seasonNumber: number
+        show {
+            title
+        }
+        episodes(first: 1, dir: "desc") {
+            items {
+                publishDate
+            }
+        }
+    }
+    ... on Show {
+        episodeCount
+        seasonCount
+        seasons(first: 1, dir: "desc") {
+            items {
+                episodes(first: 1, dir: "desc") {
+                    items {
+                        publishDate
+                    }
+                }
+            }
+        }
+    }
+}

@@ -9,25 +9,19 @@
             </p>
         </div>
         <p class="text-style-body-2 line-clamp-2">
-            {{ episode.title }}
+            {{ title }}
         </p>
     </div>
 </template>
 
 <script lang="ts" setup>
+import { CollectionItemThumbnailFragment } from "@/graph/generated"
+
 defineProps<{
-    secondaryTitles: boolean
-    episode: {
-        title: string
-        number?: number | null
-        productionDate?: string | null
-        season?: {
-            number: number
-            show: {
-                type: string
-                title: string
-            }
-        } | null
+    title: string
+    episode: CollectionItemThumbnailFragment & {
+        __typename: "Episode"
     }
+    secondaryTitles: boolean
 }>()
 </script>

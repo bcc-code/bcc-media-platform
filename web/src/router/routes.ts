@@ -80,6 +80,12 @@ export default [
                 props: true,
                 component: () => import("@/pages/shorts/Shorts.vue"),
             },
+            {
+                name: 'show',
+                path: '/show/:showId',
+                props: true,
+                component: () => import('@/pages/show/Show.vue'),
+            }
         ],
     },
     {

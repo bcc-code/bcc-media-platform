@@ -1,0 +1,26 @@
+query getShow($id: ID!, $dir: String) {
+    show(id: $id) {
+        id
+        title
+        description
+        image
+        seasons(dir: "desc") {
+            items {
+                id
+                title
+                number
+                show {
+                    id
+                    title
+                }
+                episodes(dir: $dir) {
+                    items {
+                        ...CollectionItemThumbnail
+                        title
+                        image
+                    }
+                }
+            }
+        }
+    }
+}

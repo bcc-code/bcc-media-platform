@@ -1,3 +1,17 @@
+<script lang="ts" setup>
+import { getProgress } from "@/utils/episodes"
+import { percentageWidth, secondsToTime } from "@/utils/time"
+import { computed } from "vue"
+
+const props = defineProps<{
+    item: { id: string; progress?: number | null; duration: number }
+}>()
+
+const progress = computed(() => {
+    return getProgress(props.item)
+})
+</script>
+
 <template>
     <span class="p-1 md:p-2 text-xs md:text-sm">
         <div
@@ -26,16 +40,3 @@
         </div>
     </span>
 </template>
-<script lang="ts" setup>
-import { getProgress } from "@/utils/episodes"
-import { percentageWidth, secondsToTime } from "@/utils/time"
-import { computed } from "vue"
-
-const props = defineProps<{
-    item: { id: string; progress?: number | null; duration: number }
-}>()
-
-const progress = computed(() => {
-    return getProgress(props.item)
-})
-</script>
