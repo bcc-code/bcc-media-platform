@@ -2,9 +2,9 @@
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <div class="flex gap-4 flex-wrap">
-            <div
+            <button
                 v-for="(i, index) in item.items.items"
-                class="w-20 shrink-0 2xl:w-32 hover:opacity-90 transition"
+                class="w-20 shrink-0 2xl:w-32 hover:opacity-90 transition focus-visible:ring-4 focus-visible:ring-white/75 rounded-2xl"
                 @click="click(index)"
                 ref="sectionItem"
             >
@@ -36,7 +36,7 @@
                         {{ i.title }}
                     </p>
                 </div>
-            </div>
+            </button>
         </div>
     </section>
 </template>

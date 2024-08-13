@@ -11,23 +11,27 @@
                     style="grid-template-columns: 1fr auto 1fr"
                 >
                     <div class="flex flex-shrink-0 my-auto">
-                        <img
-                            draggable="false"
+                        <button
+                            class="focus-visible:ring-2 focus-visible:ring-white/75 rounded-md"
                             @click="onLogoClick"
-                            class="hidden h-8 w-auto lg:block cursor-pointer hover:translate-x-1 duration-500 ease-out-expo transition"
-                            src="/logo.svg"
-                            alt="BCC Media"
-                        />
+                        >
+                            <img
+                                draggable="false"
+                                class="hidden h-8 w-auto lg:block cursor-pointer hover:translate-x-1 duration-500 ease-out-expo transition"
+                                src="/logo.svg"
+                                alt="BCC Media"
+                            />
+                        </button>
                     </div>
                     <div class="hidden lg:flex my-auto space-x-2">
                         <NavLink :icon="HomeIcon" to="/">
                             {{ $t("page.home") }}
                         </NavLink>
-                        <SearchInput v-model="query"></SearchInput>
+                        <SearchInput v-model="query" />
                     </div>
                     <div class="hidden lg:flex ml-auto gap-4">
                         <a
-                            class="my-auto hover:underline"
+                            class="my-auto hover:underline focus-visible:ring-2 focus-visible:ring-white/75 rounded-md"
                             href="https://bcc.media"
                         >
                             {{ $t("page.aboutUs") }}

@@ -2,12 +2,12 @@
     <div class="relative flex" :class="[disabled ? 'opacity-50' : '']">
         <SearchIcon
             class="absolute pointer-events-none left-0 inset-y-0 my-auto ml-2"
-        ></SearchIcon>
+        />
         <input
             v-model="value"
             type="text"
             :disabled="disabled"
-            class="pl-10 w-full bg-slate-800 rounded-full pr-20 p-2 my-auto text-md"
+            class="pl-10 w-full bg-slate-800 rounded-full pr-20 p-2 my-auto text-md focus-visible:ring-2 focus-visible:ring-white/75"
             :class="[disabled ? 'text-gray' : '']"
             :placeholder="$t('page.search')"
             @keydown.enter="emit('keydown.enter')"

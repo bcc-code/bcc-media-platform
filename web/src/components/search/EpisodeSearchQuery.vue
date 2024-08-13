@@ -58,13 +58,15 @@
                     @click="$emit('itemClick', index, i.id)"
                 >
                     <div class="relative mb-1">
-                        <div
+                        <VButton
                             v-if="adminOn"
-                            class="absolute text-primary right-0 bg-black p-2 rounded cursor-pointer m-2"
+                            class="absolute top-2 right-2"
+                            size="thin"
+                            color="secondary"
                             @click="open(i)"
                         >
                             EDIT
-                        </div>
+                        </VButton>
                         <img
                             :id="i.id"
                             :src="
@@ -92,8 +94,9 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { SearchQuery, SearchResult } from "@/graph/generated"
+import { SearchQuery } from "@/graph/generated"
 import { useI18n } from "vue-i18n"
+import VButton from "../VButton.vue"
 
 const { t } = useI18n()
 

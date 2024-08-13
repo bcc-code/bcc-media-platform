@@ -63,9 +63,9 @@ const aspect = computed(() => {
         >
             {{ $t("episode.comingSoon") }}
         </Pill>
-        <div
+        <button
             v-if="item"
-            class="flex flex-col mt-2 transition"
+            class="flex text-start h-full w-full flex-col mt-2 transition ease-out-expo focus-visible:ring-4 focus-visible:ring-white/75 rounded-md"
             :class="{
                 'cursor-pointer': !comingSoon(item),
                 'pointer-events-none': comingSoon(item),
@@ -114,6 +114,6 @@ const aspect = computed(() => {
                 :title="title"
                 :secondary-titles="secondaryTitles"
             />
-        </div>
+        </button>
     </article>
 </template>

@@ -5,7 +5,9 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
 
 <template>
     <Menu as="div" class="relative my-auto">
-        <MenuButton class="flex transition rounded px-2 p-1 font-medium">
+        <MenuButton
+            class="flex transition rounded px-2 p-1 font-medium focus-visible:ring-2 focus-visible:ring-white/75"
+        >
             <svg
                 width="24"
                 height="24"
