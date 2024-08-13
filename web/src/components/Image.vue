@@ -1,17 +1,18 @@
 <template>
     <div
-        class="bg-primary-light overflow-hidden"
+        class="bg-primary-light overflow-hidden relative"
         :class="[!loaded ? 'border-1 border border-slate-700 opacity-50' : '']"
         ref="imageContainer"
     >
         <img
             class="object-cover w-full transition"
             :class="[!loaded ? 'opacity-0' : 'opacity-100']"
-            :height="effectiveHeight"
-            :width="effectiveWidth"
+            :height="effectiveSize?.height"
+            :width="effectiveSize?.width"
             :loading="loading"
             :draggable="draggable"
-            @load="loaded = true"
+            @loadstart="onLoadStart"
+            @load="onLoaded"
             :src="effectiveSrc"
         />
     </div>
@@ -19,66 +20,76 @@
 
 <script lang="ts" setup>
 import { getImageSize } from "@/utils/images"
-import { computed, onMounted, ref, onBeforeUnmount } from "vue"
+import { useElementSize, useParentElement, watchDebounced } from "@vueuse/core"
+import { computed, ref } from "vue"
 
-const props = defineProps<{
-    src?: string | null
-    sizeSource: "width" | "height"
-    ratio?: number
-    loading?: "lazy" | "eager"
-    draggable?: boolean
-}>()
+const props = withDefaults(
+    defineProps<{
+        src?: string | null
+        sizeSource: "width" | "height"
+        ratio?: number
+        loading?: "lazy" | "eager"
+        draggable?: boolean
+    }>(),
+    {
+        loading: "lazy",
+    }
+)
 
 const loaded = ref(false)
-
-const imageContainer = ref(null as HTMLDivElement | null)
-const parentDimensions = ref({
-    height: 100,
-    width: 100,
-})
-
-const handleResize = () => {
-    const dimensions = {
-        height: 100,
-        width: 100,
-    }
-    const parent = imageContainer.value
-    if (parent) {
-        dimensions.height = parent.clientHeight
-        dimensions.width = parent.clientWidth
-    }
-    parentDimensions.value = dimensions
+const loadStart = ref(false)
+const onLoaded = () => {
+    loaded.value = true
+}
+const onLoadStart = () => {
+    loadStart.value = true
 }
 
-onMounted(() => {
-    handleResize()
-    window.addEventListener("resize", handleResize)
-})
+const imageContainer = ref(null as HTMLDivElement | null)
 
-onBeforeUnmount(() => {
-    window.removeEventListener("resize", handleResize)
-})
+const { height, width } = useElementSize(useParentElement())
 
 const effectiveSrc = computed(() => {
-    return props.src
-        ? props.src +
-              `?w=${effectiveWidth.value}&h=${effectiveHeight.value}&fit=crop&crop=faces`
-        : "null"
-})
-
-const effectiveWidth = computed(() => {
-    return Math.floor(
-        props.sizeSource === "height"
-            ? getImageSize(parentDimensions.value.height) * (props.ratio ?? 1)
-            : getImageSize(parentDimensions.value.width)
+    if (!props.src || !effectiveSize.value) {
+        return "null"
+    }
+    return (
+        props.src +
+        `?w=${effectiveSize.value.width}&h=${effectiveSize.value.height}&fit=crop&crop=faces`
     )
 })
 
-const effectiveHeight = computed(() => {
-    return Math.floor(
-        props.sizeSource === "height"
-            ? getImageSize(parentDimensions.value.height)
-            : getImageSize(parentDimensions.value.width) * (props.ratio ?? 1)
-    )
-})
+const effectiveSize = ref<{
+    width: number
+    height: number
+}>()
+watchDebounced(
+    [height, width],
+    () => {
+        let w = Math.floor(
+            props.sizeSource === "height"
+                ? getImageSize(height.value) * (props.ratio ?? 1)
+                : getImageSize(width.value)
+        )
+        if (effectiveSize.value && w < effectiveSize.value.width) {
+            w = effectiveSize.value.width
+        }
+
+        let h = Math.floor(
+            props.sizeSource === "height"
+                ? getImageSize(height.value)
+                : w * (props.ratio ?? 1)
+        )
+        if (effectiveSize.value && h < effectiveSize.value.height) {
+            h = effectiveSize.value.height
+        }
+
+        effectiveSize.value = { width: w, height: h }
+    },
+    {
+        debounce: computed(() => {
+            return loaded.value ? 300 : 0
+        }),
+    }
+)
 </script>
