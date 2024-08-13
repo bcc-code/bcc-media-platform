@@ -16,8 +16,8 @@
         "preview": "vite preview",
         "prettier": "prettier --write .",
         "generate": "graphql-codegen --config codegen.yml",
-        "ts:download": "CROWDIN_TOKEN=`cat .crowdin_token` && export CROWDIN_TOKEN && crowdin download",
-        "ts:upload": "CROWDIN_TOKEN=`cat .crowdin_token` && export CROWDIN_TOKEN && crowdin upload"
+        "crowdin:download": "CROWDIN_TOKEN=`cat .crowdin_token` && export CROWDIN_TOKEN && crowdin download",
+        "crowdin:upload": "CROWDIN_TOKEN=`cat .crowdin_token` && export CROWDIN_TOKEN && crowdin upload"
     },
     "dependencies": {
         "@auth0/auth0-vue": "^2.3.3",

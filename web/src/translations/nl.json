@@ -6,7 +6,7 @@
         "stayLoggedOut": "Uitgelogd blijven",
         "cancel": "Annuleren",
         "accept": "Accepteren",
-        "submit": "Indienen",
+        "submit": "Invoeren",
         "back": "Terug",
         "next": "Volgende",
         "continue": "Doorgaan",
@@ -179,7 +179,7 @@
     "contactLocalBukIfWrong": "Neem contact op met de verantwoordelijke in jouw lokale BUK-vereniging als je denkt dat dit niet klopt.",
     "thankYou": "Hartelijk dank!",
     "yourResponseHasBeenSubmitted": "Jouw antwoord is verzonden.",
-    "sending": "Aan het verzenden",
+    "sending": "Verzenden",
     "defaultInputPlaceholder": "Begin hier met typen...",
     "requests": {
         "name": "Jouw naam",

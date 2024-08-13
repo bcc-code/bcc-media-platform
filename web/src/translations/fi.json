@@ -62,7 +62,7 @@
         "chapters": "Luvut",
         "details": "Lisätietoa",
         "episode": "Jakso",
-        "episodes": "Jaksot",
+        "episodes": "Jaksoja",
         "videos": "Videot",
         "liveNow": "Suorana nyt",
         "seriesDescription": "Kuvaus sarjasta",
@@ -91,7 +91,7 @@
     },
     "search": {
         "programs": "Ohjelmat",
-        "episodes": "Jaksot",
+        "episodes": "Jaksoja",
         "cancel": "Peru",
         "emptyQuery": "Tyhjä hakukenttä.",
         "noResults": "Mitään ei löytynyt",
