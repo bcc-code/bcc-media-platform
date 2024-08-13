@@ -1,5 +1,5 @@
 <template>
-    <section class="overflow-x-hidden">
+    <section class="overflow-hidden">
         <transition
             mode="out-in"
             enter-active-class="duration-300 ease-out"
@@ -23,8 +23,10 @@
                     v-motion
                     :initial="{
                         opacity: 0.01,
+                        y: 20,
                     }"
                     :enter="{
+                        y: 0,
                         opacity: 1,
                         transition: {
                             duration: 1500,

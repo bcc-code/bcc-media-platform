@@ -1,58 +1,14 @@
-<template>
-    <div>
-        <h1
-            class="text-2xl font-medium mb-2"
-            :class="{
-                hidden: result.search.result.length === 0,
-            }"
-        >
-            {{ t("search.programs") }}
-        </h1>
-        <Swiper
-            :slides-per-view="1"
-            :space-between="20"
-            :slides-per-group="1"
-            :modules="modules"
-            :breakpoints="breakpoints('medium')"
-            navigation
-        >
-            <SwiperSlide v-for="(i, index) in result.search.result">
-                <div
-                    class="cursor-pointer"
-                    @click="onclick(index, i.id)"
-                    :class="[loading[i.id] ? 'opacity-50' : '']"
-                >
-                    <div class="relative mb-1 rounded-lg overflow-hidden">
-                        <div
-                            v-if="adminOn"
-                            class="absolute text-primary right-0 bg-black p-2 rounded cursor-pointer m-2"
-                            @click="open(i)"
-                        >
-                            EDIT
-                        </div>
-                        <Image
-                            :key="i.image ?? index"
-                            :src="i.image"
-                            :ratio="9 / 16"
-                            size-source="width"
-                        />
-                    </div>
-                    <p class="mt-1 text-md lg:text-xl">{{ i.title }}</p>
-                </div>
-            </SwiperSlide>
-        </Swiper>
-    </div>
-</template>
 <script lang="ts" setup>
-import { SearchQuery, useGetDefaultEpisodeIdQuery } from "@/graph/generated"
-import { nextTick, ref } from "vue"
-import { Swiper, SwiperSlide } from "swiper/vue"
-import { Navigation } from "swiper/modules"
-import { useI18n } from "vue-i18n"
-import { goToEpisode, goToShow } from "@/utils/items"
-import breakpoints from "../sections/item/breakpoints"
+import Image from "@/components/Image.vue"
+import breakpoints from "@/components/sections/item/breakpoints"
+import { SearchQuery } from "@/graph/generated"
 import { analytics } from "@/services/analytics"
-import Image from "../Image.vue"
+import { goToShow } from "@/utils/items"
+import { Navigation } from "swiper/modules"
+import { Swiper, SwiperSlide } from "swiper/vue"
+import { reactive } from "vue"
+import { useI18n } from "vue-i18n"
+import VButton from "../VButton.vue"
 
 const { t } = useI18n()
 
@@ -63,20 +19,7 @@ const props = defineProps<{
 
 const modules = [Navigation]
 
-const showId = ref("")
-
-const { data: getDefaultId, executeQuery } = useGetDefaultEpisodeIdQuery({
-    pause: true,
-    variables: {
-        showId,
-    },
-})
-
-const loading = ref(
-    {} as {
-        [key: string]: boolean | undefined
-    }
-)
+const loading = reactive<Record<string, boolean>>({})
 
 const onclick = async (index: number, id: string) => {
     analytics.track("searchresult_clicked", {
@@ -87,14 +30,60 @@ const onclick = async (index: number, id: string) => {
         searchText: props.queryString,
     })
 
-    showId.value = id
-
     goToShow(id)
 }
 
 const adminOn = localStorage.getItem("admin") === "true"
 
-const open = (i: { id: string }) => {
-    window.open("https://admin.brunstad.tv/admin/content/shows/" + i.id)
+const open = (id: string) => {
+    window.open("https://admin.brunstad.tv/admin/content/shows/" + id)
 }
 </script>
+
+<template>
+    <div>
+        <h2
+            class="text-style-title-1 font-medium mb-2"
+            :class="{
+                hidden: result.search.result.length === 0,
+            }"
+        >
+            {{ t("search.programs") }}
+        </h2>
+        <Swiper
+            :slides-per-view="1"
+            :space-between="20"
+            :slides-per-group="1"
+            :modules="modules"
+            :breakpoints="breakpoints('medium')"
+            navigation
+        >
+            <SwiperSlide v-for="(item, index) in result.search.result">
+                <div
+                    class="cursor-pointer"
+                    @click="onclick(index, item.id)"
+                    :class="[loading[item.id] ? 'opacity-50' : '']"
+                >
+                    <div class="relative mb-1 rounded-lg overflow-hidden">
+                        <VButton
+                            v-if="adminOn"
+                            class="absolute top-2 right-2"
+                            size="thin"
+                            color="secondary"
+                            @click="open(item.id)"
+                        >
+                            EDIT
+                        </VButton>
+                        <Image
+                            :key="item.image ?? index"
+                            :src="item.image"
+                            :ratio="9 / 16"
+                            size-source="width"
+                        />
+                    </div>
+                    <p class="mt-1 text-md lg:text-xl">{{ item.title }}</p>
+                </div>
+            </SwiperSlide>
+        </Swiper>
+    </div>
+</template>

@@ -5,31 +5,40 @@ import Carousel from "@/components/Carousel.vue"
 import CollectionItemThumbnail from "../sections/item/CollectionItemThumbnail.vue"
 import { goToEpisode, isNewEpisode } from "@/utils/items"
 import { computed } from "vue"
+import { analytics } from "@/services/analytics"
 
 const props = defineProps<{
     season: GetShowQuery["show"]["seasons"]["items"][number]
+    position: number
 }>()
 
-const hasNewEpisodes = computed(() =>
-    props.season.episodes.items.some(isNewEpisode)
-)
+function onClick(
+    episode: (typeof props.season.episodes.items)[0],
+    index: number
+) {
+    goToEpisode(episode.id)
 
-const sortedItems = computed(() =>
-    hasNewEpisodes.value
-        ? props.season.episodes.items.toReversed()
-        : props.season.episodes.items
-)
+    analytics.track("section_clicked", {
+        elementId: episode.id,
+        elementPosition: index,
+        elementType: "Episode",
+        pageCode: "show",
+        sectionType: "DefaultSection",
+        sectionId: `ShowSeason-${props.season.id}`,
+        sectionPosition: props.position,
+    })
+}
 </script>
 
 <template>
     <section>
         <SectionTitle>{{ season.title }}</SectionTitle>
-        <Carousel :items="sortedItems" v-slot="{ item }">
+        <Carousel :items="season.episodes.items" v-slot="{ item, index }">
             <CollectionItemThumbnail
                 :item="item"
                 :title="item.title"
                 :image="item.image ?? ''"
-                @click="goToEpisode(item.id)"
+                @click="onClick(item, index)"
             />
         </Carousel>
     </section>

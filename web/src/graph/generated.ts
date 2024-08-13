@@ -1918,6 +1918,11 @@ export type GetShortDetailsQueryVariables = Exact<{
 
 export type GetShortDetailsQuery = { short: { image?: string | null, title: string, description?: string | null } };
 
+export type ShowSeasonFragment = { id: string, title: string, number: number, show: { id: string, title: string }, episodes: { items: Array<{ __typename: 'Episode', title: string, image?: string | null, productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, id: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null }> } };
+
+
+export type ShowSeasonFragmentVariables = Exact<{ [key: string]: never; }>;
+
 export type GetShowQueryVariables = Exact<{
   id: Scalars['ID']['input'];
   dir?: InputMaybe<Scalars['String']['input']>;
@@ -1925,6 +1930,14 @@ export type GetShowQueryVariables = Exact<{
 
 
 export type GetShowQuery = { show: { id: string, title: string, description: string, image?: string | null, seasons: { items: Array<{ id: string, title: string, number: number, show: { id: string, title: string }, episodes: { items: Array<{ __typename: 'Episode', title: string, image?: string | null, productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, id: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null }> } }> } } };
+
+export type GetSeasonEpisodesQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  dir?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetSeasonEpisodesQuery = { season: { id: string, title: string, number: number, show: { id: string, title: string }, episodes: { items: Array<{ __typename: 'Episode', title: string, image?: string | null, productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, id: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null }> } } };
 
 type Task_AlternativesTask_Fragment = { __typename: 'AlternativesTask', competitionMode: boolean, locked: boolean, id: string, title: string, completed: boolean, alternatives: Array<{ id: string, title: string, isCorrect?: boolean | null, selected: boolean }> };
 
@@ -2213,6 +2226,24 @@ export const ItemSectionFragmentDoc = gql`
 }
     ${SectionItemFragmentDoc}
 ${StudyTopicSectionItemFragmentDoc}`;
+export const ShowSeasonFragmentDoc = gql`
+    fragment ShowSeason on Season {
+  id
+  title
+  number
+  show {
+    id
+    title
+  }
+  episodes(dir: $dir) {
+    items {
+      ...CollectionItemThumbnail
+      title
+      image
+    }
+  }
+}
+    ${CollectionItemThumbnailFragmentDoc}`;
 export const TaskFragmentDoc = gql`
     fragment Task on Task {
   __typename
@@ -2698,28 +2729,26 @@ export const GetShowDocument = gql`
     image
     seasons(dir: "desc") {
       items {
-        id
-        title
-        number
-        show {
-          id
-          title
-        }
-        episodes(dir: $dir) {
-          items {
-            ...CollectionItemThumbnail
-            title
-            image
-          }
-        }
+        ...ShowSeason
       }
     }
   }
 }
-    ${CollectionItemThumbnailFragmentDoc}`;
+    ${ShowSeasonFragmentDoc}`;
 
 export function useGetShowQuery(options: Omit<Urql.UseQueryArgs<never, GetShowQueryVariables>, 'query'>) {
   return Urql.useQuery<GetShowQuery, GetShowQueryVariables>({ query: GetShowDocument, ...options });
+};
+export const GetSeasonEpisodesDocument = gql`
+    query getSeasonEpisodes($id: ID!, $dir: String) {
+  season(id: $id) {
+    ...ShowSeason
+  }
+}
+    ${ShowSeasonFragmentDoc}`;
+
+export function useGetSeasonEpisodesQuery(options: Omit<Urql.UseQueryArgs<never, GetSeasonEpisodesQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetSeasonEpisodesQuery, GetSeasonEpisodesQueryVariables>({ query: GetSeasonEpisodesDocument, ...options });
 };
 export const GetStudyLessonDocument = gql`
     query getStudyLesson($lessonId: ID!, $episodeId: ID!) {

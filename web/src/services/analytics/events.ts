@@ -15,6 +15,7 @@ export type Page = StringWithAutocomplete<
     | "faq"
     | "episode"
     | "comic"
+    | "show"
 >
 
 export type IdentifyData = {
@@ -41,13 +42,13 @@ type ElementType = SectionItemFragment["item"]["__typename"] | "Comic" | "Quote"
 export type Events = {
     section_clicked: {
         sectionId: string
-        sectionName: string
+        sectionName?: string
         sectionPosition: number
         sectionType: GetPageQuery["page"]["sections"]["items"][0]["__typename"]
         elementPosition: number
         elementType: ElementType
         elementId: string
-        elementName: string
+        elementName?: string
         pageCode: Page
     }
     audioonly_clicked: {
