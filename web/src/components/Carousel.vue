@@ -17,7 +17,7 @@ const showNav = ref(false)
 const props = withDefaults(
     defineProps<{
         items: TSliderItem[]
-        size: SectionSize
+        size?: SectionSize
         breakpoints?: {
             [width: number]: SwiperOptions
         }
