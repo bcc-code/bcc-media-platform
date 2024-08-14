@@ -14,21 +14,26 @@ const prev = ref(null)
 
 const showNav = ref(false)
 
-const props = defineProps<{
-    items: TSliderItem[]
-    breakpoints?: {
-        [width: number]: SwiperOptions
+const props = withDefaults(
+    defineProps<{
+        items: TSliderItem[]
+        size: SectionSize
+        breakpoints?: {
+            [width: number]: SwiperOptions
+        }
+        isLoadingMore?: boolean
+    }>(),
+    {
+        size: SectionSize.Medium,
     }
-}>()
+)
 
 const emit = defineEmits<{
     (e: "loadMore"): void
 }>()
 
-const size = computed<SectionSize>(() => SectionSize.Medium)
-
 const effectiveBreakpoints = computed(() => {
-    return props.breakpoints ?? breakpoints(size.value)
+    return props.breakpoints ?? breakpoints(props.size)
 })
 
 const modules = [Navigation, Pagination]
@@ -73,11 +78,11 @@ const onswipe = (swiper: TSwiper) => {
             }"
             @swiper="onswipe"
         >
-            <SwiperSlide v-for="(i, index) in items" class="relative">
-                <slot :item="i" :index="index" />
+            <SwiperSlide v-for="(item, index) in items" class="relative">
+                <slot :item="item" :index="index" />
                 <div
                     class="absolute right-0 top-0 h-full flex bg-gradient-to-l from-background to-transparent w-40"
-                    v-if="index === items.length - 1"
+                    v-if="index === items.length - 1 && isLoadingMore"
                 />
             </SwiperSlide>
         </Swiper>
