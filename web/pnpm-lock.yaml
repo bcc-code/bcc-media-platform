@@ -47,9 +47,6 @@ importers:
       bccm-video-player:
         specifier: 1.5.4
         version: 1.5.4
-      bccm-video-player-legacy:
-        specifier: npm:bccm-video-player@1.5.4
-        version: bccm-video-player@1.5.4
       graphql:
         specifier: ^16.8.2
         version: 16.8.2

@@ -35,7 +35,6 @@
         "@vueuse/core": "^10.11.0",
         "@vueuse/motion": "^2.2.3",
         "bccm-video-player": "1.5.4",
-        "bccm-video-player-legacy": "npm:bccm-video-player@1.5.4",
         "graphql": "^16.8.2",
         "graphql-tag": "^2.12.6",
         "rudder-sdk-js": "^2.48.9",
