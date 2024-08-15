@@ -5,7 +5,6 @@ export * from "./events"
 
 import { useAuth } from "../auth"
 import { current } from "../language"
-import config from "@/config"
 import { useCookies } from "../cookies"
 import { getRevision } from "../revision"
 

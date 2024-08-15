@@ -5,9 +5,8 @@ import {
     useCompleteTaskMutation,
     useSendTaskMessageMutation,
 } from "@/graph/generated"
-import { computed, getCurrentInstance, Ref, ref, watch } from "vue"
+import { computed, ref } from "vue"
 import { useI18n } from "vue-i18n"
-import Alternative from "./Alternative.vue"
 import Loader from "@/components/Loader.vue"
 
 var selectedIndex = ref<number>()

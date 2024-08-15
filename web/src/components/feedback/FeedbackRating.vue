@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { ref } from "vue"
-import FeedbackBottomSheet from "../feedback/FeedbackBottomSheet.vue"
 
 const props = defineProps<{
     selected: number | null

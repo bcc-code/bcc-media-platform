@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Language, current, languages, setLanguage } from "@/services/language"
+import { current, languages, setLanguage } from "@/services/language"
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
 </script>
 

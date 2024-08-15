@@ -1,12 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue"
-import Image from "@/components/Image.vue"
 import ComicImage from "./ComicImage.vue"
-import VButton from "../VButton.vue"
 import { analytics } from "@/services/analytics"
 import { useAuth } from "@/services/auth"
-import { SubscriptionTopic, useGetMeQuery } from "@/graph/generated"
-import SubscribeButton from "./SubscribeButton.vue"
 import { useIntervalFn } from "@vueuse/core"
 
 const props = defineProps<{

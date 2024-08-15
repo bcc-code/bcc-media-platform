@@ -1,12 +1,8 @@
 <script lang="ts" setup>
 import { StudyTopicSectionItemFragment } from "@/graph/generated"
 import { computed } from "vue"
-import SectionTitle from "./SectionTitle.vue"
-import { getImageSize } from "@/utils/images"
 import Image from "@/components/Image.vue"
-import StudyTopicCardLarge from "./cards/StudyTopicCardLarge.vue"
 import { VButton } from "@/components"
-import Play from "@/components/icons/Play.vue"
 import { useI18n } from "vue-i18n"
 
 const { t } = useI18n()

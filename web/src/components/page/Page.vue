@@ -10,7 +10,6 @@ import Section from "@/components/sections/Section.vue"
 import { computed, nextTick, onMounted, onUnmounted, ref } from "vue"
 import NotFound from "../NotFound.vue"
 import Loader from "../Loader.vue"
-import SkeletonSections from "./SkeletonSections.vue"
 import { goToSectionItem } from "@/utils/items"
 import { TransitionPresets } from "@vueuse/core"
 

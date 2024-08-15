@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import router from "@/router"
 import { webViewMain } from "@/services/webviews/mainHandler"
 import { ref, watch } from "vue"
 const openFeedback = () => {

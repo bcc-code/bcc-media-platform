@@ -5,7 +5,7 @@ import {
     ListboxOption,
     ListboxOptions,
 } from "@headlessui/vue"
-import { computed, ref } from "vue"
+import { computed } from "vue"
 import { ChevronDown } from "./icons"
 
 const props = defineProps<{

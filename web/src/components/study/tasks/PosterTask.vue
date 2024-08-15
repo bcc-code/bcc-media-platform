@@ -5,9 +5,8 @@ import {
     useCompleteTaskMutation,
     useSendTaskMessageMutation,
 } from "@/graph/generated"
-import { computed, getCurrentInstance, onMounted, Ref, ref, watch } from "vue"
+import { computed, onMounted, ref } from "vue"
 import { useI18n } from "vue-i18n"
-import Alternative from "./Alternative.vue"
 import Loader from "@/components/Loader.vue"
 import { webViewMain, openInBrowser } from "@/services/webviews/mainHandler"
 

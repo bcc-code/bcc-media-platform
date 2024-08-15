@@ -1,11 +1,8 @@
 <script lang="ts" setup>
 import { TaskFragment } from "@/graph/generated"
-import { computed, getCurrentInstance, Ref, ref, watch } from "vue"
+import { computed, watch } from "vue"
 import Alternative from "./Alternative.vue"
-import ModalBase from "../ModalBase.vue"
 import { useCompleteTaskMutation } from "@/graph/generated"
-import { Vue3Lottie as LottieAnimation } from "vue3-lottie"
-import confettiAnimation from "./confetti.json"
 
 const { executeMutation } = useCompleteTaskMutation()
 

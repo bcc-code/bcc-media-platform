@@ -1,4 +1,3 @@
-import { useCookies } from "./cookies"
 
 type TSettings = {
     locale: string

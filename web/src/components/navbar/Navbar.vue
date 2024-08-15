@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { RouteLocationRaw, useRoute, useRouter } from "vue-router"
+import { useRoute, useRouter } from "vue-router"
 import NavLink from "./NavLink.vue"
 import {
     Disclosure,
