@@ -1,3 +1,12 @@
+<script lang="ts" setup>
+import SectionTitle from "./item/SectionTitle.vue"
+import { Section } from "./types"
+import { mdToHTML } from "@/services/converter"
+
+defineProps<{
+    item: Section & { __typename: "MessageSection" }
+}>()
+</script>
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
@@ -20,12 +29,3 @@
         </div>
     </section>
 </template>
-<script lang="ts" setup>
-import SectionTitle from "./item/SectionTitle.vue"
-import { Section } from "./types"
-import { mdToHTML } from "@/services/converter"
-
-defineProps<{
-    item: Section & { __typename: "MessageSection" }
-}>()
-</script>

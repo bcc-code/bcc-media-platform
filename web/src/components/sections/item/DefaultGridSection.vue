@@ -1,3 +1,19 @@
+<script lang="ts" setup>
+import { Section } from "../types"
+
+import SectionTitle from "./SectionTitle.vue"
+import CollectionItemThumbnail from "./CollectionItemThumbnail.vue"
+import { isCollectionItem } from "@/utils/items"
+
+defineProps<{
+    position: number
+    section: Section & { __typename: "DefaultGridSection" }
+}>()
+
+defineEmits<{
+    (event: "clickItem", index: number): void
+}>()
+</script>
 <template>
     <section>
         <SectionTitle v-if="section.title">{{ section.title }}</SectionTitle>
@@ -21,19 +37,3 @@
         </div>
     </section>
 </template>
-<script lang="ts" setup>
-import { Section } from "../types"
-
-import SectionTitle from "./SectionTitle.vue"
-import CollectionItemThumbnail from "./CollectionItemThumbnail.vue"
-import { isCollectionItem } from "@/utils/items"
-
-defineProps<{
-    position: number
-    section: Section & { __typename: "DefaultGridSection" }
-}>()
-
-defineEmits<{
-    (event: "clickItem", index: number): void
-}>()
-</script>

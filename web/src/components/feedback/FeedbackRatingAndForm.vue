@@ -1,18 +1,3 @@
-<template>
-    <div>
-        <FeedbackRating
-            v-model:selected="selectedRating"
-            :class="!sent ? '' : 'pointer-events-none opacity-30'"
-        />
-
-        <FeedbackBottomSheet
-            v-model:visible="bottomSheet"
-            v-model:selected="selectedRating"
-            :episode-id="episodeId"
-            @sent="registerSent"
-        />
-    </div>
-</template>
 <script lang="ts" setup>
 import { ref, watch } from "vue"
 import FeedbackRating from "./FeedbackRating.vue"
@@ -41,3 +26,18 @@ watch(selectedRating, (value) => {
     }
 })
 </script>
+<template>
+    <div>
+        <FeedbackRating
+            v-model:selected="selectedRating"
+            :class="!sent ? '' : 'pointer-events-none opacity-30'"
+        />
+
+        <FeedbackBottomSheet
+            v-model:visible="bottomSheet"
+            v-model:selected="selectedRating"
+            :episode-id="episodeId"
+            @sent="registerSent"
+        />
+    </div>
+</template>

@@ -1,3 +1,74 @@
+<script lang="ts" setup>
+import { Section } from "../types"
+
+import { computed } from "vue"
+import SectionTitle from "./SectionTitle.vue"
+import Play from "@/components/icons/Play.vue"
+import Image from "@/components/Image.vue"
+import Slider from "./Slider.vue"
+import VButton from "@/components/VButton.vue"
+
+const props = defineProps<{
+    position: number
+    item: Section & { __typename: "FeaturedSection" }
+}>()
+
+defineEmits<{
+    (event: "loadMore"): void
+    (event: "clickItem", index: number): void
+}>()
+
+const options = computed(() => {
+    switch (props.item.size) {
+        case "small":
+            return {
+                400: {
+                    slidesPerView: 1,
+                    spaceBetween: 4,
+                },
+                768: {
+                    slidesPerView: 2,
+                    spaceBetween: 4,
+                },
+                1280: {
+                    slidesPerView: 3,
+                    spaceBetween: 8,
+                },
+                1920: {
+                    slidesPerView: 3,
+                    spaceBetween: 8,
+                },
+                2100: {
+                    slidesPerView: 4,
+                    spaceBetween: 8,
+                },
+            }
+        case "medium":
+            return {
+                400: {
+                    slidesPerView: 1,
+                    spaceBetween: 6,
+                },
+                768: {
+                    slidesPerView: 1,
+                    spaceBetween: 6,
+                },
+                1280: {
+                    slidesPerView: 2,
+                    spaceBetween: 8,
+                },
+                1920: {
+                    slidesPerView: 2,
+                    spaceBetween: 8,
+                },
+                2100: {
+                    slidesPerView: 3,
+                    spaceBetween: 8,
+                },
+            }
+    }
+})
+</script>
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
@@ -126,74 +197,3 @@
         </Slider>
     </section>
 </template>
-<script lang="ts" setup>
-import { Section } from "../types"
-
-import { computed } from "vue"
-import SectionTitle from "./SectionTitle.vue"
-import Play from "@/components/icons/Play.vue"
-import Image from "@/components/Image.vue"
-import Slider from "./Slider.vue"
-import VButton from "@/components/VButton.vue"
-
-const props = defineProps<{
-    position: number
-    item: Section & { __typename: "FeaturedSection" }
-}>()
-
-defineEmits<{
-    (event: "loadMore"): void
-    (event: "clickItem", index: number): void
-}>()
-
-const options = computed(() => {
-    switch (props.item.size) {
-        case "small":
-            return {
-                400: {
-                    slidesPerView: 1,
-                    spaceBetween: 4,
-                },
-                768: {
-                    slidesPerView: 2,
-                    spaceBetween: 4,
-                },
-                1280: {
-                    slidesPerView: 3,
-                    spaceBetween: 8,
-                },
-                1920: {
-                    slidesPerView: 3,
-                    spaceBetween: 8,
-                },
-                2100: {
-                    slidesPerView: 4,
-                    spaceBetween: 8,
-                },
-            }
-        case "medium":
-            return {
-                400: {
-                    slidesPerView: 1,
-                    spaceBetween: 6,
-                },
-                768: {
-                    slidesPerView: 1,
-                    spaceBetween: 6,
-                },
-                1280: {
-                    slidesPerView: 2,
-                    spaceBetween: 8,
-                },
-                1920: {
-                    slidesPerView: 2,
-                    spaceBetween: 8,
-                },
-                2100: {
-                    slidesPerView: 3,
-                    spaceBetween: 8,
-                },
-            }
-    }
-})
-</script>

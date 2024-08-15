@@ -1,8 +1,3 @@
-<template>
-    <div v-if="error" class="flex flex-col">
-        <p class="mx-auto text-lg mt-40">Invalid code</p>
-    </div>
-</template>
 <script lang="ts" setup>
 import { useGetRedirectUrlQuery } from "@/graph/generated"
 
@@ -21,3 +16,8 @@ then((result) => {
     }
 })
 </script>
+<template>
+    <div v-if="error" class="flex flex-col">
+        <p class="mx-auto text-lg mt-40">Invalid code</p>
+    </div>
+</template>

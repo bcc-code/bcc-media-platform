@@ -1,3 +1,34 @@
+<script lang="ts" setup>
+import { computed } from "vue"
+import {
+    Listbox,
+    ListboxButton,
+    ListboxOptions,
+    ListboxOption,
+} from "@headlessui/vue"
+
+interface Value {
+    title: string
+}
+
+const props = defineProps<{
+    modelValue: Value
+    data: Value[]
+}>()
+const emit = defineEmits<{
+    (e: "update:modelValue", i: Value): any
+}>()
+
+const selected = computed({
+    get() {
+        return props.modelValue
+    },
+    set(v: Value) {
+        emit("update:modelValue", v)
+    },
+})
+</script>
+
 <template>
     <div>
         <Listbox v-model="selected">
@@ -50,34 +81,3 @@
         </Listbox>
     </div>
 </template>
-
-<script lang="ts" setup>
-import { computed } from "vue"
-import {
-    Listbox,
-    ListboxButton,
-    ListboxOptions,
-    ListboxOption,
-} from "@headlessui/vue"
-
-interface Value {
-    title: string
-}
-
-const props = defineProps<{
-    modelValue: Value
-    data: Value[]
-}>()
-const emit = defineEmits<{
-    (e: "update:modelValue", i: Value): any
-}>()
-
-const selected = computed({
-    get() {
-        return props.modelValue
-    },
-    set(v: Value) {
-        emit("update:modelValue", v)
-    },
-})
-</script>

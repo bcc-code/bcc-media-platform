@@ -1,44 +1,3 @@
-<template>
-    <div
-        class="p-4 flex flex-col space-y-8 items-start justify-start w-full embed:min-h-screen"
-    >
-        <p
-            class="w-full text-white"
-            :class="
-                task.title.length > 100
-                    ? 'text-style-title-3'
-                    : 'text-style-title-1'
-            "
-        >
-            {{ task.title }}
-        </p>
-        <div
-            class="flex flex-col space-y-2 items-start justify-start w-full h-full"
-        >
-            <Alternative
-                v-for="(alt, i) in task.alternatives"
-                :key="alt.title"
-                :letter="getLetter(i)"
-                :text="alt.title"
-                :locked="task.locked"
-                :correct="
-                    noWrongAnswers || task.competitionMode
-                        ? undefined
-                        : alt.isCorrect
-                "
-                :competition-mode="task.competitionMode"
-                :selected="selectedIndex == i"
-                :class="
-                    selectedIndex != i && selectedIndex != null
-                        ? 'opacity-50'
-                        : ''
-                "
-                @click="() => selectAnswer(alt.id)"
-            />
-        </div>
-    </div>
-</template>
-
 <script lang="ts" setup>
 import { TaskFragment } from "@/graph/generated"
 import { computed, getCurrentInstance, Ref, ref, watch } from "vue"
@@ -117,3 +76,44 @@ function selectAnswer(id: string) {
     }
 }
 </script>
+
+<template>
+    <div
+        class="p-4 flex flex-col space-y-8 items-start justify-start w-full embed:min-h-screen"
+    >
+        <p
+            class="w-full text-white"
+            :class="
+                task.title.length > 100
+                    ? 'text-style-title-3'
+                    : 'text-style-title-1'
+            "
+        >
+            {{ task.title }}
+        </p>
+        <div
+            class="flex flex-col space-y-2 items-start justify-start w-full h-full"
+        >
+            <Alternative
+                v-for="(alt, i) in task.alternatives"
+                :key="alt.title"
+                :letter="getLetter(i)"
+                :text="alt.title"
+                :locked="task.locked"
+                :correct="
+                    noWrongAnswers || task.competitionMode
+                        ? undefined
+                        : alt.isCorrect
+                "
+                :competition-mode="task.competitionMode"
+                :selected="selectedIndex == i"
+                :class="
+                    selectedIndex != i && selectedIndex != null
+                        ? 'opacity-50'
+                        : ''
+                "
+                @click="() => selectAnswer(alt.id)"
+            />
+        </div>
+    </div>
+</template>

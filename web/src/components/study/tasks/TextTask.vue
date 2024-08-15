@@ -1,3 +1,65 @@
+<script lang="ts" setup>
+import { VButton } from "@/components"
+import {
+    TaskFragment,
+    useCompleteTaskMutation,
+    useSendTaskMessageMutation,
+} from "@/graph/generated"
+import { computed, getCurrentInstance, Ref, ref, watch } from "vue"
+import { useI18n } from "vue-i18n"
+import Alternative from "./Alternative.vue"
+import Loader from "@/components/Loader.vue"
+
+var selectedIndex = ref<number>()
+
+const { t } = useI18n()
+
+const { fetching, executeMutation, error, data } = useSendTaskMessageMutation()
+const { executeMutation: completeTask } = useCompleteTaskMutation()
+
+const props = defineProps<{
+    task: TaskFragment
+    isDone: boolean
+}>()
+const emit = defineEmits<{
+    (event: "change"): void
+    (event: "nextTask"): void
+    (event: "update:isDone", val: boolean): void
+}>()
+
+const messageInput = ref<string>()
+
+const isDone = computed({
+    get() {
+        return props.isDone
+    },
+    set(value) {
+        emit(`update:isDone`, value)
+    },
+})
+
+const task = computed(() => {
+    return (props.task.__typename == "TextTask" ? props.task : undefined)!
+})
+
+const submit = () => {
+    if (!messageInput.value) {
+        return
+    }
+    executeMutation({
+        message: messageInput.value,
+        taskId: task.value.id,
+    }).then(async (val) => {
+        if (val.error != null) {
+            return
+        }
+        await completeTask({ taskId: task.value.id })
+        isDone.value = true
+        val.data?.sendTaskMessage
+    })
+}
+</script>
+
 <template>
     <div
         class="p-4 pb-0 w-full h-full flex flex-col items-center justify-center pb-12 embed:min-h-screen embed:pb-64"
@@ -68,65 +130,3 @@
         </template>
     </div>
 </template>
-
-<script lang="ts" setup>
-import { VButton } from "@/components"
-import {
-    TaskFragment,
-    useCompleteTaskMutation,
-    useSendTaskMessageMutation,
-} from "@/graph/generated"
-import { computed, getCurrentInstance, Ref, ref, watch } from "vue"
-import { useI18n } from "vue-i18n"
-import Alternative from "./Alternative.vue"
-import Loader from "@/components/Loader.vue"
-
-var selectedIndex = ref<number>()
-
-const { t } = useI18n()
-
-const { fetching, executeMutation, error, data } = useSendTaskMessageMutation()
-const { executeMutation: completeTask } = useCompleteTaskMutation()
-
-const props = defineProps<{
-    task: TaskFragment
-    isDone: boolean
-}>()
-const emit = defineEmits<{
-    (event: "change"): void
-    (event: "nextTask"): void
-    (event: "update:isDone", val: boolean): void
-}>()
-
-const messageInput = ref<string>()
-
-const isDone = computed({
-    get() {
-        return props.isDone
-    },
-    set(value) {
-        emit(`update:isDone`, value)
-    },
-})
-
-const task = computed(() => {
-    return (props.task.__typename == "TextTask" ? props.task : undefined)!
-})
-
-const submit = () => {
-    if (!messageInput.value) {
-        return
-    }
-    executeMutation({
-        message: messageInput.value,
-        taskId: task.value.id,
-    }).then(async (val) => {
-        if (val.error != null) {
-            return
-        }
-        await completeTask({ taskId: task.value.id })
-        isDone.value = true
-        val.data?.sendTaskMessage
-    })
-}
-</script>

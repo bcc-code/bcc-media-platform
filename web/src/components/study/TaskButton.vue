@@ -1,3 +1,11 @@
+<script lang="ts" setup>
+import { useI18n } from "vue-i18n"
+
+const props = defineProps<{ title: string; secondaryTitle: string }>()
+
+const { t } = useI18n()
+</script>
+
 <template>
     <div class="w-full relative">
         <div
@@ -66,14 +74,6 @@
         </svg>
     </div>
 </template>
-
-<script lang="ts" setup>
-import { useI18n } from "vue-i18n"
-
-const props = defineProps<{ title: string; secondaryTitle: string }>()
-
-const { t } = useI18n()
-</script>
 
 <style scoped>
 .shine-overlay {

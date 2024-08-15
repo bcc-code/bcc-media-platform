@@ -1,3 +1,55 @@
+<script lang="ts" setup>
+import { VButton } from "@/components"
+import {
+    TaskFragment,
+    useCompleteTaskMutation,
+    useSendTaskMessageMutation,
+} from "@/graph/generated"
+import { computed, getCurrentInstance, onMounted, Ref, ref, watch } from "vue"
+import { useI18n } from "vue-i18n"
+import Alternative from "./Alternative.vue"
+import Loader from "@/components/Loader.vue"
+import { webViewMain } from "@/services/webviews/mainHandler"
+
+var selectedIndex = ref<number>()
+
+const { t } = useI18n()
+
+const { executeMutation: completeTask } = useCompleteTaskMutation()
+
+const props = defineProps<{
+    task: TaskFragment
+    isDone: boolean
+}>()
+const emit = defineEmits<{
+    (event: "change"): void
+    (event: "update:isDone", val: boolean): void
+}>()
+
+const task = computed(() => {
+    return (props.task.__typename == "VideoTask" ? props.task : undefined)!
+})
+
+const openLink = async () => {
+    await completeTask({ taskId: task.value.id })
+    if (webViewMain) {
+        var promise = webViewMain.push(
+            `/embed/${task.value.episode.id}?hide_bottom_section=true&autoplay=true`
+        )
+        if (promise.then != null) {
+            await promise
+        }
+    } else {
+        window
+            .open(`/episode/${task.value.episode.id}?autoplay=true`, "_blank")
+            ?.focus()
+    }
+}
+onMounted(async () => {
+    emit(`update:isDone`, true)
+})
+</script>
+
 <template>
     <div class="p-4 pb-0 w-full h-full flex flex-col">
         <p
@@ -58,56 +110,4 @@
         </div>
     </div>
 </template>
-
-<script lang="ts" setup>
-import { VButton } from "@/components"
-import {
-    TaskFragment,
-    useCompleteTaskMutation,
-    useSendTaskMessageMutation,
-} from "@/graph/generated"
-import { computed, getCurrentInstance, onMounted, Ref, ref, watch } from "vue"
-import { useI18n } from "vue-i18n"
-import Alternative from "./Alternative.vue"
-import Loader from "@/components/Loader.vue"
-import { webViewMain } from "@/services/webviews/mainHandler"
-
-var selectedIndex = ref<number>()
-
-const { t } = useI18n()
-
-const { executeMutation: completeTask } = useCompleteTaskMutation()
-
-const props = defineProps<{
-    task: TaskFragment
-    isDone: boolean
-}>()
-const emit = defineEmits<{
-    (event: "change"): void
-    (event: "update:isDone", val: boolean): void
-}>()
-
-const task = computed(() => {
-    return (props.task.__typename == "VideoTask" ? props.task : undefined)!
-})
-
-const openLink = async () => {
-    await completeTask({ taskId: task.value.id })
-    if (webViewMain) {
-        var promise = webViewMain.push(
-            `/embed/${task.value.episode.id}?hide_bottom_section=true&autoplay=true`
-        )
-        if (promise.then != null) {
-            await promise
-        }
-    } else {
-        window
-            .open(`/episode/${task.value.episode.id}?autoplay=true`, "_blank")
-            ?.focus()
-    }
-}
-onMounted(async () => {
-    emit(`update:isDone`, true)
-})
-</script>
 @/services/webviews/mainHandler

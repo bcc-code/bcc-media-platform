@@ -1,3 +1,15 @@
+<script lang="ts" setup>
+import { CollectionItemThumbnailFragment } from "@/graph/generated"
+
+defineProps<{
+    title: string
+    episode: CollectionItemThumbnailFragment & {
+        __typename: "Episode"
+    }
+    secondaryTitles: boolean
+}>()
+</script>
+
 <template>
     <div class="flex flex-col">
         <div class="flex">
@@ -13,15 +25,3 @@
         </p>
     </div>
 </template>
-
-<script lang="ts" setup>
-import { CollectionItemThumbnailFragment } from "@/graph/generated"
-
-defineProps<{
-    title: string
-    episode: CollectionItemThumbnailFragment & {
-        __typename: "Episode"
-    }
-    secondaryTitles: boolean
-}>()
-</script>

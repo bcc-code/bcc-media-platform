@@ -1,17 +1,3 @@
-<template>
-    <section class="flex flex-col gap-4">
-        <div v-for="d in details" class="flex flex-col gap-1">
-            <h1 class="text-lg font-semibold">{{ d.title }}</h1>
-            <p>{{ d.value }}</p>
-        </div>
-        <div class="flex flex-col gap-1">
-            <h1 class="text-lg font-semibold">{{ t("episode.ageRating") }}</h1>
-            <p class="flex">
-                <AgeRating :episode="episode" />
-            </p>
-        </div>
-    </section>
-</template>
 <script lang="ts" setup>
 import { GetEpisodeQuery } from "@/graph/generated"
 import { computed } from "vue"
@@ -62,3 +48,17 @@ const details = computed(() => {
     return lines
 })
 </script>
+<template>
+    <section class="flex flex-col gap-4">
+        <div v-for="d in details" class="flex flex-col gap-1">
+            <h1 class="text-lg font-semibold">{{ d.title }}</h1>
+            <p>{{ d.value }}</p>
+        </div>
+        <div class="flex flex-col gap-1">
+            <h1 class="text-lg font-semibold">{{ t("episode.ageRating") }}</h1>
+            <p class="flex">
+                <AgeRating :episode="episode" />
+            </p>
+        </div>
+    </section>
+</template>

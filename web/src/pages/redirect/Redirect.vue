@@ -1,3 +1,14 @@
+<script lang="ts" setup>
+import client from "@/graph/client"
+import { useAuth } from "@/services/auth"
+import { provideClient } from "@urql/vue"
+import Execute from "./Execute.vue"
+provideClient(client)
+
+defineProps<{ code: string }>()
+
+const { authenticated, signIn } = useAuth()
+</script>
 <template>
     <div class="flex h-screen w-screen">
         <Execute
@@ -10,14 +21,3 @@
         </button>
     </div>
 </template>
-<script lang="ts" setup>
-import client from "@/graph/client"
-import { useAuth } from "@/services/auth"
-import { provideClient } from "@urql/vue"
-import Execute from "./Execute.vue"
-provideClient(client)
-
-defineProps<{ code: string }>()
-
-const { authenticated, signIn } = useAuth()
-</script>

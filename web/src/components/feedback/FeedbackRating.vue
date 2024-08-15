@@ -1,3 +1,20 @@
+<script lang="ts" setup>
+import { ref } from "vue"
+import FeedbackBottomSheet from "../feedback/FeedbackBottomSheet.vue"
+
+const props = defineProps<{
+    selected: number | null
+}>()
+const emit = defineEmits<{
+    (event: "change"): void
+    (event: "update:selected", val: number | null): void
+}>()
+
+const setRating = (i: number) => {
+    emit("update:selected", props.selected !== i ? i : null)
+}
+</script>
+
 <template>
     <div class="flex gap-x-1">
         <div
@@ -41,20 +58,3 @@
         </div>
     </div>
 </template>
-
-<script lang="ts" setup>
-import { ref } from "vue"
-import FeedbackBottomSheet from "../feedback/FeedbackBottomSheet.vue"
-
-const props = defineProps<{
-    selected: number | null
-}>()
-const emit = defineEmits<{
-    (event: "change"): void
-    (event: "update:selected", val: number | null): void
-}>()
-
-const setRating = (i: number) => {
-    emit("update:selected", props.selected !== i ? i : null)
-}
-</script>

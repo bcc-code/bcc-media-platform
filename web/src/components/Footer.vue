@@ -1,3 +1,9 @@
+<script lang="ts" setup>
+import { mdToHTML } from "@/services/converter"
+import { useCookies } from "@/services/cookies"
+
+const { accepted } = useCookies()
+</script>
 <template>
     <div class="flex flex-col bg-black bg-opacity-20 mt-4 opacity-90">
         <div
@@ -58,12 +64,6 @@
         </div>
     </div>
 </template>
-<script lang="ts" setup>
-import { mdToHTML } from "@/services/converter"
-import { useCookies } from "@/services/cookies"
-
-const { accepted } = useCookies()
-</script>
 <style>
 #footer-description > p > a {
     cursor: pointer;

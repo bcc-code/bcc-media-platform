@@ -1,3 +1,9 @@
+<script lang="ts" setup>
+defineProps<{
+    variant?: "default" | "spinner"
+}>()
+</script>
+
 <template>
     <svg
         v-if="variant == 'spinner'"
@@ -24,9 +30,3 @@
         <span class="hidden">Loading...</span>
     </div>
 </template>
-
-<script lang="ts" setup>
-defineProps<{
-    variant?: "default" | "spinner"
-}>()
-</script>

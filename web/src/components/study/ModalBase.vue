@@ -1,3 +1,32 @@
+<script lang="ts">
+// use normal <script> to declare options
+export default {
+    inheritAttrs: false,
+}
+</script>
+<script lang="ts" setup>
+import { useI18n } from "vue-i18n"
+import {
+    Dialog,
+    DialogPanel,
+    TransitionRoot,
+    TransitionChild,
+} from "@headlessui/vue"
+
+const { t } = useI18n()
+
+const props = defineProps<{
+    visible: boolean
+}>()
+const emit = defineEmits<{
+    (event: "update:visible", val: boolean): void
+}>()
+
+const cancel = () => {
+    emit("update:visible", false)
+}
+</script>
+
 <template>
     <TransitionRoot :show="visible" as="template">
         <Dialog as="div" class="relative z-10" @close="() => cancel()">
@@ -35,32 +64,3 @@
         </Dialog>
     </TransitionRoot>
 </template>
-<script lang="ts">
-// use normal <script> to declare options
-export default {
-    inheritAttrs: false,
-}
-</script>
-
-<script lang="ts" setup>
-import { useI18n } from "vue-i18n"
-import {
-    Dialog,
-    DialogPanel,
-    TransitionRoot,
-    TransitionChild,
-} from "@headlessui/vue"
-
-const { t } = useI18n()
-
-const props = defineProps<{
-    visible: boolean
-}>()
-const emit = defineEmits<{
-    (event: "update:visible", val: boolean): void
-}>()
-
-const cancel = () => {
-    emit("update:visible", false)
-}
-</script>

@@ -1,3 +1,18 @@
+<script lang="ts" setup>
+import { LessonLinkFragment } from "@/graph/generated"
+import { webViewMain, openInBrowser } from "@/services/webviews/mainHandler"
+
+const props = defineProps<{ link: LessonLinkFragment }>()
+
+const openLink = () => {
+    if (webViewMain) {
+        openInBrowser(props.link.url)
+    } else {
+        window.open(props.link.url, "_blank")?.focus()
+    }
+}
+</script>
+
 <template>
     <div
         class="flex items-center justify-start w-full cursor-pointer py-1 border-b border-separator-on-light px-4"
@@ -51,19 +66,4 @@
         </div>
     </div>
 </template>
-
-<script lang="ts" setup>
-import { LessonLinkFragment } from "@/graph/generated"
-import { webViewMain, openInBrowser } from "@/services/webviews/mainHandler"
-
-const props = defineProps<{ link: LessonLinkFragment }>()
-
-const openLink = () => {
-    if (webViewMain) {
-        openInBrowser(props.link.url)
-    } else {
-        window.open(props.link.url, "_blank")?.focus()
-    }
-}
-</script>
 @/services/webviews/mainHandler

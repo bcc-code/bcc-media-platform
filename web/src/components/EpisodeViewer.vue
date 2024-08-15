@@ -1,10 +1,3 @@
-<template>
-    <div
-        id="video-player"
-        class="transition bg-slate-800"
-        :class="[loaded ? 'opacity-100' : 'opacity-0']"
-    ></div>
-</template>
 <script lang="ts" setup>
 import { onMounted, onUnmounted, onUpdated, ref } from "vue"
 import { Options, Player } from "bccm-video-player"
@@ -273,3 +266,10 @@ defineExpose({
     player,
 })
 </script>
+<template>
+    <div
+        id="video-player"
+        class="transition bg-slate-800"
+        :class="[loaded ? 'opacity-100' : 'opacity-0']"
+    ></div>
+</template>

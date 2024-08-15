@@ -1,3 +1,47 @@
+<script lang="ts" setup>
+import { Popover, PopoverButton, PopoverPanel } from "@headlessui/vue"
+import { ClipboardIcon, InformationCircleIcon } from "@heroicons/vue/24/outline"
+import { computed, ref } from "vue"
+
+const props = defineProps<{
+    episode: {
+        title: string
+        shareRestriction: "public" | "registered" | "members"
+    }
+}>()
+
+const l = computed(() => {
+    return location.href
+})
+
+const locationSpan = ref(null as HTMLSpanElement | null)
+
+const canShare = computed(() => {
+    return typeof navigator.canShare !== "undefined"
+})
+
+const share = () => {
+    const data = {
+        title: props.episode.title,
+        url: l.value,
+    }
+    if (typeof navigator.canShare !== "undefined" && navigator.canShare(data)) {
+        navigator.share(data)
+    }
+}
+
+const copied = ref(false)
+
+const copy = () => {
+    if (!locationSpan.value) {
+        return
+    }
+    navigator.clipboard.writeText(locationSpan.value.innerText)
+    copied.value = true
+
+    setTimeout(() => (copied.value = false), 5000)
+}
+</script>
 <template>
     <img
         v-if="canShare"
@@ -49,47 +93,3 @@
         </transition>
     </Popover>
 </template>
-<script lang="ts" setup>
-import { Popover, PopoverButton, PopoverPanel } from "@headlessui/vue"
-import { ClipboardIcon, InformationCircleIcon } from "@heroicons/vue/24/outline"
-import { computed, ref } from "vue"
-
-const props = defineProps<{
-    episode: {
-        title: string
-        shareRestriction: "public" | "registered" | "members"
-    }
-}>()
-
-const l = computed(() => {
-    return location.href
-})
-
-const locationSpan = ref(null as HTMLSpanElement | null)
-
-const canShare = computed(() => {
-    return typeof navigator.canShare !== "undefined"
-})
-
-const share = () => {
-    const data = {
-        title: props.episode.title,
-        url: l.value,
-    }
-    if (typeof navigator.canShare !== "undefined" && navigator.canShare(data)) {
-        navigator.share(data)
-    }
-}
-
-const copied = ref(false)
-
-const copy = () => {
-    if (!locationSpan.value) {
-        return
-    }
-    navigator.clipboard.writeText(locationSpan.value.innerText)
-    copied.value = true
-
-    setTimeout(() => (copied.value = false), 5000)
-}
-</script>

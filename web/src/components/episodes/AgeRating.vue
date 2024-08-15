@@ -1,3 +1,11 @@
+<script lang="ts" setup>
+defineProps<{
+    episode: {
+        ageRating?: string | null
+    }
+    showA?: boolean
+}>()
+</script>
 <template>
     <p v-if="episode.ageRating && (episode.ageRating !== 'A' || showA)">
         <span
@@ -7,11 +15,3 @@
         </span>
     </p>
 </template>
-<script lang="ts" setup>
-defineProps<{
-    episode: {
-        ageRating?: string | null
-    }
-    showA?: boolean
-}>()
-</script>

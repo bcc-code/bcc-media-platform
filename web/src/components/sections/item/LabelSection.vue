@@ -1,3 +1,15 @@
+<script lang="ts" setup>
+import { Section } from "../types"
+
+defineProps<{
+    position: number
+    item: Section & { __typename: "LabelSection" }
+}>()
+
+defineEmits<{
+    (event: "clickItem", index: number): void
+}>()
+</script>
 <template>
     <section>
         <h2 v-if="item.title" class="text-lg">
@@ -14,15 +26,3 @@
         </div>
     </section>
 </template>
-<script lang="ts" setup>
-import { Section } from "../types"
-
-defineProps<{
-    position: number
-    item: Section & { __typename: "LabelSection" }
-}>()
-
-defineEmits<{
-    (event: "clickItem", index: number): void
-}>()
-</script>

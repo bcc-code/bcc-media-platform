@@ -1,3 +1,15 @@
+<script lang="ts" setup>
+import { LessonProgressOverviewFragment } from "@/graph/generated"
+import { useI18n } from "vue-i18n"
+
+const props = defineProps<{
+    episodeId: string
+    lesson: LessonProgressOverviewFragment
+}>()
+
+const { t } = useI18n()
+</script>
+
 <template>
     <div class="w-full relative">
         <div
@@ -127,18 +139,6 @@
         </svg>
     </div>
 </template>
-
-<script lang="ts" setup>
-import { LessonProgressOverviewFragment } from "@/graph/generated"
-import { useI18n } from "vue-i18n"
-
-const props = defineProps<{
-    episodeId: string
-    lesson: LessonProgressOverviewFragment
-}>()
-
-const { t } = useI18n()
-</script>
 
 <style scoped>
 .shine-overlay {

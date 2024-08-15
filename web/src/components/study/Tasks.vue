@@ -1,3 +1,245 @@
+<script lang="ts" setup>
+import { computed, onMounted, ref, watch } from "vue"
+import { useI18n } from "vue-i18n"
+import { useTitle } from "@/utils/title"
+import { analytics } from "@/services/analytics"
+import AlternativesTask from "./tasks/AlternativesTask.vue"
+import PosterTask from "./tasks/PosterTask.vue"
+import { webViewStudy } from "@/services/webviews/studyHandler"
+import {
+    GetStudyLessonQuery,
+    useCompleteTaskMutation,
+    useGetFirstSotmLessonForConsentQuery,
+    useLockAnswersMutation,
+    useSetStudyConsentTrueMutation,
+} from "@/graph/generated"
+import TextTask from "./tasks/TextTask.vue"
+import { VButton } from ".."
+import { Page } from "./Lesson.vue"
+import VideoTask from "./tasks/VideoTask.vue"
+import LinkTask from "./tasks/LinkTask.vue"
+import Loader from "../Loader.vue"
+import CompetitionIntro from "./tasks/CompetitionIntro.vue"
+import ModalBase from "./ModalBase.vue"
+import { findLastIndex } from "@/utils/array"
+
+const props = defineProps<{ lesson: GetStudyLessonQuery }>()
+const { executeMutation: completeTask } = useCompleteTaskMutation()
+const { t } = useI18n()
+const { setTitle } = useTitle()
+
+const { executeMutation: executeLockAnswersMutation, data: lockData } =
+    useLockAnswersMutation()
+
+const emit = defineEmits<{
+    (e: "navigate", i: Page): any
+}>()
+
+const tasks = computed(() => {
+    return props.lesson.studyLesson.tasks.items
+})
+
+const currentTaskIndex = ref(0)
+const currentTask = computed(() => tasks.value[currentTaskIndex.value])
+const isLastTask = computed(
+    () => currentTaskIndex.value + 1 == tasks.value.length
+)
+
+const showConfirmModal = ref(false)
+const currentIsFirstCompetitionTask = computed(
+    () =>
+        tasks.value.findIndex(
+            (t) => t.__typename == "AlternativesTask" && t.competitionMode
+        ) === currentTaskIndex.value
+)
+const currentIsLastCompetitionTask = computed(() => {
+    return (
+        findLastIndex(
+            tasks.value,
+            (t) => t.__typename == "AlternativesTask" && t.competitionMode
+        ) === currentTaskIndex.value
+    )
+})
+const competitionLocked = computed(
+    () =>
+        currentTask.value.__typename === "AlternativesTask" &&
+        currentTask.value.locked
+)
+const hijackWithCompetitionIntro = ref(false)
+
+watch(
+    currentTaskIndex,
+    (val, old) => {
+        if ((!old || val > old) && currentIsFirstCompetitionTask.value)
+            hijackWithCompetitionIntro.value = true
+    },
+    { immediate: true }
+)
+const hasConsented = () => {
+    return (
+        lockData.value?.lockLessonAnswers ||
+        competitionLocked.value === true ||
+        consentSaveResult.value?.completeTask === true ||
+        consent.value?.studyLesson.tasks.items.some(
+            (t) =>
+                t.__typename === "AlternativesTask" &&
+                t.alternatives.find(
+                    (a) => a.id === "fe8c23c2-0aab-4853-a75f-f148400d005a"
+                )?.selected === true
+        )
+    )
+}
+
+const showAlreadySentHint = computed(
+    () => hijackWithCompetitionIntro.value && competitionLocked.value
+)
+const competitionAnswers = ref<{ [taskId: string]: string }>({})
+const showConsentModal = ref(false)
+const lockingInProgress = ref(false)
+const {
+    fetching: consentLoading,
+    data: consent,
+    executeQuery: refreshConsent,
+    resume: resumeConsentQuery,
+    stale: staleq,
+} = useGetFirstSotmLessonForConsentQuery({ variables: {} })
+const {
+    fetching: consentSaving,
+    executeMutation: setConsentTrue,
+    data: consentSaveResult,
+} = useSetStudyConsentTrueMutation()
+const consentAndStartCompetition = async () => {
+    var result = await setConsentTrue({})
+    if (result.error === null) {
+        console.error(result.error)
+        return
+    }
+    showConsentModal.value = false
+    startCompetition(true)
+}
+const startCompetition = async (bypassConsentCheck?: boolean) => {
+    if (lockData.value?.lockLessonAnswers) {
+        hijackWithCompetitionIntro.value = false
+        return
+    }
+    if (bypassConsentCheck !== true && !hasConsented()) {
+        showConsentModal.value = true
+        return
+    }
+    hijackWithCompetitionIntro.value = false
+    isCurrentStepDone.value = false
+}
+//const taskProgress = ref<{ id: string, completed: boolean }[]>([]);
+
+onMounted(() => {
+    setTitle("")
+    analytics.page({
+        id: "study",
+        title: t(""),
+    })
+})
+
+const isCurrentStepDone = ref(false)
+const taskPercent = computed(
+    () => ((currentTaskIndex.value + 1) / tasks.value.length) * 100
+)
+const allCompletedBeforeStarting = tasks.value.every((t) => t.completed)
+
+function previousTask() {
+    if (hijackWithCompetitionIntro.value && anyPreviousStep.value) {
+        hijackWithCompetitionIntro.value = false
+        currentTaskIndex.value--
+        return
+    }
+    if (currentIsFirstCompetitionTask.value) {
+        hijackWithCompetitionIntro.value = true
+        return
+    }
+    if (currentTaskIndex.value > 0) {
+        currentTaskIndex.value -= 1
+        isCurrentStepDone.value = true
+    }
+}
+
+const savingTaskProgress = ref(false)
+async function nextTask() {
+    const skipSave = currentTask.value.__typename == "AlternativesTask"
+    if (!isLastTask.value) {
+        // intentionally not awaiting
+        if (!skipSave) await completeTask({ taskId: currentTask.value.id })
+        currentTask.value.completed = true
+        currentTaskIndex.value += 1
+        isCurrentStepDone.value = false
+        if (
+            currentTask.value.__typename == "AlternativesTask" &&
+            lockData?.value?.lockLessonAnswers
+        ) {
+            isCurrentStepDone.value = true
+        }
+    } else {
+        // done with the tasks
+        // awaiting to avoid race condition with achievements
+        savingTaskProgress.value = true
+        if (!skipSave) await completeTask({ taskId: currentTask.value.id })
+        await new Promise((r) => setTimeout(r, 100))
+        currentTask.value.completed = true
+        savingTaskProgress.value = false
+        if (!allCompletedBeforeStarting) {
+            webViewStudy?.tasksCompleted()
+        }
+        emit("navigate", "more")
+    }
+}
+
+const skipCompetition = () => {
+    tasks.value
+        .filter((t) => t.__typename == "AlternativesTask" && t.competitionMode)
+        .forEach(
+            async (t) =>
+                await completeTask({ taskId: t.id, selectedAlternatives: [] })
+        )
+    const lastCompetitionTaskIndex = findLastIndex(
+        tasks.value,
+        (t) => t.__typename == "AlternativesTask" && t.competitionMode
+    )
+    currentTaskIndex.value = lastCompetitionTaskIndex
+    nextTask()
+    hijackWithCompetitionIntro.value = false
+}
+
+const lockAnswers = async () => {
+    lockingInProgress.value = true
+    try {
+        const answers = competitionAnswers.value
+        let promises: Promise<any>[] = []
+        for (var taskId in answers) {
+            const alternativeId = answers[taskId]
+            if (alternativeId == null) {
+                throw new Error(
+                    `Tried to lock, but ${taskId} has null alternative selected.
+                    competitionAnswers: ${JSON.stringify(answers)}`
+                )
+            }
+            promises.push(
+                completeTask({
+                    taskId,
+                    selectedAlternatives: [alternativeId],
+                })
+            )
+        }
+        await Promise.all(promises)
+        await new Promise((r) => setTimeout(r, 200))
+        await executeLockAnswersMutation({
+            lessonId: props.lesson.studyLesson.id,
+        })
+        showConfirmModal.value = false
+    } finally {
+        lockingInProgress.value = false
+    }
+}
+
+const anyPreviousStep = computed(() => currentTaskIndex.value > 0)
+</script>
 <template>
     <div class="w-full h-full">
         <div
@@ -263,246 +505,4 @@
         </ModalBase>
     </div>
 </template>
-<script lang="ts" setup>
-import { computed, onMounted, ref, watch } from "vue"
-import { useI18n } from "vue-i18n"
-import { useTitle } from "@/utils/title"
-import { analytics } from "@/services/analytics"
-import AlternativesTask from "./tasks/AlternativesTask.vue"
-import PosterTask from "./tasks/PosterTask.vue"
-import { webViewStudy } from "@/services/webviews/studyHandler"
-import {
-    GetStudyLessonQuery,
-    useCompleteTaskMutation,
-    useGetFirstSotmLessonForConsentQuery,
-    useLockAnswersMutation,
-    useSetStudyConsentTrueMutation,
-} from "@/graph/generated"
-import TextTask from "./tasks/TextTask.vue"
-import { VButton } from ".."
-import { Page } from "./Lesson.vue"
-import VideoTask from "./tasks/VideoTask.vue"
-import LinkTask from "./tasks/LinkTask.vue"
-import Loader from "../Loader.vue"
-import CompetitionIntro from "./tasks/CompetitionIntro.vue"
-import ModalBase from "./ModalBase.vue"
-import { findLastIndex } from "@/utils/array"
-
-const props = defineProps<{ lesson: GetStudyLessonQuery }>()
-const { executeMutation: completeTask } = useCompleteTaskMutation()
-const { t } = useI18n()
-const { setTitle } = useTitle()
-
-const { executeMutation: executeLockAnswersMutation, data: lockData } =
-    useLockAnswersMutation()
-
-const emit = defineEmits<{
-    (e: "navigate", i: Page): any
-}>()
-
-const tasks = computed(() => {
-    return props.lesson.studyLesson.tasks.items
-})
-
-const currentTaskIndex = ref(0)
-const currentTask = computed(() => tasks.value[currentTaskIndex.value])
-const isLastTask = computed(
-    () => currentTaskIndex.value + 1 == tasks.value.length
-)
-
-const showConfirmModal = ref(false)
-const currentIsFirstCompetitionTask = computed(
-    () =>
-        tasks.value.findIndex(
-            (t) => t.__typename == "AlternativesTask" && t.competitionMode
-        ) === currentTaskIndex.value
-)
-const currentIsLastCompetitionTask = computed(() => {
-    return (
-        findLastIndex(
-            tasks.value,
-            (t) => t.__typename == "AlternativesTask" && t.competitionMode
-        ) === currentTaskIndex.value
-    )
-})
-const competitionLocked = computed(
-    () =>
-        currentTask.value.__typename === "AlternativesTask" &&
-        currentTask.value.locked
-)
-const hijackWithCompetitionIntro = ref(false)
-
-watch(
-    currentTaskIndex,
-    (val, old) => {
-        if ((!old || val > old) && currentIsFirstCompetitionTask.value)
-            hijackWithCompetitionIntro.value = true
-    },
-    { immediate: true }
-)
-const hasConsented = () => {
-    return (
-        lockData.value?.lockLessonAnswers ||
-        competitionLocked.value === true ||
-        consentSaveResult.value?.completeTask === true ||
-        consent.value?.studyLesson.tasks.items.some(
-            (t) =>
-                t.__typename === "AlternativesTask" &&
-                t.alternatives.find(
-                    (a) => a.id === "fe8c23c2-0aab-4853-a75f-f148400d005a"
-                )?.selected === true
-        )
-    )
-}
-
-const showAlreadySentHint = computed(
-    () => hijackWithCompetitionIntro.value && competitionLocked.value
-)
-const competitionAnswers = ref<{ [taskId: string]: string }>({})
-const showConsentModal = ref(false)
-const lockingInProgress = ref(false)
-const {
-    fetching: consentLoading,
-    data: consent,
-    executeQuery: refreshConsent,
-    resume: resumeConsentQuery,
-    stale: staleq,
-} = useGetFirstSotmLessonForConsentQuery({ variables: {} })
-const {
-    fetching: consentSaving,
-    executeMutation: setConsentTrue,
-    data: consentSaveResult,
-} = useSetStudyConsentTrueMutation()
-const consentAndStartCompetition = async () => {
-    var result = await setConsentTrue({})
-    if (result.error === null) {
-        console.error(result.error)
-        return
-    }
-    showConsentModal.value = false
-    startCompetition(true)
-}
-const startCompetition = async (bypassConsentCheck?: boolean) => {
-    if (lockData.value?.lockLessonAnswers) {
-        hijackWithCompetitionIntro.value = false
-        return
-    }
-    if (bypassConsentCheck !== true && !hasConsented()) {
-        showConsentModal.value = true
-        return
-    }
-    hijackWithCompetitionIntro.value = false
-    isCurrentStepDone.value = false
-}
-//const taskProgress = ref<{ id: string, completed: boolean }[]>([]);
-
-onMounted(() => {
-    setTitle("")
-    analytics.page({
-        id: "study",
-        title: t(""),
-    })
-})
-
-const isCurrentStepDone = ref(false)
-const taskPercent = computed(
-    () => ((currentTaskIndex.value + 1) / tasks.value.length) * 100
-)
-const allCompletedBeforeStarting = tasks.value.every((t) => t.completed)
-
-function previousTask() {
-    if (hijackWithCompetitionIntro.value && anyPreviousStep.value) {
-        hijackWithCompetitionIntro.value = false
-        currentTaskIndex.value--
-        return
-    }
-    if (currentIsFirstCompetitionTask.value) {
-        hijackWithCompetitionIntro.value = true
-        return
-    }
-    if (currentTaskIndex.value > 0) {
-        currentTaskIndex.value -= 1
-        isCurrentStepDone.value = true
-    }
-}
-
-const savingTaskProgress = ref(false)
-async function nextTask() {
-    const skipSave = currentTask.value.__typename == "AlternativesTask"
-    if (!isLastTask.value) {
-        // intentionally not awaiting
-        if (!skipSave) await completeTask({ taskId: currentTask.value.id })
-        currentTask.value.completed = true
-        currentTaskIndex.value += 1
-        isCurrentStepDone.value = false
-        if (
-            currentTask.value.__typename == "AlternativesTask" &&
-            lockData?.value?.lockLessonAnswers
-        ) {
-            isCurrentStepDone.value = true
-        }
-    } else {
-        // done with the tasks
-        // awaiting to avoid race condition with achievements
-        savingTaskProgress.value = true
-        if (!skipSave) await completeTask({ taskId: currentTask.value.id })
-        await new Promise((r) => setTimeout(r, 100))
-        currentTask.value.completed = true
-        savingTaskProgress.value = false
-        if (!allCompletedBeforeStarting) {
-            webViewStudy?.tasksCompleted()
-        }
-        emit("navigate", "more")
-    }
-}
-
-const skipCompetition = () => {
-    tasks.value
-        .filter((t) => t.__typename == "AlternativesTask" && t.competitionMode)
-        .forEach(
-            async (t) =>
-                await completeTask({ taskId: t.id, selectedAlternatives: [] })
-        )
-    const lastCompetitionTaskIndex = findLastIndex(
-        tasks.value,
-        (t) => t.__typename == "AlternativesTask" && t.competitionMode
-    )
-    currentTaskIndex.value = lastCompetitionTaskIndex
-    nextTask()
-    hijackWithCompetitionIntro.value = false
-}
-
-const lockAnswers = async () => {
-    lockingInProgress.value = true
-    try {
-        const answers = competitionAnswers.value
-        let promises: Promise<any>[] = []
-        for (var taskId in answers) {
-            const alternativeId = answers[taskId]
-            if (alternativeId == null) {
-                throw new Error(
-                    `Tried to lock, but ${taskId} has null alternative selected.
-                    competitionAnswers: ${JSON.stringify(answers)}`
-                )
-            }
-            promises.push(
-                completeTask({
-                    taskId,
-                    selectedAlternatives: [alternativeId],
-                })
-            )
-        }
-        await Promise.all(promises)
-        await new Promise((r) => setTimeout(r, 200))
-        await executeLockAnswersMutation({
-            lessonId: props.lesson.studyLesson.id,
-        })
-        showConfirmModal.value = false
-    } finally {
-        lockingInProgress.value = false
-    }
-}
-
-const anyPreviousStep = computed(() => currentTaskIndex.value > 0)
-</script>
 @/services/webviews/studyHandler

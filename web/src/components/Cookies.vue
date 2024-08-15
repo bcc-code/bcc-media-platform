@@ -1,3 +1,22 @@
+<script lang="ts" setup>
+import { useGetMeQuery } from "@/graph/generated"
+import { analytics } from "@/services/analytics"
+import { useCookies } from "@/services/cookies"
+import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue"
+import { VButton } from "."
+
+const { accepted, preferences, statistics } = useCookies()
+
+const { executeQuery } = useGetMeQuery({ variables: {} })
+
+const accept = () => {
+    accepted.value = true
+    analytics.initialize(
+        async () =>
+            (await executeQuery()).data.value?.me.analytics.anonymousId ?? null
+    )
+}
+</script>
 <template>
     <div v-if="!accepted" class="flex bg-slate-800">
         <div class="flex flex-col gap-4 max-w-2xl mx-auto p-4 my-4 lg:my-10">
@@ -64,22 +83,3 @@
         </div>
     </div>
 </template>
-<script lang="ts" setup>
-import { useGetMeQuery } from "@/graph/generated"
-import { analytics } from "@/services/analytics"
-import { useCookies } from "@/services/cookies"
-import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue"
-import { VButton } from "."
-
-const { accepted, preferences, statistics } = useCookies()
-
-const { executeQuery } = useGetMeQuery({ variables: {} })
-
-const accept = () => {
-    accepted.value = true
-    analytics.initialize(
-        async () =>
-            (await executeQuery()).data.value?.me.analytics.anonymousId ?? null
-    )
-}
-</script>

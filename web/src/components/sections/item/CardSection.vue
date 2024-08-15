@@ -1,3 +1,21 @@
+<script lang="ts" setup>
+import { Section } from "../types"
+import SectionTitle from "./SectionTitle.vue"
+import { computed } from "vue"
+import StudyTopicCardLarge from "./cards/StudyTopicCardLarge.vue"
+
+const props = defineProps<{
+    item: Section & { __typename: "CardSection" }
+}>()
+
+defineEmits<{
+    (event: "clickItem", index: number): void
+}>()
+
+const filteredItems = computed(() =>
+    props.item.items.items.filter((i) => i.item.__typename === "StudyTopic")
+)
+</script>
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
@@ -17,21 +35,3 @@
         </div>
     </section>
 </template>
-<script lang="ts" setup>
-import { Section } from "../types"
-import SectionTitle from "./SectionTitle.vue"
-import { computed } from "vue"
-import StudyTopicCardLarge from "./cards/StudyTopicCardLarge.vue"
-
-const props = defineProps<{
-    item: Section & { __typename: "CardSection" }
-}>()
-
-defineEmits<{
-    (event: "clickItem", index: number): void
-}>()
-
-const filteredItems = computed(() =>
-    props.item.items.items.filter((i) => i.item.__typename === "StudyTopic")
-)
-</script>

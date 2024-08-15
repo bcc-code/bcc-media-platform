@@ -1,23 +1,3 @@
-<template>
-    <div
-        ref="imageContainer"
-        class="bg-primary-light overflow-hidden relative"
-        :class="[!loaded ? 'border-1 border border-slate-700 opacity-50' : '']"
-    >
-        <img
-            class="object-cover w-full transition"
-            :class="[!loaded ? 'opacity-0' : 'opacity-100']"
-            :height="effectiveSize?.height"
-            :width="effectiveSize?.width"
-            :loading="loading"
-            :draggable="draggable"
-            :src="effectiveSrc"
-            @loadstart="onLoadStart"
-            @load="onLoaded"
-        />
-    </div>
-</template>
-
 <script lang="ts" setup>
 import { getImageSize } from "@/utils/images"
 import { useElementSize, useParentElement, watchDebounced } from "@vueuse/core"
@@ -93,3 +73,23 @@ watchDebounced(
     }
 )
 </script>
+
+<template>
+    <div
+        ref="imageContainer"
+        class="bg-primary-light overflow-hidden relative"
+        :class="[!loaded ? 'border-1 border border-slate-700 opacity-50' : '']"
+    >
+        <img
+            class="object-cover w-full transition"
+            :class="[!loaded ? 'opacity-0' : 'opacity-100']"
+            :height="effectiveSize?.height"
+            :width="effectiveSize?.width"
+            :loading="loading"
+            :draggable="draggable"
+            :src="effectiveSrc"
+            @loadstart="onLoadStart"
+            @load="onLoaded"
+        />
+    </div>
+</template>

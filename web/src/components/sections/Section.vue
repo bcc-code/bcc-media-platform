@@ -1,3 +1,45 @@
+<script lang="ts" setup>
+import { useWindowSize } from "@vueuse/core"
+import { computed } from "vue"
+import CardSection from "./item/CardSection.vue"
+import DefaultGridSection from "./item/DefaultGridSection.vue"
+import DefaultSection from "./item/DefaultSection.vue"
+import FeaturedSection from "./item/FeaturedSection.vue"
+import IconGridSection from "./item/IconGridSection.vue"
+import IconSection from "./item/IconSection.vue"
+import LabelSection from "./item/LabelSection.vue"
+import ListSection from "./item/ListSection.vue"
+import PosterGridSection from "./item/PosterGridSection.vue"
+import PosterSection from "./item/PosterSection.vue"
+import MessageSection from "./MessageSection.vue"
+import { Section } from "./types"
+import WebSection from "./WebSection.vue"
+
+defineProps<{
+    section: Section
+    index: {
+        last: number
+        current: number
+    }
+}>()
+
+defineEmits<{
+    (e: "loadMore"): void
+    (e: "clickItem", index: number): void
+}>()
+
+const hasItems = (section: {
+    items: {
+        items: any[]
+    }
+}) => {
+    return section.items.items.length > 0
+}
+
+const { width } = useWindowSize()
+const isLargeScreen = computed(() => width.value > 768)
+</script>
+
 <template>
     <DefaultSection
         v-if="
@@ -87,45 +129,3 @@
         @click-item="(i) => $emit('clickItem', i)"
     ></CardSection>
 </template>
-
-<script lang="ts" setup>
-import { useWindowSize } from "@vueuse/core"
-import { computed } from "vue"
-import CardSection from "./item/CardSection.vue"
-import DefaultGridSection from "./item/DefaultGridSection.vue"
-import DefaultSection from "./item/DefaultSection.vue"
-import FeaturedSection from "./item/FeaturedSection.vue"
-import IconGridSection from "./item/IconGridSection.vue"
-import IconSection from "./item/IconSection.vue"
-import LabelSection from "./item/LabelSection.vue"
-import ListSection from "./item/ListSection.vue"
-import PosterGridSection from "./item/PosterGridSection.vue"
-import PosterSection from "./item/PosterSection.vue"
-import MessageSection from "./MessageSection.vue"
-import { Section } from "./types"
-import WebSection from "./WebSection.vue"
-
-defineProps<{
-    section: Section
-    index: {
-        last: number
-        current: number
-    }
-}>()
-
-defineEmits<{
-    (e: "loadMore"): void
-    (e: "clickItem", index: number): void
-}>()
-
-const hasItems = (section: {
-    items: {
-        items: any[]
-    }
-}) => {
-    return section.items.items.length > 0
-}
-
-const { width } = useWindowSize()
-const isLargeScreen = computed(() => width.value > 768)
-</script>

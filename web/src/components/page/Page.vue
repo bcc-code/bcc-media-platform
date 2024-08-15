@@ -1,62 +1,3 @@
-<template>
-    <section class="overflow-hidden">
-        <transition
-            mode="out-in"
-            enter-active-class="duration-300 ease-out"
-            enter-from-class=" opacity-0"
-            enter-to-class="opacity-100"
-            leave-active-class="duration-200 ease-in"
-            leave-from-class="opacity-100"
-            leave-to-class=" opacity-0"
-        >
-            <div
-                v-if="page && page.sections.items.length"
-                class="px-4 lg:px-20 flex flex-col gap-8 relative"
-            >
-                <Section
-                    v-for="(section, i) in page.sections.items"
-                    :key="section.id"
-                    v-motion
-                    :section="section"
-                    :index="{ last: page.sections.total - 1, current: i }"
-                    :initial="{
-                        opacity: 0.01,
-                        y: 20,
-                    }"
-                    :enter="{
-                        y: 0,
-                        opacity: 1,
-                        transition: {
-                            duration: 1500,
-                            ease: TransitionPresets.easeOutExpo,
-                        },
-                    }"
-                    :delay="i < 10 ? i * 100 : 0"
-                    @load-more="appendItems(section)"
-                    @click-item="(index) => clickItem(i, index)"
-                >
-                </Section>
-                <div
-                    v-if="
-                        page.sections.total >
-                        page.sections.offset + page.sections.first
-                    "
-                    class="absolute bottom-0 left-0 w-full h-80 bg-gradient-to-t from-background to-transparent z-10 transition flex"
-                >
-                    <Loader v-if="fetching" class="mx-auto my-auto"></Loader>
-                </div>
-                <!-- <div v-else class="h-40"></div> -->
-            </div>
-            <div v-else-if="!fetching && !loading">
-                <NotFound :title="$t('page.notFound')"></NotFound>
-            </div>
-            <div v-else-if="error">3{{ error.message }}</div>
-            <div v-else class="flex w-full h-48 items-center justify-center">
-                <Loader variant="spinner" />
-            </div>
-        </transition>
-    </section>
-</template>
 <script lang="ts" setup>
 import {
     GetPageQuery,
@@ -276,3 +217,62 @@ onUnmounted(() => {
 
 load()
 </script>
+<template>
+    <section class="overflow-hidden">
+        <transition
+            mode="out-in"
+            enter-active-class="duration-300 ease-out"
+            enter-from-class=" opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="duration-200 ease-in"
+            leave-from-class="opacity-100"
+            leave-to-class=" opacity-0"
+        >
+            <div
+                v-if="page && page.sections.items.length"
+                class="px-4 lg:px-20 flex flex-col gap-8 relative"
+            >
+                <Section
+                    v-for="(section, i) in page.sections.items"
+                    :key="section.id"
+                    v-motion
+                    :section="section"
+                    :index="{ last: page.sections.total - 1, current: i }"
+                    :initial="{
+                        opacity: 0.01,
+                        y: 20,
+                    }"
+                    :enter="{
+                        y: 0,
+                        opacity: 1,
+                        transition: {
+                            duration: 1500,
+                            ease: TransitionPresets.easeOutExpo,
+                        },
+                    }"
+                    :delay="i < 10 ? i * 100 : 0"
+                    @load-more="appendItems(section)"
+                    @click-item="(index) => clickItem(i, index)"
+                >
+                </Section>
+                <div
+                    v-if="
+                        page.sections.total >
+                        page.sections.offset + page.sections.first
+                    "
+                    class="absolute bottom-0 left-0 w-full h-80 bg-gradient-to-t from-background to-transparent z-10 transition flex"
+                >
+                    <Loader v-if="fetching" class="mx-auto my-auto"></Loader>
+                </div>
+                <!-- <div v-else class="h-40"></div> -->
+            </div>
+            <div v-else-if="!fetching && !loading">
+                <NotFound :title="$t('page.notFound')"></NotFound>
+            </div>
+            <div v-else-if="error">3{{ error.message }}</div>
+            <div v-else class="flex w-full h-48 items-center justify-center">
+                <Loader variant="spinner" />
+            </div>
+        </transition>
+    </section>
+</template>

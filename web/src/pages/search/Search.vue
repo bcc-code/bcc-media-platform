@@ -1,38 +1,3 @@
-<template>
-    <section class="p-4 lg:p-20">
-        <div class="flex lg:hidden w-full text-xl mb-4">
-            <SearchInput v-model="query" class="mx-auto lg:w-96"></SearchInput>
-        </div>
-        <div v-if="query && loaded" class="relative">
-            <ShowSearchQuery
-                v-if="showSearchQuery.data.value"
-                class="mt-2 mb-8"
-                :query-string="queryVariable"
-                :result="showSearchQuery.data.value"
-            ></ShowSearchQuery>
-            <EpisodeSearchQuery
-                v-if="episodeSearchQuery.data.value"
-                class="mb-2"
-                :query-string="queryVariable"
-                :result="episodeSearchQuery.data.value"
-                @item-click="clickEpisode"
-            ></EpisodeSearchQuery>
-            <NotFound
-                :link="false"
-                class="transition opacity-100"
-                :class="{ 'opacity-0': showCount !== 0 || episodeCount !== 0 }"
-            >
-                <template #title>{{ $t("search.noResults") }}</template>
-                <template #description>{{
-                    $t("search.tryAdjustingQuery")
-                }}</template>
-            </NotFound>
-        </div>
-        <div v-else class="w-full text-center">
-            <p class="text-lg text-gray">{{ $t("search.emptyQuery") }}</p>
-        </div>
-    </section>
-</template>
 <script lang="ts" setup>
 import { nextTick, onMounted, ref, watch } from "vue"
 import ShowSearchQuery from "@/components/search/ShowSearchQuery.vue"
@@ -137,3 +102,38 @@ const episodeSearchQuery = useSearchQuery({
     },
 })
 </script>
+<template>
+    <section class="p-4 lg:p-20">
+        <div class="flex lg:hidden w-full text-xl mb-4">
+            <SearchInput v-model="query" class="mx-auto lg:w-96"></SearchInput>
+        </div>
+        <div v-if="query && loaded" class="relative">
+            <ShowSearchQuery
+                v-if="showSearchQuery.data.value"
+                class="mt-2 mb-8"
+                :query-string="queryVariable"
+                :result="showSearchQuery.data.value"
+            ></ShowSearchQuery>
+            <EpisodeSearchQuery
+                v-if="episodeSearchQuery.data.value"
+                class="mb-2"
+                :query-string="queryVariable"
+                :result="episodeSearchQuery.data.value"
+                @item-click="clickEpisode"
+            ></EpisodeSearchQuery>
+            <NotFound
+                :link="false"
+                class="transition opacity-100"
+                :class="{ 'opacity-0': showCount !== 0 || episodeCount !== 0 }"
+            >
+                <template #title>{{ $t("search.noResults") }}</template>
+                <template #description>{{
+                    $t("search.tryAdjustingQuery")
+                }}</template>
+            </NotFound>
+        </div>
+        <div v-else class="w-full text-center">
+            <p class="text-lg text-gray">{{ $t("search.emptyQuery") }}</p>
+        </div>
+    </section>
+</template>

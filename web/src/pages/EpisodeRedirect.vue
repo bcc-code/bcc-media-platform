@@ -1,4 +1,3 @@
-<template></template>
 <script lang="ts" setup>
 import { useGetLegacyIdQuery } from "@/graph/generated"
 
@@ -22,3 +21,4 @@ then(() => {
     }
 })
 </script>
+<template></template>

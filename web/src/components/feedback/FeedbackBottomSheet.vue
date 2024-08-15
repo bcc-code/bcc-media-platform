@@ -1,3 +1,66 @@
+<script lang="ts" setup>
+import { computed, ref } from "vue"
+import { useI18n } from "vue-i18n"
+import { VButton } from ".."
+import FeedbackRating from "./FeedbackRating.vue"
+import swipeModal from "@takuma-ru/vue-swipe-modal"
+import { useSendEpisodeFeedbackMutation } from "@/graph/generated"
+import Loader from "../Loader.vue"
+const { fetching, executeMutation, error, data } =
+    useSendEpisodeFeedbackMutation()
+
+const { t } = useI18n()
+
+const props = defineProps<{
+    visible: boolean
+    selected: number | null
+    episodeId: string
+}>()
+const emit = defineEmits<{
+    (event: "change"): void
+    (event: "update:visible", val: boolean): void
+    (event: "update:selected", val: number | null): void
+    (e: "sent"): void
+}>()
+
+const comment = ref("")
+
+const _selected = computed({
+    get() {
+        return props.selected
+    },
+    set(value) {
+        if (value != null) {
+            emit("update:selected", value)
+        }
+    },
+})
+const _visible = computed({
+    get() {
+        return props.visible
+    },
+    set(value) {
+        emit("update:visible", value)
+    },
+})
+
+const cancel = (e: Event) => {
+    emit("update:selected", null)
+    emit("update:visible", false)
+    setTimeout(() => emit("update:visible", false), 10)
+}
+const sendFeedback = async () => {
+    var result = await executeMutation({
+        episodeId: props.episodeId,
+        rating: _selected.value!,
+        message: comment.value,
+    })
+    if (result.error == null) {
+        emit("sent")
+    }
+}
+</script>
+
 <template>
     <swipe-modal
         v-model="_visible"
@@ -87,69 +150,6 @@
         </div>
     </swipe-modal>
 </template>
-
-<script lang="ts" setup>
-import { computed, ref } from "vue"
-import { useI18n } from "vue-i18n"
-import { VButton } from ".."
-import FeedbackRating from "./FeedbackRating.vue"
-import swipeModal from "@takuma-ru/vue-swipe-modal"
-import { useSendEpisodeFeedbackMutation } from "@/graph/generated"
-import Loader from "../Loader.vue"
-const { fetching, executeMutation, error, data } =
-    useSendEpisodeFeedbackMutation()
-
-const { t } = useI18n()
-
-const props = defineProps<{
-    visible: boolean
-    selected: number | null
-    episodeId: string
-}>()
-const emit = defineEmits<{
-    (event: "change"): void
-    (event: "update:visible", val: boolean): void
-    (event: "update:selected", val: number | null): void
-    (e: "sent"): void
-}>()
-
-const comment = ref("")
-
-const _selected = computed({
-    get() {
-        return props.selected
-    },
-    set(value) {
-        if (value != null) {
-            emit("update:selected", value)
-        }
-    },
-})
-const _visible = computed({
-    get() {
-        return props.visible
-    },
-    set(value) {
-        emit("update:visible", value)
-    },
-})
-
-const cancel = (e: Event) => {
-    emit("update:selected", null)
-    emit("update:visible", false)
-    setTimeout(() => emit("update:visible", false), 10)
-}
-const sendFeedback = async () => {
-    var result = await executeMutation({
-        episodeId: props.episodeId,
-        rating: _selected.value!,
-        message: comment.value,
-    })
-    if (result.error == null) {
-        emit("sent")
-    }
-}
-</script>
 <style scoped>
 .modal-style {
     color: white !important;

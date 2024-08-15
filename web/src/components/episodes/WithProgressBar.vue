@@ -1,3 +1,10 @@
+<script lang="ts" setup>
+import ProgressBar from "./ProgressBar.vue"
+
+defineProps<{
+    item?: { id: string; progress?: number | null; duration: number }
+}>()
+</script>
 <template>
     <div class="relative">
         <slot></slot>
@@ -8,10 +15,3 @@
         ></ProgressBar>
     </div>
 </template>
-<script lang="ts" setup>
-import ProgressBar from "./ProgressBar.vue"
-
-defineProps<{
-    item?: { id: string; progress?: number | null; duration: number }
-}>()
-</script>

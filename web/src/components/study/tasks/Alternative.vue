@@ -1,80 +1,3 @@
-<template>
-    <div
-        :class="
-            'inline-flex space-x-4 items-center justify-start w-full min-h-[4rem] py-2.5 pl-4 bg-separator-on-light bg-opacity-10 rounded-xl border-2 relative ' +
-            conditionalClass
-        "
-        @click="handleClick"
-    >
-        <p
-            class="w-5 text-2xl font-extrabold leading-7 text-center text-label-3"
-        >
-            {{ letter }}
-        </p>
-        <p class="flex-1 text-label-1 text-style-title-3">{{ text }}</p>
-
-        <div class="flex items-center justify-center p-1.5 pr-4">
-            <svg
-                v-if="props.selected && props.correct === false"
-                width="14"
-                height="14"
-                viewBox="0 0 14 14"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <path d="M13 1L1 13" stroke="#E63C62" stroke-width="2" />
-                <path d="M1 1L13 13" stroke="#E63C62" stroke-width="2" />
-            </svg>
-            <svg
-                v-else-if="props.selected && props.correct === true"
-                width="15"
-                height="12"
-                viewBox="0 0 15 12"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <path
-                    d="M13.7887 1.3033L5.30337 9.78858L1.00007 5.48528"
-                    stroke="#71D2A4"
-                    stroke-width="2"
-                />
-            </svg>
-
-            <svg
-                v-else-if="props.selected && props.correct === undefined"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <circle cx="12" cy="12" r="12" fill="#6EB0E6" />
-                <path
-                    d="M18.5387 8.0533L10.0534 16.5386L5.75007 12.2353"
-                    stroke="white"
-                    stroke-width="2"
-                />
-            </svg>
-
-            <div v-else class="w-4">&nbsp;</div>
-        </div>
-        <div
-            v-if="!competitionMode"
-            class="absolute top-50 left-0 pr-4 pointer-events-none z-20"
-        >
-            <LottieAnimation
-                ref="confetti"
-                :loop="false"
-                :auto-play="false"
-                width="100%"
-                :speed="1"
-                :animation-data="confettiAnimation"
-                @on-complete="() => confetti.stop()"
-            ></LottieAnimation>
-        </div>
-    </div>
-</template>
-
 <script setup lang="ts">
 import { webViewMain } from "@/services/webviews/mainHandler"
 import { computed, ref, VNodeRef, VueElement } from "vue"
@@ -153,6 +76,83 @@ const conditionalClass = computed(() => {
     return classString
 })
 </script>
+
+<template>
+    <div
+        :class="
+            'inline-flex space-x-4 items-center justify-start w-full min-h-[4rem] py-2.5 pl-4 bg-separator-on-light bg-opacity-10 rounded-xl border-2 relative ' +
+            conditionalClass
+        "
+        @click="handleClick"
+    >
+        <p
+            class="w-5 text-2xl font-extrabold leading-7 text-center text-label-3"
+        >
+            {{ letter }}
+        </p>
+        <p class="flex-1 text-label-1 text-style-title-3">{{ text }}</p>
+
+        <div class="flex items-center justify-center p-1.5 pr-4">
+            <svg
+                v-if="props.selected && props.correct === false"
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path d="M13 1L1 13" stroke="#E63C62" stroke-width="2" />
+                <path d="M1 1L13 13" stroke="#E63C62" stroke-width="2" />
+            </svg>
+            <svg
+                v-else-if="props.selected && props.correct === true"
+                width="15"
+                height="12"
+                viewBox="0 0 15 12"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path
+                    d="M13.7887 1.3033L5.30337 9.78858L1.00007 5.48528"
+                    stroke="#71D2A4"
+                    stroke-width="2"
+                />
+            </svg>
+
+            <svg
+                v-else-if="props.selected && props.correct === undefined"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <circle cx="12" cy="12" r="12" fill="#6EB0E6" />
+                <path
+                    d="M18.5387 8.0533L10.0534 16.5386L5.75007 12.2353"
+                    stroke="white"
+                    stroke-width="2"
+                />
+            </svg>
+
+            <div v-else class="w-4">&nbsp;</div>
+        </div>
+        <div
+            v-if="!competitionMode"
+            class="absolute top-50 left-0 pr-4 pointer-events-none z-20"
+        >
+            <LottieAnimation
+                ref="confetti"
+                :loop="false"
+                :auto-play="false"
+                width="100%"
+                :speed="1"
+                :animation-data="confettiAnimation"
+                @on-complete="() => confetti.stop()"
+            ></LottieAnimation>
+        </div>
+    </div>
+</template>
 
 <style scoped>
 .shake {

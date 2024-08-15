@@ -1,40 +1,3 @@
-<template>
-    <div
-        class="inline-flex flex-col space-y-6 items-center justify-start w-full h-full"
-    >
-        <div
-            v-if="fetching"
-            class="p-12 h-full flex items-center justify-center"
-        >
-            <Loader variant="spinner"></Loader>
-        </div>
-        <div v-else-if="error" class="p-12">
-            <div class="text-style-title-1">Something went wrong</div>
-            <div class="text-red mt-4">{{ error.message }}</div>
-            <div class="text-red mt-2">{{ error.stack }}</div>
-            <VButton class="mt-4" @click="() => reload()">Retry</VButton>
-        </div>
-        <template v-else-if="data != null">
-            <transition name="fade" mode="out-in">
-                <Tasks
-                    v-if="page == 'intro'"
-                    :lesson="data"
-                    @navigate="(t) => (page = t)"
-                />
-                <Tasks
-                    v-else-if="page == 'tasks'"
-                    :lesson="data"
-                    @navigate="(t) => (page = t)"
-                />
-                <More
-                    v-else-if="page == 'more'"
-                    :lesson="data"
-                    @navigate="(t) => (page = t)"
-                />
-            </transition>
-        </template>
-    </div>
-</template>
 <script lang="ts" setup>
 import { onMounted, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
@@ -102,3 +65,40 @@ const reload = () => {
     executeQuery()
 }
 </script>
+<template>
+    <div
+        class="inline-flex flex-col space-y-6 items-center justify-start w-full h-full"
+    >
+        <div
+            v-if="fetching"
+            class="p-12 h-full flex items-center justify-center"
+        >
+            <Loader variant="spinner"></Loader>
+        </div>
+        <div v-else-if="error" class="p-12">
+            <div class="text-style-title-1">Something went wrong</div>
+            <div class="text-red mt-4">{{ error.message }}</div>
+            <div class="text-red mt-2">{{ error.stack }}</div>
+            <VButton class="mt-4" @click="() => reload()">Retry</VButton>
+        </div>
+        <template v-else-if="data != null">
+            <transition name="fade" mode="out-in">
+                <Tasks
+                    v-if="page == 'intro'"
+                    :lesson="data"
+                    @navigate="(t) => (page = t)"
+                />
+                <Tasks
+                    v-else-if="page == 'tasks'"
+                    :lesson="data"
+                    @navigate="(t) => (page = t)"
+                />
+                <More
+                    v-else-if="page == 'more'"
+                    :lesson="data"
+                    @navigate="(t) => (page = t)"
+                />
+            </transition>
+        </template>
+    </div>
+</template>

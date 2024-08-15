@@ -1,3 +1,10 @@
+<script lang="ts" setup>
+import { useAuth } from "@/services/auth"
+import { VButton } from ".."
+import Image from "../Image.vue"
+
+const { signIn } = useAuth()
+</script>
 <template>
     <div class="w-full flex">
         <div class="mx-auto max-w-lg text-center flex flex-col gap-2 mt-4">
@@ -22,10 +29,3 @@
         </div>
     </div>
 </template>
-<script lang="ts" setup>
-import { useAuth } from "@/services/auth"
-import { VButton } from ".."
-import Image from "../Image.vue"
-
-const { signIn } = useAuth()
-</script>

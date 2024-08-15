@@ -1,14 +1,3 @@
-<template>
-    <div class="px-2 lg:px-20">
-        <EpisodeDisplay
-            :auto-play="autoPlay"
-            :initial-episode-id="videoId"
-            :uuid="true"
-            :context="context"
-            @episode="setEpisode"
-        ></EpisodeDisplay>
-    </div>
-</template>
 <script lang="ts" setup>
 import { GetEpisodeQuery } from "@/graph/generated"
 import { computed, ref } from "vue"
@@ -51,3 +40,14 @@ const setEpisode = (episode: GetEpisodeQuery["episode"]) => {
     })
 }
 </script>
+<template>
+    <div class="px-2 lg:px-20">
+        <EpisodeDisplay
+            :auto-play="autoPlay"
+            :initial-episode-id="videoId"
+            :uuid="true"
+            :context="context"
+            @episode="setEpisode"
+        ></EpisodeDisplay>
+    </div>
+</template>

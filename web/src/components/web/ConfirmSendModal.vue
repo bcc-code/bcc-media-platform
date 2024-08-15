@@ -1,3 +1,32 @@
+<script setup lang="ts">
+import { ref } from "vue"
+import {
+    TransitionRoot,
+    TransitionChild,
+    Dialog,
+    DialogPanel,
+    DialogTitle,
+} from "@headlessui/vue"
+
+defineProps<{
+    open: boolean
+}>()
+
+const emit = defineEmits<{
+    (e: "update:open", v: boolean): void
+    (e: "confirm"): void
+    (e: "close"): void
+}>()
+
+function closeModal() {
+    emit("update:open", false)
+    emit("close")
+}
+function openModal() {
+    emit("update:open", true)
+}
+</script>
+
 <template>
     <TransitionRoot appear :show="open" as="template">
         <Dialog as="div" class="relative z-10" @close="closeModal">
@@ -68,32 +97,3 @@
         </Dialog>
     </TransitionRoot>
 </template>
-
-<script setup lang="ts">
-import { ref } from "vue"
-import {
-    TransitionRoot,
-    TransitionChild,
-    Dialog,
-    DialogPanel,
-    DialogTitle,
-} from "@headlessui/vue"
-
-defineProps<{
-    open: boolean
-}>()
-
-const emit = defineEmits<{
-    (e: "update:open", v: boolean): void
-    (e: "confirm"): void
-    (e: "close"): void
-}>()
-
-function closeModal() {
-    emit("update:open", false)
-    emit("close")
-}
-function openModal() {
-    emit("update:open", true)
-}
-</script>

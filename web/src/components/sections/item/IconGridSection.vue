@@ -1,3 +1,18 @@
+<script lang="ts" setup>
+import { Section } from "../types"
+
+import SectionTitle from "./SectionTitle.vue"
+import Image from "@/components/Image.vue"
+
+defineProps<{
+    position: number
+    item: Section & { __typename: "IconGridSection" }
+}>()
+
+defineEmits<{
+    (event: "clickItem", index: number): void
+}>()
+</script>
 <template>
     <section class="w-full">
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
@@ -25,18 +40,3 @@
         </div>
     </section>
 </template>
-<script lang="ts" setup>
-import { Section } from "../types"
-
-import SectionTitle from "./SectionTitle.vue"
-import Image from "@/components/Image.vue"
-
-defineProps<{
-    position: number
-    item: Section & { __typename: "IconGridSection" }
-}>()
-
-defineEmits<{
-    (event: "clickItem", index: number): void
-}>()
-</script>

@@ -1,11 +1,3 @@
-<template>
-    <PageComponent
-        v-if="!fetching"
-        :key="page"
-        :page-id="page"
-        @title="updateTitle"
-    ></PageComponent>
-</template>
 <script lang="ts" setup>
 import PageComponent from "@/components/page/Page.vue"
 import { useApplicationQuery } from "@/graph/generated"
@@ -45,3 +37,11 @@ const updateTitle = (title: string) => {
     setCurrent(page.value)
 }
 </script>
+<template>
+    <PageComponent
+        v-if="!fetching"
+        :key="page"
+        :page-id="page"
+        @title="updateTitle"
+    ></PageComponent>
+</template>

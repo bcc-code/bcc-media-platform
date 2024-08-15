@@ -1,18 +1,3 @@
-<template>
-    <div class="h-dvh w-dvw embedded-page">
-        <div
-            v-if="initializing"
-            class="flex h-full items-center justify-center"
-        >
-            <Loader variant="spinner" />
-        </div>
-        <router-view v-else v-slot="{ Component }" class="fade-expo-1s">
-            <transition name="slide-fade" mode="out-in">
-                <component :is="Component" :key="$route.name" />
-            </transition>
-        </router-view>
-    </div>
-</template>
 <script lang="ts" setup>
 import router from "@/router"
 import settings from "@/services/settings"
@@ -61,6 +46,21 @@ onMounted(async () => {
     initializing.value = false
 })
 </script>
+<template>
+    <div class="h-dvh w-dvw embedded-page">
+        <div
+            v-if="initializing"
+            class="flex h-full items-center justify-center"
+        >
+            <Loader variant="spinner" />
+        </div>
+        <router-view v-else v-slot="{ Component }" class="fade-expo-1s">
+            <transition name="slide-fade" mode="out-in">
+                <component :is="Component" :key="$route.name" />
+            </transition>
+        </router-view>
+    </div>
+</template>
 
 <style>
 .bg-background {

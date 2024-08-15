@@ -1,3 +1,69 @@
+<script lang="ts" setup>
+import { VButton } from "@/components"
+import { useSendSupportEmailMutation } from "@/graph/generated"
+import { getRevision } from "@/services/revision"
+import {
+    Dialog,
+    DialogPanel,
+    DialogTitle,
+    DialogDescription,
+    TransitionChild,
+    TransitionRoot,
+} from "@headlessui/vue"
+import { ref } from "vue"
+
+const { fetching, executeMutation } = useSendSupportEmailMutation()
+
+defineProps<{ show: boolean }>()
+
+const emit = defineEmits<{
+    (e: "update:show", v: boolean): void
+}>()
+
+const title = ref("")
+const content = ref("")
+
+const technicalDetails = ref(null as HTMLDivElement | null)
+
+const technicalProperties = {
+    Platform: navigator.platform,
+    Version: "",
+    "Window Size": window.outerWidth + " x " + window.outerHeight,
+}
+
+getRevision().then((r) => (technicalProperties.Version = r))
+
+const submit = async () => {
+    const isValid = validateForm()
+    if (!isValid) {
+        return
+    }
+
+    const html =
+        "<div><h1>" +
+        title.value +
+        "</h1><p>" +
+        content.value +
+        "</p><br/>" +
+        technicalDetails.value?.innerHTML +
+        "</div>"
+
+    await executeMutation({
+        title: "BTV Web - " + title.value,
+        content: content.value,
+        html,
+    })
+    closePanel()
+}
+
+const validateForm = () => title.value && content.value
+
+const closePanel = () => {
+    title.value = ""
+    content.value = ""
+    emit("update:show", false)
+}
+</script>
 <template>
     <TransitionRoot
         as="template"
@@ -107,69 +173,3 @@
         </Dialog>
     </TransitionRoot>
 </template>
-<script lang="ts" setup>
-import { VButton } from "@/components"
-import { useSendSupportEmailMutation } from "@/graph/generated"
-import { getRevision } from "@/services/revision"
-import {
-    Dialog,
-    DialogPanel,
-    DialogTitle,
-    DialogDescription,
-    TransitionChild,
-    TransitionRoot,
-} from "@headlessui/vue"
-import { ref } from "vue"
-
-const { fetching, executeMutation } = useSendSupportEmailMutation()
-
-defineProps<{ show: boolean }>()
-
-const emit = defineEmits<{
-    (e: "update:show", v: boolean): void
-}>()
-
-const title = ref("")
-const content = ref("")
-
-const technicalDetails = ref(null as HTMLDivElement | null)
-
-const technicalProperties = {
-    Platform: navigator.platform,
-    Version: "",
-    "Window Size": window.outerWidth + " x " + window.outerHeight,
-}
-
-getRevision().then((r) => (technicalProperties.Version = r))
-
-const submit = async () => {
-    const isValid = validateForm()
-    if (!isValid) {
-        return
-    }
-
-    const html =
-        "<div><h1>" +
-        title.value +
-        "</h1><p>" +
-        content.value +
-        "</p><br/>" +
-        technicalDetails.value?.innerHTML +
-        "</div>"
-
-    await executeMutation({
-        title: "BTV Web - " + title.value,
-        content: content.value,
-        html,
-    })
-    closePanel()
-}
-
-const validateForm = () => title.value && content.value
-
-const closePanel = () => {
-    title.value = ""
-    content.value = ""
-    emit("update:show", false)
-}
-</script>

@@ -1,3 +1,8 @@
+<script lang="ts" setup>
+defineProps<{
+    selected?: boolean
+}>()
+</script>
 <template>
     <img
         :src="
@@ -6,8 +11,3 @@
         "
     />
 </template>
-<script lang="ts" setup>
-defineProps<{
-    selected?: boolean
-}>()
-</script>

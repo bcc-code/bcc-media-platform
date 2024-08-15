@@ -1,37 +1,3 @@
-<template>
-    <div class="flex flex-col h-screen">
-        <div
-            v-if="!tLoading"
-            class="relative flex-grow flex-shrink-0"
-            :class="[!shouldSignIn() ? '' : 'overflow-auto']"
-        >
-            <Navbar class="lg:px-20"></Navbar>
-            <div class="overflow-x-hidden flex-grow flex-shrink-0">
-                <router-view v-slot="{ Component }">
-                    <transition name="fade" mode="out-in">
-                        <component :is="Component" :key="$route.name" />
-                    </transition>
-                </router-view>
-            </div>
-            <ShouldSignInPopup></ShouldSignInPopup>
-            <div v-if="errors" class="text-red-500">
-                <p v-for="(error, i) in errors">
-                    {{ error.title }}
-                    <span class="cursor-pointer" @click="removeError(i)"
-                        >X</span
-                    >
-                </p>
-            </div>
-            <div v-else class="flex">
-                <div class="m-auto">
-                    <Loader></Loader>
-                </div>
-            </div>
-        </div>
-        <Footer class="flex-shrink-0"></Footer>
-        <Cookies v-if="!tLoading" class="bottom-0 fixed w-full z-20"></Cookies>
-    </div>
-</template>
 <script lang="ts" setup>
 import Navbar from "@/components/navbar/Navbar.vue"
 import { errors, removeError } from "@/utils/error"
@@ -69,6 +35,40 @@ onMounted(async () => {
 
 init()
 </script>
+<template>
+    <div class="flex flex-col h-screen">
+        <div
+            v-if="!tLoading"
+            class="relative flex-grow flex-shrink-0"
+            :class="[!shouldSignIn() ? '' : 'overflow-auto']"
+        >
+            <Navbar class="lg:px-20"></Navbar>
+            <div class="overflow-x-hidden flex-grow flex-shrink-0">
+                <router-view v-slot="{ Component }">
+                    <transition name="fade" mode="out-in">
+                        <component :is="Component" :key="$route.name" />
+                    </transition>
+                </router-view>
+            </div>
+            <ShouldSignInPopup></ShouldSignInPopup>
+            <div v-if="errors" class="text-red-500">
+                <p v-for="(error, i) in errors">
+                    {{ error.title }}
+                    <span class="cursor-pointer" @click="removeError(i)"
+                        >X</span
+                    >
+                </p>
+            </div>
+            <div v-else class="flex">
+                <div class="m-auto">
+                    <Loader></Loader>
+                </div>
+            </div>
+        </div>
+        <Footer class="flex-shrink-0"></Footer>
+        <Cookies v-if="!tLoading" class="bottom-0 fixed w-full z-20"></Cookies>
+    </div>
+</template>
 <style>
 #stacked-layout {
     flex: 1 0 auto;

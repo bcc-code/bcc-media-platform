@@ -1,3 +1,24 @@
+<script lang="ts" setup>
+import { SearchQuery } from "@/graph/generated"
+import { useI18n } from "vue-i18n"
+import VButton from "../VButton.vue"
+
+const { t } = useI18n()
+
+defineProps<{
+    result: SearchQuery
+}>()
+
+defineEmits<{
+    (e: "itemClick", index: number, id: string): void
+}>()
+
+const adminOn = localStorage.getItem("admin") === "true"
+
+const open = (i: { id: string }) => {
+    window.open("https://admin.brunstad.tv/admin/content/episodes/" + i.id)
+}
+</script>
 <template>
     <div>
         <h1
@@ -93,24 +114,3 @@
         </div>
     </div>
 </template>
-<script lang="ts" setup>
-import { SearchQuery } from "@/graph/generated"
-import { useI18n } from "vue-i18n"
-import VButton from "../VButton.vue"
-
-const { t } = useI18n()
-
-defineProps<{
-    result: SearchQuery
-}>()
-
-defineEmits<{
-    (e: "itemClick", index: number, id: string): void
-}>()
-
-const adminOn = localStorage.getItem("admin") === "true"
-
-const open = (i: { id: string }) => {
-    window.open("https://admin.brunstad.tv/admin/content/episodes/" + i.id)
-}
-</script>

@@ -1,3 +1,66 @@
+<script lang="ts" setup>
+import { VButton } from "@/components"
+import {
+    TaskFragment,
+    useCompleteTaskMutation,
+    useSendTaskMessageMutation,
+} from "@/graph/generated"
+import { computed, getCurrentInstance, onMounted, Ref, ref, watch } from "vue"
+import { useI18n } from "vue-i18n"
+import Alternative from "./Alternative.vue"
+import Loader from "@/components/Loader.vue"
+import { webViewMain, openInBrowser } from "@/services/webviews/mainHandler"
+
+var selectedIndex = ref<number>()
+
+const { t } = useI18n()
+
+const { fetching, executeMutation, error } = useSendTaskMessageMutation()
+const { executeMutation: completeTask } = useCompleteTaskMutation()
+
+const imgLoaded = ref(false)
+
+const props = defineProps<{
+    task: TaskFragment
+    isDone: boolean
+}>()
+const emit = defineEmits<{
+    (event: "change"): void
+    (event: "update:isDone", val: boolean): void
+}>()
+
+const imgSize = ref<string>()
+const downloading = ref<boolean>()
+
+const task = computed(() => {
+    return (
+        props.task.__typename == "PosterTask" ||
+        props.task.__typename == "QuoteTask"
+            ? props.task
+            : undefined
+    )!
+})
+
+const download = async () => {
+    downloading.value = true
+    const response = await webViewMain?.shareImage(task.value.image)
+    downloading.value = false
+    if (response == null || response == false) {
+        openInBrowser(task.value.image + "?&dl")
+    }
+}
+onMounted(async () => {
+    emit(`update:isDone`, true)
+    const imgInfo = await fetch(task.value.image, { method: "HEAD" })
+    const contentLength = imgInfo.headers.get("Content-Length")
+    if (contentLength) {
+        const bytes = parseFloat(contentLength)
+        const megaBytes = (bytes / 1024 / 1024).toFixed(1)
+        imgSize.value = `${megaBytes} mb`
+    }
+})
+</script>
+
 <template>
     <div
         class="p-x4 py-0 w-full h-full flex flex-col items-center justify-center pb-8 embed:min-h-screen embed:pb-64"
@@ -68,67 +131,4 @@
         </div>
     </div>
 </template>
-
-<script lang="ts" setup>
-import { VButton } from "@/components"
-import {
-    TaskFragment,
-    useCompleteTaskMutation,
-    useSendTaskMessageMutation,
-} from "@/graph/generated"
-import { computed, getCurrentInstance, onMounted, Ref, ref, watch } from "vue"
-import { useI18n } from "vue-i18n"
-import Alternative from "./Alternative.vue"
-import Loader from "@/components/Loader.vue"
-import { webViewMain, openInBrowser } from "@/services/webviews/mainHandler"
-
-var selectedIndex = ref<number>()
-
-const { t } = useI18n()
-
-const { fetching, executeMutation, error } = useSendTaskMessageMutation()
-const { executeMutation: completeTask } = useCompleteTaskMutation()
-
-const imgLoaded = ref(false)
-
-const props = defineProps<{
-    task: TaskFragment
-    isDone: boolean
-}>()
-const emit = defineEmits<{
-    (event: "change"): void
-    (event: "update:isDone", val: boolean): void
-}>()
-
-const imgSize = ref<string>()
-const downloading = ref<boolean>()
-
-const task = computed(() => {
-    return (
-        props.task.__typename == "PosterTask" ||
-        props.task.__typename == "QuoteTask"
-            ? props.task
-            : undefined
-    )!
-})
-
-const download = async () => {
-    downloading.value = true
-    const response = await webViewMain?.shareImage(task.value.image)
-    downloading.value = false
-    if (response == null || response == false) {
-        openInBrowser(task.value.image + "?&dl")
-    }
-}
-onMounted(async () => {
-    emit(`update:isDone`, true)
-    const imgInfo = await fetch(task.value.image, { method: "HEAD" })
-    const contentLength = imgInfo.headers.get("Content-Length")
-    if (contentLength) {
-        const bytes = parseFloat(contentLength)
-        const megaBytes = (bytes / 1024 / 1024).toFixed(1)
-        imgSize.value = `${megaBytes} mb`
-    }
-})
-</script>
 @/services/webviews/mainHandler

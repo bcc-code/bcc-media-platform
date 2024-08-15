@@ -1,3 +1,15 @@
+<script lang="ts" setup>
+withDefaults(
+    defineProps<{
+        title?: string
+        description?: string
+        link?: boolean
+    }>(),
+    {
+        link: true,
+    }
+)
+</script>
 <template>
     <div class="flex p-5">
         <div class="mx-auto mt-10 text-center">
@@ -23,15 +35,3 @@
         </div>
     </div>
 </template>
-<script lang="ts" setup>
-withDefaults(
-    defineProps<{
-        title?: string
-        description?: string
-        link?: boolean
-    }>(),
-    {
-        link: true,
-    }
-)
-</script>

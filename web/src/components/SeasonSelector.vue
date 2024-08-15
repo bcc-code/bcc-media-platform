@@ -1,3 +1,38 @@
+<script lang="ts" setup>
+import {
+    Listbox,
+    ListboxButton,
+    ListboxOption,
+    ListboxOptions,
+} from "@headlessui/vue"
+import { computed, ref } from "vue"
+import { ChevronDown } from "./icons"
+
+const props = defineProps<{
+    modelValue: string
+    items: {
+        id: string
+        title: string
+    }[]
+}>()
+
+const emit = defineEmits<{
+    (e: "update:modelValue", i: string): void
+}>()
+
+const selectedItem = computed({
+    get() {
+        return props.modelValue
+    },
+    set(v) {
+        emit("update:modelValue", v)
+    },
+})
+
+const selected = computed(() => {
+    return props.items.find((i) => i.id === props.modelValue)
+})
+</script>
 <template>
     <Listbox v-model="selectedItem" as="div" class="mb-2 font-medium">
         <div class="relative mt-1">
@@ -47,38 +82,3 @@
         </div>
     </Listbox>
 </template>
-<script lang="ts" setup>
-import {
-    Listbox,
-    ListboxButton,
-    ListboxOption,
-    ListboxOptions,
-} from "@headlessui/vue"
-import { computed, ref } from "vue"
-import { ChevronDown } from "./icons"
-
-const props = defineProps<{
-    modelValue: string
-    items: {
-        id: string
-        title: string
-    }[]
-}>()
-
-const emit = defineEmits<{
-    (e: "update:modelValue", i: string): void
-}>()
-
-const selectedItem = computed({
-    get() {
-        return props.modelValue
-    },
-    set(v) {
-        emit("update:modelValue", v)
-    },
-})
-
-const selected = computed(() => {
-    return props.items.find((i) => i.id === props.modelValue)
-})
-</script>

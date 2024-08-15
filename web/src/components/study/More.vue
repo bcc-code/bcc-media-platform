@@ -1,3 +1,60 @@
+<script lang="ts" setup>
+import { GetStudyLessonQuery } from "@/graph/generated"
+import { useI18n } from "vue-i18n"
+import LinkListItem from "./LinkListItem.vue"
+import TaskButton from "./TaskButton.vue"
+import { Page } from "./Lesson.vue"
+import { VButton } from ".."
+import { computed, ref } from "vue"
+import { webViewMain } from "@/services/webviews/mainHandler"
+import router from "@/router"
+import FeedbackRatingAndForm from "../feedback/FeedbackRatingAndForm.vue"
+
+const { t } = useI18n()
+const props = defineProps<{ lesson: GetStudyLessonQuery }>()
+const episode = computed(() => props.lesson.episode)
+
+const feedbackSentPreviously =
+    localStorage.getItem(episode.value.id + ":feedback_sent") == "true"
+const feedbackSentNow = ref(false)
+
+const registerFeedbackSent = () => {
+    feedbackSentNow.value = true
+    localStorage.setItem(episode.value.id + ":feedback_sent", "true")
+}
+
+const isProbablyAnimation = computed(
+    () =>
+        !episode.value.title.toLowerCase().includes("kåre") &&
+        ![
+            "1724",
+            "1733",
+            "1735",
+            "1746",
+            "1750",
+            "1753",
+            "1761",
+            "1762",
+            "1803",
+            "1808",
+            "1813",
+            "1814",
+        ].includes(episode.value.id)
+)
+
+const emit = defineEmits<{
+    (e: "navigate", i: Page): any
+}>()
+
+const playAgain = () => {
+    if (webViewMain) {
+        webViewMain.navigate("/episode/" + episode.value.id)
+        return
+    }
+    router.push("/episode/" + episode.value.id)
+}
+</script>
+
 <template>
     <div class="w-full">
         <template v-if="lesson.studyLesson.tasks.items.length > 0">
@@ -108,60 +165,3 @@
         </div>
     </div>
 </template>
-
-<script lang="ts" setup>
-import { GetStudyLessonQuery } from "@/graph/generated"
-import { useI18n } from "vue-i18n"
-import LinkListItem from "./LinkListItem.vue"
-import TaskButton from "./TaskButton.vue"
-import { Page } from "./Lesson.vue"
-import { VButton } from ".."
-import { computed, ref } from "vue"
-import { webViewMain } from "@/services/webviews/mainHandler"
-import router from "@/router"
-import FeedbackRatingAndForm from "../feedback/FeedbackRatingAndForm.vue"
-
-const { t } = useI18n()
-const props = defineProps<{ lesson: GetStudyLessonQuery }>()
-const episode = computed(() => props.lesson.episode)
-
-const feedbackSentPreviously =
-    localStorage.getItem(episode.value.id + ":feedback_sent") == "true"
-const feedbackSentNow = ref(false)
-
-const registerFeedbackSent = () => {
-    feedbackSentNow.value = true
-    localStorage.setItem(episode.value.id + ":feedback_sent", "true")
-}
-
-const isProbablyAnimation = computed(
-    () =>
-        !episode.value.title.toLowerCase().includes("kåre") &&
-        ![
-            "1724",
-            "1733",
-            "1735",
-            "1746",
-            "1750",
-            "1753",
-            "1761",
-            "1762",
-            "1803",
-            "1808",
-            "1813",
-            "1814",
-        ].includes(episode.value.id)
-)
-
-const emit = defineEmits<{
-    (e: "navigate", i: Page): any
-}>()
-
-const playAgain = () => {
-    if (webViewMain) {
-        webViewMain.navigate("/episode/" + episode.value.id)
-        return
-    }
-    router.push("/episode/" + episode.value.id)
-}
-</script>

@@ -1,3 +1,52 @@
+<script lang="ts" setup>
+import { RouteLocationRaw, useRoute, useRouter } from "vue-router"
+import NavLink from "./NavLink.vue"
+import {
+    Disclosure,
+    Menu,
+    MenuButton,
+    MenuItems,
+    MenuItem,
+} from "@headlessui/vue"
+import { useAuth } from "@/services/auth"
+import { current, setLanguage, languages } from "@/services/language"
+import { HomeIcon, ProfileIcon, QuestionIcon, SearchIcon } from "../icons"
+import { onMounted, ref } from "vue"
+import SearchInput from "../SearchInput.vue"
+import { useSearch } from "@/utils/search"
+import { useGetMeQuery } from "@/graph/generated"
+import ContactForm from "@/components/support/ContactForm.vue"
+import FAQ from "../support/FAQ.vue"
+import LanguageSelector from "../LanguageSelector.vue"
+
+const { fetching } = useGetMeQuery({ variables: {} })
+
+const { query } = useSearch()
+
+const { authenticated, signOut, signIn, user } = useAuth()
+
+const route = useRoute()
+
+onMounted(() => {
+    const q = route.query.q
+    if (q && typeof q === "string") {
+        query.value = q
+    }
+})
+
+const showContactForm = ref(false)
+
+const showFAQ = ref(false)
+
+const router = useRouter()
+const onLogoClick = () => {
+    router.push({ name: "front-page" })
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+    })
+}
+</script>
 <template>
     <Disclosure
         v-slot="{ open }"
@@ -366,52 +415,3 @@
         <FAQ v-model:show="showFAQ" />
     </Disclosure>
 </template>
-<script lang="ts" setup>
-import { RouteLocationRaw, useRoute, useRouter } from "vue-router"
-import NavLink from "./NavLink.vue"
-import {
-    Disclosure,
-    Menu,
-    MenuButton,
-    MenuItems,
-    MenuItem,
-} from "@headlessui/vue"
-import { useAuth } from "@/services/auth"
-import { current, setLanguage, languages } from "@/services/language"
-import { HomeIcon, ProfileIcon, QuestionIcon, SearchIcon } from "../icons"
-import { onMounted, ref } from "vue"
-import SearchInput from "../SearchInput.vue"
-import { useSearch } from "@/utils/search"
-import { useGetMeQuery } from "@/graph/generated"
-import ContactForm from "@/components/support/ContactForm.vue"
-import FAQ from "../support/FAQ.vue"
-import LanguageSelector from "../LanguageSelector.vue"
-
-const { fetching } = useGetMeQuery({ variables: {} })
-
-const { query } = useSearch()
-
-const { authenticated, signOut, signIn, user } = useAuth()
-
-const route = useRoute()
-
-onMounted(() => {
-    const q = route.query.q
-    if (q && typeof q === "string") {
-        query.value = q
-    }
-})
-
-const showContactForm = ref(false)
-
-const showFAQ = ref(false)
-
-const router = useRouter()
-const onLogoClick = () => {
-    router.push({ name: "front-page" })
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-    })
-}
-</script>

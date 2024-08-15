@@ -1,12 +1,3 @@
-<template>
-    <button
-        class="cursor-pointer rounded-full font-bold leading-normal text-on-tint text-style-button-1 border border-separator-on-light select-none focus-visible:ring-4 focus-visible:ring-white/75"
-        :class="styles"
-        :disabled="disabled"
-    >
-        <slot></slot>
-    </button>
-</template>
 <script lang="ts" setup>
 import { computed } from "vue"
 
@@ -58,3 +49,12 @@ const styles = computed(() => {
     return styles
 })
 </script>
+<template>
+    <button
+        class="cursor-pointer rounded-full font-bold leading-normal text-on-tint text-style-button-1 border border-separator-on-light select-none focus-visible:ring-4 focus-visible:ring-white/75"
+        :class="styles"
+        :disabled="disabled"
+    >
+        <slot></slot>
+    </button>
+</template>

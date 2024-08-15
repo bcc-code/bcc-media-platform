@@ -1,3 +1,25 @@
+<script lang="ts" setup>
+import { StudyTopicSectionItemFragment } from "@/graph/generated"
+import { computed } from "vue"
+import SectionTitle from "./SectionTitle.vue"
+import { getImageSize } from "@/utils/images"
+import Image from "@/components/Image.vue"
+import StudyTopicCardLarge from "./cards/StudyTopicCardLarge.vue"
+import { VButton } from "@/components"
+import Play from "@/components/icons/Play.vue"
+import { useI18n } from "vue-i18n"
+
+const { t } = useI18n()
+
+const props = defineProps<{
+    item: StudyTopicSectionItemFragment
+}>()
+
+const image = computed(
+    () => props.item.images.find((i) => i.style == "featured")?.url
+)
+</script>
+
 <template>
     <div class="overflow-clip w-full lg:w-96 hover:opacity-90 transition">
         <div class="bg-background-2 rounded-2xl cursor-pointer overflow-hidden">
@@ -47,25 +69,3 @@
         </div>
     </div>
 </template>
-
-<script lang="ts" setup>
-import { StudyTopicSectionItemFragment } from "@/graph/generated"
-import { computed } from "vue"
-import SectionTitle from "./SectionTitle.vue"
-import { getImageSize } from "@/utils/images"
-import Image from "@/components/Image.vue"
-import StudyTopicCardLarge from "./cards/StudyTopicCardLarge.vue"
-import { VButton } from "@/components"
-import Play from "@/components/icons/Play.vue"
-import { useI18n } from "vue-i18n"
-
-const { t } = useI18n()
-
-const props = defineProps<{
-    item: StudyTopicSectionItemFragment
-}>()
-
-const image = computed(
-    () => props.item.images.find((i) => i.style == "featured")?.url
-)
-</script>
