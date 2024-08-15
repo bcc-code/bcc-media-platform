@@ -10,7 +10,7 @@ export default ts.config(
     ...vuePlugin.configs['flat/recommended'],
     eslintConfigPrettier,
     {
-        ignores: ['src/graph/generated.ts'],
+        ignores: ['src/graph/generated.ts', 'build/**', 'node_modules/**'],
     },
     {
         files: ['**/*.ts', '**/*.vue'],
