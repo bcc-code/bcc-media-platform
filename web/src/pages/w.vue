@@ -1,8 +1,8 @@
 <template>
     <section class="w-full h-screen relative">
         <div
-            class="flex items-center justify-center w-full h-full absolute"
             v-if="fetching || !iframeLoaded"
+            class="flex items-center justify-center w-full h-full absolute"
         >
             <Loader variant="spinner" />
         </div>
@@ -12,10 +12,10 @@
             ref="frame"
             class="w-full h-full"
             :src="data?.redirect.url"
-            @load="iframeLoaded = true"
             allowtransparency
             allowfullscreen
             frameborder="0"
+            @load="iframeLoaded = true"
         ></iframe>
     </section>
 </template>

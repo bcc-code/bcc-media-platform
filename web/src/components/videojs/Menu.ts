@@ -19,7 +19,7 @@ export function createVjsMenuButton(
         onClick: (item: MenuItem) => void
     }
 ) {
-    let _button = new MenuButton(player, config.title, config.id)
+    const _button = new MenuButton(player, config.title, config.id)
 
     const buttonInstance = player.controlBar.addChild(
         _button,

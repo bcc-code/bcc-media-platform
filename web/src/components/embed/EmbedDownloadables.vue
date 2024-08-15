@@ -152,8 +152,8 @@ const downloadFile = () => {
 
 <template>
     <section
-        class="flex gap-4 p-4 overflow-y-scroll"
         v-if="episode.files.length"
+        class="flex gap-4 p-4 overflow-y-scroll"
     >
         <TransitionGroup
             enter-active-class="duration-100 ease-out"
@@ -163,16 +163,16 @@ const downloadFile = () => {
             leave-from-class="opacity-100"
             leave-to-class="transform opacity-0"
         >
-            <div class="flex flex-col gap-2" v-if="showTitle">
+            <div v-if="showTitle" class="flex flex-col gap-2">
                 <h1 class="text-lg font-bold my-auto uppercase">
                     {{ $t("buttons.download") }}
                 </h1>
             </div>
             <div class="flex flex-col gap-2">
                 <select
+                    v-model="language"
                     class="bg-primary-light p-2 h-12 rounded-md"
                     :class="{ 'text-gray': !language }"
-                    v-model="language"
                 >
                     <option value="" disabled selected hidden>
                         {{ $t("download.language") }}
@@ -186,11 +186,11 @@ const downloadFile = () => {
                     </option>
                 </select>
             </div>
-            <div class="flex flex-col gap-2" v-if="language" :key="language">
+            <div v-if="language" :key="language" class="flex flex-col gap-2">
                 <select
+                    v-model="fileId"
                     class="bg-primary-light p-2 h-12 rounded-md"
                     :class="{ 'text-gray': !fileId }"
-                    v-model="fileId"
                 >
                     <option value="" disabled selected hidden>
                         <span class="text-opacity-50">{{
@@ -203,20 +203,20 @@ const downloadFile = () => {
                     </option>
                 </select>
             </div>
-            <div class="flex flex-col gap-2" v-if="file">
+            <div v-if="file" class="flex flex-col gap-2">
                 <button
                     class="bg-primary-light p-2 h-12 rounded-md gap-2"
                     :class="{
                         'opacity-50 cursor-not-allowed': downloading,
                     }"
-                    @click="showTerms = true"
                     :disabled="downloading"
+                    @click="showTerms = true"
                 >
                     <!-- <span class="my-auto">{{ $t("buttons.download") }}</span> -->
                     <DocumentArrowDownIcon class="h-6 w-6 mx-auto" />
                 </button>
             </div>
-            <div class="flex flex-col gap-2" v-if="file && downloading">
+            <div v-if="file && downloading" class="flex flex-col gap-2">
                 <div
                     class="w-64 flex bg-black bg-opacity-20 my-auto h-8 rounded p-2"
                 >
@@ -246,8 +246,8 @@ const downloadFile = () => {
                         :class="{
                             'opacity-50 cursor-not-allowed': downloading,
                         }"
-                        @click="showTerms = false"
                         :disabled="downloading"
+                        @click="showTerms = false"
                     >
                         <span class="my-auto">{{ $t("buttons.cancel") }}</span>
                     </button>
@@ -256,8 +256,8 @@ const downloadFile = () => {
                         :class="{
                             'opacity-50 cursor-not-allowed': downloading,
                         }"
-                        @click="downloadFile"
                         :disabled="downloading"
+                        @click="downloadFile"
                     >
                         <span class="my-auto">{{ $t("buttons.accept") }}</span>
                     </button>

@@ -2,8 +2,8 @@
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <Slider
-            :section="item"
             v-slot="{ item: i, index }"
+            :section="item"
             :breakpoints="options"
             @load-more="$emit('loadMore')"
         >
@@ -98,24 +98,24 @@
                         </div>
                         <div>
                             <VButton
-                                @click="$emit('clickItem', index)"
                                 color="secondary"
                                 size="thin"
+                                @click="$emit('clickItem', index)"
                             >
                                 <div
-                                    class="flex"
                                     v-if="
                                         ['Episode', 'Show', 'Season'].includes(
                                             i.item.__typename
                                         )
                                     "
+                                    class="flex"
                                 >
                                     <Play></Play
                                     ><span class="ml-1 truncate">{{
                                         $t("page.watchNow")
                                     }}</span>
                                 </div>
-                                <div class="flex" v-else>
+                                <div v-else class="flex">
                                     {{ $t("page.explore") }}
                                 </div>
                             </VButton>

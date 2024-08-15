@@ -153,11 +153,11 @@ onMounted(async () => {
                     {{ $t("quotes.markAsRead") }}
                 </VButton>
                 <VButton
+                    v-else-if="shareSupported"
                     color="default"
                     size="thin"
                     class="flex items-center"
                     @click.stop="share"
-                    v-else-if="shareSupported"
                 >
                     <svg
                         class="h-6 w-6 mr-1"

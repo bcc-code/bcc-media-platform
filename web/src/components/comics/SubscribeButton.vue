@@ -90,7 +90,7 @@ defineOptions({
             }}
         </div>
     </VButton>
-    <div class="mt-1 text-center" v-if="error">
+    <div v-if="error" class="mt-1 text-center">
         {{ $t("error.somethingWentWrong") }} <br />Error: {{ error }}
     </div>
 </template>

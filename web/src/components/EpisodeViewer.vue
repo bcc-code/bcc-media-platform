@@ -1,8 +1,8 @@
 <template>
     <div
+        id="video-player"
         class="transition bg-slate-800"
         :class="[loaded ? 'opacity-100' : 'opacity-0']"
-        id="video-player"
     ></div>
 </template>
 <script lang="ts" setup>

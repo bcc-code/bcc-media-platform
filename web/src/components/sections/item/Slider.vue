@@ -36,13 +36,13 @@ const isNotLastPage = computed(() => {
 
 <template>
     <Carousel
+        v-slot="{ item, index }"
         :items="section.items.items"
         :offset="section.items.offset"
         :is-loading-more="isNotLastPage"
         :size="size"
         :breakpoints="props.breakpoints"
         @load-more="emit('loadMore')"
-        v-slot="{ item, index }"
     >
         <slot :item="item" :index="index" />
     </Carousel>

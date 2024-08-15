@@ -17,9 +17,9 @@
             {{ t("episode.episode") }}
         </router-link>
         <Lesson
-            :episodeId="episodeId"
-            :lessonId="lessonId"
-            :subRoute="subRoute"
+            :episode-id="episodeId"
+            :lesson-id="lessonId"
+            :sub-route="subRoute"
         ></Lesson>
     </div>
 </template>

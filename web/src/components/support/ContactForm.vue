@@ -10,7 +10,7 @@
         leave-to="opacity-0"
         class="absolute top-90"
     >
-        <Dialog as="div" @close="closePanel" class="relative z-10">
+        <Dialog as="div" class="relative z-10" @close="closePanel">
             <TransitionChild
                 as="template"
                 enter="transition-opacity ease-linear duration-300"
@@ -47,8 +47,8 @@
                                 {{ $t("support.title") }}
                             </div>
                             <input
-                                v-model="title"
                                 id="title"
+                                v-model="title"
                                 type="text"
                                 maxlength="50"
                                 class="ellipsis border border-white rounded text-lg px-2 py-1 border-opacity-25 bg-primary bg-opacity-10"
@@ -61,9 +61,9 @@
                                         {{ $t("support.content") }}
                                     </div>
                                     <textarea
+                                        id="content"
                                         v-model="content"
                                         name=""
-                                        id="content"
                                         cols="20"
                                         rows="10"
                                         :placeholder="

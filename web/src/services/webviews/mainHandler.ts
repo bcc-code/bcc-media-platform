@@ -23,7 +23,7 @@ class MainWebViewHandler {
     }
 
     navigate(path: string): Promise<any> | null {
-        var promise = this.webView.communication.callHandler(
+        const promise = this.webView.communication.callHandler(
             this.handlerName,
             "navigate",
             path
@@ -32,7 +32,7 @@ class MainWebViewHandler {
     }
 
     push(path: string): Promise<any> {
-        var promise = this.webView.communication.callHandler(
+        const promise = this.webView.communication.callHandler(
             this.handlerName,
             "push",
             path

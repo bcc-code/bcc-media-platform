@@ -11,7 +11,7 @@
                     color: m.style.text,
                 }"
             >
-                <h1 class="p-3 pb-2 text-xl font-semibold" v-if="m.title">
+                <h1 v-if="m.title" class="p-3 pb-2 text-xl font-semibold">
                     {{ m.title }}
                 </h1>
                 <hr v-if="m.title && m.content" />

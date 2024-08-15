@@ -21,7 +21,7 @@ function formatSeconds(seconds: number): string {
     const minutes = Math.floor(remainder / 60)
     const remainingSeconds = remainder % 60
 
-    if (showHours) {
+    if (showHours.value) {
         return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`
     } else {
         return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`

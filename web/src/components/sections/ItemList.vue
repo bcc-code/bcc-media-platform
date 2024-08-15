@@ -23,6 +23,7 @@ defineEmits<{
         <div class="w-full">
             <div
                 v-for="i in items.filter((i) => i.type === 'Episode')"
+                :key="i.id"
                 class="flex p-2 gap-2 cursor-pointer border-l-4 border-red hover:bg-red hover:bg-opacity-10 hover:border-opacity-100 transition duration-200"
                 :class="[
                     i.id === currentId
@@ -31,7 +32,6 @@ defineEmits<{
                     episodeComingSoon(i) ? 'pointer-events-none' : '',
                 ]"
                 @click="$emit('itemClick', i)"
-                :key="i.id"
             >
                 <div class="w-1/3 lg:w-1/5">
                     <WithProgressBar
@@ -47,8 +47,8 @@ defineEmits<{
                         "
                     >
                         <Pill
-                            class="absolute -top-1 -right-1 pointer-events-none"
                             v-if="episodeComingSoon(i)"
+                            class="absolute -top-1 -right-1 pointer-events-none"
                             >{{ $t("episode.comingSoon") }}</Pill
                         >
                         <Image

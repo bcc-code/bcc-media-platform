@@ -1,5 +1,5 @@
 <template>
-    <section class="max-w-screen-lg mx-auto rounded-2xl" v-if="episode">
+    <section v-if="episode" class="max-w-screen-lg mx-auto rounded-2xl">
         <div class="relative aspect-video w-full">
             <div
                 class="h-full w-full bg-secondary rounded-xl opacity-10 absolute"
@@ -161,8 +161,8 @@
                         >
                             <SeasonSelector
                                 v-if="episode.season"
-                                :items="episode.season?.show.seasons.items"
                                 v-model="seasonId"
+                                :items="episode.season?.show.seasons.items"
                             ></SeasonSelector>
                             <ItemList
                                 :items="seasonEpisodes"

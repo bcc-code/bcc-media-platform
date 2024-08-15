@@ -1,5 +1,5 @@
 <template>
-    <Listbox as="div" v-model="selectedItem" class="mb-2 font-medium">
+    <Listbox v-model="selectedItem" as="div" class="mb-2 font-medium">
         <div class="relative mt-1">
             <ListboxButton
                 class="relative w-full cursor-default rounded-md py-2 pl-3 pr-10 text-left shadow-sm text-style-button-2"
@@ -21,11 +21,11 @@
                     class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-slate-900 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5"
                 >
                     <ListboxOption
-                        as="template"
                         v-for="s in items"
                         :key="s.id"
-                        :value="s.id"
                         v-slot="{ active, selected }"
+                        as="template"
+                        :value="s.id"
                     >
                         <li
                             :class="[

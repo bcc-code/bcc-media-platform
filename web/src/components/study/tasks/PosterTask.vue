@@ -11,18 +11,18 @@
         <div v-show="imgLoaded">
             <div class="w-full mt-6 px-12">
                 <img
-                    @load="() => (imgLoaded = true)"
                     :src="task.image"
                     style="max-height: 35vh"
                     class=""
+                    @load="() => (imgLoaded = true)"
                 />
             </div>
             <div class="flex align-center justify-center">
                 <VButton
-                    @click="download"
                     class="mt-6"
                     size="thin"
                     color="secondary"
+                    @click="download"
                 >
                     <svg
                         v-if="downloading"
@@ -61,7 +61,7 @@
                     {{ t("buttons.download") }}
                     <sup class="text-style-caption-3 text-label-3">
                         <template v-if="imgSize">({{ imgSize }})</template>
-                        <div class="w-8" v-else>(...)</div>
+                        <div v-else class="w-8">(...)</div>
                     </sup>
                 </VButton>
             </div>

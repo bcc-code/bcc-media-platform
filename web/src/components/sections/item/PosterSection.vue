@@ -2,8 +2,8 @@
     <section>
         <SectionTitle v-if="section.title">{{ section.title }}</SectionTitle>
         <Slider
-            :section="section"
             v-slot="{ item, index }"
+            :section="section"
             @load-more="$emit('loadMore')"
         >
             <CollectionItemThumbnail
@@ -11,9 +11,9 @@
                 :item="item"
                 :title="item.title"
                 :image="item.image"
-                @click="$emit('clickItem', index)"
                 :secondary-titles="section.metadata?.secondaryTitles === true"
                 type="poster"
+                @click="$emit('clickItem', index)"
             />
         </Slider>
     </section>

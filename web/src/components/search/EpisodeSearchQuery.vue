@@ -10,9 +10,9 @@
         </h1>
         <div class="grid lg:grid-cols-4 gap-4">
             <div
-                class="flex lg:hidden"
                 v-for="(i, index) in result.search.result"
                 :key="i.id"
+                class="flex lg:hidden"
             >
                 <div
                     v-if="i.__typename === 'EpisodeSearchItem'"
@@ -31,7 +31,7 @@
                         />
                     </div>
                     <div class="mt-1 w-1/2 flex flex-col">
-                        <div class="flex" v-if="i.showTitle && i.seasonTitle">
+                        <div v-if="i.showTitle && i.seasonTitle" class="flex">
                             <h3 class="text-sm text-primary mr-1 truncate">
                                 {{ i.showTitle }}
                             </h3>
@@ -48,9 +48,9 @@
                 </div>
             </div>
             <div
-                class="lg:flex hidden mb-4"
                 v-for="(i, index) in result.search.result"
                 :key="i.id"
+                class="lg:flex hidden mb-4"
             >
                 <div
                     v-if="i.__typename === 'EpisodeSearchItem'"
@@ -78,7 +78,7 @@
                         />
                     </div>
                     <div class="mt-1 flex flex-col">
-                        <div class="flex" v-if="i.showTitle && i.seasonTitle">
+                        <div v-if="i.showTitle && i.seasonTitle" class="flex">
                             <h3 class="text-sm text-primary">
                                 {{ i.showTitle }}
                             </h3>

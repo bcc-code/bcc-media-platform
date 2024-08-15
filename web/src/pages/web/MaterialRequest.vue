@@ -146,18 +146,18 @@ console.log(lang)
 
 <template>
     <section
-        class="flex flex-col min-h-screen w-screen bg-bcc-1 font-archivo relative"
         v-if="isAuthenticated && data?.me.bccMember"
+        class="flex flex-col min-h-screen w-screen bg-bcc-1 font-archivo relative"
     >
         <div
-            class="max-w-4xl m-auto w-full flex flex-col gap-8 py-8"
             v-if="termsAccepted"
+            class="max-w-4xl m-auto w-full flex flex-col gap-8 py-8"
         >
             <img
-                @click="$router.push({ name: 'front-page' })"
                 class="h-8 lg:h-12 w-auto block cursor-pointer hover:scale-105 transition"
                 src="/logo.svg"
                 alt="BCC Media"
+                @click="$router.push({ name: 'front-page' })"
             />
             <div class="rounded bg-bcc p-6">
                 <div class="text-center mb-4 flex flex-col">
@@ -200,8 +200,8 @@ console.log(lang)
                         }}<span class="ml-1 text-red">*</span></DateSelector
                     >
                     <TextArea
-                        class="col-span-2"
                         v-model="form.material"
+                        class="col-span-2"
                         required
                         >{{ $t("requests.what") }}</TextArea
                     >
@@ -258,8 +258,8 @@ console.log(lang)
                 <div class="flex">
                     <h3 class="my-auto">{{ terms.subtitle }}</h3>
                     <select
-                        class="ml-auto my-auto p-2 px-4 rounded bg-bcc-2"
                         v-model="lang"
+                        class="ml-auto my-auto p-2 px-4 rounded bg-bcc-2"
                         @change="loadTerms"
                     >
                         <option value="no">Norsk</option>
@@ -274,14 +274,14 @@ console.log(lang)
             ></div>
             <div class="flex gap-2">
                 <div
-                    @click="agendaConfirmed = !agendaConfirmed"
                     class="ml-auto flex mb-1 gap-1 rounded-xl px-2 py-1 bg-bcc-2 my-auto hover:-translate-y-0.5 transition"
+                    @click="agendaConfirmed = !agendaConfirmed"
                 >
                     <input
+                        v-model="agendaConfirmed"
                         name="agenda"
                         type="checkbox"
                         class="cursor-pointer"
-                        v-model="agendaConfirmed"
                     />
                     <label
                         for="agenda"

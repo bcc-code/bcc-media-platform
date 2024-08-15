@@ -1,10 +1,10 @@
 <template>
     <Disclosure
-        as="nav"
         v-slot="{ open }"
+        as="nav"
         class="sticky top-0 z-50 backdrop-blur-md bg-gradient-to-b from-background-1/70 to-background-1/20"
     >
-        <div class="mx-auto transition duration-200" v-if="!fetching">
+        <div v-if="!fetching" class="mx-auto transition duration-200">
             <div class="lg:flex py-4">
                 <div
                     class="flex lg:grid justify-between w-full"
@@ -38,9 +38,9 @@
                         </a>
                         <LanguageSelector />
                         <Menu
+                            v-if="authenticated"
                             as="div"
                             class="relative my-auto"
-                            v-if="authenticated"
                         >
                             <div>
                                 <MenuButton
@@ -48,8 +48,8 @@
                                     class="flex hover:scale-110 transition rounded-md text-base font-medium text-white hover:text-opacity-100 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
                                 >
                                     <img
-                                        class="w-8 h-8 rounded-full overflow-hidden stroke-primary object-cover"
                                         v-if="user?.picture"
+                                        class="w-8 h-8 rounded-full overflow-hidden stroke-primary object-cover"
                                         :src="user.picture"
                                     />
                                     <ProfileIcon
@@ -72,17 +72,17 @@
                                     <div class="p-1">
                                         <MenuItem v-slot="{ active }">
                                             <button
-                                                @click="
-                                                    authenticated
-                                                        ? signOut()
-                                                        : signIn()
-                                                "
                                                 :class="[
                                                     active
                                                         ? 'bg-violet-500 text-white'
                                                         : 'text-gray-900',
                                                     'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
                                                 ]"
+                                                @click="
+                                                    authenticated
+                                                        ? signOut()
+                                                        : signIn()
+                                                "
                                             >
                                                 <ProfileIcon
                                                     class="stroke-red-500"
@@ -121,9 +121,9 @@
                                             </button>
                                         </MenuItem>
                                         <MenuItem
+                                            v-if="authenticated"
                                             v-slot="{ active }"
                                             @click="showContactForm = true"
-                                            v-if="authenticated"
                                         >
                                             <button
                                                 :class="[
@@ -147,8 +147,8 @@
                         </Menu>
                         <button
                             v-else
-                            @click="signIn()"
                             class="ml-2 flex hover:bg-slate-800 transition rounded-full text-base px-2 p-1 font-medium text-white hover:text-opacity-100 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                            @click="signIn()"
                         >
                             <ProfileIcon
                                 class="stroke-red-500 h-8 w-8"
@@ -202,17 +202,17 @@
                                 >
                                     <div class="p-1 max-h-96 overflow-y-scroll">
                                         <MenuItem
-                                            v-slot="{ active }"
                                             v-for="l in languages"
+                                            v-slot="{ active }"
                                         >
                                             <div
-                                                @click="setLanguage(l.code)"
                                                 :class="[
                                                     active
                                                         ? 'bg-violet-500 text-white'
                                                         : 'text-gray-900',
                                                     'w-full rounded-md px-2 py-2 text-sm transition duration-50 cursor-pointer',
                                                 ]"
+                                                @click="setLanguage(l.code)"
                                             >
                                                 <p class="text-base">
                                                     {{ l.name }}
@@ -236,8 +236,8 @@
                                     class="flex rounded-md text-base font-medium text-white hover:text-opacity-100 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
                                 >
                                     <img
-                                        class="w-8 h-8 rounded-full overflow-hidden stroke-primary"
                                         v-if="authenticated && user?.picture"
+                                        class="w-8 h-8 rounded-full overflow-hidden stroke-primary"
                                         :src="user.picture"
                                     />
                                     <ProfileIcon
@@ -260,17 +260,17 @@
                                     <div class="p-1">
                                         <MenuItem v-slot="{ active }">
                                             <button
-                                                @click="
-                                                    authenticated
-                                                        ? signOut()
-                                                        : signIn()
-                                                "
                                                 :class="[
                                                     active
                                                         ? 'bg-violet-500 text-white'
                                                         : 'text-gray-900',
                                                     'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
                                                 ]"
+                                                @click="
+                                                    authenticated
+                                                        ? signOut()
+                                                        : signIn()
+                                                "
                                             >
                                                 <ProfileIcon
                                                     class="stroke-red-500"
@@ -326,8 +326,8 @@
                                             </button>
                                         </MenuItem>
                                         <MenuItem
-                                            v-slot="{ active }"
                                             v-if="authenticated"
+                                            v-slot="{ active }"
                                             @click="showContactForm = true"
                                         >
                                             <button

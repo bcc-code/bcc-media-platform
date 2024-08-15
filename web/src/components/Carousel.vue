@@ -81,8 +81,8 @@ const onswipe = (swiper: TSwiper) => {
             <SwiperSlide v-for="(item, index) in items" class="relative">
                 <slot :item="item" :index="index" />
                 <div
-                    class="absolute right-0 top-0 h-full flex bg-gradient-to-l from-background to-transparent w-40"
                     v-if="index === items.length - 1 && isLoadingMore"
+                    class="absolute right-0 top-0 h-full flex bg-gradient-to-l from-background to-transparent w-40"
                 />
             </SwiperSlide>
         </Swiper>

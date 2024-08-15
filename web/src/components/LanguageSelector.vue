@@ -38,15 +38,15 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
                 class="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-background-2 shadow-2xl z-10"
             >
                 <div class="p-1 max-h-96 overflow-y-scroll">
-                    <MenuItem v-slot="{ active }" v-for="l in languages">
+                    <MenuItem v-for="l in languages" v-slot="{ active }">
                         <div
-                            @click="setLanguage(l.code)"
                             :class="[
                                 active
                                     ? 'bg-white/10 text-white'
                                     : 'text-gray-900',
                                 'w-full rounded-md px-2 py-2 text-sm transition duration-50 cursor-pointer',
                             ]"
+                            @click="setLanguage(l.code)"
                         >
                             <p class="text-base">
                                 {{ l.name }}

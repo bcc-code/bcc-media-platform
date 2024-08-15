@@ -1,11 +1,11 @@
 <template>
     <div class="flex h-screen w-screen">
         <Execute
-            class="h-full w-full"
             v-if="authenticated"
+            class="h-full w-full"
             :code="code"
         ></Execute>
-        <button v-else @click="signIn()" class="mx-auto my-auto">
+        <button v-else class="mx-auto my-auto" @click="signIn()">
             {{ $t("buttons.login") }}
         </button>
     </div>

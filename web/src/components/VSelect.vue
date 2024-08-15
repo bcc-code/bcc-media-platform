@@ -19,8 +19,8 @@
                         class="absolute bg-secondary z-10 mt-1 max-h-60 right-0 rounded-md shadow-lg sm:text-sm overflow-auto"
                     >
                         <ListboxOption
-                            v-slot="{ active, selected }"
                             v-for="(item, i) in data"
+                            v-slot="{ active, selected }"
                             :key="i"
                             :value="item"
                             as="template"

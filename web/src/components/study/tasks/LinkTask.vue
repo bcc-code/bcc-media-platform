@@ -29,7 +29,7 @@
             </p>
             <div class="flex mt-6 flex-grow max-h-48"></div>
             <div class="mx-12 cursor-pointer" @click="openLink">
-                <a href="#" class="flex justify-center" v-if="task.link.image">
+                <a v-if="task.link.image" href="#" class="flex justify-center">
                     <img :src="task.link.image ?? ''" />
                 </a>
                 <h2 class="mt-2 text-style-title-2 text-on-tint text-center">
@@ -39,7 +39,7 @@
                     {{ task.link.description }}
                 </h2>
                 <div class="mt-6 flex align-center justify-center">
-                    <VButton @click="openLink" size="thin" color="secondary">
+                    <VButton size="thin" color="secondary" @click="openLink">
                         <svg
                             class="inline -mt-1"
                             width="25"

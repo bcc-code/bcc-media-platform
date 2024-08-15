@@ -33,7 +33,7 @@ function onClick(
 <template>
     <section>
         <SectionTitle>{{ season.title }}</SectionTitle>
-        <Carousel :items="season.episodes.items" v-slot="{ item, index }">
+        <Carousel v-slot="{ item, index }" :items="season.episodes.items">
             <CollectionItemThumbnail
                 :item="item"
                 :title="item.title"

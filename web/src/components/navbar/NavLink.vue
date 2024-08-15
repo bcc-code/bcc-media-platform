@@ -9,9 +9,9 @@ defineProps<{
 
 <template>
     <router-link
+        v-slot="{ isExactActive }"
         :to="to"
         class="rounded-full my-auto focus-visible:ring-2 focus-visible:ring-white/75"
-        v-slot="{ isExactActive }"
     >
         <span
             class="lg:flex gap-1 transition rounded-full lg:hover:bg-slate-800 px-2 py-1"

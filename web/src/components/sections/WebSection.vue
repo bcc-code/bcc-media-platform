@@ -22,16 +22,16 @@ const iframeLoaded = ref(false)
             }"
         >
             <div
-                class="flex items-center justify-center w-full h-full absolute"
                 v-if="!iframeLoaded"
+                class="flex items-center justify-center w-full h-full absolute"
             >
                 <Loader variant="spinner" />
             </div>
             <iframe
                 ref="frame"
                 class="w-full h-full"
-                @load="iframeLoaded = true"
                 :src="item.url"
+                @load="iframeLoaded = true"
             ></iframe>
         </div>
     </section>

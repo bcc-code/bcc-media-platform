@@ -11,11 +11,11 @@
                     :title="item.title"
                     :image="item.image"
                     :item="item"
-                    @click="$emit('clickItem', index)"
                     :secondary-titles="
                         section.metadata?.secondaryTitles === true
                     "
                     type="default"
+                    @click="$emit('clickItem', index)"
                 />
             </div>
         </div>

@@ -8,8 +8,8 @@
         <p v-if="true"><!--description--></p>
         <div class="mx-12">
             <div
-                class="cursor-pointer mt-4 relative z-10 relative"
                 v-if="task.episode.image"
+                class="cursor-pointer mt-4 relative z-10 relative"
             >
                 <div
                     class="absolute top-0 w-full h-full rounded-xl border-[1.5px] border-white opacity-10 z-40"
@@ -31,10 +31,10 @@
             </h2>
             <div class="flex align-center justify-center">
                 <VButton
-                    @click="openLink"
                     class="mt-6"
                     size="thin"
                     color="secondary"
+                    @click="openLink"
                 >
                     <svg
                         class="inline -mt-1 mr-1"

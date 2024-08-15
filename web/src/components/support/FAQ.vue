@@ -25,8 +25,8 @@ const { data, fetching } = useGetFaqQuery({ variables: {} })
     <TransitionRoot as="template" :show="show">
         <Dialog
             as="div"
-            @close="$emit('update:show', false)"
             class="relative z-10"
+            @close="$emit('update:show', false)"
         >
             <TransitionChild
                 as="template"
@@ -56,8 +56,8 @@ const { data, fetching } = useGetFaqQuery({ variables: {} })
                             <div>{{ $t("support.faq") }}</div>
                             <div class="ml-auto">
                                 <VButton
-                                    @click="$emit('update:show', false)"
                                     size="thin"
+                                    @click="$emit('update:show', false)"
                                     >{{ $t("buttons.close") }}</VButton
                                 >
                             </div>

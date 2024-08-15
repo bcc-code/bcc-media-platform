@@ -48,12 +48,12 @@ const value = computed({
     <div class="flex flex-col gap-2">
         <label><slot></slot></label>
         <select
+            v-model="optionValue"
             class="p-2 px-4 rounded bg-bcc-2"
             :class="{
                 'outline outline-1 outline-red':
                     required && updated && !optionValue,
             }"
-            v-model="optionValue"
         >
             <option v-for="opt in options">{{ opt }}</option>
             <option v-if="allowAny">{{ $t("requests.other") }}</option>

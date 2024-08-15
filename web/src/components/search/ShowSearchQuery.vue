@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import Image from "@/components/Image.vue"
-import breakpoints from "@/components/sections/item/breakpoints"
-import { SearchQuery } from "@/graph/generated"
-import { analytics } from "@/services/analytics"
-import { goToShow } from "@/utils/items"
-import { Navigation } from "swiper/modules"
-import { Swiper, SwiperSlide } from "swiper/vue"
-import { reactive } from "vue"
-import { useI18n } from "vue-i18n"
-import VButton from "../VButton.vue"
+import Image from '@/components/Image.vue'
+import breakpoints from '@/components/sections/item/breakpoints'
+import { SearchQuery } from '@/graph/generated'
+import { analytics } from '@/services/analytics'
+import { goToShow } from '@/utils/items'
+import { Navigation } from 'swiper/modules'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
+import VButton from '../VButton.vue'
 
 const { t } = useI18n()
 
@@ -22,10 +22,10 @@ const modules = [Navigation]
 const loading = reactive<Record<string, boolean>>({})
 
 const onclick = async (index: number, id: string) => {
-    analytics.track("searchresult_clicked", {
+    analytics.track('searchresult_clicked', {
         elementId: id,
-        elementType: "Show",
-        group: "shows",
+        elementType: 'Show',
+        group: 'shows',
         elementPosition: index,
         searchText: props.queryString,
     })
@@ -33,10 +33,10 @@ const onclick = async (index: number, id: string) => {
     goToShow(id)
 }
 
-const adminOn = localStorage.getItem("admin") === "true"
+const adminOn = localStorage.getItem('admin') === 'true'
 
 const open = (id: string) => {
-    window.open("https://admin.brunstad.tv/admin/content/shows/" + id)
+    window.open('https://admin.brunstad.tv/admin/content/shows/' + id)
 }
 </script>
 
@@ -48,7 +48,7 @@ const open = (id: string) => {
                 hidden: result.search.result.length === 0,
             }"
         >
-            {{ t("search.programs") }}
+            {{ t('search.programs') }}
         </h2>
         <Swiper
             :slides-per-view="1"
@@ -58,11 +58,14 @@ const open = (id: string) => {
             :breakpoints="breakpoints('medium')"
             navigation
         >
-            <SwiperSlide v-for="(item, index) in result.search.result">
+            <SwiperSlide
+                v-for="(item, index) in result.search.result"
+                :key="item.id"
+            >
                 <div
                     class="cursor-pointer"
-                    @click="onclick(index, item.id)"
                     :class="[loading[item.id] ? 'opacity-50' : '']"
+                    @click="onclick(index, item.id)"
                 >
                     <div class="relative mb-1 rounded-lg overflow-hidden">
                         <VButton

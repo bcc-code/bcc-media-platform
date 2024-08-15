@@ -2,8 +2,8 @@
     <div class="flex flex-col">
         <div class="flex">
             <p
-                class="text-style-caption-1 truncate text-primary mr-1"
                 v-if="episode.season?.show && secondaryTitles"
+                class="text-style-caption-1 truncate text-primary mr-1"
             >
                 {{ episode.season.show.title }}
             </p>

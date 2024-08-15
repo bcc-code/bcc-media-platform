@@ -4,9 +4,9 @@
         <div class="flex gap-4 flex-wrap">
             <button
                 v-for="(i, index) in item.items.items"
+                ref="sectionItem"
                 class="w-20 shrink-0 2xl:w-32 hover:opacity-90 transition focus-visible:ring-4 focus-visible:ring-white/75 rounded-2xl"
                 @click="click(index)"
-                ref="sectionItem"
             >
                 <div
                     class="bg-slate-800 relative rounded-2xl border-2 border-slate-700 cursor-pointer overflow-hidden"

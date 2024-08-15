@@ -10,17 +10,15 @@
             leave-to-class=" opacity-0"
         >
             <div
-                class="px-4 lg:px-20 flex flex-col gap-8 relative"
                 v-if="page && page.sections.items.length"
+                class="px-4 lg:px-20 flex flex-col gap-8 relative"
             >
                 <Section
                     v-for="(section, i) in page.sections.items"
                     :key="section.id"
+                    v-motion
                     :section="section"
                     :index="{ last: page.sections.total - 1, current: i }"
-                    @load-more="appendItems(section)"
-                    @click-item="(index) => clickItem(i, index)"
-                    v-motion
                     :initial="{
                         opacity: 0.01,
                         y: 20,
@@ -34,6 +32,8 @@
                         },
                     }"
                     :delay="i < 10 ? i * 100 : 0"
+                    @load-more="appendItems(section)"
+                    @click-item="(index) => clickItem(i, index)"
                 >
                 </Section>
                 <div

@@ -1,8 +1,8 @@
 <template>
     <div
+        ref="imageContainer"
         class="bg-primary-light overflow-hidden relative"
         :class="[!loaded ? 'border-1 border border-slate-700 opacity-50' : '']"
-        ref="imageContainer"
     >
         <img
             class="object-cover w-full transition"
@@ -11,9 +11,9 @@
             :width="effectiveSize?.width"
             :loading="loading"
             :draggable="draggable"
+            :src="effectiveSrc"
             @loadstart="onLoadStart"
             @load="onLoaded"
-            :src="effectiveSrc"
         />
     </div>
 </template>

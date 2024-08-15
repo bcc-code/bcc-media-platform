@@ -1,19 +1,19 @@
 <template>
     <section class="p-4 lg:p-20">
         <div class="flex lg:hidden w-full text-xl mb-4">
-            <SearchInput class="mx-auto lg:w-96" v-model="query"></SearchInput>
+            <SearchInput v-model="query" class="mx-auto lg:w-96"></SearchInput>
         </div>
         <div v-if="query && loaded" class="relative">
             <ShowSearchQuery
                 v-if="showSearchQuery.data.value"
                 class="mt-2 mb-8"
-                :queryString="queryVariable"
+                :query-string="queryVariable"
                 :result="showSearchQuery.data.value"
             ></ShowSearchQuery>
             <EpisodeSearchQuery
                 v-if="episodeSearchQuery.data.value"
                 class="mb-2"
-                :queryString="queryVariable"
+                :query-string="queryVariable"
                 :result="episodeSearchQuery.data.value"
                 @item-click="clickEpisode"
             ></EpisodeSearchQuery>

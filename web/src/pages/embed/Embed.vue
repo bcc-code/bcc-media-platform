@@ -8,7 +8,7 @@
         </div>
         <router-view v-else v-slot="{ Component }" class="fade-expo-1s">
             <transition name="slide-fade" mode="out-in">
-                <component :key="$route.name" :is="Component" />
+                <component :is="Component" :key="$route.name" />
             </transition>
         </router-view>
     </div>
@@ -25,7 +25,7 @@ import Loader from "@/components/Loader.vue"
 
 const initializing = ref(true)
 
-if (!!router.currentRoute.value.query["bg"]) {
+if (router.currentRoute.value.query["bg"]) {
     document.body.style.setProperty("--tw-bg-opacity", "1")
 }
 

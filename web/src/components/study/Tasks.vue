@@ -23,8 +23,8 @@
                 </template>
             </div>
             <CompetitionIntro
-                v-model:is-done="isCurrentStepDone"
                 v-if="hijackWithCompetitionIntro"
+                v-model:is-done="isCurrentStepDone"
             ></CompetitionIntro>
             <div
                 v-else-if="
@@ -47,8 +47,8 @@
             </div>
             <AlternativesTask
                 v-else-if="currentTask?.__typename == 'AlternativesTask'"
-                v-model:task="currentTask"
                 :key="'alt' + currentTask.id"
+                v-model:task="currentTask"
                 v-model:is-done="isCurrentStepDone"
                 @competition-answer="
                     (v) => {
@@ -58,8 +58,8 @@
             />
             <TextTask
                 v-else-if="currentTask?.__typename == 'TextTask'"
-                v-model:task="currentTask"
                 :key="'text' + currentTask.id"
+                v-model:task="currentTask"
                 v-model:is-done="isCurrentStepDone"
                 @next-task="() => nextTask()"
             />
@@ -68,20 +68,20 @@
                     currentTask?.__typename == 'PosterTask' ||
                     currentTask?.__typename == 'QuoteTask'
                 "
-                v-model:task="currentTask"
                 :key="'poster' + currentTask.id"
+                v-model:task="currentTask"
                 v-model:is-done="isCurrentStepDone"
             />
             <VideoTask
                 v-else-if="currentTask?.__typename == 'VideoTask'"
-                v-model:task="currentTask"
                 :key="'video' + currentTask.id"
+                v-model:task="currentTask"
                 v-model:is-done="isCurrentStepDone"
             />
             <LinkTask
                 v-else-if="currentTask?.__typename == 'LinkTask'"
-                v-model:task="currentTask"
                 :key="'link' + currentTask.id"
+                v-model:task="currentTask"
                 v-model:is-done="isCurrentStepDone"
             />
             <div v-else>
@@ -89,24 +89,23 @@
             </div>
         </div>
         <div
-            class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-36 pb-16 sticky bottom-0 bg-background-1"
-            :class="showAlreadySentHint ? 'h-48' : ''"
             v-if="
                 !(currentTask?.__typename == 'TextTask' && !isCurrentStepDone)
             "
+            class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-36 pb-16 sticky bottom-0 bg-background-1"
+            :class="showAlreadySentHint ? 'h-48' : ''"
         >
             <p
-                class="text-style-caption-1 text-tint-3 text-center"
                 v-if="showAlreadySentHint"
+                class="text-style-caption-1 text-tint-3 text-center"
             >
                 {{ t("competition.alreadySent") }}
             </p>
             <div class="inline-flex space-x-2 items-start justify-start w-full">
                 <VButton
+                    v-if="tasks.length > 1"
                     class="w-full"
                     size="large"
-                    v-if="tasks.length > 1"
-                    @click="previousTask()"
                     :disabled="
                         !(
                             anyPreviousStep ||
@@ -115,6 +114,7 @@
                         )
                     "
                     color="secondary"
+                    @click="previousTask()"
                 >
                     {{ t("buttons.back") }}
                 </VButton>
@@ -122,8 +122,8 @@
                     v-if="hijackWithCompetitionIntro"
                     class="w-full"
                     size="large"
-                    @click="() => startCompetition()"
                     :disabled="!isCurrentStepDone || consentLoading"
+                    @click="() => startCompetition()"
                     ><Loader
                         v-if="consentLoading"
                         variant="spinner"
@@ -144,12 +144,12 @@
                     "
                     class="w-full"
                     size="large"
+                    :disabled="!isCurrentStepDone"
                     @click="
                         () => {
                             showConfirmModal = true
                         }
                     "
-                    :disabled="!isCurrentStepDone"
                 >
                     {{ t("buttons.submit") }}
                 </VButton>
@@ -157,8 +157,8 @@
                     v-else
                     class="w-full"
                     size="large"
-                    @click="nextTask()"
                     :disabled="!isCurrentStepDone"
+                    @click="nextTask()"
                 >
                     <template v-if="savingTaskProgress"
                         ><Loader

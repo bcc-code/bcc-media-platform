@@ -9,15 +9,15 @@
             <div class="overflow-x-hidden flex-grow flex-shrink-0">
                 <router-view v-slot="{ Component }">
                     <transition name="fade" mode="out-in">
-                        <component :key="$route.name" :is="Component" />
+                        <component :is="Component" :key="$route.name" />
                     </transition>
                 </router-view>
             </div>
             <ShouldSignInPopup></ShouldSignInPopup>
-            <div class="text-red-500" v-if="errors">
+            <div v-if="errors" class="text-red-500">
                 <p v-for="(error, i) in errors">
                     {{ error.title }}
-                    <span @click="removeError(i)" class="cursor-pointer"
+                    <span class="cursor-pointer" @click="removeError(i)"
                         >X</span
                     >
                 </p>

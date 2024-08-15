@@ -1,9 +1,9 @@
 <template>
     <div>
-        <VButton v-if="authenticated" @click="signOut()" color="red">{{
+        <VButton v-if="authenticated" color="red" @click="signOut()">{{
             t("buttons.logout")
         }}</VButton>
-        <VButton v-else @click="signIn()" color="secondary">{{
+        <VButton v-else color="secondary" @click="signIn()">{{
             t("buttons.login")
         }}</VButton>
     </div>

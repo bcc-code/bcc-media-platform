@@ -1,11 +1,11 @@
 <template>
     <img
-        class="hover:scale-110 transition mx-auto my-auto"
         v-if="canShare"
+        class="hover:scale-110 transition mx-auto my-auto"
         src="/icons/share.svg"
         @click="share()"
     />
-    <Popover class="relative" v-else>
+    <Popover v-else class="relative">
         <PopoverButton class="hover:scale-110 transition"
             ><img class="lg:h-8 lg:w-8" src="/icons/share.svg"
         /></PopoverButton>

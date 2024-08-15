@@ -88,8 +88,8 @@ const aspect = computed(() => {
                     :ratio="ratio"
                 />
                 <ProgressBar
-                    class="absolute bottom-0 w-full"
                     v-if="item.__typename === 'Episode'"
+                    class="absolute bottom-0 w-full"
                     :item="item"
                 />
                 <div

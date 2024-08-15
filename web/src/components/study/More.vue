@@ -36,8 +36,8 @@
                         >
                             <VButton
                                 size="thin"
-                                @click="playAgain"
                                 class="z-20"
+                                @click="playAgain"
                             >
                                 <svg
                                     class="inline-block mr-2 -mt-1"
@@ -72,11 +72,11 @@
                         </div>
                     </div>
                     <div
-                        class="mt-4"
                         v-if="
                             isProbablyAnimation &&
                             (!feedbackSentPreviously || feedbackSentNow)
                         "
+                        class="mt-4"
                     >
                         <h2 class="text-style-title-2">
                             {{ t("feedback.howEasyToUnderstand") }}
@@ -95,8 +95,8 @@
             </div>
         </template>
         <div
-            class="my-4 embed:mb-24"
             v-if="lesson.studyLesson.links.items.length > 0"
+            class="my-4 embed:mb-24"
         >
             <p class="ml-4 text-white text-style-title-1">
                 {{ t("lesson.related") }}

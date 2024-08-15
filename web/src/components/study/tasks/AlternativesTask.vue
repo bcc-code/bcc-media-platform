@@ -27,13 +27,13 @@
                         : alt.isCorrect
                 "
                 :competition-mode="task.competitionMode"
-                @click="() => selectAnswer(alt.id)"
                 :selected="selectedIndex == i"
                 :class="
                     selectedIndex != i && selectedIndex != null
                         ? 'opacity-50'
                         : ''
                 "
+                @click="() => selectAnswer(alt.id)"
             />
         </div>
     </div>

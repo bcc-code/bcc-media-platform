@@ -15,7 +15,7 @@ const loaded = ref(false)
 const time = useTimestamp({ interval: 100 })
 const started = time.value
 const loadingForALongTime = computed(() => {
-    return !loaded && time.value - started > 1000
+    return !loaded.value && time.value - started > 1000
 })
 
 function onLoad() {

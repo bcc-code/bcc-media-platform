@@ -6,19 +6,19 @@
         >
             <div
                 v-for="(item, index) in section.items.items"
-                class="relative"
                 :key="item.id + item.item.__typename"
+                class="relative"
             >
                 <CollectionItemThumbnail
                     v-if="isCollectionItem(item)"
                     :item="item"
                     :title="item.title"
                     :image="item.image"
-                    @click="$emit('clickItem', index)"
                     :secondary-titles="
                         section.metadata?.secondaryTitles === true
                     "
                     type="default"
+                    @click="$emit('clickItem', index)"
                 />
             </div>
         </div>

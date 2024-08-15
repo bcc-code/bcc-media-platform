@@ -133,7 +133,7 @@ import { LessonProgressOverviewFragment } from "@/graph/generated"
 import { useI18n } from "vue-i18n"
 
 const props = defineProps<{
-    episodeId: String
+    episodeId: string
     lesson: LessonProgressOverviewFragment
 }>()
 

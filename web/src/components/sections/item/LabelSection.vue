@@ -1,6 +1,6 @@
 <template>
     <section>
-        <h2 class="text-lg" v-if="item.title">
+        <h2 v-if="item.title" class="text-lg">
             {{ item.title }}
         </h2>
         <div class="flex gap-2">

@@ -1,7 +1,7 @@
 <template>
     <PageComponent
-        :key="page"
         v-if="!fetching"
+        :key="page"
         :page-id="page"
         @title="updateTitle"
     ></PageComponent>

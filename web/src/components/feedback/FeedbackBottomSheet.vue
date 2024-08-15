@@ -46,8 +46,8 @@
                         {{ t("feedback.anonymousInfo") }}
                     </p>
                     <FeedbackRating
-                        class="mt-2.5"
                         v-model:selected="_selected"
+                        class="mt-2.5"
                     />
                 </div>
                 <div class="mt-6">
@@ -78,8 +78,8 @@
                     <VButton
                         class="flex-1"
                         size="large"
-                        @click="sendFeedback"
                         :disabled="_selected == null"
+                        @click="sendFeedback"
                         >Send feedback</VButton
                     >
                 </div>

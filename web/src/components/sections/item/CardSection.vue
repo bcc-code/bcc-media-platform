@@ -8,9 +8,9 @@
                         item.cardSize == 'large' &&
                         i.item.__typename === 'StudyTopic'
                     "
+                    ref="sectionItem"
                     :item="i.item"
                     @click="$emit('clickItem', index)"
-                    ref="sectionItem"
                 >
                 </StudyTopicCardLarge>
             </div>

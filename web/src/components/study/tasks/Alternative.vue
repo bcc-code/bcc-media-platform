@@ -1,10 +1,10 @@
 <template>
     <div
-        @click="handleClick"
         :class="
             'inline-flex space-x-4 items-center justify-start w-full min-h-[4rem] py-2.5 pl-4 bg-separator-on-light bg-opacity-10 rounded-xl border-2 relative ' +
             conditionalClass
         "
+        @click="handleClick"
     >
         <p
             class="w-5 text-2xl font-extrabold leading-7 text-center text-label-3"
@@ -56,11 +56,11 @@
                 />
             </svg>
 
-            <div class="w-4" v-else>&nbsp;</div>
+            <div v-else class="w-4">&nbsp;</div>
         </div>
         <div
-            class="absolute top-50 left-0 pr-4 pointer-events-none z-20"
             v-if="!competitionMode"
+            class="absolute top-50 left-0 pr-4 pointer-events-none z-20"
         >
             <LottieAnimation
                 ref="confetti"
@@ -68,8 +68,8 @@
                 :auto-play="false"
                 width="100%"
                 :speed="1"
-                @on-complete="() => confetti.stop()"
                 :animation-data="confettiAnimation"
+                @on-complete="() => confetti.stop()"
             ></LottieAnimation>
         </div>
     </div>
@@ -82,12 +82,12 @@ import { Vue3Lottie as LottieAnimation } from "vue3-lottie"
 import confettiAnimation from "./confetti.json"
 
 const props = defineProps<{
-    letter: String
-    text: String
-    selected: Boolean
-    correct: Boolean | null | undefined
-    competitionMode: Boolean
-    locked: Boolean
+    letter: string
+    text: string
+    selected: boolean
+    correct: boolean | null | undefined
+    competitionMode: boolean
+    locked: boolean
 }>()
 
 const confetti = ref()
