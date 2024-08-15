@@ -15,6 +15,7 @@ import { current } from '@/services/language'
 
 import en from './terms/en'
 import no from './terms/no'
+import { useRouter } from 'vue-router'
 
 const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0()
 
@@ -141,7 +142,7 @@ const terms = ref<Terms>()
 
 await loadTerms()
 
-console.log(lang)
+const router = useRouter()
 </script>
 
 <template>
@@ -157,7 +158,7 @@ console.log(lang)
                 class="h-8 lg:h-12 w-auto block cursor-pointer hover:scale-105 transition"
                 src="/logo.svg"
                 alt="BCC Media"
-                @click="$router.push({ name: 'front-page' })"
+                @click="router.push({ name: 'front-page' })"
             />
             <div class="rounded bg-bcc p-6">
                 <div class="text-center mb-4 flex flex-col">
@@ -312,8 +313,8 @@ console.log(lang)
     <Modal
         v-model:open="showConfirmation"
         class="font-archivo"
-        @confirm="$router.push('/')"
-        @close="$router.push('/')"
+        @confirm="router.push('/')"
+        @close="router.push('/')"
     >
         <template #title>
             {{ $t('requests.receitTitle') }}
@@ -324,7 +325,7 @@ console.log(lang)
         <template #actions>
             <button
                 class="inline-flex justify-center rounded-md border border-transparent text-black bg-bcc-3 px-4 py-2 text-sm font-medium"
-                @click="$router.push('/')"
+                @click="router.push('/')"
             >
                 {{ $t('buttons.close') }}
             </button>

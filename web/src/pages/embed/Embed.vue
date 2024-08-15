@@ -7,6 +7,7 @@ import { init } from '@/services/language'
 import { useGetMeQuery } from '@/graph/generated'
 import { analytics } from '@/services/analytics'
 import Loader from '@/components/Loader.vue'
+import { useRoute } from 'vue-router'
 
 const initializing = ref(true)
 
@@ -45,6 +46,8 @@ onMounted(async () => {
     console.timeEnd('embedInit')
     initializing.value = false
 })
+
+const route = useRoute()
 </script>
 <template>
     <div class="h-dvh w-dvw embedded-page">
@@ -56,7 +59,7 @@ onMounted(async () => {
         </div>
         <router-view v-else v-slot="{ Component }" class="fade-expo-1s">
             <transition name="slide-fade" mode="out-in">
-                <component :is="Component" :key="$route.name" />
+                <component :is="Component" :key="route.name" />
             </transition>
         </router-view>
     </div>

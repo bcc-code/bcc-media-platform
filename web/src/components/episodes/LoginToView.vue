@@ -2,8 +2,11 @@
 import { useAuth } from '@/services/auth'
 import { VButton } from '..'
 import Image from '../Image.vue'
+import { useRouter } from 'vue-router'
 
 const { signIn } = useAuth()
+
+const router = useRouter()
 </script>
 <template>
     <div class="w-full flex">
@@ -20,7 +23,7 @@ const { signIn } = useAuth()
             <p class="mt-4 opacity-80">
                 {{ $t('episode.noAccess.otherContent') }}
             </p>
-            <VButton class="w-full" @click="$router.push('/')">{{
+            <VButton class="w-full" @click="router.push('/')">{{
                 $t('episode.noAccess.exploreContent')
             }}</VButton>
             <VButton class="w-full" color="green" @click="signIn()">{{

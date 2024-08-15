@@ -12,6 +12,7 @@ import { loading as tLoading } from '@/i18n'
 import Footer from '@/components/Footer.vue'
 import Cookies from '@/components/Cookies.vue'
 import ShouldSignInPopup from '@/components/ShouldSignInPopup.vue'
+import { useRoute } from 'vue-router'
 
 const { authenticated, shouldSignIn } = useAuth()
 
@@ -34,6 +35,8 @@ onMounted(async () => {
 })
 
 init()
+
+const route = useRoute()
 </script>
 <template>
     <div class="flex flex-col h-screen">
@@ -46,13 +49,13 @@ init()
             <div class="overflow-x-hidden flex-grow flex-shrink-0">
                 <router-view v-slot="{ Component }">
                     <transition name="fade" mode="out-in">
-                        <component :is="Component" :key="$route.name" />
+                        <component :is="Component" :key="route.name" />
                     </transition>
                 </router-view>
             </div>
             <ShouldSignInPopup></ShouldSignInPopup>
             <div v-if="errors" class="text-red-500">
-                <p v-for="(error, i) in errors">
+                <p v-for="(error, i) in errors" :key="error.id">
                     {{ error.title }}
                     <span class="cursor-pointer" @click="removeError(i)"
                         >X</span
