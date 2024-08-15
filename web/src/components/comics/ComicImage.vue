@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from "vue"
-import Loader from "../Loader.vue"
-import { useTimestamp } from "@vueuse/core"
+import { computed, ref } from 'vue'
+import Loader from '../Loader.vue'
+import { useTimestamp } from '@vueuse/core'
 
 defineProps<{
     url: string

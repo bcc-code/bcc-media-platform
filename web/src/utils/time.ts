@@ -1,44 +1,44 @@
 export const secondsToTime = (seconds: number) => {
-    let str = ""
+    let str = ''
     const hours = Math.floor(seconds / 3600)
     if (hours) {
-        str += hours + ":"
+        str += hours + ':'
     }
 
     const minutes = Math.floor((seconds % 3600) / 60)
     if (minutes || hours) {
-        str += minutes.toString().padStart(2, "0") + ":"
+        str += minutes.toString().padStart(2, '0') + ':'
     }
 
     const s = Math.floor((seconds % 3600) % 60)
-    str += s.toString().padStart(2, "0")
+    str += s.toString().padStart(2, '0')
 
     return str
 }
 
 export const percentageWidth = (duration: number, progress: number) => {
-    return "width: " + (progress / duration) * 100 + "%"
+    return 'width: ' + (progress / duration) * 100 + '%'
 }
 
 export const toISOStringWithTimezone = (date: Date) => {
     const tzOffset = -date.getTimezoneOffset()
-    const diff = tzOffset >= 0 ? "+" : "-"
-    const pad = (n: number) => `${Math.floor(Math.abs(n))}`.padStart(2, "0")
+    const diff = tzOffset >= 0 ? '+' : '-'
+    const pad = (n: number) => `${Math.floor(Math.abs(n))}`.padStart(2, '0')
     return (
         date.getFullYear() +
-        "-" +
+        '-' +
         pad(date.getMonth() + 1) +
-        "-" +
+        '-' +
         pad(date.getDate()) +
-        "T" +
+        'T' +
         pad(date.getHours()) +
-        ":" +
+        ':' +
         pad(date.getMinutes()) +
-        ":" +
+        ':' +
         pad(date.getSeconds()) +
         diff +
         pad(tzOffset / 60) +
-        ":" +
+        ':' +
         pad(tzOffset % 60)
     )
 }
@@ -56,9 +56,9 @@ export const isoDate = (date: Date) => {
 export const isoDateString = (date: Date) => {
     const d = isoDate(date)
 
-    return `${d.year.toString().padStart(4, "0")}-${d.month
+    return `${d.year.toString().padStart(4, '0')}-${d.month
         .toString()
-        .padStart(2, "0")}-${d.date.toString().padStart(2, "0")}`
+        .padStart(2, '0')}-${d.date.toString().padStart(2, '0')}`
 }
 
 export const toDateStamp = (str: string) => {

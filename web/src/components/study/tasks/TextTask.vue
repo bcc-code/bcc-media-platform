@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { VButton } from "@/components"
+import { VButton } from '@/components'
 import {
     TaskFragment,
     useCompleteTaskMutation,
     useSendTaskMessageMutation,
-} from "@/graph/generated"
-import { computed, ref } from "vue"
-import { useI18n } from "vue-i18n"
-import Loader from "@/components/Loader.vue"
+} from '@/graph/generated'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import Loader from '@/components/Loader.vue'
 
 var selectedIndex = ref<number>()
 
@@ -21,9 +21,9 @@ const props = defineProps<{
     isDone: boolean
 }>()
 const emit = defineEmits<{
-    (event: "change"): void
-    (event: "nextTask"): void
-    (event: "update:isDone", val: boolean): void
+    (event: 'change'): void
+    (event: 'nextTask'): void
+    (event: 'update:isDone', val: boolean): void
 }>()
 
 const messageInput = ref<string>()
@@ -38,7 +38,7 @@ const isDone = computed({
 })
 
 const task = computed(() => {
-    return (props.task.__typename == "TextTask" ? props.task : undefined)!
+    return (props.task.__typename == 'TextTask' ? props.task : undefined)!
 })
 
 const submit = () => {
@@ -83,12 +83,12 @@ const submit = () => {
                 class="flex flex-col items-center justify-center w-full h-full"
             >
                 <p class="w-full text-white text-style-title-1 text-center">
-                    {{ t("thankYou") }}
+                    {{ t('thankYou') }}
                 </p>
                 <p
                     class="w-full text-white text-style-body-1 text-label-3 text-center"
                 >
-                    {{ t("yourResponseHasBeenSubmitted") }}
+                    {{ t('yourResponseHasBeenSubmitted') }}
                 </p>
             </div>
         </template>

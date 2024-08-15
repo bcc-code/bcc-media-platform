@@ -1,6 +1,6 @@
 #schema: https://api.brunstad.tv/query
-schema: "../backend/graph/api/schema/*.graphqls"
-documents: "./src/**/*.graphql"
+schema: '../backend/graph/api/schema/*.graphqls'
+documents: './src/**/*.graphql'
 generates:
     ./src/graph/generated.ts:
         plugins:

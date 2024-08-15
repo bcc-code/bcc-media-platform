@@ -1,12 +1,9 @@
 <script lang="ts" setup>
-import { VButton } from "@/components"
-import {
-    TaskFragment,
-    useCompleteTaskMutation,
-} from "@/graph/generated"
-import { computed, onMounted, ref } from "vue"
-import { useI18n } from "vue-i18n"
-import { webViewMain } from "@/services/webviews/mainHandler"
+import { VButton } from '@/components'
+import { TaskFragment, useCompleteTaskMutation } from '@/graph/generated'
+import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { webViewMain } from '@/services/webviews/mainHandler'
 
 var selectedIndex = ref<number>()
 
@@ -19,12 +16,12 @@ const props = defineProps<{
     isDone: boolean
 }>()
 const emit = defineEmits<{
-    (event: "change"): void
-    (event: "update:isDone", val: boolean): void
+    (event: 'change'): void
+    (event: 'update:isDone', val: boolean): void
 }>()
 
 const task = computed(() => {
-    return (props.task.__typename == "VideoTask" ? props.task : undefined)!
+    return (props.task.__typename == 'VideoTask' ? props.task : undefined)!
 })
 
 const openLink = async () => {
@@ -38,7 +35,7 @@ const openLink = async () => {
         }
     } else {
         window
-            .open(`/episode/${task.value.episode.id}?autoplay=true`, "_blank")
+            .open(`/episode/${task.value.episode.id}?autoplay=true`, '_blank')
             ?.focus()
     }
 }

@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { computed } from "vue"
+import { computed } from 'vue'
 import {
     Listbox,
     ListboxButton,
     ListboxOptions,
     ListboxOption,
-} from "@headlessui/vue"
+} from '@headlessui/vue'
 
 interface Value {
     title: string
@@ -16,7 +16,7 @@ const props = defineProps<{
     data: Value[]
 }>()
 const emit = defineEmits<{
-    (e: "update:modelValue", i: Value): any
+    (e: 'update:modelValue', i: Value): any
 }>()
 
 const selected = computed({
@@ -24,7 +24,7 @@ const selected = computed({
         return props.modelValue
     },
     set(v: Value) {
-        emit("update:modelValue", v)
+        emit('update:modelValue', v)
     },
 })
 </script>

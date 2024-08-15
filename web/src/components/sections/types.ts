@@ -1,3 +1,3 @@
-import { GetPageQuery } from "@/graph/generated"
+import { GetPageQuery } from '@/graph/generated'
 
-export type Section = NonNullable<GetPageQuery["page"]>["sections"]["items"][0]
+export type Section = NonNullable<GetPageQuery['page']>['sections']['items'][0]

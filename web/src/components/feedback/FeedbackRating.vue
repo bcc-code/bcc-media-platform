@@ -1,15 +1,14 @@
 <script lang="ts" setup>
-
 const props = defineProps<{
     selected: number | null
 }>()
 const emit = defineEmits<{
-    (event: "change"): void
-    (event: "update:selected", val: number | null): void
+    (event: 'change'): void
+    (event: 'update:selected', val: number | null): void
 }>()
 
 const setRating = (i: number) => {
-    emit("update:selected", props.selected !== i ? i : null)
+    emit('update:selected', props.selected !== i ? i : null)
 }
 </script>
 

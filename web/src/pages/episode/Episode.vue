@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import EpisodeDisplay from "@/components/episodes/EpisodeDisplay.vue"
-import { GetEpisodeQuery } from "@/graph/generated"
-import { computed, ref } from "vue"
-import { useRouter } from "vue-router"
-import { setTitle } from "@/utils/title"
-import { analytics } from "@/services/analytics"
-import { usePage } from "@/utils/page"
+import EpisodeDisplay from '@/components/episodes/EpisodeDisplay.vue'
+import { GetEpisodeQuery } from '@/graph/generated'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { setTitle } from '@/utils/title'
+import { analytics } from '@/services/analytics'
+import { usePage } from '@/utils/page'
 
 const props = defineProps<{
     episodeId: string
@@ -22,7 +22,7 @@ const context = computed(() => ({
     playlistId: props.playlistId,
 }))
 
-const setEpisode = (episode: GetEpisodeQuery["episode"]) => {
+const setEpisode = (episode: GetEpisodeQuery['episode']) => {
     autoPlay.value = true
     router.push({
         params: { episodeId: episode.id },
@@ -32,9 +32,9 @@ const setEpisode = (episode: GetEpisodeQuery["episode"]) => {
     setTitle(episode.title)
 
     const { setCurrent } = usePage()
-    setCurrent("episode")
+    setCurrent('episode')
     analytics.page({
-        id: "episode",
+        id: 'episode',
         title: document.title,
         meta: {
             episodeId: episode.id,

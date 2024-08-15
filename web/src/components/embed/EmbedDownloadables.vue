@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import { GetEpisodeEmbedQuery } from "@/graph/generated"
-import { Language, getLanguage } from "@/services/language"
-import { computed, ref } from "vue"
-import { DocumentArrowDownIcon } from "@heroicons/vue/24/outline"
-import { analytics } from "@/services/analytics"
-import ModalBase from "../study/ModalBase.vue"
-import { mdToHTML } from "@/services/converter"
+import { GetEpisodeEmbedQuery } from '@/graph/generated'
+import { Language, getLanguage } from '@/services/language'
+import { computed, ref } from 'vue'
+import { DocumentArrowDownIcon } from '@heroicons/vue/24/outline'
+import { analytics } from '@/services/analytics'
+import ModalBase from '../study/ModalBase.vue'
+import { mdToHTML } from '@/services/converter'
 
 const props = defineProps<{
-    episode: GetEpisodeEmbedQuery["episode"]
+    episode: GetEpisodeEmbedQuery['episode']
     showTitle?: boolean
 }>()
 
@@ -20,7 +20,7 @@ const languages = computed(() => {
             langs.push(
                 getLanguage({
                     languageCode: f.audioLanguage,
-                    currentLanguageCode: "en",
+                    currentLanguageCode: 'en',
                 })
             )
         }
@@ -29,7 +29,7 @@ const languages = computed(() => {
     return langs
 })
 
-const _language = ref<string>("")
+const _language = ref<string>('')
 
 const language = computed({
     get() {
@@ -37,7 +37,7 @@ const language = computed({
     },
     set(v) {
         _language.value = v
-        fileId.value = ""
+        fileId.value = ''
     },
 })
 
@@ -49,7 +49,7 @@ const files = computed(() => {
     return props.episode.files.filter((f) => f.audioLanguage === language.value)
 })
 
-const fileId = ref<string>("")
+const fileId = ref<string>('')
 
 const file = computed(() => {
     return props.episode.files.find((f) => f.id === fileId.value)
@@ -59,10 +59,10 @@ const fileSize = (bytes: number) => {
     const threshhold = 1024
 
     if (Math.abs(bytes) < threshhold) {
-        return bytes + " B"
+        return bytes + ' B'
     }
 
-    const units = ["KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
+    const units = ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
     let u = -1
     const r = 10 ** 1
 
@@ -74,7 +74,7 @@ const fileSize = (bytes: number) => {
         u < units.length - 1
     )
 
-    return bytes.toFixed(1) + " " + units[u]
+    return bytes.toFixed(1) + ' ' + units[u]
 }
 
 const showTerms = ref(false)
@@ -91,21 +91,21 @@ const downloadFile = () => {
     const url = file.value.url
     const name = file.value.fileName
     downloading.value = true
-    analytics.track("episode_download", {
+    analytics.track('episode_download', {
         episodeId: props.episode.id,
         fileName: name,
         audioLanguage: file.value.audioLanguage,
-        resolution: file.value.resolution ?? "",
+        resolution: file.value.resolution ?? '',
     })
     fetch(url)
         .then((response) => {
-            const contentEncoding = response.headers.get("content-encoding")
+            const contentEncoding = response.headers.get('content-encoding')
             const contentLength = response.headers.get(
-                contentEncoding ? "x-file-size" : "content-length"
+                contentEncoding ? 'x-file-size' : 'content-length'
             )
 
             if (contentLength === null) {
-                throw Error("Response size header unavailable")
+                throw Error('Response size header unavailable')
             }
 
             let loaded = 0
@@ -141,7 +141,7 @@ const downloadFile = () => {
         })
         .then((response) => response.blob())
         .then((blob) => {
-            const link = document.createElement("a")
+            const link = document.createElement('a')
             link.download = name
             link.href = URL.createObjectURL(blob)
             link.click()
@@ -165,7 +165,7 @@ const downloadFile = () => {
         >
             <div v-if="showTitle" class="flex flex-col gap-2">
                 <h1 class="text-lg font-bold my-auto uppercase">
-                    {{ $t("buttons.download") }}
+                    {{ $t('buttons.download') }}
                 </h1>
             </div>
             <div class="flex flex-col gap-2">
@@ -175,7 +175,7 @@ const downloadFile = () => {
                     :class="{ 'text-gray': !language }"
                 >
                     <option value="" disabled selected hidden>
-                        {{ $t("download.language") }}
+                        {{ $t('download.language') }}
                     </option>
                     <option
                         v-for="l in languages"
@@ -194,7 +194,7 @@ const downloadFile = () => {
                 >
                     <option value="" disabled selected hidden>
                         <span class="text-opacity-50">{{
-                            $t("download.resolution")
+                            $t('download.resolution')
                         }}</span>
                     </option>
                     <option v-for="f in files" :value="f.id">
@@ -232,7 +232,7 @@ const downloadFile = () => {
         <ModalBase v-model:visible="showTerms">
             <div class="bg-background rounded-lg p-4 flex flex-col">
                 <div>
-                    <h3>{{ $t("footer.termsOfUse") }}</h3>
+                    <h3>{{ $t('footer.termsOfUse') }}</h3>
                     <div
                         class="terms"
                         v-html="
@@ -249,7 +249,7 @@ const downloadFile = () => {
                         :disabled="downloading"
                         @click="showTerms = false"
                     >
-                        <span class="my-auto">{{ $t("buttons.cancel") }}</span>
+                        <span class="my-auto">{{ $t('buttons.cancel') }}</span>
                     </button>
                     <button
                         class="bg-primary px-4 py-2 rounded-md"
@@ -259,7 +259,7 @@ const downloadFile = () => {
                         :disabled="downloading"
                         @click="downloadFile"
                     >
-                        <span class="my-auto">{{ $t("buttons.accept") }}</span>
+                        <span class="my-auto">{{ $t('buttons.accept') }}</span>
                     </button>
                 </div>
             </div>

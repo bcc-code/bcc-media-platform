@@ -1,12 +1,12 @@
-import { useAuth0 } from "@/services/auth0"
+import { useAuth0 } from '@/services/auth0'
 
 // type Token = {
 //     expiresAt: string
 //     token: string
 // }
 
-const COUNTRY_CODE_CLAIM = "https://login.bcc.no/claims/CountryIso2Code"
-const CHURCH_ID_CLAIM = "https://login.bcc.no/claims/churchId"
+const COUNTRY_CODE_CLAIM = 'https://login.bcc.no/claims/CountryIso2Code'
+const CHURCH_ID_CLAIM = 'https://login.bcc.no/claims/churchId'
 
 const query = new URLSearchParams(window.location.search)
 
@@ -17,12 +17,12 @@ export class Auth {
         if (isAuthenticated.value) {
             return false
         }
-        if (localStorage.getItem("wasLoggedIn") === "true") {
+        if (localStorage.getItem('wasLoggedIn') === 'true') {
             const query = new URLSearchParams(location.search)
-            if (query.get("error") === "login_required") {
+            if (query.get('error') === 'login_required') {
                 return true
             } else {
-                const triedLoggingIn = localStorage.getItem("triedLoggingIn")
+                const triedLoggingIn = localStorage.getItem('triedLoggingIn')
 
                 let shouldLogIn = true
 
@@ -34,7 +34,7 @@ export class Auth {
                 }
                 if (shouldLogIn) {
                     localStorage.setItem(
-                        "triedLoggingIn",
+                        'triedLoggingIn',
                         new Date().toISOString()
                     )
                     Auth.signIn(true)
@@ -45,9 +45,9 @@ export class Auth {
     }
 
     public static cancelSignIn() {
-        localStorage.removeItem("wasLoggedIn")
-        localStorage.removeItem("triedLoggingIn")
-        location.replace("/")
+        localStorage.removeItem('wasLoggedIn')
+        localStorage.removeItem('triedLoggingIn')
+        location.replace('/')
     }
 
     public static async signIn(silent?: boolean) {
@@ -55,7 +55,7 @@ export class Auth {
 
         await loginWithRedirect({
             authorizationParams: {
-                prompt: silent ? "none" : undefined,
+                prompt: silent ? 'none' : undefined,
             },
         })
     }
@@ -85,17 +85,17 @@ export class Auth {
                 await loginWithRedirect()
             }
         }
-        return query.get("access_token")
+        return query.get('access_token')
     }
 
     public static isAuthenticated() {
         const { isAuthenticated } = useAuth0()
         if (isAuthenticated.value) {
             if (
-                (this.wasLoggedIn ??= localStorage.getItem("wasLoggedIn")) !==
-                "true"
+                (this.wasLoggedIn ??= localStorage.getItem('wasLoggedIn')) !==
+                'true'
             ) {
-                localStorage.setItem("wasLoggedIn", "true")
+                localStorage.setItem('wasLoggedIn', 'true')
             }
         }
         return isAuthenticated

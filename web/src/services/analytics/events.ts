@@ -1,21 +1,21 @@
-import { GetPageQuery, SectionItemFragment } from "@/graph/generated"
-import { apiObject } from "rudder-sdk-js"
+import { GetPageQuery, SectionItemFragment } from '@/graph/generated'
+import { apiObject } from 'rudder-sdk-js'
 
 type StringWithAutocomplete<T> = T | (string & {})
 
 export type Page = StringWithAutocomplete<
-    | "about"
-    | "calendar"
-    | "login"
-    | "profileEdit"
-    | "profile"
-    | "search"
-    | "settings"
-    | "support"
-    | "faq"
-    | "episode"
-    | "comic"
-    | "show"
+    | 'about'
+    | 'calendar'
+    | 'login'
+    | 'profileEdit'
+    | 'profile'
+    | 'search'
+    | 'settings'
+    | 'support'
+    | 'faq'
+    | 'episode'
+    | 'comic'
+    | 'show'
 >
 
 export type IdentifyData = {
@@ -27,24 +27,24 @@ export type IdentifyData = {
 }
 
 export type AgeGroup =
-    | "UNKNOWN"
-    | "< 10"
-    | "10 - 12"
-    | "13 - 18"
-    | "19 - 25"
-    | "26 - 36"
-    | "37 - 50"
-    | "51 - 64"
-    | "65+"
+    | 'UNKNOWN'
+    | '< 10'
+    | '10 - 12'
+    | '13 - 18'
+    | '19 - 25'
+    | '26 - 36'
+    | '37 - 50'
+    | '51 - 64'
+    | '65+'
 
-type ElementType = SectionItemFragment["item"]["__typename"] | "Comic" | "Quote"
+type ElementType = SectionItemFragment['item']['__typename'] | 'Comic' | 'Quote'
 
 export type Events = {
     section_clicked: {
         sectionId: string
         sectionName?: string
         sectionPosition: number
-        sectionType: GetPageQuery["page"]["sections"]["items"][0]["__typename"]
+        sectionType: GetPageQuery['page']['sections']['items'][0]['__typename']
         elementPosition: number
         elementType: ElementType
         elementId: string
@@ -56,7 +56,7 @@ export type Events = {
     }
     calendarday_clicked: {
         pageCode: Page
-        calendarView: "week" | "month"
+        calendarView: 'week' | 'month'
         calendarDate: string
     }
     search_performed: {
@@ -70,7 +70,7 @@ export type Events = {
         elementPosition: number
         elementType: ElementType
         elementId: string
-        group: "shows" | "episodes"
+        group: 'shows' | 'episodes'
     }
     language_changed: {
         pageCode: string

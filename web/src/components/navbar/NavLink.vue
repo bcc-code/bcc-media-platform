@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { RouteLocationRaw } from "vue-router"
+import { RouteLocationRaw } from 'vue-router'
 
 defineProps<{
     to: RouteLocationRaw

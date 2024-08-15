@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import Loader from "@/components/Loader.vue"
-import { useGetRedirectUrlQuery } from "@/graph/generated"
-import { ref } from "vue"
+import Loader from '@/components/Loader.vue'
+import { useGetRedirectUrlQuery } from '@/graph/generated'
+import { ref } from 'vue'
 
 const props = defineProps<{ code: string }>()
 const iframeLoaded = ref(false)

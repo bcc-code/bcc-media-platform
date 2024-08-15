@@ -5,20 +5,20 @@ import {
     useGetPageQuery,
     useGetSectionQuery,
     useGetSectionsForPageQuery,
-} from "@/graph/generated"
-import Section from "@/components/sections/Section.vue"
-import { computed, nextTick, onMounted, onUnmounted, ref } from "vue"
-import NotFound from "../NotFound.vue"
-import Loader from "../Loader.vue"
-import { goToSectionItem } from "@/utils/items"
-import { TransitionPresets } from "@vueuse/core"
+} from '@/graph/generated'
+import Section from '@/components/sections/Section.vue'
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import NotFound from '../NotFound.vue'
+import Loader from '../Loader.vue'
+import { goToSectionItem } from '@/utils/items'
+import { TransitionPresets } from '@vueuse/core'
 
 const props = defineProps<{
     pageId: string
 }>()
 
 const emit = defineEmits<{
-    (e: "title", v: string): void
+    (e: 'title', v: string): void
 }>()
 
 const pageFirst = ref(10)
@@ -46,7 +46,7 @@ const getSectionsQuery = useGetSectionsForPageQuery({
     },
 })
 
-const page = ref(null as GetPageQuery["page"] | null)
+const page = ref(null as GetPageQuery['page'] | null)
 const loading = ref(false)
 
 const load = async () => {
@@ -55,7 +55,7 @@ const load = async () => {
     if (result.data.value?.page) {
         page.value = result.data.value.page
         if (page.value.title) {
-            emit("title", page.value.title)
+            emit('title', page.value.title)
         }
     }
     loading.value = false
@@ -63,7 +63,7 @@ const load = async () => {
     loadMore()
 }
 
-const sectionId = ref("")
+const sectionId = ref('')
 const first = ref(10)
 const offset = ref(0)
 
@@ -76,15 +76,15 @@ const sectionQuery = useGetSectionQuery({
     },
 })
 
-const appendItems = async (section: GetSectionQuery["section"]) => {
+const appendItems = async (section: GetSectionQuery['section']) => {
     switch (section.__typename) {
-        case "DefaultGridSection":
-        case "ListSection":
-        case "IconGridSection":
-        case "PosterGridSection":
-        case "DefaultSection":
-        case "FeaturedSection":
-        case "PosterSection":
+        case 'DefaultGridSection':
+        case 'ListSection':
+        case 'IconGridSection':
+        case 'PosterGridSection':
+        case 'DefaultSection':
+        case 'FeaturedSection':
+        case 'PosterSection':
             if (
                 section.items.total >
                 section.items.offset + section.items.first
@@ -141,10 +141,10 @@ const loadMore = async () => {
             const lastSection = sections[sections.length - 1]
             if (lastSection) {
                 switch (lastSection.__typename) {
-                    case "DefaultGridSection":
-                    case "ListSection":
-                    case "IconGridSection":
-                    case "PosterGridSection":
+                    case 'DefaultGridSection':
+                    case 'ListSection':
+                    case 'IconGridSection':
+                    case 'PosterGridSection':
                         await appendItems(lastSection)
                 }
             }
@@ -161,17 +161,17 @@ const clickItem = (sectionIndex: number, itemIndex: number) => {
         if (sectionIndex === i) {
             const section = page.value.sections.items[i]
             switch (section.__typename) {
-                case "DefaultGridSection":
-                case "DefaultSection":
-                case "FeaturedSection":
-                case "IconGridSection":
-                case "IconSection":
-                case "LabelSection":
-                case "ListSection":
-                case "CardListSection":
-                case "CardSection":
-                case "PosterGridSection":
-                case "PosterSection":
+                case 'DefaultGridSection':
+                case 'DefaultSection':
+                case 'FeaturedSection':
+                case 'IconGridSection':
+                case 'IconSection':
+                case 'LabelSection':
+                case 'ListSection':
+                case 'CardListSection':
+                case 'CardSection':
+                case 'PosterGridSection':
+                case 'PosterSection':
                     for (let i = 0; i < section.items.items.length; i++) {
                         if (i === itemIndex) {
                             // TODO: refactor to pass the item. This can cause bugs when the section filters out certain types, like CardSection does
@@ -189,7 +189,7 @@ const clickItem = (sectionIndex: number, itemIndex: number) => {
                                             true,
                                         collectionId:
                                             section.metadata?.collectionId ??
-                                            "",
+                                            '',
                                     },
                                 },
                                 page.value.code

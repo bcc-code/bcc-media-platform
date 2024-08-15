@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import Lesson, { Page } from "@/components/study/Lesson.vue"
-import { useI18n } from "vue-i18n"
+import Lesson, { Page } from '@/components/study/Lesson.vue'
+import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 const props = defineProps<{
     episodeId: string
@@ -24,7 +24,7 @@ const props = defineProps<{
             >
                 <path d="M10 1L2 9L10 17" stroke="#6EB0E6" stroke-width="2" />
             </svg>
-            {{ t("episode.episode") }}
+            {{ t('episode.episode') }}
         </router-link>
         <Lesson
             :episode-id="episodeId"

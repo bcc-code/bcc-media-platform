@@ -5,13 +5,13 @@ export default {
 }
 </script>
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n"
+import { useI18n } from 'vue-i18n'
 import {
     Dialog,
     DialogPanel,
     TransitionRoot,
     TransitionChild,
-} from "@headlessui/vue"
+} from '@headlessui/vue'
 
 const { t } = useI18n()
 
@@ -19,11 +19,11 @@ const props = defineProps<{
     visible: boolean
 }>()
 const emit = defineEmits<{
-    (event: "update:visible", val: boolean): void
+    (event: 'update:visible', val: boolean): void
 }>()
 
 const cancel = () => {
-    emit("update:visible", false)
+    emit('update:visible', false)
 }
 </script>
 

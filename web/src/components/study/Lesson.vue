@@ -1,16 +1,16 @@
 <script lang="ts" setup>
-import { onMounted, ref, watch } from "vue"
-import { useI18n } from "vue-i18n"
-import { useTitle } from "@/utils/title"
-import { analytics } from "@/services/analytics"
-import { useGetStudyLessonQuery } from "@/graph/generated"
-import { useRoute } from "vue-router"
-import { VButton } from ".."
-import Tasks from "./Tasks.vue"
-import More from "./More.vue"
-import Loader from "../Loader.vue"
+import { onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useTitle } from '@/utils/title'
+import { analytics } from '@/services/analytics'
+import { useGetStudyLessonQuery } from '@/graph/generated'
+import { useRoute } from 'vue-router'
+import { VButton } from '..'
+import Tasks from './Tasks.vue'
+import More from './More.vue'
+import Loader from '../Loader.vue'
 
-export type Page = "" | "intro" | "tasks" | "more"
+export type Page = '' | 'intro' | 'tasks' | 'more'
 
 console.log(useRoute())
 const route = useRoute()
@@ -24,7 +24,7 @@ const { error, fetching, data, executeQuery, ...lessonQuery } =
     useGetStudyLessonQuery({
         pause: props.lessonId == null,
         variables: { lessonId: props.lessonId, episodeId: props.episodeId },
-        requestPolicy: "network-only",
+        requestPolicy: 'network-only',
     })
 
 const { t } = useI18n()
@@ -34,28 +34,28 @@ const { setTitle } = useTitle()
 const page = ref<Page>(props.subRoute)
 
 watch(page, (val) => {
-    if (val == "tasks") {
+    if (val == 'tasks') {
         executeQuery()
     }
 })
 
 onMounted(async () => {
-    setTitle("")
+    setTitle('')
     analytics.page({
-        id: "study",
-        title: "",
+        id: 'study',
+        title: '',
     })
     var result = await lessonQuery
     var data = result.data.value
-    if (props.subRoute == "" && data != null) {
+    if (props.subRoute == '' && data != null) {
         var completedTasks = data.studyLesson.progress.completed
         var totalTasks = data.studyLesson.progress.total
         if (completedTasks == 0) {
-            page.value = "intro"
+            page.value = 'intro'
         } else if (completedTasks < totalTasks) {
-            page.value = "tasks"
+            page.value = 'tasks'
         } else {
-            page.value = "more"
+            page.value = 'more'
         }
     }
 })

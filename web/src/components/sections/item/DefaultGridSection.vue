@@ -1,17 +1,17 @@
 <script lang="ts" setup>
-import { Section } from "../types"
+import { Section } from '../types'
 
-import SectionTitle from "./SectionTitle.vue"
-import CollectionItemThumbnail from "./CollectionItemThumbnail.vue"
-import { isCollectionItem } from "@/utils/items"
+import SectionTitle from './SectionTitle.vue'
+import CollectionItemThumbnail from './CollectionItemThumbnail.vue'
+import { isCollectionItem } from '@/utils/items'
 
 defineProps<{
     position: number
-    section: Section & { __typename: "DefaultGridSection" }
+    section: Section & { __typename: 'DefaultGridSection' }
 }>()
 
 defineEmits<{
-    (event: "clickItem", index: number): void
+    (event: 'clickItem', index: number): void
 }>()
 </script>
 <template>

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ChapterListChapterFragment } from "@/graph/generated"
-import { computed } from "vue"
+import { ChapterListChapterFragment } from '@/graph/generated'
+import { computed } from 'vue'
 
 const props = defineProps<{
     chapters: ChapterListChapterFragment[]
@@ -22,9 +22,9 @@ function formatSeconds(seconds: number): string {
     const remainingSeconds = remainder % 60
 
     if (showHours.value) {
-        return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
     } else {
-        return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`
+        return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
     }
 }
 

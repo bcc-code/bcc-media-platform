@@ -1,3 +1,3 @@
-import { ref } from "vue"
+import { ref } from 'vue'
 
-export const currentApp = ref("bccm-web")
+export const currentApp = ref('bccm-web')

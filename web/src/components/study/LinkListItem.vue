@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { LessonLinkFragment } from "@/graph/generated"
-import { webViewMain, openInBrowser } from "@/services/webviews/mainHandler"
+import { LessonLinkFragment } from '@/graph/generated'
+import { webViewMain, openInBrowser } from '@/services/webviews/mainHandler'
 
 const props = defineProps<{ link: LessonLinkFragment }>()
 
@@ -8,7 +8,7 @@ const openLink = () => {
     if (webViewMain) {
         openInBrowser(props.link.url)
     } else {
-        window.open(props.link.url, "_blank")?.focus()
+        window.open(props.link.url, '_blank')?.focus()
     }
 }
 </script>

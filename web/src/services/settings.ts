@@ -1,4 +1,3 @@
-
 type TSettings = {
     locale: string
 }
@@ -6,14 +5,14 @@ type TSettings = {
 class Settings implements TSettings {
     private get settings(): TSettings {
         return (
-            JSON.parse(localStorage.getItem("settings") ?? "{}") ?? {
-                locale: "en",
+            JSON.parse(localStorage.getItem('settings') ?? '{}') ?? {
+                locale: 'en',
             }
         )
     }
 
     private set settings(v) {
-        localStorage.setItem("settings", JSON.stringify(v))
+        localStorage.setItem('settings', JSON.stringify(v))
     }
 
     public get locale() {

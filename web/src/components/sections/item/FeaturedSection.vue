@@ -1,26 +1,26 @@
 <script lang="ts" setup>
-import { Section } from "../types"
+import { Section } from '../types'
 
-import { computed } from "vue"
-import SectionTitle from "./SectionTitle.vue"
-import Play from "@/components/icons/Play.vue"
-import Image from "@/components/Image.vue"
-import Slider from "./Slider.vue"
-import VButton from "@/components/VButton.vue"
+import { computed } from 'vue'
+import SectionTitle from './SectionTitle.vue'
+import Play from '@/components/icons/Play.vue'
+import Image from '@/components/Image.vue'
+import Slider from './Slider.vue'
+import VButton from '@/components/VButton.vue'
 
 const props = defineProps<{
     position: number
-    item: Section & { __typename: "FeaturedSection" }
+    item: Section & { __typename: 'FeaturedSection' }
 }>()
 
 defineEmits<{
-    (event: "loadMore"): void
-    (event: "clickItem", index: number): void
+    (event: 'loadMore'): void
+    (event: 'clickItem', index: number): void
 }>()
 
 const options = computed(() => {
     switch (props.item.size) {
-        case "small":
+        case 'small':
             return {
                 400: {
                     slidesPerView: 1,
@@ -43,7 +43,7 @@ const options = computed(() => {
                     spaceBetween: 8,
                 },
             }
-        case "medium":
+        case 'medium':
             return {
                 400: {
                     slidesPerView: 1,
@@ -183,11 +183,11 @@ const options = computed(() => {
                                 >
                                     <Play></Play
                                     ><span class="ml-1 truncate">{{
-                                        $t("page.watchNow")
+                                        $t('page.watchNow')
                                     }}</span>
                                 </div>
                                 <div v-else class="flex">
-                                    {{ $t("page.explore") }}
+                                    {{ $t('page.explore') }}
                                 </div>
                             </VButton>
                         </div>

@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { computed } from "vue"
+import { computed } from 'vue'
 
-type Color = "default" | "red" | "green" | "secondary"
-type Size = "default" | "large" | "thin"
+type Color = 'default' | 'red' | 'green' | 'secondary'
+type Size = 'default' | 'large' | 'thin'
 
 const props = defineProps<{
     color?: Color
@@ -11,38 +11,38 @@ const props = defineProps<{
 }>()
 
 const styles = computed(() => {
-    var styles = ""
+    var styles = ''
 
     const apply = (str: string) => (styles += ` ${str}`)
 
     if (props.disabled) {
-        apply("bg-background text-label-4 cursor-default")
+        apply('bg-background text-label-4 cursor-default')
     } else {
         switch (props.color) {
-            case "red":
-                apply("bg-red hover:bg-red-hover")
+            case 'red':
+                apply('bg-red hover:bg-red-hover')
                 break
-            case "green":
-                apply("bg-green hover:bg-green-hover")
+            case 'green':
+                apply('bg-green hover:bg-green-hover')
                 break
-            case "secondary":
-                apply("bg-secondary hover:bg-secondary-hover")
+            case 'secondary':
+                apply('bg-secondary hover:bg-secondary-hover')
                 break
             default:
-                apply("bg-primary hover:bg-primary-hover")
+                apply('bg-primary hover:bg-primary-hover')
                 break
         }
     }
 
     switch (props.size) {
-        case "large":
-            apply("px-5 py-3")
+        case 'large':
+            apply('px-5 py-3')
             break
-        case "thin":
-            apply("px-4 py-1")
+        case 'thin':
+            apply('px-4 py-1')
             break
         default:
-            apply("px-4 py-2 ")
+            apply('px-4 py-2 ')
             break
     }
 

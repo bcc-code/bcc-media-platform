@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 defineProps<{
-    variant?: "default" | "spinner"
+    variant?: 'default' | 'spinner'
 }>()
 </script>
 

@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import Loader from "@/components/Loader.vue"
-import ShowSeason from "@/components/shows/ShowSeason.vue"
+import Loader from '@/components/Loader.vue'
+import ShowSeason from '@/components/shows/ShowSeason.vue'
 import {
     type GetSeasonEpisodesQuery,
     GetSeasonEpisodesDocument,
     ShowSeasonFragment,
     useGetShowQuery,
-} from "@/graph/generated"
-import { isNewEpisode } from "@/utils/items"
-import { useClientHandle } from "@urql/vue"
-import { ref } from "vue"
+} from '@/graph/generated'
+import { isNewEpisode } from '@/utils/items'
+import { useClientHandle } from '@urql/vue'
+import { ref } from 'vue'
 
 const props = defineProps<{
     showId: string
@@ -42,7 +42,7 @@ then(async ({ data }) => {
                     GetSeasonEpisodesDocument,
                     {
                         id: season.id,
-                        dir: "desc",
+                        dir: 'desc',
                     }
                 )
             ).data?.season ?? season

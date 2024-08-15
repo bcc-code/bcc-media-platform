@@ -1,7 +1,7 @@
 // @ts-ignore
-import MenuButton from "./MenuButton"
+import MenuButton from './MenuButton'
 // @ts-ignore
-import MenuItem from "./MenuItem"
+import MenuItem from './MenuItem'
 
 export type MenuItem = {
     label: string
@@ -27,9 +27,9 @@ export function createVjsMenuButton(
         config.placement
     )
 
-    buttonInstance.menuButton_.$(".vjs-icon-placeholder").className +=
+    buttonInstance.menuButton_.$('.vjs-icon-placeholder').className +=
         ` ${config.icon}`
-    buttonInstance.removeClass("vjs-hidden")
+    buttonInstance.removeClass('vjs-hidden')
 
     const menuItems = config.items.map(
         (item) => new MenuItem(player, item, config.onClick)

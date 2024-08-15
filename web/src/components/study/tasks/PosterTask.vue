@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import { VButton } from "@/components"
+import { VButton } from '@/components'
 import {
     TaskFragment,
     useCompleteTaskMutation,
     useSendTaskMessageMutation,
-} from "@/graph/generated"
-import { computed, onMounted, ref } from "vue"
-import { useI18n } from "vue-i18n"
-import Loader from "@/components/Loader.vue"
-import { webViewMain, openInBrowser } from "@/services/webviews/mainHandler"
+} from '@/graph/generated'
+import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import Loader from '@/components/Loader.vue'
+import { webViewMain, openInBrowser } from '@/services/webviews/mainHandler'
 
 var selectedIndex = ref<number>()
 
@@ -24,8 +24,8 @@ const props = defineProps<{
     isDone: boolean
 }>()
 const emit = defineEmits<{
-    (event: "change"): void
-    (event: "update:isDone", val: boolean): void
+    (event: 'change'): void
+    (event: 'update:isDone', val: boolean): void
 }>()
 
 const imgSize = ref<string>()
@@ -33,8 +33,8 @@ const downloading = ref<boolean>()
 
 const task = computed(() => {
     return (
-        props.task.__typename == "PosterTask" ||
-        props.task.__typename == "QuoteTask"
+        props.task.__typename == 'PosterTask' ||
+        props.task.__typename == 'QuoteTask'
             ? props.task
             : undefined
     )!
@@ -45,13 +45,13 @@ const download = async () => {
     const response = await webViewMain?.shareImage(task.value.image)
     downloading.value = false
     if (response == null || response == false) {
-        openInBrowser(task.value.image + "?&dl")
+        openInBrowser(task.value.image + '?&dl')
     }
 }
 onMounted(async () => {
     emit(`update:isDone`, true)
-    const imgInfo = await fetch(task.value.image, { method: "HEAD" })
-    const contentLength = imgInfo.headers.get("Content-Length")
+    const imgInfo = await fetch(task.value.image, { method: 'HEAD' })
+    const contentLength = imgInfo.headers.get('Content-Length')
     if (contentLength) {
         const bytes = parseFloat(contentLength)
         const megaBytes = (bytes / 1024 / 1024).toFixed(1)
@@ -120,7 +120,7 @@ onMounted(async () => {
                             stroke-linejoin="round"
                         />
                     </svg>
-                    {{ t("buttons.download") }}
+                    {{ t('buttons.download') }}
                     <sup class="text-style-caption-3 text-label-3">
                         <template v-if="imgSize">({{ imgSize }})</template>
                         <div v-else class="w-8">(...)</div>

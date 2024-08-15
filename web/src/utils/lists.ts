@@ -1,11 +1,11 @@
 import {
     GetSeasonOnEpisodePageQuery,
     SectionItemFragment,
-} from "@/graph/generated"
+} from '@/graph/generated'
 
 export type ListItem = {
     id: string
-    type: SectionItemFragment["item"]["__typename"]
+    type: SectionItemFragment['item']['__typename']
     title: string
     image?: string | null
     progress?: number | null
@@ -24,7 +24,7 @@ export const toListItem = (fragment: SectionItemFragment): ListItem => {
         image: fragment.image,
     }
     switch (fragment.item.__typename) {
-        case "Episode":
+        case 'Episode':
             item.number = fragment.item.episodeNumber
             item.progress = fragment.item.progress
             item.ageRating = fragment.item.ageRating
@@ -40,14 +40,14 @@ export const toListItems = (fragments: SectionItemFragment[]): ListItem[] => {
 }
 
 export const episodesToListItems = (
-    episodes: GetSeasonOnEpisodePageQuery["season"]["episodes"]["items"]
+    episodes: GetSeasonOnEpisodePageQuery['season']['episodes']['items']
 ): ListItem[] => {
     const items = episodes.map(
         (i) =>
             ({
                 id: i.id,
                 uuid: i.uuid,
-                type: "Episode",
+                type: 'Episode',
                 title: i.title,
                 image: i.image,
                 ageRating: i.ageRating,

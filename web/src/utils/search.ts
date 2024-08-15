@@ -1,7 +1,7 @@
-import { ref } from "vue"
-import { RouteLocationRaw } from "vue-router"
+import { ref } from 'vue'
+import { RouteLocationRaw } from 'vue-router'
 
-const query = ref("")
+const query = ref('')
 
 const oldPath = ref(null as RouteLocationRaw | null)
 

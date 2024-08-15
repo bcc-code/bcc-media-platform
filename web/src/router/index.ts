@@ -1,6 +1,6 @@
-import { useTitle } from "@/utils/title"
-import { createRouter, createWebHistory } from "vue-router"
-import routes from "./routes"
+import { useTitle } from '@/utils/title'
+import { createRouter, createWebHistory } from 'vue-router'
+import routes from './routes'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -10,7 +10,7 @@ const router = createRouter({
 const { setTitle } = useTitle()
 
 router.beforeEach((to, from) => {
-    setTitle("")
+    setTitle('')
 })
 
 export default router

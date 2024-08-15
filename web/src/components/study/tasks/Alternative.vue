@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { webViewMain } from "@/services/webviews/mainHandler"
-import { computed, ref } from "vue"
-import { Vue3Lottie as LottieAnimation } from "vue3-lottie"
-import confettiAnimation from "./confetti.json"
+import { webViewMain } from '@/services/webviews/mainHandler'
+import { computed, ref } from 'vue'
+import { Vue3Lottie as LottieAnimation } from 'vue3-lottie'
+import confettiAnimation from './confetti.json'
 
 const props = defineProps<{
     letter: string
@@ -36,20 +36,20 @@ const handleClick = () => {
         confetti.value.play()
         scaleShake()
         if (webViewMain) {
-            webViewMain.hapticFeedback("heavyImpact")
+            webViewMain.hapticFeedback('heavyImpact')
         } else {
             navigator.vibrate(20)
         }
     } else if (props.correct === false || props.locked) {
         shake()
         if (webViewMain) {
-            webViewMain.hapticFeedback("mediumImpact")
+            webViewMain.hapticFeedback('mediumImpact')
         } else {
             navigator.vibrate(40)
         }
     } else {
         if (webViewMain) {
-            webViewMain.hapticFeedback("lightImpact")
+            webViewMain.hapticFeedback('lightImpact')
         } else {
             navigator.vibrate(20)
         }
@@ -57,21 +57,21 @@ const handleClick = () => {
 }
 
 const conditionalClass = computed(() => {
-    let classString = ""
+    let classString = ''
     if (shaking.value) {
-        classString += " shake"
+        classString += ' shake'
     }
     if (scaleShaking.value) {
-        classString += " scaleShake"
+        classString += ' scaleShake'
     }
     if (props.selected && props.correct === true) {
-        classString += " border-tint-3 cursor-default"
+        classString += ' border-tint-3 cursor-default'
     } else if (props.selected && props.correct === false) {
-        classString += " border-tint-2 cursor-default"
+        classString += ' border-tint-2 cursor-default'
     } else if (props.selected && props.correct === undefined) {
-        classString += " border-tint-1 cursor-default"
+        classString += ' border-tint-1 cursor-default'
     } else {
-        classString += " border-transparent cursor-pointer"
+        classString += ' border-transparent cursor-pointer'
     }
     return classString
 })

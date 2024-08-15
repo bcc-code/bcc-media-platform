@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import EpisodeTitle from "@/components/episodes/EpisodeTitle.vue"
-import SeasonTitle from "@/components/seasons/SeasonTitle.vue"
-import ShowTitle from "@/components/shows/ShowTitle.vue"
-import type { CollectionItemThumbnailFragment } from "@/graph/generated"
+import EpisodeTitle from '@/components/episodes/EpisodeTitle.vue'
+import SeasonTitle from '@/components/seasons/SeasonTitle.vue'
+import ShowTitle from '@/components/shows/ShowTitle.vue'
+import type { CollectionItemThumbnailFragment } from '@/graph/generated'
 
 defineProps<{
     item: CollectionItemThumbnailFragment

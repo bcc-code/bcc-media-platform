@@ -1,16 +1,16 @@
-"project_id": "360467"
-"base_path": "."
-"base_url": "https://api.crowdin.com"
-"preserve_hierarchy": true
-"api_token_env": "CROWDIN_TOKEN"
+'project_id': '360467'
+'base_path': '.'
+'base_url': 'https://api.crowdin.com'
+'preserve_hierarchy': true
+'api_token_env': 'CROWDIN_TOKEN'
 
 files:
     [
         {
-            "source": "/src/translations/en.json",
-            "translation": "/src/translations/%two_letters_code%.json",
-            "dest": "/BrunstadTV-4.0/web.json",
-            "export_only_approved": false,
-            "skip_untranslated_strings": true,
+            'source': '/src/translations/en.json',
+            'translation': '/src/translations/%two_letters_code%.json',
+            'dest': '/BrunstadTV-4.0/web.json',
+            'export_only_approved': false,
+            'skip_untranslated_strings': true,
         },
     ]

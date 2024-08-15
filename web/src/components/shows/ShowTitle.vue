@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { CollectionItemThumbnailFragment } from "@/graph/generated"
-import { useI18n } from "vue-i18n"
+import { CollectionItemThumbnailFragment } from '@/graph/generated'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
 defineProps<{
     title: string
     show: CollectionItemThumbnailFragment & {
-        __typename: "Show"
+        __typename: 'Show'
     }
 }>()
 </script>
@@ -17,8 +17,8 @@ defineProps<{
             {{ title }}
         </p>
         <p class="text-label-3 type-body-2 line-clamp-1">
-            {{ t("section.item.season", show.seasonCount) }} -
-            {{ t("section.item.episode", show.episodeCount) }}
+            {{ t('section.item.season', show.seasonCount) }} -
+            {{ t('section.item.episode', show.episodeCount) }}
         </p>
     </div>
 </template>

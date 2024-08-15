@@ -1,19 +1,19 @@
 <script lang="ts" setup>
-import { Section } from "../types"
+import { Section } from '../types'
 
-import SectionTitle from "./SectionTitle.vue"
-import { onMounted, ref } from "vue"
-import { getImageSize } from "@/utils/images"
-import Image from "@/components/Image.vue"
-import Loader from "@/components/Loader.vue"
+import SectionTitle from './SectionTitle.vue'
+import { onMounted, ref } from 'vue'
+import { getImageSize } from '@/utils/images'
+import Image from '@/components/Image.vue'
+import Loader from '@/components/Loader.vue'
 
 defineProps<{
     position: number
-    item: Section & { __typename: "IconSection" }
+    item: Section & { __typename: 'IconSection' }
 }>()
 
 const emit = defineEmits<{
-    (event: "clickItem", index: number): void
+    (event: 'clickItem', index: number): void
 }>()
 
 const sectionItem = ref(null as HTMLDivElement[] | null)
@@ -23,7 +23,7 @@ const imageSize = ref(0)
 const clicked = ref(-1)
 
 const click = (index: number) => {
-    emit("clickItem", index)
+    emit('clickItem', index)
     clicked.value = index
 }
 

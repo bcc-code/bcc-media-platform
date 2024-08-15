@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { getProgress } from "@/utils/episodes"
-import { percentageWidth, secondsToTime } from "@/utils/time"
-import { computed } from "vue"
+import { getProgress } from '@/utils/episodes'
+import { percentageWidth, secondsToTime } from '@/utils/time'
+import { computed } from 'vue'
 
 const props = defineProps<{
     item: { id: string; progress?: number | null; duration: number }

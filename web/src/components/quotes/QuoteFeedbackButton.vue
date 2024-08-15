@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { webViewMain } from "@/services/webviews/mainHandler"
-import { ref, watch } from "vue"
+import { webViewMain } from '@/services/webviews/mainHandler'
+import { ref, watch } from 'vue'
 const openFeedback = () => {
     if (webViewMain) {
-        webViewMain.navigate("/r/quotes-feedback")
+        webViewMain.navigate('/r/quotes-feedback')
         return
     }
     // open <host>/r/quotes-feedback in new tab
-    window.open("/r/quotes-feedback", "_blank")
+    window.open('/r/quotes-feedback', '_blank')
 }
 
 const open = ref(false)
@@ -60,7 +60,7 @@ watch(open, (value) => {
                 class="text-white px-2 h-3 text-style-caption-2 cursor-pointer flex items-center whitespace-nowrap justify-center"
                 @click="openFeedback"
             >
-                {{ $t("feedback.giveFeedback") }}
+                {{ $t('feedback.giveFeedback') }}
             </div>
         </transition>
     </button>

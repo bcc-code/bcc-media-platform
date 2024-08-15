@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import ProgressBar from "./ProgressBar.vue"
+import ProgressBar from './ProgressBar.vue'
 
 defineProps<{
     item?: { id: string; progress?: number | null; duration: number }

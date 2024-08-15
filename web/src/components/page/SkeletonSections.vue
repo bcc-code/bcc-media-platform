@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { Swiper, SwiperSlide } from "swiper/vue"
-import Image from "../Image.vue"
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import Image from '../Image.vue'
 </script>
 <template>
     <div class="flex flex-col gap-16 overflow-hidden h-full">

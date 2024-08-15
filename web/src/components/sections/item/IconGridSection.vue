@@ -1,16 +1,16 @@
 <script lang="ts" setup>
-import { Section } from "../types"
+import { Section } from '../types'
 
-import SectionTitle from "./SectionTitle.vue"
-import Image from "@/components/Image.vue"
+import SectionTitle from './SectionTitle.vue'
+import Image from '@/components/Image.vue'
 
 defineProps<{
     position: number
-    item: Section & { __typename: "IconGridSection" }
+    item: Section & { __typename: 'IconGridSection' }
 }>()
 
 defineEmits<{
-    (event: "clickItem", index: number): void
+    (event: 'clickItem', index: number): void
 }>()
 </script>
 <template>

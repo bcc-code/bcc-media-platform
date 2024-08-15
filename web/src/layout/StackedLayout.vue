@@ -1,17 +1,17 @@
 <script lang="ts" setup>
-import Navbar from "@/components/navbar/Navbar.vue"
-import { errors, removeError } from "@/utils/error"
-import { useAuth } from "@/services/auth"
-import Loader from "../components/Loader.vue"
+import Navbar from '@/components/navbar/Navbar.vue'
+import { errors, removeError } from '@/utils/error'
+import { useAuth } from '@/services/auth'
+import Loader from '../components/Loader.vue'
 
-import { init } from "@/services/language"
-import { onMounted } from "vue"
-import { analytics } from "@/services/analytics"
-import { useGetMeQuery } from "@/graph/generated"
-import { loading as tLoading } from "@/i18n"
-import Footer from "@/components/Footer.vue"
-import Cookies from "@/components/Cookies.vue"
-import ShouldSignInPopup from "@/components/ShouldSignInPopup.vue"
+import { init } from '@/services/language'
+import { onMounted } from 'vue'
+import { analytics } from '@/services/analytics'
+import { useGetMeQuery } from '@/graph/generated'
+import { loading as tLoading } from '@/i18n'
+import Footer from '@/components/Footer.vue'
+import Cookies from '@/components/Cookies.vue'
+import ShouldSignInPopup from '@/components/ShouldSignInPopup.vue'
 
 const { authenticated, shouldSignIn } = useAuth()
 

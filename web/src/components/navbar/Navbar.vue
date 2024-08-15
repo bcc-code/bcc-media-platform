@@ -1,23 +1,23 @@
 <script lang="ts" setup>
-import { useRoute, useRouter } from "vue-router"
-import NavLink from "./NavLink.vue"
+import { useRoute, useRouter } from 'vue-router'
+import NavLink from './NavLink.vue'
 import {
     Disclosure,
     Menu,
     MenuButton,
     MenuItems,
     MenuItem,
-} from "@headlessui/vue"
-import { useAuth } from "@/services/auth"
-import { current, setLanguage, languages } from "@/services/language"
-import { HomeIcon, ProfileIcon, QuestionIcon, SearchIcon } from "../icons"
-import { onMounted, ref } from "vue"
-import SearchInput from "../SearchInput.vue"
-import { useSearch } from "@/utils/search"
-import { useGetMeQuery } from "@/graph/generated"
-import ContactForm from "@/components/support/ContactForm.vue"
-import FAQ from "../support/FAQ.vue"
-import LanguageSelector from "../LanguageSelector.vue"
+} from '@headlessui/vue'
+import { useAuth } from '@/services/auth'
+import { current, setLanguage, languages } from '@/services/language'
+import { HomeIcon, ProfileIcon, QuestionIcon, SearchIcon } from '../icons'
+import { onMounted, ref } from 'vue'
+import SearchInput from '../SearchInput.vue'
+import { useSearch } from '@/utils/search'
+import { useGetMeQuery } from '@/graph/generated'
+import ContactForm from '@/components/support/ContactForm.vue'
+import FAQ from '../support/FAQ.vue'
+import LanguageSelector from '../LanguageSelector.vue'
 
 const { fetching } = useGetMeQuery({ variables: {} })
 
@@ -29,7 +29,7 @@ const route = useRoute()
 
 onMounted(() => {
     const q = route.query.q
-    if (q && typeof q === "string") {
+    if (q && typeof q === 'string') {
         query.value = q
     }
 })
@@ -40,10 +40,10 @@ const showFAQ = ref(false)
 
 const router = useRouter()
 const onLogoClick = () => {
-    router.push({ name: "front-page" })
+    router.push({ name: 'front-page' })
     window.scrollTo({
         top: 0,
-        behavior: "smooth",
+        behavior: 'smooth',
     })
 }
 </script>
@@ -74,7 +74,7 @@ const onLogoClick = () => {
                     </div>
                     <div class="hidden lg:flex my-auto space-x-2">
                         <NavLink :icon="HomeIcon" to="/">
-                            {{ $t("page.home") }}
+                            {{ $t('page.home') }}
                         </NavLink>
                         <SearchInput v-model="query" />
                     </div>
@@ -83,7 +83,7 @@ const onLogoClick = () => {
                             class="my-auto hover:underline focus-visible:ring-2 focus-visible:ring-white/75 rounded-md"
                             href="https://bcc.media"
                         >
-                            {{ $t("page.aboutUs") }}
+                            {{ $t('page.aboutUs') }}
                         </a>
                         <LanguageSelector />
                         <Menu
@@ -140,10 +140,10 @@ const onLogoClick = () => {
                                                 <p class="ml-2 text-base">
                                                     {{
                                                         $t(
-                                                            "buttons." +
+                                                            'buttons.' +
                                                                 (authenticated
-                                                                    ? "logout"
-                                                                    : "login")
+                                                                    ? 'logout'
+                                                                    : 'login')
                                                         )
                                                     }}
                                                 </p>
@@ -165,7 +165,7 @@ const onLogoClick = () => {
                                                     class="h-6"
                                                 ></QuestionIcon>
                                                 <p class="ml-2 text-base">
-                                                    {{ $t("support.faq") }}
+                                                    {{ $t('support.faq') }}
                                                 </p>
                                             </button>
                                         </MenuItem>
@@ -186,7 +186,7 @@ const onLogoClick = () => {
                                                     class="h-6"
                                                 ></QuestionIcon>
                                                 <p class="ml-2 text-base">
-                                                    {{ $t("support.contact") }}
+                                                    {{ $t('support.contact') }}
                                                 </p>
                                             </button>
                                         </MenuItem>
@@ -203,7 +203,7 @@ const onLogoClick = () => {
                                 class="stroke-red-500 h-8 w-8"
                             ></ProfileIcon>
                             <p class="ml-1 my-auto">
-                                {{ $t("buttons.login") }}
+                                {{ $t('buttons.login') }}
                             </p>
                         </button>
                     </div>
@@ -328,10 +328,10 @@ const onLogoClick = () => {
                                                 <p class="ml-2 text-base">
                                                     {{
                                                         $t(
-                                                            "buttons." +
+                                                            'buttons.' +
                                                                 (authenticated
-                                                                    ? "logout"
-                                                                    : "login")
+                                                                    ? 'logout'
+                                                                    : 'login')
                                                         )
                                                     }}
                                                 </p>
@@ -370,7 +370,7 @@ const onLogoClick = () => {
                                                     class="h-6"
                                                 ></QuestionIcon>
                                                 <p class="ml-2 text-base">
-                                                    {{ $t("support.faq") }}
+                                                    {{ $t('support.faq') }}
                                                 </p>
                                             </button>
                                         </MenuItem>
@@ -391,7 +391,7 @@ const onLogoClick = () => {
                                                     class="h-6"
                                                 ></QuestionIcon>
                                                 <p class="ml-2 text-base">
-                                                    {{ $t("support.contact") }}
+                                                    {{ $t('support.contact') }}
                                                 </p>
                                             </button>
                                         </MenuItem>
@@ -403,10 +403,10 @@ const onLogoClick = () => {
                 </div>
                 <div class="flex lg:hidden justify-between mx-8">
                     <NavLink :icon="HomeIcon" to="/">
-                        {{ $t("page.home") }}
+                        {{ $t('page.home') }}
                     </NavLink>
                     <NavLink :icon="SearchIcon" :to="{ name: 'search' }">
-                        {{ $t("page.search") }}</NavLink
+                        {{ $t('page.search') }}</NavLink
                     >
                 </div>
             </div>

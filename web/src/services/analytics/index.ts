@@ -1,12 +1,12 @@
-import { ready, load, track, identify, page as rpage } from "rudder-sdk-js"
-import { ref } from "vue"
-import { AgeGroup, Events, IdentifyData, Page } from "./events"
-export * from "./events"
+import { ready, load, track, identify, page as rpage } from 'rudder-sdk-js'
+import { ref } from 'vue'
+import { AgeGroup, Events, IdentifyData, Page } from './events'
+export * from './events'
 
-import { useAuth } from "../auth"
-import { current } from "../language"
-import { useCookies } from "../cookies"
-import { getRevision } from "../revision"
+import { useAuth } from '../auth'
+import { current } from '../language'
+import { useCookies } from '../cookies'
+import { getRevision } from '../revision'
 
 const isLoading = ref(true)
 
@@ -27,13 +27,13 @@ export const getAgeGroup = (age?: number): AgeGroup => {
     const breakpoints: {
         [key: number]: AgeGroup
     } = {
-        "9": "< 10",
-        "12": "10 - 12",
-        "18": "13 - 18",
-        "25": "19 - 25",
-        "36": "26 - 36",
-        "50": "37 - 50",
-        "64": "51 - 64",
+        '9': '< 10',
+        '12': '10 - 12',
+        '18': '13 - 18',
+        '25': '19 - 25',
+        '36': '26 - 36',
+        '50': '37 - 50',
+        '64': '51 - 64',
     }
 
     if (age) {
@@ -42,9 +42,9 @@ export const getAgeGroup = (age?: number): AgeGroup => {
                 return v
             }
         }
-        return "65+"
+        return '65+'
     }
-    return "UNKNOWN"
+    return 'UNKNOWN'
 }
 
 class Analytics {
@@ -66,7 +66,7 @@ class Analytics {
         this.initialized = true
         const data = Object.assign({}, user) as any
         this.user = data
-        delete data["id"]
+        delete data['id']
         identify(user.id, data)
     }
 
@@ -78,7 +78,7 @@ class Analytics {
             {
                 ...data,
                 appLanguage: current.value.code,
-                releaseVersion: this.revision ?? "unknown",
+                releaseVersion: this.revision ?? 'unknown',
             },
             undefined,
             undefined
@@ -89,7 +89,7 @@ class Analytics {
         id: Page
         title: string
         meta?: {
-            setting?: "webSettings"
+            setting?: 'webSettings'
             episodeId?: string
             comicId?: string
             quoteId?: string
@@ -97,7 +97,7 @@ class Analytics {
     }) {
         if (!this.initialized) return
         const data = Object.assign({}, page) as any
-        delete data["id"]
+        delete data['id']
         rpage(page.id, data)
     }
 
@@ -108,7 +108,7 @@ class Analytics {
         const { getClaims } = useAuth()
 
         let analyticsId = await idFactory()
-        if (!analyticsId) analyticsId = "anonymous"
+        if (!analyticsId) analyticsId = 'anonymous'
 
         const claims = getClaims()
 

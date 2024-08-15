@@ -30,7 +30,7 @@ withDefaults(
                 :to="{ name: 'front-page' }"
                 class="text-gray m-2 hover:underline hover:text-white transition hover:bg-slate-400 bg-primary-light p-2 px-3 rounded-full"
                 href="/"
-                >{{ $t("notFound.returnHome") }}</router-link
+                >{{ $t('notFound.returnHome') }}</router-link
             >
         </div>
     </div>

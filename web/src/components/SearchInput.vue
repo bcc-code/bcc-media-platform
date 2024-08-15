@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { useSearch } from "@/utils/search"
-import { computed, nextTick } from "vue"
-import { useRouter } from "vue-router"
-import { SearchIcon } from "./icons"
+import { useSearch } from '@/utils/search'
+import { computed, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
+import { SearchIcon } from './icons'
 
 const { oldPath } = useSearch()
 
@@ -14,8 +14,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: "update:modelValue", value: any): void
-    (e: "keydown.enter"): void
+    (e: 'update:modelValue', value: any): void
+    (e: 'keydown.enter'): void
 }>()
 
 const value = computed({
@@ -23,21 +23,21 @@ const value = computed({
         return props.modelValue
     },
     set(v) {
-        emit("update:modelValue", v)
+        emit('update:modelValue', v)
         nextTick().then(() => {
             if (
-                router.currentRoute.value.name === "search" &&
+                router.currentRoute.value.name === 'search' &&
                 !v &&
                 oldPath.value
             ) {
                 router.push(oldPath.value).then((r) => {
                     console.log(r)
                 })
-            } else if (router.currentRoute.value.name !== "search" && v) {
+            } else if (router.currentRoute.value.name !== 'search' && v) {
                 oldPath.value = router.currentRoute.value
 
                 router.replace({
-                    name: "search",
+                    name: 'search',
                     query: {
                         q: props.modelValue,
                     },
@@ -48,8 +48,8 @@ const value = computed({
 })
 
 const cancel = () => {
-    value.value = ""
-    if (router.currentRoute.value.name === "search" && oldPath.value) {
+    value.value = ''
+    if (router.currentRoute.value.name === 'search' && oldPath.value) {
         router.replace(oldPath.value)
     }
 }
@@ -73,7 +73,7 @@ const cancel = () => {
             class="absolute flex right-2 ml-10 px-2 inset-y-2 cursor-pointer text-xs opacity-50 bg-slate-700 rounded-full"
             @click="cancel"
         >
-            <span class="my-auto uppercase">{{ $t("search.cancel") }}</span>
+            <span class="my-auto uppercase">{{ $t('search.cancel') }}</span>
         </p>
     </div>
 </template>

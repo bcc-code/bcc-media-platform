@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { GetShowQuery } from "@/graph/generated"
-import SectionTitle from "@/components/sections/item/SectionTitle.vue"
-import Carousel from "@/components/Carousel.vue"
-import CollectionItemThumbnail from "../sections/item/CollectionItemThumbnail.vue"
-import { goToEpisode } from "@/utils/items"
-import { analytics } from "@/services/analytics"
+import { GetShowQuery } from '@/graph/generated'
+import SectionTitle from '@/components/sections/item/SectionTitle.vue'
+import Carousel from '@/components/Carousel.vue'
+import CollectionItemThumbnail from '../sections/item/CollectionItemThumbnail.vue'
+import { goToEpisode } from '@/utils/items'
+import { analytics } from '@/services/analytics'
 
 const props = defineProps<{
-    season: GetShowQuery["show"]["seasons"]["items"][number]
+    season: GetShowQuery['show']['seasons']['items'][number]
     position: number
 }>()
 
@@ -17,12 +17,12 @@ function onClick(
 ) {
     goToEpisode(episode.id)
 
-    analytics.track("section_clicked", {
+    analytics.track('section_clicked', {
         elementId: episode.id,
         elementPosition: index,
-        elementType: "Episode",
-        pageCode: "show",
-        sectionType: "DefaultSection",
+        elementType: 'Episode',
+        pageCode: 'show',
+        sectionType: 'DefaultSection',
         sectionId: `ShowSeason-${props.season.id}`,
         sectionPosition: props.position,
     })

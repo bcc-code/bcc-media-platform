@@ -1,8 +1,6 @@
 <script lang="ts" setup>
-
-
-import { computed } from "vue"
-import { useI18n } from "vue-i18n"
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
@@ -10,9 +8,9 @@ const props = defineProps<{
     isDone: boolean
 }>()
 const emit = defineEmits<{
-    (event: "change"): void
-    (event: "nextTask"): void
-    (event: "update:isDone", val: boolean): void
+    (event: 'change'): void
+    (event: 'nextTask'): void
+    (event: 'update:isDone', val: boolean): void
 }>()
 
 const isDone = computed({
@@ -33,7 +31,7 @@ isDone.value = true
     >
         <img class="max-w-[33%]" src="/icons/study/competition_icon.png" />
         <p class="w-full text-white text-style-headline-1 mt-6">
-            {{ t("competition.title") }}
+            {{ t('competition.title') }}
         </p>
         <p
             class="text-style-body-1 text-label-3 mt-1"
@@ -41,7 +39,7 @@ isDone.value = true
         ></p>
         <div class="w-full mt-8">
             <p class="text-style-title-2">
-                {{ t("competition.howDoesItWork") }}
+                {{ t('competition.howDoesItWork') }}
             </p>
             <div class="mt-4 w-full flex items-center justify-start">
                 <svg
@@ -63,7 +61,7 @@ isDone.value = true
                 <div
                     class="pl-3 flex-1 text-left text-style-body-2 text-label-3"
                 >
-                    {{ t("competition.onlyOnce") }}
+                    {{ t('competition.onlyOnce') }}
                 </div>
             </div>
             <div class="mt-4 w-full flex items-center justify-start">
@@ -85,7 +83,7 @@ isDone.value = true
                 <div
                     class="pl-3 flex-1 text-left text-style-body-2 text-label-3"
                 >
-                    {{ t("competition.watchNextBroadcast") }}
+                    {{ t('competition.watchNextBroadcast') }}
                 </div>
             </div>
         </div>

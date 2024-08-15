@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { computed, ref } from "vue"
-import { useI18n } from "vue-i18n"
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
     modelValue: string
@@ -10,7 +10,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: "update:modelValue", v: string): void
+    (e: 'update:modelValue', v: string): void
 }>()
 
 const currentOption = ref<string>()
@@ -25,10 +25,10 @@ const optionValue = computed({
     },
     set(v) {
         currentOption.value = v
-        if (v == t("requests.other")) {
-            value.value = ""
+        if (v == t('requests.other')) {
+            value.value = ''
         } else {
-            value.value = v ?? ""
+            value.value = v ?? ''
         }
     },
 })
@@ -39,7 +39,7 @@ const value = computed({
     },
     set(v) {
         updated.value = true
-        emit("update:modelValue", v)
+        emit('update:modelValue', v)
     },
 })
 </script>
@@ -56,7 +56,7 @@ const value = computed({
             }"
         >
             <option v-for="opt in options">{{ opt }}</option>
-            <option v-if="allowAny">{{ $t("requests.other") }}</option>
+            <option v-if="allowAny">{{ $t('requests.other') }}</option>
         </select>
         <input
             v-if="currentOption === $t('requests.other')"

@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { computed, ref } from "vue"
-import { useI18n } from "vue-i18n"
-import { VButton } from ".."
-import FeedbackRating from "./FeedbackRating.vue"
-import swipeModal from "@takuma-ru/vue-swipe-modal"
-import { useSendEpisodeFeedbackMutation } from "@/graph/generated"
-import Loader from "../Loader.vue"
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { VButton } from '..'
+import FeedbackRating from './FeedbackRating.vue'
+import swipeModal from '@takuma-ru/vue-swipe-modal'
+import { useSendEpisodeFeedbackMutation } from '@/graph/generated'
+import Loader from '../Loader.vue'
 const { fetching, executeMutation, error, data } =
     useSendEpisodeFeedbackMutation()
 
@@ -17,13 +17,13 @@ const props = defineProps<{
     episodeId: string
 }>()
 const emit = defineEmits<{
-    (event: "change"): void
-    (event: "update:visible", val: boolean): void
-    (event: "update:selected", val: number | null): void
-    (e: "sent"): void
+    (event: 'change'): void
+    (event: 'update:visible', val: boolean): void
+    (event: 'update:selected', val: number | null): void
+    (e: 'sent'): void
 }>()
 
-const comment = ref("")
+const comment = ref('')
 
 const _selected = computed({
     get() {
@@ -31,7 +31,7 @@ const _selected = computed({
     },
     set(value) {
         if (value != null) {
-            emit("update:selected", value)
+            emit('update:selected', value)
         }
     },
 })
@@ -40,14 +40,14 @@ const _visible = computed({
         return props.visible
     },
     set(value) {
-        emit("update:visible", value)
+        emit('update:visible', value)
     },
 })
 
 const cancel = (e: Event) => {
-    emit("update:selected", null)
-    emit("update:visible", false)
-    setTimeout(() => emit("update:visible", false), 10)
+    emit('update:selected', null)
+    emit('update:visible', false)
+    setTimeout(() => emit('update:visible', false), 10)
 }
 const sendFeedback = async () => {
     var result = await executeMutation({
@@ -56,7 +56,7 @@ const sendFeedback = async () => {
         message: comment.value,
     })
     if (result.error == null) {
-        emit("sent")
+        emit('sent')
     }
 }
 </script>
@@ -87,26 +87,26 @@ const sendFeedback = async () => {
                 class="w-full text-center flex flex-col"
             >
                 <h2 class="mt-5 text-style-title-2 text-label-1">
-                    {{ t("thankYou") }}
+                    {{ t('thankYou') }}
                 </h2>
                 <p class="mt-2 text-style-body-1 text-label-3">
-                    {{ t("feedback.appreciated") }}
+                    {{ t('feedback.appreciated') }}
                 </p>
                 <VButton
                     class="flex-1 mt-6 mx-8"
                     color="secondary"
                     size="large"
                     @click="() => (_visible = false)"
-                    >{{ t("buttons.close") }}</VButton
+                    >{{ t('buttons.close') }}</VButton
                 >
             </div>
             <div v-else v-show="!fetching" class="px-4 mb-10">
                 <div class="mt-8">
                     <h2 class="text-style-title-2">
-                        {{ t("feedback.howEasyToUnderstand") }}
+                        {{ t('feedback.howEasyToUnderstand') }}
                     </h2>
                     <p class="mt-1 text-style-body-2 text-label-3">
-                        {{ t("feedback.anonymousInfo") }}
+                        {{ t('feedback.anonymousInfo') }}
                     </p>
                     <FeedbackRating
                         v-model:selected="_selected"
@@ -115,7 +115,7 @@ const sendFeedback = async () => {
                 </div>
                 <div class="mt-6">
                     <h2 class="text-style-title-3">
-                        {{ t("feedback.comment") }}
+                        {{ t('feedback.comment') }}
                     </h2>
 
                     <textarea
@@ -128,7 +128,7 @@ const sendFeedback = async () => {
                     ></textarea>
                 </div>
                 <div v-if="error" class="text-red my-4 text-center">
-                    {{ t("error.somethingWentWrong") }} {{ error.message }}
+                    {{ t('error.somethingWentWrong') }} {{ error.message }}
                 </div>
                 <div class="mt-4 flex">
                     <VButton

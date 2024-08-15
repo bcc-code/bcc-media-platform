@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import ProgressBar from "@/components/episodes/ProgressBar.vue"
-import Image from "@/components/Image.vue"
-import Loader from "@/components/Loader.vue"
-import Pill from "@/components/Pill.vue"
-import type { CollectionItemThumbnailFragment } from "@/graph/generated"
-import { comingSoon } from "@/utils/items"
-import { LockClosedIcon } from "@heroicons/vue/24/solid"
-import { computed, ref } from "vue"
-import CollectionItemThumbnailTitle from "./CollectionItemThumbnailTitle.vue"
-import NewPill from "./NewPill.vue"
+import ProgressBar from '@/components/episodes/ProgressBar.vue'
+import Image from '@/components/Image.vue'
+import Loader from '@/components/Loader.vue'
+import Pill from '@/components/Pill.vue'
+import type { CollectionItemThumbnailFragment } from '@/graph/generated'
+import { comingSoon } from '@/utils/items'
+import { LockClosedIcon } from '@heroicons/vue/24/solid'
+import { computed, ref } from 'vue'
+import CollectionItemThumbnailTitle from './CollectionItemThumbnailTitle.vue'
+import NewPill from './NewPill.vue'
 
 const emit = defineEmits<{
     click: []
@@ -20,10 +20,10 @@ const props = withDefaults(
         title: string
         image: string | null | undefined
         secondaryTitles?: boolean
-        type?: "default" | "poster"
+        type?: 'default' | 'poster'
     }>(),
     {
-        type: "default",
+        type: 'default',
         secondaryTitles: false,
     }
 )
@@ -32,7 +32,7 @@ const clicked = ref(false)
 
 const click = () => {
     clicked.value = true
-    emit("click")
+    emit('click')
 }
 
 const ratio = computed(() => {
@@ -44,8 +44,8 @@ const ratio = computed(() => {
 
 const aspect = computed(() => {
     return {
-        default: "aspect-video",
-        poster: "aspect-[240/357]",
+        default: 'aspect-video',
+        poster: 'aspect-[240/357]',
     }[props.type]
 })
 </script>
@@ -61,7 +61,7 @@ const aspect = computed(() => {
             v-else-if="comingSoon(item)"
             class="absolute -top-1 -right-1 pointer-events-none overflow-hidden z-50"
         >
-            {{ $t("episode.comingSoon") }}
+            {{ $t('episode.comingSoon') }}
         </Pill>
         <button
             v-if="item"
@@ -101,7 +101,7 @@ const aspect = computed(() => {
                     >
                         <LockClosedIcon class="h-8 fill-gray my-auto" />
                         <p class="text-style-button-1 text-slate-300">
-                            {{ $t("episode.comingSoon") }}
+                            {{ $t('episode.comingSoon') }}
                         </p>
                         <p class="text-style-button-1 text-slate-300">
                             {{ new Date(item.publishDate).toLocaleString() }}

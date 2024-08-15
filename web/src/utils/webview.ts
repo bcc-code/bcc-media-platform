@@ -1,4 +1,4 @@
-import { WebView, WebViewCommunication, WebViewType } from "@/webview"
+import { WebView, WebViewCommunication, WebViewType } from '@/webview'
 
 class DelayedWebViewCommunication implements WebViewCommunication {
     webviewPromise: Promise<WebViewCommunication>
@@ -15,17 +15,17 @@ class DelayedWebViewCommunication implements WebViewCommunication {
 function getWebView(): WebView | undefined {
     if (window.flutter_inappwebview) {
         return {
-            type: "flutter",
+            type: 'flutter',
             communication: window.flutter_inappwebview,
         }
     } else if (window.xamarin_webview) {
         return {
-            type: "xamarin",
+            type: 'xamarin',
             communication: window.xamarin_webview,
         }
     } else if (window.flutter_webview_manager) {
         return {
-            type: "flutter_webview_manager",
+            type: 'flutter_webview_manager',
             communication: window.flutter_webview_manager,
         }
     }
@@ -34,7 +34,7 @@ function getWebView(): WebView | undefined {
 
 function waitForWebview(): Promise<WebView> {
     return new Promise((resolve, reject) => {
-        window.addEventListener("app_webview_ready", () => {
+        window.addEventListener('app_webview_ready', () => {
             const webViewCommunication = getWebView()
             if (webViewCommunication) {
                 resolve(webViewCommunication)
@@ -48,25 +48,25 @@ function waitForWebview(): Promise<WebView> {
 function getDelayedWebViewType(): WebViewType | undefined {
     const urlParams = new URLSearchParams(window.location.search)
     const typeQueryParam = urlParams
-        .get("webview_delayed_type")
+        .get('webview_delayed_type')
         ?.toLowerCase() as WebViewType | null
     if (typeQueryParam) {
-        sessionStorage.setItem("webview_delayed_type", typeQueryParam)
+        sessionStorage.setItem('webview_delayed_type', typeQueryParam)
         return typeQueryParam
     }
     const storedType = sessionStorage.getItem(
-        "webview_delayed_type"
+        'webview_delayed_type'
     ) as WebViewType | null
     return storedType ? storedType : undefined
 }
 
 function clearWebViewDataIfRequested() {
     const urlParams = new URLSearchParams(window.location.search)
-    const clearQueryParam = urlParams.get("webview_clear")?.toLowerCase() as
+    const clearQueryParam = urlParams.get('webview_clear')?.toLowerCase() as
         | any
         | null
-    if (clearQueryParam == "true") {
-        sessionStorage.removeItem("webview_delayed_type")
+    if (clearQueryParam == 'true') {
+        sessionStorage.removeItem('webview_delayed_type')
     }
 }
 

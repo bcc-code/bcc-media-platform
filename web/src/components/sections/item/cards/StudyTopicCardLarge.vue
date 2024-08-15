@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { StudyTopicSectionItemFragment } from "@/graph/generated"
-import { computed } from "vue"
-import Image from "@/components/Image.vue"
-import { VButton } from "@/components"
-import { useI18n } from "vue-i18n"
+import { StudyTopicSectionItemFragment } from '@/graph/generated'
+import { computed } from 'vue'
+import Image from '@/components/Image.vue'
+import { VButton } from '@/components'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
@@ -12,7 +12,7 @@ const props = defineProps<{
 }>()
 
 const image = computed(
-    () => props.item.images.find((i) => i.style == "featured")?.url
+    () => props.item.images.find((i) => i.style == 'featured')?.url
 )
 </script>
 
@@ -57,8 +57,8 @@ const image = computed(
                     </svg>
                     {{
                         item.lessonsProgress.completed > 0
-                            ? t("study.continueStudy")
-                            : t("study.startStudy")
+                            ? t('study.continueStudy')
+                            : t('study.startStudy')
                     }}</VButton
                 >
             </div>

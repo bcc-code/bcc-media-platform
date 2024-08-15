@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { SearchQuery } from "@/graph/generated"
-import { useI18n } from "vue-i18n"
-import VButton from "../VButton.vue"
+import { SearchQuery } from '@/graph/generated'
+import { useI18n } from 'vue-i18n'
+import VButton from '../VButton.vue'
 
 const { t } = useI18n()
 
@@ -10,13 +10,13 @@ defineProps<{
 }>()
 
 defineEmits<{
-    (e: "itemClick", index: number, id: string): void
+    (e: 'itemClick', index: number, id: string): void
 }>()
 
-const adminOn = localStorage.getItem("admin") === "true"
+const adminOn = localStorage.getItem('admin') === 'true'
 
 const open = (i: { id: string }) => {
-    window.open("https://admin.brunstad.tv/admin/content/episodes/" + i.id)
+    window.open('https://admin.brunstad.tv/admin/content/episodes/' + i.id)
 }
 </script>
 <template>
@@ -27,7 +27,7 @@ const open = (i: { id: string }) => {
                 hidden: result.search.result.length === 0,
             }"
         >
-            {{ t("search.episodes") }}
+            {{ t('search.episodes') }}
         </h1>
         <div class="grid lg:grid-cols-4 gap-4">
             <div

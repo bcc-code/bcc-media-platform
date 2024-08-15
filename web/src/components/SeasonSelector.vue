@@ -4,9 +4,9 @@ import {
     ListboxButton,
     ListboxOption,
     ListboxOptions,
-} from "@headlessui/vue"
-import { computed } from "vue"
-import { ChevronDown } from "./icons"
+} from '@headlessui/vue'
+import { computed } from 'vue'
+import { ChevronDown } from './icons'
 
 const props = defineProps<{
     modelValue: string
@@ -17,7 +17,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: "update:modelValue", i: string): void
+    (e: 'update:modelValue', i: string): void
 }>()
 
 const selectedItem = computed({
@@ -25,7 +25,7 @@ const selectedItem = computed({
         return props.modelValue
     },
     set(v) {
-        emit("update:modelValue", v)
+        emit('update:modelValue', v)
     },
 })
 

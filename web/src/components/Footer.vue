@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { mdToHTML } from "@/services/converter"
-import { useCookies } from "@/services/cookies"
+import { mdToHTML } from '@/services/converter'
+import { useCookies } from '@/services/cookies'
 
 const { accepted } = useCookies()
 </script>
@@ -13,17 +13,17 @@ const { accepted } = useCookies()
                 <a
                     class="text-tint-1 hover:underline cursor-pointer"
                     @click="accepted = false"
-                    >{{ $t("footer.cookies") }}</a
+                    >{{ $t('footer.cookies') }}</a
                 >
                 <a
                     href="https://bcc.media/personvern"
                     class="text-tint-1 hover:underline"
-                    >{{ $t("footer.privacyPolicy") }}</a
+                    >{{ $t('footer.privacyPolicy') }}</a
                 >
                 <a
                     href="https://bcc.media/terms-of-use"
                     class="text-tint-1 hover:underline"
-                    >{{ $t("footer.termsOfUse") }}</a
+                    >{{ $t('footer.termsOfUse') }}</a
                 >
             </div>
             <div
@@ -33,7 +33,7 @@ const { accepted } = useCookies()
             <div class="flex flex-col lg:flex-row gap-4 lg:gap-8">
                 <div>
                     <h3>
-                        <b>{{ $t("footer.headOffice") }}</b>
+                        <b>{{ $t('footer.headOffice') }}</b>
                     </h3>
                     <p>BCC Media STI</p>
                     <p>Vålerveien 159</p>
@@ -42,13 +42,13 @@ const { accepted } = useCookies()
                 </div>
                 <div>
                     <h3>
-                        <b>{{ $t("footer.contactUs") }}</b>
+                        <b>{{ $t('footer.contactUs') }}</b>
                     </h3>
                     <a href="mailto:support@bcc.media">support@bcc.media</a>
                 </div>
                 <div>
                     <h3>
-                        <b>{{ $t("footer.downloadApp") }}</b>
+                        <b>{{ $t('footer.downloadApp') }}</b>
                     </h3>
                     <div class="flex gap-2 mt-1">
                         <a href="https://apple.co/3VewzK9"

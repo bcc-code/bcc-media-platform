@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import client from "@/graph/client"
-import { useAuth } from "@/services/auth"
-import { provideClient } from "@urql/vue"
-import Execute from "./Execute.vue"
+import client from '@/graph/client'
+import { useAuth } from '@/services/auth'
+import { provideClient } from '@urql/vue'
+import Execute from './Execute.vue'
 provideClient(client)
 
 defineProps<{ code: string }>()
@@ -17,7 +17,7 @@ const { authenticated, signIn } = useAuth()
             :code="code"
         ></Execute>
         <button v-else class="mx-auto my-auto" @click="signIn()">
-            {{ $t("buttons.login") }}
+            {{ $t('buttons.login') }}
         </button>
     </div>
 </template>

@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { VButton } from "@/components"
+import { VButton } from '@/components'
 import {
     TaskFragment,
     useCompleteTaskMutation,
     useGetRedirectUrlQuery,
-} from "@/graph/generated"
-import { computed, onMounted, ref } from "vue"
-import { useI18n } from "vue-i18n"
-import { openInBrowser } from "@/services/webviews/mainHandler"
+} from '@/graph/generated'
+import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { openInBrowser } from '@/services/webviews/mainHandler'
 
 const { t } = useI18n()
 const { executeMutation: completeTask } = useCompleteTaskMutation()
@@ -19,22 +19,22 @@ const props = defineProps<{
     isDone: boolean
 }>()
 const emit = defineEmits<{
-    (event: "change"): void
-    (event: "update:isDone", val: boolean): void
+    (event: 'change'): void
+    (event: 'update:isDone', val: boolean): void
 }>()
 
 const task = computed(() => {
-    return (props.task.__typename == "LinkTask" ? props.task : undefined)!
+    return (props.task.__typename == 'LinkTask' ? props.task : undefined)!
 })
 
-console.log("href: " + location.href)
+console.log('href: ' + location.href)
 const isSpecialGreetingLink =
     task.value.link.url.indexOf(
-        "lesson/2b4d070b-ac92-4c78-ac0b-26abe9de4b89"
+        'lesson/2b4d070b-ac92-4c78-ac0b-26abe9de4b89'
     ) !== -1
 
 const isRedirectLink =
-    task.value.link.url.indexOf("/r/") !== -1 || isSpecialGreetingLink
+    task.value.link.url.indexOf('/r/') !== -1 || isSpecialGreetingLink
 let redirectCode: string | null = null
 
 ;(() => {
@@ -42,18 +42,18 @@ let redirectCode: string | null = null
         return
     }
     if (isSpecialGreetingLink) {
-        redirectCode = "pc23-greeting"
+        redirectCode = 'pc23-greeting'
         return
     }
     const url = new URL(task.value.link.url) // https://something.com/r/something/blabla
-    const pathSegments = url.pathname.split("/") // ["", "r", "something", "blabla"]
+    const pathSegments = url.pathname.split('/') // ["", "r", "something", "blabla"]
     redirectCode = pathSegments[2] // "something"
 })()
 
 const redirectQuery = useGetRedirectUrlQuery({
     pause: !isRedirectLink,
     variables: {
-        code: redirectCode ?? "",
+        code: redirectCode ?? '',
     },
 })
 console.log(task.value.title)
@@ -61,22 +61,22 @@ console.log(task.value.title)
 const openLink = async () => {
     const t = completeTask({ taskId: task.value.id })
     if (isRedirectLink) {
-        console.log("redirectCode: " + redirectCode)
+        console.log('redirectCode: ' + redirectCode)
         const redirect = await redirectQuery
-        console.log("redirect: " + JSON.stringify(redirect))
+        console.log('redirect: ' + JSON.stringify(redirect))
         const url = redirect.data.value?.redirect.url
-        if (url == null) throw Error("Redirect url was null")
+        if (url == null) throw Error('Redirect url was null')
         await t
-        openInBrowser(url.replace("https://t.me/+", "https://t.me/joinchat/"))
+        openInBrowser(url.replace('https://t.me/+', 'https://t.me/joinchat/'))
         return
     }
-    if (task.value.link.url === "no-local-group-found") {
+    if (task.value.link.url === 'no-local-group-found') {
         showNoLocalGroupFound.value = true
         return
     }
     await t
     openInBrowser(
-        task.value.link.url.replace("https://t.me/+", "https://t.me/joinchat/")
+        task.value.link.url.replace('https://t.me/+', 'https://t.me/joinchat/')
     )
 }
 onMounted(async () => {
@@ -91,13 +91,13 @@ onMounted(async () => {
             class="h-full flex flex-col justify-center items-center pb-8 embed:pb-52"
         >
             <h2 class="w-full text-white text-style-title-1 text-center">
-                {{ t("lesson.noLocalGroupFound") }}
+                {{ t('lesson.noLocalGroupFound') }}
             </h2>
             <p
                 v-if="task.description"
                 class="text-style-body-1 text-label-3 text-center mt-2"
             >
-                {{ t("contactLocalBukIfWrong") }}
+                {{ t('contactLocalBukIfWrong') }}
             </p>
         </div>
         <div
@@ -146,7 +146,7 @@ onMounted(async () => {
                             />
                         </svg>
 
-                        {{ t("buttons.goTo") }}
+                        {{ t('buttons.goTo') }}
                     </VButton>
                 </div>
             </div>

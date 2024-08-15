@@ -1,18 +1,18 @@
 <script lang="ts" setup>
-import { isCollectionItem } from "@/utils/items"
-import type { Section } from "../types"
-import CollectionItemThumbnail from "./CollectionItemThumbnail.vue"
-import SectionTitle from "./SectionTitle.vue"
-import Slider from "./Slider.vue"
+import { isCollectionItem } from '@/utils/items'
+import type { Section } from '../types'
+import CollectionItemThumbnail from './CollectionItemThumbnail.vue'
+import SectionTitle from './SectionTitle.vue'
+import Slider from './Slider.vue'
 
 defineProps<{
     position: number
-    item: Section & { __typename: "DefaultSection" | "ListSection" }
+    item: Section & { __typename: 'DefaultSection' | 'ListSection' }
 }>()
 
 defineEmits<{
-    (event: "loadMore"): void
-    (event: "clickItem", index: number): void
+    (event: 'loadMore'): void
+    (event: 'clickItem', index: number): void
 }>()
 </script>
 

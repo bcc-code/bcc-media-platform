@@ -1,57 +1,57 @@
 <script lang="ts" setup>
-import { GetStudyLessonQuery } from "@/graph/generated"
-import { useI18n } from "vue-i18n"
-import LinkListItem from "./LinkListItem.vue"
-import TaskButton from "./TaskButton.vue"
-import { Page } from "./Lesson.vue"
-import { VButton } from ".."
-import { computed, ref } from "vue"
-import { webViewMain } from "@/services/webviews/mainHandler"
-import router from "@/router"
-import FeedbackRatingAndForm from "../feedback/FeedbackRatingAndForm.vue"
+import { GetStudyLessonQuery } from '@/graph/generated'
+import { useI18n } from 'vue-i18n'
+import LinkListItem from './LinkListItem.vue'
+import TaskButton from './TaskButton.vue'
+import { Page } from './Lesson.vue'
+import { VButton } from '..'
+import { computed, ref } from 'vue'
+import { webViewMain } from '@/services/webviews/mainHandler'
+import router from '@/router'
+import FeedbackRatingAndForm from '../feedback/FeedbackRatingAndForm.vue'
 
 const { t } = useI18n()
 const props = defineProps<{ lesson: GetStudyLessonQuery }>()
 const episode = computed(() => props.lesson.episode)
 
 const feedbackSentPreviously =
-    localStorage.getItem(episode.value.id + ":feedback_sent") == "true"
+    localStorage.getItem(episode.value.id + ':feedback_sent') == 'true'
 const feedbackSentNow = ref(false)
 
 const registerFeedbackSent = () => {
     feedbackSentNow.value = true
-    localStorage.setItem(episode.value.id + ":feedback_sent", "true")
+    localStorage.setItem(episode.value.id + ':feedback_sent', 'true')
 }
 
 const isProbablyAnimation = computed(
     () =>
-        !episode.value.title.toLowerCase().includes("kåre") &&
+        !episode.value.title.toLowerCase().includes('kåre') &&
         ![
-            "1724",
-            "1733",
-            "1735",
-            "1746",
-            "1750",
-            "1753",
-            "1761",
-            "1762",
-            "1803",
-            "1808",
-            "1813",
-            "1814",
+            '1724',
+            '1733',
+            '1735',
+            '1746',
+            '1750',
+            '1753',
+            '1761',
+            '1762',
+            '1803',
+            '1808',
+            '1813',
+            '1814',
         ].includes(episode.value.id)
 )
 
 const emit = defineEmits<{
-    (e: "navigate", i: Page): any
+    (e: 'navigate', i: Page): any
 }>()
 
 const playAgain = () => {
     if (webViewMain) {
-        webViewMain.navigate("/episode/" + episode.value.id)
+        webViewMain.navigate('/episode/' + episode.value.id)
         return
     }
-    router.push("/episode/" + episode.value.id)
+    router.push('/episode/' + episode.value.id)
 }
 </script>
 
@@ -66,12 +66,12 @@ const playAgain = () => {
                 ></TaskButton>
                 <div class="mt-6">
                     <p class="w-full text-white text-style-title-1">
-                        {{ t("lesson.watchAgain.title") }}
+                        {{ t('lesson.watchAgain.title') }}
                     </p>
                     <p
                         class="mt-1 w-full text-white text-style-body-2 text-label-3"
                     >
-                        {{ t("lesson.watchAgain.description") }}
+                        {{ t('lesson.watchAgain.description') }}
                     </p>
                     <div
                         class="cursor-pointer mt-4 rounded-xl aspect-video bg-background-2 overflow-hidden z-10 relative"
@@ -116,7 +116,7 @@ const playAgain = () => {
                                         fill="white"
                                     />
                                 </svg>
-                                <span>{{ t("lesson.watchAgain.button") }}</span>
+                                <span>{{ t('lesson.watchAgain.button') }}</span>
                             </VButton>
                         </div>
                         <div
@@ -136,10 +136,10 @@ const playAgain = () => {
                         class="mt-4"
                     >
                         <h2 class="text-style-title-2">
-                            {{ t("feedback.howEasyToUnderstand") }}
+                            {{ t('feedback.howEasyToUnderstand') }}
                         </h2>
                         <p class="mt-1 text-style-body-2 text-label-3">
-                            {{ t("feedback.anonymousInfo") }}
+                            {{ t('feedback.anonymousInfo') }}
                         </p>
                         <FeedbackRatingAndForm
                             :episode-id="episode.id"
@@ -156,7 +156,7 @@ const playAgain = () => {
             class="my-4 embed:mb-24"
         >
             <p class="ml-4 text-white text-style-title-1">
-                {{ t("lesson.related") }}
+                {{ t('lesson.related') }}
             </p>
             <LinkListItem
                 v-for="link in lesson.studyLesson.links.items"

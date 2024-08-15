@@ -6,25 +6,25 @@ import {
     GetSeasonOnEpisodePageQuery,
     useGetEpisodeQuery,
     useGetSeasonOnEpisodePageQuery,
-} from "@/graph/generated"
-import { computed, nextTick, ref, watch } from "vue"
-import EpisodeViewer from "@/components/EpisodeViewer.vue"
-import EpisodeDetails from "@/components/episodes/EpisodeDetails.vue"
-import AgeRating from "@/components/episodes/AgeRating.vue"
-import SeasonSelector from "@/components/SeasonSelector.vue"
-import ItemList from "../sections/ItemList.vue"
-import NotFound from "../NotFound.vue"
-import LoginToView from "./LoginToView.vue"
-import { episodesToListItems, toListItems } from "@/utils/lists"
-import { useAuth } from "@/services/auth"
-import SharePopover from "./SharePopover.vue"
-import LessonButton from "../study/LessonButton.vue"
-import EpisodeChapterList from "./EpisodeChapterList.vue"
-import router from "@/router"
-import { episodeComingSoon } from "../../utils/items"
-import EmbedDownloadables from "../embed/EmbedDownloadables.vue"
-import { mdToHTML } from "@/services/converter"
-import { usePlayerTime } from "@/composables/usePlayerTime"
+} from '@/graph/generated'
+import { computed, nextTick, ref, watch } from 'vue'
+import EpisodeViewer from '@/components/EpisodeViewer.vue'
+import EpisodeDetails from '@/components/episodes/EpisodeDetails.vue'
+import AgeRating from '@/components/episodes/AgeRating.vue'
+import SeasonSelector from '@/components/SeasonSelector.vue'
+import ItemList from '../sections/ItemList.vue'
+import NotFound from '../NotFound.vue'
+import LoginToView from './LoginToView.vue'
+import { episodesToListItems, toListItems } from '@/utils/lists'
+import { useAuth } from '@/services/auth'
+import SharePopover from './SharePopover.vue'
+import LessonButton from '../study/LessonButton.vue'
+import EpisodeChapterList from './EpisodeChapterList.vue'
+import router from '@/router'
+import { episodeComingSoon } from '../../utils/items'
+import EmbedDownloadables from '../embed/EmbedDownloadables.vue'
+import { mdToHTML } from '@/services/converter'
+import { usePlayerTime } from '@/composables/usePlayerTime'
 
 const props = defineProps<{
     initialEpisodeId: string
@@ -43,13 +43,13 @@ const { currentTime } = usePlayerTime(computed(() => viewerRef.value?.player))
 const { authenticated } = useAuth()
 
 const emit = defineEmits<{
-    (e: "episode", v: GetEpisodeQuery["episode"]): void
+    (e: 'episode', v: GetEpisodeQuery['episode']): void
 }>()
 
-const episode = ref(null as GetEpisodeQuery["episode"] | null)
-const season = ref(null as GetSeasonOnEpisodePageQuery["season"] | null)
+const episode = ref(null as GetEpisodeQuery['episode'] | null)
+const season = ref(null as GetSeasonOnEpisodePageQuery['season'] | null)
 
-const seasonId = ref("")
+const seasonId = ref('')
 const loading = ref(true)
 
 const context = ref(props.context)
@@ -62,7 +62,7 @@ const setEpisode = (id: string) => {
         .then(load)
         .then(() => {
             if (episode.value) {
-                emit("episode", episode.value)
+                emit('episode', episode.value)
             }
         })
 }
@@ -73,16 +73,16 @@ const { error, executeQuery } = useGetEpisodeQuery({
         episodeId,
         context,
     },
-    requestPolicy: "network-only",
+    requestPolicy: 'network-only',
 })
 
 const lesson = computed(() => episode.value?.lessons.items[0])
 const openLesson = () =>
-    router.push("/ep/" + episode.value?.id + "/lesson/" + lesson.value?.id)
+    router.push('/ep/' + episode.value?.id + '/lesson/' + lesson.value?.id)
 
 const noAccess = computed(() => {
     return error.value?.graphQLErrors.some(
-        (e) => e.extensions.code === "item/no-access"
+        (e) => e.extensions.code === 'item/no-access'
     )
 })
 
@@ -114,7 +114,7 @@ watch(seasonId, loadSeason)
 const load = async () => {
     loading.value = true
     season.value = null
-    seasonId.value = ""
+    seasonId.value = ''
     const r = await executeQuery()
     if (r.data.value?.episode) {
         episode.value = r.data.value.episode
@@ -132,39 +132,39 @@ const load = async () => {
 
 load()
 const view = ref(
-    null as "episodes" | "details" | "context" | "download" | "chapters" | null
+    null as 'episodes' | 'details' | 'context' | 'download' | 'chapters' | null
 )
 
 const effectiveView = computed({
     get() {
         const v = view.value
         switch (v) {
-            case "context":
+            case 'context':
                 if (
-                    episode.value?.context?.__typename === "ContextCollection"
+                    episode.value?.context?.__typename === 'ContextCollection'
                 ) {
-                    return "context"
+                    return 'context'
                 }
                 break
-            case "episodes":
+            case 'episodes':
                 if (episode.value?.season) {
-                    return "episodes"
+                    return 'episodes'
                 }
                 break
-            case "chapters":
+            case 'chapters':
                 if (episode.value?.chapters.length) {
-                    return "chapters"
+                    return 'chapters'
                 }
                 break
-            case "details":
-            case "download":
+            case 'details':
+            case 'download':
                 return v
         }
 
-        if (episode.value?.context?.__typename === "ContextCollection") {
-            return "context"
+        if (episode.value?.context?.__typename === 'ContextCollection') {
+            return 'context'
         }
-        return (view.value = !episode.value?.season ? "details" : "episodes")
+        return (view.value = !episode.value?.season ? 'details' : 'episodes')
     },
     set(v) {
         view.value = v
@@ -183,7 +183,7 @@ const loadNext = async () => {
 const onChapterClick = (chapter: ChapterListChapterFragment) => {
     seekTo(chapter.start)
     scrollTo({
-        behavior: "smooth",
+        behavior: 'smooth',
         top: 0,
     })
 }
@@ -263,7 +263,7 @@ const onChapterClick = (chapter: ChapterListChapterFragment) => {
                         ]"
                         @click="effectiveView = 'context'"
                     >
-                        {{ $t("episode.videos") }}
+                        {{ $t('episode.videos') }}
                     </button>
                     <button
                         v-else-if="seasonId"
@@ -275,7 +275,7 @@ const onChapterClick = (chapter: ChapterListChapterFragment) => {
                         ]"
                         @click="effectiveView = 'episodes'"
                     >
-                        {{ $t("episode.episodes") }}
+                        {{ $t('episode.episodes') }}
                     </button>
                     <button
                         v-if="episode.chapters.length > 0"
@@ -287,7 +287,7 @@ const onChapterClick = (chapter: ChapterListChapterFragment) => {
                         ]"
                         @click="effectiveView = 'chapters'"
                     >
-                        {{ $t("episode.chapters") }}
+                        {{ $t('episode.chapters') }}
                     </button>
                     <button
                         class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
@@ -298,7 +298,7 @@ const onChapterClick = (chapter: ChapterListChapterFragment) => {
                         ]"
                         @click="effectiveView = 'details'"
                     >
-                        {{ $t("episode.details") }}
+                        {{ $t('episode.details') }}
                     </button>
                     <button
                         v-if="episode.files.length > 0"
@@ -310,7 +310,7 @@ const onChapterClick = (chapter: ChapterListChapterFragment) => {
                         ]"
                         @click="effectiveView = 'download'"
                     >
-                        {{ $t("buttons.download") }}
+                        {{ $t('buttons.download') }}
                     </button>
                 </div>
                 <hr class="border-separator-on-light" />
@@ -332,7 +332,8 @@ const onChapterClick = (chapter: ChapterListChapterFragment) => {
                                     toListItems(
                                         episode.context?.__typename ===
                                             'ContextCollection'
-                                            ? episode.context.items?.items ?? []
+                                            ? (episode.context.items?.items ??
+                                                  [])
                                             : []
                                     )
                                 "

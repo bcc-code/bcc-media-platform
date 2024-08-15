@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { Popover, PopoverButton, PopoverPanel } from "@headlessui/vue"
-import { ClipboardIcon, InformationCircleIcon } from "@heroicons/vue/24/outline"
-import { computed, ref } from "vue"
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
+import { ClipboardIcon, InformationCircleIcon } from '@heroicons/vue/24/outline'
+import { computed, ref } from 'vue'
 
 const props = defineProps<{
     episode: {
         title: string
-        shareRestriction: "public" | "registered" | "members"
+        shareRestriction: 'public' | 'registered' | 'members'
     }
 }>()
 
@@ -17,7 +17,7 @@ const l = computed(() => {
 const locationSpan = ref(null as HTMLSpanElement | null)
 
 const canShare = computed(() => {
-    return typeof navigator.canShare !== "undefined"
+    return typeof navigator.canShare !== 'undefined'
 })
 
 const share = () => {
@@ -25,7 +25,7 @@ const share = () => {
         title: props.episode.title,
         url: l.value,
     }
-    if (typeof navigator.canShare !== "undefined" && navigator.canShare(data)) {
+    if (typeof navigator.canShare !== 'undefined' && navigator.canShare(data)) {
         navigator.share(data)
     }
 }
@@ -57,7 +57,7 @@ const copy = () => {
             <PopoverPanel
                 class="absolute z-10 right-0 bg-slate-700 p-4 shadow-lg rounded-md flex flex-col gap-2"
             >
-                <h1 class="text-xl">{{ $t("share.title") }}</h1>
+                <h1 class="text-xl">{{ $t('share.title') }}</h1>
                 <div
                     class="bg-slate-800 rounded-md p-2 cursor-pointer hover:scale-[1.01] transition flex"
                     @click="copy()"
@@ -86,7 +86,7 @@ const copy = () => {
                         ></ClipboardIcon>
                     </span>
                     <span class="grow-0 text-sm my-auto">
-                        {{ $t(copied ? "share.copied" : "share.membersOnly") }}
+                        {{ $t(copied ? 'share.copied' : 'share.membersOnly') }}
                     </span>
                 </p>
             </PopoverPanel>

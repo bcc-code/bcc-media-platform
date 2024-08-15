@@ -1,34 +1,34 @@
-import { nextTick, ref } from "vue"
-import { createI18n } from "vue-i18n"
-import type { I18n, I18nOptions, Locale, Composer } from "vue-i18n"
+import { nextTick, ref } from 'vue'
+import { createI18n } from 'vue-i18n'
+import type { I18n, I18nOptions, Locale, Composer } from 'vue-i18n'
 
 export const SUPPORT_LOCALES = [
-    "en",
-    "no",
-    "da",
-    "nl",
-    "de",
-    "bg",
-    "es",
-    "fi",
-    "fr",
-    "hu",
-    "it",
-    "pl",
-    "pt",
-    "ro",
-    "ru",
-    "sl",
-    "tr",
+    'en',
+    'no',
+    'da',
+    'nl',
+    'de',
+    'bg',
+    'es',
+    'fi',
+    'fr',
+    'hu',
+    'it',
+    'pl',
+    'pt',
+    'ro',
+    'ru',
+    'sl',
+    'tr',
 ]
 
 export const loading = ref(false)
 
-export function setup(options: I18nOptions = { locale: "en" }): I18n {
+export function setup(options: I18nOptions = { locale: 'en' }): I18n {
     const i18n = createI18n(options)
 
     loading.value = true
-    loadLocaleMessages(i18n, "en").then(() => {
+    loadLocaleMessages(i18n, 'en').then(() => {
         setLanguage(i18n, options.locale!)
         loading.value = false
     })
@@ -45,8 +45,8 @@ const getResourceMessages = (r: any) => r.default || r
 
 const alternative = (r: string) => {
     switch (r) {
-        case "no":
-            return "nb"
+        case 'no':
+            return 'nb'
     }
     return r
 }
@@ -58,7 +58,7 @@ type Messages = {
 const cleanMessages = (messages: Messages) => {
     const result = {} as Messages
     for (const [key, value] of Object.entries(messages)) {
-        if (typeof value === "string") {
+        if (typeof value === 'string') {
             if (value) {
                 result[key] = value
             }
@@ -81,8 +81,8 @@ export async function loadLocaleMessages(i18n: I18n, locale: Locale) {
 
 export default setup({
     legacy: false,
-    locale: "en",
-    fallbackLocale: "en",
+    locale: 'en',
+    fallbackLocale: 'en',
     silentTranslationWarn: import.meta.env.PROD,
     silentFallbackWarn: import.meta.env.PROD,
 })

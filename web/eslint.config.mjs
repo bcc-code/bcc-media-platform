@@ -2,7 +2,7 @@ import js from '@eslint/js'
 import ts from 'typescript-eslint'
 import vuePlugin from 'eslint-plugin-vue'
 import eslintConfigPrettier from 'eslint-config-prettier'
-import unusedImports from "eslint-plugin-unused-imports"
+import unusedImports from 'eslint-plugin-unused-imports'
 
 export default ts.config(
     js.configs.recommended,
@@ -16,9 +16,9 @@ export default ts.config(
         files: ['**/*.ts', '**/*.vue'],
         languageOptions: {
             parserOptions: {
-                parser: '@typescript-eslint/parser'
-            }
-        }
+                parser: '@typescript-eslint/parser',
+            },
+        },
     },
     {
         rules: {
@@ -45,20 +45,20 @@ export default ts.config(
     },
     {
         plugins: {
-            "unused-imports": unusedImports,
+            'unused-imports': unusedImports,
         },
         rules: {
-            "no-unused-vars": "off",
-            "unused-imports/no-unused-imports": "error",
-            "unused-imports/no-unused-vars": [
-                "error",
+            'no-unused-vars': 'off',
+            'unused-imports/no-unused-imports': 'error',
+            'unused-imports/no-unused-vars': [
+                'error',
                 {
-                    "vars": "all",
-                    "varsIgnorePattern": "^_",
-                    "args": "after-used",
-                    "argsIgnorePattern": "^_",
+                    vars: 'all',
+                    varsIgnorePattern: '^_',
+                    args: 'after-used',
+                    argsIgnorePattern: '^_',
                 },
-            ]
-        }
+            ],
+        },
     }
 )

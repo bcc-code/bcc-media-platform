@@ -1,4 +1,4 @@
-import client from "@/graph/client"
+import client from '@/graph/client'
 import {
     CollectionItemThumbnailFragment,
     GetDefaultEpisodeForTopicDocument,
@@ -9,10 +9,10 @@ import {
     GetPlaylistEpisodeQueryVariables,
     GetSectionQuery,
     Link,
-    SectionItemFragment
-} from "@/graph/generated"
-import router from "@/router"
-import { analytics, Page } from "@/services/analytics"
+    SectionItemFragment,
+} from '@/graph/generated'
+import router from '@/router'
+import { analytics, Page } from '@/services/analytics'
 
 export const goToEpisode = (
     episodeId: string,
@@ -23,7 +23,7 @@ export const goToEpisode = (
 ) => {
     if (options?.useContext) {
         router.push({
-            name: "episode-collection-page",
+            name: 'episode-collection-page',
             params: {
                 episodeId,
                 collection: options.collectionId,
@@ -31,7 +31,7 @@ export const goToEpisode = (
         })
     } else {
         router.push({
-            name: "episode-page",
+            name: 'episode-page',
             params: {
                 episodeId,
             },
@@ -51,9 +51,9 @@ export const goToPlaylist = async (playlistId: string) => {
         >(GetPlaylistEpisodeDocument, { id: playlistId })
         .toPromise()
     for (const i of result.data?.playlist.items.items ?? []) {
-        if (i.__typename === "Episode") {
+        if (i.__typename === 'Episode') {
             router.push({
-                name: "playlist-episode",
+                name: 'playlist-episode',
                 params: {
                     playlistId,
                     episodeId: i.id,
@@ -66,7 +66,7 @@ export const goToPlaylist = async (playlistId: string) => {
 
 export const goToPage = (code: string) => {
     router.push({
-        name: "page",
+        name: 'page',
         params: {
             pageId: code,
         },
@@ -88,7 +88,7 @@ export const goToStudyTopic = async (id: string) => {
     }
 
     router.push({
-        name: "episode-page",
+        name: 'episode-page',
         params: {
             episodeId,
         },
@@ -99,7 +99,7 @@ export const goToShow = async (id: string) => {
     // TODO: nothing is as permanent as a temporary solution lol
     // although things can be improved :)
     router.push({
-        name: "show",
+        name: 'show',
         params: { showId: id },
     })
 }
@@ -110,7 +110,7 @@ export const goToSectionItem = async (
         item: SectionItemFragment
     },
     section: {
-        __typename: GetSectionQuery["section"]["__typename"]
+        __typename: GetSectionQuery['section']['__typename']
         index: number
         id: string
         title?: string | null
@@ -121,9 +121,9 @@ export const goToSectionItem = async (
     },
     pageCode: Page
 ) => {
-    analytics.track("section_clicked", {
+    analytics.track('section_clicked', {
         sectionId: section.id,
-        sectionName: section.title ?? "HIDDEN",
+        sectionName: section.title ?? 'HIDDEN',
         sectionPosition: section.index,
         sectionType: section.__typename,
         elementId: item.item.id,
@@ -134,29 +134,29 @@ export const goToSectionItem = async (
     })
 
     switch (item.item.item?.__typename) {
-        case "Episode":
+        case 'Episode':
             goToEpisode(item.item.id, section?.options)
             break
-        case "Show":
+        case 'Show':
             await goToShow(item.item.item.id)
             break
-        case "Page":
+        case 'Page':
             goToPage(item.item.item.code)
             break
-        case "StudyTopic":
+        case 'StudyTopic':
             await goToStudyTopic(item.item.item.id)
             break
-        case "Playlist":
+        case 'Playlist':
             await goToPlaylist(item.item.item.id)
             break
-        case "Link":
+        case 'Link':
             await goToLink(item.item.item)
     }
 }
 
 export const comingSoon = (item: CollectionItemThumbnailFragment) => {
     switch (item.__typename) {
-        case "Episode":
+        case 'Episode':
             return (
                 item.locked &&
                 new Date(item.publishDate).getTime() > new Date().getTime()
@@ -189,5 +189,5 @@ export function isNewEpisode(episode: {
     if (episode.publishDate == null) return false
     const date = new Date()
     date.setDate(date.getDate() - 7)
-    return new Date(episode.publishDate).getTime() > (date.getTime())
+    return new Date(episode.publishDate).getTime() > date.getTime()
 }

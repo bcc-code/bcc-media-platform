@@ -5,7 +5,7 @@ const props = defineProps<{
     source: string | undefined
 }>()
 
-const size = props.quote.length > 20 ? "text-style-body-3" : "text-style-body-2"
+const size = props.quote.length > 20 ? 'text-style-body-3' : 'text-style-body-2'
 </script>
 <template>
     <div class="text-center flex items-center flex-col justify-center">

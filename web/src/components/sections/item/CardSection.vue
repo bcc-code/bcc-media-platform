@@ -1,19 +1,19 @@
 <script lang="ts" setup>
-import { Section } from "../types"
-import SectionTitle from "./SectionTitle.vue"
-import { computed } from "vue"
-import StudyTopicCardLarge from "./cards/StudyTopicCardLarge.vue"
+import { Section } from '../types'
+import SectionTitle from './SectionTitle.vue'
+import { computed } from 'vue'
+import StudyTopicCardLarge from './cards/StudyTopicCardLarge.vue'
 
 const props = defineProps<{
-    item: Section & { __typename: "CardSection" }
+    item: Section & { __typename: 'CardSection' }
 }>()
 
 defineEmits<{
-    (event: "clickItem", index: number): void
+    (event: 'clickItem', index: number): void
 }>()
 
 const filteredItems = computed(() =>
-    props.item.items.items.filter((i) => i.item.__typename === "StudyTopic")
+    props.item.items.items.filter((i) => i.item.__typename === 'StudyTopic')
 )
 </script>
 <template>

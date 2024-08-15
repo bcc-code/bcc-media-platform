@@ -1,18 +1,18 @@
 <script lang="ts" setup>
-import { getImageSize } from "@/utils/images"
-import { useElementSize, useParentElement, watchDebounced } from "@vueuse/core"
-import { computed, ref } from "vue"
+import { getImageSize } from '@/utils/images'
+import { useElementSize, useParentElement, watchDebounced } from '@vueuse/core'
+import { computed, ref } from 'vue'
 
 const props = withDefaults(
     defineProps<{
         src?: string | null
-        sizeSource: "width" | "height"
+        sizeSource: 'width' | 'height'
         ratio?: number
-        loading?: "lazy" | "eager"
+        loading?: 'lazy' | 'eager'
         draggable?: boolean
     }>(),
     {
-        loading: "lazy",
+        loading: 'lazy',
     }
 )
 
@@ -31,7 +31,7 @@ const { height, width } = useElementSize(useParentElement())
 
 const effectiveSrc = computed(() => {
     if (!props.src || !effectiveSize.value) {
-        return "null"
+        return 'null'
     }
     return (
         props.src +
@@ -47,7 +47,7 @@ watchDebounced(
     [height, width],
     () => {
         let w = Math.floor(
-            props.sizeSource === "height"
+            props.sizeSource === 'height'
                 ? getImageSize(height.value) * (props.ratio ?? 1)
                 : getImageSize(width.value)
         )
@@ -56,7 +56,7 @@ watchDebounced(
         }
 
         let h = Math.floor(
-            props.sizeSource === "height"
+            props.sizeSource === 'height'
                 ? getImageSize(height.value)
                 : w * (props.ratio ?? 1)
         )

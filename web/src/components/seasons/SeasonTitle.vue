@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { CollectionItemThumbnailFragment } from "@/graph/generated"
+import { CollectionItemThumbnailFragment } from '@/graph/generated'
 
 defineProps<{
     title: string
     season: CollectionItemThumbnailFragment & {
-        __typename: "Season"
+        __typename: 'Season'
     }
 }>()
 </script>

@@ -1,13 +1,13 @@
-import { currentWebView } from "@/utils/webview"
-import { WebView } from "@/webview"
-import settings from "@/services/settings"
+import { currentWebView } from '@/utils/webview'
+import { WebView } from '@/webview'
+import settings from '@/services/settings'
 
 type HapticFeedbackType =
-    | "lightImpact"
-    | "mediumImpact"
-    | "vibrate"
-    | "selectionClick"
-    | "heavyImpact"
+    | 'lightImpact'
+    | 'mediumImpact'
+    | 'vibrate'
+    | 'selectionClick'
+    | 'heavyImpact'
 
 class MainWebViewHandler {
     handlerName: string
@@ -16,7 +16,7 @@ class MainWebViewHandler {
 
     constructor(webView: WebView) {
         this.webView = webView
-        this.handlerName = webView.type == "flutter" ? "flutter_main" : "main"
+        this.handlerName = webView.type == 'flutter' ? 'flutter_main' : 'main'
         this.getSupportedFeatures().then((features) => {
             this.supportedFeatures = features
         })
@@ -25,7 +25,7 @@ class MainWebViewHandler {
     navigate(path: string): Promise<any> | null {
         const promise = this.webView.communication.callHandler(
             this.handlerName,
-            "navigate",
+            'navigate',
             path
         )
         return !promise?.then ? null : promise
@@ -34,7 +34,7 @@ class MainWebViewHandler {
     push(path: string): Promise<any> {
         const promise = this.webView.communication.callHandler(
             this.handlerName,
-            "push",
+            'push',
             path
         )
         return !promise?.then ? null : promise
@@ -43,21 +43,21 @@ class MainWebViewHandler {
     getAccessToken(): Promise<string | null> {
         return this.webView.communication.callHandler(
             this.handlerName,
-            "get_access_token"
+            'get_access_token'
         )
     }
 
     getLocale(): Promise<string | null> {
         return this.webView.communication.callHandler(
             this.handlerName,
-            "get_locale"
+            'get_locale'
         )
     }
 
     shareImage(url: string): Promise<boolean | null> {
         return this.webView.communication.callHandler(
             this.handlerName,
-            "share_image",
+            'share_image',
             url
         )
     }
@@ -65,7 +65,7 @@ class MainWebViewHandler {
     async getSupportedFeatures(): Promise<Map<string, boolean> | null> {
         const result = await this.webView.communication.callHandler(
             this.handlerName,
-            "get_supported_features"
+            'get_supported_features'
         )
         if (result) {
             return new Map(Object.entries(result))
@@ -76,7 +76,7 @@ class MainWebViewHandler {
     share(text: string, subject?: string): Promise<boolean | null> {
         return this.webView.communication.callHandler(
             this.handlerName,
-            "share",
+            'share',
             text,
             subject
         )
@@ -87,7 +87,7 @@ class MainWebViewHandler {
     ): Promise<boolean | null> {
         return this.webView.communication.callHandler(
             this.handlerName,
-            "haptic_feedback",
+            'haptic_feedback',
             hapticFeedbackType
         )
     }
@@ -98,13 +98,13 @@ function addQueryParameter(
     name: string,
     value: string | number | boolean
 ): string {
-    const separator = url.indexOf("?") === -1 ? "?" : "&"
+    const separator = url.indexOf('?') === -1 ? '?' : '&'
     return `${url}${separator}${name}=${encodeURIComponent(value)}`
 }
 
 export const openInBrowser = (url: string) => {
-    let newUrl = addQueryParameter(url, "launch_url", "true")
-    newUrl = addQueryParameter(newUrl, "locale", settings.locale)
+    let newUrl = addQueryParameter(url, 'launch_url', 'true')
+    newUrl = addQueryParameter(newUrl, 'locale', settings.locale)
     window.location.assign(newUrl)
 }
 

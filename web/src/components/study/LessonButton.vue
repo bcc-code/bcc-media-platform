@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { LessonProgressOverviewFragment } from "@/graph/generated"
-import { useI18n } from "vue-i18n"
+import { LessonProgressOverviewFragment } from '@/graph/generated'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
     episodeId: string
@@ -86,7 +86,7 @@ const { t } = useI18n()
                 </div>
                 <div class="flex-1 flex flex-col">
                     <span class="text-style-title-3 text-on-tint">
-                        {{ t("lesson.lessonActivityTitle") }}
+                        {{ t('lesson.lessonActivityTitle') }}
                     </span>
                     <span
                         v-if="false"
@@ -94,7 +94,7 @@ const { t } = useI18n()
                     >
                         {{
                             lesson.progress.completed +
-                            "/" +
+                            '/' +
                             lesson.progress.total
                         }}
                     </span>

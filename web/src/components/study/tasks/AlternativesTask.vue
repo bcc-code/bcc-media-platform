@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { TaskFragment } from "@/graph/generated"
-import { computed, watch } from "vue"
-import Alternative from "./Alternative.vue"
-import { useCompleteTaskMutation } from "@/graph/generated"
+import { TaskFragment } from '@/graph/generated'
+import { computed, watch } from 'vue'
+import Alternative from './Alternative.vue'
+import { useCompleteTaskMutation } from '@/graph/generated'
 
 const { executeMutation } = useCompleteTaskMutation()
 
@@ -11,10 +11,10 @@ const props = defineProps<{
     isDone: boolean
 }>()
 const emit = defineEmits<{
-    (event: "change"): void
-    (event: "update:isDone", val: boolean): void
+    (event: 'change'): void
+    (event: 'update:isDone', val: boolean): void
     (
-        event: "competitionAnswer",
+        event: 'competitionAnswer',
         val: { taskId: string; alternativeId: string }
     ): void
 }>()
@@ -25,7 +25,7 @@ const noWrongAnswers = computed(() =>
 
 const task = computed(() => {
     return (
-        props.task.__typename == "AlternativesTask" ? props.task : undefined
+        props.task.__typename == 'AlternativesTask' ? props.task : undefined
     )!
 })
 
@@ -44,7 +44,7 @@ const isDone = computed({
     },
 })
 
-const getLetter = (index: number) => ["A", "B", "C", "D", "E", "F", "G"][index]
+const getLetter = (index: number) => ['A', 'B', 'C', 'D', 'E', 'F', 'G'][index]
 
 watch(
     selectedIndex,
@@ -67,7 +67,7 @@ function selectAnswer(id: string) {
         alt.selected = id == alt.id
     }
     if (task.value.competitionMode) {
-        emit("competitionAnswer", { taskId: task.value.id, alternativeId: id })
+        emit('competitionAnswer', { taskId: task.value.id, alternativeId: id })
     } else {
         executeMutation({ taskId: task.value.id, selectedAlternatives: [id] })
     }

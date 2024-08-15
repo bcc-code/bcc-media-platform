@@ -4,10 +4,10 @@ import {
     useSubscribeToTopicMutation,
     useUnsubscribeToTopicMutation,
     useGetSubscriptionsQuery,
-} from "@/graph/generated"
-import VButton from "../VButton.vue"
-import { computed, watch, ref } from "vue"
-import Loader from "../Loader.vue"
+} from '@/graph/generated'
+import VButton from '../VButton.vue'
+import { computed, watch, ref } from 'vue'
+import Loader from '../Loader.vue'
 
 const props = defineProps<{
     topic: SubscriptionTopic
@@ -85,12 +85,12 @@ defineOptions({
         >
             {{
                 subscribed
-                    ? $t("subscriptions.unsubscribe")
-                    : $t("subscriptions.subscribe")
+                    ? $t('subscriptions.unsubscribe')
+                    : $t('subscriptions.subscribe')
             }}
         </div>
     </VButton>
     <div v-if="error" class="mt-1 text-center">
-        {{ $t("error.somethingWentWrong") }} <br />Error: {{ error }}
+        {{ $t('error.somethingWentWrong') }} <br />Error: {{ error }}
     </div>
 </template>

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import Image from "@/components/Image.vue"
-import { useGetShortDetailsQuery } from "@/graph/generated"
+import Image from '@/components/Image.vue'
+import { useGetShortDetailsQuery } from '@/graph/generated'
 
 const props = defineProps<{
     shortId: string
@@ -28,7 +28,7 @@ const { data } = useGetShortDetailsQuery({
             </div>
             <div class="flex flex-col">
                 <h3 class="font-bold">
-                    {{ $t("shorts.watchOnOurApp") }}
+                    {{ $t('shorts.watchOnOurApp') }}
                 </h3>
                 <div class="flex gap-2 mt-1">
                     <a href="https://apple.co/3VewzK9"

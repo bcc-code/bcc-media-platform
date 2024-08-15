@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { useGetFaqQuery } from "@/graph/generated"
-import Loader from "../Loader.vue"
+import { useGetFaqQuery } from '@/graph/generated'
+import Loader from '../Loader.vue'
 import {
     Dialog,
     DialogDescription,
@@ -8,15 +8,15 @@ import {
     DialogTitle,
     TransitionChild,
     TransitionRoot,
-} from "@headlessui/vue"
-import { VButton } from ".."
+} from '@headlessui/vue'
+import { VButton } from '..'
 
 defineProps<{
     show: boolean
 }>()
 
 defineEmits<{
-    (e: "update:show", v: boolean): void
+    (e: 'update:show', v: boolean): void
 }>()
 
 const { data, fetching } = useGetFaqQuery({ variables: {} })
@@ -53,12 +53,12 @@ const { data, fetching } = useGetFaqQuery({ variables: {} })
                         class="duration-500 ease-out-expo w-full max-w-lg max-h-screen overflow-y-auto overflow-hidden rounded-2xl p-4 lg:p-6 text-left align-middle shadow-xl transition-all bg-background"
                     >
                         <DialogTitle class="flex text-2xl font-bold">
-                            <div>{{ $t("support.faq") }}</div>
+                            <div>{{ $t('support.faq') }}</div>
                             <div class="ml-auto">
                                 <VButton
                                     size="thin"
                                     @click="$emit('update:show', false)"
-                                    >{{ $t("buttons.close") }}</VButton
+                                    >{{ $t('buttons.close') }}</VButton
                                 >
                             </div>
                         </DialogTitle>
@@ -85,7 +85,7 @@ const { data, fetching } = useGetFaqQuery({ variables: {} })
                                     </div>
                                 </div>
                                 <VButton @click="$emit('update:show', false)">{{
-                                    $t("buttons.close")
+                                    $t('buttons.close')
                                 }}</VButton>
                             </section>
                         </DialogDescription>

@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import WithProgressBar from "@/components/episodes/WithProgressBar.vue"
-import Pill from "@/components/Pill.vue"
-import { mdToHTML } from "@/services/converter"
-import { episodeComingSoon } from "@/utils/items"
-import { ListItem } from "@/utils/lists"
-import AgeRating from "../episodes/AgeRating.vue"
-import Image from "../Image.vue"
+import WithProgressBar from '@/components/episodes/WithProgressBar.vue'
+import Pill from '@/components/Pill.vue'
+import { mdToHTML } from '@/services/converter'
+import { episodeComingSoon } from '@/utils/items'
+import { ListItem } from '@/utils/lists'
+import AgeRating from '../episodes/AgeRating.vue'
+import Image from '../Image.vue'
 
 defineProps<{
     items: ListItem[]
@@ -14,7 +14,7 @@ defineProps<{
 }>()
 
 defineEmits<{
-    (e: "itemClick", i: ListItem): void
+    (e: 'itemClick', i: ListItem): void
 }>()
 </script>
 
@@ -49,7 +49,7 @@ defineEmits<{
                         <Pill
                             v-if="episodeComingSoon(i)"
                             class="absolute -top-1 -right-1 pointer-events-none"
-                            >{{ $t("episode.comingSoon") }}</Pill
+                            >{{ $t('episode.comingSoon') }}</Pill
                         >
                         <Image
                             v-if="i.image"

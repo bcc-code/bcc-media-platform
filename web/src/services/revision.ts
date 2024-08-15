@@ -1,5 +1,5 @@
-import { api } from "@/config"
-import { useAuth } from "./auth"
+import { api } from '@/config'
+import { useAuth } from './auth'
 
 let revision: string | null = null
 
@@ -13,17 +13,17 @@ export const getRevision = async () => {
         const headers = token
             ? {
                   headers: {
-                      Authorization: "Bearer " + token,
+                      Authorization: 'Bearer ' + token,
                   },
               }
             : {}
-        const result = await fetch(api.url + "/versionz", headers)
+        const result = await fetch(api.url + '/versionz', headers)
 
         const rev = await result.json()
 
-        if (rev["build_sha"]) {
+        if (rev['build_sha']) {
             return (revision = rev)
         }
     } catch {}
-    return (revision = "unknown | debug")
+    return (revision = 'unknown | debug')
 }

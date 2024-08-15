@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { Section } from "./types"
-import SectionTitle from "./item/SectionTitle.vue"
-import { ref } from "vue"
-import Loader from "../Loader.vue"
+import { Section } from './types'
+import SectionTitle from './item/SectionTitle.vue'
+import { ref } from 'vue'
+import Loader from '../Loader.vue'
 
 defineProps<{
-    item: Section & { __typename: "WebSection" }
+    item: Section & { __typename: 'WebSection' }
 }>()
 
 const iframeLoaded = ref(false)

@@ -1,17 +1,17 @@
 <script lang="ts" setup>
-import Carousel from "@/components/Carousel.vue"
-import { SectionSize } from "@/graph/generated"
-import type { SwiperOptions } from "swiper/types"
-import { computed } from "vue"
-import { Section } from "../types"
+import Carousel from '@/components/Carousel.vue'
+import { SectionSize } from '@/graph/generated'
+import type { SwiperOptions } from 'swiper/types'
+import { computed } from 'vue'
+import { Section } from '../types'
 
 const props = defineProps<{
     section: Section & {
         __typename:
-            | "DefaultSection"
-            | "PosterSection"
-            | "FeaturedSection"
-            | "ListSection"
+            | 'DefaultSection'
+            | 'PosterSection'
+            | 'FeaturedSection'
+            | 'ListSection'
     }
     breakpoints?: {
         [width: number]: SwiperOptions
@@ -19,11 +19,11 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: "loadMore"): void
+    (e: 'loadMore'): void
 }>()
 
 const size = computed(() =>
-    "size" in props.section ? props.section.size : SectionSize.Medium
+    'size' in props.section ? props.section.size : SectionSize.Medium
 )
 
 const isNotLastPage = computed(() => {

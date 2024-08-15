@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import ChevronDown from "./ChevronDown.vue"
+import ChevronDown from './ChevronDown.vue'
 </script>
 <template>
     <ChevronDown class="rotate-180" />

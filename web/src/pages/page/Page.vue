@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import PageComponent from "@/components/page/Page.vue"
-import { useApplicationQuery } from "@/graph/generated"
-import { analytics } from "@/services/analytics"
-import { usePage } from "@/utils/page"
-import { useTitle } from "@/utils/title"
-import { ref, watch } from "vue"
+import PageComponent from '@/components/page/Page.vue'
+import { useApplicationQuery } from '@/graph/generated'
+import { analytics } from '@/services/analytics'
+import { usePage } from '@/utils/page'
+import { useTitle } from '@/utils/title'
+import { ref, watch } from 'vue'
 
 const props = defineProps<{
     pageId: string

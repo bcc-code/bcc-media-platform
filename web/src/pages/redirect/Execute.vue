@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useGetRedirectUrlQuery } from "@/graph/generated"
+import { useGetRedirectUrlQuery } from '@/graph/generated'
 
 const props = defineProps<{ code: string }>()
 

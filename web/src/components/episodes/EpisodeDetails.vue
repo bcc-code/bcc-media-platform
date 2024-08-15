@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { GetEpisodeQuery } from "@/graph/generated"
-import { computed } from "vue"
-import { useI18n } from "vue-i18n"
-import AgeRating from "./AgeRating.vue"
+import { GetEpisodeQuery } from '@/graph/generated'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import AgeRating from './AgeRating.vue'
 
 const { t } = useI18n()
 
 const props = defineProps<{
-    episode: GetEpisodeQuery["episode"]
+    episode: GetEpisodeQuery['episode']
 }>()
 
 const details = computed(() => {
@@ -15,33 +15,33 @@ const details = computed(() => {
 
     if (props.episode.season) {
         lines.push({
-            title: t("episode.seriesDescription"),
+            title: t('episode.seriesDescription'),
             value: props.episode.season.show.description,
         })
     }
 
     const publishDate = new Date(props.episode.publishDate)
     lines.push({
-        title: t("episode.releaseDate"),
+        title: t('episode.releaseDate'),
         value: publishDate.toLocaleDateString(),
     })
     const availableFrom = new Date(props.episode.availableFrom)
-    if (availableFrom.getTime() > new Date("2000-01-01").getTime()) {
+    if (availableFrom.getTime() > new Date('2000-01-01').getTime()) {
         lines.push({
-            title: t("episode.availableFrom"),
+            title: t('episode.availableFrom'),
             value:
                 availableFrom.toLocaleDateString() +
-                " " +
+                ' ' +
                 availableFrom.toLocaleTimeString(),
         })
     }
     const availableTo = new Date(props.episode.availableTo)
-    if (availableTo.getTime() < new Date("2030-01-01").getTime()) {
+    if (availableTo.getTime() < new Date('2030-01-01').getTime()) {
         lines.push({
-            title: t("episode.availableTo"),
+            title: t('episode.availableTo'),
             value:
                 availableTo.toLocaleDateString() +
-                " " +
+                ' ' +
                 availableTo.toLocaleTimeString(),
         })
     }
@@ -55,7 +55,7 @@ const details = computed(() => {
             <p>{{ d.value }}</p>
         </div>
         <div class="flex flex-col gap-1">
-            <h1 class="text-lg font-semibold">{{ t("episode.ageRating") }}</h1>
+            <h1 class="text-lg font-semibold">{{ t('episode.ageRating') }}</h1>
             <p class="flex">
                 <AgeRating :episode="episode" />
             </p>

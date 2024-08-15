@@ -1,10 +1,10 @@
-import { SwiperOptions } from "swiper/types"
+import { SwiperOptions } from 'swiper/types'
 
 const spaceBetween = 20
 
-export default (size: "small" | "medium") => {
+export default (size: 'small' | 'medium') => {
     switch (size) {
-        case "small":
+        case 'small':
             return {
                 0: {
                     slidesPerView: 2.2,
@@ -24,7 +24,7 @@ export default (size: "small" | "medium") => {
             } as {
                 [key: number]: SwiperOptions
             }
-        case "medium":
+        case 'medium':
             return {
                 0: {
                     slidesPerView: 1.5,

@@ -5,24 +5,24 @@ import {
     Dialog,
     DialogPanel,
     DialogTitle,
-} from "@headlessui/vue"
+} from '@headlessui/vue'
 
 defineProps<{
     open: boolean
 }>()
 
 const emit = defineEmits<{
-    (e: "update:open", v: boolean): void
-    (e: "confirm"): void
-    (e: "close"): void
+    (e: 'update:open', v: boolean): void
+    (e: 'confirm'): void
+    (e: 'close'): void
 }>()
 
 function closeModal() {
-    emit("update:open", false)
-    emit("close")
+    emit('update:open', false)
+    emit('close')
 }
 function openModal() {
-    emit("update:open", true)
+    emit('update:open', true)
 }
 </script>
 
@@ -62,7 +62,7 @@ function openModal() {
                                 class="text-lg font-medium leading-6 text-gray-900"
                             >
                                 <slot name="title">
-                                    {{ $t("requests.confirmSend") }}
+                                    {{ $t('requests.confirmSend') }}
                                 </slot>
                             </DialogTitle>
                             <div class="mt-2">
@@ -78,14 +78,14 @@ function openModal() {
                                         class="inline-flex justify-center rounded-full border border-transparent bg-bcc-1 px-4 py-2 text-sm font-medium"
                                         @click="closeModal"
                                     >
-                                        {{ $t("buttons.cancel") }}
+                                        {{ $t('buttons.cancel') }}
                                     </button>
                                     <button
                                         type="button"
                                         class="inline-flex justify-center rounded-full border border-transparent bg-bcc-3 text-black px-4 py-2 text-sm font-medium"
                                         @click="$emit('confirm')"
                                     >
-                                        {{ $t("requests.send") }}
+                                        {{ $t('requests.send') }}
                                     </button>
                                 </slot>
                             </div>

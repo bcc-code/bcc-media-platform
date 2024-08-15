@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { Section } from "../types"
+import { Section } from '../types'
 
 defineProps<{
     position: number
-    item: Section & { __typename: "LabelSection" }
+    item: Section & { __typename: 'LabelSection' }
 }>()
 
 defineEmits<{
-    (event: "clickItem", index: number): void
+    (event: 'clickItem', index: number): void
 }>()
 </script>
 <template>

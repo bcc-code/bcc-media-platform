@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { provideClient } from "@urql/vue"
-import client from "@/graph/client"
-import { useAuth } from "@/services/auth"
-import { watch } from "vue"
-import { useRouter } from "vue-router"
+import { provideClient } from '@urql/vue'
+import client from '@/graph/client'
+import { useAuth } from '@/services/auth'
+import { watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 const { loading } = useAuth()
 
@@ -12,9 +12,9 @@ provideClient(client)
 const router = useRouter()
 
 const checkRedirect = () => {
-    const redirect = localStorage.getItem("redirect")
+    const redirect = localStorage.getItem('redirect')
     if (redirect) {
-        localStorage.removeItem("redirect")
+        localStorage.removeItem('redirect')
         router.push(redirect)
     }
 }

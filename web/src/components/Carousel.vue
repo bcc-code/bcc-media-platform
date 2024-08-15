@@ -1,11 +1,11 @@
 <script lang="ts" setup generic="TSliderItem">
-import { SectionSize } from "@/graph/generated"
-import TSwiper from "swiper"
-import { Navigation, Pagination } from "swiper/modules"
-import type { SwiperOptions } from "swiper/types"
-import { Swiper, SwiperSlide } from "swiper/vue"
-import { computed, ref } from "vue"
-import breakpoints from "./sections/item/breakpoints"
+import { SectionSize } from '@/graph/generated'
+import TSwiper from 'swiper'
+import { Navigation, Pagination } from 'swiper/modules'
+import type { SwiperOptions } from 'swiper/types'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { computed, ref } from 'vue'
+import breakpoints from './sections/item/breakpoints'
 
 const swiperEl = ref(null as HTMLDivElement | null)
 
@@ -29,7 +29,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-    (e: "loadMore"): void
+    (e: 'loadMore'): void
 }>()
 
 const effectiveBreakpoints = computed(() => {
@@ -39,21 +39,21 @@ const effectiveBreakpoints = computed(() => {
 const modules = [Navigation, Pagination]
 
 const onswipe = (swiper: TSwiper) => {
-    swiper.on("progress", () => {
+    swiper.on('progress', () => {
         const bp =
-            swiper.currentBreakpoint == "max"
+            swiper.currentBreakpoint == 'max'
                 ? Object.values(effectiveBreakpoints.value)[0]
                 : effectiveBreakpoints.value[swiper.currentBreakpoint]
         if (!bp) {
             if (swiper.progress > 0.5) {
-                emit("loadMore")
+                emit('loadMore')
             }
         }
         // Check when the slide should be updated with new items.
         const pg =
             1 - (((bp.slidesPerView as any) ?? 1) + 1) / props.items.length
         if (swiper.progress > pg) {
-            emit("loadMore")
+            emit('loadMore')
         }
     })
 }

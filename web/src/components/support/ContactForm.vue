@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { VButton } from "@/components"
-import { useSendSupportEmailMutation } from "@/graph/generated"
-import { getRevision } from "@/services/revision"
+import { VButton } from '@/components'
+import { useSendSupportEmailMutation } from '@/graph/generated'
+import { getRevision } from '@/services/revision'
 import {
     Dialog,
     DialogPanel,
@@ -9,26 +9,26 @@ import {
     DialogDescription,
     TransitionChild,
     TransitionRoot,
-} from "@headlessui/vue"
-import { ref } from "vue"
+} from '@headlessui/vue'
+import { ref } from 'vue'
 
 const { fetching, executeMutation } = useSendSupportEmailMutation()
 
 defineProps<{ show: boolean }>()
 
 const emit = defineEmits<{
-    (e: "update:show", v: boolean): void
+    (e: 'update:show', v: boolean): void
 }>()
 
-const title = ref("")
-const content = ref("")
+const title = ref('')
+const content = ref('')
 
 const technicalDetails = ref(null as HTMLDivElement | null)
 
 const technicalProperties = {
     Platform: navigator.platform,
-    Version: "",
-    "Window Size": window.outerWidth + " x " + window.outerHeight,
+    Version: '',
+    'Window Size': window.outerWidth + ' x ' + window.outerHeight,
 }
 
 getRevision().then((r) => (technicalProperties.Version = r))
@@ -40,16 +40,16 @@ const submit = async () => {
     }
 
     const html =
-        "<div><h1>" +
+        '<div><h1>' +
         title.value +
-        "</h1><p>" +
+        '</h1><p>' +
         content.value +
-        "</p><br/>" +
+        '</p><br/>' +
         technicalDetails.value?.innerHTML +
-        "</div>"
+        '</div>'
 
     await executeMutation({
-        title: "BTV Web - " + title.value,
+        title: 'BTV Web - ' + title.value,
         content: content.value,
         html,
     })
@@ -59,9 +59,9 @@ const submit = async () => {
 const validateForm = () => title.value && content.value
 
 const closePanel = () => {
-    title.value = ""
-    content.value = ""
-    emit("update:show", false)
+    title.value = ''
+    content.value = ''
+    emit('update:show', false)
 }
 </script>
 <template>
@@ -104,13 +104,13 @@ const closePanel = () => {
                         class="w-full max-w-md transform overflow-hidden rounded-2xl p-4 lg:p-6 text-left align-middle shadow-xl transition-all bg-background"
                     >
                         <DialogTitle class="text-2xl text-center font-bold">
-                            <span>{{ $t("support.contact") }}</span>
+                            <span>{{ $t('support.contact') }}</span>
                         </DialogTitle>
                         <DialogDescription class="flex flex-col gap-2 mt-4">
                             <div
                                 class="font-bold text-xl text-white font-Barlow overflow-y-auto overscroll-auto"
                             >
-                                {{ $t("support.title") }}
+                                {{ $t('support.title') }}
                             </div>
                             <input
                                 id="title"
@@ -124,7 +124,7 @@ const closePanel = () => {
                             <section>
                                 <div class="">
                                     <div class="text-xl font-bold mt-4 mb-2">
-                                        {{ $t("support.content") }}
+                                        {{ $t('support.content') }}
                                     </div>
                                     <textarea
                                         id="content"
@@ -155,7 +155,7 @@ const closePanel = () => {
                             </div>
                             <div class="flex gap-2 ml-auto">
                                 <VButton color="secondary" @click="closePanel">
-                                    {{ $t("buttons.cancel") }}
+                                    {{ $t('buttons.cancel') }}
                                 </VButton>
                                 <VButton
                                     :disabled="fetching"
@@ -163,7 +163,7 @@ const closePanel = () => {
                                     color="green"
                                     @click="submit"
                                 >
-                                    {{ $t("buttons.submit") }}
+                                    {{ $t('buttons.submit') }}
                                 </VButton>
                             </div>
                         </DialogDescription>

@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import Quote from "./Quote.vue"
-import quotesRaw from "../../utils/quotes/all.json"
-import { useI18n } from "vue-i18n"
-import { useAsyncState } from "@vueuse/core"
-import { computed, onMounted, ref, watch } from "vue"
-import VButton from "../VButton.vue"
-import Check from "../icons/Check.vue"
-import { analytics } from "@/services/analytics"
-import QuoteFeedbackButton from "./QuoteFeedbackButton.vue"
-import { webViewMain } from "@/services/webviews/mainHandler"
+import Quote from './Quote.vue'
+import quotesRaw from '../../utils/quotes/all.json'
+import { useI18n } from 'vue-i18n'
+import { useAsyncState } from '@vueuse/core'
+import { computed, onMounted, ref, watch } from 'vue'
+import VButton from '../VButton.vue'
+import Check from '../icons/Check.vue'
+import { analytics } from '@/services/analytics'
+import QuoteFeedbackButton from './QuoteFeedbackButton.vue'
+import { webViewMain } from '@/services/webviews/mainHandler'
 
 type Quote = {
     id: string
@@ -23,7 +23,7 @@ type LocalizedModule = {
     default: Record<string, string>
 }
 const localized = import.meta.glob<LocalizedModule>(
-    "../../utils/quotes/localized/*.json"
+    '../../utils/quotes/localized/*.json'
 )
 
 const today = new Date()
@@ -33,7 +33,7 @@ for (const key in quotes) {
     const val = quotes[key]
     //published_at: 07/03/2024 for example, but that's day/month/year
     const publishedAt = new Date(
-        val.published_at.split("/").reverse().join("/")
+        val.published_at.split('/').reverse().join('/')
     )
     if (
         publishedAt.getDate() === today.getDate() &&
@@ -60,9 +60,9 @@ const quoteText = computed(() => {
 })
 
 const todayString = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`
-const readDaysArray = ref(localStorage.getItem("read_days")?.split(",") ?? [])
+const readDaysArray = ref(localStorage.getItem('read_days')?.split(',') ?? [])
 watch(readDaysArray, () => {
-    localStorage.setItem("read_days", readDaysArray.value.join(","))
+    localStorage.setItem('read_days', readDaysArray.value.join(','))
 })
 const setRead = (val: boolean) => {
     if (!val) {
@@ -72,13 +72,13 @@ const setRead = (val: boolean) => {
     } else {
         readDaysArray.value = [...readDaysArray.value, todayString]
     }
-    analytics.track("interaction", {
+    analytics.track('interaction', {
         contextElementId: quote.id,
-        contextElementType: "Quote",
-        interaction: "quote_read",
+        contextElementType: 'Quote',
+        interaction: 'quote_read',
         meta: {
             quoteId: quote.id,
-            pageCode: "qotd",
+            pageCode: 'qotd',
         },
     })
 }
@@ -86,32 +86,32 @@ const hasReadToday = computed(() => readDaysArray.value.includes(todayString))
 const { t } = useI18n()
 
 const shareSupported =
-    (navigator.share && typeof navigator.share === "function") ||
-    (webViewMain?.supportedFeatures?.get("share") ?? false)
+    (navigator.share && typeof navigator.share === 'function') ||
+    (webViewMain?.supportedFeatures?.get('share') ?? false)
 const share = () => {
-    analytics.track("content_shared", {
+    analytics.track('content_shared', {
         elementId: quote.id,
-        elementType: "Quote",
-        pageCode: "qotd",
+        elementType: 'Quote',
+        pageCode: 'qotd',
     })
-    const shareSubject = t("quotes.quoteOfTheDay")
+    const shareSubject = t('quotes.quoteOfTheDay')
     const shareText = `«${quoteText.value}» - ${quote.author}`
-    if (navigator.share && typeof navigator.share === "function") {
+    if (navigator.share && typeof navigator.share === 'function') {
         navigator.share({
             title: shareSubject,
             text: shareText,
         })
-    } else if (webViewMain?.supportedFeatures?.get("share")) {
+    } else if (webViewMain?.supportedFeatures?.get('share')) {
         webViewMain.share(shareText, shareSubject)
     } else {
-        console.error("Share not supported")
+        console.error('Share not supported')
     }
 }
 
 onMounted(async () => {
     analytics.page({
-        id: "qotd",
-        title: "Quote of the day",
+        id: 'qotd',
+        title: 'Quote of the day',
         meta: {
             quoteId: quote.id,
         },
@@ -150,7 +150,7 @@ onMounted(async () => {
                     @click.stop="setRead(true)"
                 >
                     <Check class="inline-block mr-1" />
-                    {{ $t("quotes.markAsRead") }}
+                    {{ $t('quotes.markAsRead') }}
                 </VButton>
                 <VButton
                     v-else-if="shareSupported"
@@ -180,7 +180,7 @@ onMounted(async () => {
                             fill="currentColor"
                         />
                     </svg>
-                    {{ $t("share.title") }}
+                    {{ $t('share.title') }}
                 </VButton>
             </transition>
             <QuoteFeedbackButton />

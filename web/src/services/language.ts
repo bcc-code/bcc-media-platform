@@ -2,11 +2,11 @@ import i18n, {
     loadLocaleMessages,
     SUPPORT_LOCALES,
     setLanguage as i18nSetLanguage,
-} from "@/i18n"
-import { computed, ref } from "vue"
-import settings from "./settings"
-import { analytics } from "./analytics"
-import { usePage } from "@/utils/page"
+} from '@/i18n'
+import { computed, ref } from 'vue'
+import settings from './settings'
+import { analytics } from './analytics'
+import { usePage } from '@/utils/page'
 
 export type Language = {
     code: string
@@ -25,7 +25,7 @@ export function getLanguage({
     languageCode: string
     currentLanguageCode: string
 }): Language {
-    if (typeof Intl.DisplayNames === "undefined") {
+    if (typeof Intl.DisplayNames === 'undefined') {
         return {
             code: languageCode,
             name: languageCode,
@@ -33,12 +33,12 @@ export function getLanguage({
         }
     }
     const nativeDisplayName = new Intl.DisplayNames([languageCode], {
-        type: "language",
+        type: 'language',
     })
     const baseLanguageDisplayNames = new Intl.DisplayNames(
         [currentLanguageCode],
         {
-            type: "language",
+            type: 'language',
         }
     )
 
@@ -69,13 +69,13 @@ const getCurrentLanguage = () => {
         // just ignore. likely in an iframe
     }
 
-    const navLanguage = navigator.language?.split("-")[0]?.toLowerCase() ?? ""
+    const navLanguage = navigator.language?.split('-')[0]?.toLowerCase() ?? ''
 
     if (SUPPORT_LOCALES.includes(navLanguage)) {
         return navLanguage
     }
 
-    return "en"
+    return 'en'
 }
 
 export const languages = ref(getSupportedLanguages(getCurrentLanguage()))
@@ -89,7 +89,7 @@ export const current = computed(() => {
 export const setLanguage = async (l: string) => {
     if (settings.locale !== l) {
         const { current } = usePage()
-        analytics.track("language_changed", {
+        analytics.track('language_changed', {
             pageCode: current.value,
             languageFrom: settings.locale,
             languageTo: l,

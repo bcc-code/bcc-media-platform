@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useGetLegacyIdQuery } from "@/graph/generated"
+import { useGetLegacyIdQuery } from '@/graph/generated'
 
 const props = defineProps<{
     episodeId?: number
@@ -15,9 +15,9 @@ const { data, then } = useGetLegacyIdQuery({
 
 then(() => {
     if (data.value?.legacyIDLookup.id) {
-        location.href = "/episode/" + data.value.legacyIDLookup.id
+        location.href = '/episode/' + data.value.legacyIDLookup.id
     } else {
-        location.href = "/"
+        location.href = '/'
     }
 })
 </script>

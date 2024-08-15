@@ -1,20 +1,20 @@
 <script lang="ts" setup>
-import { useAuth0 } from "@auth0/auth0-vue"
-import { computed, reactive, ref } from "vue"
-import Modal from "@/components/web/ConfirmSendModal.vue"
+import { useAuth0 } from '@auth0/auth0-vue'
+import { computed, reactive, ref } from 'vue'
+import Modal from '@/components/web/ConfirmSendModal.vue'
 import {
     OptionSelector,
     TextInput,
     TextArea,
     DateSelector,
-} from "@/components/web"
-import { useGetMeQuery, useSendSupportEmailMutation } from "@/graph/generated"
-import LanguageSelector from "@/components/LanguageSelector.vue"
-import { useI18n } from "vue-i18n"
-import { current } from "@/services/language"
+} from '@/components/web'
+import { useGetMeQuery, useSendSupportEmailMutation } from '@/graph/generated'
+import LanguageSelector from '@/components/LanguageSelector.vue'
+import { useI18n } from 'vue-i18n'
+import { current } from '@/services/language'
 
-import en from "./terms/en"
-import no from "./terms/no"
+import en from './terms/en'
+import no from './terms/no'
 
 const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0()
 
@@ -28,27 +28,27 @@ if (!isAuthenticated.value) {
     // localStorage.setItem("redirect", "/web/material-request")
     loginWithRedirect({
         appState: {
-            target: "/web/material-request",
+            target: '/web/material-request',
         },
     })
 }
 
 const form = reactive({
-    name: user.value?.name ?? "",
-    role: "",
-    material: "",
-    materialUsageHow: "",
-    materialUsageWhere: "",
-    materialUsageWhen: "",
+    name: user.value?.name ?? '',
+    role: '',
+    material: '',
+    materialUsageHow: '',
+    materialUsageWhere: '',
+    materialUsageWhen: '',
 })
 
 const clear = () => {
-    form.name = user.value?.name ?? ""
-    form.role = ""
-    form.material = ""
-    form.materialUsageHow = ""
-    form.materialUsageWhen = ""
-    form.materialUsageWhere = ""
+    form.name = user.value?.name ?? ''
+    form.role = ''
+    form.material = ''
+    form.materialUsageHow = ''
+    form.materialUsageWhen = ''
+    form.materialUsageWhere = ''
 }
 
 const canSend = computed(() => {
@@ -73,27 +73,27 @@ const html = computed(() => {
         </thead>
         <tbody>
             <tr>
-                <td>${t("requests.name")}</td>
+                <td>${t('requests.name')}</td>
                 <td>${form.name}</td>
             </tr>
             <tr>
-                <td>${t("requests.role")}</td>
+                <td>${t('requests.role')}</td>
                 <td>${form.role}</td>
             </tr>
             <tr>
-                <td>${t("requests.where")}</td>
+                <td>${t('requests.where')}</td>
                 <td>${form.materialUsageWhere}</td>
             </tr>
             <tr>
-                <td>${t("requests.when")}</td>
+                <td>${t('requests.when')}</td>
                 <td>${form.materialUsageWhen}</td>
             </tr>
             <tr>
-                <td>${t("requests.what")}</td>
+                <td>${t('requests.what')}</td>
                 <td>${form.material}</td>
             </tr>
             <tr>
-                <td>${t("requests.how")}</td>
+                <td>${t('requests.how')}</td>
                 <td>${form.materialUsageHow}</td>
             </tr>
         </tbody>
@@ -107,8 +107,8 @@ const showConfirmation = ref(false)
 
 const send = async () => {
     await executeMutation({
-        title: "Material request",
-        content: "",
+        title: 'Material request',
+        content: '',
         html: html.value,
     })
     showSend.value = false
@@ -118,7 +118,7 @@ const send = async () => {
 // const agendaConfirmed = ref(false)
 
 const termsAccepted = ref(
-    localStorage.getItem("requests-terms-accepted") === "true"
+    localStorage.getItem('requests-terms-accepted') === 'true'
 )
 
 type Terms = {
@@ -129,11 +129,11 @@ type Terms = {
 }
 
 const lang = ref(
-    ["no", "en"].includes(current.value.code) ? current.value.code : "en"
+    ['no', 'en'].includes(current.value.code) ? current.value.code : 'en'
 )
 
 const loadTerms = async () => {
-    terms.value = lang.value === "no" ? no : en
+    terms.value = lang.value === 'no' ? no : en
 }
 
 const agendaConfirmed = ref(false)
@@ -162,16 +162,16 @@ console.log(lang)
             <div class="rounded bg-bcc p-6">
                 <div class="text-center mb-4 flex flex-col">
                     <h1 class="text-2xl font-bold mb-2">
-                        {{ $t("requests.title") }}
+                        {{ $t('requests.title') }}
                     </h1>
                     <small class="text-sm">{{
-                        $t("requests.description")
+                        $t('requests.description')
                     }}</small>
                     <LanguageSelector class="ml-auto"></LanguageSelector>
                 </div>
                 <div class="flex flex-col md:grid grid-cols-2 gap-8">
                     <TextInput v-model="form.name" readonly>{{
-                        $t("requests.name")
+                        $t('requests.name')
                     }}</TextInput>
                     <OptionSelector
                         v-model="form.role"
@@ -182,7 +182,7 @@ console.log(lang)
                             $t('requests.producer'),
                             $t('requests.mediaResponsible'),
                         ]"
-                        >{{ $t("requests.role") }}</OptionSelector
+                        >{{ $t('requests.role') }}</OptionSelector
                     >
                     <OptionSelector
                         v-model="form.materialUsageWhere"
@@ -192,22 +192,22 @@ console.log(lang)
                             $t('requests.eventCamp'),
                             $t('requests.local'),
                         ]"
-                        >{{ $t("requests.where")
+                        >{{ $t('requests.where')
                         }}<span class="ml-1 text-red">*</span></OptionSelector
                     >
                     <DateSelector v-model="form.materialUsageWhen" required
-                        >{{ $t("requests.when")
+                        >{{ $t('requests.when')
                         }}<span class="ml-1 text-red">*</span></DateSelector
                     >
                     <TextArea
                         v-model="form.material"
                         class="col-span-2"
                         required
-                        >{{ $t("requests.what") }}</TextArea
+                        >{{ $t('requests.what') }}</TextArea
                     >
                     <div class="col-span-2">
                         <TextArea v-model="form.materialUsageHow" required>{{
-                            $t("requests.how")
+                            $t('requests.how')
                         }}</TextArea>
                     </div>
                     <div class="flex col-span-2">
@@ -232,7 +232,7 @@ console.log(lang)
                                 class="bg-bcc-1 rounded-full p-2 px-8 hover:-translate-y-0.5 transition"
                                 @click="clear"
                             >
-                                {{ $t("requests.clear") }}
+                                {{ $t('requests.clear') }}
                             </button>
                             <button
                                 class="bg-bcc-3 text-black rounded-full p-2 px-8 hover:-translate-y-0.5 transition"
@@ -242,7 +242,7 @@ console.log(lang)
                                 :disabled="!canSend"
                                 @click="showSend = true"
                             >
-                                {{ $t("requests.send") }}
+                                {{ $t('requests.send') }}
                             </button>
                         </div>
                     </div>
@@ -297,7 +297,7 @@ console.log(lang)
                     :disabled="!agendaConfirmed"
                     @click="termsAccepted = true"
                 >
-                    {{ $t("buttons.continue") }}
+                    {{ $t('buttons.continue') }}
                 </button>
             </div>
         </div>
@@ -316,22 +316,22 @@ console.log(lang)
         @close="$router.push('/')"
     >
         <template #title>
-            {{ $t("requests.receitTitle") }}
+            {{ $t('requests.receitTitle') }}
         </template>
         <template #description>
-            <p>{{ $t("requests.receitDescription") }}</p>
+            <p>{{ $t('requests.receitDescription') }}</p>
         </template>
         <template #actions>
             <button
                 class="inline-flex justify-center rounded-md border border-transparent text-black bg-bcc-3 px-4 py-2 text-sm font-medium"
                 @click="$router.push('/')"
             >
-                {{ $t("buttons.close") }}
+                {{ $t('buttons.close') }}
             </button>
         </template>
     </Modal>
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Archivo&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Archivo&display=swap');
 </style>

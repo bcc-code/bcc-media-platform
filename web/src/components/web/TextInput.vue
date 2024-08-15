@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref } from "vue"
+import { computed, ref } from 'vue'
 
 const props = defineProps<{
     modelValue?: string
@@ -8,7 +8,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: "update:modelValue", v?: string): void
+    (e: 'update:modelValue', v?: string): void
 }>()
 
 const updated = ref(false)
@@ -19,7 +19,7 @@ const value = computed({
     },
     set(v) {
         updated.value = true
-        emit("update:modelValue", v)
+        emit('update:modelValue', v)
     },
 })
 </script>
