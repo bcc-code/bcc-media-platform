@@ -125,6 +125,7 @@ const load = async () => {
             },
             videojs: {
                 autoplay: props.autoPlay,
+                playbackRates: [0.75, 1, 1.5, 1.75, 2],
             },
             npaw: {
                 enabled: !!import.meta.env.VITE_NPAW_ACCOUNT_CODE,
