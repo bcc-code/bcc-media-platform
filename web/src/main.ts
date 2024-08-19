@@ -20,7 +20,7 @@ const app = createApp(App)
 if (import.meta.env.PROD) {
     Sentry.init({
         app,
-        dsn: 'https://3ffd6244935a49dab6913bdc148d8d41@o1045703.ingest.sentry.io/4504299662278656',
+        dsn: 'https://905cd79d515c1c75c7bfc0dc5e2d83b4@o4507803294892032.ingest.de.sentry.io/4507803304394832',
         integrations: [Sentry.browserTracingIntegration({ router })],
         tracePropagationTargets: [/^\//],
         tracesSampleRate: 0.5,
