@@ -15,6 +15,9 @@ export default defineConfig({
     ],
     server: {
         port: 3000,
+        headers: {
+            'document-policy': 'js-profiling',
+        },
     },
     resolve: {
         alias: {
