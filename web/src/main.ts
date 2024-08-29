@@ -20,7 +20,7 @@ const app = createApp(App)
 if (import.meta.env.PROD) {
     Sentry.init({
         app,
-        dsn: process.env.VITE_SENTRY_DSN ?? '',
+        dsn: import.meta.env.VITE_SENTRY_DSN ?? '',
         integrations: [
             Sentry.browserTracingIntegration({ router }),
             Sentry.browserProfilingIntegration(),
