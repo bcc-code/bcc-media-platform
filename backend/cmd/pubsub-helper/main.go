@@ -86,7 +86,7 @@ func refreshView(projectID, topicID string) {
 	e.SetSource(events.SourceCloudScheduler)
 	e.SetType(events.TypeRefreshView)
 	e.SetData(cloudevents.ApplicationJSON, &events.RefreshView{
-		ViewName: "episodes_access",
+		ViewName: "filter_dataset",
 		Force:    false,
 	})
 
