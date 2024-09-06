@@ -15,7 +15,7 @@ Here's a general overview of the development process for a brand new feature:
 
 - Codegen the graphql resolvers
 - Write sql queries to get the data you need.
-- Write [dataloaders]() to get the data
+- Write [dataloaders](https://github.com/graph-gophers/dataloader) to get the data
   - To support dataloaders, think in batches when writing queries: Instead of `SELECT * FROM episodes where id = 'abc'`, think `SELECT * FROM episodes where id = ANY ('abc', 'abc2')`.
   
 ## Mediaitems
@@ -43,16 +43,7 @@ Here's an overview:
 - `filter_dataset` contains all the possible items union'ed into a single view: episodes, shows,
 - `filter_dataset` is a materialized view where tags, roles, etc. has been denormalized.
 - `filter_dataset` is refreshed on an interval ([Here's the cloud scheduler job infra code.](https://github.com/bcc-code/bcc-media-platform/blob/9c5f277c54330d1ef052bf7a864156031c0484cf/infra/cloud-scheduler.tf#L10))
-
-### Special collections
-
-Collections also back personalized collections like "Continue watching", "shorts" (algorithm-based random shorts), and "My list".
-
-These work exactly like other collections, but has an additional filtering step. Example for "my list":
-
-- Get collection ids like normal, based on the configuration for the collection. This is cached. Let's say it returns IDs: 1,2,3,4,5
-- Get all ids in this specific user's "my_list" (favorites): IDs are 1,3,8,10.
-- You end up with IDs 1,3
+- Some collections have extra filtering logic, like "Continue watching", "shorts" (algorithm-based random shorts), and "My list". 
 
 ### Adding new models to pages:
 
