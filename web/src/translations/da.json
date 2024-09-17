@@ -17,7 +17,8 @@
         "start": "Start",
         "skip": "Spring over",
         "join": "Deltag",
-        "open": "Åben"
+        "open": "Åben",
+        "showMore": "Vis mere"
     },
     "download": {
         "resolution": "Opløsning",

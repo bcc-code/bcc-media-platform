@@ -17,7 +17,8 @@
         "start": "Start",
         "skip": "Skip",
         "join": "Meedoen",
-        "open": "Open"
+        "open": "Open",
+        "showMore": "Toon meer"
     },
     "download": {
         "resolution": "Oplossing",
