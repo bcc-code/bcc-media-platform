@@ -87,6 +87,14 @@ fragment ItemSection on ItemSection {
             }
         }
     }
+    ... on ListSection {
+        metadata {
+            limit
+            page {
+                code
+            }
+        }
+    }
 }
 fragment StudyTopicSectionItem on StudyTopic {
     id
