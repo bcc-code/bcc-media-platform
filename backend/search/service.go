@@ -6,6 +6,8 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"github.com/samber/lo"
@@ -52,6 +54,7 @@ type Config struct {
 // Service is the type for the service itself
 type Service struct {
 	algoliaClient *search.Client
+	elasticClient *elasticsearch.TypedClient
 	index         *search.Index
 	queries       *sqlc.Queries
 	loaders       batchLoaders
@@ -59,8 +62,20 @@ type Service struct {
 
 // New creates a new instance of the search service
 func New(queries *sqlc.Queries, config Config) *Service {
+	elasticClient, err := elasticsearch.NewTypedClient(elasticsearch.Config{
+		Addresses: []string{
+			"http://localhost:9200",
+		},
+		Username: "elastic",
+		Password: "bccm123",
+	})
+	if err != nil {
+		log.L.Fatal().Msgf("Failed to load elasticsearch client: %v", err)
+	}
+
 	service := Service{
 		algoliaClient: search.NewClient(config.AppID, config.APIKey),
+		elasticClient: elasticClient,
 	}
 	service.index = service.algoliaClient.InitIndex(indexName)
 	service.queries = queries

@@ -16,6 +16,27 @@ import (
 
 const tempIndexName = "temp"
 
+func (service *Service) ReindexElastic(ctx context.Context) error {
+	_, err := service.elasticClient.Indices.Create(tempIndexName).Do(ctx)
+	if err != nil {
+		return err
+	}
+	document := struct {
+		Name string `json:"name"`
+	}{
+		"go-elasticsearch",
+	}
+	_, err = service.elasticClient.Index(tempIndexName).
+		Id("1").
+		Request(document).
+		Do(context.TODO())
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Reindex every supported collection
 func (service *Service) Reindex(ctx context.Context) error {
 	res, err := service.algoliaClient.CopyIndex(indexName, tempIndexName)

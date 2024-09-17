@@ -142,7 +142,8 @@ func (s Server) ProcessMessage(c *gin.Context) {
 	case events.TypeDirectusEvent:
 		err = s.services.GetEventHandler().ProcessCloudEvent(ctx, e)
 	case events.TypeSearchReindex:
-		err = s.services.GetSearchService().Reindex(ctx)
+		//err = s.services.GetSearchService().Reindex(ctx)
+		err = s.services.GetSearchService().ReindexElastic(ctx)
 	case events.TypeExportAnswersToBQ:
 		err = s.services.GetStatisticHandler().HandleAnswerExportToBQ(ctx)
 	case events.TypeTranslationsSync:
