@@ -126,7 +126,7 @@ func getEnvConfig() envConfig {
 			Domain: os.Getenv("MEMBERS_API_DOMAIN"),
 		},
 		BigQuery: statistics.BigQueryConfig{
-			ProjectID: os.Getenv("BIGQUERY_PROJECT"), // Export disabed if empty
+			ProjectID: os.Getenv("BIGQUERY_PROJECT"), // Export disabled if empty
 			DatasetID: os.Getenv("BIGQUERY_DATASET"),
 		},
 		VideoManipulator: videomanipulatorConfig{

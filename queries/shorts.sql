@@ -55,3 +55,8 @@ SELECT s.id,
 FROM shorts s
          JOIN mediaitems_view mi ON mi.id = s.mediaitem_id
 WHERE s.mediaitem_id = @id::uuid;
+
+-- name: UpdateShortsScore :exec
+UPDATE shorts
+SET score = @score::float8
+WHERE id = @id::uuid;
