@@ -64,6 +64,10 @@ module "directus_secrets" {
         name = "PGPASSWORD"
         data = random_password.postgres_directus_password.result
       },
+      storage_s3_secret = {
+        name = "STORAGE_S3_SECRET"
+        data = aws_iam_access_key.directus.secret
+      }
     }
   )
   project          = google_project.brunstadtv.project_id

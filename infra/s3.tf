@@ -78,3 +78,12 @@ resource "aws_s3_bucket_cors_configuration" "allow-any-origin" {
     max_age_seconds = 3000
   }
 }
+
+resource "aws_s3_bucket" "s3-directus-storage" {
+  bucket = "bccm-directus-storage-${var.env}"
+
+  tags = {
+    Name        = "Directus image storage bucket"
+    Environment = var.env
+  }
+}

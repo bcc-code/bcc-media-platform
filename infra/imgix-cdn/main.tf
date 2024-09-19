@@ -45,6 +45,8 @@ resource "aws_cloudfront_distribution" "imgix-cdn" {
   provider = aws.main
   count    = aws_acm_certificate.imgix-cdn.status == "PENDING_VALIDATION" ? 0 : 1
   origin {
+    connection_attempts = 3
+    connection_timeout = 10
     origin_id   = "imgix-cdn"
     domain_name = var.backend-domain
     custom_origin_config {
