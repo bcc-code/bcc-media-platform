@@ -1,6 +1,20 @@
 -- name: ListSegmentedShortIDsForRoles :many
 SELECT concat(date_part('year', mi.published_at), '-', date_part('week', mi.published_at))::varchar as week,
-       array_agg(s.id ORDER BY score DESC)::uuid[]                                                                      as ids
+       array_agg(s.id)::uuid[]                                                                      as ids
+FROM shorts s
+         JOIN mediaitems mi ON s.mediaitem_id = mi.id
+         JOIN (SELECT r.shorts_id, array_agg(r.usergroups_code) as roles
+               FROM shorts_usergroups r
+               GROUP BY r.shorts_id) r
+              ON s.id = r.shorts_id
+WHERE s.status = 'published'
+  AND r.roles && @roles::varchar[]
+GROUP BY week
+ORDER BY week DESC;
+
+-- name: ListSegmentedShortIDsForRolesWithScores :many
+SELECT concat(date_part('year', mi.published_at), '-', date_part('week', mi.published_at))::varchar as week,
+       array_agg(s.id ORDER BY score DESC)::uuid[]                                                  as ids
 FROM shorts s
          JOIN mediaitems mi ON s.mediaitem_id = mi.id
          JOIN (SELECT r.shorts_id, array_agg(r.usergroups_code) as roles

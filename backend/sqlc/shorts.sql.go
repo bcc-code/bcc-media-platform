@@ -18,7 +18,7 @@ import (
 
 const listSegmentedShortIDsForRoles = `-- name: ListSegmentedShortIDsForRoles :many
 SELECT concat(date_part('year', mi.published_at), '-', date_part('week', mi.published_at))::varchar as week,
-       array_agg(s.id ORDER BY score DESC)::uuid[]                                                                      as ids
+       array_agg(s.id)::uuid[]                                                                      as ids
 FROM shorts s
          JOIN mediaitems mi ON s.mediaitem_id = mi.id
          JOIN (SELECT r.shorts_id, array_agg(r.usergroups_code) as roles
@@ -45,6 +45,49 @@ func (q *Queries) ListSegmentedShortIDsForRoles(ctx context.Context, roles []str
 	var items []ListSegmentedShortIDsForRolesRow
 	for rows.Next() {
 		var i ListSegmentedShortIDsForRolesRow
+		if err := rows.Scan(&i.Week, pq.Array(&i.Ids)); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listSegmentedShortIDsForRolesWithScores = `-- name: ListSegmentedShortIDsForRolesWithScores :many
+SELECT concat(date_part('year', mi.published_at), '-', date_part('week', mi.published_at))::varchar as week,
+       array_agg(s.id ORDER BY score DESC)::uuid[]                                                  as ids
+FROM shorts s
+         JOIN mediaitems mi ON s.mediaitem_id = mi.id
+         JOIN (SELECT r.shorts_id, array_agg(r.usergroups_code) as roles
+               FROM shorts_usergroups r
+               GROUP BY r.shorts_id) r
+              ON s.id = r.shorts_id
+WHERE s.status = 'published'
+  AND r.roles && $1::varchar[]
+GROUP BY week
+ORDER BY week DESC
+`
+
+type ListSegmentedShortIDsForRolesWithScoresRow struct {
+	Week string      `db:"week" json:"week"`
+	Ids  []uuid.UUID `db:"ids" json:"ids"`
+}
+
+func (q *Queries) ListSegmentedShortIDsForRolesWithScores(ctx context.Context, roles []string) ([]ListSegmentedShortIDsForRolesWithScoresRow, error) {
+	rows, err := q.db.QueryContext(ctx, listSegmentedShortIDsForRolesWithScores, pq.Array(roles))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListSegmentedShortIDsForRolesWithScoresRow
+	for rows.Next() {
+		var i ListSegmentedShortIDsForRolesWithScoresRow
 		if err := rows.Scan(&i.Week, pq.Array(&i.Ids)); err != nil {
 			return nil, err
 		}
