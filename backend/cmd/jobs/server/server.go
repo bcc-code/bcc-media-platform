@@ -145,6 +145,8 @@ func (s Server) ProcessMessage(c *gin.Context) {
 		err = s.services.GetSearchService().Reindex(ctx)
 	case events.TypeExportAnswersToBQ:
 		err = s.services.GetStatisticHandler().HandleAnswerExportToBQ(ctx)
+	case events.TypeImportShortsScores:
+		err = s.services.GetStatisticHandler().HandleImportShortsScores(ctx)
 	case events.TypeTranslationsSync:
 		err = s.runIfNotLocked(ctx, fmt.Sprintf("event:%s:%s", e.Type(), e.ID()), func() error {
 			return crowdin.HandleEvent(ctx, s.services, e)

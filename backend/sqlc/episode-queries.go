@@ -141,9 +141,7 @@ func (q *Queries) ListEpisodes(ctx context.Context) ([]common.Episode, error) {
 	if err != nil {
 		return nil, err
 	}
-	return q.mapListToEpisodes(lo.Map(items, func(i listEpisodesRow, _ int) listEpisodesRow {
-		return listEpisodesRow(i)
-	})), nil
+	return q.mapListToEpisodes(items), nil
 }
 
 // GetKey returns the id for this row

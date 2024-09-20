@@ -1,10 +1,10 @@
 package statistics
 
 import (
+	"cloud.google.com/go/bigquery"
 	"context"
 	"embed"
-
-	"cloud.google.com/go/bigquery"
+	"errors"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"go.opentelemetry.io/otel"
+	"google.golang.org/api/iterator"
 )
 
 var bqTables = []string{
@@ -263,4 +264,47 @@ func (h *Handler) HandleAnswerExportToBQ(ctx context.Context) error {
 	bqAnswers := lo.Map(res, answerRowToBQRow)
 	log.L.Debug().Int("new answer count", len(bqAnswers)).Msg("Fetched answers to export")
 	return h.insert(ctx, bqAnswers, "answers")
+}
+
+type shortScoreBQ struct {
+	ShortID string  `bigquery:"short_id"`
+	Score   float64 `bigquery:"score"`
+}
+
+func (h *Handler) HandleImportShortsScores(ctx context.Context) error {
+	log.L.Debug().Msg("Starting import of shorts scores")
+	table := h.bigQueryClient.Query("SELECT * FROM rudderstack_prod.shorts_scores_view")
+	t, err := table.Read(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	for {
+		var row shortScoreBQ
+
+		err := t.Next(&row)
+		if errors.Is(err, iterator.Done) {
+			break
+		}
+		if err != nil {
+			return err
+		}
+
+		shortID, err := uuid.Parse(row.ShortID)
+		if err != nil {
+			return nil
+		}
+
+		err = h.queries.UpdateShortsScore(ctx, sqlc.UpdateShortsScoreParams{
+			ID:    shortID,
+			Score: row.Score,
+		})
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

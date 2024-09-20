@@ -254,6 +254,8 @@ func main() {
 		simpleEvent(projectId, topicId, events.TypeExportAnswersToBQ)
 	case "searchReindex":
 		simpleEvent(projectId, topicId, events.TypeSearchReindex)
+	case "shortsScores":
+		simpleEvent(projectId, topicId, events.TypeImportShortsScores)
 	case "ingest":
 		send(projectId, topicId)
 	case "show.update":

@@ -59,6 +59,22 @@ func (q *Queries) ListSegmentedShortIDsForRoles(ctx context.Context, roles []str
 	return items, nil
 }
 
+const updateShortsScore = `-- name: UpdateShortsScore :exec
+UPDATE shorts
+SET score = $1::float8
+WHERE id = $2::uuid
+`
+
+type UpdateShortsScoreParams struct {
+	Score float64   `db:"score" json:"score"`
+	ID    uuid.UUID `db:"id" json:"id"`
+}
+
+func (q *Queries) UpdateShortsScore(ctx context.Context, arg UpdateShortsScoreParams) error {
+	_, err := q.db.ExecContext(ctx, updateShortsScore, arg.Score, arg.ID)
+	return err
+}
+
 const getMediaIDForShorts = `-- name: getMediaIDForShorts :many
 SELECT sh.id, sh.mediaitem_id
 FROM "public"."shorts" sh
