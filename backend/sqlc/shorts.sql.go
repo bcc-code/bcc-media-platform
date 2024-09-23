@@ -60,8 +60,14 @@ func (q *Queries) ListSegmentedShortIDsForRoles(ctx context.Context, roles []str
 }
 
 const listSegmentedShortIDsForRolesWithScores = `-- name: ListSegmentedShortIDsForRolesWithScores :many
-SELECT concat(date_part('year', mi.published_at), '-', date_part('week', mi.published_at))::varchar as week,
-       array_agg(s.id ORDER BY score DESC)::uuid[]                                                  as ids
+SELECT s.id,
+       -- We need a date and if we do not have a published_at date, we need to assume that the created date is when it was published
+       EXTRACT(DAY FROM current_date - COALESCE(mi.published_at, mi.date_created)) age,
+
+       -- For 10 days the shorts is boosted. It starts with a 5 points boost, and the boost "degrades" by 0.5
+       -- points per day, reaching 0 boost on day 10. It stops there
+    (((10 - LEAST(10, EXTRACT(DAY FROM current_date - COALESCE(mi.published_at, mi.date_created)))) * 0.5) + score)::float8 as final_score
+
 FROM shorts s
          JOIN mediaitems mi ON s.mediaitem_id = mi.id
          JOIN (SELECT r.shorts_id, array_agg(r.usergroups_code) as roles
@@ -70,13 +76,13 @@ FROM shorts s
               ON s.id = r.shorts_id
 WHERE s.status = 'published'
   AND r.roles && $1::varchar[]
-GROUP BY week
-ORDER BY week DESC
+ORDER BY final_score DESC
 `
 
 type ListSegmentedShortIDsForRolesWithScoresRow struct {
-	Week string      `db:"week" json:"week"`
-	Ids  []uuid.UUID `db:"ids" json:"ids"`
+	ID         uuid.UUID `db:"id" json:"id"`
+	Age        string    `db:"age" json:"age"`
+	FinalScore float64   `db:"final_score" json:"finalScore"`
 }
 
 func (q *Queries) ListSegmentedShortIDsForRolesWithScores(ctx context.Context, roles []string) ([]ListSegmentedShortIDsForRolesWithScoresRow, error) {
@@ -88,7 +94,7 @@ func (q *Queries) ListSegmentedShortIDsForRolesWithScores(ctx context.Context, r
 	var items []ListSegmentedShortIDsForRolesWithScoresRow
 	for rows.Next() {
 		var i ListSegmentedShortIDsForRolesWithScoresRow
-		if err := rows.Scan(&i.Week, pq.Array(&i.Ids)); err != nil {
+		if err := rows.Scan(&i.ID, &i.Age, &i.FinalScore); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

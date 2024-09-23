@@ -94,14 +94,14 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 			}, cache.WithExpiration(time.Minute*5))
 		},
 
-		ShortWithScoresLoader: func(ctx context.Context) ([][]uuid.UUID, error) {
-			return memorycache.GetOrSet(ctx, fmt.Sprintf("shortIDs:roles:%s", key), func(ctx context.Context) ([][]uuid.UUID, error) {
+		ShortWithScoresLoader: func(ctx context.Context) ([]uuid.UUID, error) {
+			return memorycache.GetOrSet(ctx, fmt.Sprintf("shortIDs:roles:%s", key), func(ctx context.Context) ([]uuid.UUID, error) {
 				rows, err := queries.ListSegmentedShortIDsForRolesWithScores(ctx, roles)
 				if err != nil {
 					return nil, err
 				}
-				return lo.Map(rows, func(i sqlc.ListSegmentedShortIDsForRolesWithScoresRow, _ int) []uuid.UUID {
-					return i.Ids
+				return lo.Map(rows, func(i sqlc.ListSegmentedShortIDsForRolesWithScoresRow, _ int) uuid.UUID {
+					return i.ID
 				}), nil
 			}, cache.WithExpiration(time.Minute*5))
 		},

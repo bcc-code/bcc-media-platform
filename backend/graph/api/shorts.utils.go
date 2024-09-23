@@ -68,7 +68,9 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 	var err error
 
 	if featureFlags.Has(unleash.ShortsWithScores) {
-		shortIDSegments, err = r.GetFilteredLoaders(ctx).ShortWithScoresLoader(ctx)
+		shortIDs, iErr := r.GetFilteredLoaders(ctx).ShortWithScoresLoader(ctx)
+		err = iErr
+		shortIDSegments = [][]uuid.UUID{shortIDs}
 	} else {
 		shortIDSegments, err = r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
 	}
