@@ -175,16 +175,6 @@ func (r *Resolver) clearShortsProgress(ctx context.Context, p *common.Profile) e
 	return nil
 }
 
-// getShort gets a list of paginated shorts
-//
-// The current logic is:
-// * Get the shorts grouped by publishing week (based on what user has access to)
-// * Internally sort them by score (descending)
-// * The shorts get shuffled (See ShuffleSegmentedArray)
-// * Any watched shorts are removed
-// * If there is a forced "Initial Short" it gets prepended
-// * If we do not have enough shorts we clear the progress and repeat the process, appending on the end
-// * Return a cursor with the data
 func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int, initialID *string) (*model.ShortsPagination, error) {
 	p, err := getProfile(ctx)
 	if err != nil && !errors.Is(err, ErrProfileNotSet) {
