@@ -1,6 +1,6 @@
 package utils
 
-import "github.com/bcc-code/mediabank-bridge/log"
+import "github.com/bcc-code/bcc-media-platform/backend/log"
 
 var langMap = map[string]string{
 	"nor":       "no",

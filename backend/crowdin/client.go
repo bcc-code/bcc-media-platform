@@ -11,7 +11,7 @@ import (
 
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
-	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/go-resty/resty/v2"
 	"github.com/samber/lo"
 )

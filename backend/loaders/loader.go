@@ -2,9 +2,9 @@ package loaders
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"reflect"
 
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/graph-gophers/dataloader/v7"
 )
 

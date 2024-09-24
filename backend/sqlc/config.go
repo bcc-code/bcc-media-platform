@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 )
 
 // GetGlobalConfig returns configuration options for app

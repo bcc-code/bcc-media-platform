@@ -27,8 +27,8 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/export/sqlexport"
 	"github.com/bcc-code/bcc-media-platform/backend/items/collection"
 	"github.com/bcc-code/bcc-media-platform/backend/items/show"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
-	"github.com/bcc-code/mediabank-bridge/log"
 	_ "github.com/glebarez/go-sqlite"
 	"github.com/samber/lo"
 

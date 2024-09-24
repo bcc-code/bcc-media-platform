@@ -12,7 +12,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
 
 	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/cloudevents/sdk-go/v2/event/datacodec/json"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
@@ -22,6 +21,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/export"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
 	"github.com/gin-gonic/gin"
 	"go.opentelemetry.io/otel"

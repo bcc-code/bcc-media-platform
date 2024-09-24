@@ -5,13 +5,13 @@ import (
 	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/bcc-code/bcc-media-platform/backend/notifications"
 	"github.com/bcc-code/bcc-media-platform/backend/push"
 	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
 	"github.com/bcc-code/bcc-media-platform/backend/scheduler"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )

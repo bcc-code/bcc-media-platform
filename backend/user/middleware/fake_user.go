@@ -5,8 +5,8 @@ import (
 
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
 )
 

@@ -24,7 +24,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.19.0
 	github.com/aws/aws-sdk-go-v2/service/mediapackagevod v1.24.2
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.40.2
-	github.com/bcc-code/mediabank-bridge v1.1.1
 	github.com/bsm/redislock v0.9.4
 	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/davecgh/go-spew v1.1.1

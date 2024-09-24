@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/samber/lo"
 )
 

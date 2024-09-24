@@ -6,7 +6,7 @@ import (
 	"time"
 
 	cache "github.com/Code-Hex/go-generics-cache"
-	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/samber/lo"
 )
 

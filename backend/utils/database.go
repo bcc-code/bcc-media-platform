@@ -3,9 +3,9 @@ package utils
 import (
 	"context"
 	"database/sql"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 
 	"github.com/XSAM/otelsql"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/samber/lo"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )

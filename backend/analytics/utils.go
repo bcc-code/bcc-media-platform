@@ -8,8 +8,9 @@ import (
 	"math/rand"
 	"strconv"
 
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
+
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 )
 
 // GenerateID for use in analytics based on profileID
