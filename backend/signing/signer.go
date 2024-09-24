@@ -2,13 +2,13 @@ package signing
 
 import (
 	"encoding/base64"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"net/url"
 	"regexp"
 	"time"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go/service/cloudfront/sign"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jwt"

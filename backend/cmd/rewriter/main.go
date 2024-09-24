@@ -3,9 +3,9 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/bcc-media-platform/backend/version"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"golang.org/x/net/html"

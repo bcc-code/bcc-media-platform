@@ -10,7 +10,7 @@ import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/samber/lo"
 )
 

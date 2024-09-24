@@ -7,9 +7,9 @@ import (
 	"os/exec"
 	"time"
 
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/bcc-media-platform/migrations"
-	"github.com/bcc-code/mediabank-bridge/log"
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
 	"github.com/rs/zerolog"
