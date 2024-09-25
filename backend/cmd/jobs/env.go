@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/joho/godotenv"
 	"os"
 	"strconv"
 	"strings"
@@ -12,6 +14,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/search"
 	"github.com/bcc-code/bcc-media-platform/backend/statistics"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
+
 	"github.com/samber/lo"
 )
 
@@ -43,7 +46,7 @@ type envConfig struct {
 	Port              string
 	DeleteIngestFiles bool
 	DB                utils.DatabaseConfig
-	Algolia           search.Config
+	Search            search.Config
 	Crowdin           crowdin.Config
 	Firebase          firebase
 	ImageCDNDomain    string
@@ -58,6 +61,10 @@ type envConfig struct {
 }
 
 func getEnvConfig() envConfig {
+	err := godotenv.Load("backend/cmd/jobs/.env")
+	if err == nil {
+		log.L.Warn().Msg("Loaded .env file")
+	}
 
 	deleteIngestFilesString := os.Getenv("DELETE_INGEST_FILES")
 	// Error is intentionally ignored, if not set default to FALSE
@@ -91,9 +98,16 @@ func getEnvConfig() envConfig {
 			MaxConnections:     utils.AsIntOrNil(os.Getenv("DB_MAX_CONS")),
 			MaxIdleConnections: utils.AsIntOrNil(os.Getenv("DB_MAX_IDLE_CONS")),
 		},
-		Algolia: search.Config{
-			AppID:  os.Getenv("ALGOLIA_APP_ID"),
-			APIKey: os.Getenv("ALGOLIA_API_KEY"),
+		Search: search.Config{
+			Algolia: search.AlgoliaConfig{
+				AppID:  os.Getenv("ALGOLIA_APP_ID"),
+				APIKey: os.Getenv("ALGOLIA_API_KEY"),
+			},
+			Elastic: search.ElasticConfig{
+				URL:      os.Getenv("ELASTIC_URL"),
+				Username: os.Getenv("ELASTIC_USERNAME"),
+				Password: os.Getenv("ELASTIC_PASSWORD"),
+			},
 		},
 		Crowdin: crowdin.Config{
 			Token:      os.Getenv("CROWDIN_TOKEN"),

@@ -2,45 +2,107 @@ package search
 
 import (
 	"context"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
-	"github.com/google/uuid"
-	"strconv"
-	"strings"
-
-	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
+	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/google/uuid"
+	"github.com/orsinium-labs/enum"
 	"github.com/samber/lo"
+	"strconv"
 )
 
 const tempIndexName = "temp"
 
-func (service *Service) ReindexElastic(ctx context.Context) error {
-	_, err := service.elasticClient.Indices.Create(tempIndexName).Do(ctx)
-	if err != nil {
-		return err
-	}
-	document := struct {
-		Name string `json:"name"`
-	}{
-		"go-elasticsearch",
-	}
-	_, err = service.elasticClient.Index(tempIndexName).
-		Id("1").
-		Request(document).
-		Do(context.TODO())
+type elasticIndex enum.Member[string]
 
-	if err != nil {
-		return err
+var (
+	IndexShows    = elasticIndex{"shows"}
+	IndexSeasons  = elasticIndex{"seasons"}
+	IndexEpisodes = elasticIndex{"episodes"}
+	Indices       = enum.New(IndexShows, IndexSeasons, IndexEpisodes)
+)
+
+func (service *Service) ensureElasticIndices(ctx context.Context) error {
+	for _, index := range Indices.Members() {
+		indexExists, err := service.elasticClient.Indices.Exists(index.Value).Do(ctx)
+		if err != nil {
+			return merry.Wrap(err)
+		}
+
+		if !indexExists {
+			_, err = service.elasticClient.Indices.Create(index.Value).Do(ctx)
+			if err != nil {
+				return err
+			}
+		}
 	}
+
 	return nil
 }
 
+func (service *Service) ReindexElastic(ctx context.Context) error {
+	err := service.ensureElasticIndices(ctx)
+	if err != nil {
+		return err
+	}
+
+	log.L.Debug().Str("collection", "shows").Msg("Indexing")
+	err = indexCollectionElastic[int, common.Show](
+		ctx,
+		service.elasticClient,
+		IndexShows,
+		service.loaders.ShowLoader,
+		service.loaders.ShowPermissionLoader,
+		service.queries.ListShows,
+		service.showToSearchItem,
+	)
+	if err != nil {
+		return err
+	}
+
+	log.L.Debug().Str("collection", "seasons").Msg("Indexing")
+	err = indexCollectionElastic[int, common.Season](
+		ctx,
+		service.elasticClient,
+		IndexSeasons,
+		service.loaders.SeasonLoader,
+		service.loaders.SeasonPermissionLoader,
+		service.queries.ListSeasons,
+		service.seasonToSearchItem,
+	)
+	if err != nil {
+		return err
+	}
+
+	log.L.Debug().Str("collection", "episodes").Msg("Indexing")
+	err = indexCollectionElastic[int, common.Episode](
+		ctx,
+		service.elasticClient,
+		IndexEpisodes,
+		service.loaders.EpisodeLoader,
+		service.loaders.SeasonPermissionLoader,
+		service.queries.ListEpisodes,
+		service.episodeToSearchItem,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+/*
 // Reindex every supported collection
 func (service *Service) Reindex(ctx context.Context) error {
 	res, err := service.algoliaClient.CopyIndex(indexName, tempIndexName)
+	if err != nil {
+		return err
+	}
 	_ = res.Wait()
+
 	index := service.algoliaClient.InitIndex(tempIndexName)
 	_, err = index.ClearObjects()
 	if err != nil {
@@ -128,6 +190,7 @@ func (service *Service) Reindex(ctx context.Context) error {
 	}
 	return res.Wait()
 }
+*/
 
 func (service *Service) indexShows(ctx context.Context, index *search.Index) error {
 	return indexCollection[int, common.Show](
@@ -149,6 +212,8 @@ func (service *Service) indexShow(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
+
+	indexObjectElastic[int, common.Show](ctx, service, IndexShows, *i, p, service.showToSearchItem)
 	return indexObject[int, common.Show](ctx, service, *i, p, service.showToSearchItem)
 }
 
@@ -172,6 +237,8 @@ func (service *Service) indexSeason(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
+
+	indexObjectElastic[int, common.Season](ctx, service, IndexSeasons, *i, p, service.seasonToSearchItem)
 	return indexObject[int, common.Season](ctx, service, *i, p, service.seasonToSearchItem)
 }
 
@@ -195,6 +262,8 @@ func (service *Service) indexEpisode(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
+
+	indexObjectElastic[int, common.Episode](ctx, service, IndexEpisodes, *i, p, service.episodeToSearchItem)
 	return indexObject[int, common.Episode](ctx, service, *i, p, service.episodeToSearchItem)
 }
 
@@ -207,6 +276,61 @@ func (service *Service) indexPlaylists(ctx context.Context, index *search.Index)
 		service.queries.ListPlaylists,
 		service.playlistToSearchItem,
 	)
+}
+
+func indexCollectionElastic[k comparable, t indexable[k]](
+	ctx context.Context,
+	client *elasticsearch.TypedClient,
+	index elasticIndex,
+	loader *loaders.Loader[k, *t],
+	permissionLoader *loaders.Loader[k, *common.Permissions[k]],
+	factory func(context.Context) ([]t, error),
+	converter func(context.Context, t) (searchItem, error),
+) error {
+	items, err := factory(ctx)
+	if err != nil {
+		return err
+	}
+
+	ids := lo.Map(items, func(i t, _ int) k {
+		return i.GetKey()
+	})
+
+	permissionLoader.LoadMany(ctx, ids)()
+
+	//var searchItems []searchObject
+
+	for _, i := range items {
+		p := i
+		loader.Prime(ctx, p.GetKey(), &p)
+
+		item, err := converter(ctx, p)
+		if err != nil {
+			return err
+		}
+
+		perm, err := permissionLoader.Get(ctx, i.GetKey())
+		if err != nil {
+			return err
+		}
+
+		if perm != nil {
+			item.assignVisibility(perm.Availability)
+			item.assignRoles(perm.Roles)
+		}
+
+		_, err = client.Index(index.Value).
+			Id(item.ID).
+			Request(item.toSearchObject()).
+			Do(ctx)
+
+		if err != nil {
+			return merry.Wrap(err)
+		}
+
+		print(".")
+	}
+	return nil
 }
 
 type indexable[k comparable] interface {
@@ -287,6 +411,30 @@ func indexObject[k comparable, t indexable[k]](
 	return err
 }
 
+func indexObjectElastic[k comparable, t indexable[k]](
+	ctx context.Context,
+	service *Service,
+	index elasticIndex,
+	obj t,
+	perms *common.Permissions[k],
+	converter func(context.Context, t) (searchItem, error),
+) error {
+	item, err := converter(ctx, obj)
+	if err != nil {
+		return err
+	}
+
+	item.assignVisibility(perms.Availability)
+	item.assignRoles(perms.Roles)
+
+	_, err = service.elasticClient.Index(index.Value).
+		Id(item.ID).
+		Request(item.toSearchObject()).
+		Do(ctx)
+
+	return err
+}
+
 var supportedCollections = []string{
 	"shows",
 	"seasons",
@@ -299,6 +447,8 @@ func (service *Service) DeleteModel(_ context.Context, collection string, key st
 		// no reason to send a request if the collection isn't supported
 		return nil
 	}
+
+	// TODO: Implement for elastic
 	_, err := service.index.DeleteObject(collection + "-" + key)
 	return err
 }

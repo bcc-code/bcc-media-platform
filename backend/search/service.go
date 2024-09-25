@@ -45,10 +45,23 @@ type batchLoaders struct {
 	PlaylistPermissionLoader *loaders.Loader[uuid.UUID, *common.Permissions[uuid.UUID]]
 }
 
-// Config contains configuration options for the service
-type Config struct {
+// AlgoliaConfig contains configuration options for the service
+type AlgoliaConfig struct {
 	AppID  string
 	APIKey string
+}
+
+// ElasticConfig contains configuration options for the service
+type ElasticConfig struct {
+	URL      string
+	Username string
+	Password string
+}
+
+// Config contains configuration options for the service
+type Config struct {
+	Algolia AlgoliaConfig
+	Elastic ElasticConfig
 }
 
 // Service is the type for the service itself
@@ -64,23 +77,29 @@ type Service struct {
 func New(queries *sqlc.Queries, config Config) *Service {
 	elasticClient, err := elasticsearch.NewTypedClient(elasticsearch.Config{
 		Addresses: []string{
-			"http://localhost:9200",
+			config.Elastic.URL,
 		},
-		Username: "elastic",
-		Password: "bccm123",
+		Username: config.Elastic.Username,
+		Password: config.Elastic.Password,
 	})
+
+	if err != nil {
+		log.L.Fatal().Msgf("Failed to load elasticsearch client: %v", err)
+	}
+
+	ctx := context.Background()
+
+	_, err = elasticClient.Ping().Do(ctx)
 	if err != nil {
 		log.L.Fatal().Msgf("Failed to load elasticsearch client: %v", err)
 	}
 
 	service := Service{
-		algoliaClient: search.NewClient(config.AppID, config.APIKey),
+		algoliaClient: search.NewClient(config.Algolia.AppID, config.Algolia.APIKey),
 		elasticClient: elasticClient,
 	}
 	service.index = service.algoliaClient.InitIndex(indexName)
 	service.queries = queries
-
-	ctx := context.Background()
 
 	service.loaders = batchLoaders{
 		ShowLoader:    loaders.NewLoader(ctx, queries.GetShows),

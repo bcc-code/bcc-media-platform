@@ -8,7 +8,7 @@
       <env name="PUBSUB_PROJECT_ID" value="btv-local" />
     </envs>
     <kind value="PACKAGE" />
-    <package value="github.com/bcc-code/brunstadtv/backend/cmd/pubsub-helper" />
+    <package value="github.com/bcc-code/bcc-media-platform/backend/cmd/pubsub-helper" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$" />
     <method v="2" />
