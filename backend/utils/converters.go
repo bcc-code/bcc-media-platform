@@ -2,7 +2,7 @@ package utils
 
 import (
 	"github.com/ansel1/merry/v2"
-	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )

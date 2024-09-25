@@ -6,7 +6,7 @@ import (
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
-	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/google/uuid"
 	"github.com/orsinium-labs/enum"

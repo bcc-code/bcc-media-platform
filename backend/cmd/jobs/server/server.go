@@ -18,9 +18,9 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
 	"github.com/bcc-code/bcc-media-platform/backend/events"
 	externalevents "github.com/bcc-code/bcc-media-platform/backend/external-events"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/maintenance"
 	"github.com/bcc-code/bcc-media-platform/backend/pubsub"
-	"github.com/bcc-code/mediabank-bridge/log"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
@@ -146,6 +146,8 @@ func (s Server) ProcessMessage(c *gin.Context) {
 		err = s.services.GetSearchService().ReindexElastic(ctx)
 	case events.TypeExportAnswersToBQ:
 		err = s.services.GetStatisticHandler().HandleAnswerExportToBQ(ctx)
+	case events.TypeImportShortsScores:
+		err = s.services.GetStatisticHandler().HandleImportShortsScores(ctx)
 	case events.TypeTranslationsSync:
 		err = s.runIfNotLocked(ctx, fmt.Sprintf("event:%s:%s", e.Type(), e.ID()), func() error {
 			return crowdin.HandleEvent(ctx, s.services, e)

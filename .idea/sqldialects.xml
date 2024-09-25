@@ -5,6 +5,7 @@
     <file url="file://$PROJECT_DIR$/migrations/00011_applications.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/migrations/special/post/01-admin-user.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/queries/contributions.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/queries/shorts.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/queries/timedmetadata.sql" dialect="PostgreSQL" />
     <file url="PROJECT" dialect="PostgreSQL" />
   </component>

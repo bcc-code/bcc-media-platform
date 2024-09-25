@@ -74,3 +74,21 @@ resource "google_cloud_scheduler_job" "answers_sync" {
     }))
   }
 }
+
+resource "google_cloud_scheduler_job" "shorts_scores_sync" {
+  project     = google_project.brunstadtv.project_id
+  name        = "shorts-scores-sync"
+  description = "Sync shorts scores BQ -> Postgres"
+  schedule    = var.shorts_scores_sync_schedule
+  region      = "europe-west1" // Cloud scheduler is not available in europe-west4
+
+  pubsub_target {
+    topic_name = google_pubsub_topic.background_worker.id
+    data = base64encode(jsonencode({
+      "specversion" : "1.0",
+      "id" : "cloudscheduler-4",
+      "source" : "cloudscheduler",
+      "type" : "statistics.importshortsscores"
+    }))
+  }
+}

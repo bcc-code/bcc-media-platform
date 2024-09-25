@@ -36,7 +36,6 @@ const isNotLastPage = computed(() => {
 
 <template>
     <Carousel
-        v-slot="{ item, index }"
         :items="section.items.items"
         :offset="section.items.offset"
         :is-loading-more="isNotLastPage"
@@ -44,6 +43,11 @@ const isNotLastPage = computed(() => {
         :breakpoints="props.breakpoints"
         @load-more="emit('loadMore')"
     >
-        <slot :item="item" :index="index" />
+        <template #default="{ item, index }">
+            <slot :item="item" :index="index" />
+        </template>
+        <template v-if="$slots.end" #end>
+            <slot name="end" />
+        </template>
     </Carousel>
 </template>

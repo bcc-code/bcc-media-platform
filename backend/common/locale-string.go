@@ -2,9 +2,9 @@ package common
 
 import (
 	"encoding/json"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"strings"
 
-	"github.com/bcc-code/mediabank-bridge/log"
 	"gopkg.in/guregu/null.v4"
 )
 

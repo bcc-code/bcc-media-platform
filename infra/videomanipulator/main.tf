@@ -65,13 +65,13 @@ resource "google_cloud_run_service" "videomanipulator" {
   template {
     metadata {
       annotations = {
-        "autoscaling.knative.dev/maxScale" = "3"
+        "autoscaling.knative.dev/maxScale" = "5"
         "run.googleapis.com/sandbox"       = "gvisor"
       }
     }
 
     spec {
-      container_concurrency = 100
+      container_concurrency = 5
       timeout_seconds       = 60
       service_account_name  = google_service_account.videomanipulator.email
 

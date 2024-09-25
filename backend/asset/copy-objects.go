@@ -12,7 +12,7 @@ import (
 	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
-	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"go.opentelemetry.io/otel"
 )
 

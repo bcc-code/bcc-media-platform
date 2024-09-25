@@ -15,4 +15,5 @@ const (
 	TypeSearchReindex               = "search.reindex"
 	TypeTranslationsSync            = "translations.sync"
 	TypeExportAnswersToBQ           = "statistics.exportanswers"
+	TypeImportShortsScores          = "statistics.importshortsscores"
 )

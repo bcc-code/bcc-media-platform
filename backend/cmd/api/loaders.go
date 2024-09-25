@@ -13,10 +13,10 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/items/collection"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
@@ -90,6 +90,18 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 				}
 				return lo.Map(rows, func(i sqlc.ListSegmentedShortIDsForRolesRow, _ int) []uuid.UUID {
 					return i.Ids
+				}), nil
+			}, cache.WithExpiration(time.Minute*5))
+		},
+
+		ShortWithScoresLoader: func(ctx context.Context) ([]uuid.UUID, error) {
+			return memorycache.GetOrSet(ctx, fmt.Sprintf("shortIDs:roles:%s", key), func(ctx context.Context) ([]uuid.UUID, error) {
+				rows, err := queries.ListSegmentedShortIDsForRolesWithScores(ctx, roles)
+				if err != nil {
+					return nil, err
+				}
+				return lo.Map(rows, func(i sqlc.ListSegmentedShortIDsForRolesWithScoresRow, _ int) uuid.UUID {
+					return i.ID
 				}), nil
 			}, cache.WithExpiration(time.Minute*5))
 		},

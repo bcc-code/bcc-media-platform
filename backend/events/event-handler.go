@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/ansel1/merry/v2"
-	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	cevent "github.com/cloudevents/sdk-go/v2/event"
 )
 

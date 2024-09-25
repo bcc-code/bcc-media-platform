@@ -17,7 +17,8 @@
         "start": "Start",
         "skip": "Hopp over",
         "join": "Bli med",
-        "open": "Åpne"
+        "open": "Åpne",
+        "showMore": "Vis mer"
     },
     "download": {
         "resolution": "Oppløsning",
@@ -148,14 +149,14 @@
     "footer": {
         "cookies": "Informasjonskapsler",
         "privacyPolicy": "Personvernerklæring",
-        "information": "BCC Media er en mediestiftelse i [BCC-forbundet](https://BCC.no) som produserer og distribuerer innhold med positive og kristne verdier.",
+        "information": "BCC Media er en mediestiftelse i [BCC-forbundet](https://bcc.no) som produserer og distribuerer innhold med positive og kristne verdier.",
         "headOffice": "Hovedkontor",
         "contactUs": "Kontakt oss",
         "downloadApp": "Last ned vår app",
-        "termsOfUse": "Vilkår for bruk"
+        "termsOfUse": "Bruksvilkår"
     },
     "terms": {
-        "byDownloadingYouAcceptTerms": "Ved å laste ned denne videoen godtar du våre [vilkår for bruk](https://bcc.media/terms-of-use) og [personvernregler](https://bcc.media/privacy)."
+        "byDownloadingYouAcceptTerms": "Ved å laste ned denne videoen godtar du våre [bruksvilkår](https://bcc.media/terms-of-use) og [personvernregler](https://bcc.media/privacy)."
     },
     "share": {
         "title": "Del",
@@ -187,7 +188,7 @@
         "role": "Din rolle",
         "what": "Materiale som forespørres",
         "how": "Hvordan skal materialet brukes?",
-        "howDescription": "Vist del/hele, redigert...",
+        "howDescription": "Vist delvis/hel, redigert...",
         "where": "Hvor skal materialet brukes?",
         "when": "Når skal materialet brukes?",
         "clear": "Tøm",
@@ -196,14 +197,14 @@
         "director": "Regissør",
         "producer": "Produsent",
         "eventCamp": "Event/Camp",
-        "local": "Samling lokalt",
+        "local": "Lokal samling",
         "mediaResponsible": "Medieansvarlig",
         "other": "Annet",
         "confirmSend": "Send forespørsel om materiale?",
         "title": "Forespørsel om materiale",
         "description": "Skjema for forespørsel om lyd-, bilde- og videomateriale fra BCC Media",
         "receitTitle": "Forespørsel mottatt",
-        "confirmAgenda": "Jeg bekrefter at materiale kun skal brukes til avtalt formål.",
+        "confirmAgenda": "Jeg bekrefter at materialet kun skal brukes til avtalt formål.",
         "receitDescription": "Vårt team vil kontakte deg innen 7 arbeidsdager. Et automatisk svar er sendt til din e-post."
     },
     "shorts": {

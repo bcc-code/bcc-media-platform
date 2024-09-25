@@ -86,7 +86,7 @@ func refreshView(projectID, topicID string) {
 	e.SetSource(events.SourceCloudScheduler)
 	e.SetType(events.TypeRefreshView)
 	e.SetData(cloudevents.ApplicationJSON, &events.RefreshView{
-		ViewName: "episodes_access",
+		ViewName: "filter_dataset",
 		Force:    false,
 	})
 
@@ -254,6 +254,8 @@ func main() {
 		simpleEvent(projectId, topicId, events.TypeExportAnswersToBQ)
 	case "searchReindex":
 		simpleEvent(projectId, topicId, events.TypeSearchReindex)
+	case "shortsScores":
+		simpleEvent(projectId, topicId, events.TypeImportShortsScores)
 	case "ingest":
 		send(projectId, topicId)
 	case "show.update":

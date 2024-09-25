@@ -2,12 +2,12 @@ package auth0
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
 

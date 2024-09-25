@@ -17,7 +17,8 @@
         "start": "Kezdés",
         "skip": "Átugrás",
         "join": "Csatlakozás",
-        "open": "Megnyitás"
+        "open": "Megnyitás",
+        "showMore": "Mutass többet"
     },
     "download": {
         "resolution": "Felbontás",

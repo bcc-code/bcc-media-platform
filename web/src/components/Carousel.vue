@@ -1,11 +1,11 @@
-<script lang="ts" setup generic="TSliderItem">
+<script lang="ts" setup generic="TSliderItem extends { id: string }">
 import { SectionSize } from '@/graph/generated'
 import TSwiper from 'swiper'
 import { Navigation, Pagination } from 'swiper/modules'
 import type { SwiperOptions } from 'swiper/types'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { computed, ref } from 'vue'
-import breakpoints from './sections/item/breakpoints'
+import Breakpoints from './sections/item/breakpoints'
 
 const swiperEl = ref(null as HTMLDivElement | null)
 
@@ -33,7 +33,7 @@ const emit = defineEmits<{
 }>()
 
 const effectiveBreakpoints = computed(() => {
-    return props.breakpoints ?? breakpoints(props.size)
+    return props.breakpoints ?? Breakpoints(props.size)
 })
 
 const modules = [Navigation, Pagination]
@@ -78,12 +78,19 @@ const onswipe = (swiper: TSwiper) => {
             }"
             @swiper="onswipe"
         >
-            <SwiperSlide v-for="(item, index) in items" class="relative">
+            <SwiperSlide
+                v-for="(item, index) in items"
+                :key="item.id"
+                class="relative"
+            >
                 <slot :item="item" :index="index" />
                 <div
                     v-if="index === items.length - 1 && isLoadingMore"
                     class="absolute right-0 top-0 h-full flex bg-gradient-to-l from-background to-transparent w-40"
                 />
+            </SwiperSlide>
+            <SwiperSlide v-if="$slots.end" class="relative">
+                <slot name="end" />
             </SwiperSlide>
         </Swiper>
         <div

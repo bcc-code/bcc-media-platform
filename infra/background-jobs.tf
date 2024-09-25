@@ -59,14 +59,13 @@ resource "google_cloud_run_service" "background_worker" {
   template {
     metadata {
       annotations = {
-        "autoscaling.knative.dev/maxScale"      = "100"
         "run.googleapis.com/sandbox"            = "gvisor"
         "run.googleapis.com/cloudsql-instances" = google_sql_database_instance.main.connection_name
       }
     }
 
     spec {
-      container_concurrency = 100
+      container_concurrency = 10
       timeout_seconds       = 600
       service_account_name  = google_service_account.background_worker.email
 
@@ -224,6 +223,7 @@ resource "google_pubsub_subscription" "push_background_worker" {
   topic   = google_pubsub_topic.background_worker.name
 
   ack_deadline_seconds = 600
+  retain_acked_messages = true
 
   retry_policy {
     maximum_backoff = "600s"

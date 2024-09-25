@@ -10,7 +10,7 @@ import (
 	"github.com/samber/lo/parallel"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
 )

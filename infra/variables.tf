@@ -94,6 +94,10 @@ variable "answers_sync_schedule" {
   type = string
 }
 
+variable "shorts_scores_sync_schedule" {
+  type = string
+}
+
 variable "base_platform_domain" {
   type = string
 }

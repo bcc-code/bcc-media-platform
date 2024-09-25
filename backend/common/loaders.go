@@ -133,9 +133,10 @@ type FilteredLoaders struct {
 	LinkStudyLessonsLoader    *loaders.Loader[int, []*uuid.UUID]
 
 	// Lists
-	PromptIDsLoader      func(ctx context.Context) ([]uuid.UUID, error)
-	FAQCategoryIDsLoader func(ctx context.Context) ([]uuid.UUID, error)
-	ShortIDsLoader       func(ctx context.Context) ([][]uuid.UUID, error)
+	PromptIDsLoader       func(ctx context.Context) ([]uuid.UUID, error)
+	FAQCategoryIDsLoader  func(ctx context.Context) ([]uuid.UUID, error)
+	ShortIDsLoader        func(ctx context.Context) ([][]uuid.UUID, error)
+	ShortWithScoresLoader func(ctx context.Context) ([]uuid.UUID, error)
 }
 
 // ProfileLoaders contains loaders per profile

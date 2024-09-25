@@ -17,7 +17,8 @@
         "start": "Alkaa",
         "skip": "Ohita",
         "join": "Liity",
-        "open": "Avaa"
+        "open": "Avaa",
+        "showMore": "Näytä lisää"
     },
     "download": {
         "resolution": "Kuvatarkkuus",

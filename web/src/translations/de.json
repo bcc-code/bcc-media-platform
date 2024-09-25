@@ -17,7 +17,8 @@
         "start": "Start",
         "skip": "Überspringen",
         "join": "Beitreten",
-        "open": "Öffnen"
+        "open": "Öffnen",
+        "showMore": "Zeige mehr"
     },
     "download": {
         "resolution": "Auflösung",

@@ -1,11 +1,11 @@
 package utils
 
 import (
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"os"
 	"strconv"
 
 	texporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/uptrace/uptrace-go/uptrace"
 	"go.opentelemetry.io/otel"
 	stdout "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"

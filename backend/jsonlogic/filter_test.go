@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/bcc-code/mediabank-bridge/log"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/lib/pq"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"

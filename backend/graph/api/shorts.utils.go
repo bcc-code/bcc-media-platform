@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"errors"
+	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -60,7 +61,20 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 		cursor.Seed = &seed
 	}
 
-	shortIDSegments, err := r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
+	ginCtx, _ := utils.GinCtx(ctx)
+	featureFlags := utils.GetFeatureFlags(ginCtx)
+
+	var shortIDSegments [][]uuid.UUID
+	var err error
+
+	if featureFlags.Has(unleash.ShortsWithScores) {
+		shortIDs, iErr := r.GetFilteredLoaders(ctx).ShortWithScoresLoader(ctx)
+		err = iErr
+		shortIDSegments = [][]uuid.UUID{shortIDs}
+	} else {
+		shortIDSegments, err = r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
+	}
+
 	if err != nil {
 		return nil, err
 	}

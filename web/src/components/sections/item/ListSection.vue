@@ -3,9 +3,11 @@ import { Section } from '../types'
 
 import SectionTitle from './SectionTitle.vue'
 import CollectionItemThumbnail from './CollectionItemThumbnail.vue'
-import { isCollectionItem } from '@/utils/items'
+import { goToPage, isCollectionItem } from '@/utils/items'
+import { computed } from 'vue'
+import VButton from '@/components/VButton.vue'
 
-defineProps<{
+const props = defineProps<{
     position: number
     section: Section & { __typename: 'ListSection' }
 }>()
@@ -13,6 +15,16 @@ defineProps<{
 defineEmits<{
     (event: 'clickItem', index: number): void
 }>()
+
+const isShowMoreButtonVisible = computed(() => {
+    return props.section.items.items.length === props.section.metadata?.limit
+})
+
+const pageCode = computed(() => {
+    if (!props.section.metadata) return false
+    if (!('page' in props.section.metadata)) return false
+    return props.section.metadata.page?.code
+})
 </script>
 <template>
     <section>
@@ -37,6 +49,13 @@ defineEmits<{
                     @click="$emit('clickItem', index)"
                 />
             </div>
+            <VButton
+                v-if="isShowMoreButtonVisible && pageCode"
+                color="secondary"
+                @click="goToPage(pageCode)"
+            >
+                {{ $t('buttons.showMore') }}
+            </VButton>
         </div>
     </section>
 </template>

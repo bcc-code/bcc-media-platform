@@ -75,6 +75,26 @@ resource "google_cloud_run_service" "directus" {
           value = "false"
         }
 
+        env {
+          name = "STORAGE_S3_BUCKET"
+          value = aws_s3_bucket.s3-directus-storage.bucket
+        }
+
+        env {
+          name = "STORAGE_S3_DRIVER"
+          value = "s3"
+        }
+
+        env {
+          name = "STORAGE_S3_KEY"
+          value = aws_iam_access_key.directus.id
+        }
+
+        env {
+          name = "STORAGE_S3_REGION"
+          value = aws_s3_bucket.s3-directus-storage.region
+        }
+
         dynamic "env" {
           for_each = module.directus_secrets.data
           iterator = v

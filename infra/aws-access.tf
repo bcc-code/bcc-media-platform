@@ -299,3 +299,113 @@ resource "aws_iam_policy_attachment" "mediapackage-passrole" {
   groups     = []
   policy_arn = aws_iam_policy.mediapackage-passrole.arn
 }
+
+// ImgiX user
+resource "aws_iam_user" "imgix" {
+  name = "imgix-${var.env}"
+  path = "/terraform/"
+
+  tags = {
+    Environment = var.env
+  }
+}
+
+resource "aws_iam_access_key" "imgix" {
+  user = aws_iam_user.imgix.name
+}
+
+resource "aws_iam_policy" "imgix-bucket-access" {
+  name = "imgix-bucket-access-${var.env}"
+  path = "/imgix/"
+
+  tags = {
+    Environment = var.env
+  }
+
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "Statement1",
+        "Effect": "Allow",
+        "Action": [
+          "s3:GetBucketLocation",
+          "s3:GetObject",
+          "s3:ListBucket"
+        ],
+        "Resource": [
+          "arn:aws:s3:::bccm-directus-storage-prod/*",
+          "arn:aws:s3:::bccm-directus-storage-prod"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy_attachment" "imgix-bucket-access" {
+  name       = "imgix-bucket-access-${var.env}"
+  users      = [aws_iam_user.imgix.name]
+  roles      = []
+  groups     = []
+  policy_arn = aws_iam_policy.imgix-bucket-access.arn
+}
+
+resource "local_sensitive_file" "imgix-key" {
+  content = "AWS_ACCESS_KEY_ID=${aws_iam_access_key.imgix.id}\nAWS_SECRET_ACCESS_KEY=${aws_iam_access_key
+  .imgix.secret}"
+  filename = "${var.basepath}/keys/imgix.secret.env"
+}
+
+// Directus user (for file uploads)
+resource "aws_iam_user" "directus" {
+  name = "directus-${var.env}"
+  path = "/terraform/"
+
+  tags = {
+    Environment = var.env
+  }
+}
+
+resource "aws_iam_access_key" "directus" {
+  user = aws_iam_user.directus.name
+}
+
+resource "aws_iam_policy" "directus-bucket-access" {
+  name = "directus-bucket-access-${var.env}"
+  path = "/directus/"
+
+  tags = {
+    Environment = var.env
+  }
+
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "Statement1",
+        "Effect": "Allow",
+        "Action": [
+          "s3:*"
+        ],
+        "Resource": [
+          "arn:aws:s3:::bccm-directus-storage-prod",
+          "arn:aws:s3:::bccm-directus-storage-prod/*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy_attachment" "directus-bucket-access" {
+  name       = "directus-bucket-access-${var.env}"
+  users      = [aws_iam_user.directus.name]
+  roles      = []
+  groups     = []
+  policy_arn = aws_iam_policy.directus-bucket-access.arn
+}
+
+resource "local_sensitive_file" "directus-key" {
+  content = "AWS_ACCESS_KEY_ID=${aws_iam_access_key.directus.id}\nAWS_SECRET_ACCESS_KEY=${aws_iam_access_key
+  .directus.secret}"
+  filename = "${var.basepath}/keys/directus.secret.env"
+}

@@ -3,11 +3,11 @@ package jsonlogic
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"strings"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/ansel1/merry/v2"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"github.com/lib/pq"
 )
 

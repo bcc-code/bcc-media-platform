@@ -3,9 +3,9 @@ package model
 import (
 	"context"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
-	"github.com/bcc-code/mediabank-bridge/log"
 	"strconv"
 	"time"
 )

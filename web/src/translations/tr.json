@@ -17,7 +17,8 @@
         "start": "Başlat",
         "skip": "",
         "join": "",
-        "open": ""
+        "open": "",
+        "showMore": ""
     },
     "download": {
         "resolution": "",
