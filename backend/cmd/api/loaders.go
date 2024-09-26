@@ -95,7 +95,7 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		},
 
 		ShortWithScoresLoader: func(ctx context.Context) ([]uuid.UUID, error) {
-			return memorycache.GetOrSet(ctx, fmt.Sprintf("shortIDs:roles:%s", key), func(ctx context.Context) ([]uuid.UUID, error) {
+			return memorycache.GetOrSet(ctx, fmt.Sprintf("shortIDs-scores:roles:%s", key), func(ctx context.Context) ([]uuid.UUID, error) {
 				rows, err := queries.ListSegmentedShortIDsForRolesWithScores(ctx, roles)
 				if err != nil {
 					return nil, err
