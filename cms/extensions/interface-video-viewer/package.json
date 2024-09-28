@@ -1,6 +1,7 @@
 {
 	"name": "directus-extension-video-viewer",
 	"version": "1.0.0",
+	"type": "module",
 	"keywords": [
 		"directus",
 		"directus-extension",
