@@ -28,3 +28,7 @@ The initial login credentials are:
 
 Username: admin@brunstad.tv
 Pass: btv123
+
+## Development
+
+- You need to run `make build` anytime you edit files in ../packages/directus-modules
