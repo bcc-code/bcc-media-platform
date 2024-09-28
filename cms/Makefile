@@ -8,7 +8,7 @@ install:
 	cd ../packages/directus-modules && make install
 
 update:
-	pnpm update
+	pnpm update --latest
 	cd ../packages/directus-modules && make update
 
 build:

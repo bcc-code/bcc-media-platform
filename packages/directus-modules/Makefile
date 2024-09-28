@@ -8,6 +8,9 @@ RUN_IN_DIRS = \
 		fi \
 	done
 
+all: # Usage: make all COMMAND="pnpm update --latest"
+	@$(call RUN_IN_DIRS, $(COMMAND))
+
 install:
 	@$(call RUN_IN_DIRS, pnpm i)
 
@@ -15,7 +18,7 @@ build:
 	@$(call RUN_IN_DIRS, pnpm build)
 
 update:
-	@$(call RUN_IN_DIRS, pnpm update)
+	@$(call RUN_IN_DIRS, pnpm update --latest)
 
 init:
 	@$(MAKE) install
