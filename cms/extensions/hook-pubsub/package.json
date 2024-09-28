@@ -10,7 +10,7 @@
 	],
 	"directus:extension": {
 		"type": "hook",
-		"path": "../../../cms/extensions/hooks/pubsub/index.cjs",
+		"path": "dist/index.js",
 		"source": "src/index.ts",
 		"host": "^9.26.0"
 	},

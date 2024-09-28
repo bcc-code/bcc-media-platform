@@ -1,20 +1,29 @@
+SHELL := /bin/bash
+
 .PHONY: run init reset s
+
+
+# A macro to loop over directories with package.json
+RUN_IN_DIRS = \
+	for dir in extensions/*/; do \
+		if [ -f "$$dir/package.json" ]; then \
+			( cd $$dir && $(1) ); \
+		fi \
+	done
 
 run:
 	pnpm directus start
 
 install:
 	pnpm i
-	cd ../packages/directus-modules && make install
+	@$(call RUN_IN_DIRS, pnpm i)
 
 update:
 	pnpm update --latest
-	cd ../packages/directus-modules && make update
+	@$(call RUN_IN_DIRS, pnpm update --latest)
 
 build:
-	rm -rf ./extensions
-	#npm run build
-	cd ../packages/directus-modules && make build
+	@$(call RUN_IN_DIRS, pnpm build)
 
 init:
 	make install
