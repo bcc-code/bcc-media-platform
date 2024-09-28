@@ -35,7 +35,9 @@
                   { "tableName": "directus_permissions", "tableSchema": "public", "tableKeyFields": ["id"]},
                   { "tableName": "directus_relations", "tableSchema": "public", "tableKeyFields": ["id"]},
                   { "tableName": "directus_roles", "tableSchema": "public", "tableKeyFields": ["id"]},
-                  { "tableName": "directus_webhooks", "tableSchema": "public", "tableKeyFields": ["id"]}
+                  { "tableName": "directus_webhooks", "tableSchema": "public", "tableKeyFields": ["id"]},
+                  { "tableName": "directus_access", "tableSchema": "public", "tableKeyFields": ["id"]},
+                  { "tableName": "directus_policies", "tableSchema": "public", "tableKeyFields": ["id"]}
                 ]
             }
         },
