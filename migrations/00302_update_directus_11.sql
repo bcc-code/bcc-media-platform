@@ -44,8 +44,9 @@ COMMENT ON TABLE "public"."directus_policies"  IS NULL;
 INSERT INTO public.directus_policies VALUES ('156d86ef-4c0e-4886-8bee-3a3c346fdb23', 'Editor', 'supervised_user_circle', 'Standard access, minus technical stuff', NULL, false, false, true);
 INSERT INTO public.directus_policies VALUES ('e3bf46db-28f3-4ce0-9999-2ab474d69e92', 'Kids early access manager', 'supervised_user_circle', NULL, NULL, false, false, true);
 INSERT INTO public.directus_policies VALUES ('a1b64719-0091-4db7-bdd1-19efb143e273', 'FKTB early access manager', 'supervised_user_circle', NULL, NULL, false, false, true);
-INSERT INTO public.directus_policies VALUES ('abf8a154-5b1c-4a46-ac9c-7300570f4f17', '$t:public_label', 'public', '$t:public_description', NULL, false, false, false);
 INSERT INTO public.directus_policies VALUES ('aeeb3066-3a3d-48d2-b922-8ea359d1fc16', 'Administrator', 'verified', '$t:admin_policy_description', NULL, false, true, true);
+-- Bccm note: This one is new.
+INSERT INTO public.directus_policies VALUES ('abf8a154-5b1c-4a46-ac9c-7300570f4f17', '$t:public_label', 'public', '$t:public_description', NULL, false, false, false);
 
 --- END CREATE TABLE "public"."directus_policies" ---
 
@@ -214,3 +215,246 @@ INSERT INTO "public"."directus_migrations" ("version", "name", "timestamp")  VAL
 
 
 
+-- +goose Down
+/***************************************************************/
+/*** SCRIPT AUTHOR: Andreas Gangsø (andreasgangso@gmail.com) ***/
+/***    CREATED ON: 2024-09-28T16:24:01.560Z                 ***/
+/***************************************************************/
+
+--- BEGIN ALTER TABLE "public"."directus_roles" ---
+
+ALTER TABLE IF EXISTS "public"."directus_roles"
+	 --WARN: Change column data type can occure in a casting error, the suggested casting expression is the default one and may not fit your needs!,
+	ALTER COLUMN "icon" SET DATA TYPE varchar(30) USING "icon"::varchar(30);
+
+ALTER TABLE IF EXISTS "public"."directus_roles" ADD COLUMN IF NOT EXISTS "ip_access" text NULL  ;
+
+COMMENT ON COLUMN "public"."directus_roles"."ip_access"  IS NULL;
+
+ALTER TABLE IF EXISTS "public"."directus_roles" ADD COLUMN IF NOT EXISTS "enforce_tfa" bool NOT NULL DEFAULT false ;
+
+COMMENT ON COLUMN "public"."directus_roles"."enforce_tfa"  IS NULL;
+
+ALTER TABLE IF EXISTS "public"."directus_roles" ADD COLUMN IF NOT EXISTS "admin_access" bool NOT NULL DEFAULT false ;
+
+COMMENT ON COLUMN "public"."directus_roles"."admin_access"  IS NULL;
+
+ALTER TABLE IF EXISTS "public"."directus_roles" ADD COLUMN IF NOT EXISTS "app_access" bool NOT NULL DEFAULT true ;
+
+COMMENT ON COLUMN "public"."directus_roles"."app_access"  IS NULL;
+
+-- Bccm note: Add back the values we dropped
+UPDATE "public"."directus_roles" SET 
+    "ip_access" = NULL,
+    "enforce_tfa" = false,
+    "admin_access" = true,
+    "app_access" = true
+WHERE "id" = 'aeeb3066-3a3d-48d2-b922-8ea359d1fc16';
+UPDATE "public"."directus_roles" SET 
+    "ip_access" = NULL,
+    "enforce_tfa" = false,
+    "admin_access" = false,
+    "app_access" = true
+WHERE "id" = '156d86ef-4c0e-4886-8bee-3a3c346fdb23';
+UPDATE "public"."directus_roles" SET 
+    "ip_access" = NULL,
+    "enforce_tfa" = false,
+    "admin_access" = false,
+    "app_access" = true
+WHERE "id" = 'e3bf46db-28f3-4ce0-9999-2ab474d69e92';
+UPDATE "public"."directus_roles" SET 
+    "ip_access" = NULL,
+    "enforce_tfa" = false,
+    "admin_access" = false,
+    "app_access" = true
+WHERE "id" = 'a1b64719-0091-4db7-bdd1-19efb143e273';
+
+ALTER TABLE IF EXISTS "public"."directus_roles" DROP COLUMN IF EXISTS "parent" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_roles" DROP CONSTRAINT IF EXISTS "directus_roles_parent_foreign";
+
+--- END ALTER TABLE "public"."directus_roles" ---
+
+--- BEGIN ALTER TABLE "public"."directus_collections" ---
+
+ALTER TABLE IF EXISTS "public"."directus_collections"
+	 --WARN: Change column data type can occure in a casting error, the suggested casting expression is the default one and may not fit your needs!,
+	ALTER COLUMN "icon" SET DATA TYPE varchar(30) USING "icon"::varchar(30);
+
+--- END ALTER TABLE "public"."directus_collections" ---
+
+--- BEGIN ALTER TABLE "public"."directus_flows" ---
+
+ALTER TABLE IF EXISTS "public"."directus_flows"
+	 --WARN: Change column data type can occure in a casting error, the suggested casting expression is the default one and may not fit your needs!,
+	ALTER COLUMN "icon" SET DATA TYPE varchar(30) USING "icon"::varchar(30);
+
+--- END ALTER TABLE "public"."directus_flows" ---
+
+--- BEGIN ALTER TABLE "public"."directus_dashboards" ---
+
+ALTER TABLE IF EXISTS "public"."directus_dashboards"
+	 --WARN: Change column data type can occure in a casting error, the suggested casting expression is the default one and may not fit your needs!,
+	ALTER COLUMN "icon" SET DATA TYPE varchar(30) USING "icon"::varchar(30);
+
+--- END ALTER TABLE "public"."directus_dashboards" ---
+
+--- BEGIN ALTER TABLE "public"."directus_files" ---
+
+ALTER TABLE IF EXISTS "public"."directus_files"
+	ALTER COLUMN "uploaded_on" SET NOT NULL,
+	ALTER COLUMN "uploaded_on" SET DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE IF EXISTS "public"."directus_files" DROP COLUMN IF EXISTS "created_on" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_files" DROP COLUMN IF EXISTS "focal_point_x" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_files" DROP COLUMN IF EXISTS "focal_point_y" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_files" DROP COLUMN IF EXISTS "tus_id" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_files" DROP COLUMN IF EXISTS "tus_data" CASCADE; --WARN: Drop column can occure in data loss!
+
+--- END ALTER TABLE "public"."directus_files" ---
+
+--- BEGIN ALTER TABLE "public"."directus_activity" ---
+
+ALTER TABLE IF EXISTS "public"."directus_activity"
+	 --WARN: Change column data type can occure in a casting error, the suggested casting expression is the default one and may not fit your needs!,
+	ALTER COLUMN "user_agent" SET DATA TYPE varchar(255) USING "user_agent"::varchar(255);
+
+--- END ALTER TABLE "public"."directus_activity" ---
+
+--- BEGIN ALTER TABLE "public"."directus_permissions" ---
+
+ALTER TABLE IF EXISTS "public"."directus_permissions" ADD COLUMN IF NOT EXISTS "role" uuid NULL  ;
+
+COMMENT ON COLUMN "public"."directus_permissions"."role"  IS NULL;
+
+UPDATE "public"."directus_permissions" SET "role" = "policy";
+
+ALTER TABLE IF EXISTS "public"."directus_permissions" DROP COLUMN IF EXISTS "policy" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_permissions" ADD CONSTRAINT "directus_permissions_role_foreign" FOREIGN KEY (role) REFERENCES directus_roles(id) ON DELETE CASCADE;
+
+COMMENT ON CONSTRAINT "directus_permissions_role_foreign" ON "public"."directus_permissions" IS NULL;
+
+ALTER TABLE IF EXISTS "public"."directus_permissions" DROP CONSTRAINT IF EXISTS "directus_permissions_policy_foreign";
+
+--- END ALTER TABLE "public"."directus_permissions" ---
+
+--- BEGIN ALTER TABLE "public"."directus_webhooks" ---
+
+ALTER TABLE IF EXISTS "public"."directus_webhooks" DROP COLUMN IF EXISTS "was_active_before_deprecation" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_webhooks" DROP COLUMN IF EXISTS "migrated_flow" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_webhooks" DROP CONSTRAINT IF EXISTS "directus_webhooks_migrated_flow_foreign";
+
+--- END ALTER TABLE "public"."directus_webhooks" ---
+
+--- BEGIN ALTER TABLE "public"."directus_panels" ---
+
+ALTER TABLE IF EXISTS "public"."directus_panels"
+	 --WARN: Change column data type can occure in a casting error, the suggested casting expression is the default one and may not fit your needs!,
+	ALTER COLUMN "icon" SET DATA TYPE varchar(30) USING "icon"::varchar(30);
+
+--- END ALTER TABLE "public"."directus_panels" ---
+
+--- BEGIN ALTER TABLE "public"."directus_presets" ---
+
+ALTER TABLE IF EXISTS "public"."directus_presets"
+	 --WARN: Change column data type can occure in a casting error, the suggested casting expression is the default one and may not fit your needs!,
+	ALTER COLUMN "icon" SET DATA TYPE varchar(30) USING "icon"::varchar(30);
+
+--- END ALTER TABLE "public"."directus_presets" ---
+
+--- BEGIN ALTER TABLE "public"."directus_sessions" ---
+
+ALTER TABLE IF EXISTS "public"."directus_sessions"
+	 --WARN: Change column data type can occure in a casting error, the suggested casting expression is the default one and may not fit your needs!,
+	ALTER COLUMN "user_agent" SET DATA TYPE varchar(255) USING "user_agent"::varchar(255);
+
+ALTER TABLE IF EXISTS "public"."directus_sessions" DROP COLUMN IF EXISTS "next_token" CASCADE; --WARN: Drop column can occure in data loss!
+
+--- END ALTER TABLE "public"."directus_sessions" ---
+
+--- BEGIN ALTER TABLE "public"."directus_settings" ---
+
+ALTER TABLE IF EXISTS "public"."directus_settings" DROP COLUMN IF EXISTS "report_error_url" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_settings" DROP COLUMN IF EXISTS "report_bug_url" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_settings" DROP COLUMN IF EXISTS "report_feature_url" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_settings" DROP COLUMN IF EXISTS "public_registration" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_settings" DROP COLUMN IF EXISTS "public_registration_verify_email" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_settings" DROP COLUMN IF EXISTS "public_registration_role" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_settings" DROP COLUMN IF EXISTS "public_registration_email_filter" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_settings" DROP CONSTRAINT IF EXISTS "directus_settings_public_registration_role_foreign";
+
+--- END ALTER TABLE "public"."directus_settings" ---
+
+--- BEGIN ALTER TABLE "public"."directus_extensions" ---
+
+ALTER TABLE IF EXISTS "public"."directus_extensions" ADD COLUMN IF NOT EXISTS "name" varchar(255) NOT NULL  ; --WARN: Add a new column not nullable without a default value can occure in a sql error during execution!
+
+COMMENT ON COLUMN "public"."directus_extensions"."name"  IS NULL;
+
+ALTER TABLE IF EXISTS "public"."directus_extensions" DROP COLUMN IF EXISTS "id" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_extensions" DROP COLUMN IF EXISTS "folder" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_extensions" DROP COLUMN IF EXISTS "source" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_extensions" DROP COLUMN IF EXISTS "bundle" CASCADE; --WARN: Drop column can occure in data loss!
+
+ALTER TABLE IF EXISTS "public"."directus_extensions" DROP CONSTRAINT IF EXISTS "directus_extensions_pkey";
+
+ALTER TABLE IF EXISTS "public"."directus_extensions" ADD CONSTRAINT "directus_extensions_pkey" PRIMARY KEY (name);
+
+COMMENT ON CONSTRAINT "directus_extensions_pkey" ON "public"."directus_extensions" IS NULL;
+
+--- END ALTER TABLE "public"."directus_extensions" ---
+
+--- BEGIN DROP TABLE "public"."directus_access" ---
+
+DROP TABLE IF EXISTS "public"."directus_access";
+
+--- END DROP TABLE "public"."directus_access" ---
+
+--- BEGIN DROP TABLE "public"."directus_policies" ---
+
+DROP TABLE IF EXISTS "public"."directus_policies";
+
+--- END DROP TABLE "public"."directus_policies" ---
+
+--- BEGIN SYNCHRONIZE TABLE "public"."directus_migrations" RECORDS ---
+
+DELETE FROM "public"."directus_migrations" WHERE "version" = '20231215A';
+
+DELETE FROM "public"."directus_migrations" WHERE "version" = '20240122A';
+
+DELETE FROM "public"."directus_migrations" WHERE "version" = '20240204A';
+
+DELETE FROM "public"."directus_migrations" WHERE "version" = '20240305A';
+
+DELETE FROM "public"."directus_migrations" WHERE "version" = '20240311A';
+
+DELETE FROM "public"."directus_migrations" WHERE "version" = '20240422A';
+
+DELETE FROM "public"."directus_migrations" WHERE "version" = '20240515A';
+
+DELETE FROM "public"."directus_migrations" WHERE "version" = '20240701A';
+
+DELETE FROM "public"."directus_migrations" WHERE "version" = '20240716A';
+
+DELETE FROM "public"."directus_migrations" WHERE "version" = '20240806A';
+
+DELETE FROM "public"."directus_migrations" WHERE "version" = '20240817A';
+
+--- END SYNCHRONIZE TABLE "public"."directus_migrations" RECORDS ---
