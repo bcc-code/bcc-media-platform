@@ -4,4 +4,4 @@ package unleash
 //
 // Started: 20.9.2024
 // To be Removed Latest: 20.12.2024
-const ShortsWithScores = "shorts-with-scores"
+const ShortsWithScores = "shorts-with-scores:enabled"
