@@ -23,7 +23,7 @@ func ApplicationMiddleware(
 ) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		applicationCode := ctx.GetHeader("X-Application")
-		applicationCode = ApplicationCodeMapping(applicationCode)
+		applicationCode = mapApplicationCode(applicationCode)
 		app := applicationParser(ctx, applicationCode)
 		if app == nil {
 			// Means that this is not implemented. Just ignore
@@ -35,7 +35,7 @@ func ApplicationMiddleware(
 }
 
 // Support app version with old application name kids
-func ApplicationCodeMapping(applicationCode string) string {
+func mapApplicationCode(applicationCode string) string {
 	if applicationCode == "kids" {
 		return "kids-mobile"
 	}
