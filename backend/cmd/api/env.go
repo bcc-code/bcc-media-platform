@@ -6,6 +6,8 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"github.com/bcc-code/bcc-media-platform/backend/email"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
+	"github.com/joho/godotenv"
 	"os"
 	"strings"
 
@@ -53,7 +55,7 @@ var environment = env(os.Getenv("ENVIRONMENT"))
 type envConfig struct {
 	Members       members.Config
 	DB            utils.DatabaseConfig
-	Algolia       search.Config
+	Search        search.Config
 	Port          string
 	Auth0         auth0.Config
 	CDNConfig     cdnConfig
@@ -155,6 +157,11 @@ func (a awsConfig) GetTempStorageBucket() string {
 }
 
 func getEnvConfig() envConfig {
+	err := godotenv.Load("backend/cmd/api/.env")
+	if err == nil {
+		log.L.Warn().Msg("Loaded .env file")
+	}
+
 	aud := lo.Map(strings.Split(os.Getenv("AUTH0_AUDIENCES"), ","),
 		func(s string, _ int) string {
 			return strings.TrimSpace(s)
@@ -181,9 +188,16 @@ func getEnvConfig() envConfig {
 			Region:     os.Getenv("AWS_DEFAULT_REGION"),
 		},
 		Port: os.Getenv("PORT"),
-		Algolia: search.Config{
-			AppID:  os.Getenv("ALGOLIA_APP_ID"),
-			APIKey: os.Getenv("ALGOLIA_API_KEY"),
+		Search: search.Config{
+			Algolia: search.AlgoliaConfig{
+				AppID:  os.Getenv("ALGOLIA_APP_ID"),
+				APIKey: os.Getenv("ALGOLIA_API_KEY"),
+			},
+			Elastic: search.ElasticConfig{
+				URL:      os.Getenv("ELASTIC_URL"),
+				Username: os.Getenv("ELASTIC_USERNAME"),
+				Password: os.Getenv("ELASTIC_PASSWORD"),
+			},
 		},
 		CDNConfig: cdnConfig{
 			ImageCDNDomain:    os.Getenv("IMAGE_CDN_DOMAIN"),

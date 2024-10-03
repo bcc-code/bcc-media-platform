@@ -60,8 +60,10 @@ func gqlSeasonFromSearchResultItem(i common.SearchResultItem) model.SeasonSearch
 		URL:         i.Url,
 		Show:        show,
 		ShowID:      showID,
-		ShowTitle:   *i.Show,
-		AgeRating:   ageRating,
+
+		// TODO: Fix
+		ShowTitle: "", //*i.Show,
+		AgeRating: ageRating,
 	}
 }
 
@@ -159,7 +161,7 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 		return nil, err
 	}
 
-	searchResult, err := r.SearchService.Search(ginCtx, common.SearchQuery{
+	searchResult, err := r.SearchService.SearchElastic(ginCtx, common.SearchQuery{
 		Query:    queryString,
 		Limit:    first,
 		Offset:   offset,
