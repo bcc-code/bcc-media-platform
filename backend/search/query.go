@@ -2,12 +2,14 @@ package search
 
 import (
 	"bytes"
+	"context"
 	"embed"
 	"encoding/json"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/gin-gonic/gin"
 	"html/template"
 	"strconv"
@@ -201,19 +203,14 @@ var typeToIndexMap = map[string]string{
 	"episode": "episodes",
 	"season":  "seasons",
 	"show":    "shows",
+	"":        "*",
+	"any":     "*",
 }
 
-// SearchElastic sends a search query to the engine and returns related results
-func (service *Service) SearchElastic(ctx *gin.Context, query common.SearchQuery, userToken string) (searchResult common.SearchResult, err error) {
-	roles := user.GetRolesFromCtx(ctx)
-
-	if len(roles) == 0 {
-		return
-	}
-
-	languages := user.GetLanguagesFromCtx(ctx)
-
+// doElasticSearch is it's own function so that we don't have to deal with gin.Context when testing.
+func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, query common.SearchQuery, roles []string, languages []string) (common.SearchResult, error) {
 	now := time.Now().Unix()
+
 	templateParams := &elasticQueryParams{
 		Roles:       roles,
 		QueryString: query.Query,
@@ -231,7 +228,11 @@ func (service *Service) SearchElastic(ctx *gin.Context, query common.SearchQuery
 	}
 
 	jsonQuery := &bytes.Buffer{}
-	err = templates.ExecuteTemplate(jsonQuery, "main-elastic.json.tmpl", templateParams)
+
+	err := templates.ExecuteTemplate(jsonQuery, "main-elastic.json.tmpl", templateParams)
+
+	searchResult := common.SearchResult{}
+
 	if err != nil {
 		log.L.Error().Err(err).Send()
 		return common.SearchResult{}, err
@@ -239,7 +240,12 @@ func (service *Service) SearchElastic(ctx *gin.Context, query common.SearchQuery
 
 	log.L.Debug().Str("query", jsonQuery.String()).Send()
 
-	qResult, err := service.elasticClient.Search().Index(typeToIndexMap[*query.Type]).Raw(jsonQuery).Do(ctx)
+	indexName := "*"
+	if query.Type != nil {
+		indexName = typeToIndexMap[*query.Type]
+	}
+
+	qResult, err := client.Search().Index(indexName).Raw(jsonQuery).Do(ctx)
 	if err != nil {
 		log.L.Error().Err(err).Send()
 		return common.SearchResult{}, err
@@ -254,21 +260,19 @@ func (service *Service) SearchElastic(ctx *gin.Context, query common.SearchQuery
 		obj := &searchObject{}
 		err = json.Unmarshal(rawHit.Source_, obj)
 		if err != nil {
-			return
+			return searchResult, err
 		}
 
-		hit, e := obj.toSearchHit()
-		if e != nil {
-			err = e
-			return
+		hit, err := obj.toSearchHit()
+		if err != nil {
+			return searchResult, err
 		}
 
 		parts := strings.Split(*rawHit.Id_, "-")
 		model := parts[0]
-		id, e := strconv.ParseInt(parts[1], 0, 64)
-		if e != nil {
-			err = e
-			return
+		id, err := strconv.ParseInt(parts[1], 0, 64)
+		if err != nil {
+			return searchResult, err
 		}
 
 		//if query.MinScore != nil {
@@ -334,5 +338,19 @@ func (service *Service) SearchElastic(ctx *gin.Context, query common.SearchQuery
 		searchResult.ResultCount++
 		searchResult.Result = append(searchResult.Result, item)
 	}
-	return
+
+	return searchResult, err
+}
+
+// SearchElastic sends a search query to the engine and returns related results
+func (service *Service) SearchElastic(ctx *gin.Context, query common.SearchQuery, userToken string) (searchResult common.SearchResult, err error) {
+	roles := user.GetRolesFromCtx(ctx)
+
+	if len(roles) == 0 {
+		return
+	}
+
+	languages := user.GetLanguagesFromCtx(ctx)
+
+	return doElasticSearch(ctx, service.elasticClient, query, roles, languages)
 }

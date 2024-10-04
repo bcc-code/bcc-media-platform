@@ -73,26 +73,30 @@ type Service struct {
 	loaders       batchLoaders
 }
 
-// New creates a new instance of the search service
-func New(queries *sqlc.Queries, config Config) *Service {
+func newElasticClient(ctx context.Context, config ElasticConfig) *elasticsearch.TypedClient {
 	elasticClient, err := elasticsearch.NewTypedClient(elasticsearch.Config{
-		Addresses: []string{
-			config.Elastic.URL,
-		},
-		Username: config.Elastic.Username,
-		Password: config.Elastic.Password,
+		Addresses: []string{config.URL},
+		Username:  config.Username,
+		Password:  config.Password,
 	})
 
 	if err != nil {
 		log.L.Fatal().Msgf("Failed to load elasticsearch client: %v", err)
 	}
 
-	ctx := context.Background()
-
 	_, err = elasticClient.Ping().Do(ctx)
 	if err != nil {
 		log.L.Fatal().Msgf("Failed to load elasticsearch client: %v", err)
 	}
+
+	return elasticClient
+}
+
+// New creates a new instance of the search service
+func New(queries *sqlc.Queries, config Config) *Service {
+	ctx := context.Background()
+
+	elasticClient := newElasticClient(ctx, config.Elastic)
 
 	service := Service{
 		algoliaClient: search.NewClient(config.Algolia.AppID, config.Algolia.APIKey),
