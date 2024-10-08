@@ -2,6 +2,7 @@ package search
 
 import (
 	"context"
+	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -12,16 +13,17 @@ import (
 	"github.com/orsinium-labs/enum"
 	"github.com/samber/lo"
 	"strconv"
+	"strings"
 )
 
-const tempIndexName = "temp"
+const tempIndexName = "bccm-temp"
 
 type elasticIndex enum.Member[string]
 
 var (
-	IndexShows    = elasticIndex{"shows"}
-	IndexSeasons  = elasticIndex{"seasons"}
-	IndexEpisodes = elasticIndex{"episodes"}
+	IndexShows    = elasticIndex{"bccm-shows"}
+	IndexSeasons  = elasticIndex{"bccm-seasons"}
+	IndexEpisodes = elasticIndex{"bccm-episodes"}
 	Indices       = enum.New(IndexShows, IndexSeasons, IndexEpisodes)
 )
 
@@ -48,7 +50,6 @@ func (service *Service) ReindexElastic(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-
 	log.L.Debug().Str("collection", "shows").Msg("Indexing")
 	err = indexCollectionElastic[int, common.Show](
 		ctx,
@@ -83,7 +84,7 @@ func (service *Service) ReindexElastic(ctx context.Context) error {
 		service.elasticClient,
 		IndexEpisodes,
 		service.loaders.EpisodeLoader,
-		service.loaders.SeasonPermissionLoader,
+		service.loaders.EpisodePermissionLoader,
 		service.queries.ListEpisodes,
 		service.episodeToSearchItem,
 	)
@@ -94,8 +95,7 @@ func (service *Service) ReindexElastic(ctx context.Context) error {
 	return nil
 }
 
-/*
-// Reindex every supported collection
+// Reindex every supported collection with Algolia
 func (service *Service) Reindex(ctx context.Context) error {
 	res, err := service.algoliaClient.CopyIndex(indexName, tempIndexName)
 	if err != nil {
@@ -190,7 +190,6 @@ func (service *Service) Reindex(ctx context.Context) error {
 	}
 	return res.Wait()
 }
-*/
 
 func (service *Service) indexShows(ctx context.Context, index *search.Index) error {
 	return indexCollection[int, common.Show](
@@ -213,7 +212,11 @@ func (service *Service) indexShow(ctx context.Context, id int) error {
 		return err
 	}
 
-	indexObjectElastic[int, common.Show](ctx, service, IndexShows, *i, p, service.showToSearchItem)
+	err = indexObjectElastic[int, common.Show](ctx, service, IndexShows, *i, p, service.showToSearchItem)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Could not index show in elastic")
+	}
+
 	return indexObject[int, common.Show](ctx, service, *i, p, service.showToSearchItem)
 }
 
@@ -238,7 +241,10 @@ func (service *Service) indexSeason(ctx context.Context, id int) error {
 		return err
 	}
 
-	indexObjectElastic[int, common.Season](ctx, service, IndexSeasons, *i, p, service.seasonToSearchItem)
+	err = indexObjectElastic[int, common.Season](ctx, service, IndexSeasons, *i, p, service.seasonToSearchItem)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Could not index season in elastic")
+	}
 	return indexObject[int, common.Season](ctx, service, *i, p, service.seasonToSearchItem)
 }
 

@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"strings"
@@ -235,6 +236,11 @@ func main() {
 	flag.Parse()
 	projectId := "btv-platform-prod-2"
 	topicId := "background_worker"
+
+	err := godotenv.Load("backend/cmd/pubsub-helper/.env")
+	if err == nil {
+		log.Println("Loaded .env file")
+	}
 
 	if host != nil && *host != "" {
 		log.Default().Println("Setting host")

@@ -194,6 +194,9 @@ func getEnvConfig() envConfig {
 				APIKey: os.Getenv("ALGOLIA_API_KEY"),
 			},
 			Elastic: search.ElasticConfig{
+				CloudID: os.Getenv("ELASTIC_CLOUDID"),
+				ApiKey:  os.Getenv("ELASTIC_APIKEY"),
+
 				URL:      os.Getenv("ELASTIC_URL"),
 				Username: os.Getenv("ELASTIC_USERNAME"),
 				Password: os.Getenv("ELASTIC_PASSWORD"),

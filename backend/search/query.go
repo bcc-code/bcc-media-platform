@@ -12,6 +12,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/gin-gonic/gin"
 	"html/template"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -200,14 +201,14 @@ type elasticQueryParams struct {
 }
 
 var typeToIndexMap = map[string]string{
-	"episode": "episodes",
-	"season":  "seasons",
-	"show":    "shows",
-	"":        "*",
-	"any":     "*",
+	"episode": "bccm-episodes",
+	"season":  "bccm-seasons",
+	"show":    "bccm-shows",
+	"":        "bccm-*",
+	"any":     "bccm-*",
 }
 
-// doElasticSearch is it's own function so that we don't have to deal with gin.Context when testing.
+// doElasticSearch is its own function so that we don't have to deal with gin.Context when testing.
 func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, query common.SearchQuery, roles []string, languages []string) (common.SearchResult, error) {
 	now := time.Now().Unix()
 
@@ -238,9 +239,7 @@ func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, que
 		return common.SearchResult{}, err
 	}
 
-	log.L.Debug().Str("query", jsonQuery.String()).Send()
-
-	indexName := "*"
+	indexName := "bccm-*"
 	if query.Type != nil {
 		indexName = typeToIndexMap[*query.Type]
 	}
@@ -252,8 +251,8 @@ func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, que
 	}
 
 	searchResult.HitCount = int(qResult.Hits.Total.Value)
-	searchResult.Page = 1
-	searchResult.PageCount = 2
+	searchResult.Page = int(math.Ceil(float64(templateParams.Offset) / float64(templateParams.Limit)))
+	searchResult.PageCount = int(qResult.Hits.Total.Value) / templateParams.Limit
 	searchResult.Result = []common.SearchResultItem{}
 
 	for _, rawHit := range qResult.Hits.Hits {
@@ -275,22 +274,14 @@ func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, que
 			return searchResult, err
 		}
 
-		//if query.MinScore != nil {
-		//if hit.RankingInfo.UserScore < *query.MinScore {
-		//	continue
-		//}
-		//}
-
-		// TODO: Implement permission checking here as well
-		//if !hasAccess() {
-		//	continue
-		//}
-
 		item := common.SearchResultItem{
 			ID:         int(id),
 			Collection: model,
 		}
+
 		/*
+			// Unsure if this is needed in the short term, I don't know of any place this is used actively
+
 			for _, opts := range hit.HighlightResult {
 				values := opts.(map[string]interface{})
 				if matchLevel := values["matchLevel"]; matchLevel != nil && matchLevel != "none" {

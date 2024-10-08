@@ -52,7 +52,11 @@ type AlgoliaConfig struct {
 }
 
 // ElasticConfig contains configuration options for the service
+// If CloudID is defined it takes precedence above URL
 type ElasticConfig struct {
+	CloudID string
+	ApiKey  string
+
 	URL      string
 	Username string
 	Password string
@@ -74,19 +78,31 @@ type Service struct {
 }
 
 func newElasticClient(ctx context.Context, config ElasticConfig) *elasticsearch.TypedClient {
-	elasticClient, err := elasticsearch.NewTypedClient(elasticsearch.Config{
-		Addresses: []string{config.URL},
-		Username:  config.Username,
-		Password:  config.Password,
-	})
+
+	var elasticConfig elasticsearch.Config
+
+	if config.CloudID != "" {
+		elasticConfig = elasticsearch.Config{
+			CloudID: config.CloudID,
+			APIKey:  config.ApiKey,
+		}
+	} else {
+		elasticConfig = elasticsearch.Config{
+			Addresses: []string{config.URL},
+			Username:  config.Username,
+			Password:  config.Password,
+		}
+	}
+
+	elasticClient, err := elasticsearch.NewTypedClient(elasticConfig)
 
 	if err != nil {
-		log.L.Fatal().Msgf("Failed to load elasticsearch client: %v", err)
+		log.L.Fatal().Msgf("Failed to create elasticsearch client: %v", err)
 	}
 
 	_, err = elasticClient.Ping().Do(ctx)
 	if err != nil {
-		log.L.Fatal().Msgf("Failed to load elasticsearch client: %v", err)
+		log.L.Fatal().Msgf("Failed to ping elasticsearch: %v", err)
 	}
 
 	return elasticClient

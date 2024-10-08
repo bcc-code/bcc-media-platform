@@ -5,6 +5,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
+	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"strconv"
 )
@@ -161,13 +162,27 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 		return nil, err
 	}
 
-	searchResult, err := r.SearchService.SearchElastic(ginCtx, common.SearchQuery{
-		Query:    queryString,
-		Limit:    first,
-		Offset:   offset,
-		Type:     typeArg,
-		MinScore: minScore,
-	}, r.AnalyticsIDFactory(ctx))
+	flags := utils.GetFeatureFlags(ginCtx)
+	var searchResult common.SearchResult
+
+	if flags.Has(unleash.ElasticSearchEnabled) {
+		searchResult, err = r.SearchService.SearchElastic(ginCtx, common.SearchQuery{
+			Query:    queryString,
+			Limit:    first,
+			Offset:   offset,
+			Type:     typeArg,
+			MinScore: minScore,
+		}, r.AnalyticsIDFactory(ctx))
+	} else {
+		searchResult, err = r.SearchService.Search(ginCtx, common.SearchQuery{
+			Query:    queryString,
+			Limit:    first,
+			Offset:   offset,
+			Type:     typeArg,
+			MinScore: minScore,
+		}, r.AnalyticsIDFactory(ctx))
+	}
+
 	if err != nil {
 		return nil, err
 	}
