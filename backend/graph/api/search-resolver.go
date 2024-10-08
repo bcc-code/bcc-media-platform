@@ -132,8 +132,6 @@ func gqlEpisodeFromSearchResultItem(i common.SearchResultItem) model.EpisodeSear
 func convertToGQL(items []common.SearchResultItem) []model.SearchResultItem {
 	var results []model.SearchResultItem
 	for _, i := range items {
-		//TODO: Do we need to filter on permissions again?
-		//Search is usually quicker to index, and respect roles and permissions on search.
 		switch i.Collection {
 		case "shows":
 			item := gqlShowFromSearchResultItem(i)

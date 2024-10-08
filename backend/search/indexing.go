@@ -451,14 +451,21 @@ var supportedCollections = []string{
 }
 
 // DeleteModel from index by collection and id
-func (service *Service) DeleteModel(_ context.Context, collection string, key string) error {
+func (service *Service) DeleteModel(ctx context.Context, collection string, key string) error {
 	if !lo.Contains(supportedCollections, collection) {
 		// no reason to send a request if the collection isn't supported
 		return nil
 	}
 
-	// TODO: Implement for elastic
 	_, err := service.index.DeleteObject(collection + "-" + key)
+	if err != nil {
+		return err
+	}
+
+	if index, ok := typeToIndexMap[collection]; ok {
+		_, err = service.elasticClient.Delete(index, collection+"-"+key).Do(ctx)
+	}
+
 	return err
 }
 
