@@ -165,6 +165,7 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 	flags := utils.GetFeatureFlags(ginCtx)
 	var searchResult common.SearchResult
 
+	searchProvider := "unknown"
 	if flags.Has(unleash.ElasticSearchEnabled) {
 		searchResult, err = r.SearchService.SearchElastic(ginCtx, common.SearchQuery{
 			Query:    queryString,
@@ -173,6 +174,7 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 			Type:     typeArg,
 			MinScore: minScore,
 		}, r.AnalyticsIDFactory(ctx))
+		searchProvider = "elastic"
 	} else {
 		searchResult, err = r.SearchService.Search(ginCtx, common.SearchQuery{
 			Query:    queryString,
@@ -181,6 +183,7 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 			Type:     typeArg,
 			MinScore: minScore,
 		}, r.AnalyticsIDFactory(ctx))
+		searchProvider = "algolia"
 	}
 
 	if err != nil {
@@ -188,8 +191,9 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 	}
 
 	return &model.SearchResult{
-		Result: convertToGQL(searchResult.Result),
-		Page:   searchResult.Page,
-		Hits:   searchResult.HitCount,
+		Result:         convertToGQL(searchResult.Result),
+		Page:           searchResult.Page,
+		Hits:           searchResult.HitCount,
+		SearchProvider: searchProvider,
 	}, nil
 }
