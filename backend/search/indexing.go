@@ -269,7 +269,10 @@ func (service *Service) indexEpisode(ctx context.Context, id int) error {
 		return err
 	}
 
-	indexObjectElastic[int, common.Episode](ctx, service, IndexEpisodes, *i, p, service.episodeToSearchItem)
+	err = indexObjectElastic[int, common.Episode](ctx, service, IndexEpisodes, *i, p, service.episodeToSearchItem)
+	if err != nil {
+		log.L.Error().Err(err).Msg("Could not index episode in elastic")
+	}
 	return indexObject[int, common.Episode](ctx, service, *i, p, service.episodeToSearchItem)
 }
 

@@ -1061,9 +1061,10 @@ type RedirectParam struct {
 }
 
 type SearchResult struct {
-	Hits   int                `json:"hits"`
-	Page   int                `json:"page"`
-	Result []SearchResultItem `json:"result"`
+	Hits           int                `json:"hits"`
+	Page           int                `json:"page"`
+	Result         []SearchResultItem `json:"result"`
+	SearchProvider string             `json:"searchProvider"`
 }
 
 type Season struct {
