@@ -61,10 +61,8 @@ func gqlSeasonFromSearchResultItem(i common.SearchResultItem) model.SeasonSearch
 		URL:         i.Url,
 		Show:        show,
 		ShowID:      showID,
-
-		// TODO: Fix
-		ShowTitle: "", //*i.Show,
-		AgeRating: ageRating,
+		ShowTitle:   *i.Show,
+		AgeRating:   ageRating,
 	}
 }
 
