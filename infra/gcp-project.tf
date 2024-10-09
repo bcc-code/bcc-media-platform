@@ -13,7 +13,7 @@ resource "google_project_iam_binding" "project-owners" {
   members = [
     "user:matjaz.debelak@bcc.media",
     "user:andreas.gangso@bcc.media",
-    "user:fredrik.vedvik@bcc.media",
+    "user:sigve.hansen@bcc.media",
   ]
 }
 
@@ -122,4 +122,3 @@ data "google_iam_policy" "noauth" {
     ]
   }
 }
-

@@ -334,8 +334,8 @@ resource "aws_iam_policy" "imgix-bucket-access" {
           "s3:ListBucket"
         ],
         "Resource": [
-          "arn:aws:s3:::bccm-directus-storage-prod/*",
-          "arn:aws:s3:::bccm-directus-storage-prod"
+          "arn:aws:s3:::${aws_s3_bucket.s3-directus-storage.bucket}/*",
+          "arn:aws:s3:::${aws_s3_bucket.s3-directus-storage.bucket}"
         ]
       }
     ]
@@ -388,8 +388,8 @@ resource "aws_iam_policy" "directus-bucket-access" {
           "s3:*"
         ],
         "Resource": [
-          "arn:aws:s3:::bccm-directus-storage-prod",
-          "arn:aws:s3:::bccm-directus-storage-prod/*"
+          "arn:aws:s3:::${aws_s3_bucket.s3-directus-storage.bucket}/*",
+          "arn:aws:s3:::${aws_s3_bucket.s3-directus-storage.bucket}"
         ]
       }
     ]
