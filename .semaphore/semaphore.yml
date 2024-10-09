@@ -58,7 +58,7 @@ blocks:
             - cp version.json ./backend
             - CGO_ENABLED=0 go build -v -o ./backend/bin ./backend/cmd/api
             - cd ./backend
-            - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_BRANCH//\\//_} .'
+            - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_BRANCH//\//_} .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_SHA:0:7}"'
             - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_BRANCH//\\//_}"
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_SHA:0:7}" > api.txt'
