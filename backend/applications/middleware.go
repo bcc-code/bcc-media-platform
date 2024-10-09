@@ -3,6 +3,7 @@ package applications
 import (
 	"context"
 	"fmt"
+
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
@@ -22,7 +23,7 @@ func ApplicationMiddleware(
 ) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		applicationCode := ctx.GetHeader("X-Application")
-
+		applicationCode = mapApplicationCode(applicationCode)
 		app := applicationParser(ctx, applicationCode)
 		if app == nil {
 			// Means that this is not implemented. Just ignore
@@ -31,6 +32,14 @@ func ApplicationMiddleware(
 
 		ctx.Set(CtxApp, app)
 	}
+}
+
+// Support app version with old application name kids
+func mapApplicationCode(applicationCode string) string {
+	if applicationCode == "kids" {
+		return "kids-mobile"
+	}
+	return applicationCode
 }
 
 // GetFromCtx returns the stored application object from context
