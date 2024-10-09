@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS "public"."directus_policies" (
 	"enforce_tfa" bool NOT NULL DEFAULT false ,
 	"admin_access" bool NOT NULL DEFAULT false ,
 	"app_access" bool NOT NULL DEFAULT false ,
-	CONSTRAINT "directus_policies_pkey" PRIMARY KEY (id) 
+	CONSTRAINT "directus_policies_pkey" PRIMARY KEY (id)
 );
 ALTER TABLE IF EXISTS "public"."directus_policies" OWNER TO manager;
 GRANT SELECT ON TABLE "public"."directus_policies" TO directus;
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS "public"."directus_access" (
 	CONSTRAINT "directus_access_pkey" PRIMARY KEY (id) ,
 	CONSTRAINT "directus_access_role_foreign" FOREIGN KEY (role) REFERENCES directus_roles(id) ON DELETE CASCADE ,
 	CONSTRAINT "directus_access_user_foreign" FOREIGN KEY ("user") REFERENCES directus_users(id) ON DELETE CASCADE ,
-	CONSTRAINT "directus_access_policy_foreign" FOREIGN KEY (policy) REFERENCES directus_policies(id) ON DELETE CASCADE 
+	CONSTRAINT "directus_access_policy_foreign" FOREIGN KEY (policy) REFERENCES directus_policies(id) ON DELETE CASCADE
 );
 ALTER TABLE IF EXISTS "public"."directus_access" OWNER TO manager;
 GRANT SELECT ON TABLE "public"."directus_access" TO directus; --WARN: Grant\Revoke privileges to a role can occure in a sql error during execution if role is missing to the target database!
@@ -181,6 +181,9 @@ ALTER TABLE IF EXISTS "public"."directus_presets"
 	ALTER COLUMN "icon" SET DATA TYPE varchar(64) USING "icon"::varchar(64);
 --- END ALTER TABLE "public"."directus_presets" ---
 
+-- This table is automatically populated by Directus so we can truncate it to prevent errors
+TRUNCATE "public"."directus_extensions";
+
 --- BEGIN ALTER TABLE "public"."directus_extensions" ---
 ALTER TABLE IF EXISTS "public"."directus_extensions" ADD COLUMN IF NOT EXISTS "id" uuid NOT NULL  ; --WARN: Add a new column not nullable without a default value can occure in a sql error during execution!
 COMMENT ON COLUMN "public"."directus_extensions"."id"  IS NULL;
@@ -244,25 +247,25 @@ ALTER TABLE IF EXISTS "public"."directus_roles" ADD COLUMN IF NOT EXISTS "app_ac
 COMMENT ON COLUMN "public"."directus_roles"."app_access"  IS NULL;
 
 -- Bccm note: Add back the values we dropped
-UPDATE "public"."directus_roles" SET 
+UPDATE "public"."directus_roles" SET
     "ip_access" = NULL,
     "enforce_tfa" = false,
     "admin_access" = true,
     "app_access" = true
 WHERE "id" = 'aeeb3066-3a3d-48d2-b922-8ea359d1fc16';
-UPDATE "public"."directus_roles" SET 
+UPDATE "public"."directus_roles" SET
     "ip_access" = NULL,
     "enforce_tfa" = false,
     "admin_access" = false,
     "app_access" = true
 WHERE "id" = '156d86ef-4c0e-4886-8bee-3a3c346fdb23';
-UPDATE "public"."directus_roles" SET 
+UPDATE "public"."directus_roles" SET
     "ip_access" = NULL,
     "enforce_tfa" = false,
     "admin_access" = false,
     "app_access" = true
 WHERE "id" = 'e3bf46db-28f3-4ce0-9999-2ab474d69e92';
-UPDATE "public"."directus_roles" SET 
+UPDATE "public"."directus_roles" SET
     "ip_access" = NULL,
     "enforce_tfa" = false,
     "admin_access" = false,
