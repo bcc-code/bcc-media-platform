@@ -134,6 +134,7 @@ resource "google_project_iam_binding" "cloudsql-client" {
     "serviceAccount:${google_service_account.background_worker.email}",
     "serviceAccount:${module.unleash.service-account.email}",
     "serviceAccount:${google_service_account.db_backup.email}",
+    "user:priscilla.mulunda@bcc.media",
   ]
 }
 

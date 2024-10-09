@@ -18,6 +18,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "btv-tempstorage-lifecycle" {
     expiration {
       days = 7
     }
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
   }
 }
 
