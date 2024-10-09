@@ -24,9 +24,9 @@ blocks:
             - make install
             - cache store node-$(checksum pnpm-lock.yaml) $(pnpm store path)
             - make build
-            - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:$SEMAPHORE_GIT_BRANCH .'
+            - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_BRANCH//\//_} .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_SHA:0:7}" '
-            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:$SEMAPHORE_GIT_BRANCH"
+            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_BRANCH//\\//_}"
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/cms:${SEMAPHORE_GIT_SHA:0:7}" > cms.txt'
             - artifact push workflow cms.txt
       prologue:
@@ -58,33 +58,33 @@ blocks:
             - cp version.json ./backend
             - CGO_ENABLED=0 go build -v -o ./backend/bin ./backend/cmd/api
             - cd ./backend
-            - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:$SEMAPHORE_GIT_BRANCH .'
+            - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_BRANCH//\//_} .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_SHA:0:7}"'
-            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:$SEMAPHORE_GIT_BRANCH"
+            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_BRANCH//\\//_}"
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/api:${SEMAPHORE_GIT_SHA:0:7}" > api.txt'
             - artifact push workflow api.txt
             - cd ..
             - CGO_ENABLED=0 go build -v -o ./backend/bin ./backend/cmd/jobs
             - cd ./backend
-            - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:$SEMAPHORE_GIT_BRANCH .'
+            - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_BRANCH//\//_} .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_SHA:0:7}"'
-            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:$SEMAPHORE_GIT_BRANCH"
+            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_BRANCH//\\//_}"
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/jobs:${SEMAPHORE_GIT_SHA:0:7}" > jobs.txt'
             - artifact push workflow jobs.txt
             - cd ..
             - CGO_ENABLED=0 go build -v -o ./backend/bin ./backend/cmd/rewriter
             - cd ./backend
-            - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:$SEMAPHORE_GIT_BRANCH .'
+            - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:${SEMAPHORE_GIT_BRANCH//\//_} .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:${SEMAPHORE_GIT_SHA:0:7}"'
-            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:$SEMAPHORE_GIT_BRANCH"
+            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:${SEMAPHORE_GIT_BRANCH//\\//_}"
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/rewriter:${SEMAPHORE_GIT_SHA:0:7}" > rewriter.txt'
             - artifact push workflow rewriter.txt
             - cd ..
             - CGO_ENABLED=0 go build -v -o ./backend/bin ./backend/cmd/videomanipulator
             - cd ./backend
-            - 'docker build -f Dockerfile.ffmpeg -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/videomanipulator:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/videomanipulator:$SEMAPHORE_GIT_BRANCH .'
+            - 'docker build -f Dockerfile.ffmpeg -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/videomanipulator:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/videomanipulator:${SEMAPHORE_GIT_BRANCH//\//_} .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/videomanipulator:${SEMAPHORE_GIT_SHA:0:7}"'
-            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/videomanipulator:$SEMAPHORE_GIT_BRANCH"
+            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/videomanipulator:${SEMAPHORE_GIT_BRANCH//\\//_}"
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/videomanipulator:${SEMAPHORE_GIT_SHA:0:7}" > videomanipulator.txt'
             - artifact push workflow videomanipulator.txt
       secrets:
@@ -100,9 +100,9 @@ blocks:
             - scripts/gen-version.sh
             - cp version.json ./migrations
             - cd migrations
-            - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:$SEMAPHORE_GIT_BRANCH .'
+            - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_BRANCH//\//_} .'
             - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_SHA:0:7}" '
-            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:$SEMAPHORE_GIT_BRANCH"
+            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_BRANCH//\\//_}"
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/migrations:${SEMAPHORE_GIT_SHA:0:7}"  > migrations.txt'
             - artifact push workflow migrations.txt
       secrets:

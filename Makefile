@@ -14,6 +14,7 @@ init:
 	cd ./cms && make init
 
 diff:
+	@if [ -z "${name}" ]; then echo "Add a name with make diff name=migration_name_here"; exit 1; fi
 	./scripts/db_diff.sh $(name)
 	cd ./backend && make ./sqlc/.generated
 
