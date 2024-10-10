@@ -136,7 +136,7 @@ type FilteredLoaders struct {
 	PromptIDsLoader       func(ctx context.Context) ([]uuid.UUID, error)
 	FAQCategoryIDsLoader  func(ctx context.Context) ([]uuid.UUID, error)
 	ShortIDsLoader        func(ctx context.Context) ([][]uuid.UUID, error)
-	ShortWithScoresLoader func(ctx context.Context) ([]uuid.UUID, error)
+	ShortWithScoresLoader func(ctx context.Context) ([]ShortIDWithMeta, error)
 }
 
 // ProfileLoaders contains loaders per profile
