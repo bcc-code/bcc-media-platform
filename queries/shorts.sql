@@ -17,6 +17,8 @@ SELECT s.id,
        -- We need a date and if we do not have a published_at date, we need to assume that the created date is when it was published
        EXTRACT(DAY FROM current_date - COALESCE(mi.published_at, mi.date_created)) age,
 
+       mi.parent_episode_id,
+
        -- For 10 days the shorts is boosted. It starts with a 5 points boost, and the boost "degrades" by 0.5
        -- points per day, reaching 0 boost on day 10. It stops there
     (((10 - LEAST(10, EXTRACT(DAY FROM current_date - COALESCE(mi.published_at, mi.date_created)))) * 0.5) + score)::float8 as final_score

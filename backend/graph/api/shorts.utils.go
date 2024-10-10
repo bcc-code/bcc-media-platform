@@ -70,7 +70,10 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 	if featureFlags.Has(unleash.ShortsWithScores) {
 		shortIDs, iErr := r.GetFilteredLoaders(ctx).ShortWithScoresLoader(ctx)
 		err = iErr
-		shortIDSegments = [][]uuid.UUID{shortIDs}
+
+		declumpedShortIds := declumpShorts(shortIDs, 5)
+
+		shortIDSegments = [][]uuid.UUID{declumpedShortIds}
 	} else {
 		shortIDSegments, err = r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
 	}
@@ -145,6 +148,26 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 		Keys:       keys,
 		NextCursor: nextCursor,
 	}, nil
+}
+
+// declumpShorts attempts to reduce the number of shorts from the same episode
+// by making sure there is only one from a given episode inside a "declumpingTreshold" window
+// in order to not have "clumps" of shorts that have material from the same episode
+func declumpShorts(shortIDs []common.ShortIDWithMeta, declumpingTreshold int) []uuid.UUID {
+	lastSeen := map[int64]int{}
+	var declumpedShortIds []uuid.UUID
+
+	for i, short := range shortIDs {
+		if short.ParentEpisodeID.Valid {
+			if lastIdx, ok := lastSeen[short.ParentEpisodeID.Int64]; ok && i-lastIdx < declumpingTreshold {
+				continue
+			}
+			lastSeen[short.ParentEpisodeID.Int64] = i
+		}
+		declumpedShortIds = append(declumpedShortIds, short.ID)
+	}
+
+	return declumpedShortIds
 }
 
 func (r *Resolver) shortIDsToMediaIDs(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
