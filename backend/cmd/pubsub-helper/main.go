@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"strings"
@@ -38,7 +39,7 @@ func create(projectID, topicID string) {
 	t, err := client.CreateSubscription(ctx, "bgjobs", pubsub.SubscriptionConfig{
 		Topic: topic,
 		PushConfig: pubsub.PushConfig{
-			Endpoint: "http://host.docker.internal:8078/api/message",
+			Endpoint: "http://10.12.129.50:8077/api/message",
 		},
 	})
 	if err != nil {
@@ -235,6 +236,11 @@ func main() {
 	flag.Parse()
 	projectId := "btv-platform-prod-2"
 	topicId := "background_worker"
+
+	err := godotenv.Load("backend/cmd/pubsub-helper/.env")
+	if err == nil {
+		log.Println("Loaded .env file")
+	}
 
 	if host != nil && *host != "" {
 		log.Default().Println("Setting host")

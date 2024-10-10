@@ -35,6 +35,9 @@ gql.admin:
 
 gql: gql.api gql.public gql.admin
 
+test.elastic:
+	go test ./search/... -elastic -v
+
 topic.create:
 	go run ./cmd/pubsub-helper -task create -host localhost:8681
 

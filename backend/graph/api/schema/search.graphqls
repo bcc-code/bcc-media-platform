@@ -66,4 +66,5 @@ type SearchResult {
     hits: Int!
     page: Int!
     result: [SearchResultItem!]!
+    searchProvider: String!
 }

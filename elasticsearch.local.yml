@@ -1,0 +1,3 @@
+http.cors.enabled: true 
+http.cors.allow-origin: "http://localhost:8080"
+http.cors.allow-headers: X-Requested-With,Content-Type,Content-Length,Authorization

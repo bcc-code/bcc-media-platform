@@ -52,6 +52,7 @@ type searchItem struct {
 	ShowTitle     *common.LocaleString
 	SeasonID      *int
 	SeasonTitle   *common.LocaleString
+	ElasticID     string `json:"_id"`
 }
 
 func (object searchObject) toSearchHit() (searchHit, error) {
