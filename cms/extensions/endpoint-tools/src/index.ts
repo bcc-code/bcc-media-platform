@@ -38,7 +38,10 @@ const postQuery = async (query: string, variables: any) => {
 
 const projectId = process.env.PUBSUB_PROJECT_ID
 const topicId = process.env.PUBSUB_TOPIC_ID
-const pubsub = new PubSub({ projectId })
+const pubsubEnabled = process.env.PUBSUB_ENABLED !== "false"
+const pubsub = pubsubEnabled ? new PubSub({
+    projectId,
+}) : null;
 
 const endpointConfig: EndpointConfig = {
     id: "tools",
@@ -180,7 +183,7 @@ const endpointConfig: EndpointConfig = {
                 return
             }
 
-            const topic = pubsub.topic(topicId!)
+            const topic = pubsub?.topic(topicId!)
 
             const event = new CloudEvent({
                 specversion: "1.0",
@@ -194,7 +197,7 @@ const endpointConfig: EndpointConfig = {
                 },
             })
 
-            await topic.publishMessage({
+            await topic?.publishMessage({
                 data: Buffer.from(JSON.stringify(event)),
             })
 
@@ -208,7 +211,7 @@ const endpointConfig: EndpointConfig = {
                 return
             }
 
-            const topic = pubsub.topic(topicId!)
+            const topic = pubsub?.topic(topicId!)
 
             const event = new CloudEvent({
                 specversion: "1.0",
@@ -218,7 +221,7 @@ const endpointConfig: EndpointConfig = {
                 datacontenttype: "application/json",
             })
 
-            await topic.publishMessage({
+            await topic?.publishMessage({
                 data: Buffer.from(JSON.stringify(event)),
             })
 
