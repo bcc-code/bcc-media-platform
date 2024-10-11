@@ -156,7 +156,7 @@ func (r Redirect) GetKey() uuid.UUID {
 // FinalScore - Final score of the short, with all adjustments
 type ShortIDWithMeta struct {
 	ID              uuid.UUID
-	Age             string
+	AgeInDays       int
 	ParentEpisodeID null.Int
 	FinalScore      float64
 }

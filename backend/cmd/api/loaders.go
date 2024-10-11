@@ -103,7 +103,7 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 				return lo.Map(rows, func(i sqlc.ListSegmentedShortIDsForRolesWithScoresRow, _ int) common.ShortIDWithMeta {
 					return common.ShortIDWithMeta{
 						ID:              i.ID,
-						Age:             i.Age,
+						AgeInDays:       int(i.AgeInDays),
 						ParentEpisodeID: i.ParentEpisodeID,
 						FinalScore:      i.FinalScore,
 					}

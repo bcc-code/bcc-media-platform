@@ -62,7 +62,7 @@ func (q *Queries) ListSegmentedShortIDsForRoles(ctx context.Context, roles []str
 const listSegmentedShortIDsForRolesWithScores = `-- name: ListSegmentedShortIDsForRolesWithScores :many
 SELECT s.id,
        -- We need a date and if we do not have a published_at date, we need to assume that the created date is when it was published
-       EXTRACT(DAY FROM current_date - COALESCE(mi.published_at, mi.date_created)) age,
+       EXTRACT(DAY FROM current_date - COALESCE(mi.published_at, mi.date_created))::int age_in_days,
 
        mi.parent_episode_id,
 
@@ -83,7 +83,7 @@ ORDER BY final_score DESC
 
 type ListSegmentedShortIDsForRolesWithScoresRow struct {
 	ID              uuid.UUID   `db:"id" json:"id"`
-	Age             string      `db:"age" json:"age"`
+	AgeInDays       int32       `db:"age_in_days" json:"ageInDays"`
 	ParentEpisodeID null_v4.Int `db:"parent_episode_id" json:"parentEpisodeId"`
 	FinalScore      float64     `db:"final_score" json:"finalScore"`
 }
@@ -99,7 +99,7 @@ func (q *Queries) ListSegmentedShortIDsForRolesWithScores(ctx context.Context, r
 		var i ListSegmentedShortIDsForRolesWithScoresRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.Age,
+			&i.AgeInDays,
 			&i.ParentEpisodeID,
 			&i.FinalScore,
 		); err != nil {
