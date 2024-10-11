@@ -34,10 +34,9 @@ SELECT e.id,
        mi.asset_date_updated,
        COALESCE(mi.agerating_code, e.agerating_code, s.agerating_code, 'A') as agerating,
        mi.audience,
-       mi.content_type,
-       mi.timedmetadata_ids
+       mi.content_type
 FROM episodes e
-         LEFT JOIN mediaitems_view mi ON mi.id = e.mediaitem_id
+         LEFT JOIN mediaitems_view_v2 mi ON mi.id = e.mediaitem_id
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN seasons s ON e.season_id = s.id
          LEFT JOIN shows sh ON s.show_id = sh.id
@@ -81,10 +80,9 @@ SELECT e.id,
        mi.asset_date_updated,
        COALESCE(mi.agerating_code, e.agerating_code, s.agerating_code, 'A') as agerating,
        mi.audience,
-       mi.content_type,
-       mi.timedmetadata_ids
+       mi.content_type
 FROM episodes e
-         LEFT JOIN mediaitems_by_episodes($1::int[]) mi ON mi.id = e.mediaitem_id
+         LEFT JOIN mediaitems_by_episodes_v2($1::int[]) mi ON mi.id = e.mediaitem_id
          LEFT JOIN ts ON e.id = ts.episodes_id
          LEFT JOIN seasons s ON e.season_id = s.id
          LEFT JOIN shows sh ON s.show_id = sh.id
