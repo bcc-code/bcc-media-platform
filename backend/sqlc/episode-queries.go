@@ -64,7 +64,6 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
 				return int(id)
 			}),
-			TimedMetadataIDs: e.TimedmetadataIds,
 		}
 	})
 }
@@ -121,7 +120,6 @@ func (q *Queries) mapListToEpisodes(episodes []listEpisodesRow) []common.Episode
 			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
 				return int(id)
 			}),
-			TimedMetadataIDs: e.TimedmetadataIds,
 		}
 	})
 }

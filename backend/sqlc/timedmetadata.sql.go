@@ -201,6 +201,116 @@ func (q *Queries) InsertTimedMetadata(ctx context.Context, arg InsertTimedMetada
 	return id, err
 }
 
+const getChaptesFromEpisode = `-- name: getChaptesFromEpisode :many
+SELECT
+    tm.id,
+    tm.type,
+    tm.episode_id,
+    tm.content_type,
+    tm.song_id,
+    (SELECT array_agg(c.person_id) FROM "contributions" c WHERE c.timedmetadata_id = tm.id)::uuid[] AS person_ids,
+    tm.title                                                  AS original_title,
+    tm.description                                            AS original_description,
+    COALESCE((SELECT json_object_agg(ts.languages_code, ts.title)
+              FROM timedmetadata_translations ts
+              WHERE ts.timedmetadata_id = tm.id), '{}')::json AS title,
+    COALESCE((SELECT json_object_agg(ts.languages_code, ts.description)
+              FROM timedmetadata_translations ts
+              WHERE ts.timedmetadata_id = tm.id), '{}')::json AS description,
+    tm.seconds,
+    tm.highlight,
+    tm.mediaitem_id,
+    COALESCE(images.images, '{}'::json)            AS images,
+    COALESCE((
+                 -- if there is a next timedmetadata, calculate the duration between the current and the next timedmetadata
+                 SELECT nextTm.seconds - tm.seconds
+                 FROM timedmetadata nextTm
+                 WHERE (nextTm.mediaitem_id = tm.mediaitem_id OR nextTm.asset_id = tm.asset_id)
+                   AND nextTm.seconds > tm.seconds
+                 ORDER BY nextTm.seconds
+                 LIMIT 1
+             ), (
+                 -- if there is no next timedmetadata, calculate the duration of the asset
+                 SELECT asset.duration - tm.seconds
+                 FROM assets asset
+                 WHERE asset.id = tm.asset_id
+                    OR asset.id = mi.asset_id
+                 LIMIT 1
+             ), 0)::float as duration
+FROM timedmetadata tm
+         LEFT JOIN public.episodes e on e.id = tm.episode_id
+         LEFT JOIN mediaitems mi ON (mi.id = tm.mediaitem_id)
+         LEFT JOIN (
+    SELECT
+        simg.timedmetadata_id,
+        json_agg(json_build_object('style', img.style, 'language', img.language, 'filename_disk', df.filename_disk)) AS images
+    FROM timedmetadata_styledimages simg
+             JOIN styledimages img ON (img.id = simg.styledimages_id)
+             JOIN directus_files df ON (img.file = df.id)
+    GROUP BY simg.timedmetadata_id
+) images ON (images.timedmetadata_id = tm.id)
+WHERE e.id= ANY($1::int[])
+  AND tm.status = 'published'
+  AND tm.type = 'chapter'
+`
+
+type getChaptesFromEpisodeRow struct {
+	ID                  uuid.UUID       `db:"id" json:"id"`
+	Type                string          `db:"type" json:"type"`
+	EpisodeID           null_v4.Int     `db:"episode_id" json:"episodeId"`
+	ContentType         null_v4.String  `db:"content_type" json:"contentType"`
+	SongID              uuid.NullUUID   `db:"song_id" json:"songId"`
+	PersonIds           []uuid.UUID     `db:"person_ids" json:"personIds"`
+	OriginalTitle       null_v4.String  `db:"original_title" json:"originalTitle"`
+	OriginalDescription null_v4.String  `db:"original_description" json:"originalDescription"`
+	Title               json.RawMessage `db:"title" json:"title"`
+	Description         json.RawMessage `db:"description" json:"description"`
+	Seconds             float32         `db:"seconds" json:"seconds"`
+	Highlight           bool            `db:"highlight" json:"highlight"`
+	MediaitemID         uuid.NullUUID   `db:"mediaitem_id" json:"mediaitemId"`
+	Images              json.RawMessage `db:"images" json:"images"`
+	Duration            float64         `db:"duration" json:"duration"`
+}
+
+func (q *Queries) getChaptesFromEpisode(ctx context.Context, episodeIds []int32) ([]getChaptesFromEpisodeRow, error) {
+	rows, err := q.db.QueryContext(ctx, getChaptesFromEpisode, pq.Array(episodeIds))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getChaptesFromEpisodeRow
+	for rows.Next() {
+		var i getChaptesFromEpisodeRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Type,
+			&i.EpisodeID,
+			&i.ContentType,
+			&i.SongID,
+			pq.Array(&i.PersonIds),
+			&i.OriginalTitle,
+			&i.OriginalDescription,
+			&i.Title,
+			&i.Description,
+			&i.Seconds,
+			&i.Highlight,
+			&i.MediaitemID,
+			&i.Images,
+			&i.Duration,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTimedMetadata = `-- name: getTimedMetadata :many
 SELECT tm.id,
        tm.type,
