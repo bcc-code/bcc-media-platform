@@ -117,9 +117,9 @@ DELETE FROM timedmetadata WHERE asset_id = @asset_id;
 
 -- name: getChaptesFromEpisode :many
 SELECT
+    e.id as episode_id,
     tm.id::uuid as id,
     tm.type::text as type,
-    tm.episode_id,
     tm.content_type,
     tm.song_id,
     (SELECT array_agg(c.person_id) FROM "contributions" c WHERE c.timedmetadata_id = tm.id)::uuid[] AS person_ids,
@@ -166,5 +166,5 @@ FROM episodes e
 ) images ON (images.timedmetadata_id = tm.id)
 WHERE e.id= ANY(@episode_ids::int[])
   AND tm.status = 'published'
-  AND tm.type = 'chapter';
-;
+  AND tm.type = 'chapter'
+ORDER BY tm.seconds ASC;

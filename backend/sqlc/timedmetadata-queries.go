@@ -66,7 +66,7 @@ func (q *Queries) GetChaptersForEpisodeID(ctx context.Context, ids []int) ([]com
 			Description:     description,
 			MediaItemID:     i.MediaitemID,
 			Images:          q.getImages(i.Images),
-			ParentEpisodeID: i.EpisodeID,
+			ParentEpisodeID: int(i.EpisodeID),
 		}
 	}), nil
 }

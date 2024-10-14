@@ -279,7 +279,7 @@ func initBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *com
 			return i.ID
 		})),
 		ChaptersLoader: loaders.NewListLoader(ctx, queries.GetChaptersForEpisodeID, func(i common.TimedMetadata) int {
-			return int(i.ParentEpisodeID.Int64)
+			return i.ParentEpisodeID
 		}),
 		PhraseLoader: loaders.New(ctx, queries.GetPhrases, loaders.WithName("phrases-loader"), loaders.WithKeyFunc(func(i common.Phrase) string {
 			return i.Key

@@ -203,9 +203,9 @@ func (q *Queries) InsertTimedMetadata(ctx context.Context, arg InsertTimedMetada
 
 const getChaptesFromEpisode = `-- name: getChaptesFromEpisode :many
 SELECT
+    e.id as episode_id,
     tm.id::uuid as id,
     tm.type::text as type,
-    tm.episode_id,
     tm.content_type,
     tm.song_id,
     (SELECT array_agg(c.person_id) FROM "contributions" c WHERE c.timedmetadata_id = tm.id)::uuid[] AS person_ids,
@@ -253,12 +253,13 @@ FROM episodes e
 WHERE e.id= ANY($1::int[])
   AND tm.status = 'published'
   AND tm.type = 'chapter'
+ORDER BY tm.seconds ASC
 `
 
 type getChaptesFromEpisodeRow struct {
+	EpisodeID           int32           `db:"episode_id" json:"episodeId"`
 	ID                  uuid.UUID       `db:"id" json:"id"`
 	Type                string          `db:"type" json:"type"`
-	EpisodeID           null_v4.Int     `db:"episode_id" json:"episodeId"`
 	ContentType         null_v4.String  `db:"content_type" json:"contentType"`
 	SongID              uuid.NullUUID   `db:"song_id" json:"songId"`
 	PersonIds           []uuid.UUID     `db:"person_ids" json:"personIds"`
@@ -283,9 +284,9 @@ func (q *Queries) getChaptesFromEpisode(ctx context.Context, episodeIds []int32)
 	for rows.Next() {
 		var i getChaptesFromEpisodeRow
 		if err := rows.Scan(
+			&i.EpisodeID,
 			&i.ID,
 			&i.Type,
-			&i.EpisodeID,
 			&i.ContentType,
 			&i.SongID,
 			pq.Array(&i.PersonIds),

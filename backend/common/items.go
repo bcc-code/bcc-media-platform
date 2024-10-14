@@ -239,7 +239,7 @@ type TimedMetadata struct {
 	SongID          uuid.NullUUID
 	MediaItemID     uuid.NullUUID
 	Images          Images
-	ParentEpisodeID null.Int
+	ParentEpisodeID int
 }
 
 // Short item type
