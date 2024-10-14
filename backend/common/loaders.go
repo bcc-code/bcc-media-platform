@@ -2,7 +2,6 @@ package common
 
 import (
 	"context"
-
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/google/uuid"
@@ -94,6 +93,7 @@ type BatchLoaders struct {
 
 	MediaItemPrimaryEpisodeIDLoader *loaders.Loader[uuid.UUID, *int]
 	TimedMetadataLoader             *loaders.Loader[uuid.UUID, *TimedMetadata]
+	ChaptersLoader                  *loaders.Loader[int, []*TimedMetadata]
 	PersonLoader                    *loaders.Loader[uuid.UUID, *Person]
 	SongLoader                      *loaders.Loader[uuid.UUID, *Song]
 	PhraseLoader                    *loaders.Loader[string, *Phrase]

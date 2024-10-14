@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"github.com/bcc-code/bcc-media-platform/backend/email"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"os"
 	"strings"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/search"
 
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
+	"github.com/joho/godotenv"
 	"github.com/samber/lo"
 )
 
@@ -155,6 +157,11 @@ func (a awsConfig) GetTempStorageBucket() string {
 }
 
 func getEnvConfig() envConfig {
+	err := godotenv.Load("backend/cmd/api/.env")
+	if err == nil {
+		log.L.Warn().Msg("Loaded .env file")
+	}
+
 	aud := lo.Map(strings.Split(os.Getenv("AUTH0_AUDIENCES"), ","),
 		func(s string, _ int) string {
 			return strings.TrimSpace(s)

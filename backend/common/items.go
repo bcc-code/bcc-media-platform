@@ -142,9 +142,8 @@ type Episode struct {
 	Assets       LocaleMap[int] `json:"assets"`
 	AssetVersion string         `json:"assetVersion"`
 
-	Images           Images      `json:"images"`
-	TagIDs           []int       `json:"tagIds"`
-	TimedMetadataIDs []uuid.UUID `json:"timedMetadataIds"`
+	Images Images `json:"images"`
+	TagIDs []int  `json:"tagIds"`
 
 	PublicTitle      null.String  `json:"publicTitle"`
 	Title            LocaleString `json:"title"`
@@ -229,17 +228,18 @@ var (
 
 // TimedMetadata item type
 type TimedMetadata struct {
-	ID          uuid.UUID
-	Type        string
-	Timestamp   float64
-	Duration    float64
-	Title       LocaleString `json:"title"`
-	Description LocaleString `json:"description"`
-	ContentType ContentType
-	PersonIDs   []uuid.UUID
-	SongID      uuid.NullUUID
-	MediaItemID uuid.NullUUID
-	Images      Images
+	ID              uuid.UUID
+	Type            string
+	Timestamp       float64
+	Duration        float64
+	Title           LocaleString `json:"title"`
+	Description     LocaleString `json:"description"`
+	ContentType     ContentType
+	PersonIDs       []uuid.UUID
+	SongID          uuid.NullUUID
+	MediaItemID     uuid.NullUUID
+	Images          Images
+	ParentEpisodeID null.Int
 }
 
 // Short item type
