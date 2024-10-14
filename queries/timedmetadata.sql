@@ -117,8 +117,8 @@ DELETE FROM timedmetadata WHERE asset_id = @asset_id;
 
 -- name: getChaptesFromEpisode :many
 SELECT
-    tm.id,
-    tm.type,
+    tm.id::uuid as id,
+    tm.type::text as type,
     tm.episode_id,
     tm.content_type,
     tm.song_id,
@@ -131,8 +131,8 @@ SELECT
     COALESCE((SELECT json_object_agg(ts.languages_code, ts.description)
               FROM timedmetadata_translations ts
               WHERE ts.timedmetadata_id = tm.id), '{}')::json AS description,
-    tm.seconds,
-    tm.highlight,
+    tm.seconds::float4 as seconds,
+    tm.highlight::bool as highlight,
     tm.mediaitem_id,
     COALESCE(images.images, '{}'::json)            AS images,
     COALESCE((
@@ -151,9 +151,10 @@ SELECT
                     OR asset.id = mi.asset_id
                  LIMIT 1
              ), 0)::float as duration
-FROM timedmetadata tm
-         LEFT JOIN public.episodes e on e.id = tm.episode_id
-         LEFT JOIN mediaitems mi ON (mi.id = tm.mediaitem_id)
+FROM episodes e
+         LEFT JOIN mediaitems mi ON e.mediaitem_id = mi.id
+         LEFT JOIN timedmetadata tm ON
+    (mi.timedmetadata_from_asset AND tm.asset_id = mi.asset_id) OR (NOT mi.timedmetadata_from_asset AND e.id = tm.asset_id)
          LEFT JOIN (
     SELECT
         simg.timedmetadata_id,
@@ -166,3 +167,4 @@ FROM timedmetadata tm
 WHERE e.id= ANY(@episode_ids::int[])
   AND tm.status = 'published'
   AND tm.type = 'chapter';
+;
