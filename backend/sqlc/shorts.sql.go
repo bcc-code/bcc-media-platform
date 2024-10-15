@@ -183,7 +183,7 @@ SELECT s.id,
        mi.tag_ids,
        GREATEST(s.date_updated, mi.date_updated)::timestamp AS date_updated
 FROM shorts s
-         JOIN mediaitems_view mi ON mi.id = s.mediaitem_id
+         JOIN mediaitems_view_v2 mi ON mi.id = s.mediaitem_id
 WHERE s.id = ANY ($1::uuid[])
 `
 
@@ -260,7 +260,7 @@ SELECT s.id,
        mi.label,
        GREATEST(s.date_updated, mi.date_updated)::timestamp AS date_updated
 FROM shorts s
-         JOIN mediaitems_view mi ON mi.id = s.mediaitem_id
+         JOIN mediaitems_view_v2 mi ON mi.id = s.mediaitem_id
 WHERE s.mediaitem_id = $1::uuid
 `
 
