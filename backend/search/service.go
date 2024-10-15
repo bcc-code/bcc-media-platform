@@ -5,7 +5,9 @@ import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"github.com/samber/lo"
@@ -43,29 +45,81 @@ type batchLoaders struct {
 	PlaylistPermissionLoader *loaders.Loader[uuid.UUID, *common.Permissions[uuid.UUID]]
 }
 
-// Config contains configuration options for the service
-type Config struct {
+// AlgoliaConfig contains configuration options for the service
+type AlgoliaConfig struct {
 	AppID  string
 	APIKey string
+}
+
+// ElasticConfig contains configuration options for the service
+// If CloudID is defined it takes precedence above URL
+type ElasticConfig struct {
+	CloudID string
+	ApiKey  string
+
+	URL      string
+	Username string
+	Password string
+}
+
+// Config contains configuration options for the service
+type Config struct {
+	Algolia AlgoliaConfig
+	Elastic ElasticConfig
 }
 
 // Service is the type for the service itself
 type Service struct {
 	algoliaClient *search.Client
+	elasticClient *elasticsearch.TypedClient
 	index         *search.Index
 	queries       *sqlc.Queries
 	loaders       batchLoaders
 }
 
+func newElasticClient(ctx context.Context, config ElasticConfig) *elasticsearch.TypedClient {
+
+	var elasticConfig elasticsearch.Config
+
+	if config.CloudID != "" {
+		elasticConfig = elasticsearch.Config{
+			CloudID: config.CloudID,
+			APIKey:  config.ApiKey,
+		}
+	} else {
+		elasticConfig = elasticsearch.Config{
+			Addresses: []string{config.URL},
+			Username:  config.Username,
+			Password:  config.Password,
+		}
+	}
+
+	elasticClient, err := elasticsearch.NewTypedClient(elasticConfig)
+
+	if err != nil {
+		log.L.Fatal().Msgf("Failed to create elasticsearch client: %v", err)
+	}
+
+	_, err = elasticClient.Ping().Do(ctx)
+	if err != nil {
+		log.L.Fatal().Msgf("Failed to ping elasticsearch: %v", err)
+	}
+
+	return elasticClient
+}
+
 // New creates a new instance of the search service
 func New(queries *sqlc.Queries, config Config) *Service {
+	ctx := context.Background()
+
+	elasticClient := newElasticClient(ctx, config.Elastic)
+
 	service := Service{
-		algoliaClient: search.NewClient(config.AppID, config.APIKey),
+		algoliaClient: search.NewClient(config.Algolia.AppID, config.Algolia.APIKey),
+		elasticClient: elasticClient,
 	}
 	service.index = service.algoliaClient.InitIndex(indexName)
 	service.queries = queries
-
-	ctx := context.Background()
 
 	service.loaders = batchLoaders{
 		ShowLoader:    loaders.NewLoader(ctx, queries.GetShows),

@@ -185,7 +185,7 @@ func main() {
 	membersClient := members.New(config.Members, authClient, cb)
 
 	ls := initBatchLoaders(queries, membersClient)
-	searchService := search.New(queries, config.Algolia)
+	searchService := search.New(queries, config.Search)
 	emailService := email.New(config.Email)
 
 	awsConfig, err := awsSDKConfig.LoadDefaultConfig(ctx)
@@ -282,6 +282,6 @@ func main() {
 
 	err = r.Run(":" + config.Port)
 	if err != nil {
-		return
+		panic(err)
 	}
 }

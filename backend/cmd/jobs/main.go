@@ -57,8 +57,7 @@ func main() {
 
 	awsConfig, err := awsSDKConfig.LoadDefaultConfig(ctx)
 	if err != nil {
-		// TODO: Better messages
-		panic(err)
+		log.L.Panic().Err(err).Msg("Failed to load AWS config")
 	}
 
 	awsConfig.Region = config.AWS.Region
@@ -72,7 +71,7 @@ func main() {
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.ImageCDNDomain)
 
-	searchService := search.New(queries, config.Algolia)
+	searchService := search.New(queries, config.Search)
 	eventHandler := events.NewHandler()
 	crowdinClient := crowdin.New(config.Crowdin, queries, false)
 	statisticsHandler := statistics.NewHandler(ctx, config.BigQuery, queries)
@@ -92,6 +91,8 @@ func main() {
 	})
 	membersClient := members.New(config.Members, authClient, breaker)
 	notificationUtils := notifications.NewUtils(queries, membersClient)
+
+	videomanipulatorService := videomanipulator.NewVideoManipulatorService(config.VideoManipulator.baseURL, config.VideoManipulator.apiKey)
 
 	mh := &modelHandler{
 		scheduler:         sr,
@@ -136,8 +137,6 @@ func main() {
 		return
 	}
 
-	videomanipulatorService := videomanipulator.NewVideoManipulatorService(config.VideoManipulator.baseURL, config.VideoManipulator.apiKey)
-
 	services := server.ExternalServices{
 		Database:                db,
 		S3Client:                s3Client,
@@ -159,7 +158,7 @@ func main() {
 	{
 		apiGroup.POST("message", handlers.ProcessMessage)
 		apiGroup.POST("aws", handlers.ProcessAwsMessage)
-		apiGroup.POST("eventmeta", handlers.IngestEventMeta) // TODO: Protect the endpoint with a simple api key or soimething
+		apiGroup.POST("eventmeta", handlers.IngestEventMeta) // TODO: Protect the endpoint with a simple api key or something
 		apiGroup.POST("tasks", handlers.ProcessScheduledTask)
 	}
 
@@ -169,6 +168,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	err = <-rdbChan
 	if err != nil {
 		panic(err)

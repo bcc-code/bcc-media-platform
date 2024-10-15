@@ -742,9 +742,10 @@ type ComplexityRoot struct {
 	}
 
 	SearchResult struct {
-		Hits   func(childComplexity int) int
-		Page   func(childComplexity int) int
-		Result func(childComplexity int) int
+		Hits           func(childComplexity int) int
+		Page           func(childComplexity int) int
+		Result         func(childComplexity int) int
+		SearchProvider func(childComplexity int) int
 	}
 
 	Season struct {
@@ -4681,6 +4682,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SearchResult.Result(childComplexity), true
 
+	case "SearchResult.searchProvider":
+		if e.complexity.SearchResult.SearchProvider == nil {
+			break
+		}
+
+		return e.complexity.SearchResult.SearchProvider(childComplexity), true
+
 	case "Season.ageRating":
 		if e.complexity.Season.AgeRating == nil {
 			break
@@ -6854,6 +6862,7 @@ type SearchResult {
     hits: Int!
     page: Int!
     result: [SearchResultItem!]!
+    searchProvider: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/seasons.graphqls", Input: `type Season implements CollectionItem {
@@ -28179,6 +28188,8 @@ func (ec *executionContext) fieldContext_QueryRoot_search(ctx context.Context, f
 				return ec.fieldContext_SearchResult_page(ctx, field)
 			case "result":
 				return ec.fieldContext_SearchResult_result(ctx, field)
+			case "searchProvider":
+				return ec.fieldContext_SearchResult_searchProvider(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SearchResult", field.Name)
 		},
@@ -30455,6 +30466,50 @@ func (ec *executionContext) fieldContext_SearchResult_result(_ context.Context, 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SearchResult_searchProvider(ctx context.Context, field graphql.CollectedField, obj *model.SearchResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SearchResult_searchProvider(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SearchProvider, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SearchResult_searchProvider(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SearchResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -49645,6 +49700,11 @@ func (ec *executionContext) _SearchResult(ctx context.Context, sel ast.Selection
 			}
 		case "result":
 			out.Values[i] = ec._SearchResult_result(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "searchProvider":
+			out.Values[i] = ec._SearchResult_searchProvider(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

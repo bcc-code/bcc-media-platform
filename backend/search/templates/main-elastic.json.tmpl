@@ -1,0 +1,61 @@
+{
+  "from": {{ .Offset }},
+  "size": {{ .Limit }},
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "term": {
+            "published": true
+          }
+        },
+       {
+          "bool": {
+            "should": [
+            {{ range $index, $role := .Roles }}
+              {{ if gt $index 0}},{{ end }}
+              { "term": {"roles": "{{ $role }}" } }
+            {{ end }}
+            ],
+            "minimum_should_match": 1
+          }
+        },
+        {
+          "bool": {
+            "should": [
+              { "term": {"availableFrom": 0} },
+              { "range": { "availableFrom": {"lt": {{ .TimeNow }} } } }
+            ],
+            "minimum_should_match": 1
+          }
+        },
+        {
+          "bool": {
+            "should": [
+              {
+                "term": {
+                  "availableTo": 0
+                }
+              },
+              {
+                "range": {
+                  "availableTo": {
+                    "gt": {{ .TimeNow }}
+                  }
+                }
+              }
+            ],
+            "minimum_should_match": 1
+          }
+        }
+      ],
+      "must": [
+        {
+          "query_string": {
+            "query": "{{ .QueryString }}~"
+          }
+        }
+      ]
+    }
+  }
+}

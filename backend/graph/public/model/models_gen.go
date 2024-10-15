@@ -11,6 +11,9 @@ type Episode struct {
 	Season *Season `json:"season,omitempty"`
 }
 
+type QueryRoot struct {
+}
+
 type Season struct {
 	ID     string  `json:"id"`
 	Title  string  `json:"title"`
