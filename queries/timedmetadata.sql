@@ -114,3 +114,57 @@ DELETE FROM timedmetadata WHERE mediaitem_id = @mediaitem_id::uuid;
 
 -- name: ClearAssetTimedMetadata :exec
 DELETE FROM timedmetadata WHERE asset_id = @asset_id;
+
+-- name: getChaptesFromEpisode :many
+SELECT
+    e.id as episode_id,
+    tm.id::uuid as id,
+    tm.type::text as type,
+    tm.content_type,
+    tm.song_id,
+    (SELECT array_agg(c.person_id) FROM "contributions" c WHERE c.timedmetadata_id = tm.id)::uuid[] AS person_ids,
+    tm.title                                                  AS original_title,
+    tm.description                                            AS original_description,
+    COALESCE((SELECT json_object_agg(ts.languages_code, ts.title)
+              FROM timedmetadata_translations ts
+              WHERE ts.timedmetadata_id = tm.id), '{}')::json AS title,
+    COALESCE((SELECT json_object_agg(ts.languages_code, ts.description)
+              FROM timedmetadata_translations ts
+              WHERE ts.timedmetadata_id = tm.id), '{}')::json AS description,
+    tm.seconds::float4 as seconds,
+    tm.highlight::bool as highlight,
+    tm.mediaitem_id,
+    COALESCE(images.images, '{}'::json)            AS images,
+    COALESCE((
+                 -- if there is a next timedmetadata, calculate the duration between the current and the next timedmetadata
+                 SELECT nextTm.seconds - tm.seconds
+                 FROM timedmetadata nextTm
+                 WHERE (nextTm.mediaitem_id = tm.mediaitem_id OR nextTm.asset_id = tm.asset_id)
+                   AND nextTm.seconds > tm.seconds
+                 ORDER BY nextTm.seconds
+                 LIMIT 1
+             ), (
+                 -- if there is no next timedmetadata, calculate the duration of the asset
+                 SELECT asset.duration - tm.seconds
+                 FROM assets asset
+                 WHERE asset.id = tm.asset_id
+                    OR asset.id = mi.asset_id
+                 LIMIT 1
+             ), 0)::float as duration
+FROM episodes e
+         LEFT JOIN mediaitems mi ON e.mediaitem_id = mi.id
+         LEFT JOIN timedmetadata tm ON
+    (mi.timedmetadata_from_asset AND tm.asset_id = mi.asset_id) OR (NOT mi.timedmetadata_from_asset AND e.id = tm.asset_id)
+         LEFT JOIN (
+    SELECT
+        simg.timedmetadata_id,
+        json_agg(json_build_object('style', img.style, 'language', img.language, 'filename_disk', df.filename_disk)) AS images
+    FROM timedmetadata_styledimages simg
+             JOIN styledimages img ON (img.id = simg.styledimages_id)
+             JOIN directus_files df ON (img.file = df.id)
+    GROUP BY simg.timedmetadata_id
+) images ON (images.timedmetadata_id = tm.id)
+WHERE e.id= ANY(@episode_ids::int[])
+  AND tm.status = 'published'
+  AND tm.type = 'chapter'
+ORDER BY tm.seconds ASC;

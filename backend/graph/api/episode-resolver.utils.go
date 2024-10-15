@@ -322,29 +322,5 @@ func (r *episodeResolver) getTitleWithCollection(ctx context.Context, episode *m
 }
 
 func (r *episodeResolver) getChapters(ctx context.Context, episodeId string) ([]*model.Chapter, error) {
-	i, err := r.Loaders.EpisodeLoader.Get(ctx, utils.AsInt(episodeId))
-	if err != nil || !i.AssetID.Valid {
-		return nil, err
-	}
-	metadataItems, err := r.Loaders.TimedMetadataLoader.GetMany(ctx, i.TimedMetadataIDs)
-	if err != nil {
-		return nil, err
-	}
-	metadataItems = lo.Filter(metadataItems, func(i *common.TimedMetadata, _ int) bool {
-		return i.Type == "chapter"
-	})
-
-	r.Loaders.PhraseLoader.LoadMany(ctx, lo.Uniq(lo.Map(metadataItems, func(i *common.TimedMetadata, _ int) string {
-		return i.ContentType.Value
-	})))
-
-	var out []*model.Chapter
-	for _, tm := range metadataItems {
-		chapter, err := resolveChapter(ctx, r.Loaders, episodeId, tm.ID)
-		if err != nil {
-			return nil, err
-		}
-		out = append(out, chapter)
-	}
-	return out, nil
+	return resolveChapters(ctx, r.Loaders, episodeId)
 }

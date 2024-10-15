@@ -62,7 +62,9 @@ func (q *Queries) ListSegmentedShortIDsForRoles(ctx context.Context, roles []str
 const listSegmentedShortIDsForRolesWithScores = `-- name: ListSegmentedShortIDsForRolesWithScores :many
 SELECT s.id,
        -- We need a date and if we do not have a published_at date, we need to assume that the created date is when it was published
-       EXTRACT(DAY FROM current_date - COALESCE(mi.published_at, mi.date_created)) age,
+       EXTRACT(DAY FROM current_date - COALESCE(mi.published_at, mi.date_created))::int age_in_days,
+
+       mi.parent_episode_id,
 
        -- For 10 days the shorts is boosted. It starts with a 5 points boost, and the boost "degrades" by 0.5
        -- points per day, reaching 0 boost on day 10. It stops there
@@ -80,9 +82,10 @@ ORDER BY final_score DESC
 `
 
 type ListSegmentedShortIDsForRolesWithScoresRow struct {
-	ID         uuid.UUID `db:"id" json:"id"`
-	Age        string    `db:"age" json:"age"`
-	FinalScore float64   `db:"final_score" json:"finalScore"`
+	ID              uuid.UUID   `db:"id" json:"id"`
+	AgeInDays       int32       `db:"age_in_days" json:"ageInDays"`
+	ParentEpisodeID null_v4.Int `db:"parent_episode_id" json:"parentEpisodeId"`
+	FinalScore      float64     `db:"final_score" json:"finalScore"`
 }
 
 func (q *Queries) ListSegmentedShortIDsForRolesWithScores(ctx context.Context, roles []string) ([]ListSegmentedShortIDsForRolesWithScoresRow, error) {
@@ -94,7 +97,12 @@ func (q *Queries) ListSegmentedShortIDsForRolesWithScores(ctx context.Context, r
 	var items []ListSegmentedShortIDsForRolesWithScoresRow
 	for rows.Next() {
 		var i ListSegmentedShortIDsForRolesWithScoresRow
-		if err := rows.Scan(&i.ID, &i.Age, &i.FinalScore); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.AgeInDays,
+			&i.ParentEpisodeID,
+			&i.FinalScore,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -175,7 +183,7 @@ SELECT s.id,
        mi.tag_ids,
        GREATEST(s.date_updated, mi.date_updated)::timestamp AS date_updated
 FROM shorts s
-         JOIN mediaitems_view mi ON mi.id = s.mediaitem_id
+         JOIN mediaitems_view_v2 mi ON mi.id = s.mediaitem_id
 WHERE s.id = ANY ($1::uuid[])
 `
 
@@ -252,7 +260,7 @@ SELECT s.id,
        mi.label,
        GREATEST(s.date_updated, mi.date_updated)::timestamp AS date_updated
 FROM shorts s
-         JOIN mediaitems_view mi ON mi.id = s.mediaitem_id
+         JOIN mediaitems_view_v2 mi ON mi.id = s.mediaitem_id
 WHERE s.mediaitem_id = $1::uuid
 `
 

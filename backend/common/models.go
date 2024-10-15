@@ -148,3 +148,15 @@ type Redirect struct {
 func (r Redirect) GetKey() uuid.UUID {
 	return r.ID
 }
+
+// ShortIDWithMeta
+//
+// Age - Age of the short in days
+// ParentEpisodeID - ID of the full episode where the short was extracted from
+// FinalScore - Final score of the short, with all adjustments
+type ShortIDWithMeta struct {
+	ID              uuid.UUID
+	AgeInDays       int
+	ParentEpisodeID null.Int
+	FinalScore      float64
+}

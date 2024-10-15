@@ -297,6 +297,14 @@ type Contribution struct {
 	TimedmetadataID uuid.NullUUID `db:"timedmetadata_id" json:"timedmetadataId"`
 }
 
+type DirectusAccess struct {
+	ID     uuid.UUID     `db:"id" json:"id"`
+	Role   uuid.NullUUID `db:"role" json:"role"`
+	User   uuid.NullUUID `db:"user" json:"user"`
+	Policy uuid.UUID     `db:"policy" json:"policy"`
+	Sort   null_v4.Int   `db:"sort" json:"sort"`
+}
+
 type DirectusActivity struct {
 	ID         int32          `db:"id" json:"id"`
 	Action     string         `db:"action" json:"action"`
@@ -344,8 +352,11 @@ type DirectusDashboard struct {
 }
 
 type DirectusExtension struct {
-	Name    string `db:"name" json:"name"`
-	Enabled bool   `db:"enabled" json:"enabled"`
+	Enabled bool          `db:"enabled" json:"enabled"`
+	ID      uuid.UUID     `db:"id" json:"id"`
+	Folder  string        `db:"folder" json:"folder"`
+	Source  string        `db:"source" json:"source"`
+	Bundle  uuid.NullUUID `db:"bundle" json:"bundle"`
 }
 
 type DirectusField struct {
@@ -379,7 +390,7 @@ type DirectusFile struct {
 	Type             null_v4.String        `db:"type" json:"type"`
 	Folder           uuid.NullUUID         `db:"folder" json:"folder"`
 	UploadedBy       uuid.NullUUID         `db:"uploaded_by" json:"uploadedBy"`
-	UploadedOn       time.Time             `db:"uploaded_on" json:"uploadedOn"`
+	UploadedOn       null_v4.Time          `db:"uploaded_on" json:"uploadedOn"`
 	ModifiedBy       uuid.NullUUID         `db:"modified_by" json:"modifiedBy"`
 	ModifiedOn       time.Time             `db:"modified_on" json:"modifiedOn"`
 	Charset          null_v4.String        `db:"charset" json:"charset"`
@@ -392,6 +403,11 @@ type DirectusFile struct {
 	Location         null_v4.String        `db:"location" json:"location"`
 	Tags             null_v4.String        `db:"tags" json:"tags"`
 	Metadata         pqtype.NullRawMessage `db:"metadata" json:"metadata"`
+	CreatedOn        time.Time             `db:"created_on" json:"createdOn"`
+	FocalPointX      null_v4.Int           `db:"focal_point_x" json:"focalPointX"`
+	FocalPointY      null_v4.Int           `db:"focal_point_y" json:"focalPointY"`
+	TusID            null_v4.String        `db:"tus_id" json:"tusId"`
+	TusData          pqtype.NullRawMessage `db:"tus_data" json:"tusData"`
 }
 
 type DirectusFlow struct {
@@ -468,13 +484,24 @@ type DirectusPanel struct {
 
 type DirectusPermission struct {
 	ID          int32                 `db:"id" json:"id"`
-	Role        uuid.NullUUID         `db:"role" json:"role"`
 	Collection  string                `db:"collection" json:"collection"`
 	Action      string                `db:"action" json:"action"`
 	Permissions pqtype.NullRawMessage `db:"permissions" json:"permissions"`
 	Validation  pqtype.NullRawMessage `db:"validation" json:"validation"`
 	Presets     pqtype.NullRawMessage `db:"presets" json:"presets"`
 	Fields      null_v4.String        `db:"fields" json:"fields"`
+	Policy      uuid.UUID             `db:"policy" json:"policy"`
+}
+
+type DirectusPolicy struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Name        string         `db:"name" json:"name"`
+	Icon        string         `db:"icon" json:"icon"`
+	Description null_v4.String `db:"description" json:"description"`
+	IpAccess    null_v4.String `db:"ip_access" json:"ipAccess"`
+	EnforceTfa  bool           `db:"enforce_tfa" json:"enforceTfa"`
+	AdminAccess bool           `db:"admin_access" json:"adminAccess"`
+	AppAccess   bool           `db:"app_access" json:"appAccess"`
 }
 
 type DirectusPreset struct {
@@ -522,10 +549,7 @@ type DirectusRole struct {
 	Name        string         `db:"name" json:"name"`
 	Icon        string         `db:"icon" json:"icon"`
 	Description null_v4.String `db:"description" json:"description"`
-	IpAccess    null_v4.String `db:"ip_access" json:"ipAccess"`
-	EnforceTfa  bool           `db:"enforce_tfa" json:"enforceTfa"`
-	AdminAccess bool           `db:"admin_access" json:"adminAccess"`
-	AppAccess   bool           `db:"app_access" json:"appAccess"`
+	Parent      uuid.NullUUID  `db:"parent" json:"parent"`
 }
 
 type DirectusSession struct {
@@ -536,35 +560,43 @@ type DirectusSession struct {
 	UserAgent null_v4.String `db:"user_agent" json:"userAgent"`
 	Share     uuid.NullUUID  `db:"share" json:"share"`
 	Origin    null_v4.String `db:"origin" json:"origin"`
+	NextToken null_v4.String `db:"next_token" json:"nextToken"`
 }
 
 type DirectusSetting struct {
-	ID                    int32                 `db:"id" json:"id"`
-	ProjectName           string                `db:"project_name" json:"projectName"`
-	ProjectUrl            null_v4.String        `db:"project_url" json:"projectUrl"`
-	ProjectColor          string                `db:"project_color" json:"projectColor"`
-	ProjectLogo           uuid.NullUUID         `db:"project_logo" json:"projectLogo"`
-	PublicForeground      uuid.NullUUID         `db:"public_foreground" json:"publicForeground"`
-	PublicBackground      uuid.NullUUID         `db:"public_background" json:"publicBackground"`
-	PublicNote            null_v4.String        `db:"public_note" json:"publicNote"`
-	AuthLoginAttempts     null_v4.Int           `db:"auth_login_attempts" json:"authLoginAttempts"`
-	AuthPasswordPolicy    null_v4.String        `db:"auth_password_policy" json:"authPasswordPolicy"`
-	StorageAssetTransform null_v4.String        `db:"storage_asset_transform" json:"storageAssetTransform"`
-	StorageAssetPresets   pqtype.NullRawMessage `db:"storage_asset_presets" json:"storageAssetPresets"`
-	CustomCss             null_v4.String        `db:"custom_css" json:"customCss"`
-	StorageDefaultFolder  uuid.NullUUID         `db:"storage_default_folder" json:"storageDefaultFolder"`
-	Basemaps              pqtype.NullRawMessage `db:"basemaps" json:"basemaps"`
-	MapboxKey             null_v4.String        `db:"mapbox_key" json:"mapboxKey"`
-	ModuleBar             pqtype.NullRawMessage `db:"module_bar" json:"moduleBar"`
-	ProjectDescriptor     null_v4.String        `db:"project_descriptor" json:"projectDescriptor"`
-	DefaultLanguage       string                `db:"default_language" json:"defaultLanguage"`
-	CustomAspectRatios    pqtype.NullRawMessage `db:"custom_aspect_ratios" json:"customAspectRatios"`
-	PublicFavicon         uuid.NullUUID         `db:"public_favicon" json:"publicFavicon"`
-	DefaultAppearance     string                `db:"default_appearance" json:"defaultAppearance"`
-	DefaultThemeLight     null_v4.String        `db:"default_theme_light" json:"defaultThemeLight"`
-	ThemeLightOverrides   pqtype.NullRawMessage `db:"theme_light_overrides" json:"themeLightOverrides"`
-	DefaultThemeDark      null_v4.String        `db:"default_theme_dark" json:"defaultThemeDark"`
-	ThemeDarkOverrides    pqtype.NullRawMessage `db:"theme_dark_overrides" json:"themeDarkOverrides"`
+	ID                            int32                 `db:"id" json:"id"`
+	ProjectName                   string                `db:"project_name" json:"projectName"`
+	ProjectUrl                    null_v4.String        `db:"project_url" json:"projectUrl"`
+	ProjectColor                  string                `db:"project_color" json:"projectColor"`
+	ProjectLogo                   uuid.NullUUID         `db:"project_logo" json:"projectLogo"`
+	PublicForeground              uuid.NullUUID         `db:"public_foreground" json:"publicForeground"`
+	PublicBackground              uuid.NullUUID         `db:"public_background" json:"publicBackground"`
+	PublicNote                    null_v4.String        `db:"public_note" json:"publicNote"`
+	AuthLoginAttempts             null_v4.Int           `db:"auth_login_attempts" json:"authLoginAttempts"`
+	AuthPasswordPolicy            null_v4.String        `db:"auth_password_policy" json:"authPasswordPolicy"`
+	StorageAssetTransform         null_v4.String        `db:"storage_asset_transform" json:"storageAssetTransform"`
+	StorageAssetPresets           pqtype.NullRawMessage `db:"storage_asset_presets" json:"storageAssetPresets"`
+	CustomCss                     null_v4.String        `db:"custom_css" json:"customCss"`
+	StorageDefaultFolder          uuid.NullUUID         `db:"storage_default_folder" json:"storageDefaultFolder"`
+	Basemaps                      pqtype.NullRawMessage `db:"basemaps" json:"basemaps"`
+	MapboxKey                     null_v4.String        `db:"mapbox_key" json:"mapboxKey"`
+	ModuleBar                     pqtype.NullRawMessage `db:"module_bar" json:"moduleBar"`
+	ProjectDescriptor             null_v4.String        `db:"project_descriptor" json:"projectDescriptor"`
+	DefaultLanguage               string                `db:"default_language" json:"defaultLanguage"`
+	CustomAspectRatios            pqtype.NullRawMessage `db:"custom_aspect_ratios" json:"customAspectRatios"`
+	PublicFavicon                 uuid.NullUUID         `db:"public_favicon" json:"publicFavicon"`
+	DefaultAppearance             string                `db:"default_appearance" json:"defaultAppearance"`
+	DefaultThemeLight             null_v4.String        `db:"default_theme_light" json:"defaultThemeLight"`
+	ThemeLightOverrides           pqtype.NullRawMessage `db:"theme_light_overrides" json:"themeLightOverrides"`
+	DefaultThemeDark              null_v4.String        `db:"default_theme_dark" json:"defaultThemeDark"`
+	ThemeDarkOverrides            pqtype.NullRawMessage `db:"theme_dark_overrides" json:"themeDarkOverrides"`
+	ReportErrorUrl                null_v4.String        `db:"report_error_url" json:"reportErrorUrl"`
+	ReportBugUrl                  null_v4.String        `db:"report_bug_url" json:"reportBugUrl"`
+	ReportFeatureUrl              null_v4.String        `db:"report_feature_url" json:"reportFeatureUrl"`
+	PublicRegistration            bool                  `db:"public_registration" json:"publicRegistration"`
+	PublicRegistrationVerifyEmail bool                  `db:"public_registration_verify_email" json:"publicRegistrationVerifyEmail"`
+	PublicRegistrationRole        uuid.NullUUID         `db:"public_registration_role" json:"publicRegistrationRole"`
+	PublicRegistrationEmailFilter pqtype.NullRawMessage `db:"public_registration_email_filter" json:"publicRegistrationEmailFilter"`
 }
 
 type DirectusShare struct {
@@ -632,15 +664,17 @@ type DirectusVersion struct {
 }
 
 type DirectusWebhook struct {
-	ID          int32                 `db:"id" json:"id"`
-	Name        string                `db:"name" json:"name"`
-	Method      string                `db:"method" json:"method"`
-	Url         string                `db:"url" json:"url"`
-	Status      string                `db:"status" json:"status"`
-	Data        bool                  `db:"data" json:"data"`
-	Actions     string                `db:"actions" json:"actions"`
-	Collections string                `db:"collections" json:"collections"`
-	Headers     pqtype.NullRawMessage `db:"headers" json:"headers"`
+	ID                         int32                 `db:"id" json:"id"`
+	Name                       string                `db:"name" json:"name"`
+	Method                     string                `db:"method" json:"method"`
+	Url                        string                `db:"url" json:"url"`
+	Status                     string                `db:"status" json:"status"`
+	Data                       bool                  `db:"data" json:"data"`
+	Actions                    string                `db:"actions" json:"actions"`
+	Collections                string                `db:"collections" json:"collections"`
+	Headers                    pqtype.NullRawMessage `db:"headers" json:"headers"`
+	WasActiveBeforeDeprecation bool                  `db:"was_active_before_deprecation" json:"wasActiveBeforeDeprecation"`
+	MigratedFlow               uuid.NullUUID         `db:"migrated_flow" json:"migratedFlow"`
 }
 
 type Episode struct {
@@ -1063,6 +1097,34 @@ type MediaitemsView struct {
 	AssetDateUpdated     null_v4.Time    `db:"asset_date_updated" json:"assetDateUpdated"`
 	TagIds               []int32         `db:"tag_ids" json:"tagIds"`
 	TimedmetadataIds     []uuid.UUID     `db:"timedmetadata_ids" json:"timedmetadataIds"`
+}
+
+type MediaitemsViewV2 struct {
+	ID                   uuid.UUID       `db:"id" json:"id"`
+	Assets               json.RawMessage `db:"assets" json:"assets"`
+	AssetID              null_v4.Int     `db:"asset_id" json:"assetId"`
+	OriginalTitle        null_v4.String  `db:"original_title" json:"originalTitle"`
+	OriginalDescription  null_v4.String  `db:"original_description" json:"originalDescription"`
+	Title                json.RawMessage `db:"title" json:"title"`
+	Description          json.RawMessage `db:"description" json:"description"`
+	Images               json.RawMessage `db:"images" json:"images"`
+	ParentID             uuid.NullUUID   `db:"parent_id" json:"parentId"`
+	ParentEpisodeID      null_v4.Int     `db:"parent_episode_id" json:"parentEpisodeId"`
+	ParentStartsAt       sql.NullFloat64 `db:"parent_starts_at" json:"parentStartsAt"`
+	ParentEndsAt         sql.NullFloat64 `db:"parent_ends_at" json:"parentEndsAt"`
+	AvailableFrom        time.Time       `db:"available_from" json:"availableFrom"`
+	AvailableTo          time.Time       `db:"available_to" json:"availableTo"`
+	Label                string          `db:"label" json:"label"`
+	AgeratingCode        null_v4.String  `db:"agerating_code" json:"ageratingCode"`
+	Audience             null_v4.String  `db:"audience" json:"audience"`
+	ContentType          null_v4.String  `db:"content_type" json:"contentType"`
+	ProductionDate       time.Time       `db:"production_date" json:"productionDate"`
+	PublishedAt          time.Time       `db:"published_at" json:"publishedAt"`
+	TranslationsRequired bool            `db:"translations_required" json:"translationsRequired"`
+	DateUpdated          null_v4.Time    `db:"date_updated" json:"dateUpdated"`
+	Duration             null_v4.Int     `db:"duration" json:"duration"`
+	AssetDateUpdated     null_v4.Time    `db:"asset_date_updated" json:"assetDateUpdated"`
+	TagIds               []int32         `db:"tag_ids" json:"tagIds"`
 }
 
 type Message struct {

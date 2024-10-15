@@ -15,7 +15,7 @@ export interface Event {
 }
 
 export default defineHook(({action}, context) => {
-    if (!process.env.PUBSUB_PROJECT_ID) {
+    if (!process.env.PUBSUB_PROJECT_ID || process.env.PUBSUB_ENABLED === "false") {
         console.log("Missing configuration for publishing hooks to pubsub")
         return
     }

@@ -102,7 +102,7 @@ func (q *Queries) InsertDirectusFile(ctx context.Context, arg InsertDirectusFile
 }
 
 const getFiles = `-- name: getFiles :many
-SELECT id, storage, filename_disk, filename_download, title, type, folder, uploaded_by, uploaded_on, modified_by, modified_on, charset, filesize, width, height, duration, embed, description, location, tags, metadata FROM directus_files WHERE id = ANY($1::uuid[])
+SELECT id, storage, filename_disk, filename_download, title, type, folder, uploaded_by, uploaded_on, modified_by, modified_on, charset, filesize, width, height, duration, embed, description, location, tags, metadata, created_on, focal_point_x, focal_point_y, tus_id, tus_data FROM directus_files WHERE id = ANY($1::uuid[])
 `
 
 func (q *Queries) getFiles(ctx context.Context, dollar_1 []uuid.UUID) ([]DirectusFile, error) {
@@ -136,6 +136,11 @@ func (q *Queries) getFiles(ctx context.Context, dollar_1 []uuid.UUID) ([]Directu
 			&i.Location,
 			&i.Tags,
 			&i.Metadata,
+			&i.CreatedOn,
+			&i.FocalPointX,
+			&i.FocalPointY,
+			&i.TusID,
+			&i.TusData,
 		); err != nil {
 			return nil, err
 		}

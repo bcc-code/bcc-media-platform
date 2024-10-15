@@ -18,6 +18,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/search"
 
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
+	"github.com/joho/godotenv"
 	"github.com/samber/lo"
 )
 
