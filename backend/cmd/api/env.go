@@ -5,11 +5,11 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/bcc-code/bcc-media-platform/backend/email"
-	"github.com/bcc-code/bcc-media-platform/backend/log"
-	"github.com/joho/godotenv"
 	"os"
 	"strings"
+
+	"github.com/bcc-code/bcc-media-platform/backend/email"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
