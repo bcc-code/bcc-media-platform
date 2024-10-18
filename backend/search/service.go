@@ -2,6 +2,7 @@ package search
 
 import (
 	"context"
+
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
@@ -82,11 +83,13 @@ func newElasticClient(ctx context.Context, config ElasticConfig) *elasticsearch.
 	var elasticConfig elasticsearch.Config
 
 	if config.CloudID != "" {
+		log.L.Debug().Msg("Using elastic cloud config")
 		elasticConfig = elasticsearch.Config{
 			CloudID: config.CloudID,
 			APIKey:  config.ApiKey,
 		}
 	} else {
+		log.L.Debug().Msg("Using elastic URL config")
 		elasticConfig = elasticsearch.Config{
 			Addresses: []string{config.URL},
 			Username:  config.Username,
