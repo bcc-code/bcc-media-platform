@@ -41,6 +41,9 @@ type ProgressByOrg struct {
 	Progress float64 `json:"progress"`
 }
 
+type QueryRoot struct {
+}
+
 type Statistics struct {
 	LessonProgressGroupedByOrg []*ProgressByOrg `json:"lessonProgressGroupedByOrg"`
 }

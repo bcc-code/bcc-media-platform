@@ -1,13 +1,37 @@
 package search
 
 import (
+	"bytes"
+	"context"
+	"embed"
+	"encoding/json"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/gin-gonic/gin"
+	"html/template"
+	"math"
 	"strconv"
 	"strings"
+	"time"
 )
+
+//go:embed templates/*.json.tmpl
+var templateFS embed.FS
+
+var templates *template.Template
+
+func init() {
+	t, err := template.ParseFS(templateFS, "templates/*.json.tmpl")
+
+	if err != nil {
+		log.L.Fatal().Err(err).Msg("Failed to parse templates")
+	}
+
+	templates = t
+}
 
 type rankingInfo struct {
 	UserScore int `json:"userScore"`
@@ -166,4 +190,158 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery, userT
 		searchResult.Result = append(searchResult.Result, item)
 	}
 	return
+}
+
+type elasticQueryParams struct {
+	Roles       []string
+	QueryString string
+	Limit       int
+	Offset      int
+	TimeNow     int64
+}
+
+var typeToIndexMap = map[string]string{
+	"episode": "bccm-episodes",
+	"season":  "bccm-seasons",
+	"show":    "bccm-shows",
+	"":        "bccm-*",
+	"any":     "bccm-*",
+}
+
+// doElasticSearch is its own function so that we don't have to deal with gin.Context when testing.
+func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, query common.SearchQuery, roles []string, languages []string) (common.SearchResult, error) {
+	now := time.Now().Unix()
+
+	templateParams := &elasticQueryParams{
+		Roles:       roles,
+		QueryString: query.Query,
+		TimeNow:     now,
+		Offset:      0,
+		Limit:       hitsPerPage,
+	}
+
+	if query.Limit != nil {
+		templateParams.Limit = *query.Limit
+	}
+
+	if query.Offset != nil {
+		templateParams.Offset = *query.Offset
+	}
+
+	jsonQuery := &bytes.Buffer{}
+
+	err := templates.ExecuteTemplate(jsonQuery, "main-elastic.json.tmpl", templateParams)
+
+	searchResult := common.SearchResult{}
+
+	if err != nil {
+		log.L.Error().Err(err).Send()
+		return common.SearchResult{}, err
+	}
+
+	indexName := "bccm-*"
+	if query.Type != nil {
+		indexName = typeToIndexMap[*query.Type]
+	}
+
+	qResult, err := client.Search().Index(indexName).Raw(jsonQuery).Do(ctx)
+	if err != nil {
+		log.L.Error().Err(err).Send()
+		return common.SearchResult{}, err
+	}
+
+	searchResult.HitCount = int(qResult.Hits.Total.Value)
+	searchResult.Page = int(math.Ceil(float64(templateParams.Offset) / float64(templateParams.Limit)))
+	searchResult.PageCount = int(qResult.Hits.Total.Value) / templateParams.Limit
+	searchResult.Result = []common.SearchResultItem{}
+
+	for _, rawHit := range qResult.Hits.Hits {
+		obj := &searchObject{}
+		err = json.Unmarshal(rawHit.Source_, obj)
+		if err != nil {
+			return searchResult, err
+		}
+
+		hit, err := obj.toSearchHit()
+		if err != nil {
+			return searchResult, err
+		}
+
+		parts := strings.Split(*rawHit.Id_, "-")
+		model := parts[0]
+		id, err := strconv.ParseInt(parts[1], 0, 64)
+		if err != nil {
+			return searchResult, err
+		}
+
+		item := common.SearchResultItem{
+			ID:         int(id),
+			Collection: model,
+		}
+
+		/*
+			// Unsure if this is needed in the short term, I don't know of any place this is used actively
+
+			for _, opts := range hit.HighlightResult {
+				values := opts.(map[string]interface{})
+				if matchLevel := values["matchLevel"]; matchLevel != nil && matchLevel != "none" {
+					value := values["value"].(string)
+					if item.Highlight != nil {
+						str := *item.Highlight + "\n" + value
+						item.Highlight = &str
+					} else {
+						item.Highlight = &value
+					}
+				}
+			}*/
+
+		if value := hit.Title.Get(languages); value != "" {
+			item.Title = value
+		}
+		if value := hit.Description.GetValueOrNil(languages); value != nil {
+			item.Description = value
+		}
+		if value := hit.Header; value != "" {
+			item.Header = &value
+		}
+		if value := hit.ShowID; value != 0 {
+			item.ShowID = &value
+		}
+		if value := hit.ShowTitle.GetValueOrNil(languages); value != nil {
+			item.Show = value
+		}
+		if value := hit.SeasonID; value != 0 {
+			item.SeasonID = &value
+		}
+		if value := hit.SeasonTitle.GetValueOrNil(languages); value != nil {
+			item.Season = value
+		}
+
+		item.Url = getUrl(model, int(id))
+		if value := hit.Image; value != "" {
+			item.Image = &value
+		}
+
+		item.LegacyID = hit.LegacyID
+
+		item.Duration = hit.Duration
+
+		searchResult.ResultCount++
+		searchResult.Result = append(searchResult.Result, item)
+	}
+
+	return searchResult, err
+}
+
+// SearchElastic sends a search query to the engine and returns related results
+func (service *Service) SearchElastic(ctx *gin.Context, query common.SearchQuery, userToken string) (searchResult common.SearchResult, err error) {
+	roles := user.GetRolesFromCtx(ctx)
+
+	if len(roles) == 0 {
+		return
+	}
+
+	languages := user.GetLanguagesFromCtx(ctx)
+
+	return doElasticSearch(ctx, service.elasticClient, query, roles, languages)
 }

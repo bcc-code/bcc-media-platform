@@ -5,6 +5,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
+	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"strconv"
 )
@@ -131,8 +132,6 @@ func gqlEpisodeFromSearchResultItem(i common.SearchResultItem) model.EpisodeSear
 func convertToGQL(items []common.SearchResultItem) []model.SearchResultItem {
 	var results []model.SearchResultItem
 	for _, i := range items {
-		//TODO: Do we need to filter on permissions again?
-		//Search is usually quicker to index, and respect roles and permissions on search.
 		switch i.Collection {
 		case "shows":
 			item := gqlShowFromSearchResultItem(i)
@@ -159,20 +158,38 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 		return nil, err
 	}
 
-	searchResult, err := r.SearchService.Search(ginCtx, common.SearchQuery{
-		Query:    queryString,
-		Limit:    first,
-		Offset:   offset,
-		Type:     typeArg,
-		MinScore: minScore,
-	}, r.AnalyticsIDFactory(ctx))
+	flags := utils.GetFeatureFlags(ginCtx)
+	var searchResult common.SearchResult
+
+	searchProvider := "unknown"
+	if flags.Has(unleash.ElasticSearchEnabled) {
+		searchResult, err = r.SearchService.SearchElastic(ginCtx, common.SearchQuery{
+			Query:    queryString,
+			Limit:    first,
+			Offset:   offset,
+			Type:     typeArg,
+			MinScore: minScore,
+		}, r.AnalyticsIDFactory(ctx))
+		searchProvider = "elastic"
+	} else {
+		searchResult, err = r.SearchService.Search(ginCtx, common.SearchQuery{
+			Query:    queryString,
+			Limit:    first,
+			Offset:   offset,
+			Type:     typeArg,
+			MinScore: minScore,
+		}, r.AnalyticsIDFactory(ctx))
+		searchProvider = "algolia"
+	}
+
 	if err != nil {
 		return nil, err
 	}
 
 	return &model.SearchResult{
-		Result: convertToGQL(searchResult.Result),
-		Page:   searchResult.Page,
-		Hits:   searchResult.HitCount,
+		Result:         convertToGQL(searchResult.Result),
+		Page:           searchResult.Page,
+		Hits:           searchResult.HitCount,
+		SearchProvider: searchProvider,
 	}, nil
 }
