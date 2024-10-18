@@ -177,3 +177,4 @@ variable "imgix_frontend_domain" {
 variable "semaphore_service_account" {
   type = string
 }
+

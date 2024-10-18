@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/joho/godotenv"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/joho/godotenv"
 
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
 	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
@@ -104,6 +105,9 @@ func getEnvConfig() envConfig {
 				APIKey: os.Getenv("ALGOLIA_API_KEY"),
 			},
 			Elastic: search.ElasticConfig{
+				CloudID: os.Getenv("ELASTIC_CLOUDID"),
+				ApiKey:  os.Getenv("ELASTIC_APIKEY"),
+
 				URL:      os.Getenv("ELASTIC_URL"),
 				Username: os.Getenv("ELASTIC_USERNAME"),
 				Password: os.Getenv("ELASTIC_PASSWORD"),
