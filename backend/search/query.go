@@ -255,7 +255,11 @@ func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, que
 	searchResult.PageCount = int(qResult.Hits.Total.Value) / templateParams.Limit
 	searchResult.Result = []common.SearchResultItem{}
 
-	for _, rawHit := range qResult.Hits.Hits {
+	for i, rawHit := range qResult.Hits.Hits {
+		if i == 0 && rawHit.Score_ != nil {
+			searchResult.TopScore = int(*rawHit.Score_)
+		}
+
 		obj := &searchObject{}
 		err = json.Unmarshal(rawHit.Source_, obj)
 		if err != nil {

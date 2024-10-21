@@ -40,18 +40,21 @@ resource "google_sql_database_instance" "main" {
 
 resource "google_sql_database" "directus" {
   name     = "directus"
+  deletion_policy = "ABANDON"
   project  = google_project.brunstadtv.project_id
   instance = google_sql_database_instance.main.name
 }
 
 resource "google_sql_database" "unleash" {
   name     = "unleash"
+  deletion_policy = "ABANDON"
   project  = google_project.brunstadtv.project_id
   instance = google_sql_database_instance.main.name
 }
 
 resource "google_sql_user" "directus" {
   name     = "directus"
+  deletion_policy = "ABANDON"
   project  = google_project.brunstadtv.project_id
   instance = google_sql_database_instance.main.name
   password = random_password.postgres_directus_password.result

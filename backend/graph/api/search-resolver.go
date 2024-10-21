@@ -186,6 +186,15 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 		return nil, err
 	}
 
+	r.AnalyticsClient.SearchEvent(
+		ginCtx,
+		r.AnalyticsIDFactory(ctx),
+		queryString,
+		typeArg,
+		searchProvider,
+		searchResult,
+	)
+
 	return &model.SearchResult{
 		Result:         convertToGQL(searchResult.Result),
 		Page:           searchResult.Page,

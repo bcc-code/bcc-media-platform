@@ -42,6 +42,7 @@ func graphqlHandler(
 	analyticsSalt string,
 	authClient *auth0.Client,
 	remoteCache *remotecache.Client,
+	analyticsClient *analytics.Service,
 ) gin.HandlerFunc {
 	resolver := graphapi.Resolver{
 		Queries:         queries,
@@ -57,6 +58,7 @@ func graphqlHandler(
 		RedirectConfig:  config.Redirect,
 		AuthClient:      authClient,
 		RemoteCache:     remoteCache,
+		AnalyticsClient: analyticsClient,
 		AnalyticsIDFactory: func(ctx context.Context) string {
 			ginCtx, err := utils.GinCtx(ctx)
 			p := user.GetProfileFromCtx(ginCtx)
