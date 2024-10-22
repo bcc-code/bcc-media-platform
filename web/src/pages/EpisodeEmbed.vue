@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useGetLegacyIdQuery } from '@/graph/generated'
 import player from '@/services/player'
-import { lanTo3letter } from '@/utils/languages'
+import { languageTo3letter } from '@/utils/languages'
 import { onMounted, ref } from 'vue'
 import { useGetEpisodeEmbedQuery } from '@/graph/generated'
 import EmbedDownloadables from '@/components/embed/EmbedDownloadables.vue'
@@ -59,7 +59,7 @@ onMounted(async () => {
     const q = new URLSearchParams(window.location.search)
     const l = q.get('language')
     if (l) {
-        language.value = lanTo3letter[l] ?? l
+        language.value = languageTo3letter(l) ?? l
     }
     await load()
 })
