@@ -50,7 +50,7 @@ type searchProvider interface {
 }
 
 type analyticsService interface {
-	SearchEvent(ctx *gin.Context, analyticsID string, query string, typeArg *string, searchProvider string, searchResult common.SearchResult)
+	SearchEvent(ctx *gin.Context, analyticsID string, query string, typeArg *string, searchProvider string, searchResult common.SearchResult, duration time.Duration)
 }
 
 // Resolver is the main struct for the GQL implementation
