@@ -3,6 +3,7 @@ export const languageTo3letter = (language: string) => {
         // Norwegian
         case 'no':
         case 'nb':
+        case 'nb-NO':
         case 'nor':
         case 'nob':
         case 'no-nob':
@@ -11,6 +12,8 @@ export const languageTo3letter = (language: string) => {
         // English
         case 'en':
         case 'eng':
+        case 'en-US':
+        case 'en-GB':
             return 'eng';
 
         // French
