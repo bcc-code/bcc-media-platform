@@ -38,7 +38,11 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
                 class="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-background-2 shadow-2xl z-10"
             >
                 <div class="p-1 max-h-96 overflow-y-scroll">
-                    <MenuItem v-for="l in languages" v-slot="{ active }">
+                    <MenuItem
+                        v-for="l in languages"
+                        :key="l.code"
+                        v-slot="{ active }"
+                    >
                         <div
                             :class="[
                                 active

@@ -18,28 +18,9 @@ import { useRoute } from 'vue-router'
 import { createVjsMenuButton, type MenuItem } from '@/components/videojs/Menu'
 import { languages } from '@/services/language'
 import { currentApp } from '@/services/app'
+import { languageTo3letter } from '@/utils/languages'
 
 const { isAuthenticated } = useAuth0()
-
-const lanTo3letter: {
-    [key: string]: string
-} = {
-    no: 'nor',
-    en: 'eng',
-    nl: 'nld',
-    de: 'deu',
-    fr: 'fra',
-    es: 'spa',
-    fi: 'fin',
-    ru: 'rus',
-    pt: 'por',
-    ro: 'ron',
-    tr: 'tur',
-    pl: 'pol',
-    hu: 'hun',
-    it: 'ita',
-    da: 'dan',
-}
 
 const route = useRoute()
 
@@ -120,8 +101,8 @@ const load = async () => {
 
         const options: Partial<Options> = {
             languagePreferenceDefaults: {
-                audio: lanTo3letter[currentLanguage.value.code],
-                subtitles: lanTo3letter[currentLanguage.value.code],
+                audio: languageTo3letter(currentLanguage.value.code),
+                subtitles: languageTo3letter(currentLanguage.value.code),
             },
             videojs: {
                 autoplay: props.autoPlay,
@@ -133,7 +114,7 @@ const load = async () => {
                 appName: currentApp.value,
                 tracking: {
                     isLive: false,
-                    userId: data.value?.me.analytics.anonymousId!,
+                    userId: data.value?.me.analytics.anonymousId,
                     sessionId: getSessionId()?.toString() ?? undefined,
                     ageGroup: analytics.getUser()?.ageGroup,
                     metadata: {
@@ -143,6 +124,11 @@ const load = async () => {
                         seasonId: props.episode.season?.id,
                         showTitle: props.episode.season?.show.title,
                         showId: props.episode.season?.show.id,
+                        overrides: {
+                            'content.language': languageTo3letter(
+                                currentLanguage.value.code
+                            ),
+                        },
                     },
                 },
             },

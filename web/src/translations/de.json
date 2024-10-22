@@ -18,7 +18,7 @@
         "skip": "Überspringen",
         "join": "Beitreten",
         "open": "Öffnen",
-        "showMore": "Zeige mehr"
+        "showMore": "Mehr anzeigen"
     },
     "download": {
         "resolution": "Auflösung",
@@ -41,7 +41,7 @@
         "faq": "FAQ",
         "notFound": "Seite nicht gefunden",
         "explore": "Erkunden",
-        "watchNow": "Schaue es jetzt",
+        "watchNow": "Jetzt ansehen",
         "aboutUs": "Über uns"
     },
     "section": {
@@ -148,7 +148,7 @@
     },
     "footer": {
         "cookies": "Cookies",
-        "privacyPolicy": "Datenschutz",
+        "privacyPolicy": "Datenschutzrichtlinie",
         "information": "BCC Media ist eine Medienstiftung im BCC-Verbund (https://bcc.no), welche Inhalte mit positiven und christlichen Werten produziert und verbreitet.",
         "headOffice": "Direktion",
         "contactUs": "Kontaktiere uns",
