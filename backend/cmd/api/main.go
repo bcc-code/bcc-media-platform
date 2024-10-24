@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/bcc-code/bcc-media-platform/backend/analytics"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -194,6 +195,8 @@ func main() {
 	}
 	awsConfig.Region = config.AWS.Region
 
+	analyticsService := analytics.NewService(config.Analytics)
+
 	s3Client := s3.NewFromConfig(awsConfig)
 
 	log.L.Debug().Msg("Set up HTTP server")
@@ -211,11 +214,11 @@ func main() {
 		AllowCredentials: true,
 	}))
 
+	r.Use(utils.RequestIDMiddleware)
 	r.Use(otelgin.Middleware("api"))
 	r.Use(authClient.ValidateToken())
 	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
 	r.Use(middleware.NewUserMiddleware(queries, remoteCache, ls, authClient))
-	// Get the user object from headers
 	r.Use(middleware.NewFakeUserMiddleware(os.Getenv("FAKE_USER_SECRET")))
 	r.Use(middleware.NewProfileMiddleware(queries, remoteCache))
 	r.Use(applications.RoleMiddleware())
@@ -233,6 +236,7 @@ func main() {
 		config.AnalyticsSalt,
 		authClient,
 		remoteCache,
+		analyticsService,
 	))
 	r.GET("/", playgroundHandler())
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, ls))

@@ -8,6 +8,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"strconv"
+	"time"
 )
 
 func gqlShowFromSearchResultItem(i common.SearchResultItem) model.ShowSearchItem {
@@ -148,6 +149,7 @@ func convertToGQL(items []common.SearchResultItem) []model.SearchResultItem {
 }
 
 func searchResolver(r *queryRootResolver, ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error) {
+	start := time.Now()
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -185,6 +187,18 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 	if err != nil {
 		return nil, err
 	}
+
+	duration := time.Now().Sub(start)
+
+	r.AnalyticsClient.SearchEvent(
+		ginCtx,
+		r.AnalyticsIDFactory(ctx),
+		queryString,
+		typeArg,
+		searchProvider,
+		searchResult,
+		duration,
+	)
 
 	return &model.SearchResult{
 		Result:         convertToGQL(searchResult.Result),

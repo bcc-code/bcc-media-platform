@@ -23,6 +23,7 @@ type SearchResult struct {
 	HitCount    int                `json:"hitCount"`
 	Page        int                `json:"page"`
 	PageCount   int                `json:"pageCount"`
+	TopScore    int                `json:"topScore"`
 }
 
 // SearchResultItem for exposing search results through the API

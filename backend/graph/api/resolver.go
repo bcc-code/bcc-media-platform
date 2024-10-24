@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rsa"
 	"fmt"
+	"github.com/samber/lo"
 	"strconv"
 	"sync"
 	"time"
@@ -33,7 +34,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
-	"github.com/samber/lo"
 )
 
 // This file will not be regenerated automatically.
@@ -47,6 +47,10 @@ const episodeContextKey = "EpisodeContext"
 type searchProvider interface {
 	Search(ctx *gin.Context, query common.SearchQuery, userToken string) (searchResult common.SearchResult, err error)
 	SearchElastic(ctx *gin.Context, query common.SearchQuery, userToken string) (searchResult common.SearchResult, err error)
+}
+
+type analyticsService interface {
+	SearchEvent(ctx *gin.Context, analyticsID string, query string, typeArg *string, searchProvider string, searchResult common.SearchResult, duration time.Duration)
 }
 
 // Resolver is the main struct for the GQL implementation
@@ -66,6 +70,7 @@ type Resolver struct {
 	RedirectConfig     redirectConfig
 	AuthClient         *auth0.Client
 	RemoteCache        *remotecache.Client
+	AnalyticsClient    analyticsService
 }
 
 func (r *Resolver) GetQueries() *sqlc.Queries {

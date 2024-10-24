@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"github.com/bcc-code/bcc-media-platform/backend/analytics"
 	"os"
 	"strings"
 
@@ -67,6 +68,7 @@ type envConfig struct {
 	AnalyticsSalt string
 	Email         email.Config
 	Redirect      *redirectConfig
+	Analytics     analytics.Config
 }
 
 type cdnConfig struct {
@@ -92,6 +94,12 @@ type redirectConfig struct {
 	JWTPrivateKeyRaw string
 	jwtPrivateKey    *rsa.PrivateKey
 	KeyID            string
+}
+
+type rudderstackConfig struct {
+	Dataplane string
+	Key       string
+	Verbose   bool
 }
 
 func toPrivateKey(key string) *rsa.PrivateKey {
@@ -168,6 +176,7 @@ func getEnvConfig() envConfig {
 			return strings.TrimSpace(s)
 		},
 	)
+
 	return envConfig{
 		Members: members.Config{
 			Domain: os.Getenv("MEMBERS_API_DOMAIN"),
@@ -234,5 +243,10 @@ func getEnvConfig() envConfig {
 			KeyID:            os.Getenv("REDIRECT_JWT_KEY_ID"),
 		},
 		AnalyticsSalt: os.Getenv("ANALYTICS_SALT"),
+		Analytics: analytics.Config{
+			DataPlane: os.Getenv("RUDDERSTACK_DATA_PLANE_URL"),
+			WriteKey:  os.Getenv("RUDDERSTACK_WRITE_KEY"),
+			Verbose:   strings.ToLower(os.Getenv("RUDDERSTACK_VERBOSE")) == "true",
+		},
 	}
 }
