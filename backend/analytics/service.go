@@ -5,7 +5,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/gin-gonic/gin"
-	"github.com/rudderlabs/analytics-go"
 	r "github.com/rudderlabs/analytics-go/v4"
 	"time"
 )
@@ -43,7 +42,7 @@ func NewService(config Config) *Service {
 	}
 }
 
-func (s *Service) trackEvent(ctx *gin.Context, analyticsID string, event string, props analytics.Properties) {
+func (s *Service) trackEvent(ctx *gin.Context, analyticsID string, event string, props r.Properties) {
 	app, _ := applications.GetFromCtx(ctx)
 
 	props = props.Set("requestId", ctx.GetHeader("X-Request-ID")).
@@ -53,7 +52,7 @@ func (s *Service) trackEvent(ctx *gin.Context, analyticsID string, event string,
 		Set("applicationVersion", app.ClientVersion)
 
 	err := s.rudderClient.Enqueue(
-		analytics.Track{
+		r.Track{
 			UserId:     analyticsID,
 			Event:      event,
 			Properties: props,
@@ -74,7 +73,7 @@ func (s *Service) SearchEvent(
 	searchResult common.SearchResult,
 	duration time.Duration,
 ) {
-	props := analytics.NewProperties().
+	props := r.NewProperties().
 		Set("query", queryString).
 		Set("type", typeArg).
 		Set("provider", searchProvider).
