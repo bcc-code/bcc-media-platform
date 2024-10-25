@@ -63,7 +63,7 @@ func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Messag
 	}
 
 	batchSendMessages := func(r []*messaging.Message) ([]failedToken, error) {
-		res, err := client.SendAll(ctx, r)
+		res, err := client.SendEach(ctx, r)
 		if err != nil {
 			return nil, err
 		}
@@ -88,7 +88,7 @@ func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Messag
 			log.L.Error().Err(err).Send()
 		}
 		for _, t := range failedTokens {
-			if messaging.IsRegistrationTokenNotRegistered(t.Error) {
+			if messaging.IsUnregistered(t.Error) {
 				unregisterTokens = append(unregisterTokens, t.Token)
 			} else {
 				log.L.Warn().Err(t.Error).Send()
