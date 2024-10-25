@@ -9,7 +9,7 @@ require (
 	cloud.google.com/go/cloudtasks v1.12.8
 	cloud.google.com/go/profiler v0.3.1
 	cloud.google.com/go/pubsub v1.38.0
-	firebase.google.com/go v3.13.0+incompatible
+	firebase.google.com/go/v4 v4.15.0
 	github.com/99designs/gqlgen v0.17.48
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.3.2
 	github.com/Code-Hex/go-generics-cache v1.3.1
@@ -46,7 +46,6 @@ require (
 	github.com/redis/go-redis/v9 v9.2.1
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
 	github.com/rs/zerolog v1.31.0
-	github.com/rudderlabs/analytics-go v3.3.3+incompatible
 	github.com/rudderlabs/analytics-go/v4 v4.2.1
 	github.com/samber/lo v1.38.1
 	github.com/sendgrid/sendgrid-go v3.13.0+incompatible
@@ -84,6 +83,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.5.2 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.5.2 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.44.0 // indirect
+	github.com/MicahParks/keyfunc v1.9.0 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/apache/arrow/go/v15 v15.0.2 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.14 // indirect
@@ -121,6 +121,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.15.5 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/flatbuffers v23.5.26+incompatible // indirect
@@ -167,7 +168,6 @@ require (
 	github.com/urfave/cli/v2 v2.27.2 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20240312152122-5f08fbb34913 // indirect
-	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.52.0 // indirect
@@ -191,7 +191,7 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.21.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
-	google.golang.org/appengine v1.6.8 // indirect
+	google.golang.org/appengine/v2 v2.0.2 // indirect
 	google.golang.org/genproto v0.0.0-20240528184218-531527333157 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240528184218-531527333157 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157 // indirect
