@@ -9,4 +9,4 @@ const ShortsWithScores = "shorts-with-scores:enabled"
 // ElasticSearchEnabled enables the elastic search for the client
 //
 // Added: 07.10.2024
-const ElasticSearchEnabled = "elastic-search-enabled"
+const ElasticSearchEnabled = "elastic-search:enabled"
