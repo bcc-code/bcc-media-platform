@@ -128,6 +128,9 @@ const load = async () => {
                             'content.language': languageTo3letter(
                                 currentLanguage.value.code
                             ),
+                            'content.subtitles': languageTo3letter(
+                                currentLanguage.value.code
+                            ),
                         },
                     },
                 },
