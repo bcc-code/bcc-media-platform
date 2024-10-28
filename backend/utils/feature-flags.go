@@ -47,6 +47,8 @@ func (f FeatureFlags) List() []string {
 
 const featureFlagsKey = "feature-flags"
 
+const featureFlagsHeader = "x-feature-flags"
+
 // GetFeatureFlags returns flags for unleash
 func GetFeatureFlags(ctx *gin.Context) FeatureFlags {
 	flags, ok := ctx.Get(featureFlagsKey)
@@ -55,7 +57,7 @@ func GetFeatureFlags(ctx *gin.Context) FeatureFlags {
 	}
 
 	var featureFlags FeatureFlags
-	featureFlagsString := ctx.GetHeader("x-feature-flags")
+	featureFlagsString := ctx.GetHeader(featureFlagsHeader)
 	for _, flag := range strings.Split(featureFlagsString, ",") {
 		if flag == "" {
 			continue
