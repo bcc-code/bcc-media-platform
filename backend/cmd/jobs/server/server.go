@@ -260,5 +260,9 @@ func (s Server) ProcessAwsMessage(c *gin.Context) {
 
 // ProcessScheduledTask processes the scheduled task.
 func (s Server) ProcessScheduledTask(ctx *gin.Context) {
-	s.services.Scheduler.HandleRequest(ctx)
+	log.L.Debug().Msg("Processing scheduled task")
+	errs := s.services.Scheduler.HandleRequest(ctx)
+	if errs != nil {
+		log.L.Error().Errs("errors", errs).Send()
+	}
 }
