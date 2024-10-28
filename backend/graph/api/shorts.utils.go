@@ -67,7 +67,7 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 	var shortIDSegments [][]uuid.UUID
 	var err error
 
-	if featureFlags.Has(unleash.ShortsWithScores) {
+	if value, ok := featureFlags.GetVariant(unleash.ShortsWithScoresFlag); ok && value == unleash.ShortsWithScoresEnabledVariant {
 		shortIDs, iErr := r.GetFilteredLoaders(ctx).ShortWithScoresLoader(ctx)
 		err = iErr
 
