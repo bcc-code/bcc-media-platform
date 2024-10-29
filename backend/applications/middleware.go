@@ -39,6 +39,9 @@ func mapApplicationCode(applicationCode string) string {
 	if applicationCode == "kids" {
 		return "kids-mobile"
 	}
+	if applicationCode == "connect-tvos" {
+		return "live-tvos"
+	}
 	return applicationCode
 }
 
