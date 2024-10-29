@@ -1,11 +1,23 @@
 <script setup lang="ts">
 import { provideClient } from '@urql/vue'
 import client from '@/graph/client'
-import { useAuth } from '@/services/auth'
+import { PERSON_ID_CLAIM, useAuth } from '@/services/auth'
 import { watch } from 'vue'
 import { useRouter } from 'vue-router'
+import unleashClient from './services/unleash'
 
-const { loading } = useAuth()
+const { loading, user } = useAuth()
+watch(user, (u) => {
+    if (u) {
+        unleashClient.updateContext({
+            userId: u[PERSON_ID_CLAIM],
+            // @ts-expect-error gender is a custom property
+            gender: u.gender ?? '',
+            birthDate: u.birthdate ?? '',
+        })
+        unleashClient.start()
+    }
+})
 
 provideClient(client)
 
