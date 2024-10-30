@@ -76,3 +76,8 @@ func GetFeatureFlags(ctx *gin.Context) FeatureFlags {
 
 	return featureFlags
 }
+
+// ReportFlagActivation reports flag activation as a header
+func ReportFlagActivation(ctx *gin.Context, flag string, variant string) {
+	ctx.Writer.Header().Add(featureFlagsHeader, flag+":"+variant)
+}
