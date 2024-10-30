@@ -32,6 +32,9 @@ importers:
       '@types/showdown':
         specifier: ^2.0.6
         version: 2.0.6
+      '@unleash/proxy-client-vue':
+        specifier: ^0.1.2
+        version: 0.1.2(typescript@5.5.4)
       '@urql/exchange-auth':
         specifier: 2.2.0
         version: 2.2.0(@urql/core@5.0.6(graphql@16.9.0))
@@ -1284,6 +1287,9 @@ packages:
   '@typescript-eslint/visitor-keys@8.1.0':
     resolution: {integrity: sha512-ba0lNI19awqZ5ZNKh6wCModMwoZs457StTebQ0q1NP58zSi2F6MOZRXwfKZy+jB78JNJ/WH8GSh2IQNzXX8Nag==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@unleash/proxy-client-vue@0.1.2':
+    resolution: {integrity: sha512-sk52A5+pk75St/Mk8Gr/Rz0bP/fc3J6tg95ubYpyh0SEggrnIaJEp+sYaDk3PLZYags/SuRGciDPLLJaes4MrQ==}
 
   '@urql/core@5.0.6':
     resolution: {integrity: sha512-38rgSDqVNihFDauw1Pm9V7XLWIKuK8V9CKgrUF7/xEKinze8ENKP1ZeBhkG+dxWzJan7CHK+SLl46kAdvZwIlA==}
@@ -3098,6 +3104,9 @@ packages:
   through@2.3.8:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
 
+  tiny-emitter@2.1.0:
+    resolution: {integrity: sha512-NB6Dk1A9xgQPMoGqC5CVXn123gWyte215ONT5Pp5a0yt4nlEoO1ZWeCwpncaekPHXO60i47ihFnZPiRPjRMq4Q==}
+
   title-case@3.0.3:
     resolution: {integrity: sha512-e1zGYRvbffpcHIrnuqT0Dh+gEJtDaxDSoG4JAIpq4oDFyooziLBIiYQv0GBT4FUAnUop5uZ1hiIAj7oAF6sOCA==}
 
@@ -3207,6 +3216,9 @@ packages:
     resolution: {integrity: sha512-6bc58dPYhCMHHuwxldQxO3RRNZ4eCogZ/st++0+fcC1nr0jiGUtAdBJ2qzmLQWSxbtz42pWt4QQMiZ9HvZf5cg==}
     engines: {node: '>=0.10.0'}
 
+  unleash-proxy-client@3.6.1:
+    resolution: {integrity: sha512-gbvkob/cBewLHMh9aAwWLDLN8D1efJ5FdUMva7wGBVykJMIqyYIlUsJpVNXnpq+feNBn6Qc1D1huXD2bk9bEmA==}
+
   unplugin@1.12.1:
     resolution: {integrity: sha512-aXEH9c5qi3uYZHo0niUtxDlT9ylG/luMW/dZslSCkbtC31wCyFkmM0kyoBBh+Grhn7CL+/kvKLfN61/EdxPxMQ==}
     engines: {node: '>=14.0.0'}
@@ -3241,6 +3253,10 @@ packages:
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+
+  uuid@9.0.1:
+    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    hasBin: true
 
   v8-compile-cache-lib@3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
@@ -4968,6 +4984,13 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.1.0
       eslint-visitor-keys: 3.4.3
+
+  '@unleash/proxy-client-vue@0.1.2(typescript@5.5.4)':
+    dependencies:
+      unleash-proxy-client: 3.6.1
+      vue: 3.4.38(typescript@5.5.4)
+    transitivePeerDependencies:
+      - typescript
 
   '@urql/core@5.0.6(graphql@16.9.0)':
     dependencies:
@@ -7006,6 +7029,8 @@ snapshots:
 
   through@2.3.8: {}
 
+  tiny-emitter@2.1.0: {}
+
   title-case@3.0.3:
     dependencies:
       tslib: 2.6.3
@@ -7120,6 +7145,11 @@ snapshots:
     dependencies:
       normalize-path: 2.1.1
 
+  unleash-proxy-client@3.6.1:
+    dependencies:
+      tiny-emitter: 2.1.0
+      uuid: 9.0.1
+
   unplugin@1.12.1:
     dependencies:
       acorn: 8.12.1
@@ -7165,6 +7195,8 @@ snapshots:
   urlpattern-polyfill@8.0.2: {}
 
   util-deprecate@1.0.2: {}
+
+  uuid@9.0.1: {}
 
   v8-compile-cache-lib@3.0.1: {}
 

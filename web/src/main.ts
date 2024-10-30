@@ -14,6 +14,8 @@ import 'swiper/css/pagination'
 import 'swiper/css/scrollbar'
 import i18n from './i18n'
 import { MotionPlugin } from '@vueuse/motion'
+import { plugin as unleashPlugin } from '@unleash/proxy-client-vue'
+import unleashClient from './services/unleash'
 
 const app = createApp(App)
 
@@ -32,5 +34,5 @@ if (import.meta.env.PROD) {
     })
 }
 
-app.use(i18n).use(router).use(auth0).use(MotionPlugin, {})
+app.use(i18n).use(router).use(auth0).use(unleashPlugin, { client: unleashClient, startClient: false }).use(MotionPlugin, {})
 app.mount('#app')

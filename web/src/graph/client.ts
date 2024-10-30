@@ -5,6 +5,7 @@ import { Auth } from '../services/auth'
 import { current } from '@/services/language'
 import { currentApp as currentApp } from '@/services/app'
 import { webViewMain } from '@/services/webviews/mainHandler'
+import { getFeatureFlags } from '@/services/feature-flags'
 
 const authExchangeFunction = async (
     utils: AuthUtilities
@@ -20,7 +21,7 @@ const authExchangeFunction = async (
                 Authorization: `Bearer ${token}`,
             })
         },
-        didAuthError(error, operation): boolean {
+        didAuthError() {
             return false
         },
         async refreshAuth() {
@@ -33,16 +34,18 @@ const authExchangeFunction = async (
 
 export default createClient({
     url: config.api.url + '/query',
-    fetch(input, init) {
-        return fetch(
-            input,
-            Object.assign(init ?? {}, {
-                headers: Object.assign(init?.headers ?? {}, {
-                    'Accept-Language': current.value.code,
-                    'X-Application': currentApp.value,
-                }),
-            })
-        )
+    fetchOptions: () => {
+        const headers: HeadersInit = {
+            'Accept-Language': current.value.code,
+            'X-Application': currentApp.value
+        }
+
+        const featureFlags = getFeatureFlags()
+        if (featureFlags) {
+            headers['X-Feature-Flags'] = featureFlags
+        }
+
+        return { headers }
     },
     exchanges: [
         cacheExchange,

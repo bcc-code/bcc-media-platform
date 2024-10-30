@@ -1286,6 +1286,7 @@ export type SearchResult = {
   hits: Scalars['Int']['output'];
   page: Scalars['Int']['output'];
   result: Array<SearchResultItem>;
+  searchProvider: Scalars['String']['output'];
 };
 
 export type SearchResultItem = {

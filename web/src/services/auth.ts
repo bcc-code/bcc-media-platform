@@ -7,6 +7,7 @@ import { useAuth0 } from '@/services/auth0'
 
 const COUNTRY_CODE_CLAIM = 'https://login.bcc.no/claims/CountryIso2Code'
 const CHURCH_ID_CLAIM = 'https://login.bcc.no/claims/churchId'
+export const PERSON_ID_CLAIM = 'https://login.bcc.no/claims/personId'
 
 const query = new URLSearchParams(window.location.search)
 
@@ -102,10 +103,7 @@ export class Auth {
     }
 
     public static user() {
-        const { isAuthenticated, user } = useAuth0()
-        // if (!isAuthenticated.value) {
-        //     return null
-        // }
+        const { user } = useAuth0()
         return user
     }
 
@@ -116,6 +114,7 @@ export class Auth {
             birthDate: idTokenClaims.value?.birthdate,
             churchId: idTokenClaims.value?.[CHURCH_ID_CLAIM] as number,
             country: idTokenClaims.value?.[COUNTRY_CODE_CLAIM] as string,
+            bccPersonId: idTokenClaims.value?.[PERSON_ID_CLAIM] as number,
         }
     }
 }
