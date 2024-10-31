@@ -2,15 +2,15 @@ package push
 
 import (
 	"context"
+	"os"
+	"testing"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"gopkg.in/guregu/null.v4"
-	"os"
-	"testing"
 )
 
 func TestSendMessage(t *testing.T) {
-
 	if os.Getenv("FIREBASE_PROJECT_ID") == "" {
 		t.Skip("FIREBASE_PROJECT_ID not set. Not attempting to send message")
 	}

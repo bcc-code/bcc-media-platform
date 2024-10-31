@@ -165,6 +165,7 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 
 	searchProvider := "unknown"
 	if value, ok := flags.GetVariant(unleash.ElasticSearchFlag); ok && value == unleash.ElasticSearchEnabledVariant {
+		utils.ReportFlagActivation(ginCtx, unleash.ElasticSearchFlag, unleash.ElasticSearchEnabledVariant)
 		searchResult, err = r.SearchService.SearchElastic(ginCtx, common.SearchQuery{
 			Query:    queryString,
 			Limit:    first,
