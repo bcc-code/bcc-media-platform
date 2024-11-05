@@ -17,8 +17,8 @@ const { t } = useI18n()
 const { query } = useSearch()
 const queryString = ref(query.value)
 
-const showCount = ref(null as number | null)
-const episodeCount = ref(null as number | null)
+const showCount = ref<number>()
+const episodeCount = ref<number>()
 
 const clickEpisode = (index: number, id: string) => {
     analytics.track('searchresult_clicked', {
@@ -32,7 +32,7 @@ const clickEpisode = (index: number, id: string) => {
     goToEpisode(id)
 }
 
-let timeout = null as NodeJS.Timeout | null
+let timeout = ref<NodeJS.Timeout>()
 
 const queryVariable = ref(queryString.value)
 
@@ -77,10 +77,10 @@ watch(
         }
 
         // Delay the query itself, in case you add more characters to the string
-        if (timeout !== null) {
-            clearTimeout(timeout)
+        if (timeout.value) {
+            clearTimeout(timeout.value)
         }
-        timeout = setTimeout(() => {
+        timeout.value = setTimeout(() => {
             queryVariable.value = v
         }, 150)
     }
@@ -88,19 +88,30 @@ watch(
 
 const pause = ref(false)
 
-const showSearchQuery = useSearchQuery({
+const { data: showSearchQuery } = useSearchQuery({
     variables: {
         query: queryVariable,
         type: 'show',
     },
 })
 
-const episodeSearchQuery = useSearchQuery({
+const { data: episodeSearchQuery } = useSearchQuery({
     variables: {
         query: queryVariable,
         type: 'episode',
     },
 })
+
+watch(
+    [
+        () => showSearchQuery.value?.search.result.length,
+        () => episodeSearchQuery.value?.search.result.length,
+    ],
+    ([shows, episodes]) => {
+        showCount.value = shows ?? 0
+        episodeCount.value = episodes ?? 0
+    }
+)
 </script>
 <template>
     <section class="p-4 lg:p-20">
@@ -109,22 +120,22 @@ const episodeSearchQuery = useSearchQuery({
         </div>
         <div v-if="query && loaded" class="relative">
             <ShowSearchQuery
-                v-if="showSearchQuery.data.value"
+                v-if="showSearchQuery && showCount"
                 class="mt-2 mb-8"
                 :query-string="queryVariable"
-                :result="showSearchQuery.data.value"
+                :result="showSearchQuery"
             ></ShowSearchQuery>
             <EpisodeSearchQuery
-                v-if="episodeSearchQuery.data.value"
+                v-if="episodeSearchQuery && episodeCount"
                 class="mb-2"
                 :query-string="queryVariable"
-                :result="episodeSearchQuery.data.value"
+                :result="episodeSearchQuery"
                 @item-click="clickEpisode"
             ></EpisodeSearchQuery>
             <NotFound
+                v-if="!showCount && !episodeCount"
                 :link="false"
                 class="transition opacity-100"
-                :class="{ 'opacity-0': showCount !== 0 || episodeCount !== 0 }"
             >
                 <template #title>{{ $t('search.noResults') }}</template>
                 <template #description>{{
