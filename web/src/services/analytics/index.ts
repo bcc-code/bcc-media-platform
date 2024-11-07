@@ -80,7 +80,7 @@ class Analytics {
                 ...data,
                 appLanguage: current.value.code,
                 releaseVersion: this.revision ?? 'unknown',
-                ageGroup: user?.ageGroup,
+                ageGroup: user?.ageGroup ?? 'unknown',
             },
             undefined,
             undefined
