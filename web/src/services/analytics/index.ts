@@ -72,6 +72,7 @@ class Analytics {
 
     public track<T extends keyof Events>(event: T, data: Events[T]) {
         if (!this.initialized) return
+        const user = this.getUser()
 
         track(
             event,
@@ -79,6 +80,7 @@ class Analytics {
                 ...data,
                 appLanguage: current.value.code,
                 releaseVersion: this.revision ?? 'unknown',
+                ageGroup: user?.ageGroup ?? 'unknown',
             },
             undefined,
             undefined

@@ -109,4 +109,9 @@ export type Events = {
         elementId?: string
         meta?: apiObject
     }
+    video_played: {
+        videoId: string
+        referenceId?: string
+        data?: Record<string, unknown>
+    }
 }

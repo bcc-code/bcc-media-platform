@@ -19,6 +19,7 @@ import { createVjsMenuButton, type MenuItem } from '@/components/videojs/Menu'
 import { languages } from '@/services/language'
 import { currentApp } from '@/services/app'
 import { languageTo3letter } from '@/utils/languages'
+import { generateUUID } from '@/utils/uuid'
 
 const { isAuthenticated } = useAuth0()
 
@@ -92,6 +93,7 @@ const onSpaceBar = (event: KeyboardEvent) => {
 
 const load = async () => {
     const episodeId = props.episode.uuid
+    const referenceId = generateUUID()
     if (current.value !== episodeId) {
         loaded.value = false
         current.value = episodeId
@@ -131,6 +133,7 @@ const load = async () => {
                             'content.subtitles': languageTo3letter(
                                 currentLanguage.value.code
                             ),
+                            'content.transactionCode': referenceId,
                         },
                     },
                 },
@@ -170,6 +173,15 @@ const load = async () => {
         }
         player.value.on('ended', () => {
             emit('next')
+        })
+        player.value.on('play', () => {
+            analytics.track('video_played', {
+                videoId: props.episode.id,
+                referenceId: referenceId,
+                data: {
+                    // Whatever data we want to send
+                },
+            })
         })
         loaded.value = true
     }
