@@ -168,7 +168,7 @@ resource "google_cloud_run_service" "background_worker" {
         resources {
           limits = {
             cpu    = "1000m"
-            memory = "256Mi"
+            memory = "1Gi"
           }
         }
       }

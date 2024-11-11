@@ -22,6 +22,7 @@ func NewService(ctx context.Context, firebaseProjectID string, queries *sqlc.Que
 	app, err := firebase.NewApp(ctx, &firebase.Config{
 		ProjectID: firebaseProjectID,
 	})
+
 	if err != nil {
 		return nil, err
 	}
