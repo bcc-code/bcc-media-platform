@@ -77,10 +77,10 @@ class Analytics {
         track(
             event,
             {
-                ...data,
                 appLanguage: current.value.code,
                 releaseVersion: this.revision ?? 'unknown',
                 ageGroup: user?.ageGroup ?? 'unknown',
+                ...data,
             },
             undefined,
             undefined

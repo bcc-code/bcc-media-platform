@@ -112,6 +112,6 @@ export type Events = {
     video_played: {
         videoId: string
         referenceId?: string
-        data?: Record<string, unknown>
+        data?: Record<string, never>
     }
 }
