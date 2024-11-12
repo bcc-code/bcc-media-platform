@@ -1568,7 +1568,7 @@ const listSurveyQuestionTranslations = `-- name: ListSurveyQuestionTranslations 
 SELECT ts.id,
        surveyquestions_id                                                                                 as parent_id,
        languages_code                                                                                     as language,
-       json_build_object('title', ts.title, 'description', ts.description, 'placeholder', ts.placeholder) as values
+       json_build_object('title', ts.title, 'description', ts.description, 'placeholder', ts.placeholder, ts.action_button_text, ts.cancel_button_text) as values
 FROM surveyquestions_translations ts
          JOIN surveyquestions items ON items.id = ts.surveyquestions_id
          JOIN surveys s ON s.id = items.survey_id AND s.status = ANY ('{published,unlisted}')

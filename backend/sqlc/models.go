@@ -1621,17 +1621,20 @@ type Survey struct {
 }
 
 type Surveyquestion struct {
-	ID          uuid.UUID      `db:"id" json:"id"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	Title       string         `db:"title" json:"title"`
-	Description null_v4.String `db:"description" json:"description"`
-	Type        string         `db:"type" json:"type"`
-	SurveyID    uuid.UUID      `db:"survey_id" json:"surveyId"`
-	Sort        null_v4.Int    `db:"sort" json:"sort"`
-	Placeholder null_v4.String `db:"placeholder" json:"placeholder"`
+	ID               uuid.UUID      `db:"id" json:"id"`
+	UserCreated      uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated      null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated      uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated      null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Title            string         `db:"title" json:"title"`
+	Description      null_v4.String `db:"description" json:"description"`
+	Type             string         `db:"type" json:"type"`
+	SurveyID         uuid.UUID      `db:"survey_id" json:"surveyId"`
+	Sort             null_v4.Int    `db:"sort" json:"sort"`
+	Placeholder      null_v4.String `db:"placeholder" json:"placeholder"`
+	Url              null_v4.String `db:"url" json:"url"`
+	ActionButtonText null_v4.String `db:"action_button_text" json:"actionButtonText"`
+	CancelButtonText null_v4.String `db:"cancel_button_text" json:"cancelButtonText"`
 }
 
 type SurveyquestionsTranslation struct {
@@ -1641,6 +1644,8 @@ type SurveyquestionsTranslation struct {
 	Title             null_v4.String `db:"title" json:"title"`
 	Description       null_v4.String `db:"description" json:"description"`
 	Placeholder       null_v4.String `db:"placeholder" json:"placeholder"`
+	ActionButtonText  null_v4.String `db:"action_button_text" json:"actionButtonText"`
+	CancelButtonText  null_v4.String `db:"cancel_button_text" json:"cancelButtonText"`
 }
 
 type SurveysTranslation struct {

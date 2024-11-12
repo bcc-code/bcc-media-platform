@@ -494,10 +494,13 @@ type Survey struct {
 
 // SurveyQuestion is a question in a survey
 type SurveyQuestion struct {
-	ID          uuid.UUID `json:"id"`
-	Title       LocaleString
-	Description LocaleString
-	Type        string
+	ID               uuid.UUID `json:"id"`
+	Title            LocaleString
+	Description      LocaleString
+	Type             string
+	CancelButtonText LocaleString
+	ActionButtonText LocaleString
+	URL              null.String
 }
 
 // Prompt is a prompt that shows up in app

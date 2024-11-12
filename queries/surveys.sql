@@ -16,17 +16,25 @@ WHERE s.id = ANY (@ids::uuid[]);
 -- name: getSurveyQuestions :many
 WITH ts AS (SELECT ts.surveyquestions_id                           AS id,
                    json_object_agg(languages_code, ts.title)       AS title,
-                   json_object_agg(languages_code, ts.description) AS description
+                   json_object_agg(languages_code, ts.description) AS description,
+                   json_object_agg(languages_code, ts.action_button_text) AS action_button_text,
+                   json_object_agg(languages_code, ts.cancel_button_text) AS cancel_button_text
             FROM surveyquestions_translations ts
+            WHERE ts.id = ANY(@ids::uuid[])
             GROUP BY ts.surveyquestions_id)
 SELECT s.id,
        s.title       AS original_title,
        s.description AS original_description,
        s.placeholder AS original_placeholder,
+       s.action_button_text AS original_action_button_text,
+       s.cancel_button_text AS original_cancal_button_text,
        s.survey_id,
        s.type,
+       s.url,
        ts.title,
-       ts.description
+       ts.description,
+       ts.action_button_text,
+       ts.cancel_button_text
 FROM surveyquestions s
          LEFT JOIN ts ON ts.id = s.id
 WHERE s.id = ANY (@ids::uuid[]);

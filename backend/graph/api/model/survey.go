@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
@@ -22,6 +23,23 @@ func SurveyQuestionFrom(ctx context.Context, i *common.SurveyQuestion) SurveyQue
 			ID:          id,
 			Title:       title,
 			Description: description,
+		}
+
+	case "link":
+		// This is actually enforced in the admin,
+		// but just in case so we can prevent from ever serving a completely empty URL
+		url := "https://app.bcc.media/"
+		if i.URL.Valid {
+			url = i.URL.String
+		}
+
+		return SurveyLinkQuestion{
+			ID:               id,
+			Title:            title,
+			Description:      description,
+			ActionButtonText: i.ActionButtonText.Get(languages),
+			CancelButtonText: i.Title.GetValueOrNil(languages),
+			URL:              url,
 		}
 	default:
 		return SurveyTextQuestion{
