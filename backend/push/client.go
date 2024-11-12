@@ -2,19 +2,20 @@ package push
 
 import (
 	"context"
+	"os"
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
-	"github.com/samber/lo/parallel"
 )
 
 // Service is the struct containing the firebase app and methods for interacting with messaging
 type Service struct {
 	app     *firebase.App
 	queries *sqlc.Queries
+	dryRun  bool
 }
 
 // NewService returns a new instance of the push service
@@ -27,9 +28,12 @@ func NewService(ctx context.Context, firebaseProjectID string, queries *sqlc.Que
 		return nil, err
 	}
 
+	dryRun := os.Getenv("PUSH_DRY_RUN") == "true"
+
 	service := &Service{
-		app,
-		queries,
+		app:     app,
+		queries: queries,
+		dryRun:  dryRun,
 	}
 
 	return service, nil
@@ -40,11 +44,35 @@ type failedToken struct {
 	Token string
 }
 
-func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Message) error {
+func (s *Service) batchSendMessages(ctx context.Context, r []*messaging.Message) ([]failedToken, error) {
 	client, err := s.app.Messaging(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
+	sendF := client.SendEach
+	if s.dryRun {
+		sendF = client.SendEachDryRun
+	}
+
+	res, err := sendF(ctx, r)
+	if err != nil {
+		return nil, err
+	}
+
+	var failedTokens []failedToken
+	for index, sr := range res.Responses {
+		if sr.Error != nil {
+			failedTokens = append(failedTokens, failedToken{
+				Error: sr.Error,
+				Token: r[index].Token,
+			})
+		}
+	}
+
+	return failedTokens, nil
+}
+
+func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Message) error {
 
 	const maxConcurrent = 200
 
@@ -63,28 +91,10 @@ func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Messag
 		ranges = append(ranges, messages[i:r])
 	}
 
-	batchSendMessages := func(r []*messaging.Message) ([]failedToken, error) {
-		res, err := client.SendEach(ctx, r)
-		if err != nil {
-			return nil, err
-		}
-		var failedTokens []failedToken
-		for index, sr := range res.Responses {
-			if sr.Error != nil {
-				failedTokens = append(failedTokens, failedToken{
-					Error: sr.Error,
-					Token: r[index].Token,
-				})
-			}
-		}
-
-		return failedTokens, nil
-	}
-
 	var unregisterTokens []string
 
-	parallel.ForEach(ranges, func(i []*messaging.Message, _ int) {
-		failedTokens, err := batchSendMessages(i)
+	for _, r := range ranges {
+		failedTokens, err := s.batchSendMessages(ctx, r)
 		if err != nil {
 			log.L.Error().Err(err).Send()
 		}
@@ -95,7 +105,7 @@ func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Messag
 				log.L.Warn().Err(t.Error).Send()
 			}
 		}
-	})
+	}
 
 	if len(unregisterTokens) > 0 {
 		return s.queries.DeleteDevices(ctx, unregisterTokens)
