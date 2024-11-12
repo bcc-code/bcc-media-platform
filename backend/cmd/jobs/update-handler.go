@@ -43,6 +43,7 @@ func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string,
 		if err != nil {
 			return err
 		}
+
 		for _, n := range ns {
 			log.L.Debug().Str("notification", n.ID.String()).Msg("Processing notification update")
 			if n.Status != common.StatusPublished || n.SendStarted.Valid {
