@@ -74,7 +74,7 @@ func (s *Service) batchSendMessages(ctx context.Context, r []*messaging.Message)
 
 func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Message) error {
 
-	const maxConcurrent = 200
+	const maxConcurrent = 450
 
 	var ranges [][]*messaging.Message
 
