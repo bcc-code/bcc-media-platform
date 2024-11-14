@@ -1370,6 +1370,20 @@ type Survey struct {
 	Questions   *SurveyQuestionPagination `json:"questions"`
 }
 
+type SurveyLinkQuestion struct {
+	ID               string  `json:"id"`
+	Title            string  `json:"title"`
+	Description      *string `json:"description,omitempty"`
+	URL              string  `json:"url"`
+	ActionButtonText string  `json:"actionButtonText"`
+	CancelButtonText *string `json:"cancelButtonText,omitempty"`
+}
+
+func (SurveyLinkQuestion) IsSurveyQuestion()            {}
+func (this SurveyLinkQuestion) GetID() string           { return this.ID }
+func (this SurveyLinkQuestion) GetTitle() string        { return this.Title }
+func (this SurveyLinkQuestion) GetDescription() *string { return this.Description }
+
 type SurveyPrompt struct {
 	ID             string  `json:"id"`
 	Title          string  `json:"title"`

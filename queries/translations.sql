@@ -423,7 +423,7 @@ ON CONFLICT (surveys_id, languages_code) DO UPDATE SET title       = EXCLUDED.ti
 -- name: ListSurveyQuestionOriginalTranslations :many
 SELECT items.id,
        json_build_object('title', items.title, 'description', items.description, 'placeholder',
-                         items.placeholder) as values
+                         items.placeholder, 'action_button_text', items.action_button_text, 'cancel_button_text', items.cancel_button_text) as values
 FROM surveyquestions items
          JOIN surveys s ON s.id = items.survey_id
 WHERE s.translations_required
@@ -433,7 +433,7 @@ WHERE s.translations_required
 SELECT ts.id,
        surveyquestions_id                                                                                 as parent_id,
        languages_code                                                                                     as language,
-       json_build_object('title', ts.title, 'description', ts.description, 'placeholder', ts.placeholder) as values
+       json_build_object('title', ts.title, 'description', ts.description, 'placeholder', ts.placeholder, ts.action_button_text, ts.cancel_button_text) as values
 FROM surveyquestions_translations ts
          JOIN surveyquestions items ON items.id = ts.surveyquestions_id
          JOIN surveys s ON s.id = items.survey_id AND s.status = ANY ('{published,unlisted}')
@@ -446,10 +446,12 @@ FROM surveyquestions_translations ts
 WHERE ts.surveyquestions_id = ANY ($1::uuid[]);
 
 -- name: UpdateSurveyQuestionTranslation :exec
-INSERT INTO surveyquestions_translations (surveyquestions_id, languages_code, title, description)
-VALUES (@item_id, @language, @title, @description)
+INSERT INTO surveyquestions_translations (surveyquestions_id, languages_code, title, description, action_button_text, cancel_button_text)
+VALUES (@item_id, @language, @title, @description, @action_button_text, @cancel_button_text)
 ON CONFLICT (surveyquestions_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
-                                                               description = EXCLUDED.description;
+                                                               description = EXCLUDED.description,
+                                                               action_button_text = EXCLUDED.action_button_text,
+                                                               cancel_button_text = EXCLUDED.cancel_button_text;
 
 ----------
 -- FAQ ---

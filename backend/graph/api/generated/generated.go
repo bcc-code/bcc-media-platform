@@ -921,6 +921,15 @@ type ComplexityRoot struct {
 		Title       func(childComplexity int) int
 	}
 
+	SurveyLinkQuestion struct {
+		ActionButtonText func(childComplexity int) int
+		CancelButtonText func(childComplexity int) int
+		Description      func(childComplexity int) int
+		ID               func(childComplexity int) int
+		Title            func(childComplexity int) int
+		URL              func(childComplexity int) int
+	}
+
 	SurveyPrompt struct {
 		From           func(childComplexity int) int
 		ID             func(childComplexity int) int
@@ -5583,6 +5592,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Survey.Title(childComplexity), true
 
+	case "SurveyLinkQuestion.actionButtonText":
+		if e.complexity.SurveyLinkQuestion.ActionButtonText == nil {
+			break
+		}
+
+		return e.complexity.SurveyLinkQuestion.ActionButtonText(childComplexity), true
+
+	case "SurveyLinkQuestion.cancelButtonText":
+		if e.complexity.SurveyLinkQuestion.CancelButtonText == nil {
+			break
+		}
+
+		return e.complexity.SurveyLinkQuestion.CancelButtonText(childComplexity), true
+
+	case "SurveyLinkQuestion.description":
+		if e.complexity.SurveyLinkQuestion.Description == nil {
+			break
+		}
+
+		return e.complexity.SurveyLinkQuestion.Description(childComplexity), true
+
+	case "SurveyLinkQuestion.id":
+		if e.complexity.SurveyLinkQuestion.ID == nil {
+			break
+		}
+
+		return e.complexity.SurveyLinkQuestion.ID(childComplexity), true
+
+	case "SurveyLinkQuestion.title":
+		if e.complexity.SurveyLinkQuestion.Title == nil {
+			break
+		}
+
+		return e.complexity.SurveyLinkQuestion.Title(childComplexity), true
+
+	case "SurveyLinkQuestion.url":
+		if e.complexity.SurveyLinkQuestion.URL == nil {
+			break
+		}
+
+		return e.complexity.SurveyLinkQuestion.URL(childComplexity), true
+
 	case "SurveyPrompt.from":
 		if e.complexity.SurveyPrompt.From == nil {
 			break
@@ -7293,7 +7344,8 @@ type LinkTask implements Task {
     id: UUID!
     title: String!
     description: String
-    questions(first: Int, offset: Int): SurveyQuestionPagination! @goField(forceResolver: true)
+    questions(first: Int, offset: Int): SurveyQuestionPagination!
+        @goField(forceResolver: true)
 }
 
 type SurveyQuestionPagination implements Pagination {
@@ -7319,6 +7371,15 @@ type SurveyRatingQuestion implements SurveyQuestion {
     id: UUID!
     title: String!
     description: String
+}
+
+type SurveyLinkQuestion implements SurveyQuestion {
+    id: UUID!
+    title: String!
+    description: String
+    url: String!
+    actionButtonText: String!
+    cancelButtonText: String
 }
 `, BuiltIn: false},
 	{Name: "../schema/users.graphqls", Input: `enum Gender {
@@ -36425,6 +36486,264 @@ func (ec *executionContext) fieldContext_Survey_questions(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _SurveyLinkQuestion_id(ctx context.Context, field graphql.CollectedField, obj *model.SurveyLinkQuestion) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyLinkQuestion_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNUUID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyLinkQuestion_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyLinkQuestion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyLinkQuestion_title(ctx context.Context, field graphql.CollectedField, obj *model.SurveyLinkQuestion) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyLinkQuestion_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyLinkQuestion_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyLinkQuestion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyLinkQuestion_description(ctx context.Context, field graphql.CollectedField, obj *model.SurveyLinkQuestion) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyLinkQuestion_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyLinkQuestion_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyLinkQuestion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyLinkQuestion_url(ctx context.Context, field graphql.CollectedField, obj *model.SurveyLinkQuestion) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyLinkQuestion_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyLinkQuestion_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyLinkQuestion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyLinkQuestion_actionButtonText(ctx context.Context, field graphql.CollectedField, obj *model.SurveyLinkQuestion) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyLinkQuestion_actionButtonText(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ActionButtonText, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyLinkQuestion_actionButtonText(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyLinkQuestion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SurveyLinkQuestion_cancelButtonText(ctx context.Context, field graphql.CollectedField, obj *model.SurveyLinkQuestion) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SurveyLinkQuestion_cancelButtonText(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CancelButtonText, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SurveyLinkQuestion_cancelButtonText(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SurveyLinkQuestion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SurveyPrompt_id(ctx context.Context, field graphql.CollectedField, obj *model.SurveyPrompt) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SurveyPrompt_id(ctx, field)
 	if err != nil {
@@ -41832,6 +42151,13 @@ func (ec *executionContext) _SurveyQuestion(ctx context.Context, sel ast.Selecti
 			return graphql.Null
 		}
 		return ec._SurveyRatingQuestion(ctx, sel, obj)
+	case model.SurveyLinkQuestion:
+		return ec._SurveyLinkQuestion(ctx, sel, &obj)
+	case *model.SurveyLinkQuestion:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SurveyLinkQuestion(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -51798,6 +52124,64 @@ func (ec *executionContext) _Survey(ctx context.Context, sel ast.SelectionSet, o
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var surveyLinkQuestionImplementors = []string{"SurveyLinkQuestion", "SurveyQuestion"}
+
+func (ec *executionContext) _SurveyLinkQuestion(ctx context.Context, sel ast.SelectionSet, obj *model.SurveyLinkQuestion) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, surveyLinkQuestionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SurveyLinkQuestion")
+		case "id":
+			out.Values[i] = ec._SurveyLinkQuestion_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "title":
+			out.Values[i] = ec._SurveyLinkQuestion_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "description":
+			out.Values[i] = ec._SurveyLinkQuestion_description(ctx, field, obj)
+		case "url":
+			out.Values[i] = ec._SurveyLinkQuestion_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actionButtonText":
+			out.Values[i] = ec._SurveyLinkQuestion_actionButtonText(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "cancelButtonText":
+			out.Values[i] = ec._SurveyLinkQuestion_cancelButtonText(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

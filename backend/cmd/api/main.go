@@ -3,12 +3,12 @@ package main
 import (
 	"context"
 	"database/sql"
-	"github.com/bcc-code/bcc-media-platform/backend/analytics"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/bcc-code/bcc-media-platform/backend/analytics"
 
 	"cloud.google.com/go/profiler"
 	cache "github.com/Code-Hex/go-generics-cache"
@@ -167,6 +167,7 @@ func main() {
 		log.L.Info().Msg("JWK generated")
 		return handler
 	})
+
 	urlSigner, err := signing.NewSigner(config.CDNConfig)
 	if err != nil {
 		if environment.Production() {
@@ -250,26 +251,6 @@ func main() {
 	r.POST("/public", publicGraphqlHandler(ls))
 	r.GET("/versionz", version.GinHandler)
 
-	r.GET("/dirs/:key", func(ctx *gin.Context) {
-		key := os.Getenv("DIRS_KEY")
-		if key == "" {
-			return
-		}
-		if ctx.Param("key") != key {
-			return
-		}
-
-		var files []string
-		_ = filepath.Walk("/", func(path string, info os.FileInfo, err error) error {
-			if strings.HasPrefix(path, "/proc") || strings.HasPrefix(path, "/sys") {
-				return nil
-			}
-			files = append(files, path)
-			return nil
-		})
-		ctx.JSON(http.StatusOK, files)
-	})
-
 	if os.Getenv("PPROF") == "TRUE" {
 		pprof.Register(r, "debug/pprof")
 	}
@@ -289,7 +270,7 @@ func main() {
 
 	span.End()
 
-	log.L.Info().Msgf("Time to start: %d", time.Now().Sub(start).Nanoseconds())
+	log.L.Info().Float64("seconds", time.Now().Sub(start).Seconds()).Msg("Time to start")
 
 	err = r.Run(":" + config.Port)
 	if err != nil {

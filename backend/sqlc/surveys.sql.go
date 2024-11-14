@@ -185,31 +185,43 @@ func (q *Queries) getQuestionIDsForSurveyIDs(ctx context.Context, ids []uuid.UUI
 const getSurveyQuestions = `-- name: getSurveyQuestions :many
 WITH ts AS (SELECT ts.surveyquestions_id                           AS id,
                    json_object_agg(languages_code, ts.title)       AS title,
-                   json_object_agg(languages_code, ts.description) AS description
+                   json_object_agg(languages_code, ts.description) AS description,
+                   json_object_agg(languages_code, ts.action_button_text) AS action_button_text,
+                   json_object_agg(languages_code, ts.cancel_button_text) AS cancel_button_text
             FROM surveyquestions_translations ts
             GROUP BY ts.surveyquestions_id)
 SELECT s.id,
        s.title       AS original_title,
        s.description AS original_description,
        s.placeholder AS original_placeholder,
+       s.action_button_text AS original_action_button_text,
+       s.cancel_button_text AS original_cancel_button_text,
        s.survey_id,
        s.type,
+       s.url,
        ts.title,
-       ts.description
+       ts.description,
+       ts.action_button_text,
+       ts.cancel_button_text
 FROM surveyquestions s
          LEFT JOIN ts ON ts.id = s.id
 WHERE s.id = ANY ($1::uuid[])
 `
 
 type getSurveyQuestionsRow struct {
-	ID                  uuid.UUID             `db:"id" json:"id"`
-	OriginalTitle       string                `db:"original_title" json:"originalTitle"`
-	OriginalDescription null_v4.String        `db:"original_description" json:"originalDescription"`
-	OriginalPlaceholder null_v4.String        `db:"original_placeholder" json:"originalPlaceholder"`
-	SurveyID            uuid.UUID             `db:"survey_id" json:"surveyId"`
-	Type                string                `db:"type" json:"type"`
-	Title               pqtype.NullRawMessage `db:"title" json:"title"`
-	Description         pqtype.NullRawMessage `db:"description" json:"description"`
+	ID                       uuid.UUID             `db:"id" json:"id"`
+	OriginalTitle            string                `db:"original_title" json:"originalTitle"`
+	OriginalDescription      null_v4.String        `db:"original_description" json:"originalDescription"`
+	OriginalPlaceholder      null_v4.String        `db:"original_placeholder" json:"originalPlaceholder"`
+	OriginalActionButtonText null_v4.String        `db:"original_action_button_text" json:"originalActionButtonText"`
+	OriginalCancelButtonText null_v4.String        `db:"original_cancel_button_text" json:"originalCancelButtonText"`
+	SurveyID                 uuid.UUID             `db:"survey_id" json:"surveyId"`
+	Type                     string                `db:"type" json:"type"`
+	Url                      null_v4.String        `db:"url" json:"url"`
+	Title                    pqtype.NullRawMessage `db:"title" json:"title"`
+	Description              pqtype.NullRawMessage `db:"description" json:"description"`
+	ActionButtonText         pqtype.NullRawMessage `db:"action_button_text" json:"actionButtonText"`
+	CancelButtonText         pqtype.NullRawMessage `db:"cancel_button_text" json:"cancelButtonText"`
 }
 
 func (q *Queries) getSurveyQuestions(ctx context.Context, ids []uuid.UUID) ([]getSurveyQuestionsRow, error) {
@@ -226,10 +238,15 @@ func (q *Queries) getSurveyQuestions(ctx context.Context, ids []uuid.UUID) ([]ge
 			&i.OriginalTitle,
 			&i.OriginalDescription,
 			&i.OriginalPlaceholder,
+			&i.OriginalActionButtonText,
+			&i.OriginalCancelButtonText,
 			&i.SurveyID,
 			&i.Type,
+			&i.Url,
 			&i.Title,
 			&i.Description,
+			&i.ActionButtonText,
+			&i.CancelButtonText,
 		); err != nil {
 			return nil, err
 		}

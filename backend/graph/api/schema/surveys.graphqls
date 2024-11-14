@@ -2,7 +2,8 @@ type Survey {
     id: UUID!
     title: String!
     description: String
-    questions(first: Int, offset: Int): SurveyQuestionPagination! @goField(forceResolver: true)
+    questions(first: Int, offset: Int): SurveyQuestionPagination!
+        @goField(forceResolver: true)
 }
 
 type SurveyQuestionPagination implements Pagination {
@@ -28,4 +29,13 @@ type SurveyRatingQuestion implements SurveyQuestion {
     id: UUID!
     title: String!
     description: String
+}
+
+type SurveyLinkQuestion implements SurveyQuestion {
+    id: UUID!
+    title: String!
+    description: String
+    url: String!
+    actionButtonText: String!
+    cancelButtonText: String
 }

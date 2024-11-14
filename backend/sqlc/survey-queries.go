@@ -3,6 +3,7 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/google/uuid"
@@ -28,16 +29,27 @@ func surveyToItem(row getSurveysRow, _ int) common.Survey {
 func surveyQuestionToItem(row getSurveyQuestionsRow, _ int) common.SurveyQuestion {
 	var title = common.LocaleString{}
 	var d = common.LocaleString{}
+	var actionButton = common.LocaleString{}
+	var cancelButton = common.LocaleString{}
+
 	_ = json.Unmarshal(row.Title.RawMessage, &title)
 	_ = json.Unmarshal(row.Description.RawMessage, &d)
+	_ = json.Unmarshal(row.ActionButtonText.RawMessage, &actionButton)
+	_ = json.Unmarshal(row.CancelButtonText.RawMessage, &cancelButton)
+
 	title["no"] = null.StringFrom(row.OriginalTitle)
 	d["no"] = row.OriginalDescription
+	actionButton["no"] = row.OriginalActionButtonText
+	cancelButton["no"] = row.OriginalCancelButtonText
 
 	return common.SurveyQuestion{
-		ID:          row.ID,
-		Title:       title,
-		Description: d,
-		Type:        row.Type,
+		ID:               row.ID,
+		Title:            title,
+		Description:      d,
+		Type:             row.Type,
+		ActionButtonText: actionButton,
+		CancelButtonText: cancelButton,
+		URL:              row.Url,
 	}
 }
 
