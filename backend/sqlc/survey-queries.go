@@ -40,7 +40,7 @@ func surveyQuestionToItem(row getSurveyQuestionsRow, _ int) common.SurveyQuestio
 	title["no"] = null.StringFrom(row.OriginalTitle)
 	d["no"] = row.OriginalDescription
 	actionButton["no"] = row.OriginalActionButtonText
-	cancelButton["no"] = row.OriginalCancalButtonText
+	cancelButton["no"] = row.OriginalCancelButtonText
 
 	return common.SurveyQuestion{
 		ID:               row.ID,

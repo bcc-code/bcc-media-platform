@@ -38,7 +38,7 @@ func SurveyQuestionFrom(ctx context.Context, i *common.SurveyQuestion) SurveyQue
 			Title:            title,
 			Description:      description,
 			ActionButtonText: i.ActionButtonText.Get(languages),
-			CancelButtonText: i.Title.GetValueOrNil(languages),
+			CancelButtonText: i.CancelButtonText.GetValueOrNil(languages),
 			URL:              url,
 		}
 	default:

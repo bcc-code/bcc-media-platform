@@ -189,14 +189,13 @@ WITH ts AS (SELECT ts.surveyquestions_id                           AS id,
                    json_object_agg(languages_code, ts.action_button_text) AS action_button_text,
                    json_object_agg(languages_code, ts.cancel_button_text) AS cancel_button_text
             FROM surveyquestions_translations ts
-            WHERE ts.id = ANY($1::uuid[])
             GROUP BY ts.surveyquestions_id)
 SELECT s.id,
        s.title       AS original_title,
        s.description AS original_description,
        s.placeholder AS original_placeholder,
        s.action_button_text AS original_action_button_text,
-       s.cancel_button_text AS original_cancal_button_text,
+       s.cancel_button_text AS original_cancel_button_text,
        s.survey_id,
        s.type,
        s.url,
@@ -215,7 +214,7 @@ type getSurveyQuestionsRow struct {
 	OriginalDescription      null_v4.String        `db:"original_description" json:"originalDescription"`
 	OriginalPlaceholder      null_v4.String        `db:"original_placeholder" json:"originalPlaceholder"`
 	OriginalActionButtonText null_v4.String        `db:"original_action_button_text" json:"originalActionButtonText"`
-	OriginalCancalButtonText null_v4.String        `db:"original_cancal_button_text" json:"originalCancalButtonText"`
+	OriginalCancelButtonText null_v4.String        `db:"original_cancel_button_text" json:"originalCancelButtonText"`
 	SurveyID                 uuid.UUID             `db:"survey_id" json:"surveyId"`
 	Type                     string                `db:"type" json:"type"`
 	Url                      null_v4.String        `db:"url" json:"url"`
@@ -240,7 +239,7 @@ func (q *Queries) getSurveyQuestions(ctx context.Context, ids []uuid.UUID) ([]ge
 			&i.OriginalDescription,
 			&i.OriginalPlaceholder,
 			&i.OriginalActionButtonText,
-			&i.OriginalCancalButtonText,
+			&i.OriginalCancelButtonText,
 			&i.SurveyID,
 			&i.Type,
 			&i.Url,

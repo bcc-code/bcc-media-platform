@@ -20,14 +20,13 @@ WITH ts AS (SELECT ts.surveyquestions_id                           AS id,
                    json_object_agg(languages_code, ts.action_button_text) AS action_button_text,
                    json_object_agg(languages_code, ts.cancel_button_text) AS cancel_button_text
             FROM surveyquestions_translations ts
-            WHERE ts.id = ANY(@ids::uuid[])
             GROUP BY ts.surveyquestions_id)
 SELECT s.id,
        s.title       AS original_title,
        s.description AS original_description,
        s.placeholder AS original_placeholder,
        s.action_button_text AS original_action_button_text,
-       s.cancel_button_text AS original_cancal_button_text,
+       s.cancel_button_text AS original_cancel_button_text,
        s.survey_id,
        s.type,
        s.url,
