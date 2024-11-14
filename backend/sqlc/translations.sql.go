@@ -1529,7 +1529,7 @@ func (q *Queries) ListSurveyOriginalTranslations(ctx context.Context) ([]ListSur
 const listSurveyQuestionOriginalTranslations = `-- name: ListSurveyQuestionOriginalTranslations :many
 SELECT items.id,
        json_build_object('title', items.title, 'description', items.description, 'placeholder',
-                         items.placeholder) as values
+                         items.placeholder, 'action_button_text', items.action_button_text, 'cancel_button_text', items.cancel_button_text) as values
 FROM surveyquestions items
          JOIN surveys s ON s.id = items.survey_id
 WHERE s.translations_required
@@ -2171,17 +2171,21 @@ func (q *Queries) UpdateStudyTopicTranslation(ctx context.Context, arg UpdateStu
 }
 
 const updateSurveyQuestionTranslation = `-- name: UpdateSurveyQuestionTranslation :exec
-INSERT INTO surveyquestions_translations (surveyquestions_id, languages_code, title, description)
-VALUES ($1, $2, $3, $4)
+INSERT INTO surveyquestions_translations (surveyquestions_id, languages_code, title, description, action_button_text, cancel_button_text)
+VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (surveyquestions_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
-                                                               description = EXCLUDED.description
+                                                               description = EXCLUDED.description,
+                                                               action_button_text = EXCLUDED.action_button_text,
+                                                               cancel_button_text = EXCLUDED.cancel_button_text
 `
 
 type UpdateSurveyQuestionTranslationParams struct {
-	ItemID      uuid.UUID      `db:"item_id" json:"itemId"`
-	Language    string         `db:"language" json:"language"`
-	Title       null_v4.String `db:"title" json:"title"`
-	Description null_v4.String `db:"description" json:"description"`
+	ItemID           uuid.UUID      `db:"item_id" json:"itemId"`
+	Language         string         `db:"language" json:"language"`
+	Title            null_v4.String `db:"title" json:"title"`
+	Description      null_v4.String `db:"description" json:"description"`
+	ActionButtonText null_v4.String `db:"action_button_text" json:"actionButtonText"`
+	CancelButtonText null_v4.String `db:"cancel_button_text" json:"cancelButtonText"`
 }
 
 func (q *Queries) UpdateSurveyQuestionTranslation(ctx context.Context, arg UpdateSurveyQuestionTranslationParams) error {
@@ -2190,6 +2194,8 @@ func (q *Queries) UpdateSurveyQuestionTranslation(ctx context.Context, arg Updat
 		arg.Language,
 		arg.Title,
 		arg.Description,
+		arg.ActionButtonText,
+		arg.CancelButtonText,
 	)
 	return err
 }

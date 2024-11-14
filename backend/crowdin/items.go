@@ -250,10 +250,12 @@ func (c *Client) syncSurveyQuestions(ctx context.Context, options Options) error
 		},
 		func(t SimpleTranslation) sqlc.UpdateSurveyQuestionTranslationParams {
 			return sqlc.UpdateSurveyQuestionTranslationParams{
-				ItemID:      utils.AsUuid(t.ParentID),
-				Language:    t.Language,
-				Title:       null.StringFrom(t.Values["title"]),
-				Description: null.StringFrom(t.Values["description"]),
+				ItemID:           utils.AsUuid(t.ParentID),
+				Language:         t.Language,
+				Title:            null.StringFrom(t.Values["title"]),
+				Description:      null.StringFrom(t.Values["description"]),
+				ActionButtonText: null.StringFrom(t.Values["actionButtonText"]),
+				CancelButtonText: null.StringFrom(t.Values["cancelButtonText"]),
 			}
 		},
 		c.q.UpdateSurveyQuestionTranslation,
