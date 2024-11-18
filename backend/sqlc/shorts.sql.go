@@ -16,6 +16,24 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const getShortScores = `-- name: GetShortScores :one
+SELECT (((10 - LEAST(10, EXTRACT(DAY FROM current_date - COALESCE(mi.published_at, mi.date_created)))) * 0.5) + score)::float8 as final_score
+FROM shorts s
+         JOIN mediaitems mi ON s.mediaitem_id = mi.id
+         JOIN (SELECT r.shorts_id, array_agg(r.usergroups_code) as roles
+               FROM shorts_usergroups r
+               GROUP BY r.shorts_id) r
+              ON s.id = r.shorts_id
+WHERE s.id = $1::uuid
+`
+
+func (q *Queries) GetShortScores(ctx context.Context, id uuid.UUID) (float64, error) {
+	row := q.db.QueryRowContext(ctx, getShortScores, id)
+	var final_score float64
+	err := row.Scan(&final_score)
+	return final_score, err
+}
+
 const listSegmentedShortIDsForRoles = `-- name: ListSegmentedShortIDsForRoles :many
 SELECT concat(date_part('year', mi.published_at), '-', date_part('week', mi.published_at))::varchar as week,
        array_agg(s.id)::uuid[]                                                                      as ids

@@ -827,6 +827,7 @@ type ComplexityRoot struct {
 		Image         func(childComplexity int, style *model.ImageStyle) int
 		InMyList      func(childComplexity int) int
 		OriginalTitle func(childComplexity int) int
+		Score         func(childComplexity int) int
 		Source        func(childComplexity int) int
 		Streams       func(childComplexity int) int
 		Title         func(childComplexity int) int
@@ -1300,6 +1301,7 @@ type SectionItemResolver interface {
 type ShortResolver interface {
 	OriginalTitle(ctx context.Context, obj *model.Short) (string, error)
 
+	Score(ctx context.Context, obj *model.Short) (float64, error)
 	Image(ctx context.Context, obj *model.Short, style *model.ImageStyle) (*string, error)
 	Streams(ctx context.Context, obj *model.Short) ([]*model.Stream, error)
 	Files(ctx context.Context, obj *model.Short) ([]*model.File, error)
@@ -5112,6 +5114,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Short.OriginalTitle(childComplexity), true
 
+	case "Short.score":
+		if e.complexity.Short.Score == nil {
+			break
+		}
+
+		return e.complexity.Short.Score(childComplexity), true
+
 	case "Short.source":
 		if e.complexity.Short.Source == nil {
 			break
@@ -7162,6 +7171,7 @@ type SectionItemPagination implements Pagination {
     title: String!
     originalTitle: String! @goField(forceResolver: true)
     description: String
+    score: Float! @goField(forceResolver: true) @deprecated(reason: "Only for debugging. Will always be 0 without special flags.")
     image(style: ImageStyle): String @goField(forceResolver: true)
     streams: [Stream!]! @goField(forceResolver: true)
     files: [File!]! @goField(forceResolver: true)
@@ -24179,6 +24189,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setShortProgress(ctx conte
 				return ec.fieldContext_Short_originalTitle(ctx, field)
 			case "description":
 				return ec.fieldContext_Short_description(ctx, field)
+			case "score":
+				return ec.fieldContext_Short_score(ctx, field)
 			case "image":
 				return ec.fieldContext_Short_image(ctx, field)
 			case "streams":
@@ -28383,6 +28395,8 @@ func (ec *executionContext) fieldContext_QueryRoot_short(ctx context.Context, fi
 				return ec.fieldContext_Short_originalTitle(ctx, field)
 			case "description":
 				return ec.fieldContext_Short_description(ctx, field)
+			case "score":
+				return ec.fieldContext_Short_score(ctx, field)
 			case "image":
 				return ec.fieldContext_Short_image(ctx, field)
 			case "streams":
@@ -33218,6 +33232,50 @@ func (ec *executionContext) fieldContext_Short_description(_ context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Short_score(ctx context.Context, field graphql.CollectedField, obj *model.Short) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Short_score(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Short().Score(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Short_score(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Short",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Short_image(ctx context.Context, field graphql.CollectedField, obj *model.Short) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Short_image(ctx, field)
 	if err != nil {
@@ -33624,6 +33682,8 @@ func (ec *executionContext) fieldContext_ShortsPagination_shorts(_ context.Conte
 				return ec.fieldContext_Short_originalTitle(ctx, field)
 			case "description":
 				return ec.fieldContext_Short_description(ctx, field)
+			case "score":
+				return ec.fieldContext_Short_score(ctx, field)
 			case "image":
 				return ec.fieldContext_Short_image(ctx, field)
 			case "streams":
@@ -50886,6 +50946,42 @@ func (ec *executionContext) _Short(ctx context.Context, sel ast.SelectionSet, ob
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "description":
 			out.Values[i] = ec._Short_description(ctx, field, obj)
+		case "score":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Short_score(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "image":
 			field := field
 

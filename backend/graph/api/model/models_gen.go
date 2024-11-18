@@ -1189,6 +1189,7 @@ type Short struct {
 	Title         string         `json:"title"`
 	OriginalTitle string         `json:"originalTitle"`
 	Description   *string        `json:"description,omitempty"`
+	Score         float64        `json:"score"`
 	Image         *string        `json:"image,omitempty"`
 	Streams       []*Stream      `json:"streams"`
 	Files         []*File        `json:"files"`

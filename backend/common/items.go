@@ -250,6 +250,7 @@ type Short struct {
 	Title       LocaleString
 	Description LocaleString
 	Images      Images
+	Score       float64
 	EpisodeID   null.Int
 	StartsAt    null.Float
 	EndsAt      null.Float
