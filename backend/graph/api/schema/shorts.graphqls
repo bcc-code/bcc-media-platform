@@ -3,6 +3,7 @@ type Short implements CollectionItem & PlaylistItem & MediaItem {
     title: String!
     originalTitle: String! @goField(forceResolver: true)
     description: String
+    score: Float! @goField(forceResolver: true) @deprecated(reason: "Only for debugging. Will always be 0 without special flags.")
     image(style: ImageStyle): String @goField(forceResolver: true)
     streams: [Stream!]! @goField(forceResolver: true)
     files: [File!]! @goField(forceResolver: true)

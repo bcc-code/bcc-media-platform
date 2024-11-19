@@ -68,13 +68,25 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 	var err error
 
 	if value, ok := featureFlags.GetVariant(unleash.ShortsWithScoresFlag); ok && value == unleash.ShortsWithScoresEnabledVariant {
+		cursor.RandomFactor = 0 // Else random shorts are inserted, but here we want total control
 		utils.ReportFlagActivation(ginCtx, unleash.ShortsWithScoresFlag, unleash.ShortsWithScoresEnabledVariant)
 		shortIDs, iErr := r.GetFilteredLoaders(ctx).ShortWithScoresLoader(ctx)
 		err = iErr
 
 		declumpedShortIds := declumpShorts(shortIDs, 5)
+		shortIDSegments = [][]uuid.UUID{}
 
-		shortIDSegments = [][]uuid.UUID{declumpedShortIds}
+		segment := []uuid.UUID{}
+
+		// Split the sorts into groups, so the shuffling happens only within each group
+		for i, short := range declumpedShortIds {
+			segment = append(segment, short)
+
+			if i%5 == 0 {
+				shortIDSegments = append(shortIDSegments, segment)
+				segment = []uuid.UUID{}
+			}
+		}
 	} else {
 		shortIDSegments, err = r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
 	}
@@ -84,10 +96,7 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 	}
 
 	// apply pagination here, before filtering out watched shorts
-	shuffledShortIDs := cursor.ApplyToSegments(shortIDSegments, 5)
-
-	var shortIDs []uuid.UUID
-	shortIDs = append(shortIDs, shuffledShortIDs...)
+	shortIDs := cursor.ApplyToSegments(shortIDSegments, 5)
 
 	if p != nil {
 		shortIDs, err = r.applyWatchedFilter(ctx, shortIDs, p)
@@ -119,7 +128,7 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 	nextCursor := &utils.Cursor[uuid.UUID]{
 		Seed:         cursor.Seed,
 		RandomFactor: cursor.RandomFactor,
-		CurrentIndex: cursor.CurrentIndex + lo.IndexOf(shuffledShortIDs, lastID) + 1,
+		CurrentIndex: cursor.CurrentIndex + lo.IndexOf(shortIDs, lastID) + 1,
 	}
 
 	// if we don't have enough keys, restart the cursor while also setting progress for all shorts to 0.0,
@@ -269,6 +278,7 @@ func shortToShort(ctx context.Context, short *common.Short) *model.Short {
 		ID:          short.ID.String(),
 		Title:       short.Title.Get(languages),
 		Description: short.Description.GetValueOrNil(languages),
+		Score:       short.Score,
 	}
 }
 

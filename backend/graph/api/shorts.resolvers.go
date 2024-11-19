@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"strconv"
 	"strings"
 
@@ -21,6 +22,21 @@ func (r *shortResolver) OriginalTitle(ctx context.Context, obj *model.Short) (st
 		return "", err
 	}
 	return e.Title.Get(*utils.FallbackLanguages()), nil
+}
+
+// Score is the resolver for the score field.
+func (r *shortResolver) Score(ctx context.Context, obj *model.Short) (float64, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	featureFlags := utils.GetFeatureFlags(ginCtx)
+	if !featureFlags.Has("debug") {
+		return 0, nil
+	}
+
+	return r.Queries.GetShortScores(ctx, uuid.MustParse(obj.ID))
 }
 
 // Image is the resolver for the image field.
