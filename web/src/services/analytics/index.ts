@@ -70,6 +70,12 @@ class Analytics {
         identify(user.id, data)
     }
 
+    private getAppName() {
+        return {
+            appName: 'bccm-web',
+        }
+    }
+
     public track<T extends keyof Events>(event: T, data: Events[T]) {
         if (!this.initialized) return
         const user = this.getUser()
@@ -78,6 +84,7 @@ class Analytics {
             event,
             {
                 appLanguage: current.value.code,
+                ...this.getAppName(),
                 releaseVersion: this.revision ?? 'unknown',
                 ageGroup: user?.ageGroup ?? 'unknown',
                 ...data,
@@ -100,6 +107,7 @@ class Analytics {
         if (!this.initialized) return
         const data = Object.assign({}, page) as any
         delete data['id']
+        Object.assign(data, this.getAppName())
         rpage(page.id, data)
     }
 
