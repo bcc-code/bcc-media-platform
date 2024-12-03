@@ -1,6 +1,6 @@
+@use "../../../external-projects/videojs-hls-quality-selector/src/plugin.scss";
 @import "@silvermine/videojs-chromecast/src/scss/videojs-chromecast.scss";
 //@import "~@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css";
-@import "@/../external-projects/videojs-hls-quality-selector/src/plugin.scss";
 
 $icon-chromecast--default: './chromecast.svg';
 $icon-chromecast--hover: './chromecast.svg';

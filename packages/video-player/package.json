@@ -37,13 +37,13 @@
         "@types/ua-parser-js": "^0.7.37",
         "@types/video.js": "^7.3.53",
         "@vitejs/plugin-vue": "^3.2.0",
-        "postcss": "^8.4.31",
+        "postcss": "^8.4.49",
         "prettier": "^2.8.8",
-        "sass": "^1.69.0",
+        "sass": "^1.81.1",
         "typescript": "^4.9.5",
         "vite": "^3.2.7",
         "vue": "^3.3.4",
         "vue-tsc": "^0.40.13"
     },
-    "packageManager": "pnpm@9.12.3+sha512.cce0f9de9c5a7c95bef944169cc5dfe8741abfb145078c0d508b868056848a87c81e626246cb60967cbd7fd29a6c062ef73ff840d96b3c86c40ac92cf4a813ee"
+    "packageManager": "pnpm@9.14.4"
 }
