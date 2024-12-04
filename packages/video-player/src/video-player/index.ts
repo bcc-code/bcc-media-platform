@@ -1,20 +1,20 @@
-import videojs, { VideoJsPlayer, VideoJsPlayerOptions } from "video.js"
+import videojs from "video.js"
 import "video.js/dist/video-js.css"
 import "videojs-contrib-quality-levels"
 import "videojs-event-tracking"
 import "videojs-mux"
-import { enableNPAW, Options as NPAWOptions, setOptions } from "./npaw"
+import { enableNPAW, type NPAWOptions, setOptions } from "./npaw"
 
 // External plugins
-import { CastLoader } from "./utils"
-import registerChromecastPlugin from "@silvermine/videojs-chromecast"
 import hlsQualitySelector from "@/../external-projects/videojs-hls-quality-selector/src/plugin"
+import registerChromecastPlugin from "@silvermine/videojs-chromecast"
+import { CastLoader } from "./utils"
 
 // Internal plugins/extensions
-import "./plugins/videojs-smallscreen"
-import "./plugins/smooth-seek"
-import { SeekForwardButton, SeekBackwardButton } from "./plugins/seek-buttons"
+import { SeekBackwardButton, SeekForwardButton } from "./plugins/seek-buttons"
 import { DismissControlBarButton } from "./plugins/smart-tv"
+import "./plugins/smooth-seek"
+import "./plugins/videojs-smallscreen"
 import "./skin/style.scss"
 import { isSmartTV } from "./utils/userAgent"
 
@@ -23,18 +23,22 @@ if (!videojs.getPlugin("hlsQualitySelector")) {
     videojs.registerPlugin("hlsQualitySelector", hlsQualitySelector)
 }
 
-let castLoaded = false;
+let castLoaded = false
 
 CastLoader.load().then(() => {
     registerChromecastPlugin(videojs, undefined)
     castLoaded = true
 })
 
-export type Player = VideoJsPlayer
+export type Player = ReturnType<typeof videojs>
+export type PlayerOptions = typeof videojs.options
 
-export async function createPlayer(containerId: string, opts: Partial<Options>): Promise<Player> {
+export async function createPlayer(
+    containerId: string,
+    opts: Partial<Options>
+): Promise<Player> {
     if (!castLoaded) {
-        await new Promise(r => setTimeout(r, 100))
+        await new Promise((r) => setTimeout(r, 100))
     }
 
     const options = videojs.mergeOptions(getDefaults(), opts)
@@ -46,7 +50,9 @@ export async function createPlayer(containerId: string, opts: Partial<Options>):
     }
     const videoEl = createVideoElement(videoElId, options)
 
-    document.getElementById(containerId)?.insertAdjacentElement("afterbegin", videoEl)
+    document
+        .getElementById(containerId)
+        ?.insertAdjacentElement("afterbegin", videoEl)
 
     const player = setupVideoJs(videoEl, options)
     if (options.npaw?.enabled === true) {
@@ -56,18 +62,18 @@ export async function createPlayer(containerId: string, opts: Partial<Options>):
     return player
 }
 
-export type Options = {
+export interface Options {
     src: {
-        type?: "application/x-mpegURL" | string,
+        type?: "application/x-mpegURL" | string
         src?: string
-    },
+    }
     languagePreferenceDefaults: {
-        audio?: string,
-        subtitles?: string,
-    },
-    npaw?: NPAWOptions,
-    autoplay: boolean,
-    subtitles: any[],
+        audio?: string
+        subtitles?: string
+    }
+    npaw?: NPAWOptions
+    autoplay: boolean
+    subtitles: any[]
     videojs: VideoJsPlayerOptions
 }
 
@@ -77,7 +83,7 @@ const getDefaults = () => {
     } = {
         eventTracking: true,
         smallScreen: {},
-    };
+    }
 
     if (castLoaded) {
         plugins.chromecast = {
@@ -140,10 +146,13 @@ function createVideoElement(id: string, options: Options) {
     return videoEl
 }
 
-function setAudioTrackToLanguage(player: VideoJsPlayer, language?: string) {
-    let track = null as videojs.VideojsAudioTrack | null
+function setAudioTrackToLanguage(player: Player, language?: string) {
+    let track: videojs.AudioTrack | null = null
+    // @ts-ignore Types are outdated
+    const tracks = (player.audioTracks() as unknown as { tracks_: any[] })
+        .tracks_
 
-    for (const t of Object.values((player.audioTracks() as unknown as { tracks_: any[] }).tracks_)) {
+    for (const t of Object.values(tracks)) {
         if (t.language === language) {
             track = t
         }
@@ -154,13 +163,22 @@ function setAudioTrackToLanguage(player: VideoJsPlayer, language?: string) {
     }
 }
 
-function setSubtitleTrackToLanguage(player: VideoJsPlayer, language?: string) {
-    const tracks = Object.values(player
-        .remoteTextTracks()
-    )?.filter((t) => t.kind === "captions" || t.kind === "subtitles")
-    const track = tracks.find((t) => t.language?.substr(0, 3) === language)
+function setSubtitleTrackToLanguage(player: Player, language?: string) {
+    // @ts-ignore Types are outdated
+    // const tracks = Object.values<TextTrack>(player.remoteTextTracks())?.filter((t) => t.kind === "captions" || t.kind === "subtitles")
+    const tracks = (player.remoteTextTracks()?.tracks_ as TextTrack[]).filter(
+        (t) => t.kind === "captions" || t.kind === "subtitles"
+    )
+
+    // @ts-ignore
+    const track = tracks.find((t) => {
+        if (!t.language) return
+        return t.language.substr(0, 3) === language
+    })
     tracks.forEach(
-        (t) => (t.mode = track && track.id === t.id ? "showing" : "hidden")
+        (t) => {
+            t.mode = track && track.id === t.id ? "showing" : "disabled"
+        }
     )
 }
 
@@ -178,9 +196,12 @@ function setupVideoJs(videoElId: Element, options: Options) {
         // var seekTo = getQueryVariable("t")
         // if (seekTo) player.currentTime(parseInt(seekTo))
 
+        // @ts-ignore Types are outdated
         player.controlBar.addChild(new SeekForwardButton(player), {}, 1)
+        // @ts-ignore Types are outdated
         player.controlBar.addChild(new SeekBackwardButton(player), {}, 0)
         if (isSmartTV()) {
+            // @ts-ignore Types are outdated
             player.controlBar.addChild(
                 new DismissControlBarButton(player),
                 {},
@@ -201,6 +222,7 @@ function setupVideoJs(videoElId: Element, options: Options) {
                 player.error(
                     "Session possibly expired. Try reloading the page to continue watching."
                 )
+                // @ts-ignore Types are outdated
                 player.errorDisplay.show()
                 player.reset()
             })

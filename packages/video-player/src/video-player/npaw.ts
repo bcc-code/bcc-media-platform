@@ -1,8 +1,8 @@
-import { VideoJsPlayer } from "video.js"
 import lib from "youboralib"
 import Adapter from "youbora-adapter-videojs"
+import type { Player } from "./index"
 
-export type Options = {
+export interface NPAWOptions {
     enabled?: boolean,
     accountCode?: string,
     appName: string,
@@ -24,7 +24,7 @@ export type Options = {
     }
 }
 
-function toConfig(options: Options) {
+function toConfig(options: NPAWOptions) {
     const md = options.tracking.metadata
     return {
         "content.isLive": options.tracking.isLive === true,
@@ -45,7 +45,7 @@ function toConfig(options: Options) {
     }
 }
 
-export function enableNPAW(player: VideoJsPlayer, options: Options) {
+export function enableNPAW(player: Player, options: NPAWOptions) {
     if (!options.accountCode) {
         console.warn(
             "NPAW was not enabled because options.npaw.accountCode is invalid."
@@ -62,7 +62,7 @@ export function enableNPAW(player: VideoJsPlayer, options: Options) {
     (player as any)._npaw = npaw
 }
 
-export function setOptions(player: VideoJsPlayer, options: Options) {
+export function setOptions(player: Player, options: NPAWOptions) {
     const npaw = (player as any)._npaw;
     if (!npaw) {
         return

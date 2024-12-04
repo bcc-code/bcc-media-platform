@@ -189,9 +189,6 @@
         }
     }
     .vjs-big-play-button {
-        top: calc(50% - 0.75em);
-        left: calc(50% - 0.5em);
-        width: 1em;
         font-size: 6em;
         height: 1.5em;
         background: none;
@@ -239,10 +236,7 @@
         padding-bottom: 6px;
         height: 3.5em;
         background: none;
-        /* 
-        .vjs-time-control {
-            margin-right: auto;
-        } */
+
         .vjs-progress-control {
             position: absolute;
             display: flex;
