@@ -1,5 +1,5 @@
 import videojs from "video.js"
-import type { Event } from 'video.js/dist/types/event-target'
+import type { Event } from "video.js/dist/types/event-target"
 import type { Player } from ".."
 
 const Button = videojs.getComponent("Button")

@@ -1,10 +1,10 @@
 import videojs from "video.js"
-import SeekBar from "video.js/dist/types/control-bar/progress-control/seek-bar";
-import type { Player } from "..";
+import SeekBar from "video.js/dist/types/control-bar/progress-control/seek-bar"
+import type { Player } from ".."
 
 const PSeekBar = videojs.getComponent("SeekBar") as any as {
-    new(player: Player, options?: Record<string, string> | undefined): SeekBar;
-    prototype: SeekBar;
+    new (player: Player, options?: Record<string, string> | undefined): SeekBar
+    prototype: SeekBar
 }
 
 var oldGetPercent = PSeekBar.prototype.getPercent

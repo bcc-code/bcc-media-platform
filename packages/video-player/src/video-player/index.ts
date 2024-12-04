@@ -175,11 +175,9 @@ function setSubtitleTrackToLanguage(player: Player, language?: string) {
         if (!t.language) return
         return t.language.substr(0, 3) === language
     })
-    tracks.forEach(
-        (t) => {
-            t.mode = track && track.id === t.id ? "showing" : "disabled"
-        }
-    )
+    tracks.forEach((t) => {
+        t.mode = track && track.id === t.id ? "showing" : "disabled"
+    })
 }
 
 function setupVideoJs(videoElId: Element, options: Options) {
@@ -209,7 +207,7 @@ function setupVideoJs(videoElId: Element, options: Options) {
             )
         }
 
-        (player as any).hlsQualitySelector()
+        ;(player as any).hlsQualitySelector()
 
         var sl = (player.tech({ IWillNotUseThisInPlugins: true }) as any).vhs
             ?.masterPlaylistController_?.mainSegmentLoader_

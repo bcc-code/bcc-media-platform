@@ -7,7 +7,7 @@ videojs.registerPlugin("smallScreen", function (this: Player) {
         this.userActive(!this.userActive())
         e.stopPropagation()
     }
-    let isSmallScreen = false;
+    let isSmallScreen = false
 
     this.on(
         "playerresize",
