@@ -74,7 +74,7 @@ export interface Options {
     npaw?: NPAWOptions
     autoplay: boolean
     subtitles: any[]
-    videojs: VideoJsPlayerOptions
+    videojs: PlayerOptions
 }
 
 const getDefaults = () => {
