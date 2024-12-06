@@ -1,6 +1,6 @@
 {
     "name": "bccm-video-player",
-    "version": "1.5.5",
+    "version": "1.5.6",
     "type": "commonjs",
     "types": "build/types",
     "files": [
@@ -11,7 +11,7 @@
             "import": "./build/bccm-video-player.mjs",
             "require": "./build/bccm-video-player.umd.js"
         },
-        "./css": "./build/style.css"
+        "./css": "./build/bccm-video-player.css"
     },
     "scripts": {
         "dev": "vite",
