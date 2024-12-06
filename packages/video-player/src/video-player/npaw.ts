@@ -1,30 +1,30 @@
-import { VideoJsPlayer } from "video.js"
 import lib from "youboralib"
 import Adapter from "youbora-adapter-videojs"
+import type { Player } from "./index"
 
-export type Options = {
-    enabled?: boolean,
-    accountCode?: string,
-    appName: string,
+export interface NPAWOptions {
+    enabled?: boolean
+    accountCode?: string
+    appName: string
     tracking: {
-        isLive?: boolean,
-        userId?: string,
-        sessionId?: string,
-        ageGroup?: string,
+        isLive?: boolean
+        userId?: string
+        sessionId?: string
+        ageGroup?: string
         metadata: {
-            contentId?: string,
-            title?: string,
-            episodeTitle?: string,
-            seasonId?: string,
-            seasonTitle?: string,
-            showTitle?: string,
-            showId?: string,
+            contentId?: string
+            title?: string
+            episodeTitle?: string
+            seasonId?: string
+            seasonTitle?: string
+            showTitle?: string
+            showId?: string
             overrides?: { [key: string]: string }
-        },
+        }
     }
 }
 
-function toConfig(options: Options) {
+function toConfig(options: NPAWOptions) {
     const md = options.tracking.metadata
     return {
         "content.isLive": options.tracking.isLive === true,
@@ -32,20 +32,22 @@ function toConfig(options: Options) {
         "content.title": md.title,
         "content.program": md.showTitle ?? md.title,
         "content.tvShow": md.showId,
-        "content.season": md.seasonId ? `${md.seasonId} - ${md.seasonTitle}` : undefined,
+        "content.season": md.seasonId
+            ? `${md.seasonId} - ${md.seasonTitle}`
+            : undefined,
         "content.episodeTitle": md.episodeTitle,
         obfuscateIp: true,
         "user.name": options.tracking.userId,
         "app.name": options.appName,
-        "app.releaseVersion": "",//RELEASE_VERSION,
+        "app.releaseVersion": "", //RELEASE_VERSION,
         "parse.manifest": true,
         "extraparam.1": options.tracking.sessionId,
         "extraparam.2": options.tracking.ageGroup,
-        ...md.overrides
+        ...md.overrides,
     }
 }
 
-export function enableNPAW(player: VideoJsPlayer, options: Options) {
+export function enableNPAW(player: Player, options: NPAWOptions) {
     if (!options.accountCode) {
         console.warn(
             "NPAW was not enabled because options.npaw.accountCode is invalid."
@@ -57,13 +59,13 @@ export function enableNPAW(player: VideoJsPlayer, options: Options) {
     const defaults = toConfig(options)
 
     npaw.setOptions(defaults)
-    npaw.setAdapter(new Adapter(player)); // Attach adapter
+    npaw.setAdapter(new Adapter(player)) // Attach adapter
 
-    (player as any)._npaw = npaw
+    ;(player as any)._npaw = npaw
 }
 
-export function setOptions(player: VideoJsPlayer, options: Options) {
-    const npaw = (player as any)._npaw;
+export function setOptions(player: Player, options: NPAWOptions) {
+    const npaw = (player as any)._npaw
     if (!npaw) {
         return
     }

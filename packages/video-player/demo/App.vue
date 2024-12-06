@@ -1,35 +1,59 @@
 <template>
-    <div>
-        <div id="btv-video">
-
-        </div>
-    </div>
+    <div id="vod-player" />
+    <div id="live-player" />
 </template>
+
 <script lang="ts" setup>
-import { onMounted } from "vue";
-import { PlayerFactory } from "../src";
+import { onMounted } from "vue"
+import { PlayerFactory, createPlayer } from "../src"
 
 const factory = new PlayerFactory({
     tokenFactory: null,
-    endpoint: "https://api.brunstad.tv/query"
+    endpoint: "https://api.brunstad.tv/query",
 })
 
 onMounted(async () => {
-    const player = await factory.create("btv-video", {
-        episodeId: "1705",
+    // VOD player
+    await factory.create("vod-player", {
+        episodeId: "865",
         overrides: {
             languagePreferenceDefaults: {
                 audio: "eng",
-                subtitle: "eng",
+                subtitles: "eng",
             },
-        }
+        },
     })
 
-    player.on("loadedmetadata", () => {
-        console.log(player.audioTracks())
-        player.setAudioTrackToLanguage("eng")
-        console.log(player.audioTracks())
+    // Live player
+    await createPlayer("live-player", {
+        src: {
+            src: "",
+        },
+        languagePreferenceDefaults: {
+            audio: "eng",
+            subtitles: "eng",
+        },
     })
 })
-
 </script>
+
+<style>
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+#vod-player,
+#live-player {
+    max-width: 1920px;
+    width: 100%;
+    margin-inline: auto;
+}
+</style>

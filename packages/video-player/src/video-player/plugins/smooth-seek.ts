@@ -1,13 +1,15 @@
-import videojs, { VideoJsPlayer } from "video.js"
+import videojs from "video.js"
+import SeekBar from "video.js/dist/types/control-bar/progress-control/seek-bar"
+import type { Player } from ".."
 
-const SeekBar = videojs.getComponent("SeekBar") as any as {
-    new (player: VideoJsPlayer, options?: videojs.SliderOptions | undefined): videojs.SeekBar;
-    prototype: videojs.SeekBar;
+const PSeekBar = videojs.getComponent("SeekBar") as any as {
+    new (player: Player, options?: Record<string, string> | undefined): SeekBar
+    prototype: SeekBar
 }
 
-var oldGetPercent = SeekBar.prototype.getPercent
+var oldGetPercent = PSeekBar.prototype.getPercent
 
-SeekBar.prototype.getPercent = function getPercent() {
+PSeekBar.prototype.getPercent = function getPercent() {
     const liveTracker = this.player_.liveTracker
     if (liveTracker && liveTracker.isLive()) {
         return oldGetPercent.bind(this)()
@@ -21,8 +23,8 @@ SeekBar.prototype.getPercent = function getPercent() {
     return percent >= 1 ? 1 : percent
 }
 
-var oldHandleMouseMove = SeekBar.prototype.handleMouseMove
-SeekBar.prototype.handleMouseMove = function handleMouseMove(event) {
+var oldHandleMouseMove = PSeekBar.prototype.handleMouseMove
+PSeekBar.prototype.handleMouseMove = function handleMouseMove(event) {
     const liveTracker = this.player_.liveTracker
     if (liveTracker && liveTracker.isLive()) {
         return oldHandleMouseMove.bind(this, event)()

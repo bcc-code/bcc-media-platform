@@ -1,7 +1,6 @@
+import UAParser from "ua-parser-js"
 
-import UAParser from 'ua-parser-js';
-
-const _ua = new UAParser().getResult();
+const _ua = new UAParser().getResult()
 
 /*
 
@@ -11,5 +10,5 @@ Mozilla/5.0 (SMART-TV; Linux; Tizen 2.3) AppleWebkit/538.1 (KHTML, like Gecko) S
 */
 
 export const isSmartTV = () => {
-    return _ua?.device.type === "smarttv";
+    return _ua?.device.type === "smarttv"
 }

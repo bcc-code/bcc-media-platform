@@ -1,11 +1,11 @@
+@use "../../../external-projects/videojs-hls-quality-selector/src/plugin.scss";
 @import "@silvermine/videojs-chromecast/src/scss/videojs-chromecast.scss";
 //@import "~@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css";
-@import "@/../external-projects/videojs-hls-quality-selector/src/plugin.scss";
 
-$icon-chromecast--default: './chromecast.svg';
-$icon-chromecast--hover: './chromecast.svg';
-$icon-chromecast-casting: './chromecast-filled.svg';
-$icon-chromecast-casting--hover: './chromecast-filled.svg';
+$icon-chromecast--default: "./chromecast.svg";
+$icon-chromecast--hover: "./chromecast.svg";
+$icon-chromecast-casting: "./chromecast-filled.svg";
+$icon-chromecast-casting--hover: "./chromecast-filled.svg";
 
 .vjs-chromecast-button {
     .vjs-icon-placeholder {
