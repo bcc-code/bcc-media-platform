@@ -4,7 +4,7 @@ package unleash
 //
 // Started: 20.9.2024
 // To be Removed Latest: 20.12.2024
-const ShortsWithScoresFlag = "shorts-with-scores2"
+const ShortsWithScoresFlag = "shorts-with-scores3"
 const ShortsWithScoresEnabledVariant = "enabled"
 
 // ElasticSearchFlag enables the elastic search for the client

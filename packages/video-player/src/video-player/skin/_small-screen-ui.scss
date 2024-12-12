@@ -1,4 +1,6 @@
-&.vjs-smallscreen-ui {
+@use "variables";
+
+.vjs-smallscreen-ui {
     .vjs-control-bar {
         height: 100%;
         justify-content: flex-end;
@@ -9,7 +11,7 @@
         &:before {
             height: 100%;
             margin-left: 0;
-            margin-right: -$side-padding;
+            margin-right: variables.$side-padding * -1;
             background: rgba(0, 0, 0, 0.4);
             box-shadow: inset 0 0 50em rgb(0 0 0 / 40%);
         }
@@ -56,7 +58,7 @@
             }
         }
         .vjs-current-time {
-            left: $side-padding;
+            left: variables.$side-padding;
         }
         .vjs-progress-control {
             bottom: 0.2em;

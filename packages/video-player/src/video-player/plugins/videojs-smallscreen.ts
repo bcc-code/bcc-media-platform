@@ -1,12 +1,13 @@
 import videojs from "video.js"
 import debounce from "../utils/debounce.js"
+import { Player } from ".."
 
-videojs.registerPlugin("smallScreen", function (options) {
-    var controlBarClickHandler = (e: any) => {
+videojs.registerPlugin("smallScreen", function (this: Player) {
+    const controlBarClickHandler = (e: any) => {
         this.userActive(!this.userActive())
         e.stopPropagation()
     }
-    let isSmallScreen = false;
+    let isSmallScreen = false
 
     this.on(
         "playerresize",
@@ -17,6 +18,7 @@ videojs.registerPlugin("smallScreen", function (options) {
                 screen.width < 768
             ) {
                 isSmallScreen = true
+                // @ts-ignore Types are outdated
                 this.controlBar
                     .el()
                     .addEventListener("click", controlBarClickHandler)
@@ -27,6 +29,7 @@ videojs.registerPlugin("smallScreen", function (options) {
                 !this.isFullscreen()
             ) {
                 isSmallScreen = false
+                // @ts-ignore Types are outdated
                 this.controlBar
                     .el()
                     .removeEventListener("click", controlBarClickHandler)

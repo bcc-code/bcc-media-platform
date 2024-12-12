@@ -1,11 +1,13 @@
-@import "plugins";
-
-@import "https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&display=swap";
+@use "sass:color";
+@use "sass:meta";
+@use "variables";
+@use "plugins";
+@import url("https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&display=swap");
 
 @mixin scrollbars(
     $size,
     $foreground-color,
-    $background-color: mix($foreground-color, white, 50%)
+    $background-color: color.mix($foreground-color, white, 50%)
 ) {
     // For Google Chrome
     &::-webkit-scrollbar {
@@ -28,17 +30,19 @@
     }
 }
 
-$other-fonts: Arial, Helvetica, sans-serif;
-$side-padding: 10px;
 .vjs-brunstadtv-skin {
     font-size: 0.75em;
-    font-family: "Barlow", $other-fonts;
+    font-family: "Barlow", variables.$other-fonts;
+    cursor: pointer;
+
     .vjs-menu .vjs-menu-content,
     button {
-        font-family: "Barlow", $other-fonts;
+        font-family: "Barlow", variables.$other-fonts;
     }
 
-    &.vjs-show-startup-spinner:not(.vjs-has-started):not(.vjs-error):not(.vjs-paused) {
+    &.vjs-show-startup-spinner:not(.vjs-has-started):not(.vjs-error):not(
+            .vjs-paused
+        ) {
         .vjs-big-play-button {
             display: none;
         }
@@ -48,8 +52,8 @@ $side-padding: 10px;
         }
         .vjs-loading-spinner:before,
         .vjs-loading-spinner:after {
-            animation: vjs-spinner-spin 1.1s cubic-bezier(0.6, 0.2, 0, 0.8)
-                    infinite,
+            animation:
+                vjs-spinner-spin 1.1s cubic-bezier(0.6, 0.2, 0, 0.8) infinite,
                 vjs-spinner-fade 1.1s linear infinite;
         }
     }
@@ -111,6 +115,7 @@ $side-padding: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
+
         .vjs-icon-placeholder {
             display: block;
             width: 23px;
@@ -120,6 +125,7 @@ $side-padding: 10px;
 
     &.rounded {
         border-radius: 10px;
+
         .vjs-tech {
             border-radius: 10px;
         }
@@ -127,14 +133,15 @@ $side-padding: 10px;
     .vjs-menu-button-popup .vjs-menu {
         height: 100px; // note that vjs-menu-content is position:absolute so this doesnt do anything visually.
         // It just adds some overlap in cases where the menu is outside the buttons hover-area.
-
         margin-bottom: 3em;
+
         .vjs-menu-content {
-            @include scrollbars(7px, #738cad50, #0d162380);
             border-radius: 5px;
             background-color: #0d1623;
             bottom: 0;
             z-index: 2;
+
+            @include scrollbars(7px, #738cad50, #0d162380);
 
             li {
                 text-transform: initial;
@@ -176,29 +183,28 @@ $side-padding: 10px;
     &:hover {
         .vjs-big-play-button {
             background: none;
+
             .vjs-icon-placeholder:before {
                 text-shadow: 0px 0px 40px #0d1623;
             }
         }
     }
     .vjs-big-play-button {
-        top: calc(50% - 0.75em);
-        left: calc(50% - 0.5em);
-        width: 1em;
         font-size: 6em;
         height: 1.5em;
         background: none;
         border: none;
+
         &:focus {
             background: none;
         }
+
         .vjs-icon-placeholder:before {
             transition: 0s all;
             text-shadow: 0px 0px 50px #0d1623;
         }
     }
 
-    cursor: pointer;
     &.vjs-controls-disabled,
     &.vjs-has-started,
     &.vjs-using-native-controls,
@@ -219,26 +225,23 @@ $side-padding: 10px;
             width: 100%;
             height: 300%;
             pointer-events: none;
-            margin-left: -$side-padding;
+            margin-left: variables.$side-padding * -1;
         }
         &:before &.vjs-has-started.vjs-user-inactive.vjs-playing {
             display: none;
         }
 
         width: 100%;
-        padding-left: $side-padding;
-        padding-right: $side-padding;
+        padding-left: variables.$side-padding;
+        padding-right: variables.$side-padding;
         padding-bottom: 6px;
         height: 3.5em;
         background: none;
-        /* 
-        .vjs-time-control {
-            margin-right: auto;
-        } */
+
         .vjs-progress-control {
             position: absolute;
             display: flex;
-            width: calc(100% - #{$side-padding * 2});
+            width: calc(100% - #{variables.$side-padding * 2});
             height: 1em;
             bottom: 100%;
         }
@@ -276,5 +279,5 @@ $side-padding: 10px;
             display: none;
         }
     }
-    @import "small-screen-ui";
+    @include meta.load-css("small-screen-ui");
 }
