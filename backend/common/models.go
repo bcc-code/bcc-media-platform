@@ -99,6 +99,8 @@ type Notification struct {
 	FirebaseProjectID null.String `json:"firebaseProjectId"`
 }
 
+const TargetTypeUsergroups = "usergroups"
+
 // Target specific groups
 type Target struct {
 	ID         uuid.UUID

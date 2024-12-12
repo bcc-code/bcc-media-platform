@@ -40,3 +40,17 @@ func (q *Queries) ListDevices(ctx context.Context) ([]common.Device, error) {
 		return common.Device(i)
 	}), nil
 }
+
+func (q *Queries) ListDevicesForRoles(ctx context.Context, applicationID uuid.UUID, roles []string) ([]common.Device, error) {
+	devices, err := q.listDevicesForRoles(ctx, listDevicesForRolesParams{
+		Appgroupid: applicationID,
+		Roles:      roles,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(devices, func(i listDevicesForRolesRow, _ int) common.Device {
+		return common.Device(i)
+	}), nil
+}

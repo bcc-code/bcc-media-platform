@@ -90,7 +90,7 @@ func main() {
 		Name: "Members",
 	})
 	membersClient := members.New(config.Members, authClient, breaker)
-	notificationUtils := notifications.NewUtils(queries, membersClient)
+	notificationUtils := notifications.NewUtils(queries)
 
 	videomanipulatorService := videomanipulator.NewVideoManipulatorService(config.VideoManipulator.baseURL, config.VideoManipulator.apiKey)
 

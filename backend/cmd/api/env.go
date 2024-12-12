@@ -5,9 +5,10 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/bcc-code/bcc-media-platform/backend/analytics"
 	"os"
 	"strings"
+
+	"github.com/bcc-code/bcc-media-platform/backend/analytics"
 
 	"github.com/bcc-code/bcc-media-platform/backend/email"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
@@ -167,6 +168,11 @@ func (a awsConfig) GetTempStorageBucket() string {
 
 func getEnvConfig() envConfig {
 	err := godotenv.Load("backend/cmd/api/.env")
+	if err == nil {
+		log.L.Warn().Msg("Loaded .env file")
+	}
+
+	err = godotenv.Load(".env")
 	if err == nil {
 		log.L.Warn().Msg("Loaded .env file")
 	}

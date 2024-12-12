@@ -157,6 +157,59 @@ func (q *Queries) listDevices(ctx context.Context) ([]listDevicesRow, error) {
 	return items, nil
 }
 
+const listDevicesForRoles = `-- name: listDevicesForRoles :many
+SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages
+FROM users.devices d
+WHERE d.profile_id IN (
+    SELECT id FROM users.profiles WHERE
+    applicationgroup_id = $1::uuid
+    AND user_id IN  (SELECT id FROM users.users WHERE roles && $2::varchar[])
+) AND d.updated_at > (NOW() - interval '6 months')
+ORDER BY updated_at DESC
+`
+
+type listDevicesForRolesParams struct {
+	Appgroupid uuid.UUID `db:"appgroupid" json:"appgroupid"`
+	Roles      []string  `db:"roles" json:"roles"`
+}
+
+type listDevicesForRolesRow struct {
+	Token     string    `db:"token" json:"token"`
+	ProfileID uuid.UUID `db:"profile_id" json:"profileId"`
+	UpdatedAt time.Time `db:"updated_at" json:"updatedAt"`
+	Name      string    `db:"name" json:"name"`
+	Languages []string  `db:"languages" json:"languages"`
+}
+
+func (q *Queries) listDevicesForRoles(ctx context.Context, arg listDevicesForRolesParams) ([]listDevicesForRolesRow, error) {
+	rows, err := q.db.QueryContext(ctx, listDevicesForRoles, arg.Appgroupid, pq.Array(arg.Roles))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []listDevicesForRolesRow
+	for rows.Next() {
+		var i listDevicesForRolesRow
+		if err := rows.Scan(
+			&i.Token,
+			&i.ProfileID,
+			&i.UpdatedAt,
+			&i.Name,
+			pq.Array(&i.Languages),
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const setDeviceToken = `-- name: setDeviceToken :exec
 INSERT INTO users.devices (token, languages, profile_id, updated_at, name)
 VALUES ($1::varchar, $2::varchar[], $3, $4, $5)

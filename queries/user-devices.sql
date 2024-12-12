@@ -12,6 +12,16 @@ WHERE d.profile_id = ANY ($1::uuid[])
   AND d.updated_at > (NOW() - interval '6 months')
 ORDER BY updated_at DESC;
 
+-- name: listDevicesForRoles :many
+SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages
+FROM users.devices d
+WHERE d.profile_id IN (
+    SELECT id FROM users.profiles WHERE
+    applicationgroup_id = @appgroupid::uuid
+    AND user_id IN  (SELECT id FROM users.users WHERE roles && @roles::varchar[])
+) AND d.updated_at > (NOW() - interval '6 months')
+ORDER BY updated_at DESC;
+
 -- name: listDevices :many
 SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages
 FROM users.devices d
