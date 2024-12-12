@@ -18,12 +18,7 @@ import (
 
 const getShortScores = `-- name: GetShortScores :one
 SELECT (((10 - LEAST(10, EXTRACT(DAY FROM current_date - COALESCE(mi.published_at, mi.date_created)))) * 0.5) + score)::float8 as final_score
-FROM shorts s
-         JOIN mediaitems mi ON s.mediaitem_id = mi.id
-         JOIN (SELECT r.shorts_id, array_agg(r.usergroups_code) as roles
-               FROM shorts_usergroups r
-               GROUP BY r.shorts_id) r
-              ON s.id = r.shorts_id
+FROM shorts s JOIN mediaitems mi ON s.mediaitem_id = mi.id
 WHERE s.id = $1::uuid
 `
 
