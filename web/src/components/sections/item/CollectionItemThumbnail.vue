@@ -9,6 +9,9 @@ import { LockClosedIcon } from '@heroicons/vue/24/solid'
 import { computed, ref } from 'vue'
 import CollectionItemThumbnailTitle from './CollectionItemThumbnailTitle.vue'
 import NewPill from './NewPill.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const emit = defineEmits<{
     click: []
@@ -61,7 +64,7 @@ const aspect = computed(() => {
             v-else-if="comingSoon(item)"
             class="absolute -top-1 -right-1 pointer-events-none overflow-hidden z-50"
         >
-            {{ $t('episode.comingSoon') }}
+            {{ t('episode.comingSoon') }}
         </Pill>
         <button
             v-if="item"
@@ -101,7 +104,7 @@ const aspect = computed(() => {
                     >
                         <LockClosedIcon class="h-8 fill-gray my-auto" />
                         <p class="text-style-button-1 text-slate-300">
-                            {{ $t('episode.comingSoon') }}
+                            {{ t('episode.comingSoon') }}
                         </p>
                         <p class="text-style-button-1 text-slate-300">
                             {{ new Date(item.publishDate).toLocaleString() }}

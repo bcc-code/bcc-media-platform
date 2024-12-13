@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import Image from '@/components/Image.vue'
 import { useGetShortDetailsQuery } from '@/graph/generated'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
     shortId: string
@@ -11,6 +12,8 @@ const { data } = useGetShortDetailsQuery({
         id: props.shortId,
     },
 })
+
+const { t } = useI18n()
 </script>
 <template>
     <section class="flex w-full p-4">
@@ -28,7 +31,7 @@ const { data } = useGetShortDetailsQuery({
             </div>
             <div class="flex flex-col">
                 <h3 class="font-bold">
-                    {{ $t('shorts.watchOnOurApp') }}
+                    {{ t('shorts.watchOnOurApp') }}
                 </h3>
                 <div class="flex gap-2 mt-1">
                     <a href="https://apple.co/3VewzK9"

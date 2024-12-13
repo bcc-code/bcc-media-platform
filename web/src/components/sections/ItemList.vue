@@ -6,6 +6,7 @@ import { episodeComingSoon } from '@/utils/items'
 import { ListItem } from '@/utils/lists'
 import AgeRating from '../episodes/AgeRating.vue'
 import Image from '../Image.vue'
+import { useI18n } from 'vue-i18n'
 
 defineProps<{
     items: ListItem[]
@@ -16,6 +17,8 @@ defineProps<{
 defineEmits<{
     (e: 'itemClick', i: ListItem): void
 }>()
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -49,7 +52,7 @@ defineEmits<{
                         <Pill
                             v-if="episodeComingSoon(i)"
                             class="absolute -top-1 -right-1 pointer-events-none"
-                            >{{ $t('episode.comingSoon') }}</Pill
+                            >{{ t('episode.comingSoon') }}</Pill
                         >
                         <Image
                             v-if="i.image"

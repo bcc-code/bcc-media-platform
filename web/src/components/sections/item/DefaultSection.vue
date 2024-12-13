@@ -6,6 +6,9 @@ import SectionTitle from './SectionTitle.vue'
 import Slider from './Slider.vue'
 import VButton from '@/components/VButton.vue'
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
     position: number
@@ -43,7 +46,7 @@ const pageCode = computed(() => {
                 size="thin"
                 @click="goToPage(pageCode)"
             >
-                {{ $t('buttons.showMore') }}
+                {{ t('buttons.showMore') }}
             </VButton>
         </header>
         <Slider :section="item" @load-more="$emit('loadMore')">
@@ -69,7 +72,7 @@ const pageCode = computed(() => {
                         size="thin"
                         @click="goToPage(pageCode)"
                     >
-                        {{ $t('buttons.showMore') }}
+                        {{ t('buttons.showMore') }}
                     </VButton>
                 </div>
             </template>

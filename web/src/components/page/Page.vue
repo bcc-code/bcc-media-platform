@@ -12,10 +12,13 @@ import NotFound from '../NotFound.vue'
 import Loader from '../Loader.vue'
 import { goToSectionItem } from '@/utils/items'
 import { TransitionPresets } from '@vueuse/core'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
     pageId: string
 }>()
+
+const { t } = useI18n()
 
 const emit = defineEmits<{
     (e: 'title', v: string): void
@@ -266,7 +269,7 @@ load()
                 <!-- <div v-else class="h-40"></div> -->
             </div>
             <div v-else-if="!fetching && !loading">
-                <NotFound :title="$t('page.notFound')"></NotFound>
+                <NotFound :title="t('page.notFound')"></NotFound>
             </div>
             <div v-else-if="error">3{{ error.message }}</div>
             <div v-else class="flex w-full h-48 items-center justify-center">

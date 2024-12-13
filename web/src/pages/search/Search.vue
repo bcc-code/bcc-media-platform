@@ -137,14 +137,14 @@ watch(
                 :link="false"
                 class="transition opacity-100"
             >
-                <template #title>{{ $t('search.noResults') }}</template>
+                <template #title>{{ t('search.noResults') }}</template>
                 <template #description>{{
-                    $t('search.tryAdjustingQuery')
+                    t('search.tryAdjustingQuery')
                 }}</template>
             </NotFound>
         </div>
         <div v-else class="w-full text-center">
-            <p class="text-lg text-gray">{{ $t('search.emptyQuery') }}</p>
+            <p class="text-lg text-gray">{{ t('search.emptyQuery') }}</p>
         </div>
     </section>
 </template>

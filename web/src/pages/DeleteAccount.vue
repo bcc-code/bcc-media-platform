@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { useI18n } from 'vue-i18n'
+
 withDefaults(
     defineProps<{
         title?: string
@@ -9,6 +11,8 @@ withDefaults(
         link: true,
     }
 )
+
+const { t } = useI18n()
 </script>
 <template>
     <div class="flex p-5">
@@ -30,7 +34,7 @@ withDefaults(
                 :to="{ name: 'front-page' }"
                 class="text-gray m-2 hover:underline hover:text-white transition hover:bg-slate-400 bg-primary-light p-2 px-3 rounded-full"
                 href="/"
-                >{{ $t('notFound.returnHome') }}</router-link
+                >{{ t('notFound.returnHome') }}</router-link
             >
         </div>
     </div>

@@ -6,6 +6,7 @@ import CollectionItemThumbnail from './CollectionItemThumbnail.vue'
 import { goToPage, isCollectionItem } from '@/utils/items'
 import { computed } from 'vue'
 import VButton from '@/components/VButton.vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
     position: number
@@ -15,6 +16,8 @@ const props = defineProps<{
 defineEmits<{
     (event: 'clickItem', index: number): void
 }>()
+
+const { t } = useI18n()
 
 const isShowMoreButtonVisible = computed(() => {
     return props.section.items.items.length === props.section.metadata?.limit
@@ -54,7 +57,7 @@ const pageCode = computed(() => {
                 color="secondary"
                 @click="goToPage(pageCode)"
             >
-                {{ $t('buttons.showMore') }}
+                {{ t('buttons.showMore') }}
             </VButton>
         </div>
     </section>

@@ -2,6 +2,7 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { ClipboardIcon, InformationCircleIcon } from '@heroicons/vue/24/outline'
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
     episode: {
@@ -9,6 +10,8 @@ const props = defineProps<{
         shareRestriction: 'public' | 'registered' | 'members'
     }
 }>()
+
+const { t } = useI18n()
 
 const l = computed(() => {
     return location.href
@@ -57,7 +60,7 @@ const copy = () => {
             <PopoverPanel
                 class="absolute z-10 right-0 bg-slate-700 p-4 shadow-lg rounded-md flex flex-col gap-2"
             >
-                <h1 class="text-xl">{{ $t('share.title') }}</h1>
+                <h1 class="text-xl">{{ t('share.title') }}</h1>
                 <div
                     class="bg-slate-800 rounded-md p-2 cursor-pointer hover:scale-[1.01] transition flex"
                     @click="copy()"
@@ -86,7 +89,7 @@ const copy = () => {
                         ></ClipboardIcon>
                     </span>
                     <span class="grow-0 text-sm my-auto">
-                        {{ $t(copied ? 'share.copied' : 'share.membersOnly') }}
+                        {{ t(copied ? 'share.copied' : 'share.membersOnly') }}
                     </span>
                 </p>
             </PopoverPanel>

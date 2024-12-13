@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { useAuth } from '@/services/auth'
+import { useI18n } from 'vue-i18n'
+
 const { shouldSignIn, signIn, cancelSignIn } = useAuth()
+const { t } = useI18n()
 </script>
 <template>
     <div v-if="shouldSignIn()">
@@ -11,20 +14,20 @@ const { shouldSignIn, signIn, cancelSignIn } = useAuth()
                 class="mx-auto my-auto flex flex-col bg-background p-4 rounded-lg gap-4"
             >
                 <h1 class="text-xl text-center mb-2 mt-2">
-                    {{ $t('dashboard.loggedOut') }}
+                    {{ t('dashboard.loggedOut') }}
                 </h1>
                 <div class="flex gap-2">
                     <button
                         class="ml-auto text-lg px-2 py-1 bg-primary rounded-lg hover:scale-105"
                         @click="signIn()"
                     >
-                        {{ $t('buttons.login') }}
+                        {{ t('buttons.login') }}
                     </button>
                     <button
                         class="text-lg px-2 py-1 bg-slate-800 rounded-lg hover:scale-105"
                         @click="cancelSignIn()"
                     >
-                        {{ $t('buttons.stayLoggedOut') }}
+                        {{ t('buttons.stayLoggedOut') }}
                     </button>
                 </div>
             </div>

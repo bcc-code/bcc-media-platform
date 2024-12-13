@@ -6,12 +6,14 @@ import { DocumentArrowDownIcon } from '@heroicons/vue/24/outline'
 import { analytics } from '@/services/analytics'
 import ModalBase from '../study/ModalBase.vue'
 import { mdToHTML } from '@/services/converter'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
     episode: GetEpisodeEmbedQuery['episode']
     showTitle?: boolean
 }>()
 
+const { t } = useI18n()
 const languages = computed(() => {
     const langs: Language[] = []
 
@@ -165,7 +167,7 @@ const downloadFile = () => {
         >
             <div v-if="showTitle" class="flex flex-col gap-2">
                 <h1 class="text-lg font-bold my-auto uppercase">
-                    {{ $t('buttons.download') }}
+                    {{ t('buttons.download') }}
                 </h1>
             </div>
             <div class="flex flex-col gap-2">
@@ -175,7 +177,7 @@ const downloadFile = () => {
                     :class="{ 'text-gray': !language }"
                 >
                     <option value="" disabled selected hidden>
-                        {{ $t('download.language') }}
+                        {{ t('download.language') }}
                     </option>
                     <option
                         v-for="l in languages"
@@ -194,10 +196,10 @@ const downloadFile = () => {
                 >
                     <option value="" disabled selected hidden>
                         <span class="text-opacity-50">{{
-                            $t('download.resolution')
+                            t('download.resolution')
                         }}</span>
                     </option>
-                    <option v-for="f in files" :value="f.id">
+                    <option v-for="f in files" :key="f.id" :value="f.id">
                         {{ f.resolution }}
                         <span v-if="f.size > 0">({{ fileSize(f.size) }})</span>
                     </option>
@@ -212,7 +214,7 @@ const downloadFile = () => {
                     :disabled="downloading"
                     @click="showTerms = true"
                 >
-                    <!-- <span class="my-auto">{{ $t("buttons.download") }}</span> -->
+                    <!-- <span class="my-auto">{{ t("buttons.download") }}</span> -->
                     <DocumentArrowDownIcon class="h-6 w-6 mx-auto" />
                 </button>
             </div>
@@ -232,11 +234,11 @@ const downloadFile = () => {
         <ModalBase v-model:visible="showTerms">
             <div class="bg-background rounded-lg p-4 flex flex-col">
                 <div>
-                    <h3>{{ $t('footer.termsOfUse') }}</h3>
+                    <h3>{{ t('footer.termsOfUse') }}</h3>
                     <div
                         class="terms"
                         v-html="
-                            mdToHTML($t('terms.byDownloadingYouAcceptTerms'))
+                            mdToHTML(t('terms.byDownloadingYouAcceptTerms'))
                         "
                     ></div>
                 </div>
@@ -249,7 +251,7 @@ const downloadFile = () => {
                         :disabled="downloading"
                         @click="showTerms = false"
                     >
-                        <span class="my-auto">{{ $t('buttons.cancel') }}</span>
+                        <span class="my-auto">{{ t('buttons.cancel') }}</span>
                     </button>
                     <button
                         class="bg-primary px-4 py-2 rounded-md"
@@ -259,7 +261,7 @@ const downloadFile = () => {
                         :disabled="downloading"
                         @click="downloadFile"
                     >
-                        <span class="my-auto">{{ $t('buttons.accept') }}</span>
+                        <span class="my-auto">{{ t('buttons.accept') }}</span>
                     </button>
                 </div>
             </div>

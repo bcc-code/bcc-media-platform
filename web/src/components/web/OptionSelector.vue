@@ -55,11 +55,11 @@ const value = computed({
                     required && updated && !optionValue,
             }"
         >
-            <option v-for="opt in options">{{ opt }}</option>
-            <option v-if="allowAny">{{ $t('requests.other') }}</option>
+            <option v-for="opt in options" :key="opt">{{ opt }}</option>
+            <option v-if="allowAny">{{ t('requests.other') }}</option>
         </select>
         <input
-            v-if="currentOption === $t('requests.other')"
+            v-if="currentOption === t('requests.other')"
             v-model="value"
             class="p-2 px-4 rounded bg-bcc-2"
             :class="{

@@ -7,6 +7,7 @@ import Play from '@/components/icons/Play.vue'
 import Image from '@/components/Image.vue'
 import Slider from './Slider.vue'
 import VButton from '@/components/VButton.vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
     position: number
@@ -17,6 +18,8 @@ defineEmits<{
     (event: 'loadMore'): void
     (event: 'clickItem', index: number): void
 }>()
+
+const { t } = useI18n()
 
 const options = computed(() => {
     switch (props.item.size) {
@@ -183,11 +186,11 @@ const options = computed(() => {
                                 >
                                     <Play></Play
                                     ><span class="ml-1 truncate">{{
-                                        $t('page.watchNow')
+                                        t('page.watchNow')
                                     }}</span>
                                 </div>
                                 <div v-else class="flex">
-                                    {{ $t('page.explore') }}
+                                    {{ t('page.explore') }}
                                 </div>
                             </VButton>
                         </div>

@@ -35,15 +35,15 @@
         "@urql/vue": "1.3.2",
         "@vueuse/core": "^10.11.1",
         "@vueuse/motion": "^2.2.3",
-        "bccm-video-player": "1.5.4",
+        "bccm-video-player": "1.5.6",
         "graphql": "^16.9.0",
         "graphql-tag": "^2.12.6",
         "rudder-sdk-js": "^2.48.15",
         "showdown": "^2.1.0",
         "swiper": "^11.1.9",
         "video.js": "^7.21.6",
-        "vue": "^3.4.38",
-        "vue-i18n": "^9.14.2",
+        "vue": "^3.5.13",
+        "vue-i18n": "^10.0.5",
         "vue-router": "^4.4.3",
         "vue3-lottie": "^3.3.0"
     },
@@ -71,7 +71,7 @@
         "typescript": "^5.5.4",
         "typescript-eslint": "^8.1.0",
         "vite": "^5.4.0",
-        "vue-tsc": "^2.0.29"
+        "vue-tsc": "https://pkg.pr.new/vuejs/language-tools/vue-tsc@3fb59af"
     },
     "packageManager": "pnpm@9.7.1"
 }

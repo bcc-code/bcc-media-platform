@@ -50,7 +50,7 @@ const details = computed(() => {
 </script>
 <template>
     <section class="flex flex-col gap-4">
-        <div v-for="d in details" class="flex flex-col gap-1">
+        <div v-for="d in details" :key="d.title" class="flex flex-col gap-1">
             <h1 class="text-lg font-semibold">{{ d.title }}</h1>
             <p>{{ d.value }}</p>
         </div>

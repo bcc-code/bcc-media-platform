@@ -9,8 +9,6 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Loader from '@/components/Loader.vue'
 
-var selectedIndex = ref<number>()
-
 const { t } = useI18n()
 
 const { fetching, executeMutation, error, data } = useSendTaskMessageMutation()
@@ -54,7 +52,6 @@ const submit = () => {
         }
         await completeTask({ taskId: task.value.id })
         isDone.value = true
-        val.data?.sendTaskMessage
     })
 }
 </script>
@@ -103,7 +100,7 @@ const submit = () => {
                     name=""
                     cols="20"
                     rows="7"
-                    :placeholder="$t('lesson.textTaskPlaceholder')"
+                    :placeholder="t('lesson.textTaskPlaceholder')"
                     class="w-full ellipsis rounded text-lg p-4 pr-6 bg-background-2 rounded-xl text-label-1 placeholder-label-4 text-style-body-1 border border-transparent focus:border-tint-1 focus:outline-none resize-none"
                 ></textarea>
                 <p class="mt-2">

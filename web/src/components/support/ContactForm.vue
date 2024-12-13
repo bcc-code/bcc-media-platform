@@ -11,6 +11,7 @@ import {
     TransitionRoot,
 } from '@headlessui/vue'
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const { fetching, executeMutation } = useSendSupportEmailMutation()
 
@@ -19,6 +20,8 @@ defineProps<{ show: boolean }>()
 const emit = defineEmits<{
     (e: 'update:show', v: boolean): void
 }>()
+
+const { t } = useI18n()
 
 const title = ref('')
 const content = ref('')
@@ -104,13 +107,13 @@ const closePanel = () => {
                         class="w-full max-w-md transform overflow-hidden rounded-2xl p-4 lg:p-6 text-left align-middle shadow-xl transition-all bg-background"
                     >
                         <DialogTitle class="text-2xl text-center font-bold">
-                            <span>{{ $t('support.contact') }}</span>
+                            <span>{{ t('support.contact') }}</span>
                         </DialogTitle>
                         <DialogDescription class="flex flex-col gap-2 mt-4">
                             <div
                                 class="font-bold text-xl text-white font-Barlow overflow-y-auto overscroll-auto"
                             >
-                                {{ $t('support.title') }}
+                                {{ t('support.title') }}
                             </div>
                             <input
                                 id="title"
@@ -118,13 +121,13 @@ const closePanel = () => {
                                 type="text"
                                 maxlength="50"
                                 class="ellipsis border border-white rounded text-lg px-2 py-1 border-opacity-25 bg-primary bg-opacity-10"
-                                :placeholder="$t('support.subject')"
+                                :placeholder="t('support.subject')"
                             />
                             <!-- <div v-if="!!titleErrorMsg" class="text-red">&#x26A0; {{titleErrorMsg}}</div> -->
                             <section>
                                 <div class="">
                                     <div class="text-xl font-bold mt-4 mb-2">
-                                        {{ $t('support.content') }}
+                                        {{ t('support.content') }}
                                     </div>
                                     <textarea
                                         id="content"
@@ -133,7 +136,7 @@ const closePanel = () => {
                                         cols="20"
                                         rows="10"
                                         :placeholder="
-                                            $t('support.describeIssue')
+                                            t('support.describeIssue')
                                         "
                                         class="w-full ellipsis border border-white rounded text-lg px-2 py-1 border-opacity-25 bg-primary bg-opacity-10"
                                     ></textarea>
@@ -145,6 +148,7 @@ const closePanel = () => {
                                         v-for="[key, value] in Object.entries(
                                             technicalProperties
                                         )"
+                                        :key="key"
                                     >
                                         <td>
                                             <strong>{{ key }}</strong>
@@ -155,7 +159,7 @@ const closePanel = () => {
                             </div>
                             <div class="flex gap-2 ml-auto">
                                 <VButton color="secondary" @click="closePanel">
-                                    {{ $t('buttons.cancel') }}
+                                    {{ t('buttons.cancel') }}
                                 </VButton>
                                 <VButton
                                     :disabled="fetching"
@@ -163,7 +167,7 @@ const closePanel = () => {
                                     color="green"
                                     @click="submit"
                                 >
-                                    {{ $t('buttons.submit') }}
+                                    {{ t('buttons.submit') }}
                                 </VButton>
                             </div>
                         </DialogDescription>

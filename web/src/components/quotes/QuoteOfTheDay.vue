@@ -10,14 +10,14 @@ import { analytics } from '@/services/analytics'
 import QuoteFeedbackButton from './QuoteFeedbackButton.vue'
 import { webViewMain } from '@/services/webviews/mainHandler'
 
-type Quote = {
+type QuoteType = {
     id: string
     quote: string
     published_at: string
     source?: string
     author?: string
 }
-const quotes = quotesRaw as Record<string, Quote>
+const quotes = quotesRaw as Record<string, QuoteType>
 
 type LocalizedModule = {
     default: Record<string, string>
@@ -150,7 +150,7 @@ onMounted(async () => {
                     @click.stop="setRead(true)"
                 >
                     <Check class="inline-block mr-1" />
-                    {{ $t('quotes.markAsRead') }}
+                    {{ t('quotes.markAsRead') }}
                 </VButton>
                 <VButton
                     v-else-if="shareSupported"
@@ -180,7 +180,7 @@ onMounted(async () => {
                             fill="currentColor"
                         />
                     </svg>
-                    {{ $t('share.title') }}
+                    {{ t('share.title') }}
                 </VButton>
             </transition>
             <QuoteFeedbackButton />

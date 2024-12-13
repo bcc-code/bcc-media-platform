@@ -3,18 +3,20 @@ import { useSearch } from '@/utils/search'
 import { computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { SearchIcon } from './icons'
+import { useI18n } from 'vue-i18n'
 
 const { oldPath } = useSearch()
+const { t } = useI18n()
 
 const router = useRouter()
 
 const props = defineProps<{
-    modelValue: any
+    modelValue: string
     disabled?: boolean
 }>()
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: any): void
+    (e: 'update:modelValue', value: string): void
     (e: 'keydown.enter'): void
 }>()
 
@@ -65,7 +67,7 @@ const cancel = () => {
             :disabled="disabled"
             class="pl-10 w-full bg-slate-800 rounded-full pr-20 p-2 my-auto text-md focus-visible:ring-2 focus-visible:ring-white/75"
             :class="[disabled ? 'text-gray' : '']"
-            :placeholder="$t('page.search')"
+            :placeholder="t('page.search')"
             @keydown.enter="emit('keydown.enter')"
         />
         <p
@@ -73,7 +75,7 @@ const cancel = () => {
             class="absolute flex right-2 ml-10 px-2 inset-y-2 cursor-pointer text-xs opacity-50 bg-slate-700 rounded-full"
             @click="cancel"
         >
-            <span class="my-auto uppercase">{{ $t('search.cancel') }}</span>
+            <span class="my-auto uppercase">{{ t('search.cancel') }}</span>
         </p>
     </div>
 </template>

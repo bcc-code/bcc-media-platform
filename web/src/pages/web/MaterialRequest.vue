@@ -163,52 +163,52 @@ const router = useRouter()
             <div class="rounded bg-bcc p-6">
                 <div class="text-center mb-4 flex flex-col">
                     <h1 class="text-2xl font-bold mb-2">
-                        {{ $t('requests.title') }}
+                        {{ t('requests.title') }}
                     </h1>
                     <small class="text-sm">{{
-                        $t('requests.description')
+                        t('requests.description')
                     }}</small>
                     <LanguageSelector class="ml-auto"></LanguageSelector>
                 </div>
                 <div class="flex flex-col md:grid grid-cols-2 gap-8">
                     <TextInput v-model="form.name" readonly>{{
-                        $t('requests.name')
+                        t('requests.name')
                     }}</TextInput>
                     <OptionSelector
                         v-model="form.role"
                         allow-any
                         :options="[
-                            $t('requests.editor'),
-                            $t('requests.director'),
-                            $t('requests.producer'),
-                            $t('requests.mediaResponsible'),
+                            t('requests.editor'),
+                            t('requests.director'),
+                            t('requests.producer'),
+                            t('requests.mediaResponsible'),
                         ]"
-                        >{{ $t('requests.role') }}</OptionSelector
+                        >{{ t('requests.role') }}</OptionSelector
                     >
                     <OptionSelector
                         v-model="form.materialUsageWhere"
                         required
                         allow-any
                         :options="[
-                            $t('requests.eventCamp'),
-                            $t('requests.local'),
+                            t('requests.eventCamp'),
+                            t('requests.local'),
                         ]"
-                        >{{ $t('requests.where')
+                        >{{ t('requests.where')
                         }}<span class="ml-1 text-red">*</span></OptionSelector
                     >
                     <DateSelector v-model="form.materialUsageWhen" required
-                        >{{ $t('requests.when')
+                        >{{ t('requests.when')
                         }}<span class="ml-1 text-red">*</span></DateSelector
                     >
                     <TextArea
                         v-model="form.material"
                         class="col-span-2"
                         required
-                        >{{ $t('requests.what') }}</TextArea
+                        >{{ t('requests.what') }}</TextArea
                     >
                     <div class="col-span-2">
                         <TextArea v-model="form.materialUsageHow" required>{{
-                            $t('requests.how')
+                            t('requests.how')
                         }}</TextArea>
                     </div>
                     <div class="flex col-span-2">
@@ -226,14 +226,14 @@ const router = useRouter()
                                 <label
                                     for="agenda"
                                     class="my-auto cursor-pointer"
-                                    >{{ $t("requests.confirmAgenda") }}</label
+                                    >{{ t("requests.confirmAgenda") }}</label
                                 >
                             </div> -->
                             <button
                                 class="bg-bcc-1 rounded-full p-2 px-8 hover:-translate-y-0.5 transition"
                                 @click="clear"
                             >
-                                {{ $t('requests.clear') }}
+                                {{ t('requests.clear') }}
                             </button>
                             <button
                                 class="bg-bcc-3 text-black rounded-full p-2 px-8 hover:-translate-y-0.5 transition"
@@ -243,7 +243,7 @@ const router = useRouter()
                                 :disabled="!canSend"
                                 @click="showSend = true"
                             >
-                                {{ $t('requests.send') }}
+                                {{ t('requests.send') }}
                             </button>
                         </div>
                     </div>
@@ -298,7 +298,7 @@ const router = useRouter()
                     :disabled="!agendaConfirmed"
                     @click="termsAccepted = true"
                 >
-                    {{ $t('buttons.continue') }}
+                    {{ t('buttons.continue') }}
                 </button>
             </div>
         </div>
@@ -317,17 +317,17 @@ const router = useRouter()
         @close="router.push('/')"
     >
         <template #title>
-            {{ $t('requests.receitTitle') }}
+            {{ t('requests.receitTitle') }}
         </template>
         <template #description>
-            <p>{{ $t('requests.receitDescription') }}</p>
+            <p>{{ t('requests.receitDescription') }}</p>
         </template>
         <template #actions>
             <button
                 class="inline-flex justify-center rounded-md border border-transparent text-black bg-bcc-3 px-4 py-2 text-sm font-medium"
                 @click="router.push('/')"
             >
-                {{ $t('buttons.close') }}
+                {{ t('buttons.close') }}
             </button>
         </template>
     </Modal>

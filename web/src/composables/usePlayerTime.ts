@@ -6,8 +6,9 @@ export function usePlayerTime(player: MaybeRef<Player | null | undefined>) {
 
     const onTimeUpdate = () => {
         const p = unref(player)
-        if (!p) return
-        currentTime.value = p.currentTime()
+        const now = p?.currentTime()
+        if (!now) return
+        currentTime.value = now
     }
 
     watch(

@@ -8,6 +8,7 @@ import {
 import VButton from '../VButton.vue'
 import { computed, watch, ref } from 'vue'
 import Loader from '../Loader.vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
     topic: SubscriptionTopic
@@ -64,6 +65,8 @@ const handleClick = async () => {
 defineOptions({
     inheritAttrs: false,
 })
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -85,12 +88,12 @@ defineOptions({
         >
             {{
                 subscribed
-                    ? $t('subscriptions.unsubscribe')
-                    : $t('subscriptions.subscribe')
+                    ? t('subscriptions.unsubscribe')
+                    : t('subscriptions.subscribe')
             }}
         </div>
     </VButton>
     <div v-if="error" class="mt-1 text-center">
-        {{ $t('error.somethingWentWrong') }} <br />Error: {{ error }}
+        {{ t('error.somethingWentWrong') }} <br />Error: {{ error }}
     </div>
 </template>

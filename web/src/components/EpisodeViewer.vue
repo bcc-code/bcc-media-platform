@@ -53,9 +53,9 @@ const emit = defineEmits<{
     (e: 'next'): void
 }>()
 
-const player = ref(null as Player | null)
+const player = ref<Player | null>(null)
 
-const current = ref(null as string | null)
+const current = ref<string | null>(null)
 
 const { executeMutation } = useUpdateEpisodeProgressMutation()
 
@@ -150,7 +150,7 @@ const load = async () => {
         if (player.value == null) {
             return
         }
-        setupVideoLanguageMenu(player.value)
+        setupVideoLanguageMenu(player.value as Player)
 
         // create a event when player is created
         const vodPlayer = new CustomEvent('vodPlayer', {
@@ -231,7 +231,7 @@ const checkProgress = async (force?: boolean) => {
         return
     }
     const episodeId = props.episode.id
-    const progress = Math.floor(player.value.currentTime())
+    const progress = Math.floor(player.value.currentTime() ?? 0)
     if (
         force === true ||
         (progress &&

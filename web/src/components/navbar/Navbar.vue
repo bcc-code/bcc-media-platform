@@ -18,6 +18,7 @@ import { useGetMeQuery } from '@/graph/generated'
 import ContactForm from '@/components/support/ContactForm.vue'
 import FAQ from '../support/FAQ.vue'
 import LanguageSelector from '../LanguageSelector.vue'
+import { useI18n } from 'vue-i18n'
 
 const { fetching } = useGetMeQuery({ variables: {} })
 
@@ -46,7 +47,10 @@ const onLogoClick = () => {
         behavior: 'smooth',
     })
 }
+
+const { t } = useI18n()
 </script>
+
 <template>
     <Disclosure
         v-slot="{ open }"
@@ -74,7 +78,7 @@ const onLogoClick = () => {
                     </div>
                     <div class="hidden lg:flex my-auto space-x-2">
                         <NavLink :icon="HomeIcon" to="/">
-                            {{ $t('page.home') }}
+                            {{ t('page.home') }}
                         </NavLink>
                         <SearchInput v-model="query" />
                     </div>
@@ -83,7 +87,7 @@ const onLogoClick = () => {
                             class="my-auto hover:underline focus-visible:ring-2 focus-visible:ring-white/75 rounded-md"
                             href="https://bcc.media"
                         >
-                            {{ $t('page.aboutUs') }}
+                            {{ t('page.aboutUs') }}
                         </a>
                         <LanguageSelector />
                         <Menu
@@ -139,7 +143,7 @@ const onLogoClick = () => {
 
                                                 <p class="ml-2 text-base">
                                                     {{
-                                                        $t(
+                                                        t(
                                                             'buttons.' +
                                                                 (authenticated
                                                                     ? 'logout'
@@ -165,7 +169,7 @@ const onLogoClick = () => {
                                                     class="h-6"
                                                 ></QuestionIcon>
                                                 <p class="ml-2 text-base">
-                                                    {{ $t('support.faq') }}
+                                                    {{ t('support.faq') }}
                                                 </p>
                                             </button>
                                         </MenuItem>
@@ -186,7 +190,7 @@ const onLogoClick = () => {
                                                     class="h-6"
                                                 ></QuestionIcon>
                                                 <p class="ml-2 text-base">
-                                                    {{ $t('support.contact') }}
+                                                    {{ t('support.contact') }}
                                                 </p>
                                             </button>
                                         </MenuItem>
@@ -203,7 +207,7 @@ const onLogoClick = () => {
                                 class="stroke-red-500 h-8 w-8"
                             ></ProfileIcon>
                             <p class="ml-1 my-auto">
-                                {{ $t('buttons.login') }}
+                                {{ t('buttons.login') }}
                             </p>
                         </button>
                     </div>
@@ -252,6 +256,7 @@ const onLogoClick = () => {
                                     <div class="p-1 max-h-96 overflow-y-scroll">
                                         <MenuItem
                                             v-for="l in languages"
+                                            :key="l.code"
                                             v-slot="{ active }"
                                         >
                                             <div
@@ -327,7 +332,7 @@ const onLogoClick = () => {
 
                                                 <p class="ml-2 text-base">
                                                     {{
-                                                        $t(
+                                                        t(
                                                             'buttons.' +
                                                                 (authenticated
                                                                     ? 'logout'
@@ -370,7 +375,7 @@ const onLogoClick = () => {
                                                     class="h-6"
                                                 ></QuestionIcon>
                                                 <p class="ml-2 text-base">
-                                                    {{ $t('support.faq') }}
+                                                    {{ t('support.faq') }}
                                                 </p>
                                             </button>
                                         </MenuItem>
@@ -391,7 +396,7 @@ const onLogoClick = () => {
                                                     class="h-6"
                                                 ></QuestionIcon>
                                                 <p class="ml-2 text-base">
-                                                    {{ $t('support.contact') }}
+                                                    {{ t('support.contact') }}
                                                 </p>
                                             </button>
                                         </MenuItem>
@@ -403,10 +408,10 @@ const onLogoClick = () => {
                 </div>
                 <div class="flex lg:hidden justify-between mx-8">
                     <NavLink :icon="HomeIcon" to="/">
-                        {{ $t('page.home') }}
+                        {{ t('page.home') }}
                     </NavLink>
                     <NavLink :icon="SearchIcon" :to="{ name: 'search' }">
-                        {{ $t('page.search') }}</NavLink
+                        {{ t('page.search') }}</NavLink
                     >
                 </div>
             </div>

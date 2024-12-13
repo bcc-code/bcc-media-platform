@@ -25,6 +25,8 @@ import { episodeComingSoon } from '../../utils/items'
 import EmbedDownloadables from '../embed/EmbedDownloadables.vue'
 import { mdToHTML } from '@/services/converter'
 import { usePlayerTime } from '@/composables/usePlayerTime'
+import { useI18n } from 'vue-i18n'
+import { Player } from 'bccm-video-player'
 
 const props = defineProps<{
     initialEpisodeId: string
@@ -38,13 +40,17 @@ const viewerRef = ref<InstanceType<typeof EpisodeViewer> | null>(null)
 const seekTo = (seconds: number) => {
     viewerRef.value?.player?.currentTime(seconds)
 }
-const { currentTime } = usePlayerTime(computed(() => viewerRef.value?.player))
+const { currentTime } = usePlayerTime(
+    computed(() => viewerRef.value?.player as Player)
+)
 
 const { authenticated } = useAuth()
 
 const emit = defineEmits<{
     (e: 'episode', v: GetEpisodeQuery['episode']): void
 }>()
+
+const { t } = useI18n()
 
 const episode = ref(null as GetEpisodeQuery['episode'] | null)
 const season = ref(null as GetSeasonOnEpisodePageQuery['season'] | null)
@@ -263,7 +269,7 @@ const onChapterClick = (chapter: ChapterListChapterFragment) => {
                         ]"
                         @click="effectiveView = 'context'"
                     >
-                        {{ $t('episode.videos') }}
+                        {{ t('episode.videos') }}
                     </button>
                     <button
                         v-else-if="seasonId"
@@ -275,7 +281,7 @@ const onChapterClick = (chapter: ChapterListChapterFragment) => {
                         ]"
                         @click="effectiveView = 'episodes'"
                     >
-                        {{ $t('episode.episodes') }}
+                        {{ t('episode.episodes') }}
                     </button>
                     <button
                         v-if="episode.chapters.length > 0"
@@ -287,7 +293,7 @@ const onChapterClick = (chapter: ChapterListChapterFragment) => {
                         ]"
                         @click="effectiveView = 'chapters'"
                     >
-                        {{ $t('episode.chapters') }}
+                        {{ t('episode.chapters') }}
                     </button>
                     <button
                         class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
@@ -298,7 +304,7 @@ const onChapterClick = (chapter: ChapterListChapterFragment) => {
                         ]"
                         @click="effectiveView = 'details'"
                     >
-                        {{ $t('episode.details') }}
+                        {{ t('episode.details') }}
                     </button>
                     <button
                         v-if="episode.files.length > 0"
@@ -310,7 +316,7 @@ const onChapterClick = (chapter: ChapterListChapterFragment) => {
                         ]"
                         @click="effectiveView = 'download'"
                     >
-                        {{ $t('buttons.download') }}
+                        {{ t('buttons.download') }}
                     </button>
                 </div>
                 <hr class="border-separator-on-light" />
@@ -376,5 +382,5 @@ const onChapterClick = (chapter: ChapterListChapterFragment) => {
         <div v-if="error" class="text-red">{{ error.message }}</div>
     </section>
     <LoginToView v-else-if="noAccess && !authenticated"> </LoginToView>
-    <NotFound v-else-if="!loading" :title="$t('episode.notFound')"></NotFound>
+    <NotFound v-else-if="!loading" :title="t('episode.notFound')"></NotFound>
 </template>
