@@ -3,12 +3,17 @@ package search
 import (
 	"context"
 	"flag"
+	"fmt"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/indices/putmapping"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
+	"math/rand"
 	"os"
 	"testing"
+	"time"
 )
 
 var elasticTestsEnabled = false
@@ -22,17 +27,32 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+// https://github.com/bcc-code/bcc-media-platform/pull/1021
 func Test_ElasticQueryBasic(t *testing.T) {
-	if !elasticTestsEnabled {
-		t.Skip("Ealstic tests not enabled. Enable with -elastic flag")
-	}
+	rand.Seed(time.Now().UnixNano())
+	randomNumber := rand.Intn(1000000000000000)
+	testIndexName := fmt.Sprintf("bccm-integration-test-%d", randomNumber)
 
 	ctx := context.Background()
 	client := newElasticClient(ctx, ElasticConfig{
-		URL:      "http://localhost:9200/",
-		Username: "elastic",
-		Password: "bccm123",
+		CloudID: CloudId,
+		ApiKey:  ApiKey,
 	})
+
+	mapping := types.NewNestedProperty()
+	mapping.Properties = map[string]types.Property{
+		"total": types.NewIntegerNumberProperty(),
+		"free":  types.NewIntegerNumberProperty(),
+		"used":  types.NewIntegerNumberProperty(),
+	}
+
+	client.Indices.Create(testIndexName).Do(ctx)
+	client.Indices.PutMapping(testIndexName).Request(&putmapping.Request{Properties: map[string]types.Property{
+		"title": mapping,
+	}})
+	client.Indices.Delete(testIndexName).Do(ctx)
+
+	t.Skip(fmt.Sprintf("should use %d as index name", randomNumber))
 
 	limit := 10
 	searchType := "episode"
