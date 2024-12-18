@@ -209,7 +209,7 @@ var typeToIndexMap = map[string]string{
 }
 
 // doElasticSearch is its own function so that we don't have to deal with gin.Context when testing.
-func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, query common.SearchQuery, roles []string, languages []string) (common.SearchResult, error) {
+func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, query common.SearchQuery, roles []string, languages []string, indexNameParameter string) (common.SearchResult, error) {
 	now := time.Now().Unix()
 
 	templateParams := &elasticQueryParams{
@@ -242,6 +242,9 @@ func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, que
 	indexName := "bccm-*"
 	if query.Type != nil {
 		indexName = typeToIndexMap[*query.Type]
+	}
+	if indexNameParameter != "" {
+		indexName = indexNameParameter
 	}
 
 	qResult, err := client.Search().Index(indexName).Raw(jsonQuery).Do(ctx)
@@ -347,5 +350,5 @@ func (service *Service) SearchElastic(ctx *gin.Context, query common.SearchQuery
 
 	languages := user.GetLanguagesFromCtx(ctx)
 
-	return doElasticSearch(ctx, service.elasticClient, query, roles, languages)
+	return doElasticSearch(ctx, service.elasticClient, query, roles, languages, "")
 }
