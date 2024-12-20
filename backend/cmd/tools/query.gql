@@ -1,0 +1,10 @@
+{
+    shorts(cursor: "%s") {
+        shorts {
+            id
+            score
+        }
+        cursor
+        nextCursor
+    }
+}

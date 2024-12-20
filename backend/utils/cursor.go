@@ -37,25 +37,19 @@ func ParseCursor[K comparable](cursorString string) (*Cursor[K], error) {
 
 // ApplyTo applies the cursor to a collection of keys
 func (c Cursor[K]) ApplyTo(keys []K) []K {
-	var result []K
-	for i, key := range keys {
-		if i > c.CurrentIndex {
-			result = append(result, key)
-		}
-	}
-	return result
+	return keys[c.CurrentIndex:]
 }
 
 // ApplyToSegments applies the cursor to segments of keys
-func (c Cursor[K]) ApplyToSegments(segments [][]K, minimumSegmentLength int) []K {
-	var keys []K
+func (c Cursor[K]) ApplyToSegments(segments [][]K, segmentLength int) []K {
+	keys := lo.Flatten(segments)
+	keys = c.ApplyTo(keys)
 	if c.Seed != nil {
-		keys = ShuffleSegmentedArray(segments, minimumSegmentLength, c.RandomFactor, *c.Seed)
+		keys = ShuffleSegmentedArray(keys, segmentLength, c.RandomFactor, *c.Seed)
 	} else {
 		keys = lo.Flatten(segments)
 	}
-
-	return c.ApplyTo(keys)
+	return keys
 }
 
 // ItemCursor contains cursor data for pagination

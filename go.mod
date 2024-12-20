@@ -1,8 +1,6 @@
 module github.com/bcc-code/bcc-media-platform
 
-go 1.21
-
-toolchain go1.21.0
+go 1.22
 
 require (
 	cloud.google.com/go/bigquery v1.62.0
