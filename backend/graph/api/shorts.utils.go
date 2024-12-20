@@ -3,8 +3,9 @@ package graph
 import (
 	"context"
 	"errors"
-	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"time"
+
+	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -24,7 +25,9 @@ func (r *Resolver) getShuffledShortIDs(ctx context.Context, seed int64) ([]uuid.
 		return nil, err
 	}
 
-	return utils.ShuffleSegmentedArray(shortIDSegments, 10, 1, seed), nil
+	ids := lo.Flatten(shortIDSegments)
+
+	return utils.ShuffleSegmentedArray(ids, 10, 1, seed), nil
 }
 
 func (r *Resolver) getShortToMediaIDMap(ctx context.Context, shortIDs []uuid.UUID) (map[uuid.UUID]uuid.UUID, error) {
@@ -262,12 +265,14 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int, in
 		return nil, err
 	}
 
+	shortsOut := lo.Map(shorts, func(i *common.Short, _ int) *model.Short {
+		return shortToShort(ctx, i)
+	})
+
 	return &model.ShortsPagination{
 		Cursor:     currentCursorString,
 		NextCursor: nextCursorString,
-		Shorts: lo.Map(shorts, func(i *common.Short, _ int) *model.Short {
-			return shortToShort(ctx, i)
-		}),
+		Shorts:     shortsOut,
 	}, nil
 }
 

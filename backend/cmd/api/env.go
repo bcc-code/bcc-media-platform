@@ -169,7 +169,7 @@ func (a awsConfig) GetTempStorageBucket() string {
 func getEnvConfig() envConfig {
 	err := godotenv.Load("backend/cmd/api/.env")
 	if err == nil {
-		log.L.Warn().Msg("Loaded .env file")
+		log.L.Warn().Msg("Loaded backend/cmd/api/.env file")
 	}
 
 	err = godotenv.Load(".env")
