@@ -98,8 +98,13 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 		return nil, err
 	}
 
+	l := 20
+	if limit != nil {
+		l = *limit
+	}
+
 	// apply pagination here, before filtering out watched shorts
-	shortIDs := cursor.ApplyToSegments(shortIDSegments, 5)
+	shortIDs := cursor.ApplyToSegments(shortIDSegments, l)
 
 	if p != nil {
 		shortIDs, err = r.applyWatchedFilter(ctx, shortIDs, p)
@@ -110,11 +115,6 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 
 	if initialID != uuid.Nil {
 		shortIDs = applyInitialShort(shortIDs, initialID, *cursor)
-	}
-
-	l := 20
-	if limit != nil {
-		l = *limit
 	}
 
 	var keys []uuid.UUID

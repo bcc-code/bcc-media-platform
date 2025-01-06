@@ -46,8 +46,6 @@ func (c Cursor[K]) ApplyToSegments(segments [][]K, segmentLength int) []K {
 	keys = c.ApplyTo(keys)
 	if c.Seed != nil {
 		keys = ShuffleSegmentedArray(keys, segmentLength, c.RandomFactor, *c.Seed)
-	} else {
-		keys = lo.Flatten(segments)
 	}
 	return keys
 }
