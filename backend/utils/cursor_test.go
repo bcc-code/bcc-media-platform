@@ -86,7 +86,7 @@ func TestApplyCursor(t *testing.T) {
 	}
 
 	data2 := c.ApplyToSegments(data, 5)
-	assert.Len(t, data2, 60-c.CurrentIndex)
+	assert.Len(t, data2, 5)
 
 	dataFlat := lo.Flatten(data)
 	for i := 0; i < c.CurrentIndex; i++ {
@@ -176,7 +176,7 @@ func TestApplyCursorWithRandomness(t *testing.T) {
 	}
 
 	data2 := c.ApplyToSegments(data, segmentSize)
-	assert.Len(t, data2, 60-c.CurrentIndex)
+	assert.Len(t, data2, segmentSize)
 
 	dataFlat := lo.Flatten(data)
 	for i := 0; i < c.CurrentIndex; i++ {
