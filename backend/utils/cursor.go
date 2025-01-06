@@ -37,7 +37,17 @@ func ParseCursor[K comparable](cursorString string) (*Cursor[K], error) {
 
 // ApplyTo applies the cursor to a collection of keys
 func (c Cursor[K]) ApplyTo(keys []K) []K {
-	return keys[c.CurrentIndex:]
+	if len(keys) < c.CurrentIndex {
+		return nil
+	}
+
+	slice := keys[c.CurrentIndex:]
+
+	out := make([]K, 0, len(slice))
+	for i := 0; i < c.CurrentIndex; i++ {
+		out = append(out, slice[i])
+	}
+	return out
 }
 
 // ApplyToSegments applies the cursor to segments of keys

@@ -118,7 +118,9 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 	}
 
 	var keys []uuid.UUID
+
 	for _, id := range shortIDs {
+
 		keys = append(keys, id)
 
 		if len(keys) >= l {
