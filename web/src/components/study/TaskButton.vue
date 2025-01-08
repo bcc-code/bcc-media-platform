@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 
-const props = defineProps<{ title: string; secondaryTitle: string }>()
-
 const { t } = useI18n()
 </script>
 

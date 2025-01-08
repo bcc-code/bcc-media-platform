@@ -43,7 +43,7 @@ const isProbablyAnimation = computed(
 )
 
 const emit = defineEmits<{
-    (e: 'navigate', i: Page): any
+    navigate: [i: Page]
 }>()
 
 const playAgain = () => {
@@ -59,18 +59,12 @@ const playAgain = () => {
     <div class="w-full">
         <template v-if="lesson.studyLesson.tasks.items.length > 0">
             <div class="p-4 pt-4">
-                <TaskButton
-                    title="a"
-                    secondary-title="b"
-                    @click="() => emit('navigate', 'tasks')"
-                ></TaskButton>
+                <TaskButton @click="() => emit('navigate', 'tasks')" />
                 <div class="mt-6">
                     <p class="w-full text-white text-style-title-1">
                         {{ t('lesson.watchAgain.title') }}
                     </p>
-                    <p
-                        class="mt-1 w-full text-white text-style-body-2 text-label-3"
-                    >
+                    <p class="mt-1 w-full text-style-body-2 text-label-3">
                         {{ t('lesson.watchAgain.description') }}
                     </p>
                     <div
@@ -145,8 +139,7 @@ const playAgain = () => {
                             :episode-id="episode.id"
                             class="mt-2.5"
                             @sent="() => registerFeedbackSent()"
-                        >
-                        </FeedbackRatingAndForm>
+                        />
                     </div>
                 </div>
             </div>
@@ -160,6 +153,7 @@ const playAgain = () => {
             </p>
             <LinkListItem
                 v-for="link in lesson.studyLesson.links.items"
+                :key="`${link.title}-${link.url}`"
                 :link="link"
             />
         </div>

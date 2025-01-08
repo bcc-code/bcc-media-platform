@@ -26,6 +26,13 @@ if (import.meta.env.PROD) {
         integrations: [
             Sentry.browserTracingIntegration({ router }),
             Sentry.browserProfilingIntegration(),
+            Sentry.vueIntegration({
+                app,
+                tracingOptions: {
+                    trackComponents: true,
+                    hooks: ['activate', 'create', 'unmount', 'mount', 'update'],
+                }
+            }),
         ],
         tracePropagationTargets: [/^\//],
         tracesSampleRate: 0.5,

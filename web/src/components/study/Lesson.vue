@@ -1,10 +1,8 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useTitle } from '@/utils/title'
 import { analytics } from '@/services/analytics'
 import { useGetStudyLessonQuery } from '@/graph/generated'
-import { useRoute } from 'vue-router'
 import { VButton } from '..'
 import Tasks from './Tasks.vue'
 import More from './More.vue'
@@ -12,8 +10,6 @@ import Loader from '../Loader.vue'
 
 export type Page = '' | 'intro' | 'tasks' | 'more'
 
-console.log(useRoute())
-const route = useRoute()
 const props = defineProps<{
     episodeId: string
     lessonId: string
@@ -27,11 +23,9 @@ const { error, fetching, data, executeQuery, ...lessonQuery } =
         requestPolicy: 'network-only',
     })
 
-const { t } = useI18n()
-
 const { setTitle } = useTitle()
 
-const page = ref<Page>(props.subRoute)
+const page = ref(props.subRoute)
 
 watch(page, (val) => {
     if (val == 'tasks') {
@@ -72,7 +66,7 @@ const reload = () => {
             v-if="fetching"
             class="p-12 h-full flex items-center justify-center"
         >
-            <Loader variant="spinner"></Loader>
+            <Loader variant="spinner" />
         </div>
         <div v-else-if="error" class="p-12">
             <div class="text-style-title-1">Something went wrong</div>
