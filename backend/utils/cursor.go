@@ -44,7 +44,7 @@ func (c Cursor[K]) ApplyTo(keys []K) []K {
 	slice := keys[c.CurrentIndex:]
 
 	out := make([]K, 0, len(slice))
-	for i := 0; i < c.CurrentIndex; i++ {
+	for i := 0; i < len(slice); i++ {
 		out = append(out, slice[i])
 	}
 	return out
