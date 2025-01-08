@@ -51,13 +51,10 @@ func (c Cursor[K]) ApplyTo(keys []K) []K {
 }
 
 // ApplyToSegments applies the cursor to segments of keys
-func (c Cursor[K]) ApplyToSegments(segments [][]K, segmentLength int) []K {
-	keys := lo.Flatten(segments)
-	keys = c.ApplyTo(keys)
+func (c Cursor[K]) ApplyToSegments(segments []K, segmentLength int) []K {
+	keys := c.ApplyTo(segments)
 	if c.Seed != nil {
 		keys = ShuffleSegmentedArray(keys, segmentLength, c.RandomFactor, *c.Seed)
-	} else {
-		keys = lo.Flatten(segments)
 	}
 	return keys
 }
