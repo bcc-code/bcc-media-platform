@@ -640,8 +640,8 @@ packages:
     engines: {node: '>=8', npm: '>=5'}
     hasBin: true
 
-  nanoid@3.3.7:
-    resolution: {integrity: sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==}
+  nanoid@3.3.8:
+    resolution: {integrity: sha512-WNLf5Sd8oZxOm+TzppcYk8gVOgP+l58xNy58D0nbUnOxOWRWvlcCV4kUF7ltmI6PsrLl/BgKEyS4mqsGChFN0w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
@@ -795,8 +795,8 @@ packages:
       typescript:
         optional: true
 
-  webcomponents.js@https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e:
-    resolution: {tarball: https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e}
+  webcomponents.js@git+https://git@github.com:webcomponents/webcomponentsjs.git#8a2e40557b177e2cca0def2553f84c8269c8f93e:
+    resolution: {commit: 8a2e40557b177e2cca0def2553f84c8269c8f93e, repo: git@github.com:webcomponents/webcomponentsjs.git, type: git}
     version: 0.7.24
 
   youbora-adapter-freewheel@6.8.5:
@@ -1023,7 +1023,7 @@ snapshots:
   '@silvermine/videojs-chromecast@1.5.0(video.js@8.20.0)':
     dependencies:
       video.js: 8.20.0
-      webcomponents.js: https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e
+      webcomponents.js: git+https://git@github.com:webcomponents/webcomponentsjs.git#8a2e40557b177e2cca0def2553f84c8269c8f93e
 
   '@types/estree@1.0.6': {}
 
@@ -1304,7 +1304,7 @@ snapshots:
       '@babel/runtime': 7.26.0
       global: 4.4.0
 
-  nanoid@3.3.7: {}
+  nanoid@3.3.8: {}
 
   node-addon-api@7.1.1:
     optional: true
@@ -1322,7 +1322,7 @@ snapshots:
 
   postcss@8.4.49:
     dependencies:
-      nanoid: 3.3.7
+      nanoid: 3.3.8
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
@@ -1444,7 +1444,7 @@ snapshots:
     optionalDependencies:
       typescript: 5.7.2
 
-  webcomponents.js@https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e: {}
+  webcomponents.js@git+https://git@github.com:webcomponents/webcomponentsjs.git#8a2e40557b177e2cca0def2553f84c8269c8f93e: {}
 
   youbora-adapter-freewheel@6.8.5:
     dependencies:
