@@ -14,3 +14,5 @@ GRANT SELECT, insert, delete, update ON TABLE "public"."playlists_translations" 
 /*** SCRIPT AUTHOR: Fredrik Vedvik (fredrik@vedvik.tech) ***/
 /***    CREATED ON: 2023-10-20T13:16:23.235Z             ***/
 /***********************************************************/
+
+SELECT 1;
