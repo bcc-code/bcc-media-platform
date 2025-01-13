@@ -12,3 +12,5 @@ GRANT SELECT, USAGE, UPDATE ON SEQUENCE "public"."links_translations_id_seq" TO 
 /*** SCRIPT AUTHOR: Fredrik Vedvik (fredrik@vedvik.tech) ***/
 /***    CREATED ON: 2022-10-19T11:53:29.885Z             ***/
 /***********************************************************/
+
+SELECT 1;

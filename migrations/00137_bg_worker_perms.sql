@@ -13,3 +13,5 @@ GRANT SELECT ON TABLE "users"."users" TO background_worker;
 /***    CREATED ON: 2023-02-15T11:05:26.821Z             ***/
 /***********************************************************/
 
+SELECT 1;
+

@@ -12,4 +12,4 @@ GRANT ALL PRIVILEGES ON SEQUENCE "playlists_translations_id_seq" TO background_w
 /***    CREATED ON: 2023-11-06T13:16:53.327Z             ***/
 /***********************************************************/
 
-
+SELECT 1;

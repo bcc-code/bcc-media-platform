@@ -11,3 +11,5 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON "public"."notificationtemplates" TO dire
 /*** SCRIPT AUTHOR: Fredrik Vedvik (fredrik@vedvik.tech) ***/
 /***    CREATED ON: 2022-11-16T10:22:37.343Z             ***/
 /***********************************************************/
+
+SELECT 1;

@@ -1,0 +1,44 @@
+-- name: InsertDefaultAgeratings :exec
+
+INSERT INTO public.ageratings (code, date_created, date_updated, sort, title) VALUES ('A', '2022-07-07 13:58:00.834717 +00:00', '2022-07-07 13:58:00.837843 +00:00', 0, null),
+('6', '2022-07-07 13:58:00.834717 +00:00', '2022-07-07 13:58:00.837843 +00:00', 1, null),
+('9', '2022-07-07 13:58:00.834717 +00:00', '2022-07-07 13:58:00.837843 +00:00', 2, null),
+('12', '2022-07-07 13:58:00.834717 +00:00', '2022-07-07 13:58:00.837843 +00:00', 3, null),
+('15', '2022-07-07 13:58:00.834717 +00:00', '2022-07-07 13:58:00.837843 +00:00', 4, null),
+('18', '2022-07-07 13:58:00.834717 +00:00', '2022-07-07 13:58:00.837843 +00:00', 5, null),
+('U', '2022-11-28 11:24:36.003000 +00:00', '2022-11-28 11:24:36.003000 +00:00', null, 'Unrated');
+
+
+-- name: InsertDefaultUser :exec
+
+INSERT INTO public.directus_users (id, first_name, last_name, email, password, location, title, description, tags, avatar, language, tfa_secret, status, role, token, last_access, last_page, provider, external_identifier, auth_data, email_notifications, appearance, theme_dark, theme_light, theme_light_overrides, theme_dark_overrides) VALUES ('99999999-9999-4999-9999-999999999999', 'Admin', 'User', 'admin@example.com', 'DUMMY PASS', null, null, null, null, null, null, null, 'active', 'aeeb3066-3a3d-48d2-b922-8ea359d1fc16', null, '2022-08-24 11:37:50.116000 +00:00', '/settings/roles/aeeb3066-3a3d-48d2-b922-8ea359d1fc16', 'default', null, null, true, null, null, null, null, null);
+
+-- name: InsertDefaultLanguages :exec
+INSERT INTO public.languages (code, legacy_2_letter_code, legacy_3_letter_code, name) VALUES ('da', 'da', 'dan', 'Danish'),
+('de', 'de', 'deu', 'German'),
+('en', 'en', 'eng', 'English'),
+('es', 'es', 'spa', 'Spanish'),
+('fi', 'fi', 'fin', 'Finnish'),
+('fr', 'fr', 'fra', 'French'),
+('hu', 'hu', 'hun', 'Hungarian'),
+('it', 'it', 'ita', 'Italian'),
+('nl', 'nl', 'nld', 'Dutch'),
+('no', 'no', 'nor', 'Norwegian'),
+('nb', 'nb', 'nob', 'Norwegian - Tolk'),
+('pl', 'pl', 'pol', 'Polish'),
+('pt', 'pt', 'por', 'Portuguese'),
+('ro', 'ro', 'ron', 'Romanian'),
+('ru', 'ru', 'rus', 'Russian'),
+('sl', 'sl', 'slv', 'Slovenian'),
+('tr', 'tr', 'tur', 'Turkish'),
+('zh', null, null, null),
+('bg', null, null, 'Bulgarian'),
+('hr', null, null, 'Croatian'),
+('', null, null, null),
+('kha', null, 'kha', 'Khasi'),
+('ta', null, 'tam', 'Tamil'),
+('kh', null, null, 'Khasi'),
+('yue', null, null, 'Cantonese (Yue)'),
+('tam', null, null, 'Tamil'),
+('zxx', null, null, null);
+

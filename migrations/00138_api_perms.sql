@@ -13,3 +13,4 @@ GRANT SELECT ON TABLE "public"."filter_dataset" TO api;
 /***    CREATED ON: 2023-02-15T11:05:26.821Z             ***/
 /***********************************************************/
 
+SELECT 1;

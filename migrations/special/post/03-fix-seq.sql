@@ -20,10 +20,10 @@ with sequences as (
              query_to_xml(format('select max(%I) from %I.%I', column_name, table_schema, table_name), true, true, ''))
           )[1]::text::bigint as max_val
   from sequences
-) 
-select table_schema, 
-       table_name, 
-       column_name, 
+)
+select table_schema,
+       table_name,
+       column_name,
        col_sequence,
        coalesce(max_val, 0) as max_val,
        setval(col_sequence, coalesce(max_val, 1)) --<< this will change the sequence
