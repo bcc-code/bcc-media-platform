@@ -31,6 +31,7 @@ blocks:
             - artifact push workflow cms.txt
       prologue:
         commands:
+          - sem-version node 18
           - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
           - gcloud auth configure-docker -q europe-west4-docker.pkg.dev
       secrets:
