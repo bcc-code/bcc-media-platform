@@ -6,13 +6,13 @@ package graph
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"strconv"
 	"strings"
 
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
+	"github.com/google/uuid"
 )
 
 // OriginalTitle is the resolver for the originalTitle field.

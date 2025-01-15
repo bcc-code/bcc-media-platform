@@ -177,9 +177,10 @@ func (this AchievementPagination) GetFirst() int  { return this.First }
 func (this AchievementPagination) GetOffset() int { return this.Offset }
 
 type AchievementSection struct {
-	ID          string  `json:"id"`
-	Title       *string `json:"title,omitempty"`
-	Description *string `json:"description,omitempty"`
+	ID          string             `json:"id"`
+	Title       *string            `json:"title,omitempty"`
+	Description *string            `json:"description,omitempty"`
+	Source      AchievementsSource `json:"source"`
 }
 
 func (AchievementSection) IsSection()                   {}
@@ -1530,6 +1531,47 @@ func (WebSection) IsSection()                   {}
 func (this WebSection) GetID() string           { return this.ID }
 func (this WebSection) GetTitle() *string       { return this.Title }
 func (this WebSection) GetDescription() *string { return this.Description }
+
+type AchievementsSource string
+
+const (
+	AchievementsSourceInternal AchievementsSource = "internal"
+	AchievementsSourceBmm      AchievementsSource = "bmm"
+)
+
+var AllAchievementsSource = []AchievementsSource{
+	AchievementsSourceInternal,
+	AchievementsSourceBmm,
+}
+
+func (e AchievementsSource) IsValid() bool {
+	switch e {
+	case AchievementsSourceInternal, AchievementsSourceBmm:
+		return true
+	}
+	return false
+}
+
+func (e AchievementsSource) String() string {
+	return string(e)
+}
+
+func (e *AchievementsSource) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AchievementsSource(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AchievementsSource", str)
+	}
+	return nil
+}
+
+func (e AchievementsSource) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
 
 type CardSectionSize string
 

@@ -1427,6 +1427,7 @@ type Section struct {
 	PrependLiveElement   sql.NullBool    `db:"prepend_live_element" json:"prependLiveElement"`
 	TranslationsRequired bool            `db:"translations_required" json:"translationsRequired"`
 	Limit                null_v4.Int     `db:"limit" json:"limit"`
+	AchievementsSource   null_v4.String  `db:"achievements_source" json:"achievementsSource"`
 }
 
 type SectionsTranslation struct {

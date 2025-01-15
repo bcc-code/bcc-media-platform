@@ -62,6 +62,7 @@ func mapToSections(items []getSectionsRow) []common.Section {
 			NeedsAuthentication: needsAuth,
 			EmbedAspectRatio:    aspectRatio,
 			EmbedHeight:         s.EmbedHeight,
+			AchievementsSource:  s.AchievementsSource,
 			Options: common.SectionOptions{
 				SecondaryTitles:    s.SecondaryTitles,
 				ContinueWatching:   s.AdvancedType.String == "continue_watching",
