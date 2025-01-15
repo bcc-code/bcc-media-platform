@@ -311,6 +311,7 @@ type Section struct {
 	EmbedHeight         null.Int       `json:"embedHeight"`
 	NeedsAuthentication null.Bool      `json:"needsAuthentication"`
 	Options             SectionOptions `json:"options"`
+	AchievementsSource  null.String    `json:"achievementsSource"`
 }
 
 // SectionOptions contains options for this section

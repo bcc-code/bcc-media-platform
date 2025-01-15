@@ -138,6 +138,7 @@ type ComplexityRoot struct {
 	AchievementSection struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
+		Source      func(childComplexity int) int
 		Title       func(childComplexity int) int
 	}
 
@@ -1524,6 +1525,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AchievementSection.ID(childComplexity), true
+
+	case "AchievementSection.source":
+		if e.complexity.AchievementSection.Source == nil {
+			break
+		}
+
+		return e.complexity.AchievementSection.Source(childComplexity), true
 
 	case "AchievementSection.title":
 		if e.complexity.AchievementSection.Title == nil {
@@ -6995,6 +7003,11 @@ enum GridSectionSize {
     half
 }
 
+enum AchievementsSource {
+    internal
+    bmm
+}
+
 interface ItemSection implements Section {
     id: ID!
     metadata: ItemSectionMetadata
@@ -7140,6 +7153,7 @@ type AchievementSection implements Section {
     id: ID!
     title: String
     description: String
+    source: AchievementsSource!
 }
 
 type PageDetailsSection implements Section {
@@ -10417,6 +10431,50 @@ func (ec *executionContext) fieldContext_AchievementSection_description(_ contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AchievementSection_source(ctx context.Context, field graphql.CollectedField, obj *model.AchievementSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AchievementSection_source(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Source, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AchievementsSource)
+	fc.Result = res
+	return ec.marshalNAchievementsSource2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐAchievementsSource(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AchievementSection_source(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AchievementSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AchievementsSource does not have child fields")
 		},
 	}
 	return fc, nil
@@ -42666,6 +42724,11 @@ func (ec *executionContext) _AchievementSection(ctx context.Context, sel ast.Sel
 			out.Values[i] = ec._AchievementSection_title(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec._AchievementSection_description(ctx, field, obj)
+		case "source":
+			out.Values[i] = ec._AchievementSection_source(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -53720,6 +53783,16 @@ func (ec *executionContext) marshalNAchievementPagination2ᚖgithubᚗcomᚋbcc�
 		return graphql.Null
 	}
 	return ec._AchievementPagination(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAchievementsSource2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐAchievementsSource(ctx context.Context, v interface{}) (model.AchievementsSource, error) {
+	var res model.AchievementsSource
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAchievementsSource2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐAchievementsSource(ctx context.Context, sel ast.SelectionSet, v model.AchievementsSource) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNAddToCollectionResult2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐAddToCollectionResult(ctx context.Context, sel ast.SelectionSet, v model.AddToCollectionResult) graphql.Marshaler {

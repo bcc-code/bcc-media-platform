@@ -36,6 +36,11 @@ enum GridSectionSize {
     half
 }
 
+enum AchievementsSource {
+    internal
+    bmm
+}
+
 interface ItemSection implements Section {
     id: ID!
     metadata: ItemSectionMetadata
@@ -181,6 +186,7 @@ type AchievementSection implements Section {
     id: ID!
     title: String
     description: String
+    source: AchievementsSource!
 }
 
 type PageDetailsSection implements Section {

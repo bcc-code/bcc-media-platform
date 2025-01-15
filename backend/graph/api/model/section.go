@@ -206,10 +206,16 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 			Authentication: s.NeedsAuthentication.ValueOrZero(),
 		}
 	case "achievements":
+		aSource := AchievementsSource(s.AchievementsSource.String)
+		if !aSource.IsValid() {
+			aSource = AchievementsSourceInternal
+		}
+
 		return &AchievementSection{
 			ID:          id,
 			Title:       title,
 			Description: description,
+			Source:      aSource,
 		}
 	case "page_details":
 		return &PageDetailsSection{
