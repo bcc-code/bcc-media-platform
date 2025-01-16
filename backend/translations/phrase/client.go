@@ -11,7 +11,6 @@ import (
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/go-resty/resty/v2"
 	"github.com/samber/lo"
 )
@@ -179,8 +178,6 @@ func (c *Client) CreateJob(targetLanguages []string, path, filename string, data
 		return err
 	}
 
-	spew.Dump(string(res.Body()))
-
 	if res.StatusCode() != 201 {
 		log.L.Error().Str("projectID", c.projectUID).Str("filename", string(res.Body())).Int("status", res.StatusCode()).Msg("Unexpected status code when creating job")
 		return merry.Errorf("unable to fetch project")
@@ -326,7 +323,6 @@ func (c *Client) GetFile(jobUID string) (*ResultFileRequest, error) {
 			continue
 		}
 
-		spew.Dump(string(res.Body()))
 		break
 	}
 

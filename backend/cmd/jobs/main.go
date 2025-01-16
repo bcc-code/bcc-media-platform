@@ -27,7 +27,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/version"
 	"github.com/bcc-code/bcc-media-platform/backend/videomanipulator"
 	"github.com/bsm/redislock"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
@@ -77,8 +76,6 @@ func main() {
 	eventHandler := events.NewHandler()
 	crowdinClient := crowdin.New(config.Crowdin, queries, false)
 	statisticsHandler := statistics.NewHandler(ctx, config.BigQuery, queries)
-
-	spew.Dump(config.Phrase)
 
 	phraseClient := phrase.NewClient("", config.Phrase.Username, config.Phrase.Password, config.Phrase.ProjectUID)
 	err = phraseClient.Authenticate()

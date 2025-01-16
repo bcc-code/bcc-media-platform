@@ -74,12 +74,6 @@ func NewService(queries *sqlc.Queries, provider TranslationsProvider) *Service {
 }
 
 func (s *Service) SendAllToTranslation(ctx context.Context) []error {
-	err := s.sendSurveys(ctx)
-	if err != nil {
-		return []error{merry.Wrap(err)}
-	}
-	return []error{}
-
 	errs := make([]error, 0)
 	for _, collection := range TranslatableCollection.Members() {
 		if err := s.SendCollectionToTranslation(ctx, collection); err != nil {
