@@ -50,6 +50,43 @@ func (q *Queries) GetMediaItemByID(ctx context.Context, id uuid.UUID) (Mediaitem
 	return i, err
 }
 
+const getMediaItemsTranslatableText = `-- name: GetMediaItemsTranslatableText :many
+SELECT id, title, description FROM mediaitems WHERE translations_required
+                                                AND (
+        (title != '' AND title is not NULL) OR
+        (description != '' AND description is not NULL)
+        )
+`
+
+type GetMediaItemsTranslatableTextRow struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) GetMediaItemsTranslatableText(ctx context.Context) ([]GetMediaItemsTranslatableTextRow, error) {
+	rows, err := q.db.QueryContext(ctx, getMediaItemsTranslatableText)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetMediaItemsTranslatableTextRow
+	for rows.Next() {
+		var i GetMediaItemsTranslatableTextRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const insertMediaItem = `-- name: InsertMediaItem :one
 INSERT INTO mediaitems (
     id,

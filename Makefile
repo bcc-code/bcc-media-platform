@@ -62,5 +62,4 @@ infra.sta:
 		&& terragrunt apply
 
 test.postgressservice:
-	docker run --rm --name bccm-test-pg -e POSTGRES_PASSWORD=bccm123 -p 54321:5432 postgres
-
+	docker run --rm --name bccm-test-pg -e POSTGRES_PASSWORD=bccm123 -p 54321:5432  postgres postgres -c log_statement=all

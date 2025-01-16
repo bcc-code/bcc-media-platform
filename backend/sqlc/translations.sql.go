@@ -241,6 +241,40 @@ func (q *Queries) ClearTaskTranslations(ctx context.Context, dollar_1 []uuid.UUI
 	return err
 }
 
+const getLessonsTranslatableText = `-- name: GetLessonsTranslatableText :many
+
+SELECT id, title, description FROM lessons WHERE status = ANY ('{published,unlisted}') AND translations_required
+`
+
+type GetLessonsTranslatableTextRow struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Title       string         `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) GetLessonsTranslatableText(ctx context.Context) ([]GetLessonsTranslatableTextRow, error) {
+	rows, err := q.db.QueryContext(ctx, getLessonsTranslatableText)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetLessonsTranslatableTextRow
+	for rows.Next() {
+		var i GetLessonsTranslatableTextRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listAchievementGroupOriginalTranslations = `-- name: ListAchievementGroupOriginalTranslations :many
 SELECT items.id,
        json_build_object('title', items.title) as values

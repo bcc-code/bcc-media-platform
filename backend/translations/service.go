@@ -2,8 +2,6 @@ package translations
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
@@ -25,14 +23,46 @@ type Service struct {
 type translatableCollection enum.Member[string]
 
 var (
-	CollectionEpisodes        = translatableCollection{"episodes"}
-	CollectionSeasons         = translatableCollection{"seasons"}
-	CollectionShows           = translatableCollection{"shows"}
-	CollectionEvents          = translatableCollection{"events"}
-	CollectionCalendarEntries = translatableCollection{"calendarentries"}
-	TranslatableCollection    = enum.New(
+	CollectionAchievementGroups = translatableCollection{"achievementgroups"}
+	CollectionAchievements      = translatableCollection{"achievements"}
+	CollectionStudyQuestions    = translatableCollection{"studyquestions"}
+	CollectionCalendarEntries   = translatableCollection{"calendarentries"}
+	CollectionEpisodes          = translatableCollection{"episodes"}
+	CollectionEvents            = translatableCollection{"events"}
+	CollectionFAQCategories     = translatableCollection{"faqcategories"}
+	CollectionFAQs              = translatableCollection{"faqs"}
+	CollectionGames             = translatableCollection{"games"}
+	CollectionLessons           = translatableCollection{"lessons"}
+	CollectionLinks             = translatableCollection{"links"}
+	CollectionMediaItems        = translatableCollection{"mediaitems"}
+	CollectionPages             = translatableCollection{"pages"}
+	CollectionPlaylists         = translatableCollection{"playlists"}
+	CollectionSeasons           = translatableCollection{"seasons"}
+	CollectionSections          = translatableCollection{"sections"}
+	CollectionShows             = translatableCollection{"shows"}
+	CollectionSurveys           = translatableCollection{"surveys"}
+	CollectionTopics            = translatableCollection{"topics"}
+
+	TranslatableCollection = enum.New(
+		CollectionAchievementGroups,
+		CollectionAchievements,
+		CollectionCalendarEntries,
 		CollectionEpisodes,
+		CollectionEvents,
+		CollectionFAQCategories,
+		CollectionFAQs,
+		CollectionGames,
+		CollectionLessons,
+		CollectionLinks,
+		CollectionMediaItems,
+		CollectionPages,
+		CollectionPlaylists,
+		CollectionSeasons,
+		CollectionSections,
 		CollectionShows,
+		CollectionSurveys,
+		CollectionTopics,
+		CollectionStudyQuestions,
 	)
 )
 
@@ -43,125 +73,62 @@ func NewService(queries *sqlc.Queries, provider TranslationsProvider) *Service {
 	}
 }
 
-func (s *Service) SendCollectionToTranslation(ctx context.Context, collection translatableCollection) error {
+func (s *Service) SendAllToTranslation(ctx context.Context) []error {
+	err := s.sendSurveys(ctx)
+	if err != nil {
+		return []error{merry.Wrap(err)}
+	}
+	return []error{}
 
+	errs := make([]error, 0)
+	for _, collection := range TranslatableCollection.Members() {
+		if err := s.SendCollectionToTranslation(ctx, collection); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	return errs
+}
+
+func (s *Service) SendCollectionToTranslation(ctx context.Context, collection translatableCollection) error {
 	switch collection {
+	case CollectionAchievementGroups:
+		return s.sendAchievementGroups(ctx)
+	case CollectionAchievements:
+		return s.sendAchievements(ctx)
+	case CollectionStudyQuestions:
+		return s.sendStudyQuestions(ctx)
+	case CollectionCalendarEntries:
+		return s.sendCalendarEntries(ctx)
 	case CollectionEpisodes:
 		return s.sendEpisodes(ctx)
-	case CollectionShows:
-		return s.sendShows(ctx)
-	case CollectionSeasons:
-		return s.sendSeasons(ctx)
 	case CollectionEvents:
 		return s.sendEvents(ctx)
-	default:
-		return merry.Errorf("Unknown transalatable collection %s", collection)
+	case CollectionFAQCategories:
+		return s.sendFAQCategories(ctx)
+	case CollectionFAQs:
+		return s.sendFAQs(ctx)
+	case CollectionGames:
+		return s.sendGames(ctx)
+	case CollectionLessons:
+		return s.sendLessons(ctx)
+	case CollectionLinks:
+		return s.sendLinks(ctx)
+	case CollectionMediaItems:
+		return s.sendMediaItems(ctx)
+	case CollectionPages:
+		return s.sendPages(ctx)
+	case CollectionPlaylists:
+		return s.sendPlaylists(ctx)
+	case CollectionSeasons:
+		return s.sendSeasons(ctx)
+	case CollectionSections:
+		return s.sendSections(ctx)
+	case CollectionShows:
+		return s.sendShows(ctx)
+	case CollectionSurveys:
+		return s.sendSurveys(ctx)
+	case CollectionTopics:
+		return s.sendTopics(ctx)
 	}
-}
-
-func (s *Service) sendShows(ctx context.Context) error {
-	data, err := s.queries.ListShowTranslations(ctx, "no")
-	if err != nil {
-		return err
-	}
-
-	toSend := []common.TranslationData{}
-
-	for _, t := range data {
-		toSend = append(toSend,
-			common.TranslationData{
-				Language: t.Language,
-				Value:    t.Values,
-				ID:       fmt.Sprintf("%d", t.ID),
-			},
-		)
-	}
-
-	return s.provider.SendToTranslation(ctx, CollectionShows.Value, toSend)
-}
-
-func (s *Service) sendSeasons(ctx context.Context) error {
-	data, err := s.queries.ListSeasonTranslations(ctx, "no")
-	if err != nil {
-		return err
-	}
-
-	toSend := []common.TranslationData{}
-
-	for _, t := range data {
-		toSend = append(toSend,
-			common.TranslationData{
-				Language: t.Language,
-				Value:    t.Values,
-				ID:       fmt.Sprintf("%d", t.ID),
-			},
-		)
-	}
-
-	return s.provider.SendToTranslation(ctx, CollectionSeasons.Value, toSend)
-}
-
-func (s *Service) sendEpisodes(ctx context.Context) error {
-	data, err := s.queries.ListEpisodeTranslations(ctx, "no")
-	if err != nil {
-		return err
-	}
-
-	toSend := []common.TranslationData{}
-
-	// TODO: Add context lint to episode translation
-	// @context key, HTML content
-	for _, t := range data {
-		toSend = append(toSend,
-			common.TranslationData{
-				Language: t.Language,
-				Value:    t.Values,
-				ID:       fmt.Sprintf("%d", t.ID),
-			},
-		)
-	}
-
-	return s.provider.SendToTranslation(ctx, CollectionEpisodes.Value, toSend)
-}
-
-func (s *Service) sendEvents(ctx context.Context) error {
-	data, err := s.queries.ListEventTranslations(ctx, "no")
-	if err != nil {
-		return err
-	}
-
-	toSend := []common.TranslationData{}
-
-	for _, t := range data {
-		toSend = append(toSend,
-			common.TranslationData{
-				Language: t.Language,
-				Value:    t.Values,
-				ID:       fmt.Sprintf("%d", t.ID),
-			},
-		)
-	}
-
-	return s.provider.SendToTranslation(ctx, CollectionEvents.Value, toSend)
-}
-
-func (s *Service) sendCalendarEntries(ctx context.Context) error {
-	data, err := s.queries.ListCalendarEntryTranslations(ctx, "no")
-	if err != nil {
-		return err
-	}
-
-	toSend := []common.TranslationData{}
-
-	for _, t := range data {
-		toSend = append(toSend,
-			common.TranslationData{
-				Language: t.Language,
-				Value:    t.Values,
-				ID:       fmt.Sprintf("%d", t.ID),
-			},
-		)
-	}
-
-	return s.provider.SendToTranslation(ctx, CollectionCalendarEntries.Value, toSend)
+	return merry.Errorf("Unknown transalatable collection %s", collection)
 }

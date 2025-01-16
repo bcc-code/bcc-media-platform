@@ -15,7 +15,6 @@ import (
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/asset"
-	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
 	"github.com/bcc-code/bcc-media-platform/backend/events"
 	externalevents "github.com/bcc-code/bcc-media-platform/backend/external-events"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
@@ -150,7 +149,11 @@ func (s Server) ProcessMessage(c *gin.Context) {
 		err = s.services.GetStatisticHandler().HandleImportShortsScores(ctx)
 	case events.TypeTranslationsSync:
 		err = s.runIfNotLocked(ctx, fmt.Sprintf("event:%s:%s", e.Type(), e.ID()), func() error {
-			return crowdin.HandleEvent(ctx, s.services, e)
+			if errs := s.services.TranslationsService.SendAllToTranslation(ctx); len(errs) > 0 {
+				log.L.Error().Err(err).Msg("Error sending translations to translations")
+			}
+			return nil
+			// return crowdin.HandleEvent(ctx, s.services, e)
 		})
 	default:
 		err = merry.Wrap(errUndefinedHandler)

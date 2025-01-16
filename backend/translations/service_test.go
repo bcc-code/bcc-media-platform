@@ -5,36 +5,17 @@ package translations_test
 // registers a driver with the name "pgx".
 import (
 	"context"
+	"encoding/json"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"testing"
 
-	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/translations"
 	"github.com/bcc-code/bcc-media-platform/backend/utils/testutils"
 	"github.com/stretchr/testify/assert"
 )
 
-type mockTranslationService struct {
-	t *testing.T
-}
-
-func (m *mockTranslationService) SendToTranslation(ctx context.Context, collection string, data []common.TranslationData) error {
-	m.t.Helper()
-	assert.Len(m.t, data, 2)
-	assert.Equal(m.t, "shows", collection)
-	assert.Equal(m.t, "no", data[0].Language)
-	assert.Equal(m.t, "no", data[1].Language)
-	assert.Equal(m.t, "1", data[0].ID)
-	assert.Equal(m.t, "2", data[1].ID)
-	return nil
-}
-
-func (m *mockTranslationService) ProcessWebhook(ctx context.Context, url string, hookData []byte) (collection string, data []common.TranslationData, err error) {
-	m.t.Helper()
-	return "", nil, nil
-}
-
-func TestShowTranslations(t *testing.T) {
+func TestShowSeasonEpisodeTranslations(t *testing.T) {
 	db := testutils.NewDB(t)
 	q := sqlc.New(db)
 
@@ -43,17 +24,43 @@ func TestShowTranslations(t *testing.T) {
 	err := testutils.InsertDefaults(ctx, q)
 	assert.NoError(t, err)
 
-	res, err := testutils.CreateRandomShow(ctx, q)
-	assert.NoError(t, err)
-	assert.NotNil(t, res)
+	s1 := testutils.CreateRandomShow(t, ctx, q)
+	testutils.CreateRandomShow(t, ctx, q)
 
-	res, err = testutils.CreateRandomShow(ctx, q)
-	assert.NoError(t, err)
-	assert.NotNil(t, res)
+	season1 := testutils.CreateRandomSeason(t, ctx, q, s1.ID)
 
-	tsMock := &mockTranslationService{t: t}
+	testutils.CreateRandomEpisode(t, ctx, q, season1.ID)
+	testutils.CreateRandomEpisode(t, ctx, q, season1.ID)
+	testutils.CreateRandomEpisode(t, ctx, q, season1.ID)
+	testutils.CreateRandomEpisode(t, ctx, q, season1.ID)
+
+	tsMock := &translations.MockTranslationsProvider{}
+	tsMock.EXPECT().SendToTranslation(ctx, "shows", []common.TranslationData{
+		{Language: "no", Value: json.RawMessage(`{"title" : "title", "description" : "description"}`), ID: "1"},
+		{Language: "no", Value: json.RawMessage(`{"title" : "title", "description" : "description"}`), ID: "2"},
+	}).Return(nil).Once()
+
+	tsMock.EXPECT().SendToTranslation(ctx, "seasons", []common.TranslationData{
+		{Language: "no", Value: json.RawMessage(`{"title" : "title", "description" : "description"}`), ID: "1"},
+	}).Return(nil).Once()
+
+	tsMock.EXPECT().SendToTranslation(ctx, "episodes", []common.TranslationData{
+		{Language: "no", Value: json.RawMessage(`{"title" : "title", "description" : "description"}`), ID: "1"},
+		{Language: "no", Value: json.RawMessage(`{"title" : "title", "description" : "description"}`), ID: "2"},
+		{Language: "no", Value: json.RawMessage(`{"title" : "title", "description" : "description"}`), ID: "3"},
+		{Language: "no", Value: json.RawMessage(`{"title" : "title", "description" : "description"}`), ID: "4"},
+	}).Return(nil).Once()
 
 	service := translations.NewService(q, tsMock)
+
 	err = service.SendCollectionToTranslation(ctx, translations.CollectionShows)
 	assert.NoError(t, err)
+
+	err = service.SendCollectionToTranslation(ctx, translations.CollectionSeasons)
+	assert.NoError(t, err)
+
+	err = service.SendCollectionToTranslation(ctx, translations.CollectionEpisodes)
+	assert.NoError(t, err)
+
+	tsMock.AssertExpectations(t)
 }

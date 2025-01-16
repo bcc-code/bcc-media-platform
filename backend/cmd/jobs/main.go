@@ -4,7 +4,6 @@ package main
 
 import (
 	"context"
-
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -22,10 +21,13 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/search"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/statistics"
+	"github.com/bcc-code/bcc-media-platform/backend/translations"
+	"github.com/bcc-code/bcc-media-platform/backend/translations/phrase"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/bcc-media-platform/backend/version"
 	"github.com/bcc-code/bcc-media-platform/backend/videomanipulator"
 	"github.com/bsm/redislock"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
@@ -75,6 +77,15 @@ func main() {
 	eventHandler := events.NewHandler()
 	crowdinClient := crowdin.New(config.Crowdin, queries, false)
 	statisticsHandler := statistics.NewHandler(ctx, config.BigQuery, queries)
+
+	spew.Dump(config.Phrase)
+
+	phraseClient := phrase.NewClient("", config.Phrase.Username, config.Phrase.Password, config.Phrase.ProjectUID)
+	err = phraseClient.Authenticate()
+	if err != nil {
+		log.L.Panic().Err(err).Msg("Failed to authenticate phrase")
+	}
+	translationsClient := translations.NewService(queries, phraseClient)
 
 	sr := scheduler.New(config.ServiceUrl+"/api/tasks", config.CloudTasks.QueueID)
 
@@ -150,6 +161,7 @@ func main() {
 		StatisticsHandler:       statisticsHandler,
 		FileService:             fileService,
 		VideoManipulatorService: videomanipulatorService,
+		TranslationsService:     translationsClient,
 	}
 
 	handlers := server.NewServer(services, serverConfig)

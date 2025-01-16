@@ -14,6 +14,73 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const getFaqCategoryTranslatableText = `-- name: GetFaqCategoryTranslatableText :many
+
+SELECT id, title FROM faqcategories WHERE status = ANY ('{published,unlisted}')
+`
+
+type GetFaqCategoryTranslatableTextRow struct {
+	ID    uuid.UUID `db:"id" json:"id"`
+	Title string    `db:"title" json:"title"`
+}
+
+func (q *Queries) GetFaqCategoryTranslatableText(ctx context.Context) ([]GetFaqCategoryTranslatableTextRow, error) {
+	rows, err := q.db.QueryContext(ctx, getFaqCategoryTranslatableText)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetFaqCategoryTranslatableTextRow
+	for rows.Next() {
+		var i GetFaqCategoryTranslatableTextRow
+		if err := rows.Scan(&i.ID, &i.Title); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getFaqTranslatableText = `-- name: GetFaqTranslatableText :many
+
+SELECT id, question, answer FROM faqs WHERE status = ANY ('{published,unlisted}')
+`
+
+type GetFaqTranslatableTextRow struct {
+	ID       uuid.UUID `db:"id" json:"id"`
+	Question string    `db:"question" json:"question"`
+	Answer   string    `db:"answer" json:"answer"`
+}
+
+func (q *Queries) GetFaqTranslatableText(ctx context.Context) ([]GetFaqTranslatableTextRow, error) {
+	rows, err := q.db.QueryContext(ctx, getFaqTranslatableText)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetFaqTranslatableTextRow
+	for rows.Next() {
+		var i GetFaqTranslatableTextRow
+		if err := rows.Scan(&i.ID, &i.Question, &i.Answer); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listFAQCategoryIDsForRoles = `-- name: ListFAQCategoryIDsForRoles :many
 SELECT c.id
 FROM faqcategories c

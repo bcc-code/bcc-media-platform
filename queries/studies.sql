@@ -251,3 +251,18 @@ FROM lessons l
 WHERE c.lesson_id IS NULL
   AND l.topic_id = ANY (@topic_ids::uuid[])
 ORDER BY l.topic_id, l.sort;
+
+-- name: GetQuestionsTranslations :many
+
+SELECT task_id,
+       t.title as question,
+       json_agg(json_build_object('@id', items.id, '@correct', items.is_correct, 'title', items.title)) as answers
+FROM questionalternatives items
+         JOIN tasks t ON t.id = items.task_id
+WHERE t.translations_required
+  AND t.status = ANY ('{published,unlisted}')
+GROUP BY task_id, t.title;
+
+-- name: GetStudyTopicsTranslatableText :many
+
+SELECT id, title, description FROM lessons WHERE status = ANY ('{published,unlisted}') AND translations_required;

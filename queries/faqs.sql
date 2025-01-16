@@ -55,3 +55,11 @@ WHERE f.status = 'published'
   AND f.category_id = ANY (@category_ids::uuid[])
   AND r.roles && @roles::varchar[];
 
+
+-- name: GetFaqTranslatableText :many
+
+SELECT id, question, answer FROM faqs WHERE status = ANY ('{published,unlisted}');
+
+-- name: GetFaqCategoryTranslatableText :many
+
+SELECT id, title FROM faqcategories WHERE status = ANY ('{published,unlisted}');

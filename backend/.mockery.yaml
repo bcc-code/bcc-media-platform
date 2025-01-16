@@ -1,0 +1,11 @@
+with-expecter: true
+dir: "mock/{{.InterfaceDir}}"
+mockname: "Mock{{.InterfaceName}}"
+outpkg: "Mock{{.PackageName}}"
+filename: "mock_{{.InterfaceName}}.go"
+inpackage: true
+all: true
+packages:
+    github.com/bcc-code/bcc-media-platform:
+       config:
+         recursive: true

@@ -164,6 +164,71 @@ func (q *Queries) GetAchievementsWithTopicsCompletedAchieved(ctx context.Context
 	return items, nil
 }
 
+const getAchieventGroupsTranslatableTexts = `-- name: GetAchieventGroupsTranslatableTexts :many
+SELECT id, title FROM bccm.public.achievementgroups a WHERE a.status = ANY ('{published,unlisted}')
+`
+
+type GetAchieventGroupsTranslatableTextsRow struct {
+	ID    uuid.UUID      `db:"id" json:"id"`
+	Title null_v4.String `db:"title" json:"title"`
+}
+
+func (q *Queries) GetAchieventGroupsTranslatableTexts(ctx context.Context) ([]GetAchieventGroupsTranslatableTextsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAchieventGroupsTranslatableTexts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAchieventGroupsTranslatableTextsRow
+	for rows.Next() {
+		var i GetAchieventGroupsTranslatableTextsRow
+		if err := rows.Scan(&i.ID, &i.Title); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAchieventsTranslatableTexts = `-- name: GetAchieventsTranslatableTexts :many
+SELECT id, title, description FROM bccm.public.achievements a WHERE a.status = ANY ('{published,unlisted}')
+`
+
+type GetAchieventsTranslatableTextsRow struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Title       string         `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) GetAchieventsTranslatableTexts(ctx context.Context) ([]GetAchieventsTranslatableTextsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAchieventsTranslatableTexts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAchieventsTranslatableTextsRow
+	for rows.Next() {
+		var i GetAchieventsTranslatableTextsRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listAchievementGroups = `-- name: ListAchievementGroups :many
 SELECT id
 FROM "public"."achievementgroups"

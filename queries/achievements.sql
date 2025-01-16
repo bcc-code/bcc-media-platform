@@ -117,3 +117,9 @@ SELECT a.achievement_id,
 FROM "users"."achievements" a
 WHERE a.profile_id = $1
   AND a.achievement_id = ANY ($2::uuid[]);
+
+-- name: GetAchieventsTranslatableTexts :many
+SELECT id, title, description FROM bccm.public.achievements a WHERE a.status = ANY ('{published,unlisted}');
+
+-- name: GetAchieventGroupsTranslatableTexts :many
+SELECT id, title FROM bccm.public.achievementgroups a WHERE a.status = ANY ('{published,unlisted}');

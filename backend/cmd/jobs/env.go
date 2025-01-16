@@ -41,6 +41,13 @@ type videomanipulatorConfig struct {
 	apiKey  string
 }
 
+type phraseConfig struct {
+	BaseURL    string
+	Username   string
+	Password   string
+	ProjectUID string
+}
+
 type envConfig struct {
 	AWS               awsConfig
 	AzureStorage      files.AzureConfig
@@ -59,6 +66,7 @@ type envConfig struct {
 	Members           members.Config
 	BigQuery          statistics.BigQueryConfig
 	VideoManipulator  videomanipulatorConfig
+	Phrase            phraseConfig
 }
 
 func getEnvConfig() envConfig {
@@ -150,6 +158,11 @@ func getEnvConfig() envConfig {
 		VideoManipulator: videomanipulatorConfig{
 			baseURL: os.Getenv("VIDEOMANIPULATOR_BASE_URL"),
 			apiKey:  os.Getenv("VIDEOMANIPULATOR_API_KEY"),
+		},
+		Phrase: phraseConfig{
+			Username:   os.Getenv("PHRASE_USERNAME"),
+			Password:   os.Getenv("PHRASE_PASSWORD"),
+			ProjectUID: os.Getenv("PHRASE_PROJECT_UID"),
 		},
 	}
 }

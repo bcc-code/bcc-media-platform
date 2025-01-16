@@ -603,3 +603,7 @@ INSERT INTO mediaitems_translations (mediaitems_id, languages_code, title, descr
 VALUES (@item_id, @language, @title, @description)
 ON CONFLICT (mediaitems_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
                                                           description = EXCLUDED.description;
+
+-- name: GetLessonsTranslatableText :many
+
+SELECT id, title, description FROM lessons WHERE status = ANY ('{published,unlisted}') AND translations_required;
