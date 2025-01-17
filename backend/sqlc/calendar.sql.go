@@ -15,6 +15,42 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const getCalendarEntriesTranslatable = `-- name: GetCalendarEntriesTranslatable :many
+SELECT e.id, title, description
+FROM calendarentries_translations et
+         JOIN events e ON e.id = et.calendarentries_id
+WHERE et.languages_code ='no' and e.status = ANY ('{published,unlisted}')
+`
+
+type GetCalendarEntriesTranslatableRow struct {
+	ID          int32          `db:"id" json:"id"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) GetCalendarEntriesTranslatable(ctx context.Context) ([]GetCalendarEntriesTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCalendarEntriesTranslatable)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetCalendarEntriesTranslatableRow
+	for rows.Next() {
+		var i GetCalendarEntriesTranslatableRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getCalendarEntries = `-- name: getCalendarEntries :many
 SELECT e.id,
        e.event_id,

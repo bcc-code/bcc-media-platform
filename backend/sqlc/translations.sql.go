@@ -241,6 +241,86 @@ func (q *Queries) ClearTaskTranslations(ctx context.Context, dollar_1 []uuid.UUI
 	return err
 }
 
+const getEpisodeTranslatable = `-- name: GetEpisodeTranslatable :many
+WITH episodes AS (SELECT e.id
+                  FROM episodes e
+                           LEFT JOIN seasons s ON s.id = e.season_id
+                           LEFT JOIN shows sh ON sh.id = s.show_id
+                  WHERE e.translations_required
+                    AND e.status = ANY ('{published,unlisted}')
+                    AND (e.season_id IS NULL OR (s.status = ANY ('{published,unlisted}')
+                      AND sh.status = ANY ('{published,unlisted}'))))
+SELECT e.id, title, description
+FROM episodes_translations et
+         JOIN episodes e ON e.id = et.episodes_id
+WHERE et.languages_code = 'no'
+`
+
+type GetEpisodeTranslatableRow struct {
+	ID          int32          `db:"id" json:"id"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) GetEpisodeTranslatable(ctx context.Context) ([]GetEpisodeTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodeTranslatable)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetEpisodeTranslatableRow
+	for rows.Next() {
+		var i GetEpisodeTranslatableRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getEventTranslatable = `-- name: GetEventTranslatable :many
+SELECT e.id, title, description
+FROM events_translations et
+         JOIN events e ON e.id = et.events_id
+WHERE et.languages_code = 'no' AND e.status = ANY ('{published,unlisted}')
+`
+
+type GetEventTranslatableRow struct {
+	ID          int32          `db:"id" json:"id"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) GetEventTranslatable(ctx context.Context) ([]GetEventTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEventTranslatable)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetEventTranslatableRow
+	for rows.Next() {
+		var i GetEventTranslatableRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getLessonsTranslatableText = `-- name: GetLessonsTranslatableText :many
 
 SELECT id, title, description FROM lessons WHERE status = ANY ('{published,unlisted}') AND translations_required
@@ -261,6 +341,230 @@ func (q *Queries) GetLessonsTranslatableText(ctx context.Context) ([]GetLessonsT
 	var items []GetLessonsTranslatableTextRow
 	for rows.Next() {
 		var i GetLessonsTranslatableTextRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getLinkTranslatable = `-- name: GetLinkTranslatable :many
+SELECT e.id, title, description
+FROM links_translations st
+         JOIN links e ON e.id = st.links_id
+WHERE st.languages_code = 'no' AND e.translations_required AND status = ANY ('{published,unlisted}')
+`
+
+type GetLinkTranslatableRow struct {
+	ID          int32  `db:"id" json:"id"`
+	Title       string `db:"title" json:"title"`
+	Description string `db:"description" json:"description"`
+}
+
+func (q *Queries) GetLinkTranslatable(ctx context.Context) ([]GetLinkTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getLinkTranslatable)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetLinkTranslatableRow
+	for rows.Next() {
+		var i GetLinkTranslatableRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPageTranslatable = `-- name: GetPageTranslatable :many
+SELECT p.id, title, description
+FROM pages_translations pt
+         JOIN pages p ON p.id = pt.pages_id
+WHERE pt.languages_code = 'no' AND p.translations_required AND p.status = ANY ('{published,unlisted}')
+`
+
+type GetPageTranslatableRow struct {
+	ID          int32          `db:"id" json:"id"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) GetPageTranslatable(ctx context.Context) ([]GetPageTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getPageTranslatable)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetPageTranslatableRow
+	for rows.Next() {
+		var i GetPageTranslatableRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPlaylistTranslatable = `-- name: GetPlaylistTranslatable :many
+SELECT id, title, description FROM playlists
+WHERE translations_required
+  AND status = ANY ('{published,unlisted}')
+`
+
+type GetPlaylistTranslatableRow struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Title       string         `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) GetPlaylistTranslatable(ctx context.Context) ([]GetPlaylistTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getPlaylistTranslatable)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetPlaylistTranslatableRow
+	for rows.Next() {
+		var i GetPlaylistTranslatableRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSeasonTranslatable = `-- name: GetSeasonTranslatable :many
+SELECT s.id, title, description
+FROM seasons_translations st
+         JOIN seasons s ON s.id = st.seasons_id
+         JOIN shows sh ON sh.id = s.show_id
+WHERE st.languages_code = 'no'
+  AND s.translations_required
+  AND s.status = ANY ('{published,unlisted}')
+  AND sh.status = ANY ('{published,unlisted}')
+`
+
+type GetSeasonTranslatableRow struct {
+	ID          int32          `db:"id" json:"id"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) GetSeasonTranslatable(ctx context.Context) ([]GetSeasonTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSeasonTranslatable)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSeasonTranslatableRow
+	for rows.Next() {
+		var i GetSeasonTranslatableRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSectionTranslatable = `-- name: GetSectionTranslatable :many
+SELECT s.id,title,description
+FROM sections_translations st
+         JOIN sections s ON s.id = st.sections_id
+WHERE st.languages_code = 'no'
+  AND s.translations_required
+  AND s.status = 'published'
+  AND s.show_title = true
+`
+
+type GetSectionTranslatableRow struct {
+	ID          int32          `db:"id" json:"id"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) GetSectionTranslatable(ctx context.Context) ([]GetSectionTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSectionTranslatable)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSectionTranslatableRow
+	for rows.Next() {
+		var i GetSectionTranslatableRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getShowTranslatable = `-- name: GetShowTranslatable :many
+SELECT s.id, title, description
+FROM shows_translations st
+         JOIN shows s ON s.id = st.shows_id
+WHERE st.languages_code = 'no'
+  AND s.translations_required
+  AND s.status = ANY ('{published,unlisted}')
+`
+
+type GetShowTranslatableRow struct {
+	ID          int32          `db:"id" json:"id"`
+	Title       null_v4.String `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) GetShowTranslatable(ctx context.Context) ([]GetShowTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getShowTranslatable)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetShowTranslatableRow
+	for rows.Next() {
+		var i GetShowTranslatableRow
 		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
 			return nil, err
 		}
@@ -525,107 +829,6 @@ func (q *Queries) ListCalendarEntryTranslations(ctx context.Context, language st
 	var items []ListCalendarEntryTranslationsRow
 	for rows.Next() {
 		var i ListCalendarEntryTranslationsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.ParentID,
-			&i.Language,
-			&i.Values,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listEpisodeTranslations = `-- name: ListEpisodeTranslations :many
-WITH episodes AS (SELECT e.id
-                  FROM episodes e
-                           LEFT JOIN seasons s ON s.id = e.season_id
-                           LEFT JOIN shows sh ON sh.id = s.show_id
-                  WHERE e.translations_required
-                    AND e.status = ANY ('{published,unlisted}')
-                    AND (e.season_id IS NULL OR (s.status = ANY ('{published,unlisted}')
-                      AND sh.status = ANY ('{published,unlisted}'))))
-SELECT et.id,
-       episodes_id                                                   as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
-FROM episodes_translations et
-         JOIN episodes e ON e.id = et.episodes_id
-WHERE et.languages_code = $1::varchar
-`
-
-type ListEpisodeTranslationsRow struct {
-	ID       int32           `db:"id" json:"id"`
-	ParentID int32           `db:"parent_id" json:"parentId"`
-	Language string          `db:"language" json:"language"`
-	Values   json.RawMessage `db:"values" json:"values"`
-}
-
-func (q *Queries) ListEpisodeTranslations(ctx context.Context, language string) ([]ListEpisodeTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listEpisodeTranslations, language)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ListEpisodeTranslationsRow
-	for rows.Next() {
-		var i ListEpisodeTranslationsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.ParentID,
-			&i.Language,
-			&i.Values,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listEventTranslations = `-- name: ListEventTranslations :many
-WITH events AS (SELECT s.id
-                FROM events s
-                WHERE s.status = ANY ('{published,unlisted}'))
-SELECT et.id,
-       events_id                                                     as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
-FROM events_translations et
-         JOIN events e ON e.id = et.events_id
-WHERE et.languages_code = $1::varchar
-`
-
-type ListEventTranslationsRow struct {
-	ID       int32           `db:"id" json:"id"`
-	ParentID int32           `db:"parent_id" json:"parentId"`
-	Language string          `db:"language" json:"language"`
-	Values   json.RawMessage `db:"values" json:"values"`
-}
-
-func (q *Queries) ListEventTranslations(ctx context.Context, language string) ([]ListEventTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listEventTranslations, language)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ListEventTranslationsRow
-	for rows.Next() {
-		var i ListEventTranslationsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.ParentID,
@@ -984,55 +1187,6 @@ func (q *Queries) ListLessonTranslations(ctx context.Context, language string) (
 	return items, nil
 }
 
-const listLinkTranslations = `-- name: ListLinkTranslations :many
-WITH links AS (SELECT s.id
-               FROM links s
-               WHERE s.translations_required
-                 AND s.status = ANY ('{published,unlisted}'))
-SELECT st.id,
-       links_id                                                      as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
-FROM links_translations st
-         JOIN links e ON e.id = st.links_id
-WHERE st.languages_code = $1::varchar
-`
-
-type ListLinkTranslationsRow struct {
-	ID       int32           `db:"id" json:"id"`
-	ParentID int32           `db:"parent_id" json:"parentId"`
-	Language string          `db:"language" json:"language"`
-	Values   json.RawMessage `db:"values" json:"values"`
-}
-
-func (q *Queries) ListLinkTranslations(ctx context.Context, language string) ([]ListLinkTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listLinkTranslations, language)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ListLinkTranslationsRow
-	for rows.Next() {
-		var i ListLinkTranslationsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.ParentID,
-			&i.Language,
-			&i.Values,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const listMediaItemOriginalTranslations = `-- name: ListMediaItemOriginalTranslations :many
 SELECT items.id, json_build_object('title', items.title, 'description', items.description) as values
 FROM mediaitems items
@@ -1115,55 +1269,6 @@ func (q *Queries) ListMediaItemTranslations(ctx context.Context, language string
 	return items, nil
 }
 
-const listPageTranslations = `-- name: ListPageTranslations :many
-WITH pages AS (SELECT s.id
-               FROM pages s
-               WHERE s.translations_required
-                 AND s.status = ANY ('{published,unlisted}'))
-SELECT st.id,
-       pages_id                                                      as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
-FROM pages_translations st
-         JOIN pages e ON e.id = st.pages_id
-WHERE st.languages_code = $1::varchar
-`
-
-type ListPageTranslationsRow struct {
-	ID       int32           `db:"id" json:"id"`
-	ParentID int32           `db:"parent_id" json:"parentId"`
-	Language string          `db:"language" json:"language"`
-	Values   json.RawMessage `db:"values" json:"values"`
-}
-
-func (q *Queries) ListPageTranslations(ctx context.Context, language string) ([]ListPageTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listPageTranslations, language)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ListPageTranslationsRow
-	for rows.Next() {
-		var i ListPageTranslationsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.ParentID,
-			&i.Language,
-			&i.Values,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const listPlaylistOriginalTranslations = `-- name: ListPlaylistOriginalTranslations :many
 SELECT items.id, json_build_object('title', items.title, 'description', items.description) as values
 FROM playlists items
@@ -1186,55 +1291,6 @@ func (q *Queries) ListPlaylistOriginalTranslations(ctx context.Context) ([]ListP
 	for rows.Next() {
 		var i ListPlaylistOriginalTranslationsRow
 		if err := rows.Scan(&i.ID, &i.Values); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listPlaylistTranslations = `-- name: ListPlaylistTranslations :many
-WITH items AS (SELECT i.id
-               FROM playlists i
-               WHERE i.translations_required
-                 AND i.status = ANY ('{published,unlisted}'))
-SELECT ts.id,
-       playlists_id                                                        as parent_id,
-       languages_code                                                      as language,
-       json_build_object('title', ts.title, 'description', ts.description) as values
-FROM playlists_translations ts
-         JOIN items i ON i.id = ts.playlists_id
-WHERE ts.languages_code = $1::varchar
-`
-
-type ListPlaylistTranslationsRow struct {
-	ID       int32           `db:"id" json:"id"`
-	ParentID uuid.UUID       `db:"parent_id" json:"parentId"`
-	Language string          `db:"language" json:"language"`
-	Values   json.RawMessage `db:"values" json:"values"`
-}
-
-func (q *Queries) ListPlaylistTranslations(ctx context.Context, language string) ([]ListPlaylistTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listPlaylistTranslations, language)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ListPlaylistTranslationsRow
-	for rows.Next() {
-		var i ListPlaylistTranslationsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.ParentID,
-			&i.Language,
-			&i.Values,
-		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -1272,156 +1328,6 @@ func (q *Queries) ListQuestionAlternativesOriginalTranslations(ctx context.Conte
 	for rows.Next() {
 		var i ListQuestionAlternativesOriginalTranslationsRow
 		if err := rows.Scan(&i.ID, &i.Values); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listSeasonTranslations = `-- name: ListSeasonTranslations :many
-WITH seasons AS (SELECT s.id
-                 FROM seasons s
-                          JOIN shows sh ON sh.id = s.show_id
-                 WHERE s.translations_required
-                   AND s.status = ANY ('{published,unlisted}')
-                   AND sh.status = ANY ('{published,unlisted}'))
-SELECT et.id,
-       seasons_id                                                    as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
-FROM seasons_translations et
-         JOIN seasons e ON e.id = et.seasons_id
-WHERE et.languages_code = $1::varchar
-`
-
-type ListSeasonTranslationsRow struct {
-	ID       int32           `db:"id" json:"id"`
-	ParentID int32           `db:"parent_id" json:"parentId"`
-	Language string          `db:"language" json:"language"`
-	Values   json.RawMessage `db:"values" json:"values"`
-}
-
-func (q *Queries) ListSeasonTranslations(ctx context.Context, language string) ([]ListSeasonTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listSeasonTranslations, language)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ListSeasonTranslationsRow
-	for rows.Next() {
-		var i ListSeasonTranslationsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.ParentID,
-			&i.Language,
-			&i.Values,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listSectionTranslations = `-- name: ListSectionTranslations :many
-WITH sections AS (SELECT s.id
-                  FROM sections s
-                  WHERE s.translations_required
-                    AND s.status = 'published'
-                    AND s.show_title = true)
-SELECT st.id,
-       sections_id                                                   as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
-FROM sections_translations st
-         JOIN sections e ON e.id = st.sections_id
-WHERE st.languages_code = $1::varchar
-`
-
-type ListSectionTranslationsRow struct {
-	ID       int32           `db:"id" json:"id"`
-	ParentID int32           `db:"parent_id" json:"parentId"`
-	Language string          `db:"language" json:"language"`
-	Values   json.RawMessage `db:"values" json:"values"`
-}
-
-func (q *Queries) ListSectionTranslations(ctx context.Context, language string) ([]ListSectionTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listSectionTranslations, language)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ListSectionTranslationsRow
-	for rows.Next() {
-		var i ListSectionTranslationsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.ParentID,
-			&i.Language,
-			&i.Values,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listShowTranslations = `-- name: ListShowTranslations :many
-WITH shows AS (SELECT s.id
-               FROM shows s
-               WHERE s.translations_required
-                 AND s.status = ANY ('{published,unlisted}'))
-SELECT et.id,
-       shows_id                                                      as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
-FROM shows_translations et
-         JOIN shows e ON e.id = et.shows_id
-WHERE et.languages_code = $1::varchar
-`
-
-type ListShowTranslationsRow struct {
-	ID       int32           `db:"id" json:"id"`
-	ParentID int32           `db:"parent_id" json:"parentId"`
-	Language string          `db:"language" json:"language"`
-	Values   json.RawMessage `db:"values" json:"values"`
-}
-
-func (q *Queries) ListShowTranslations(ctx context.Context, language string) ([]ListShowTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listShowTranslations, language)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ListShowTranslationsRow
-	for rows.Next() {
-		var i ListShowTranslationsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.ParentID,
-			&i.Language,
-			&i.Values,
-		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -1942,16 +1848,16 @@ func (q *Queries) UpdateFAQCategoryTranslation(ctx context.Context, arg UpdateFA
 
 const updateFAQTranslation = `-- name: UpdateFAQTranslation :exec
 INSERT INTO faqs_translations (faqs_id, languages_code, question, answer)
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3::text, $4::text)
 ON CONFLICT (faqs_id, languages_code) DO UPDATE SET question = EXCLUDED.question,
                                                     answer   = EXCLUDED.answer
 `
 
 type UpdateFAQTranslationParams struct {
-	ItemID   uuid.UUID      `db:"item_id" json:"itemId"`
-	Language string         `db:"language" json:"language"`
-	Question null_v4.String `db:"question" json:"question"`
-	Answer   null_v4.String `db:"answer" json:"answer"`
+	ItemID   uuid.UUID `db:"item_id" json:"itemId"`
+	Language string    `db:"language" json:"language"`
+	Question string    `db:"question" json:"question"`
+	Answer   string    `db:"answer" json:"answer"`
 }
 
 func (q *Queries) UpdateFAQTranslation(ctx context.Context, arg UpdateFAQTranslationParams) error {

@@ -2,6 +2,7 @@ package phrase_test
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/translations"
 	"testing"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -56,4 +57,62 @@ func Test_SubmitData(t *testing.T) {
 	}
 	err := c.SendToTranslation(context.Background(), "shows2", data)
 	assert.NoError(t, err)
+}
+
+func TestWebhook(t *testing.T) {
+	jsonData := `{
+  "jobParts": [
+    {
+      "id": 510003672,
+      "uid": "ARoIoAOOiNra6dTWpmjRQ1",
+      "internalId": "295",
+      "task": "rYRRmO69OaNVWzUp_dc7",
+      "fileName": "surveys.json",
+      "targetLang": "de",
+      "workflowLevel": 1,
+      "status": "COMPLETED_BY_LINGUIST",
+      "wordsCount": 96,
+      "beginIndex": 0,
+      "endIndex": 17,
+      "isParentJobSplit": false,
+      "dateCreated": "2025-01-16T12:26:15Z",
+      "project": {
+        "id": 31397450,
+        "uid": "dUYuK9apYTbr0Ww5Av1W0b",
+        "lastWorkflowLevel": 1
+      },
+      "assignedTo": []
+    }
+  ],
+  "metadata": {
+    "project": {
+      "id": 31397450,
+      "uid": "dUYuK9apYTbr0Ww5Av1W0b",
+      "name": "TestProject1",
+      "sourceLang": "en",
+      "status": "NEW",
+      "createdBy": {
+        "id": 1439918,
+        "uid": "1Lv9r0Q9evyCvQicVdYlhb",
+        "username": "matjaz+phrase4"
+      },
+      "owner": {
+        "id": 1439918,
+        "uid": "1Lv9r0Q9evyCvQicVdYlhb",
+        "username": "matjaz+phrase4"
+      }
+    }
+  },
+  "event": "JOB_STATUS_CHANGED",
+  "timestamp": 1737036746,
+  "eventUid": "hXnaybvsW4qWep1D2z0R6c"
+}`
+
+	ctx := context.Background()
+	c := newClient(t)
+	collection, data, err := c.ProcessWebhook(ctx, "/not/important/here/for/phrase", []byte(jsonData))
+	assert.NoError(t, err)
+
+	assert.Equal(t, &translations.CollectionSurveys, collection)
+	assert.Equal(t, 3, len(data))
 }

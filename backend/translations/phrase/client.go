@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/bcc-code/bcc-media-platform/backend/translations"
 	"net/url"
 	"strings"
 	"time"
@@ -97,8 +98,57 @@ func (m *Client) SendToTranslation(ctx context.Context, collection string, data 
 	return err
 }
 
-func (m *Client) ProcessWebhook(ctx context.Context, url string, hookData []byte) (collection string, data []common.TranslationData, err error) {
-	return "", nil, merry.Errorf("not implemented")
+var ErrUnknownProject = merry.Sentinel("unknown project, ignoring message")
+
+func (c *Client) ProcessWebhook(ctx context.Context, url string, hookData []byte) (*translations.TranslatableCollection, []common.TranslationData, error) {
+	payload := &WebhookPost{}
+	err := json.Unmarshal(hookData, payload)
+	if err != nil {
+		return nil, nil, merry.Wrap(err)
+	}
+
+	if payload.Metadata.Project.UID != c.projectUID {
+		return nil, nil, merry.Wrap(ErrUnknownProject)
+	}
+
+	outData := []common.TranslationData{}
+
+	for _, part := range payload.JobParts {
+		data := map[string]json.RawMessage{}
+		if !part.Status.IsCompleted() {
+			continue
+		}
+
+		collection := translations.TranslatableCollections.Parse(strings.TrimSuffix(part.FileName, ".json"))
+		if collection == nil {
+			// Unknown collection
+			continue
+		}
+
+		fileData, err := c.GetFile(part.UID)
+		if err != nil {
+			return collection, nil, merry.Wrap(err)
+		}
+
+		err = json.Unmarshal(fileData, &data)
+
+		if err != nil {
+			return collection, nil, merry.Wrap(err)
+		}
+
+		for k, v := range data {
+			outData = append(outData, common.TranslationData{
+				ID:       k,
+				Value:    v,
+				Language: part.TargetLang,
+			})
+		}
+
+		return collection, outData, nil
+
+	}
+
+	return nil, nil, nil
 }
 
 func (c *Client) Authenticate() error {
@@ -262,29 +312,7 @@ func (c *Client) GetJobs(filename string) ([]Job, error) {
 	return res.Result().(*JobsList).Content, nil
 }
 
-func (c *Client) ExtractCompletedJobFromWebhook(data []byte) ([]string, error) {
-	var webhook WebhookEvent
-
-	err := json.Unmarshal(data, &webhook)
-	if err != nil {
-		return nil, err
-	}
-
-	if webhook.Metadata.Project.UID != c.projectUID {
-		return []string{}, nil
-	}
-
-	out := make([]string, 0, len(webhook.JobParts))
-	for _, j := range webhook.JobParts {
-		if j.Status.IsCompleted() {
-			out = append(out, j.UID)
-		}
-	}
-
-	return out, nil
-}
-
-func (c *Client) GetFile(jobUID string) (*ResultFileRequest, error) {
+func (c *Client) GetFile(jobUID string) ([]byte, error) {
 	req := c.httpClient.R()
 
 	req.SetPathParam("projectUid", c.projectUID)
@@ -323,7 +351,7 @@ func (c *Client) GetFile(jobUID string) (*ResultFileRequest, error) {
 			continue
 		}
 
-		break
+		return res.Body(), nil
 	}
 
 	return nil, nil

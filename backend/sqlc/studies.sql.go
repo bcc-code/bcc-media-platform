@@ -101,20 +101,22 @@ func (q *Queries) GetQuestionAlternativesByIDs(ctx context.Context, dollar_1 []u
 
 const getQuestionsTranslations = `-- name: GetQuestionsTranslations :many
 
-SELECT task_id,
+SELECT t.id,
        t.title as question,
+       t.description as description,
        json_agg(json_build_object('@id', items.id, '@correct', items.is_correct, 'title', items.title)) as answers
 FROM questionalternatives items
          JOIN tasks t ON t.id = items.task_id
 WHERE t.translations_required
   AND t.status = ANY ('{published,unlisted}')
-GROUP BY task_id, t.title
+GROUP BY t.id
 `
 
 type GetQuestionsTranslationsRow struct {
-	TaskID   uuid.NullUUID   `db:"task_id" json:"taskId"`
-	Question null_v4.String  `db:"question" json:"question"`
-	Answers  json.RawMessage `db:"answers" json:"answers"`
+	ID          uuid.UUID       `db:"id" json:"id"`
+	Question    null_v4.String  `db:"question" json:"question"`
+	Description null_v4.String  `db:"description" json:"description"`
+	Answers     json.RawMessage `db:"answers" json:"answers"`
 }
 
 func (q *Queries) GetQuestionsTranslations(ctx context.Context) ([]GetQuestionsTranslationsRow, error) {
@@ -126,7 +128,12 @@ func (q *Queries) GetQuestionsTranslations(ctx context.Context) ([]GetQuestionsT
 	var items []GetQuestionsTranslationsRow
 	for rows.Next() {
 		var i GetQuestionsTranslationsRow
-		if err := rows.Scan(&i.TaskID, &i.Question, &i.Answers); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Question,
+			&i.Description,
+			&i.Answers,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

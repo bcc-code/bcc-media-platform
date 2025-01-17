@@ -1,4 +1,4 @@
--- name: ListEpisodeTranslations :many
+-- name: GetEpisodeTranslatable :many
 WITH episodes AS (SELECT e.id
                   FROM episodes e
                            LEFT JOIN seasons s ON s.id = e.season_id
@@ -7,13 +7,11 @@ WITH episodes AS (SELECT e.id
                     AND e.status = ANY ('{published,unlisted}')
                     AND (e.season_id IS NULL OR (s.status = ANY ('{published,unlisted}')
                       AND sh.status = ANY ('{published,unlisted}'))))
-SELECT et.id,
-       episodes_id                                                   as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
+SELECT e.id, title, description
 FROM episodes_translations et
          JOIN episodes e ON e.id = et.episodes_id
-WHERE et.languages_code = @language::varchar;
+WHERE et.languages_code = 'no';
+
 
 -- name: ClearEpisodeTranslations :exec
 DELETE
@@ -27,20 +25,15 @@ VALUES (@item_id, @language, @title, @description)
 ON CONFLICT (episodes_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
                                                         description = EXCLUDED.description;
 
--- name: ListSeasonTranslations :many
-WITH seasons AS (SELECT s.id
-                 FROM seasons s
-                          JOIN shows sh ON sh.id = s.show_id
-                 WHERE s.translations_required
-                   AND s.status = ANY ('{published,unlisted}')
-                   AND sh.status = ANY ('{published,unlisted}'))
-SELECT et.id,
-       seasons_id                                                    as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
-FROM seasons_translations et
-         JOIN seasons e ON e.id = et.seasons_id
-WHERE et.languages_code = @language::varchar;
+-- name: GetSeasonTranslatable :many
+SELECT s.id, title, description
+FROM seasons_translations st
+         JOIN seasons s ON s.id = st.seasons_id
+         JOIN shows sh ON sh.id = s.show_id
+WHERE st.languages_code = 'no'
+  AND s.translations_required
+  AND s.status = ANY ('{published,unlisted}')
+  AND sh.status = ANY ('{published,unlisted}');
 
 -- name: ClearSeasonTranslations :exec
 DELETE
@@ -54,18 +47,13 @@ VALUES (@item_id, @language, @title, @description)
 ON CONFLICT (seasons_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
                                                        description = EXCLUDED.description;
 
--- name: ListShowTranslations :many
-WITH shows AS (SELECT s.id
-               FROM shows s
-               WHERE s.translations_required
-                 AND s.status = ANY ('{published,unlisted}'))
-SELECT et.id,
-       shows_id                                                      as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
-FROM shows_translations et
-         JOIN shows e ON e.id = et.shows_id
-WHERE et.languages_code = @language::varchar;
+-- name: GetShowTranslatable :many
+SELECT s.id, title, description
+FROM shows_translations st
+         JOIN shows s ON s.id = st.shows_id
+WHERE st.languages_code = 'no'
+  AND s.translations_required
+  AND s.status = ANY ('{published,unlisted}');
 
 -- name: ClearShowTranslations :exec
 DELETE
@@ -79,17 +67,12 @@ VALUES (@item_id, @language, @title, @description)
 ON CONFLICT (shows_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
                                                      description = EXCLUDED.description;
 
--- name: ListEventTranslations :many
-WITH events AS (SELECT s.id
-                FROM events s
-                WHERE s.status = ANY ('{published,unlisted}'))
-SELECT et.id,
-       events_id                                                     as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
+-- name: GetEventTranslatable :many
+SELECT e.id, title, description
 FROM events_translations et
          JOIN events e ON e.id = et.events_id
-WHERE et.languages_code = @language::varchar;
+WHERE et.languages_code = 'no' AND e.status = ANY ('{published,unlisted}');
+
 
 -- name: ClearEventTranslations :exec
 DELETE
@@ -127,19 +110,14 @@ VALUES (@item_id, @language, @title, @description)
 ON CONFLICT (calendarentries_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
                                                                description = EXCLUDED.description;
 
--- name: ListSectionTranslations :many
-WITH sections AS (SELECT s.id
-                  FROM sections s
-                  WHERE s.translations_required
-                    AND s.status = 'published'
-                    AND s.show_title = true)
-SELECT st.id,
-       sections_id                                                   as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
+-- name: GetSectionTranslatable :many
+SELECT s.id,title,description
 FROM sections_translations st
-         JOIN sections e ON e.id = st.sections_id
-WHERE st.languages_code = @language::varchar;
+         JOIN sections s ON s.id = st.sections_id
+WHERE st.languages_code = 'no'
+  AND s.translations_required
+  AND s.status = 'published'
+  AND s.show_title = true;
 
 -- name: ClearSectionTranslations :exec
 DELETE
@@ -153,18 +131,11 @@ VALUES (@item_id, @language, @title, @description)
 ON CONFLICT (sections_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
                                                         description = EXCLUDED.description;
 
--- name: ListPageTranslations :many
-WITH pages AS (SELECT s.id
-               FROM pages s
-               WHERE s.translations_required
-                 AND s.status = ANY ('{published,unlisted}'))
-SELECT st.id,
-       pages_id                                                      as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
-FROM pages_translations st
-         JOIN pages e ON e.id = st.pages_id
-WHERE st.languages_code = @language::varchar;
+-- name: GetPageTranslatable :many
+SELECT p.id, title, description
+FROM pages_translations pt
+         JOIN pages p ON p.id = pt.pages_id
+WHERE pt.languages_code = 'no' AND p.translations_required AND p.status = ANY ('{published,unlisted}');
 
 -- name: ClearPageTranslations :exec
 DELETE
@@ -178,18 +149,11 @@ VALUES (@item_id, @language, @title, @description)
 ON CONFLICT (pages_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
                                                      description = EXCLUDED.description;
 
--- name: ListLinkTranslations :many
-WITH links AS (SELECT s.id
-               FROM links s
-               WHERE s.translations_required
-                 AND s.status = ANY ('{published,unlisted}'))
-SELECT st.id,
-       links_id                                                      as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
+-- name: GetLinkTranslatable :many
+SELECT e.id, title, description
 FROM links_translations st
          JOIN links e ON e.id = st.links_id
-WHERE st.languages_code = @language::varchar;
+WHERE st.languages_code = 'no' AND e.translations_required AND status = ANY ('{published,unlisted}');
 
 -- name: UpdateLinkTranslation :exec
 INSERT INTO links_translations (links_id, languages_code, title, description)
@@ -483,7 +447,7 @@ WHERE ts.faqs_id = ANY ($1::uuid[]);
 
 -- name: UpdateFAQTranslation :exec
 INSERT INTO faqs_translations (faqs_id, languages_code, question, answer)
-VALUES (@item_id, @language, @question, @answer)
+VALUES (@item_id, @language, @question::text, @answer::text)
 ON CONFLICT (faqs_id, languages_code) DO UPDATE SET question = EXCLUDED.question,
                                                     answer   = EXCLUDED.answer;
 
@@ -551,18 +515,11 @@ FROM playlists items
 WHERE items.translations_required
   AND status = ANY ('{published,unlisted}');
 
--- name: ListPlaylistTranslations :many
-WITH items AS (SELECT i.id
-               FROM playlists i
-               WHERE i.translations_required
-                 AND i.status = ANY ('{published,unlisted}'))
-SELECT ts.id,
-       playlists_id                                                        as parent_id,
-       languages_code                                                      as language,
-       json_build_object('title', ts.title, 'description', ts.description) as values
-FROM playlists_translations ts
-         JOIN items i ON i.id = ts.playlists_id
-WHERE ts.languages_code = @language::varchar;
+-- name: GetPlaylistTranslatable :many
+SELECT id, title, description FROM playlists
+WHERE translations_required
+  AND status = ANY ('{published,unlisted}');
+
 
 -- name: ClearPlaylistTranslations :exec
 DELETE

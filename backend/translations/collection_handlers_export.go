@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/gin-gonic/gin"
+	"gopkg.in/guregu/null.v4"
 )
 
 func mustToJson(v interface{}) json.RawMessage {
@@ -14,7 +14,7 @@ func mustToJson(v interface{}) json.RawMessage {
 }
 
 func (s *Service) sendShows(ctx context.Context) error {
-	data, err := s.queries.ListShowTranslations(ctx, "no")
+	data, err := s.queries.GetShowTranslatable(ctx)
 	if err != nil {
 		return err
 	}
@@ -22,10 +22,14 @@ func (s *Service) sendShows(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
+		value := TitleDescriptionTranslation{
+			Title:       t.Title.ValueOrZero(),
+			Description: t.Description,
+		}
 		toSend = append(toSend,
 			common.TranslationData{
-				Language: t.Language,
-				Value:    t.Values,
+				Language: "no",
+				Value:    mustToJson(value),
 				ID:       fmt.Sprintf("%d", t.ID),
 			},
 		)
@@ -35,7 +39,7 @@ func (s *Service) sendShows(ctx context.Context) error {
 }
 
 func (s *Service) sendSeasons(ctx context.Context) error {
-	data, err := s.queries.ListSeasonTranslations(ctx, "no")
+	data, err := s.queries.GetSeasonTranslatable(ctx)
 	if err != nil {
 		return err
 	}
@@ -43,10 +47,14 @@ func (s *Service) sendSeasons(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
+		value := TitleDescriptionTranslation{
+			Title:       t.Title.ValueOrZero(),
+			Description: t.Description,
+		}
 		toSend = append(toSend,
 			common.TranslationData{
-				Language: t.Language,
-				Value:    t.Values,
+				Language: "no",
+				Value:    mustToJson(value),
 				ID:       fmt.Sprintf("%d", t.ID),
 			},
 		)
@@ -56,20 +64,24 @@ func (s *Service) sendSeasons(ctx context.Context) error {
 }
 
 func (s *Service) sendEpisodes(ctx context.Context) error {
-	data, err := s.queries.ListEpisodeTranslations(ctx, "no")
+	data, err := s.queries.GetEpisodeTranslatable(ctx)
 	if err != nil {
 		return err
 	}
 
 	toSend := []common.TranslationData{}
 
-	// TODO: Add context link to episode translation
-	// @context key, HTML content
 	for _, t := range data {
+		value := EpisodesTranslations{
+			Title:       t.Title.ValueOrZero(),
+			Description: t.Description,
+			Context:     fmt.Sprintf("<a href=\"https://app.bcc.media/episode/%d\">Link to episode</a>", t.ID),
+		}
+
 		toSend = append(toSend,
 			common.TranslationData{
-				Language: t.Language,
-				Value:    t.Values,
+				Language: "no",
+				Value:    mustToJson(value),
 				ID:       fmt.Sprintf("%d", t.ID),
 			},
 		)
@@ -79,7 +91,7 @@ func (s *Service) sendEpisodes(ctx context.Context) error {
 }
 
 func (s *Service) sendEvents(ctx context.Context) error {
-	data, err := s.queries.ListEventTranslations(ctx, "no")
+	data, err := s.queries.GetEventTranslatable(ctx)
 	if err != nil {
 		return err
 	}
@@ -87,10 +99,15 @@ func (s *Service) sendEvents(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
+		value := TitleDescriptionTranslation{
+			Title:       t.Title.ValueOrZero(),
+			Description: t.Description,
+		}
+
 		toSend = append(toSend,
 			common.TranslationData{
-				Language: t.Language,
-				Value:    t.Values,
+				Language: "no",
+				Value:    mustToJson(value),
 				ID:       fmt.Sprintf("%d", t.ID),
 			},
 		)
@@ -100,7 +117,7 @@ func (s *Service) sendEvents(ctx context.Context) error {
 }
 
 func (s *Service) sendCalendarEntries(ctx context.Context) error {
-	data, err := s.queries.ListCalendarEntryTranslations(ctx, "no")
+	data, err := s.queries.GetCalendarEntriesTranslatable(ctx)
 	if err != nil {
 		return err
 	}
@@ -108,10 +125,15 @@ func (s *Service) sendCalendarEntries(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
+		value := TitleDescriptionTranslation{
+			Title:       t.Title.ValueOrZero(),
+			Description: t.Description,
+		}
+
 		toSend = append(toSend,
 			common.TranslationData{
-				Language: t.Language,
-				Value:    t.Values,
+				Language: "no",
+				Value:    mustToJson(value),
 				ID:       fmt.Sprintf("%d", t.ID),
 			},
 		)
@@ -142,7 +164,7 @@ func (s *Service) sendClanedarEntries(ctx context.Context) error {
 }
 
 func (s *Service) sendSections(ctx context.Context) error {
-	data, err := s.queries.ListSectionTranslations(ctx, "no")
+	data, err := s.queries.GetSectionTranslatable(ctx)
 	if err != nil {
 		return err
 	}
@@ -150,10 +172,14 @@ func (s *Service) sendSections(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
+		value := TitleDescriptionTranslation{
+			Title:       t.Title.ValueOrZero(),
+			Description: t.Description,
+		}
 		toSend = append(toSend,
 			common.TranslationData{
-				Language: t.Language,
-				Value:    t.Values,
+				Language: "no",
+				Value:    mustToJson(value),
 				ID:       fmt.Sprintf("%d", t.ID),
 			},
 		)
@@ -163,7 +189,7 @@ func (s *Service) sendSections(ctx context.Context) error {
 }
 
 func (s *Service) sendPages(ctx context.Context) error {
-	data, err := s.queries.ListPageTranslations(ctx, "no")
+	data, err := s.queries.GetPageTranslatable(ctx)
 	if err != nil {
 		return err
 	}
@@ -171,10 +197,14 @@ func (s *Service) sendPages(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
+		value := TitleDescriptionTranslation{
+			Title:       t.Title.ValueOrZero(),
+			Description: t.Description,
+		}
 		toSend = append(toSend,
 			common.TranslationData{
-				Language: t.Language,
-				Value:    t.Values,
+				Language: "no",
+				Value:    mustToJson(value),
 				ID:       fmt.Sprintf("%d", t.ID),
 			},
 		)
@@ -184,7 +214,7 @@ func (s *Service) sendPages(ctx context.Context) error {
 }
 
 func (s *Service) sendLinks(ctx context.Context) error {
-	data, err := s.queries.ListLinkTranslations(ctx, "no")
+	data, err := s.queries.GetLinkTranslatable(ctx)
 	if err != nil {
 		return err
 	}
@@ -192,10 +222,14 @@ func (s *Service) sendLinks(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
+		value := TitleDescriptionTranslation{
+			Title:       t.Title,
+			Description: null.StringFrom(t.Description),
+		}
 		toSend = append(toSend,
 			common.TranslationData{
-				Language: t.Language,
-				Value:    t.Values,
+				Language: "no",
+				Value:    mustToJson(value),
 				ID:       fmt.Sprintf("%d", t.ID),
 			},
 		)
@@ -213,10 +247,11 @@ func (s *Service) sendLessons(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
-		value := gin.H{
-			"title":       t.Title,
-			"description": t.Description,
+		value := TitleDescriptionTranslation{
+			Title:       t.Title,
+			Description: t.Description,
 		}
+
 		toSend = append(toSend,
 			common.TranslationData{
 				Language: "no",
@@ -238,10 +273,11 @@ func (s *Service) sendTopics(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
-		value := gin.H{
-			"title":       t.Title,
-			"description": t.Description,
+		value := TitleDescriptionTranslation{
+			Title:       t.Title,
+			Description: t.Description,
 		}
+
 		toSend = append(toSend,
 			common.TranslationData{
 				Language: "no",
@@ -263,11 +299,12 @@ func (s *Service) sendSurveys(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
-		value := gin.H{
-			"title":       t.Title,
-			"description": t.Description,
-			"questions":   t.Questions,
+		value := SurveyTranslations{
+			Title:        t.Title,
+			Description:  t.Description,
+			RawQuestions: t.Questions,
 		}
+
 		toSend = append(toSend,
 			common.TranslationData{
 				Language: "no",
@@ -289,18 +326,17 @@ func (s *Service) sendStudyQuestions(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
-		value := gin.H{
-			"question": t.Question,
-			"answers":  t.Answers,
+		value := StudyQuestions{
+			Question:    t.Question.ValueOrZero(),
+			Description: t.Description,
+			RawAnswers:  t.Answers,
 		}
-
-		j, _ := json.Marshal(value)
 
 		toSend = append(toSend,
 			common.TranslationData{
 				Language: "no",
-				ID:       t.TaskID.UUID.String(),
-				Value:    j,
+				ID:       t.ID.String(),
+				Value:    mustToJson(value),
 			},
 		)
 	}
@@ -317,9 +353,9 @@ func (s *Service) sendAchievements(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
-		value := gin.H{
-			"title":       t.Title,
-			"description": t.Description,
+		value := TitleDescriptionTranslation{
+			Title:       t.Title,
+			Description: t.Description,
 		}
 
 		toSend = append(toSend,
@@ -343,14 +379,10 @@ func (s *Service) sendAchievementGroups(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
-		value := gin.H{
-			"title": t.Title,
-		}
-
 		toSend = append(toSend,
 			common.TranslationData{
 				Language: "no",
-				Value:    mustToJson(value),
+				Value:    mustToJson(TitleTranslation{Title: t.Title}),
 				ID:       t.ID.String(),
 			},
 		)
@@ -368,9 +400,9 @@ func (s *Service) sendFAQs(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
-		value := gin.H{
-			"question": t.Question,
-			"answer":   t.Answer,
+		value := FAQTranslations{
+			Question: t.Question,
+			Answer:   t.Answer,
 		}
 		toSend = append(toSend,
 			common.TranslationData{
@@ -393,14 +425,10 @@ func (s *Service) sendFAQCategories(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
-		value := gin.H{
-			"title": t.Title,
-		}
-
 		toSend = append(toSend,
 			common.TranslationData{
 				Language: "no",
-				Value:    mustToJson(value),
+				Value:    mustToJson(TitleTranslation{Title: null.StringFrom(t.Title)}),
 				ID:       t.ID.String(),
 			},
 		)
@@ -418,9 +446,9 @@ func (s *Service) sendGames(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
-		value := gin.H{
-			"title":       t.Title,
-			"description": t.Description,
+		value := TitleDescriptionTranslation{
+			Title:       t.Title,
+			Description: t.Description,
 		}
 
 		toSend = append(toSend,
@@ -436,7 +464,7 @@ func (s *Service) sendGames(ctx context.Context) error {
 }
 
 func (s *Service) sendPlaylists(ctx context.Context) error {
-	data, err := s.queries.ListPlaylistTranslations(ctx, "no")
+	data, err := s.queries.GetPlaylistTranslatable(ctx)
 	if err != nil {
 		return err
 	}
@@ -444,10 +472,15 @@ func (s *Service) sendPlaylists(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
+		value := TitleDescriptionTranslation{
+			Title:       t.Title,
+			Description: t.Description,
+		}
+
 		toSend = append(toSend,
 			common.TranslationData{
-				Language: t.Language,
-				Value:    t.Values,
+				Language: "no",
+				Value:    mustToJson(value),
 				ID:       fmt.Sprintf("%d", t.ID),
 			},
 		)
@@ -465,10 +498,11 @@ func (s *Service) sendMediaItems(ctx context.Context) error {
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
-		value := gin.H{
-			"title":       t.Title,
-			"description": t.Description,
+		value := MediaItemTranslation{
+			Title:       t.Title,
+			Description: t.Description,
 		}
+
 		toSend = append(toSend,
 			common.TranslationData{
 				Language: "no",

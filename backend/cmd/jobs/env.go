@@ -1,22 +1,17 @@
 package main
 
 import (
+	"github.com/joho/godotenv"
 	"os"
 	"strconv"
-	"strings"
-
-	"github.com/joho/godotenv"
 
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
-	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
 	"github.com/bcc-code/bcc-media-platform/backend/files"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/bcc-code/bcc-media-platform/backend/search"
 	"github.com/bcc-code/bcc-media-platform/backend/statistics"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
-
-	"github.com/samber/lo"
 )
 
 type awsConfig struct {
@@ -55,7 +50,6 @@ type envConfig struct {
 	DeleteIngestFiles bool
 	DB                utils.DatabaseConfig
 	Search            search.Config
-	Crowdin           crowdin.Config
 	Firebase          firebase
 	ImageCDNDomain    string
 	Tracing           utils.TracingConfig
@@ -78,12 +72,6 @@ func getEnvConfig() envConfig {
 	deleteIngestFilesString := os.Getenv("DELETE_INGEST_FILES")
 	// Error is intentionally ignored, if not set default to FALSE
 	deleteIngestFilesStringBool, _ := strconv.ParseBool(deleteIngestFilesString)
-
-	crowdinProjectIDs := lo.Map(strings.Split(os.Getenv("CROWDIN_PROJECT_IDS"), ","),
-		func(s string, _ int) int {
-			r, _ := strconv.ParseInt(s, 10, 64)
-			return int(r)
-		})
 
 	return envConfig{
 		Port:              os.Getenv("PORT"),
@@ -120,10 +108,6 @@ func getEnvConfig() envConfig {
 				Username: os.Getenv("ELASTIC_USERNAME"),
 				Password: os.Getenv("ELASTIC_PASSWORD"),
 			},
-		},
-		Crowdin: crowdin.Config{
-			Token:      os.Getenv("CROWDIN_TOKEN"),
-			ProjectIDs: crowdinProjectIDs,
 		},
 		Firebase: firebase{
 			ProjectID: os.Getenv("FIREBASE_PROJECT_ID"),

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/orsinium-labs/enum"
 )
@@ -12,7 +13,7 @@ type UpdateTranslationCallback func(ctx context.Context, collection string, data
 
 type TranslationsProvider interface {
 	SendToTranslation(ctx context.Context, collection string, data []common.TranslationData) error
-	ProcessWebhook(ctx context.Context, url string, hookData []byte) (collection string, data []common.TranslationData, err error)
+	ProcessWebhook(ctx context.Context, url string, hookData []byte) (collection *TranslatableCollection, data []common.TranslationData, err error)
 }
 
 type Service struct {
@@ -20,30 +21,30 @@ type Service struct {
 	queries  *sqlc.Queries
 }
 
-type translatableCollection enum.Member[string]
+type TranslatableCollection enum.Member[string]
 
 var (
-	CollectionAchievementGroups = translatableCollection{"achievementgroups"}
-	CollectionAchievements      = translatableCollection{"achievements"}
-	CollectionStudyQuestions    = translatableCollection{"studyquestions"}
-	CollectionCalendarEntries   = translatableCollection{"calendarentries"}
-	CollectionEpisodes          = translatableCollection{"episodes"}
-	CollectionEvents            = translatableCollection{"events"}
-	CollectionFAQCategories     = translatableCollection{"faqcategories"}
-	CollectionFAQs              = translatableCollection{"faqs"}
-	CollectionGames             = translatableCollection{"games"}
-	CollectionLessons           = translatableCollection{"lessons"}
-	CollectionLinks             = translatableCollection{"links"}
-	CollectionMediaItems        = translatableCollection{"mediaitems"}
-	CollectionPages             = translatableCollection{"pages"}
-	CollectionPlaylists         = translatableCollection{"playlists"}
-	CollectionSeasons           = translatableCollection{"seasons"}
-	CollectionSections          = translatableCollection{"sections"}
-	CollectionShows             = translatableCollection{"shows"}
-	CollectionSurveys           = translatableCollection{"surveys"}
-	CollectionTopics            = translatableCollection{"topics"}
+	CollectionAchievementGroups = TranslatableCollection{"achievementgroups"}
+	CollectionAchievements      = TranslatableCollection{"achievements"}
+	CollectionStudyQuestions    = TranslatableCollection{"studyquestions"}
+	CollectionCalendarEntries   = TranslatableCollection{"calendarentries"}
+	CollectionEpisodes          = TranslatableCollection{"episodes"}
+	CollectionEvents            = TranslatableCollection{"events"}
+	CollectionFAQCategories     = TranslatableCollection{"faqcategories"}
+	CollectionFAQs              = TranslatableCollection{"faqs"}
+	CollectionGames             = TranslatableCollection{"games"}
+	CollectionLessons           = TranslatableCollection{"lessons"}
+	CollectionLinks             = TranslatableCollection{"links"}
+	CollectionMediaItems        = TranslatableCollection{"mediaitems"}
+	CollectionPages             = TranslatableCollection{"pages"}
+	CollectionPlaylists         = TranslatableCollection{"playlists"}
+	CollectionSeasons           = TranslatableCollection{"seasons"}
+	CollectionSections          = TranslatableCollection{"sections"}
+	CollectionShows             = TranslatableCollection{"shows"}
+	CollectionSurveys           = TranslatableCollection{"surveys"}
+	CollectionTopics            = TranslatableCollection{"topics"}
 
-	TranslatableCollection = enum.New(
+	TranslatableCollections = enum.New(
 		CollectionAchievementGroups,
 		CollectionAchievements,
 		CollectionCalendarEntries,
@@ -75,7 +76,7 @@ func NewService(queries *sqlc.Queries, provider TranslationsProvider) *Service {
 
 func (s *Service) SendAllToTranslation(ctx context.Context) []error {
 	errs := make([]error, 0)
-	for _, collection := range TranslatableCollection.Members() {
+	for _, collection := range TranslatableCollections.Members() {
 		if err := s.SendCollectionToTranslation(ctx, collection); err != nil {
 			errs = append(errs, err)
 		}
@@ -83,7 +84,7 @@ func (s *Service) SendAllToTranslation(ctx context.Context) []error {
 	return errs
 }
 
-func (s *Service) SendCollectionToTranslation(ctx context.Context, collection translatableCollection) error {
+func (s *Service) SendCollectionToTranslation(ctx context.Context, collection TranslatableCollection) error {
 	switch collection {
 	case CollectionAchievementGroups:
 		return s.sendAchievementGroups(ctx)
@@ -125,4 +126,65 @@ func (s *Service) SendCollectionToTranslation(ctx context.Context, collection tr
 		return s.sendTopics(ctx)
 	}
 	return merry.Errorf("Unknown transalatable collection %s", collection)
+}
+
+func (s *Service) UpdateTranslations(ctx context.Context, collection *TranslatableCollection, data []common.TranslationData) []error {
+	switch *collection {
+	case CollectionAchievementGroups:
+		return s.updateAchievementGroups(ctx, data)
+	case CollectionAchievements:
+		return s.updateAchievements(ctx, data)
+	case CollectionStudyQuestions:
+		return s.updateStudyQuestions(ctx, data)
+	case CollectionCalendarEntries:
+		return s.updateCalendarEntries(ctx, data)
+	case CollectionEpisodes:
+		return s.updateEpisodes(ctx, data)
+	case CollectionEvents:
+		return s.updateEvents(ctx, data)
+	case CollectionFAQCategories:
+		return s.updateFAQCategories(ctx, data)
+	case CollectionFAQs:
+		return s.updateFAQs(ctx, data)
+	case CollectionGames:
+		return s.updateGames(ctx, data)
+	case CollectionLessons:
+		return s.updateLessons(ctx, data)
+	case CollectionLinks:
+		return s.updateLinks(ctx, data)
+	case CollectionMediaItems:
+		return s.updateMediaItems(ctx, data)
+	case CollectionPages:
+		return s.updatePages(ctx, data)
+	case CollectionPlaylists:
+		return s.updatePlaylists(ctx, data)
+	case CollectionSeasons:
+		return s.updateSeasons(ctx, data)
+	case CollectionSections:
+		return s.updateSections(ctx, data)
+	case CollectionShows:
+		return s.updateShows(ctx, data)
+	case CollectionSurveys:
+		return s.updateSurveys(ctx, data)
+	case CollectionTopics:
+		return s.updateTopics(ctx, data)
+	}
+	return []error{merry.Errorf("Unknown transalatable collection %s", collection)}
+}
+
+func (s *Service) HandleWebhook(ctx context.Context, url string, hookData []byte) error {
+	collection, data, err := s.provider.ProcessWebhook(ctx, url, hookData)
+	if err != nil {
+		return merry.Wrap(err)
+	}
+
+	errors := s.UpdateTranslations(ctx, collection, data)
+	if len(errors) > 0 {
+		for _, err := range errors {
+			log.L.Err(err).Msg("Error occurred while updating translations")
+		}
+	}
+
+	// Return nil as any error here is likley nor recoverable and makes no sense to repeat the request
+	return nil
 }

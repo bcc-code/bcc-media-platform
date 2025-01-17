@@ -269,3 +269,20 @@ func (s Server) ProcessScheduledTask(ctx *gin.Context) {
 		log.L.Error().Errs("errors", errs).Send()
 	}
 }
+
+func (s Server) ProcessTranslationMessage(ctx *gin.Context) {
+	body, err := io.ReadAll(ctx.Request.Body)
+	if err != nil {
+		log.L.Error().Err(err).Send()
+		ctx.AbortWithStatus(http.StatusBadRequest)
+	}
+
+	// TODO: Monitor if this naive implementation is good enough or if we need to do async via PubSub
+	err = s.services.TranslationsService.HandleWebhook(ctx.Request.Context(), ctx.Request.URL.String(), body)
+	if err != nil {
+		log.L.Error().Err(err).Send()
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+	}
+
+	ctx.Status(http.StatusOK)
+}

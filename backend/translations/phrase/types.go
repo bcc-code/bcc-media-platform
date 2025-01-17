@@ -134,6 +134,7 @@ type Metadata struct {
 	FieldName string    `json:"fieldName"`
 	Value     string    `json:"value"`
 	Options   []Options `json:"options"`
+	Project   Project   `json:"project"`
 }
 type Project struct {
 	UID           string       `json:"uid"`
@@ -307,4 +308,12 @@ type AsyncRequest struct {
 type Reference struct {
 	UID  string `json:"uid"`
 	Type string `json:"type"`
+}
+
+type WebhookPost struct {
+	JobParts  []JobParts `json:"jobParts"`
+	Metadata  Metadata   `json:"metadata"`
+	Event     string     `json:"event"`
+	Timestamp int        `json:"timestamp"`
+	EventUID  string     `json:"eventUid"`
 }
