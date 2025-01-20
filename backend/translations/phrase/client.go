@@ -208,7 +208,7 @@ func (c *Client) GetProject(projectID string) (*Project, error) {
 	return res.Result().(*Project), nil
 }
 
-func (c *Client) updateJobsStatus(jobs []Job, status string) error {
+func (c *Client) updateJobsStatus(jobs []Job, status Status) error {
 	req := c.httpClient.R()
 
 	req.SetBody(gin.H{"status": status, "jobs": jobs})
@@ -271,7 +271,7 @@ func (c *Client) UpdateSource(jobs []string, filename string, data []byte) error
 		AllowAutomaticPostAnalysis: true,
 	}
 
-	err := c.updateJobsStatus(meta.Jobs, "NEW")
+	err := c.updateJobsStatus(meta.Jobs, StatusNew)
 	if err != nil {
 		return err
 	}
