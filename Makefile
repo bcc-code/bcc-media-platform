@@ -60,3 +60,6 @@ infra.sta:
 	cd $(INFRA_PATH_STA) \
 		&& terragrunt init \
 		&& terragrunt apply
+
+test.postgressservice:
+	docker run --rm --name bccm-test-pg -e POSTGRES_PASSWORD=bccm123 -p 54321:5432  postgres postgres -c log_statement=all

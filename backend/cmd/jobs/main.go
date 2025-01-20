@@ -4,13 +4,11 @@ package main
 
 import (
 	"context"
-
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
 	"github.com/bcc-code/bcc-media-platform/backend/cmd/jobs/server"
-	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
 	"github.com/bcc-code/bcc-media-platform/backend/events"
 	"github.com/bcc-code/bcc-media-platform/backend/files"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
@@ -22,6 +20,8 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/search"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/statistics"
+	"github.com/bcc-code/bcc-media-platform/backend/translations"
+	"github.com/bcc-code/bcc-media-platform/backend/translations/phrase"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/bcc-media-platform/backend/version"
 	"github.com/bcc-code/bcc-media-platform/backend/videomanipulator"
@@ -50,8 +50,6 @@ func main() {
 		PackagingGroupID:      config.AWS.PackagingGroupARN,
 		MediapackageRole:      config.AWS.MediapackageRoleARN,
 		MediapackageSource:    config.AWS.MediapackageSourceARN,
-		CrowdinProjectIDs:     config.Crowdin.ProjectIDs,
-		CrowdinToken:          config.Crowdin.Token,
 		DeleteIngestFilesFlag: config.DeleteIngestFiles,
 	}
 
@@ -73,8 +71,14 @@ func main() {
 
 	searchService := search.New(queries, config.Search)
 	eventHandler := events.NewHandler()
-	crowdinClient := crowdin.New(config.Crowdin, queries, false)
 	statisticsHandler := statistics.NewHandler(ctx, config.BigQuery, queries)
+
+	phraseClient := phrase.NewClient("", config.Phrase.Username, config.Phrase.Password, config.Phrase.ProjectUID)
+	err = phraseClient.Authenticate()
+	if err != nil {
+		log.L.Panic().Err(err).Msg("Failed to authenticate phrase")
+	}
+	translationsClient := translations.NewService(queries, phraseClient)
 
 	sr := scheduler.New(config.ServiceUrl+"/api/tasks", config.CloudTasks.QueueID)
 
@@ -145,11 +149,11 @@ func main() {
 		EventHandler:            eventHandler,
 		Queries:                 queries,
 		RemoteCache:             remotecache.New(rdb, locker),
-		CrowdinClient:           crowdinClient,
 		Scheduler:               sr,
 		StatisticsHandler:       statisticsHandler,
 		FileService:             fileService,
 		VideoManipulatorService: videomanipulatorService,
+		TranslationsService:     translationsClient,
 	}
 
 	handlers := server.NewServer(services, serverConfig)
@@ -160,6 +164,7 @@ func main() {
 		apiGroup.POST("aws", handlers.ProcessAwsMessage)
 		apiGroup.POST("eventmeta", handlers.IngestEventMeta) // TODO: Protect the endpoint with a simple api key or something
 		apiGroup.POST("tasks", handlers.ProcessScheduledTask)
+		apiGroup.POST("translations", handlers.ProcessTranslationMessage)
 	}
 
 	router.GET("/versionz", version.GinHandler)

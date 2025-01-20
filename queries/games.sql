@@ -23,3 +23,7 @@ FROM games i
          LEFT JOIN imgs img ON img.games_id = i.id
          JOIN links l ON i.link_id = l.id
 WHERE i.id = ANY (@ids::uuid[]);
+
+-- name: GetGameTranslatableTexts :many
+
+SELECT id, title, description FROM games WHERE status = ANY ('{published,unlisted}');

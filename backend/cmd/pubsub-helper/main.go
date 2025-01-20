@@ -9,13 +9,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/bcc-code/bcc-media-platform/backend/events"
@@ -247,11 +247,9 @@ func main() {
 		_ = os.Setenv("PUBSUB_EMULATOR_HOST", *host)
 	}
 
+	create(projectId, topicId)
+
 	switch *task {
-	case "create":
-		create(projectId, topicId)
-	case "delete":
-		del(projectId, topicId)
 	case "refreshView":
 		refreshView(projectId, topicId)
 	case "syncTranslations":
@@ -275,12 +273,9 @@ func main() {
 	case "directus.fromfile":
 		directusFromFile(projectId, topicId)
 	default:
-		create(projectId, topicId)
-
 		refreshView(projectId, topicId)
-
-		time.Sleep(1 * time.Second)
-		del(projectId, topicId)
 	}
 
+	time.Sleep(1 * time.Second)
+	del(projectId, topicId)
 }

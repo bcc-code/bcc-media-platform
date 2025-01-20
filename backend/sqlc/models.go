@@ -1764,6 +1764,12 @@ type Timedmetadatum struct {
 	MediaitemID uuid.NullUUID  `db:"mediaitem_id" json:"mediaitemId"`
 }
 
+type TranslationsHash struct {
+	Collection string       `db:"collection" json:"collection"`
+	Hash       []byte       `db:"hash" json:"hash"`
+	LastSent   null_v4.Time `db:"last_sent" json:"lastSent"`
+}
+
 type Usergroup struct {
 	Code                string         `db:"code" json:"code"`
 	DateCreated         time.Time      `db:"date_created" json:"dateCreated"`

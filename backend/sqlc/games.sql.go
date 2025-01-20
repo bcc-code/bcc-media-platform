@@ -14,6 +14,40 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const getGameTranslatableTexts = `-- name: GetGameTranslatableTexts :many
+
+SELECT id, title, description FROM games WHERE status = ANY ('{published,unlisted}')
+`
+
+type GetGameTranslatableTextsRow struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Title       string         `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) GetGameTranslatableTexts(ctx context.Context) ([]GetGameTranslatableTextsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getGameTranslatableTexts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetGameTranslatableTextsRow
+	for rows.Next() {
+		var i GetGameTranslatableTextsRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getGames = `-- name: getGames :many
 WITH ts AS (SELECT games_id,
                    json_object_agg(languages_code, title)       as title,

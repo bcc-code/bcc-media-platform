@@ -15,7 +15,6 @@ import (
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/asset"
-	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
 	"github.com/bcc-code/bcc-media-platform/backend/events"
 	externalevents "github.com/bcc-code/bcc-media-platform/backend/external-events"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
@@ -150,7 +149,13 @@ func (s Server) ProcessMessage(c *gin.Context) {
 		err = s.services.GetStatisticHandler().HandleImportShortsScores(ctx)
 	case events.TypeTranslationsSync:
 		err = s.runIfNotLocked(ctx, fmt.Sprintf("event:%s:%s", e.Type(), e.ID()), func() error {
-			return crowdin.HandleEvent(ctx, s.services, e)
+			if errs := s.services.TranslationsService.SendAllToTranslation(ctx); len(errs) > 0 {
+				for _, err := range errs {
+					log.L.Error().Err(err).Msg("Error sending translations to translations")
+				}
+			}
+			return nil
+			// return crowdin.HandleEvent(ctx, s.services, e)
 		})
 	default:
 		err = merry.Wrap(errUndefinedHandler)
@@ -265,4 +270,21 @@ func (s Server) ProcessScheduledTask(ctx *gin.Context) {
 	if errs != nil {
 		log.L.Error().Errs("errors", errs).Send()
 	}
+}
+
+func (s Server) ProcessTranslationMessage(ctx *gin.Context) {
+	body, err := io.ReadAll(ctx.Request.Body)
+	if err != nil {
+		log.L.Error().Err(err).Send()
+		ctx.AbortWithStatus(http.StatusBadRequest)
+	}
+
+	// TODO: Monitor if this naive implementation is good enough or if we need to do async via PubSub
+	err = s.services.TranslationsService.HandleWebhook(ctx.Request.Context(), ctx.Request.URL.String(), body)
+	if err != nil {
+		log.L.Error().Err(err).Send()
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+	}
+
+	ctx.Status(http.StatusOK)
 }

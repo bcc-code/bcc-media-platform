@@ -86,3 +86,15 @@ WHERE p.id = ANY (@ids::uuid[]);
 INSERT INTO users.surveyquestionanswers (profile_id, question_id, updated_at)
 VALUES (@profile_id::uuid, @question_id::uuid, now())
 ON CONFLICT(profile_id, question_id) DO UPDATE SET updated_at = EXCLUDED.updated_at;
+
+
+-- name: GetSurveyTranslatableText :many
+
+SELECT
+    s.id,
+    s.title, s.description,
+    json_agg(json_build_object('title', q.title, 'description', q.description, '@id', q.id)) as questions
+FROM surveys s
+         LEFT JOIN surveyquestions q ON s.id = q.survey_id
+WHERE translations_required AND status = ANY ('{published,unlisted}')
+GROUP BY s.id;

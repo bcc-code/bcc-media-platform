@@ -8,6 +8,7 @@ package sqlc
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -98,6 +99,54 @@ func (q *Queries) GetQuestionAlternativesByIDs(ctx context.Context, dollar_1 []u
 	return items, nil
 }
 
+const getQuestionsTranslations = `-- name: GetQuestionsTranslations :many
+
+SELECT t.id,
+       t.title as question,
+       t.description as description,
+       json_agg(json_build_object('@id', items.id, '@correct', items.is_correct, 'title', items.title)) as answers
+FROM questionalternatives items
+         JOIN tasks t ON t.id = items.task_id
+WHERE t.translations_required
+  AND t.status = ANY ('{published,unlisted}')
+GROUP BY t.id
+`
+
+type GetQuestionsTranslationsRow struct {
+	ID          uuid.UUID       `db:"id" json:"id"`
+	Question    null_v4.String  `db:"question" json:"question"`
+	Description null_v4.String  `db:"description" json:"description"`
+	Answers     json.RawMessage `db:"answers" json:"answers"`
+}
+
+func (q *Queries) GetQuestionsTranslations(ctx context.Context) ([]GetQuestionsTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getQuestionsTranslations)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetQuestionsTranslationsRow
+	for rows.Next() {
+		var i GetQuestionsTranslationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Question,
+			&i.Description,
+			&i.Answers,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSelectedAlternativesAndLockStatus = `-- name: GetSelectedAlternativesAndLockStatus :many
 SELECT ta.task_id, ta.selected_alternatives::uuid[] as selected_alternatives, ta.locked as locked
 FROM "users"."taskanswers" ta
@@ -126,6 +175,40 @@ func (q *Queries) GetSelectedAlternativesAndLockStatus(ctx context.Context, arg 
 	for rows.Next() {
 		var i GetSelectedAlternativesAndLockStatusRow
 		if err := rows.Scan(&i.TaskID, pq.Array(&i.SelectedAlternatives), &i.Locked); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getStudyTopicsTranslatableText = `-- name: GetStudyTopicsTranslatableText :many
+
+SELECT id, title, description FROM studytopics WHERE status = ANY ('{published,unlisted}') AND translations_required
+`
+
+type GetStudyTopicsTranslatableTextRow struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Title       string         `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+}
+
+func (q *Queries) GetStudyTopicsTranslatableText(ctx context.Context) ([]GetStudyTopicsTranslatableTextRow, error) {
+	rows, err := q.db.QueryContext(ctx, getStudyTopicsTranslatableText)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetStudyTopicsTranslatableTextRow
+	for rows.Next() {
+		var i GetStudyTopicsTranslatableTextRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

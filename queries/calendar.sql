@@ -95,3 +95,10 @@ FROM calendarentries e
          LEFT JOIN seasons se ON se.id = e.season_id
          LEFT JOIN shows sh ON sh.id = e.show_id
 WHERE e.id = ANY ($1::int[]);
+
+
+-- name: GetCalendarEntriesTranslatable :many
+SELECT e.id, title, description
+FROM calendarentries_translations et
+         JOIN events e ON e.id = et.calendarentries_id
+WHERE et.languages_code ='no' and e.status = ANY ('{published,unlisted}');

@@ -12,3 +12,4 @@ GRANT ALL PRIVILEGES ON "pages_translations_id_seq" TO "background_worker";
 /***    CREATED ON: 2023-09-22T10:02:24.410Z             ***/
 /***********************************************************/
 
+SELECT 1;

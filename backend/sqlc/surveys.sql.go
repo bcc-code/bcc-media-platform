@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -129,6 +130,53 @@ func (q *Queries) GetSurveyIDFromQuestionID(ctx context.Context, id uuid.UUID) (
 	var survey_id uuid.UUID
 	err := row.Scan(&survey_id)
 	return survey_id, err
+}
+
+const getSurveyTranslatableText = `-- name: GetSurveyTranslatableText :many
+
+SELECT
+    s.id,
+    s.title, s.description,
+    json_agg(json_build_object('title', q.title, 'description', q.description, '@id', q.id)) as questions
+FROM surveys s
+         LEFT JOIN surveyquestions q ON s.id = q.survey_id
+WHERE translations_required AND status = ANY ('{published,unlisted}')
+GROUP BY s.id
+`
+
+type GetSurveyTranslatableTextRow struct {
+	ID          uuid.UUID       `db:"id" json:"id"`
+	Title       string          `db:"title" json:"title"`
+	Description null_v4.String  `db:"description" json:"description"`
+	Questions   json.RawMessage `db:"questions" json:"questions"`
+}
+
+func (q *Queries) GetSurveyTranslatableText(ctx context.Context) ([]GetSurveyTranslatableTextRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSurveyTranslatableText)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSurveyTranslatableTextRow
+	for rows.Next() {
+		var i GetSurveyTranslatableTextRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Description,
+			&i.Questions,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const upsertSurveyAnswer = `-- name: UpsertSurveyAnswer :exec

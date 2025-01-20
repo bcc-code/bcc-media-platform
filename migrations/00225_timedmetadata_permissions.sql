@@ -12,3 +12,4 @@ GRANT ALL PRIVILEGES ON public.timedmetadata TO background_worker;
 /***    CREATED ON: 2023-10-03T11:55:19.386Z             ***/
 /***********************************************************/
 
+SELECT 1;

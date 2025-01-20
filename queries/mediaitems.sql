@@ -52,3 +52,10 @@ VALUES (
     @primary_episode_id
 )
 RETURNING id;
+
+-- name: GetMediaItemsTranslatableText :many
+SELECT id, title, description FROM mediaitems WHERE translations_required
+                                                AND (
+        (title != '' AND title is not NULL) OR
+        (description != '' AND description is not NULL)
+        );

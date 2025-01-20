@@ -1,0 +1,15 @@
+with-expecter: true
+dir: "{{.InterfaceDir}}/mock/"
+mockname: "Mock{{.InterfaceName}}"
+outpkg: "Mock{{.PackageName}}"
+filename: "mock_{{.InterfaceName}}.go"
+inpackage: false
+all: false
+issue-845-fix: True
+include-auto-generated: false
+packages:
+    github.com/bcc-code/bcc-media-platform/backend/translations:
+      interfaces:
+        TranslationsProvider:
+      config:
+        recursive: true

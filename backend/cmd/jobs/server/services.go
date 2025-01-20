@@ -2,10 +2,10 @@ package server
 
 import (
 	"database/sql"
+	"github.com/bcc-code/bcc-media-platform/backend/translations"
 
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/bcc-code/bcc-media-platform/backend/crowdin"
 	"github.com/bcc-code/bcc-media-platform/backend/events"
 	"github.com/bcc-code/bcc-media-platform/backend/files"
 	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
@@ -25,11 +25,11 @@ type ExternalServices struct {
 	Database                *sql.DB
 	RemoteCache             *remotecache.Client
 	Queries                 *sqlc.Queries
-	CrowdinClient           *crowdin.Client
 	Scheduler               *scheduler.Service
 	StatisticsHandler       *statistics.Handler
 	FileService             files.Service
 	VideoManipulatorService *videomanipulator.VideoManipulatorService
+	TranslationsService     *translations.Service
 }
 
 // GetDatabase as stored in the struct
@@ -57,11 +57,6 @@ func (e ExternalServices) GetEventHandler() *events.Handler {
 	return e.EventHandler
 }
 
-// GetCrowdinClient as stored in the struct
-func (e ExternalServices) GetCrowdinClient() *crowdin.Client {
-	return e.CrowdinClient
-}
-
 // GetQueries as stored in the struct
 func (e ExternalServices) GetQueries() *sqlc.Queries {
 	return e.Queries
@@ -82,4 +77,8 @@ func (e ExternalServices) GetFileService() files.Service {
 
 func (e ExternalServices) GetVideoManipulatorService() *videomanipulator.VideoManipulatorService {
 	return e.VideoManipulatorService
+}
+
+func (e ExternalServices) GetTranslationService() *translations.Service {
+	return e.TranslationsService
 }
