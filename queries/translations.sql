@@ -57,9 +57,6 @@ ON CONFLICT (events_id, languages_code) DO UPDATE SET title       = EXCLUDED.tit
                                                       description = EXCLUDED.description;
 
 -- name: ListCalendarEntryTranslations :many
-WITH calendarentries AS (SELECT s.id
-                         FROM calendarentries s
-                         WHERE s.status = ANY ('{published,unlisted}'))
 SELECT et.id,
        calendarentries_id                                            as parent_id,
        languages_code                                                as language,
@@ -213,3 +210,19 @@ INSERT INTO episodes_translations (episodes_id, languages_code, title, descripti
 VALUES (@item_id, @language, @title, @description)
 ON CONFLICT (episodes_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
                                                         description = EXCLUDED.description;
+
+-----------
+-- HASH ---
+-----------
+
+-- name: ShouldSendTranslations :one
+SELECT (COUNT(*) = 0)::bool as should -- if we have any rows, that means this hash should not be sent
+FROM translations_hash
+WHERE collection = @collection
+  AND hash = @hash::bytea
+  AND last_sent > NOW() - INTERVAL '30 minutes';
+
+-- name: UpdateTranslationsHash :exec
+INSERT INTO translations_hash (collection, hash)
+VALUES (@collection, @hash)
+ON CONFLICT (collection) DO UPDATE SET hash = EXCLUDED.hash, last_sent = NOW();

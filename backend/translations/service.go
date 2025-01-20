@@ -2,11 +2,13 @@ package translations
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/orsinium-labs/enum"
+	"hash/fnv"
 )
 
 type UpdateTranslationCallback func(ctx context.Context, collection string, data []common.TranslationData) error
@@ -85,47 +87,99 @@ func (s *Service) SendAllToTranslation(ctx context.Context) []error {
 }
 
 func (s *Service) SendCollectionToTranslation(ctx context.Context, collection TranslatableCollection) error {
+	var err error
+	var data []common.TranslationData
+
+	if !TranslatableCollections.Contains(collection) {
+		return merry.Errorf("collection %s is not translatable", collection)
+	}
+
 	switch collection {
 	case CollectionAchievementGroups:
-		return s.sendAchievementGroups(ctx)
+		data, err = s.getDataForAchievementGroups(ctx)
 	case CollectionAchievements:
-		return s.sendAchievements(ctx)
+		data, err = s.getDataForAchievements(ctx)
 	case CollectionStudyQuestions:
-		return s.sendStudyQuestions(ctx)
+		data, err = s.getDataForStudyQuestions(ctx)
 	case CollectionCalendarEntries:
-		return s.sendCalendarEntries(ctx)
+		data, err = s.getDataForCalendarEntries(ctx)
 	case CollectionEpisodes:
-		return s.sendEpisodes(ctx)
+		data, err = s.getDataForEpisodes(ctx)
 	case CollectionEvents:
-		return s.sendEvents(ctx)
+		data, err = s.getDataForEvents(ctx)
 	case CollectionFAQCategories:
-		return s.sendFAQCategories(ctx)
+		data, err = s.getDataForFAQCategories(ctx)
 	case CollectionFAQs:
-		return s.sendFAQs(ctx)
+		data, err = s.getDataForFAQs(ctx)
 	case CollectionGames:
-		return s.sendGames(ctx)
+		data, err = s.getDataForGames(ctx)
 	case CollectionLessons:
-		return s.sendLessons(ctx)
+		data, err = s.getDataForLessons(ctx)
 	case CollectionLinks:
-		return s.sendLinks(ctx)
+		data, err = s.getDataForLinks(ctx)
 	case CollectionMediaItems:
-		return s.sendMediaItems(ctx)
+		data, err = s.getDataForMediaItems(ctx)
 	case CollectionPages:
-		return s.sendPages(ctx)
+		data, err = s.getDataForPages(ctx)
 	case CollectionPlaylists:
-		return s.sendPlaylists(ctx)
+		data, err = s.getDataForPlaylists(ctx)
 	case CollectionSeasons:
-		return s.sendSeasons(ctx)
+		data, err = s.getDataForSeasons(ctx)
 	case CollectionSections:
-		return s.sendSections(ctx)
+		data, err = s.getDataForSections(ctx)
 	case CollectionShows:
-		return s.sendShows(ctx)
+		data, err = s.getDataForShows(ctx)
 	case CollectionSurveys:
-		return s.sendSurveys(ctx)
+		data, err = s.getDataForSurveys(ctx)
 	case CollectionTopics:
-		return s.sendTopics(ctx)
+		data, err = s.getDataForTopics(ctx)
 	}
-	return merry.Errorf("Unknown transalatable collection %s", collection)
+
+	if err != nil {
+		return err
+	}
+
+	return s.sendToProviderIfNeeded(ctx, collection, data)
+}
+
+func (s *Service) sendToProviderIfNeeded(ctx context.Context, collection TranslatableCollection, data []common.TranslationData) error {
+	if len(data) == 0 {
+		return nil
+	}
+
+	marshalled, err := json.Marshal(data)
+
+	if err != nil {
+		return err
+	}
+
+	hash := fnv.New128a()
+	hash.Write(marshalled)
+	hashBytes := hash.Sum(nil)
+	res, err := s.queries.ShouldSendTranslations(ctx, sqlc.ShouldSendTranslationsParams{
+		Collection: collection.Value,
+		Hash:       hashBytes,
+	})
+	if err != nil {
+		return err
+	}
+
+	if !res {
+		log.L.Debug().Str("collection", collection.Value).Msg("Skipping sending to provider")
+		return nil
+	}
+
+	log.L.Debug().Str("collection", collection.Value).Int("count", len(data)).Msg("Sending to provider")
+	err = s.provider.SendToTranslation(ctx, collection.Value, data)
+
+	if err != nil {
+		return err
+	}
+
+	return s.queries.UpdateTranslationsHash(ctx, sqlc.UpdateTranslationsHashParams{
+		Collection: collection.Value,
+		Hash:       hashBytes,
+	})
 }
 
 func (s *Service) UpdateTranslations(ctx context.Context, collection *TranslatableCollection, data []common.TranslationData) []error {
@@ -176,6 +230,11 @@ func (s *Service) HandleWebhook(ctx context.Context, url string, hookData []byte
 	collection, data, err := s.provider.ProcessWebhook(ctx, url, hookData)
 	if err != nil {
 		return merry.Wrap(err)
+	}
+
+	if collection == nil || len(data) == 0 {
+		// The provider has determined there is nothing to update
+		return nil
 	}
 
 	errors := s.UpdateTranslations(ctx, collection, data)

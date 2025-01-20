@@ -1,7 +1,6 @@
 package translations
 
 import (
-	"encoding/json"
 	"gopkg.in/guregu/null.v4"
 )
 
@@ -20,17 +19,15 @@ type TitleTranslation struct {
 }
 
 type SurveyTranslations struct {
-	Title        string
-	Description  null.String
-	Questions    []TitleWithId   `json:"questions,omitempty"`
-	RawQuestions json.RawMessage `json:"questions,omitempty"`
+	Title       string
+	Description null.String
+	Questions   []TitleWithId `json:"questions,omitempty"`
 }
 
 type StudyQuestions struct {
 	Question    string
 	Description null.String
-	Answers     []TitleWithId   `json:"answers,omitempty"`
-	RawAnswers  json.RawMessage `json:"answers,omitempty"`
+	Answers     []TitleWithId `json:"answers,omitempty"`
 }
 
 type FAQTranslations struct {

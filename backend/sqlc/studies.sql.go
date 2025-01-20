@@ -190,7 +190,7 @@ func (q *Queries) GetSelectedAlternativesAndLockStatus(ctx context.Context, arg 
 
 const getStudyTopicsTranslatableText = `-- name: GetStudyTopicsTranslatableText :many
 
-SELECT id, title, description FROM lessons WHERE status = ANY ('{published,unlisted}') AND translations_required
+SELECT id, title, description FROM studytopics WHERE status = ANY ('{published,unlisted}') AND translations_required
 `
 
 type GetStudyTopicsTranslatableTextRow struct {

@@ -267,4 +267,4 @@ GROUP BY t.id;
 
 -- name: GetStudyTopicsTranslatableText :many
 
-SELECT id, title, description FROM lessons WHERE status = ANY ('{published,unlisted}') AND translations_required;
+SELECT id, title, description FROM studytopics WHERE status = ANY ('{published,unlisted}') AND translations_required;

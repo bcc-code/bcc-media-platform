@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/bcc-code/bcc-media-platform/backend/translations"
+	"github.com/gin-gonic/gin"
 	"net/url"
 	"strings"
 	"time"
@@ -122,6 +123,7 @@ func (c *Client) ProcessWebhook(ctx context.Context, url string, hookData []byte
 		collection := translations.TranslatableCollections.Parse(strings.TrimSuffix(part.FileName, ".json"))
 		if collection == nil {
 			// Unknown collection
+			log.L.Warn().Str("filename", part.FileName).Msg("Unknown collection")
 			continue
 		}
 
@@ -199,11 +201,36 @@ func (c *Client) GetProject(projectID string) (*Project, error) {
 	}
 
 	if res.StatusCode() != 200 {
-		log.L.Error().Str("projectID", projectID).Int("status", res.StatusCode()).Msg("Unexpected status code when fetching project")
+		log.L.Error().Bytes("body", res.Body()).Str("projectID", projectID).Int("status", res.StatusCode()).Msg("Unexpected status code when fetching project")
 		return nil, merry.Errorf("unable to fetch project")
 	}
 
 	return res.Result().(*Project), nil
+}
+
+func (c *Client) updateJobsStatus(jobs []Job, status string) error {
+	req := c.httpClient.R()
+
+	req.SetBody(gin.H{"status": status, "jobs": jobs})
+
+	res, err := req.Patch("v3/jobs")
+
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode() != 200 {
+		body, _ := json.Marshal(res.Request.Body)
+		log.L.Error().
+			Str("projectID", c.projectUID).
+			Int("status", res.StatusCode()).
+			Bytes("body", res.Body()).
+			Bytes("req_body", body).
+			Msg("Unexpected status code when updating jobs")
+		return merry.Errorf("unable to update jobs")
+	}
+
+	return nil
 }
 
 func (c *Client) CreateJob(targetLanguages []string, path, filename string, data []byte) error {
@@ -242,6 +269,11 @@ func (c *Client) UpdateSource(jobs []string, filename string, data []byte) error
 		Jobs:                       lo.Map(jobs, func(j string, _ int) Job { return Job{UID: j} }),
 		PreTranslate:               true,
 		AllowAutomaticPostAnalysis: true,
+	}
+
+	err := c.updateJobsStatus(meta.Jobs, "NEW")
+	if err != nil {
+		return err
 	}
 
 	metaJson, err := json.Marshal(meta)

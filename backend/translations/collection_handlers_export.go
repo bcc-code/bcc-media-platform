@@ -13,10 +13,10 @@ func mustToJson(v interface{}) json.RawMessage {
 	return b
 }
 
-func (s *Service) sendShows(ctx context.Context) error {
+func (s *Service) getDataForShows(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetShowTranslatable(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -35,13 +35,13 @@ func (s *Service) sendShows(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionShows.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendSeasons(ctx context.Context) error {
+func (s *Service) getDataForSeasons(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetSeasonTranslatable(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -60,13 +60,13 @@ func (s *Service) sendSeasons(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionSeasons.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendEpisodes(ctx context.Context) error {
+func (s *Service) getDataForEpisodes(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetEpisodeTranslatable(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -87,13 +87,13 @@ func (s *Service) sendEpisodes(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionEpisodes.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendEvents(ctx context.Context) error {
+func (s *Service) getDataForEvents(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetEventTranslatable(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -113,13 +113,13 @@ func (s *Service) sendEvents(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionEvents.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendCalendarEntries(ctx context.Context) error {
+func (s *Service) getDataForCalendarEntries(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetCalendarEntriesTranslatable(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -139,13 +139,13 @@ func (s *Service) sendCalendarEntries(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionCalendarEntries.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendClanedarEntries(ctx context.Context) error {
+func (s *Service) getDataForClanedarEntries(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.ListCalendarEntryTranslations(ctx, "no")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -160,13 +160,13 @@ func (s *Service) sendClanedarEntries(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionCalendarEntries.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendSections(ctx context.Context) error {
+func (s *Service) getDataForSections(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetSectionTranslatable(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -185,13 +185,13 @@ func (s *Service) sendSections(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionSections.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendPages(ctx context.Context) error {
+func (s *Service) getDataForPages(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetPageTranslatable(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -210,13 +210,13 @@ func (s *Service) sendPages(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionPages.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendLinks(ctx context.Context) error {
+func (s *Service) getDataForLinks(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetLinkTranslatable(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -235,13 +235,13 @@ func (s *Service) sendLinks(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionLinks.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendLessons(ctx context.Context) error {
+func (s *Service) getDataForLessons(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetLessonsTranslatableText(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -261,13 +261,13 @@ func (s *Service) sendLessons(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionLessons.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendTopics(ctx context.Context) error {
+func (s *Service) getDataForTopics(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetStudyTopicsTranslatableText(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -287,22 +287,25 @@ func (s *Service) sendTopics(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionTopics.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendSurveys(ctx context.Context) error {
+func (s *Service) getDataForSurveys(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetSurveyTranslatableText(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
+		questions := []TitleWithId{}
+		_ = json.Unmarshal(t.Questions, &questions)
+
 		value := SurveyTranslations{
-			Title:        t.Title,
-			Description:  t.Description,
-			RawQuestions: t.Questions,
+			Title:       t.Title,
+			Description: t.Description,
+			Questions:   questions,
 		}
 
 		toSend = append(toSend,
@@ -314,22 +317,25 @@ func (s *Service) sendSurveys(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionSurveys.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendStudyQuestions(ctx context.Context) error {
+func (s *Service) getDataForStudyQuestions(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetQuestionsTranslations(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
 
 	for _, t := range data {
+		answers := []TitleWithId{}
+		_ = json.Unmarshal(t.Answers, &answers)
+
 		value := StudyQuestions{
 			Question:    t.Question.ValueOrZero(),
 			Description: t.Description,
-			RawAnswers:  t.Answers,
+			Answers:     answers,
 		}
 
 		toSend = append(toSend,
@@ -341,13 +347,13 @@ func (s *Service) sendStudyQuestions(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionStudyQuestions.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendAchievements(ctx context.Context) error {
+func (s *Service) getDataForAchievements(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetAchieventsTranslatableTexts(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -367,13 +373,13 @@ func (s *Service) sendAchievements(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionAchievements.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendAchievementGroups(ctx context.Context) error {
+func (s *Service) getDataForAchievementGroups(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetAchieventGroupsTranslatableTexts(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -388,13 +394,13 @@ func (s *Service) sendAchievementGroups(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionAchievementGroups.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendFAQs(ctx context.Context) error {
+func (s *Service) getDataForFAQs(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetFaqTranslatableText(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -413,13 +419,13 @@ func (s *Service) sendFAQs(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionFAQs.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendFAQCategories(ctx context.Context) error {
+func (s *Service) getDataForFAQCategories(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetFaqCategoryTranslatableText(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -434,13 +440,13 @@ func (s *Service) sendFAQCategories(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionFAQCategories.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendGames(ctx context.Context) error {
+func (s *Service) getDataForGames(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetGameTranslatableTexts(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -460,13 +466,13 @@ func (s *Service) sendGames(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionGames.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendPlaylists(ctx context.Context) error {
+func (s *Service) getDataForPlaylists(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetPlaylistTranslatable(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -481,18 +487,18 @@ func (s *Service) sendPlaylists(ctx context.Context) error {
 			common.TranslationData{
 				Language: "no",
 				Value:    mustToJson(value),
-				ID:       fmt.Sprintf("%d", t.ID),
+				ID:       t.ID.String(),
 			},
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionPlaylists.Value, toSend)
+	return toSend, err
 }
 
-func (s *Service) sendMediaItems(ctx context.Context) error {
+func (s *Service) getDataForMediaItems(ctx context.Context) ([]common.TranslationData, error) {
 	data, err := s.queries.GetMediaItemsTranslatableText(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	toSend := []common.TranslationData{}
@@ -512,5 +518,5 @@ func (s *Service) sendMediaItems(ctx context.Context) error {
 		)
 	}
 
-	return s.provider.SendToTranslation(ctx, CollectionMediaItems.Value, toSend)
+	return toSend, err
 }

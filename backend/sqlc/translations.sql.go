@@ -352,9 +352,6 @@ func (q *Queries) GetShowTranslatable(ctx context.Context) ([]GetShowTranslatabl
 }
 
 const listCalendarEntryTranslations = `-- name: ListCalendarEntryTranslations :many
-WITH calendarentries AS (SELECT s.id
-                         FROM calendarentries s
-                         WHERE s.status = ANY ('{published,unlisted}'))
 SELECT et.id,
        calendarentries_id                                            as parent_id,
        languages_code                                                as language,
@@ -397,6 +394,30 @@ func (q *Queries) ListCalendarEntryTranslations(ctx context.Context, language st
 		return nil, err
 	}
 	return items, nil
+}
+
+const shouldSendTranslations = `-- name: ShouldSendTranslations :one
+
+SELECT (COUNT(*) = 0)::bool as should -- if we have any rows, that means this hash should not be sent
+FROM translations_hash
+WHERE collection = $1
+  AND hash = $2::bytea
+  AND last_sent > NOW() - INTERVAL '30 minutes'
+`
+
+type ShouldSendTranslationsParams struct {
+	Collection string `db:"collection" json:"collection"`
+	Hash       []byte `db:"hash" json:"hash"`
+}
+
+// ---------
+// HASH ---
+// ---------
+func (q *Queries) ShouldSendTranslations(ctx context.Context, arg ShouldSendTranslationsParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, shouldSendTranslations, arg.Collection, arg.Hash)
+	var should bool
+	err := row.Scan(&should)
+	return should, err
 }
 
 const updateAchievementGroupTranslation = `-- name: UpdateAchievementGroupTranslation :exec
@@ -907,5 +928,21 @@ func (q *Queries) UpdateTaskTranslation(ctx context.Context, arg UpdateTaskTrans
 		arg.Title,
 		arg.Description,
 	)
+	return err
+}
+
+const updateTranslationsHash = `-- name: UpdateTranslationsHash :exec
+INSERT INTO translations_hash (collection, hash)
+VALUES ($1, $2)
+ON CONFLICT (collection) DO UPDATE SET hash = EXCLUDED.hash, last_sent = NOW()
+`
+
+type UpdateTranslationsHashParams struct {
+	Collection string `db:"collection" json:"collection"`
+	Hash       []byte `db:"hash" json:"hash"`
+}
+
+func (q *Queries) UpdateTranslationsHash(ctx context.Context, arg UpdateTranslationsHashParams) error {
+	_, err := q.db.ExecContext(ctx, updateTranslationsHash, arg.Collection, arg.Hash)
 	return err
 }

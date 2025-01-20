@@ -150,7 +150,9 @@ func (s Server) ProcessMessage(c *gin.Context) {
 	case events.TypeTranslationsSync:
 		err = s.runIfNotLocked(ctx, fmt.Sprintf("event:%s:%s", e.Type(), e.ID()), func() error {
 			if errs := s.services.TranslationsService.SendAllToTranslation(ctx); len(errs) > 0 {
-				log.L.Error().Err(err).Msg("Error sending translations to translations")
+				for _, err := range errs {
+					log.L.Error().Err(err).Msg("Error sending translations to translations")
+				}
 			}
 			return nil
 			// return crowdin.HandleEvent(ctx, s.services, e)

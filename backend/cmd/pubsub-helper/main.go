@@ -9,12 +9,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/bcc-code/bcc-media-platform/backend/events"

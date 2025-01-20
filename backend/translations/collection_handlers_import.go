@@ -470,7 +470,7 @@ func (s *Service) updateTopics(ctx context.Context, data []common.TranslationDat
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdateStudyTopicTranslation(ctx, sqlc.UpdateStudyTopicTranslationParams{
+		err = s.queries.UpdateStudyTopicTranslation(ctx, sqlc.UpdateStudyTopicTranslationParams{
 			Language:    d.Language,
 			ItemID:      utils.AsUuid(d.ID),
 			Description: value.Description,
