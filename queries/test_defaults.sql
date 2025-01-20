@@ -34,11 +34,9 @@ INSERT INTO public.languages (code, legacy_2_letter_code, legacy_3_letter_code, 
 ('zh', null, null, null),
 ('bg', null, null, 'Bulgarian'),
 ('hr', null, null, 'Croatian'),
-('', null, null, null),
 ('kha', null, 'kha', 'Khasi'),
 ('ta', null, 'tam', 'Tamil'),
 ('kh', null, null, 'Khasi'),
 ('yue', null, null, 'Cantonese (Yue)'),
 ('tam', null, null, 'Tamil'),
 ('zxx', null, null, null);
-

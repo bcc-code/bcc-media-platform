@@ -2,6 +2,9 @@ resource "google_cloud_tasks_queue" "worker" {
   project  = google_project.brunstadtv.project_id
   name     = "worker"
   location = "europe-west1"
+  stackdriver_logging_config {
+    sampling_ratio = 1
+  }
 }
 
 data "google_iam_policy" "tasks_editor" {

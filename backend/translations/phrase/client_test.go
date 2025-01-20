@@ -3,6 +3,7 @@ package phrase_test
 import (
 	"context"
 	"github.com/bcc-code/bcc-media-platform/backend/translations"
+	"os"
 	"testing"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -20,9 +21,13 @@ func newClient(t *testing.T) *phrase.Client {
 	t.Helper()
 
 	url := "" // Default
-	userName := "<REPLACE>"
-	password := "<REPLACE>"
-	projectUID := "<REPLACE>"
+	userName := os.Getenv("PHRASE_USERNAME")
+	password := os.Getenv("PHRASE_PASSWORD")
+	projectUID := os.Getenv("PHRASE_PROJECT_ID")
+
+	if userName == "" || password == "" || projectUID == "" {
+		t.Skip("Skipping test because PHRASE_USERNAME, PHRASE_PASSWORD and PHRASE_PROJECT_ID are not set")
+	}
 
 	c := phrase.NewClient(url, userName, password, projectUID)
 	err := c.Authenticate()
