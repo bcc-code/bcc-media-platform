@@ -17,6 +17,32 @@ import (
 	"github.com/samber/lo"
 )
 
+var exportLanguageMap = map[string]string{
+	"en": "en-US",
+	"no": "nb",
+}
+
+var importLanguageMap = map[string]string{
+	"en-US": "en",
+	"nb":    "no",
+}
+
+func langForExport(lang string) string {
+	if l, ok := exportLanguageMap[lang]; ok {
+		return l
+	}
+
+	return lang
+}
+
+func langForImport(lang string) string {
+	if l, ok := importLanguageMap[lang]; ok {
+		return l
+	}
+
+	return lang
+}
+
 // Client for Phrase TMS based on https://cloud.memsource.com/web/docs/api
 type Client struct {
 	baseURL         string
@@ -49,7 +75,7 @@ func NewClient(baseURL string, userName, password string, projectUID string) *Cl
 		projectUID: projectUID,
 
 		// Hardcoded, because at the moment I don't see the value in allowing this to be configurable
-		targetLanguages: []string{"fr", "de"},
+		targetLanguages: []string{"da", "de", "en-US", "fr", "fi", "hu", "it", "nl", "pl", "pt", "ro"},
 	}
 }
 
@@ -84,7 +110,7 @@ func (m *Client) SendToTranslation(ctx context.Context, collection string, data 
 	// Check if we have all targetLanguages
 	for _, job := range jobs {
 		existingJobs = append(existingJobs, job.UID)
-		existingLangs = append(existingLangs, job.TargetLang)
+		existingLangs = append(existingLangs, langForExport(job.TargetLang))
 	}
 
 	if len(existingJobs) > 0 {
@@ -142,7 +168,7 @@ func (c *Client) ProcessWebhook(ctx context.Context, url string, hookData []byte
 			outData = append(outData, common.TranslationData{
 				ID:       k,
 				Value:    v,
-				Language: part.TargetLang,
+				Language: langForImport(part.TargetLang),
 			})
 		}
 
