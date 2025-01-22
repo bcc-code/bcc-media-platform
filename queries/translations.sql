@@ -10,7 +10,7 @@ WITH episodes AS (SELECT e.id
 SELECT e.id, title, description
 FROM episodes_translations et
          JOIN episodes e ON e.id = et.episodes_id
-WHERE et.languages_code = 'no';
+WHERE et.languages_code = 'no' AND et.date_updated > @date_updated;
 
 -- name: GetSeasonTranslatable :many
 SELECT s.id, title, description
@@ -18,6 +18,7 @@ FROM seasons_translations st
          JOIN seasons s ON s.id = st.seasons_id
          JOIN shows sh ON sh.id = s.show_id
 WHERE st.languages_code = 'no'
+  AND st.date_updated > @date_updated
   AND s.translations_required
   AND s.status = ANY ('{published,unlisted}')
   AND sh.status = ANY ('{published,unlisted}');
@@ -34,6 +35,7 @@ SELECT s.id, title, description
 FROM shows_translations st
          JOIN shows s ON s.id = st.shows_id
 WHERE st.languages_code = 'no'
+  AND st.date_updated > @date_updated
   AND s.translations_required
   AND s.status = ANY ('{published,unlisted}');
 
@@ -47,7 +49,8 @@ ON CONFLICT (shows_id, languages_code) DO UPDATE SET title       = EXCLUDED.titl
 SELECT e.id, title, description
 FROM events_translations et
          JOIN events e ON e.id = et.events_id
-WHERE et.languages_code = 'no' AND e.status = ANY ('{published,unlisted}');
+WHERE et.languages_code = 'no' AND e.status = ANY ('{published,unlisted}')
+AND et.date_updated > @date_updated;
 
 
 -- name: UpdateEventTranslation :exec
@@ -56,14 +59,15 @@ VALUES (@item_id, @language, @title, @description)
 ON CONFLICT (events_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
                                                       description = EXCLUDED.description;
 
--- name: ListCalendarEntryTranslations :many
+-- name: GetCalendarEntryTranslatable :many
 SELECT et.id,
        calendarentries_id                                            as parent_id,
        languages_code                                                as language,
        json_build_object('title', title, 'description', description) as values
 FROM calendarentries_translations et
          JOIN events e ON e.id = et.calendarentries_id
-WHERE et.languages_code = @language::varchar;
+WHERE et.languages_code = 'no'
+AND et.date_updated > @date_updated;
 
 -- name: UpdateCalendarEntryTranslation :exec
 INSERT INTO calendarentries_translations (calendarentries_id, languages_code, title, description)
@@ -76,6 +80,7 @@ SELECT s.id,title,description
 FROM sections_translations st
          JOIN sections s ON s.id = st.sections_id
 WHERE st.languages_code = 'no'
+  AND st.date_updated > @date_updated
   AND s.translations_required
   AND s.status = 'published'
   AND s.show_title = true;
@@ -90,7 +95,10 @@ ON CONFLICT (sections_id, languages_code) DO UPDATE SET title       = EXCLUDED.t
 SELECT p.id, title, description
 FROM pages_translations pt
          JOIN pages p ON p.id = pt.pages_id
-WHERE pt.languages_code = 'no' AND p.translations_required AND p.status = ANY ('{published,unlisted}');
+WHERE pt.languages_code = 'no'
+  AND pt.date_updated > @date_updated
+  AND p.translations_required
+  AND p.status = ANY ('{published,unlisted}');
 
 -- name: UpdatePageTranslation :exec
 INSERT INTO pages_translations (pages_id, languages_code, title, description)
@@ -101,7 +109,10 @@ ON CONFLICT (pages_id, languages_code) DO UPDATE SET title       = EXCLUDED.titl
 SELECT e.id, title, description
 FROM links_translations st
          JOIN links e ON e.id = st.links_id
-WHERE st.languages_code = 'no' AND e.translations_required AND status = ANY ('{published,unlisted}');
+WHERE st.languages_code = 'no'
+  AND st.date_updated > @date_updated
+  AND e.translations_required
+  AND status = ANY ('{published,unlisted}');
 
 -- name: UpdateLinkTranslation :exec
 INSERT INTO links_translations (links_id, languages_code, title, description)
@@ -187,6 +198,7 @@ ON CONFLICT (games_id, languages_code) DO UPDATE SET title       = EXCLUDED.titl
 -- name: GetPlaylistTranslatable :many
 SELECT id, title, description FROM playlists
 WHERE translations_required
+  AND (date_updated > @date_updated::timestamp OR date_created > @date_updated::timestamp)
   AND status = ANY ('{published,unlisted}');
 
 -- name: UpdatePlaylistTranslation :exec
@@ -203,7 +215,10 @@ ON CONFLICT (mediaitems_id, languages_code) DO UPDATE SET title       = EXCLUDED
 
 -- name: GetLessonsTranslatableText :many
 
-SELECT id, title, description FROM lessons WHERE status = ANY ('{published,unlisted}') AND translations_required;
+SELECT id, title, description FROM lessons WHERE
+               status = ANY ('{published,unlisted}')
+               AND date_updated > @date_updated::timestamp
+               AND translations_required;
 
 -- name: UpdateEpisodeTranslation :exec
 INSERT INTO episodes_translations (episodes_id, languages_code, title, description)

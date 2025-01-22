@@ -262,9 +262,13 @@ FROM questionalternatives items
          JOIN tasks t ON t.id = items.task_id
 WHERE t.translations_required
   AND t.status = ANY ('{published,unlisted}')
+AND (t.date_updated > @date_updated::timestamp OR t.date_updated IS NULL)
 GROUP BY t.id;
 
 
 -- name: GetStudyTopicsTranslatableText :many
 
-SELECT id, title, description FROM studytopics WHERE status = ANY ('{published,unlisted}') AND translations_required;
+SELECT id, title, description FROM studytopics WHERE
+                                                   status = ANY ('{published,unlisted}')
+                                                 AND (date_updated > @date_updated::timestamp OR date_updated IS NULL)
+                                                 AND translations_required;

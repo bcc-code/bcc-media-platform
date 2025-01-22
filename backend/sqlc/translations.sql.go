@@ -8,10 +8,57 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/google/uuid"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
+
+const getCalendarEntryTranslatable = `-- name: GetCalendarEntryTranslatable :many
+SELECT et.id,
+       calendarentries_id                                            as parent_id,
+       languages_code                                                as language,
+       json_build_object('title', title, 'description', description) as values
+FROM calendarentries_translations et
+         JOIN events e ON e.id = et.calendarentries_id
+WHERE et.languages_code = 'no'
+AND et.date_updated > $1
+`
+
+type GetCalendarEntryTranslatableRow struct {
+	ID       int32           `db:"id" json:"id"`
+	ParentID int32           `db:"parent_id" json:"parentId"`
+	Language string          `db:"language" json:"language"`
+	Values   json.RawMessage `db:"values" json:"values"`
+}
+
+func (q *Queries) GetCalendarEntryTranslatable(ctx context.Context, dateUpdated time.Time) ([]GetCalendarEntryTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCalendarEntryTranslatable, dateUpdated)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetCalendarEntryTranslatableRow
+	for rows.Next() {
+		var i GetCalendarEntryTranslatableRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentID,
+			&i.Language,
+			&i.Values,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const getEpisodeTranslatable = `-- name: GetEpisodeTranslatable :many
 WITH episodes AS (SELECT e.id
@@ -25,7 +72,7 @@ WITH episodes AS (SELECT e.id
 SELECT e.id, title, description
 FROM episodes_translations et
          JOIN episodes e ON e.id = et.episodes_id
-WHERE et.languages_code = 'no'
+WHERE et.languages_code = 'no' AND et.date_updated > $1
 `
 
 type GetEpisodeTranslatableRow struct {
@@ -34,8 +81,8 @@ type GetEpisodeTranslatableRow struct {
 	Description null_v4.String `db:"description" json:"description"`
 }
 
-func (q *Queries) GetEpisodeTranslatable(ctx context.Context) ([]GetEpisodeTranslatableRow, error) {
-	rows, err := q.db.QueryContext(ctx, getEpisodeTranslatable)
+func (q *Queries) GetEpisodeTranslatable(ctx context.Context, dateUpdated time.Time) ([]GetEpisodeTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEpisodeTranslatable, dateUpdated)
 	if err != nil {
 		return nil, err
 	}
@@ -62,6 +109,7 @@ SELECT e.id, title, description
 FROM events_translations et
          JOIN events e ON e.id = et.events_id
 WHERE et.languages_code = 'no' AND e.status = ANY ('{published,unlisted}')
+AND et.date_updated > $1
 `
 
 type GetEventTranslatableRow struct {
@@ -70,8 +118,8 @@ type GetEventTranslatableRow struct {
 	Description null_v4.String `db:"description" json:"description"`
 }
 
-func (q *Queries) GetEventTranslatable(ctx context.Context) ([]GetEventTranslatableRow, error) {
-	rows, err := q.db.QueryContext(ctx, getEventTranslatable)
+func (q *Queries) GetEventTranslatable(ctx context.Context, dateUpdated time.Time) ([]GetEventTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEventTranslatable, dateUpdated)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +143,10 @@ func (q *Queries) GetEventTranslatable(ctx context.Context) ([]GetEventTranslata
 
 const getLessonsTranslatableText = `-- name: GetLessonsTranslatableText :many
 
-SELECT id, title, description FROM lessons WHERE status = ANY ('{published,unlisted}') AND translations_required
+SELECT id, title, description FROM lessons WHERE
+               status = ANY ('{published,unlisted}')
+               AND date_updated > $1::timestamp
+               AND translations_required
 `
 
 type GetLessonsTranslatableTextRow struct {
@@ -104,8 +155,8 @@ type GetLessonsTranslatableTextRow struct {
 	Description null_v4.String `db:"description" json:"description"`
 }
 
-func (q *Queries) GetLessonsTranslatableText(ctx context.Context) ([]GetLessonsTranslatableTextRow, error) {
-	rows, err := q.db.QueryContext(ctx, getLessonsTranslatableText)
+func (q *Queries) GetLessonsTranslatableText(ctx context.Context, dateUpdated time.Time) ([]GetLessonsTranslatableTextRow, error) {
+	rows, err := q.db.QueryContext(ctx, getLessonsTranslatableText, dateUpdated)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +182,10 @@ const getLinkTranslatable = `-- name: GetLinkTranslatable :many
 SELECT e.id, title, description
 FROM links_translations st
          JOIN links e ON e.id = st.links_id
-WHERE st.languages_code = 'no' AND e.translations_required AND status = ANY ('{published,unlisted}')
+WHERE st.languages_code = 'no'
+  AND st.date_updated > $1
+  AND e.translations_required
+  AND status = ANY ('{published,unlisted}')
 `
 
 type GetLinkTranslatableRow struct {
@@ -140,8 +194,8 @@ type GetLinkTranslatableRow struct {
 	Description string `db:"description" json:"description"`
 }
 
-func (q *Queries) GetLinkTranslatable(ctx context.Context) ([]GetLinkTranslatableRow, error) {
-	rows, err := q.db.QueryContext(ctx, getLinkTranslatable)
+func (q *Queries) GetLinkTranslatable(ctx context.Context, dateUpdated time.Time) ([]GetLinkTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getLinkTranslatable, dateUpdated)
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +221,10 @@ const getPageTranslatable = `-- name: GetPageTranslatable :many
 SELECT p.id, title, description
 FROM pages_translations pt
          JOIN pages p ON p.id = pt.pages_id
-WHERE pt.languages_code = 'no' AND p.translations_required AND p.status = ANY ('{published,unlisted}')
+WHERE pt.languages_code = 'no'
+  AND pt.date_updated > $1
+  AND p.translations_required
+  AND p.status = ANY ('{published,unlisted}')
 `
 
 type GetPageTranslatableRow struct {
@@ -176,8 +233,8 @@ type GetPageTranslatableRow struct {
 	Description null_v4.String `db:"description" json:"description"`
 }
 
-func (q *Queries) GetPageTranslatable(ctx context.Context) ([]GetPageTranslatableRow, error) {
-	rows, err := q.db.QueryContext(ctx, getPageTranslatable)
+func (q *Queries) GetPageTranslatable(ctx context.Context, dateUpdated time.Time) ([]GetPageTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getPageTranslatable, dateUpdated)
 	if err != nil {
 		return nil, err
 	}
@@ -202,6 +259,7 @@ func (q *Queries) GetPageTranslatable(ctx context.Context) ([]GetPageTranslatabl
 const getPlaylistTranslatable = `-- name: GetPlaylistTranslatable :many
 SELECT id, title, description FROM playlists
 WHERE translations_required
+  AND (date_updated > $1::timestamp OR date_created > $1::timestamp)
   AND status = ANY ('{published,unlisted}')
 `
 
@@ -211,8 +269,8 @@ type GetPlaylistTranslatableRow struct {
 	Description null_v4.String `db:"description" json:"description"`
 }
 
-func (q *Queries) GetPlaylistTranslatable(ctx context.Context) ([]GetPlaylistTranslatableRow, error) {
-	rows, err := q.db.QueryContext(ctx, getPlaylistTranslatable)
+func (q *Queries) GetPlaylistTranslatable(ctx context.Context, dateUpdated time.Time) ([]GetPlaylistTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getPlaylistTranslatable, dateUpdated)
 	if err != nil {
 		return nil, err
 	}
@@ -240,6 +298,7 @@ FROM seasons_translations st
          JOIN seasons s ON s.id = st.seasons_id
          JOIN shows sh ON sh.id = s.show_id
 WHERE st.languages_code = 'no'
+  AND st.date_updated > $1
   AND s.translations_required
   AND s.status = ANY ('{published,unlisted}')
   AND sh.status = ANY ('{published,unlisted}')
@@ -251,8 +310,8 @@ type GetSeasonTranslatableRow struct {
 	Description null_v4.String `db:"description" json:"description"`
 }
 
-func (q *Queries) GetSeasonTranslatable(ctx context.Context) ([]GetSeasonTranslatableRow, error) {
-	rows, err := q.db.QueryContext(ctx, getSeasonTranslatable)
+func (q *Queries) GetSeasonTranslatable(ctx context.Context, dateUpdated time.Time) ([]GetSeasonTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSeasonTranslatable, dateUpdated)
 	if err != nil {
 		return nil, err
 	}
@@ -279,6 +338,7 @@ SELECT s.id,title,description
 FROM sections_translations st
          JOIN sections s ON s.id = st.sections_id
 WHERE st.languages_code = 'no'
+  AND st.date_updated > $1
   AND s.translations_required
   AND s.status = 'published'
   AND s.show_title = true
@@ -290,8 +350,8 @@ type GetSectionTranslatableRow struct {
 	Description null_v4.String `db:"description" json:"description"`
 }
 
-func (q *Queries) GetSectionTranslatable(ctx context.Context) ([]GetSectionTranslatableRow, error) {
-	rows, err := q.db.QueryContext(ctx, getSectionTranslatable)
+func (q *Queries) GetSectionTranslatable(ctx context.Context, dateUpdated time.Time) ([]GetSectionTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSectionTranslatable, dateUpdated)
 	if err != nil {
 		return nil, err
 	}
@@ -318,6 +378,7 @@ SELECT s.id, title, description
 FROM shows_translations st
          JOIN shows s ON s.id = st.shows_id
 WHERE st.languages_code = 'no'
+  AND st.date_updated > $1
   AND s.translations_required
   AND s.status = ANY ('{published,unlisted}')
 `
@@ -328,8 +389,8 @@ type GetShowTranslatableRow struct {
 	Description null_v4.String `db:"description" json:"description"`
 }
 
-func (q *Queries) GetShowTranslatable(ctx context.Context) ([]GetShowTranslatableRow, error) {
-	rows, err := q.db.QueryContext(ctx, getShowTranslatable)
+func (q *Queries) GetShowTranslatable(ctx context.Context, dateUpdated time.Time) ([]GetShowTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getShowTranslatable, dateUpdated)
 	if err != nil {
 		return nil, err
 	}
@@ -338,51 +399,6 @@ func (q *Queries) GetShowTranslatable(ctx context.Context) ([]GetShowTranslatabl
 	for rows.Next() {
 		var i GetShowTranslatableRow
 		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listCalendarEntryTranslations = `-- name: ListCalendarEntryTranslations :many
-SELECT et.id,
-       calendarentries_id                                            as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
-FROM calendarentries_translations et
-         JOIN events e ON e.id = et.calendarentries_id
-WHERE et.languages_code = $1::varchar
-`
-
-type ListCalendarEntryTranslationsRow struct {
-	ID       int32           `db:"id" json:"id"`
-	ParentID int32           `db:"parent_id" json:"parentId"`
-	Language string          `db:"language" json:"language"`
-	Values   json.RawMessage `db:"values" json:"values"`
-}
-
-func (q *Queries) ListCalendarEntryTranslations(ctx context.Context, language string) ([]ListCalendarEntryTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listCalendarEntryTranslations, language)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ListCalendarEntryTranslationsRow
-	for rows.Next() {
-		var i ListCalendarEntryTranslationsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.ParentID,
-			&i.Language,
-			&i.Values,
-		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

@@ -8,6 +8,7 @@ package sqlc
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -52,6 +53,7 @@ func (q *Queries) GetMediaItemByID(ctx context.Context, id uuid.UUID) (Mediaitem
 
 const getMediaItemsTranslatableText = `-- name: GetMediaItemsTranslatableText :many
 SELECT id, title, description FROM mediaitems WHERE translations_required
+                                                AND (date_updated > $1::timestamp OR date_updated IS NULL)
                                                 AND (
         (title != '' AND title is not NULL) OR
         (description != '' AND description is not NULL)
@@ -64,8 +66,8 @@ type GetMediaItemsTranslatableTextRow struct {
 	Description null_v4.String `db:"description" json:"description"`
 }
 
-func (q *Queries) GetMediaItemsTranslatableText(ctx context.Context) ([]GetMediaItemsTranslatableTextRow, error) {
-	rows, err := q.db.QueryContext(ctx, getMediaItemsTranslatableText)
+func (q *Queries) GetMediaItemsTranslatableText(ctx context.Context, dateUpdated time.Time) ([]GetMediaItemsTranslatableTextRow, error) {
+	rows, err := q.db.QueryContext(ctx, getMediaItemsTranslatableText, dateUpdated)
 	if err != nil {
 		return nil, err
 	}

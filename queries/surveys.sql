@@ -97,4 +97,5 @@ SELECT
 FROM surveys s
          LEFT JOIN surveyquestions q ON s.id = q.survey_id
 WHERE translations_required AND status = ANY ('{published,unlisted}')
+AND (q.date_updated > @date_updated::timestamp OR s.date_updated > @date_updated OR q.date_updated IS NULL OR s.date_updated IS NULL)
 GROUP BY s.id;

@@ -19,7 +19,9 @@ const getCalendarEntriesTranslatable = `-- name: GetCalendarEntriesTranslatable 
 SELECT e.id, title, description
 FROM calendarentries_translations et
          JOIN events e ON e.id = et.calendarentries_id
-WHERE et.languages_code ='no' and e.status = ANY ('{published,unlisted}')
+WHERE et.languages_code ='no'
+  AND et.date_updated > $1
+  and e.status = ANY ('{published,unlisted}')
 `
 
 type GetCalendarEntriesTranslatableRow struct {
@@ -28,8 +30,8 @@ type GetCalendarEntriesTranslatableRow struct {
 	Description null_v4.String `db:"description" json:"description"`
 }
 
-func (q *Queries) GetCalendarEntriesTranslatable(ctx context.Context) ([]GetCalendarEntriesTranslatableRow, error) {
-	rows, err := q.db.QueryContext(ctx, getCalendarEntriesTranslatable)
+func (q *Queries) GetCalendarEntriesTranslatable(ctx context.Context, dateUpdated time.Time) ([]GetCalendarEntriesTranslatableRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCalendarEntriesTranslatable, dateUpdated)
 	if err != nil {
 		return nil, err
 	}

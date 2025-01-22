@@ -15,7 +15,7 @@ LEFT JOIN (
 WHERE id = ANY (@ids::uuid[]);
 
 -- name: GetPersonIDsByNames :many
-SELECT p.id, p.name
+SELECT p.id, p.name, p.date_updated
 FROM persons p
 WHERE name = ANY (@names::varchar[]);
 

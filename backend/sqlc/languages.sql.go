@@ -37,7 +37,7 @@ func (q *Queries) GetLanguageKeys(ctx context.Context) ([]string, error) {
 }
 
 const getLanguages = `-- name: GetLanguages :many
-SELECT code, legacy_2_letter_code, legacy_3_letter_code, name FROM languages WHERE code != ''
+SELECT code, legacy_2_letter_code, legacy_3_letter_code, name, date_updated FROM languages WHERE code != ''
 `
 
 func (q *Queries) GetLanguages(ctx context.Context) ([]Language, error) {
@@ -54,6 +54,7 @@ func (q *Queries) GetLanguages(ctx context.Context) ([]Language, error) {
 			&i.Legacy2LetterCode,
 			&i.Legacy3LetterCode,
 			&i.Name,
+			&i.DateUpdated,
 		); err != nil {
 			return nil, err
 		}

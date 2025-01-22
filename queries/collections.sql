@@ -18,7 +18,7 @@ FROM collections c
 WHERE c.id = ANY ($1::int[]);
 
 -- name: getCollectionEntriesForCollections :many
-SELECT *
+SELECT ci.id, ci.collections_id, ci.item, ci.collection, ci.sort
 FROM collections_entries ci
 WHERE ci.collections_id = ANY ($1::int[]);
 

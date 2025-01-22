@@ -9,6 +9,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -109,6 +110,7 @@ FROM questionalternatives items
          JOIN tasks t ON t.id = items.task_id
 WHERE t.translations_required
   AND t.status = ANY ('{published,unlisted}')
+AND (t.date_updated > $1::timestamp OR t.date_updated IS NULL)
 GROUP BY t.id
 `
 
@@ -119,8 +121,8 @@ type GetQuestionsTranslationsRow struct {
 	Answers     json.RawMessage `db:"answers" json:"answers"`
 }
 
-func (q *Queries) GetQuestionsTranslations(ctx context.Context) ([]GetQuestionsTranslationsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getQuestionsTranslations)
+func (q *Queries) GetQuestionsTranslations(ctx context.Context, dateUpdated time.Time) ([]GetQuestionsTranslationsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getQuestionsTranslations, dateUpdated)
 	if err != nil {
 		return nil, err
 	}
@@ -190,7 +192,10 @@ func (q *Queries) GetSelectedAlternativesAndLockStatus(ctx context.Context, arg 
 
 const getStudyTopicsTranslatableText = `-- name: GetStudyTopicsTranslatableText :many
 
-SELECT id, title, description FROM studytopics WHERE status = ANY ('{published,unlisted}') AND translations_required
+SELECT id, title, description FROM studytopics WHERE
+                                                   status = ANY ('{published,unlisted}')
+                                                 AND (date_updated > $1::timestamp OR date_updated IS NULL)
+                                                 AND translations_required
 `
 
 type GetStudyTopicsTranslatableTextRow struct {
@@ -199,8 +204,8 @@ type GetStudyTopicsTranslatableTextRow struct {
 	Description null_v4.String `db:"description" json:"description"`
 }
 
-func (q *Queries) GetStudyTopicsTranslatableText(ctx context.Context) ([]GetStudyTopicsTranslatableTextRow, error) {
-	rows, err := q.db.QueryContext(ctx, getStudyTopicsTranslatableText)
+func (q *Queries) GetStudyTopicsTranslatableText(ctx context.Context, dateUpdated time.Time) ([]GetStudyTopicsTranslatableTextRow, error) {
+	rows, err := q.db.QueryContext(ctx, getStudyTopicsTranslatableText, dateUpdated)
 	if err != nil {
 		return nil, err
 	}

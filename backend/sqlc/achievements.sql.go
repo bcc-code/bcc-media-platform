@@ -166,6 +166,7 @@ func (q *Queries) GetAchievementsWithTopicsCompletedAchieved(ctx context.Context
 
 const getAchieventGroupsTranslatableTexts = `-- name: GetAchieventGroupsTranslatableTexts :many
 SELECT id, title FROM bccm.public.achievementgroups a WHERE a.status = ANY ('{published,unlisted}')
+                                                        AND (a.date_updated > $1::timestamp OR a.date_updated IS NULL)
 `
 
 type GetAchieventGroupsTranslatableTextsRow struct {
@@ -173,8 +174,8 @@ type GetAchieventGroupsTranslatableTextsRow struct {
 	Title null_v4.String `db:"title" json:"title"`
 }
 
-func (q *Queries) GetAchieventGroupsTranslatableTexts(ctx context.Context) ([]GetAchieventGroupsTranslatableTextsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getAchieventGroupsTranslatableTexts)
+func (q *Queries) GetAchieventGroupsTranslatableTexts(ctx context.Context, dateUpdated time.Time) ([]GetAchieventGroupsTranslatableTextsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAchieventGroupsTranslatableTexts, dateUpdated)
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +198,9 @@ func (q *Queries) GetAchieventGroupsTranslatableTexts(ctx context.Context) ([]Ge
 }
 
 const getAchieventsTranslatableTexts = `-- name: GetAchieventsTranslatableTexts :many
-SELECT id, title, description FROM bccm.public.achievements a WHERE a.status = ANY ('{published,unlisted}')
+SELECT id, title, description FROM bccm.public.achievements a
+                              WHERE a.status = ANY ('{published,unlisted}')
+                                AND (a.date_updated > $1::timestamp OR a.date_updated IS NULL)
 `
 
 type GetAchieventsTranslatableTextsRow struct {
@@ -206,8 +209,8 @@ type GetAchieventsTranslatableTextsRow struct {
 	Description null_v4.String `db:"description" json:"description"`
 }
 
-func (q *Queries) GetAchieventsTranslatableTexts(ctx context.Context) ([]GetAchieventsTranslatableTextsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getAchieventsTranslatableTexts)
+func (q *Queries) GetAchieventsTranslatableTexts(ctx context.Context, dateUpdated time.Time) ([]GetAchieventsTranslatableTextsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAchieventsTranslatableTexts, dateUpdated)
 	if err != nil {
 		return nil, err
 	}

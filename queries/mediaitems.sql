@@ -55,6 +55,7 @@ RETURNING id;
 
 -- name: GetMediaItemsTranslatableText :many
 SELECT id, title, description FROM mediaitems WHERE translations_required
+                                                AND (date_updated > @date_updated::timestamp OR date_updated IS NULL)
                                                 AND (
         (title != '' AND title is not NULL) OR
         (description != '' AND description is not NULL)

@@ -141,6 +141,7 @@ SELECT
 FROM surveys s
          LEFT JOIN surveyquestions q ON s.id = q.survey_id
 WHERE translations_required AND status = ANY ('{published,unlisted}')
+AND (q.date_updated > $1::timestamp OR s.date_updated > $1 OR q.date_updated IS NULL OR s.date_updated IS NULL)
 GROUP BY s.id
 `
 
@@ -151,8 +152,8 @@ type GetSurveyTranslatableTextRow struct {
 	Questions   json.RawMessage `db:"questions" json:"questions"`
 }
 
-func (q *Queries) GetSurveyTranslatableText(ctx context.Context) ([]GetSurveyTranslatableTextRow, error) {
-	rows, err := q.db.QueryContext(ctx, getSurveyTranslatableText)
+func (q *Queries) GetSurveyTranslatableText(ctx context.Context, dateUpdated time.Time) ([]GetSurveyTranslatableTextRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSurveyTranslatableText, dateUpdated)
 	if err != nil {
 		return nil, err
 	}

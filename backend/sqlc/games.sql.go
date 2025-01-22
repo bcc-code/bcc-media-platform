@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -17,6 +18,7 @@ import (
 const getGameTranslatableTexts = `-- name: GetGameTranslatableTexts :many
 
 SELECT id, title, description FROM games WHERE status = ANY ('{published,unlisted}')
+                                          AND (date_updated > $1::timestamp OR date_updated IS NULL)
 `
 
 type GetGameTranslatableTextsRow struct {
@@ -25,8 +27,8 @@ type GetGameTranslatableTextsRow struct {
 	Description null_v4.String `db:"description" json:"description"`
 }
 
-func (q *Queries) GetGameTranslatableTexts(ctx context.Context) ([]GetGameTranslatableTextsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getGameTranslatableTexts)
+func (q *Queries) GetGameTranslatableTexts(ctx context.Context, dateUpdated time.Time) ([]GetGameTranslatableTextsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getGameTranslatableTexts, dateUpdated)
 	if err != nil {
 		return nil, err
 	}

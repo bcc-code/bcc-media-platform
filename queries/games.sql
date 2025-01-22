@@ -26,4 +26,5 @@ WHERE i.id = ANY (@ids::uuid[]);
 
 -- name: GetGameTranslatableTexts :many
 
-SELECT id, title, description FROM games WHERE status = ANY ('{published,unlisted}');
+SELECT id, title, description FROM games WHERE status = ANY ('{published,unlisted}')
+                                          AND (date_updated > @date_updated::timestamp OR date_updated IS NULL);

@@ -15,20 +15,28 @@ import (
 )
 
 const getCollectionEntriesForCollections = `-- name: getCollectionEntriesForCollections :many
-SELECT id, collections_id, item, collection, sort
+SELECT ci.id, ci.collections_id, ci.item, ci.collection, ci.sort
 FROM collections_entries ci
 WHERE ci.collections_id = ANY ($1::int[])
 `
 
-func (q *Queries) getCollectionEntriesForCollections(ctx context.Context, dollar_1 []int32) ([]CollectionsEntry, error) {
+type getCollectionEntriesForCollectionsRow struct {
+	ID            int32       `db:"id" json:"id"`
+	CollectionsID int32       `db:"collections_id" json:"collectionsId"`
+	Item          string      `db:"item" json:"item"`
+	Collection    string      `db:"collection" json:"collection"`
+	Sort          null_v4.Int `db:"sort" json:"sort"`
+}
+
+func (q *Queries) getCollectionEntriesForCollections(ctx context.Context, dollar_1 []int32) ([]getCollectionEntriesForCollectionsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getCollectionEntriesForCollections, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []CollectionsEntry
+	var items []getCollectionEntriesForCollectionsRow
 	for rows.Next() {
-		var i CollectionsEntry
+		var i getCollectionEntriesForCollectionsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.CollectionsID,
@@ -119,15 +127,23 @@ type getCollectionEntriesForCollectionsWithRolesParams struct {
 	Roles []string `db:"roles" json:"roles"`
 }
 
-func (q *Queries) getCollectionEntriesForCollectionsWithRoles(ctx context.Context, arg getCollectionEntriesForCollectionsWithRolesParams) ([]CollectionsEntry, error) {
+type getCollectionEntriesForCollectionsWithRolesRow struct {
+	ID            int32       `db:"id" json:"id"`
+	CollectionsID int32       `db:"collections_id" json:"collectionsId"`
+	Item          string      `db:"item" json:"item"`
+	Collection    string      `db:"collection" json:"collection"`
+	Sort          null_v4.Int `db:"sort" json:"sort"`
+}
+
+func (q *Queries) getCollectionEntriesForCollectionsWithRoles(ctx context.Context, arg getCollectionEntriesForCollectionsWithRolesParams) ([]getCollectionEntriesForCollectionsWithRolesRow, error) {
 	rows, err := q.db.QueryContext(ctx, getCollectionEntriesForCollectionsWithRoles, pq.Array(arg.Ids), pq.Array(arg.Roles))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []CollectionsEntry
+	var items []getCollectionEntriesForCollectionsWithRolesRow
 	for rows.Next() {
-		var i CollectionsEntry
+		var i getCollectionEntriesForCollectionsWithRolesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.CollectionsID,

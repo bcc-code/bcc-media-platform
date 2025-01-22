@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -17,6 +18,7 @@ import (
 const getFaqCategoryTranslatableText = `-- name: GetFaqCategoryTranslatableText :many
 
 SELECT id, title FROM faqcategories WHERE status = ANY ('{published,unlisted}')
+                                      AND (date_updated > $1::timestamp OR date_updated IS NULL)
 `
 
 type GetFaqCategoryTranslatableTextRow struct {
@@ -24,8 +26,8 @@ type GetFaqCategoryTranslatableTextRow struct {
 	Title string    `db:"title" json:"title"`
 }
 
-func (q *Queries) GetFaqCategoryTranslatableText(ctx context.Context) ([]GetFaqCategoryTranslatableTextRow, error) {
-	rows, err := q.db.QueryContext(ctx, getFaqCategoryTranslatableText)
+func (q *Queries) GetFaqCategoryTranslatableText(ctx context.Context, dateUpdated time.Time) ([]GetFaqCategoryTranslatableTextRow, error) {
+	rows, err := q.db.QueryContext(ctx, getFaqCategoryTranslatableText, dateUpdated)
 	if err != nil {
 		return nil, err
 	}
@@ -50,6 +52,7 @@ func (q *Queries) GetFaqCategoryTranslatableText(ctx context.Context) ([]GetFaqC
 const getFaqTranslatableText = `-- name: GetFaqTranslatableText :many
 
 SELECT id, question, answer FROM faqs WHERE status = ANY ('{published,unlisted}')
+                                        AND (date_updated > $1::timestamp OR date_updated IS NULL)
 `
 
 type GetFaqTranslatableTextRow struct {
@@ -58,8 +61,8 @@ type GetFaqTranslatableTextRow struct {
 	Answer   string    `db:"answer" json:"answer"`
 }
 
-func (q *Queries) GetFaqTranslatableText(ctx context.Context) ([]GetFaqTranslatableTextRow, error) {
-	rows, err := q.db.QueryContext(ctx, getFaqTranslatableText)
+func (q *Queries) GetFaqTranslatableText(ctx context.Context, dateUpdated time.Time) ([]GetFaqTranslatableTextRow, error) {
+	rows, err := q.db.QueryContext(ctx, getFaqTranslatableText, dateUpdated)
 	if err != nil {
 		return nil, err
 	}

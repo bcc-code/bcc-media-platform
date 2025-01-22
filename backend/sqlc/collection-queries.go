@@ -66,7 +66,19 @@ func (q *Queries) GetItemsForCollections(ctx context.Context, ids []int) ([]comm
 	if err != nil {
 		return nil, err
 	}
-	return mapToCollectionItems(items), nil
+
+	colEnts := make([]CollectionsEntry, len(items))
+	for _, i := range items {
+		colEnts = append(colEnts, CollectionsEntry{
+			ID:            i.ID,
+			Sort:          i.Sort,
+			CollectionsID: i.CollectionsID,
+			Item:          i.Item,
+			Collection:    i.Collection,
+		})
+	}
+
+	return mapToCollectionItems(colEnts), nil
 }
 
 // GetItemsForCollectionsWithRoles returns []common.CollectionItem for specified collections
@@ -78,7 +90,19 @@ func (rq *RoleQueries) GetItemsForCollectionsWithRoles(ctx context.Context, ids 
 	if err != nil {
 		return nil, err
 	}
-	return mapToCollectionItems(items), nil
+
+	colEnts := make([]CollectionsEntry, len(items))
+	for _, i := range items {
+		colEnts = append(colEnts, CollectionsEntry{
+			ID:            i.ID,
+			Sort:          i.Sort,
+			CollectionsID: i.CollectionsID,
+			Item:          i.Item,
+			Collection:    i.Collection,
+		})
+	}
+
+	return mapToCollectionItems(colEnts), nil
 }
 
 // GetOriginal returns the requested string

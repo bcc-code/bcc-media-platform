@@ -6,7 +6,11 @@ import (
 	"fmt"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"gopkg.in/guregu/null.v4"
+	"time"
 )
+
+// translationsCutoffDate is the date before which unmodified translations are not exported
+var translationsCutoffDate = time.Date(2025, 1, 22, 0, 0, 0, 0, time.UTC)
 
 func mustToJson(v interface{}) json.RawMessage {
 	b, _ := json.Marshal(v)
@@ -14,7 +18,7 @@ func mustToJson(v interface{}) json.RawMessage {
 }
 
 func (s *Service) getDataForShows(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetShowTranslatable(ctx)
+	data, err := s.queries.GetShowTranslatable(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +43,7 @@ func (s *Service) getDataForShows(ctx context.Context) ([]common.TranslationData
 }
 
 func (s *Service) getDataForSeasons(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetSeasonTranslatable(ctx)
+	data, err := s.queries.GetSeasonTranslatable(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +68,7 @@ func (s *Service) getDataForSeasons(ctx context.Context) ([]common.TranslationDa
 }
 
 func (s *Service) getDataForEpisodes(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetEpisodeTranslatable(ctx)
+	data, err := s.queries.GetEpisodeTranslatable(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +95,7 @@ func (s *Service) getDataForEpisodes(ctx context.Context) ([]common.TranslationD
 }
 
 func (s *Service) getDataForEvents(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetEventTranslatable(ctx)
+	data, err := s.queries.GetEventTranslatable(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +121,7 @@ func (s *Service) getDataForEvents(ctx context.Context) ([]common.TranslationDat
 }
 
 func (s *Service) getDataForCalendarEntries(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetCalendarEntriesTranslatable(ctx)
+	data, err := s.queries.GetCalendarEntriesTranslatable(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -142,29 +146,8 @@ func (s *Service) getDataForCalendarEntries(ctx context.Context) ([]common.Trans
 	return toSend, err
 }
 
-func (s *Service) getDataForClanedarEntries(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.ListCalendarEntryTranslations(ctx, "no")
-	if err != nil {
-		return nil, err
-	}
-
-	toSend := []common.TranslationData{}
-
-	for _, t := range data {
-		toSend = append(toSend,
-			common.TranslationData{
-				Language: t.Language,
-				Value:    t.Values,
-				ID:       fmt.Sprintf("%d", t.ID),
-			},
-		)
-	}
-
-	return toSend, err
-}
-
 func (s *Service) getDataForSections(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetSectionTranslatable(ctx)
+	data, err := s.queries.GetSectionTranslatable(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -189,7 +172,7 @@ func (s *Service) getDataForSections(ctx context.Context) ([]common.TranslationD
 }
 
 func (s *Service) getDataForPages(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetPageTranslatable(ctx)
+	data, err := s.queries.GetPageTranslatable(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -214,7 +197,7 @@ func (s *Service) getDataForPages(ctx context.Context) ([]common.TranslationData
 }
 
 func (s *Service) getDataForLinks(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetLinkTranslatable(ctx)
+	data, err := s.queries.GetLinkTranslatable(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -239,7 +222,7 @@ func (s *Service) getDataForLinks(ctx context.Context) ([]common.TranslationData
 }
 
 func (s *Service) getDataForLessons(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetLessonsTranslatableText(ctx)
+	data, err := s.queries.GetLessonsTranslatableText(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -265,7 +248,7 @@ func (s *Service) getDataForLessons(ctx context.Context) ([]common.TranslationDa
 }
 
 func (s *Service) getDataForTopics(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetStudyTopicsTranslatableText(ctx)
+	data, err := s.queries.GetStudyTopicsTranslatableText(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -291,7 +274,7 @@ func (s *Service) getDataForTopics(ctx context.Context) ([]common.TranslationDat
 }
 
 func (s *Service) getDataForSurveys(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetSurveyTranslatableText(ctx)
+	data, err := s.queries.GetSurveyTranslatableText(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -321,7 +304,7 @@ func (s *Service) getDataForSurveys(ctx context.Context) ([]common.TranslationDa
 }
 
 func (s *Service) getDataForStudyQuestions(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetQuestionsTranslations(ctx)
+	data, err := s.queries.GetQuestionsTranslations(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -351,7 +334,7 @@ func (s *Service) getDataForStudyQuestions(ctx context.Context) ([]common.Transl
 }
 
 func (s *Service) getDataForAchievements(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetAchieventsTranslatableTexts(ctx)
+	data, err := s.queries.GetAchieventsTranslatableTexts(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -377,7 +360,7 @@ func (s *Service) getDataForAchievements(ctx context.Context) ([]common.Translat
 }
 
 func (s *Service) getDataForAchievementGroups(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetAchieventGroupsTranslatableTexts(ctx)
+	data, err := s.queries.GetAchieventGroupsTranslatableTexts(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -398,7 +381,7 @@ func (s *Service) getDataForAchievementGroups(ctx context.Context) ([]common.Tra
 }
 
 func (s *Service) getDataForFAQs(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetFaqTranslatableText(ctx)
+	data, err := s.queries.GetFaqTranslatableText(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -423,7 +406,7 @@ func (s *Service) getDataForFAQs(ctx context.Context) ([]common.TranslationData,
 }
 
 func (s *Service) getDataForFAQCategories(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetFaqCategoryTranslatableText(ctx)
+	data, err := s.queries.GetFaqCategoryTranslatableText(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -444,7 +427,7 @@ func (s *Service) getDataForFAQCategories(ctx context.Context) ([]common.Transla
 }
 
 func (s *Service) getDataForGames(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetGameTranslatableTexts(ctx)
+	data, err := s.queries.GetGameTranslatableTexts(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -470,7 +453,7 @@ func (s *Service) getDataForGames(ctx context.Context) ([]common.TranslationData
 }
 
 func (s *Service) getDataForPlaylists(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetPlaylistTranslatable(ctx)
+	data, err := s.queries.GetPlaylistTranslatable(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}
@@ -496,7 +479,7 @@ func (s *Service) getDataForPlaylists(ctx context.Context) ([]common.Translation
 }
 
 func (s *Service) getDataForMediaItems(ctx context.Context) ([]common.TranslationData, error) {
-	data, err := s.queries.GetMediaItemsTranslatableText(ctx)
+	data, err := s.queries.GetMediaItemsTranslatableText(ctx, translationsCutoffDate)
 	if err != nil {
 		return nil, err
 	}

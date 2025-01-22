@@ -58,8 +58,10 @@ WHERE f.status = 'published'
 
 -- name: GetFaqTranslatableText :many
 
-SELECT id, question, answer FROM faqs WHERE status = ANY ('{published,unlisted}');
+SELECT id, question, answer FROM faqs WHERE status = ANY ('{published,unlisted}')
+                                        AND (date_updated > @date_updated::timestamp OR date_updated IS NULL);
 
 -- name: GetFaqCategoryTranslatableText :many
 
-SELECT id, title FROM faqcategories WHERE status = ANY ('{published,unlisted}');
+SELECT id, title FROM faqcategories WHERE status = ANY ('{published,unlisted}')
+                                      AND (date_updated > @date_updated::timestamp OR date_updated IS NULL);

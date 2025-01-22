@@ -8,13 +8,14 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
 const getPersonIDsByNames = `-- name: GetPersonIDsByNames :many
-SELECT p.id, p.name
+SELECT p.id, p.name, p.date_updated
 FROM persons p
 WHERE name = ANY ($1::varchar[])
 `
@@ -28,7 +29,7 @@ func (q *Queries) GetPersonIDsByNames(ctx context.Context, names []string) ([]Pe
 	var items []Person
 	for rows.Next() {
 		var i Person
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+		if err := rows.Scan(&i.ID, &i.Name, &i.DateUpdated); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -58,7 +59,7 @@ func (q *Queries) InsertPerson(ctx context.Context, arg InsertPersonParams) erro
 }
 
 const getPersons = `-- name: getPersons :many
-SELECT p.id, p.name, COALESCE(images.images, '{}'::json) AS images
+SELECT p.id, p.name, p.date_updated, COALESCE(images.images, '{}'::json) AS images
 FROM persons p
 LEFT JOIN (
     SELECT
@@ -74,9 +75,10 @@ WHERE id = ANY ($1::uuid[])
 `
 
 type getPersonsRow struct {
-	ID     uuid.UUID       `db:"id" json:"id"`
-	Name   string          `db:"name" json:"name"`
-	Images json.RawMessage `db:"images" json:"images"`
+	ID          uuid.UUID       `db:"id" json:"id"`
+	Name        string          `db:"name" json:"name"`
+	DateUpdated time.Time       `db:"date_updated" json:"dateUpdated"`
+	Images      json.RawMessage `db:"images" json:"images"`
 }
 
 func (q *Queries) getPersons(ctx context.Context, ids []uuid.UUID) ([]getPersonsRow, error) {
@@ -88,7 +90,12 @@ func (q *Queries) getPersons(ctx context.Context, ids []uuid.UUID) ([]getPersons
 	var items []getPersonsRow
 	for rows.Next() {
 		var i getPersonsRow
-		if err := rows.Scan(&i.ID, &i.Name, &i.Images); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.DateUpdated,
+			&i.Images,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
