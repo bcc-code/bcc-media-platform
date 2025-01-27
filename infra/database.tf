@@ -1,6 +1,6 @@
 resource "google_sql_database_instance" "main" {
   name             = "main-instance"
-  database_version = "POSTGRES_13"
+  database_version = "POSTGRES_16"
   project          = google_project.brunstadtv.project_id
 
   settings {
