@@ -165,7 +165,7 @@ func (q *Queries) GetAchievementsWithTopicsCompletedAchieved(ctx context.Context
 }
 
 const getAchieventGroupsTranslatableTexts = `-- name: GetAchieventGroupsTranslatableTexts :many
-SELECT id, title FROM bccm.public.achievementgroups a WHERE a.status = ANY ('{published,unlisted}')
+SELECT id, title FROM achievementgroups a WHERE a.status = ANY ('{published,unlisted}')
                                                         AND (a.date_updated > $1::timestamp OR a.date_updated IS NULL)
 `
 
@@ -198,7 +198,7 @@ func (q *Queries) GetAchieventGroupsTranslatableTexts(ctx context.Context, dateU
 }
 
 const getAchieventsTranslatableTexts = `-- name: GetAchieventsTranslatableTexts :many
-SELECT id, title, description FROM bccm.public.achievements a
+SELECT id, title, description FROM achievements a
                               WHERE a.status = ANY ('{published,unlisted}')
                                 AND (a.date_updated > $1::timestamp OR a.date_updated IS NULL)
 `
