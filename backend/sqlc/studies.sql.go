@@ -17,6 +17,62 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const countAlternativesAnswers = `-- name: CountAlternativesAnswers :many
+SELECT
+	t.lesson_id id,
+    COUNT(*) count_all,
+    COUNT(*) FILTER ( WHERE is_correct IS NOT NULL ) answered,
+    COUNT(*) FILTER ( WHERE is_correct = true ) correct
+    FROM tasks t
+         LEFT JOIN users.taskanswers ta on t.id = ta.task_id AND ta.profile_id = $1::uuid
+         LEFT JOIN public.questionalternatives q on t.id = q.task_id and q.id = ANY(selected_alternatives)
+         WHERE
+             t.lesson_id = ANY ($2::uuid[]) AND
+             t.question_type = 'alternatives' AND
+             (t.alternatives_multiselect IS NULL OR NOT t.alternatives_multiselect)
+GROUP BY t.lesson_id
+`
+
+type CountAlternativesAnswersParams struct {
+	ProfileID uuid.UUID   `db:"profile_id" json:"profileId"`
+	LessonIds []uuid.UUID `db:"lesson_ids" json:"lessonIds"`
+}
+
+type CountAlternativesAnswersRow struct {
+	ID       uuid.UUID `db:"id" json:"id"`
+	CountAll int64     `db:"count_all" json:"countAll"`
+	Answered int64     `db:"answered" json:"answered"`
+	Correct  int64     `db:"correct" json:"correct"`
+}
+
+func (q *Queries) CountAlternativesAnswers(ctx context.Context, arg CountAlternativesAnswersParams) ([]CountAlternativesAnswersRow, error) {
+	rows, err := q.db.QueryContext(ctx, countAlternativesAnswers, arg.ProfileID, pq.Array(arg.LessonIds))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []CountAlternativesAnswersRow
+	for rows.Next() {
+		var i CountAlternativesAnswersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CountAll,
+			&i.Answered,
+			&i.Correct,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAnsweredTasks = `-- name: GetAnsweredTasks :many
 SELECT ta.task_id
 FROM "users"."taskanswers" ta

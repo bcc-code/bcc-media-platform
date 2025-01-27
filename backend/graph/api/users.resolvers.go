@@ -11,6 +11,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/samber/lo"
 )
@@ -20,10 +21,15 @@ func (r *userResolver) EmailVerified(ctx context.Context, obj *model.User) (bool
 	if obj.EmailVerified || obj.Anonymous || obj.ID == nil {
 		return obj.EmailVerified, nil
 	}
+
 	userinfo, err := r.getUserInfo(ctx, *obj.ID)
 	if err != nil {
-		return false, err
+		log.L.Error().Err(err).Msg("Failed to get user info")
+
+		// We do not want to break the whole query if we can't get the updated user info
+		return false, nil
 	}
+
 	return userinfo.EmailVerified, nil
 }
 

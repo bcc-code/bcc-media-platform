@@ -272,3 +272,18 @@ SELECT id, title, description FROM studytopics WHERE
                                                    status = ANY ('{published,unlisted}')
                                                  AND (date_updated > @date_updated::timestamp OR date_updated IS NULL)
                                                  AND translations_required;
+
+-- name: CountAlternativesAnswers :many
+SELECT
+	t.lesson_id id,
+    COUNT(*) count_all,
+    COUNT(*) FILTER ( WHERE is_correct IS NOT NULL ) answered,
+    COUNT(*) FILTER ( WHERE is_correct = true ) correct
+    FROM tasks t
+         LEFT JOIN users.taskanswers ta on t.id = ta.task_id AND ta.profile_id = @profile_id::uuid
+         LEFT JOIN public.questionalternatives q on t.id = q.task_id and q.id = ANY(selected_alternatives)
+         WHERE
+             t.lesson_id = ANY (@lesson_ids::uuid[]) AND
+             t.question_type = 'alternatives' AND
+             (t.alternatives_multiselect IS NULL OR NOT t.alternatives_multiselect)
+GROUP BY t.lesson_id;

@@ -337,6 +337,26 @@ func (pq *ProfileQueries) GetSelectedAlternatives(ctx context.Context, ids []uui
 	}), nil
 }
 
+func (pq *ProfileQueries) GetTaskAlternativesAnswersCount(ctx context.Context, ids []uuid.UUID) ([]common.AlternativesTasksProgress, error) {
+	rows, err := pq.queries.CountAlternativesAnswers(ctx, CountAlternativesAnswersParams{
+		ProfileID: pq.profileID,
+		LessonIds: ids,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(rows, func(i CountAlternativesAnswersRow, _ int) common.AlternativesTasksProgress {
+		return common.AlternativesTasksProgress{
+			ID:             i.ID,
+			TotalTasks:     int(i.CountAll),
+			CompletedTasks: int(i.Answered),
+			CorrectTasks:   int(i.Correct),
+		}
+	}), nil
+}
+
 // GetDefaultLessonIDForTopicIDs returns the default lessonID
 func (pq *ProfileQueries) GetDefaultLessonIDForTopicIDs(ctx context.Context, ids []uuid.UUID) ([]loaders.Conversion[uuid.UUID, uuid.UUID], error) {
 	rows, err := pq.queries.getDefaultLessonIDForTopicIDs(ctx, getDefaultLessonIDForTopicIDsParams{
