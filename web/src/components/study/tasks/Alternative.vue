@@ -37,20 +37,20 @@ const handleClick = () => {
         scaleShake()
         if (webViewMain) {
             webViewMain.hapticFeedback('heavyImpact')
-        } else {
-            navigator.vibrate(20)
+        } else if (navigator.vibrate) {
+			   navigator.vibrate(20)
         }
     } else if (props.correct === false || props.locked) {
         shake()
         if (webViewMain) {
             webViewMain.hapticFeedback('mediumImpact')
-        } else {
+        } else if (navigator.vibrate) {
             navigator.vibrate(40)
         }
     } else {
         if (webViewMain) {
             webViewMain.hapticFeedback('lightImpact')
-        } else {
+        } else if (navigator.vibrate) {
             navigator.vibrate(20)
         }
     }

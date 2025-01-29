@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/google/uuid"
@@ -141,10 +142,11 @@ type FilteredLoaders struct {
 
 // ProfileLoaders contains loaders per profile
 type ProfileLoaders struct {
-	ProgressLoader                *loaders.Loader[int, *Progress]
-	TaskCompletedLoader           *loaders.Loader[uuid.UUID, *uuid.UUID]
-	AchievementAchievedAtLoader   *loaders.Loader[uuid.UUID, *Achieved]
-	GetSelectedAlternativesLoader *loaders.Loader[uuid.UUID, *SelectedAlternatives]
+	ProgressLoader                     *loaders.Loader[int, *Progress]
+	TaskCompletedLoader                *loaders.Loader[uuid.UUID, *uuid.UUID]
+	TaskAlternativesAnswersCountLoader *loaders.Loader[uuid.UUID, *AlternativesTasksProgress]
+	AchievementAchievedAtLoader        *loaders.Loader[uuid.UUID, *Achieved]
+	GetSelectedAlternativesLoader      *loaders.Loader[uuid.UUID, *SelectedAlternatives]
 
 	SeasonDefaultEpisodeLoader *loaders.Loader[int, *int]
 	ShowDefaultEpisodeLoader   *loaders.Loader[int, *int]

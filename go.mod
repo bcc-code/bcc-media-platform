@@ -31,7 +31,6 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/glebarez/go-sqlite v1.22.0
 	github.com/go-resty/resty/v2 v2.11.0
-	github.com/golang/mock v1.6.0
 	github.com/goodsign/monday v1.0.1
 	github.com/google/uuid v1.6.0
 	github.com/graph-gophers/dataloader/v7 v7.1.0

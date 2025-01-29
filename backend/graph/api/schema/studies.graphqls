@@ -62,6 +62,9 @@ type LessonsProgress {
 type TasksProgress {
     total: Int!
     completed: Int!
+    alternativesTasksTotal: Int!
+    alternativesTasksCompleted: Int!
+    alternativesTasksCorrect: Int!
 }
 
 type TaskPagination implements Pagination {

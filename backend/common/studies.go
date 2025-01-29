@@ -102,3 +102,17 @@ type SelectedAlternatives struct {
 func (sa SelectedAlternatives) GetKey() uuid.UUID {
 	return sa.ID
 }
+
+// AlternativesTasksProgress is a struct for getting the count of correct and
+// available "multiple choice" tasks
+type AlternativesTasksProgress struct {
+	ID             uuid.UUID
+	TotalTasks     int
+	CompletedTasks int
+	CorrectTasks   int
+}
+
+// GetKey returns the key for this item
+func (sa AlternativesTasksProgress) GetKey() uuid.UUID {
+	return sa.ID
+}

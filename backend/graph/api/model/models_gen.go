@@ -1449,8 +1449,11 @@ func (this TaskPagination) GetFirst() int  { return this.First }
 func (this TaskPagination) GetOffset() int { return this.Offset }
 
 type TasksProgress struct {
-	Total     int `json:"total"`
-	Completed int `json:"completed"`
+	Total                      int `json:"total"`
+	Completed                  int `json:"completed"`
+	AlternativesTasksTotal     int `json:"alternativesTasksTotal"`
+	AlternativesTasksCompleted int `json:"alternativesTasksCompleted"`
+	AlternativesTasksCorrect   int `json:"alternativesTasksCorrect"`
 }
 
 type TextTask struct {

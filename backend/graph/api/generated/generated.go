@@ -968,8 +968,11 @@ type ComplexityRoot struct {
 	}
 
 	TasksProgress struct {
-		Completed func(childComplexity int) int
-		Total     func(childComplexity int) int
+		AlternativesTasksCompleted func(childComplexity int) int
+		AlternativesTasksCorrect   func(childComplexity int) int
+		AlternativesTasksTotal     func(childComplexity int) int
+		Completed                  func(childComplexity int) int
+		Total                      func(childComplexity int) int
 	}
 
 	TextTask struct {
@@ -5791,6 +5794,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TaskPagination.Total(childComplexity), true
 
+	case "TasksProgress.alternativesTasksCompleted":
+		if e.complexity.TasksProgress.AlternativesTasksCompleted == nil {
+			break
+		}
+
+		return e.complexity.TasksProgress.AlternativesTasksCompleted(childComplexity), true
+
+	case "TasksProgress.alternativesTasksCorrect":
+		if e.complexity.TasksProgress.AlternativesTasksCorrect == nil {
+			break
+		}
+
+		return e.complexity.TasksProgress.AlternativesTasksCorrect(childComplexity), true
+
+	case "TasksProgress.alternativesTasksTotal":
+		if e.complexity.TasksProgress.AlternativesTasksTotal == nil {
+			break
+		}
+
+		return e.complexity.TasksProgress.AlternativesTasksTotal(childComplexity), true
+
 	case "TasksProgress.completed":
 		if e.complexity.TasksProgress.Completed == nil {
 			break
@@ -7301,6 +7325,9 @@ type LessonsProgress {
 type TasksProgress {
     total: Int!
     completed: Int!
+    alternativesTasksTotal: Int!
+    alternativesTasksCompleted: Int!
+    alternativesTasksCorrect: Int!
 }
 
 type TaskPagination implements Pagination {
@@ -22004,6 +22031,12 @@ func (ec *executionContext) fieldContext_Lesson_progress(_ context.Context, fiel
 				return ec.fieldContext_TasksProgress_total(ctx, field)
 			case "completed":
 				return ec.fieldContext_TasksProgress_completed(ctx, field)
+			case "alternativesTasksTotal":
+				return ec.fieldContext_TasksProgress_alternativesTasksTotal(ctx, field)
+			case "alternativesTasksCompleted":
+				return ec.fieldContext_TasksProgress_alternativesTasksCompleted(ctx, field)
+			case "alternativesTasksCorrect":
+				return ec.fieldContext_TasksProgress_alternativesTasksCorrect(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TasksProgress", field.Name)
 		},
@@ -37831,6 +37864,138 @@ func (ec *executionContext) fieldContext_TasksProgress_completed(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _TasksProgress_alternativesTasksTotal(ctx context.Context, field graphql.CollectedField, obj *model.TasksProgress) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TasksProgress_alternativesTasksTotal(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AlternativesTasksTotal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TasksProgress_alternativesTasksTotal(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TasksProgress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TasksProgress_alternativesTasksCompleted(ctx context.Context, field graphql.CollectedField, obj *model.TasksProgress) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TasksProgress_alternativesTasksCompleted(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AlternativesTasksCompleted, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TasksProgress_alternativesTasksCompleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TasksProgress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TasksProgress_alternativesTasksCorrect(ctx context.Context, field graphql.CollectedField, obj *model.TasksProgress) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TasksProgress_alternativesTasksCorrect(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AlternativesTasksCorrect, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TasksProgress_alternativesTasksCorrect(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TasksProgress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TextTask_id(ctx context.Context, field graphql.CollectedField, obj *model.TextTask) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TextTask_id(ctx, field)
 	if err != nil {
@@ -52674,6 +52839,21 @@ func (ec *executionContext) _TasksProgress(ctx context.Context, sel ast.Selectio
 			}
 		case "completed":
 			out.Values[i] = ec._TasksProgress_completed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "alternativesTasksTotal":
+			out.Values[i] = ec._TasksProgress_alternativesTasksTotal(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "alternativesTasksCompleted":
+			out.Values[i] = ec._TasksProgress_alternativesTasksCompleted(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "alternativesTasksCorrect":
+			out.Values[i] = ec._TasksProgress_alternativesTasksCorrect(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

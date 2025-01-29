@@ -192,15 +192,25 @@ func (r *lessonResolver) Progress(ctx context.Context, obj *model.Lesson) (*mode
 	if err != nil {
 		return nil, err
 	}
+
 	completed, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.GetMany(ctx, utils.PointerArrayToArray(ids))
 	if err != nil {
 		return nil, err
 	}
+
+	alternativesProgress, err := r.GetProfileLoaders(ctx).TaskAlternativesAnswersCountLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+
 	return &model.TasksProgress{
 		Total: len(ids),
 		Completed: len(lo.Filter(completed, func(i *uuid.UUID, _ int) bool {
 			return i != nil
 		})),
+		AlternativesTasksTotal:     alternativesProgress.TotalTasks,
+		AlternativesTasksCompleted: alternativesProgress.CompletedTasks,
+		AlternativesTasksCorrect:   alternativesProgress.CorrectTasks,
 	}, nil
 }
 
