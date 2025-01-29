@@ -969,6 +969,8 @@ type Lesson struct {
 	Sort                 null_v4.Int    `db:"sort" json:"sort"`
 	Description          null_v4.String `db:"description" json:"description"`
 	TranslationsRequired bool           `db:"translations_required" json:"translationsRequired"`
+	IntroScreenCode      null_v4.String `db:"intro_screen_code" json:"introScreenCode"`
+	ShowDiscoverPage     bool           `db:"show_discover_page" json:"showDiscoverPage"`
 }
 
 type LessonsImage struct {

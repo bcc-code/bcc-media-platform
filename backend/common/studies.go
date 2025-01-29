@@ -43,11 +43,13 @@ func (i StudyTopic) GetKey() uuid.UUID {
 
 // Lesson is a lesson within a topic
 type Lesson struct {
-	ID          uuid.UUID
-	TopicID     uuid.UUID
-	Title       LocaleString
-	Description LocaleString
-	Images      Images
+	ID              uuid.UUID
+	TopicID         uuid.UUID
+	Title           LocaleString
+	Description     LocaleString
+	Images          Images
+	IntroScreenCode null.String
+	ShowDiscover    bool
 }
 
 // GetKey returns the key for this item

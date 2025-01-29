@@ -19,6 +19,9 @@ type Lesson {
     id: ID!
     title: String!
     description: String!
+    introScreenCode: String
+    showDiscoverPage: Boolean!
+
     image(style: ImageStyle): String @goField(forceResolver: true)
     tasks(first: Int, offset: Int): TaskPagination! @goField(forceResolver: true)
     topic: StudyTopic! @goField(forceResolver: true)

@@ -499,20 +499,22 @@ type ComplexityRoot struct {
 	}
 
 	Lesson struct {
-		Completed      func(childComplexity int) int
-		DefaultEpisode func(childComplexity int) int
-		Description    func(childComplexity int) int
-		Episodes       func(childComplexity int, first *int, offset *int) int
-		ID             func(childComplexity int) int
-		Image          func(childComplexity int, style *model.ImageStyle) int
-		Links          func(childComplexity int, first *int, offset *int) int
-		Locked         func(childComplexity int) int
-		Next           func(childComplexity int) int
-		Previous       func(childComplexity int) int
-		Progress       func(childComplexity int) int
-		Tasks          func(childComplexity int, first *int, offset *int) int
-		Title          func(childComplexity int) int
-		Topic          func(childComplexity int) int
+		Completed        func(childComplexity int) int
+		DefaultEpisode   func(childComplexity int) int
+		Description      func(childComplexity int) int
+		Episodes         func(childComplexity int, first *int, offset *int) int
+		ID               func(childComplexity int) int
+		Image            func(childComplexity int, style *model.ImageStyle) int
+		IntroScreenCode  func(childComplexity int) int
+		Links            func(childComplexity int, first *int, offset *int) int
+		Locked           func(childComplexity int) int
+		Next             func(childComplexity int) int
+		Previous         func(childComplexity int) int
+		Progress         func(childComplexity int) int
+		ShowDiscoverPage func(childComplexity int) int
+		Tasks            func(childComplexity int, first *int, offset *int) int
+		Title            func(childComplexity int) int
+		Topic            func(childComplexity int) int
 	}
 
 	LessonPagination struct {
@@ -3283,6 +3285,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Lesson.Image(childComplexity, args["style"].(*model.ImageStyle)), true
 
+	case "Lesson.introScreenCode":
+		if e.complexity.Lesson.IntroScreenCode == nil {
+			break
+		}
+
+		return e.complexity.Lesson.IntroScreenCode(childComplexity), true
+
 	case "Lesson.links":
 		if e.complexity.Lesson.Links == nil {
 			break
@@ -3322,6 +3331,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Lesson.Progress(childComplexity), true
+
+	case "Lesson.showDiscoverPage":
+		if e.complexity.Lesson.ShowDiscoverPage == nil {
+			break
+		}
+
+		return e.complexity.Lesson.ShowDiscoverPage(childComplexity), true
 
 	case "Lesson.tasks":
 		if e.complexity.Lesson.Tasks == nil {
@@ -7282,6 +7298,9 @@ type Lesson {
     id: ID!
     title: String!
     description: String!
+    introScreenCode: String
+    showDiscoverPage: Boolean!
+
     image(style: ImageStyle): String @goField(forceResolver: true)
     tasks(first: Int, offset: Int): TaskPagination! @goField(forceResolver: true)
     topic: StudyTopic! @goField(forceResolver: true)
@@ -21558,6 +21577,91 @@ func (ec *executionContext) fieldContext_Lesson_description(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Lesson_introScreenCode(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Lesson_introScreenCode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IntroScreenCode, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Lesson_introScreenCode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Lesson",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Lesson_showDiscoverPage(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Lesson_showDiscoverPage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ShowDiscoverPage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Lesson_showDiscoverPage(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Lesson",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Lesson_image(ctx context.Context, field graphql.CollectedField, obj *model.Lesson) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Lesson_image(ctx, field)
 	if err != nil {
@@ -22174,6 +22278,10 @@ func (ec *executionContext) fieldContext_Lesson_previous(_ context.Context, fiel
 				return ec.fieldContext_Lesson_title(ctx, field)
 			case "description":
 				return ec.fieldContext_Lesson_description(ctx, field)
+			case "introScreenCode":
+				return ec.fieldContext_Lesson_introScreenCode(ctx, field)
+			case "showDiscoverPage":
+				return ec.fieldContext_Lesson_showDiscoverPage(ctx, field)
 			case "image":
 				return ec.fieldContext_Lesson_image(ctx, field)
 			case "tasks":
@@ -22245,6 +22353,10 @@ func (ec *executionContext) fieldContext_Lesson_next(_ context.Context, field gr
 				return ec.fieldContext_Lesson_title(ctx, field)
 			case "description":
 				return ec.fieldContext_Lesson_description(ctx, field)
+			case "introScreenCode":
+				return ec.fieldContext_Lesson_introScreenCode(ctx, field)
+			case "showDiscoverPage":
+				return ec.fieldContext_Lesson_showDiscoverPage(ctx, field)
 			case "image":
 				return ec.fieldContext_Lesson_image(ctx, field)
 			case "tasks":
@@ -22451,6 +22563,10 @@ func (ec *executionContext) fieldContext_LessonPagination_items(_ context.Contex
 				return ec.fieldContext_Lesson_title(ctx, field)
 			case "description":
 				return ec.fieldContext_Lesson_description(ctx, field)
+			case "introScreenCode":
+				return ec.fieldContext_Lesson_introScreenCode(ctx, field)
+			case "showDiscoverPage":
+				return ec.fieldContext_Lesson_showDiscoverPage(ctx, field)
 			case "image":
 				return ec.fieldContext_Lesson_image(ctx, field)
 			case "tasks":
@@ -28956,6 +29072,10 @@ func (ec *executionContext) fieldContext_QueryRoot_studyLesson(ctx context.Conte
 				return ec.fieldContext_Lesson_title(ctx, field)
 			case "description":
 				return ec.fieldContext_Lesson_description(ctx, field)
+			case "introScreenCode":
+				return ec.fieldContext_Lesson_introScreenCode(ctx, field)
+			case "showDiscoverPage":
+				return ec.fieldContext_Lesson_showDiscoverPage(ctx, field)
 			case "image":
 				return ec.fieldContext_Lesson_image(ctx, field)
 			case "tasks":
@@ -36173,6 +36293,10 @@ func (ec *executionContext) fieldContext_StudyTopic_defaultLesson(_ context.Cont
 				return ec.fieldContext_Lesson_title(ctx, field)
 			case "description":
 				return ec.fieldContext_Lesson_description(ctx, field)
+			case "introScreenCode":
+				return ec.fieldContext_Lesson_introScreenCode(ctx, field)
+			case "showDiscoverPage":
+				return ec.fieldContext_Lesson_showDiscoverPage(ctx, field)
 			case "image":
 				return ec.fieldContext_Lesson_image(ctx, field)
 			case "tasks":
@@ -47116,6 +47240,13 @@ func (ec *executionContext) _Lesson(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "description":
 			out.Values[i] = ec._Lesson_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "introScreenCode":
+			out.Values[i] = ec._Lesson_introScreenCode(ctx, field, obj)
+		case "showDiscoverPage":
+			out.Values[i] = ec._Lesson_showDiscoverPage(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
