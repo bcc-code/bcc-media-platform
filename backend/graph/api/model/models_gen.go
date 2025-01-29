@@ -771,12 +771,13 @@ type LegacyIDLookupOptions struct {
 }
 
 type Lesson struct {
-	ID          string          `json:"id"`
-	Title       string          `json:"title"`
-	Description string          `json:"description"`
-	Image       *string         `json:"image,omitempty"`
-	Tasks       *TaskPagination `json:"tasks"`
-	Topic       *StudyTopic     `json:"topic"`
+	ID              string          `json:"id"`
+	Title           string          `json:"title"`
+	Description     string          `json:"description"`
+	IntroScreenCode *string         `json:"introScreenCode,omitempty"`
+	Image           *string         `json:"image,omitempty"`
+	Tasks           *TaskPagination `json:"tasks"`
+	Topic           *StudyTopic     `json:"topic"`
 	// The default episode.
 	// Should not be used actively in lists, as it could affect query speeds.
 	DefaultEpisode *Episode           `json:"defaultEpisode,omitempty"`
@@ -787,7 +788,6 @@ type Lesson struct {
 	Locked         bool               `json:"locked"`
 	Previous       *Lesson            `json:"previous,omitempty"`
 	Next           *Lesson            `json:"next,omitempty"`
-	IntroPageCode  *string            `json:"introPageCode,omitempty"`
 }
 
 type LessonPagination struct {

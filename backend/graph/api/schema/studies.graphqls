@@ -19,6 +19,8 @@ type Lesson {
     id: ID!
     title: String!
     description: String!
+    introScreenCode: String
+
     image(style: ImageStyle): String @goField(forceResolver: true)
     tasks(first: Int, offset: Int): TaskPagination! @goField(forceResolver: true)
     topic: StudyTopic! @goField(forceResolver: true)
@@ -38,8 +40,6 @@ type Lesson {
 
     previous: Lesson @goField(forceResolver: true)
     next: Lesson @goField(forceResolver: true)
-
-    introPageCode: String
 }
 
 type LessonPagination implements Pagination {
