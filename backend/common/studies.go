@@ -49,6 +49,7 @@ type Lesson struct {
 	Description     LocaleString
 	Images          Images
 	IntroScreenCode null.String
+	ShowDiscover    bool
 }
 
 // GetKey returns the key for this item

@@ -66,6 +66,7 @@ func (q *Queries) GetLessons(ctx context.Context, ids []uuid.UUID) ([]common.Les
 			Description:     description,
 			Images:          q.getImages(l.Images.RawMessage),
 			IntroScreenCode: l.IntroScreenCode,
+			ShowDiscover:    l.ShowDiscoverPage,
 		}
 	}), nil
 }
