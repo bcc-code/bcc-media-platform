@@ -60,11 +60,12 @@ func (q *Queries) GetLessons(ctx context.Context, ids []uuid.UUID) ([]common.Les
 		}
 
 		return common.Lesson{
-			ID:          l.ID,
-			TopicID:     l.TopicID,
-			Title:       title,
-			Description: description,
-			Images:      q.getImages(l.Images.RawMessage),
+			ID:              l.ID,
+			TopicID:         l.TopicID,
+			Title:           title,
+			Description:     description,
+			Images:          q.getImages(l.Images.RawMessage),
+			IntroScreenCode: l.IntroScreenCode,
 		}
 	}), nil
 }

@@ -38,6 +38,8 @@ type Lesson {
 
     previous: Lesson @goField(forceResolver: true)
     next: Lesson @goField(forceResolver: true)
+
+    introPageCode: String
 }
 
 type LessonPagination implements Pagination {

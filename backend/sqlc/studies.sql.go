@@ -649,6 +649,7 @@ SELECT l.id,
        l.topic_id,
        l.title       as original_title,
        l.description as original_description,
+       l.intro_screen_code,
        ts.title,
        ts.description,
        img.json      as images
@@ -664,6 +665,7 @@ type getLessonsRow struct {
 	TopicID             uuid.UUID             `db:"topic_id" json:"topicId"`
 	OriginalTitle       string                `db:"original_title" json:"originalTitle"`
 	OriginalDescription null_v4.String        `db:"original_description" json:"originalDescription"`
+	IntroScreenCode     null_v4.String        `db:"intro_screen_code" json:"introScreenCode"`
 	Title               pqtype.NullRawMessage `db:"title" json:"title"`
 	Description         pqtype.NullRawMessage `db:"description" json:"description"`
 	Images              pqtype.NullRawMessage `db:"images" json:"images"`
@@ -683,6 +685,7 @@ func (q *Queries) getLessons(ctx context.Context, dollar_1 []uuid.UUID) ([]getLe
 			&i.TopicID,
 			&i.OriginalTitle,
 			&i.OriginalDescription,
+			&i.IntroScreenCode,
 			&i.Title,
 			&i.Description,
 			&i.Images,

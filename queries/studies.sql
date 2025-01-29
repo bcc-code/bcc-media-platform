@@ -36,6 +36,7 @@ SELECT l.id,
        l.topic_id,
        l.title       as original_title,
        l.description as original_description,
+       l.intro_screen_code,
        ts.title,
        ts.description,
        img.json      as images

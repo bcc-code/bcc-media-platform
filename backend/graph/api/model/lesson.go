@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
@@ -16,9 +17,10 @@ func LessonFrom(ctx context.Context, lesson *common.Lesson) *Lesson {
 	title := lesson.Title.Get(languages)
 
 	return &Lesson{
-		ID:          id,
-		Title:       title,
-		Description: lesson.Description.Get(languages),
+		ID:            id,
+		Title:         title,
+		Description:   lesson.Description.Get(languages),
+		IntroPageCode: lesson.IntroScreenCode.Ptr(),
 		Topic: &StudyTopic{
 			ID: lesson.TopicID.String(),
 		},

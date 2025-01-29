@@ -787,6 +787,7 @@ type Lesson struct {
 	Locked         bool               `json:"locked"`
 	Previous       *Lesson            `json:"previous,omitempty"`
 	Next           *Lesson            `json:"next,omitempty"`
+	IntroPageCode  *string            `json:"introPageCode,omitempty"`
 }
 
 type LessonPagination struct {
