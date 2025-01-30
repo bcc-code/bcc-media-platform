@@ -178,6 +178,7 @@ const clickItem = (sectionIndex: number, itemIndex: number) => {
                     for (let i = 0; i < section.items.items.length; i++) {
                         if (i === itemIndex) {
                             // TODO: refactor to pass the item. This can cause bugs when the section filters out certain types, like CardSection does
+                            if (!page.value) return
                             goToSectionItem(
                                 {
                                     index: i,
