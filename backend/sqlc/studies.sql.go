@@ -291,7 +291,7 @@ WHERE (task_id, profile_id) IN (SELECT ta.task_id, ta.profile_id
                                          LEFT JOIN public.tasks t ON ta.task_id = t.id
                                 WHERE ta.profile_id = $2::uuid
                                   AND t.lesson_id = $3::uuid
-                                  AND t.competition_mode = true)
+                                  AND t.lock_answer)
 `
 
 type SetAnswerLockParams struct {
@@ -377,7 +377,7 @@ FROM users.taskanswers a
          LEFT JOIN public.tasks t on a.task_id = t.id
 WHERE a.profile_id = ANY ($1::uuid[])
   AND a.locked = true
-  AND t.competition_mode = true
+  AND t.lock_answer = true
 `
 
 type getCompletedAndLockedTasksRow struct {
@@ -891,7 +891,8 @@ SELECT t.id,
        t.image_type,
        t.link_id,
        t.episode_id,
-       t.competition_mode,
+       t.show_answer,
+       t.lock_answer,
        ts.title,
        ts.secondary_title,
        ts.description,
@@ -916,7 +917,8 @@ type getTasksRow struct {
 	ImageType               null_v4.String        `db:"image_type" json:"imageType"`
 	LinkID                  null_v4.Int           `db:"link_id" json:"linkId"`
 	EpisodeID               null_v4.Int           `db:"episode_id" json:"episodeId"`
-	CompetitionMode         sql.NullBool          `db:"competition_mode" json:"competitionMode"`
+	ShowAnswer              bool                  `db:"show_answer" json:"showAnswer"`
+	LockAnswer              bool                  `db:"lock_answer" json:"lockAnswer"`
 	Title                   pqtype.NullRawMessage `db:"title" json:"title"`
 	SecondaryTitle          pqtype.NullRawMessage `db:"secondary_title" json:"secondaryTitle"`
 	Description             pqtype.NullRawMessage `db:"description" json:"description"`
@@ -944,7 +946,8 @@ func (q *Queries) getTasks(ctx context.Context, dollar_1 []uuid.UUID) ([]getTask
 			&i.ImageType,
 			&i.LinkID,
 			&i.EpisodeID,
-			&i.CompetitionMode,
+			&i.ShowAnswer,
+			&i.LockAnswer,
 			&i.Title,
 			&i.SecondaryTitle,
 			&i.Description,

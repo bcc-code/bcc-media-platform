@@ -69,7 +69,8 @@ SELECT t.id,
        t.image_type,
        t.link_id,
        t.episode_id,
-       t.competition_mode,
+       t.show_answer,
+       t.lock_answer,
        ts.title,
        ts.secondary_title,
        ts.description,
@@ -158,7 +159,7 @@ FROM users.taskanswers a
          LEFT JOIN public.tasks t on a.task_id = t.id
 WHERE a.profile_id = ANY ($1::uuid[])
   AND a.locked = true
-  AND t.competition_mode = true
+  AND t.lock_answer = true
 ;
 
 -- name: getCompletedLessons :many
@@ -237,7 +238,7 @@ WHERE (task_id, profile_id) IN (SELECT ta.task_id, ta.profile_id
                                          LEFT JOIN public.tasks t ON ta.task_id = t.id
                                 WHERE ta.profile_id = @profile_id::uuid
                                   AND t.lesson_id = @lesson_id::uuid
-                                  AND t.competition_mode = true);
+                                  AND t.lock_answer);
 
 -- name: getDefaultLessonIDForTopicIDs :many
 WITH completed AS (SELECT DISTINCT ON (task.lesson_id) task.lesson_id

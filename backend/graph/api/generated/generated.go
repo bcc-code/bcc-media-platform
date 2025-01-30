@@ -159,7 +159,9 @@ type ComplexityRoot struct {
 		CompetitionMode func(childComplexity int) int
 		Completed       func(childComplexity int) int
 		ID              func(childComplexity int) int
+		LockAnswer      func(childComplexity int) int
 		Locked          func(childComplexity int) int
+		ShowAnswer      func(childComplexity int) int
 		Title           func(childComplexity int) int
 	}
 
@@ -1615,12 +1617,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AlternativesTask.ID(childComplexity), true
 
+	case "AlternativesTask.lockAnswer":
+		if e.complexity.AlternativesTask.LockAnswer == nil {
+			break
+		}
+
+		return e.complexity.AlternativesTask.LockAnswer(childComplexity), true
+
 	case "AlternativesTask.locked":
 		if e.complexity.AlternativesTask.Locked == nil {
 			break
 		}
 
 		return e.complexity.AlternativesTask.Locked(childComplexity), true
+
+	case "AlternativesTask.showAnswer":
+		if e.complexity.AlternativesTask.ShowAnswer == nil {
+			break
+		}
+
+		return e.complexity.AlternativesTask.ShowAnswer(childComplexity), true
 
 	case "AlternativesTask.title":
 		if e.complexity.AlternativesTask.Title == nil {
@@ -7361,7 +7377,9 @@ type AlternativesTask implements Task {
     title: String!
     completed: Boolean! @goField(forceResolver: true)
     alternatives: [Alternative!]! @goField(forceResolver: true)
-    competitionMode: Boolean!
+    competitionMode: Boolean! @deprecated(reason: "Equivalent to !showAnswer && lockAnswer")
+    showAnswer: Boolean!
+    lockAnswer: Boolean!
     locked: Boolean! @goField(forceResolver: true)
 }
 
@@ -11013,6 +11031,94 @@ func (ec *executionContext) _AlternativesTask_competitionMode(ctx context.Contex
 }
 
 func (ec *executionContext) fieldContext_AlternativesTask_competitionMode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AlternativesTask",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AlternativesTask_showAnswer(ctx context.Context, field graphql.CollectedField, obj *model.AlternativesTask) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AlternativesTask_showAnswer(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ShowAnswer, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AlternativesTask_showAnswer(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AlternativesTask",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AlternativesTask_lockAnswer(ctx context.Context, field graphql.CollectedField, obj *model.AlternativesTask) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AlternativesTask_lockAnswer(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LockAnswer, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AlternativesTask_lockAnswer(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AlternativesTask",
 		Field:      field,
@@ -43262,6 +43368,16 @@ func (ec *executionContext) _AlternativesTask(ctx context.Context, sel ast.Selec
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "competitionMode":
 			out.Values[i] = ec._AlternativesTask_competitionMode(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "showAnswer":
+			out.Values[i] = ec._AlternativesTask_showAnswer(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "lockAnswer":
+			out.Values[i] = ec._AlternativesTask_lockAnswer(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

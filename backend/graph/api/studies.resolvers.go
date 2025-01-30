@@ -51,6 +51,7 @@ func (r *alternativesTaskResolver) Alternatives(ctx context.Context, obj *model.
 		if !obj.CompetitionMode {
 			correct = &alt.IsCorrect
 		}
+
 		return &model.Alternative{
 			ID:        alt.ID.String(),
 			Title:     alt.Title.Get(languages),
@@ -201,6 +202,14 @@ func (r *lessonResolver) Progress(ctx context.Context, obj *model.Lesson) (*mode
 	alternativesProgress, err := r.GetProfileLoaders(ctx).TaskAlternativesAnswersCountLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
+	}
+
+	if alternativesProgress == nil {
+		alternativesProgress = &common.AlternativesTasksProgress{
+			TotalTasks:     0,
+			CompletedTasks: 0,
+			CorrectTasks:   0,
+		}
 	}
 
 	return &model.TasksProgress{

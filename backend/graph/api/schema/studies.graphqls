@@ -82,7 +82,9 @@ type AlternativesTask implements Task {
     title: String!
     completed: Boolean! @goField(forceResolver: true)
     alternatives: [Alternative!]! @goField(forceResolver: true)
-    competitionMode: Boolean!
+    competitionMode: Boolean! @deprecated(reason: "Equivalent to !showAnswer && lockAnswer")
+    showAnswer: Boolean!
+    lockAnswer: Boolean!
     locked: Boolean! @goField(forceResolver: true)
 }
 
