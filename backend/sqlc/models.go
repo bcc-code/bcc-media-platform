@@ -1780,6 +1780,8 @@ type Task struct {
 	LinkID                  null_v4.Int    `db:"link_id" json:"linkId"`
 	CompetitionMode         sql.NullBool   `db:"competition_mode" json:"competitionMode"`
 	TranslationsRequired    bool           `db:"translations_required" json:"translationsRequired"`
+	ShowAnswer              bool           `db:"show_answer" json:"showAnswer"`
+	LockAnswer              bool           `db:"lock_answer" json:"lockAnswer"`
 }
 
 type TasksImage struct {

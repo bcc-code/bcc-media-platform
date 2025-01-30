@@ -206,6 +206,8 @@ type AlternativesTask struct {
 	Completed       bool           `json:"completed"`
 	Alternatives    []*Alternative `json:"alternatives"`
 	CompetitionMode bool           `json:"competitionMode"`
+	ShowAnswer      bool           `json:"showAnswer"`
+	LockAnswer      bool           `json:"lockAnswer"`
 	Locked          bool           `json:"locked"`
 }
 

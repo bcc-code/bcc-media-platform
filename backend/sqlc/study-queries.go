@@ -119,7 +119,9 @@ func (q *Queries) GetTasks(ctx context.Context, ids []uuid.UUID) ([]common.Task,
 			LinkID:          l.LinkID,
 			Type:            l.Type,
 			MultiSelect:     multiSelect,
-			CompetitionMode: l.CompetitionMode.Bool,
+			ShowAnswer:      l.ShowAnswer,
+			LockAnswer:      l.LockAnswer,
+			CompetitionMode: (!l.ShowAnswer) && (l.LockAnswer),
 		}
 	}), nil
 }

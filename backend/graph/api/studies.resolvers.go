@@ -51,6 +51,7 @@ func (r *alternativesTaskResolver) Alternatives(ctx context.Context, obj *model.
 		if !obj.CompetitionMode {
 			correct = &alt.IsCorrect
 		}
+
 		return &model.Alternative{
 			ID:        alt.ID.String(),
 			Title:     alt.Title.Get(languages),

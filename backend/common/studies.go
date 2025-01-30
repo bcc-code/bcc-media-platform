@@ -70,6 +70,8 @@ type Task struct {
 	Images          LocaleMap[string]
 	MultiSelect     null.Bool
 	CompetitionMode bool
+	ShowAnswer      bool
+	LockAnswer      bool
 	Alternatives    []QuestionAlternative
 	SecondaryTitle  LocaleString
 	Description     LocaleString
