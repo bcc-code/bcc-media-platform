@@ -203,6 +203,14 @@ func (r *lessonResolver) Progress(ctx context.Context, obj *model.Lesson) (*mode
 		return nil, err
 	}
 
+	if alternativesProgress == nil {
+		alternativesProgress = &common.AlternativesTasksProgress{
+			TotalTasks:     0,
+			CompletedTasks: 0,
+			CorrectTasks:   0,
+		}
+	}
+
 	return &model.TasksProgress{
 		Total: len(ids),
 		Completed: len(lo.Filter(completed, func(i *uuid.UUID, _ int) bool {
