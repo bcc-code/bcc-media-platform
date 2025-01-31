@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTitle } from '@/utils/title'
 import { analytics } from '@/services/analytics'
@@ -9,7 +9,6 @@ import { webViewStudy } from '@/services/webviews/studyHandler'
 import {
     GetStudyLessonQuery,
     useCompleteTaskMutation,
-    useGetFirstSotmLessonForConsentQuery,
     useLockAnswersMutation,
     useSetStudyConsentTrueMutation,
 } from '@/graph/generated'
@@ -19,7 +18,6 @@ import { Page } from './Lesson.vue'
 import VideoTask from './tasks/VideoTask.vue'
 import LinkTask from './tasks/LinkTask.vue'
 import Loader from '../Loader.vue'
-import CompetitionIntro from './tasks/CompetitionIntro.vue'
 import ModalBase from './ModalBase.vue'
 import { findLastIndex } from '@/utils/array'
 
@@ -46,68 +44,32 @@ const isLastTask = computed(
 )
 
 const showConfirmModal = ref(false)
-const currentIsFirstCompetitionTask = computed(
+const currentIsFirstTask = computed(
     () =>
-        tasks.value.findIndex(
-            (t) => t.__typename == 'AlternativesTask' && t.competitionMode
-        ) === currentTaskIndex.value
+        tasks.value.findIndex((t) => t.__typename == 'AlternativesTask') ===
+        currentTaskIndex.value
 )
-const currentIsLastCompetitionTask = computed(() => {
+const currentIsLastTask = computed(() => {
     return (
         findLastIndex(
             tasks.value,
-            (t) => t.__typename == 'AlternativesTask' && t.competitionMode
+            (t) => t.__typename == 'AlternativesTask'
         ) === currentTaskIndex.value
     )
 })
-const competitionLocked = computed(
-    () =>
-        currentTask.value.__typename === 'AlternativesTask' &&
-        currentTask.value.locked
-)
-const hijackWithCompetitionIntro = ref(false)
 
-watch(
-    currentTaskIndex,
-    (val, old) => {
-        if ((!old || val > old) && currentIsFirstCompetitionTask.value)
-            hijackWithCompetitionIntro.value = true
-    },
-    { immediate: true }
-)
-const hasConsented = () => {
-    return (
-        lockData.value?.lockLessonAnswers ||
-        competitionLocked.value === true ||
-        consentSaveResult.value?.completeTask === true ||
-        consent.value?.studyLesson.tasks.items.some(
-            (t) =>
-                t.__typename === 'AlternativesTask' &&
-                t.alternatives.find(
-                    (a) => a.id === 'fe8c23c2-0aab-4853-a75f-f148400d005a'
-                )?.selected === true
-        )
-    )
-}
+console.log({
+    currentTaskIndex: currentTaskIndex.value,
+    currentTask: currentTask.value,
+    currentIsFirstTask: currentIsFirstTask.value,
+    currentIsLastTask: currentIsLastTask.value,
+})
 
-const showAlreadySentHint = computed(
-    () => hijackWithCompetitionIntro.value && competitionLocked.value
-)
 const competitionAnswers = ref<{ [taskId: string]: string }>({})
 const showConsentModal = ref(false)
 const lockingInProgress = ref(false)
-const {
-    fetching: consentLoading,
-    data: consent,
-    executeQuery: refreshConsent,
-    resume: resumeConsentQuery,
-    stale: staleq,
-} = useGetFirstSotmLessonForConsentQuery({ variables: {} })
-const {
-    fetching: consentSaving,
-    executeMutation: setConsentTrue,
-    data: consentSaveResult,
-} = useSetStudyConsentTrueMutation()
+const { fetching: consentSaving, executeMutation: setConsentTrue } =
+    useSetStudyConsentTrueMutation()
 const consentAndStartCompetition = async () => {
     var result = await setConsentTrue({})
     if (result.error === null) {
@@ -115,21 +77,7 @@ const consentAndStartCompetition = async () => {
         return
     }
     showConsentModal.value = false
-    startCompetition(true)
 }
-const startCompetition = async (bypassConsentCheck?: boolean) => {
-    if (lockData.value?.lockLessonAnswers) {
-        hijackWithCompetitionIntro.value = false
-        return
-    }
-    if (bypassConsentCheck !== true && !hasConsented()) {
-        showConsentModal.value = true
-        return
-    }
-    hijackWithCompetitionIntro.value = false
-    isCurrentStepDone.value = false
-}
-//const taskProgress = ref<{ id: string, completed: boolean }[]>([]);
 
 onMounted(() => {
     setTitle('')
@@ -146,13 +94,12 @@ const taskPercent = computed(
 const allCompletedBeforeStarting = tasks.value.every((t) => t.completed)
 
 function previousTask() {
-    if (hijackWithCompetitionIntro.value && anyPreviousStep.value) {
-        hijackWithCompetitionIntro.value = false
+    if (anyPreviousStep.value) {
         currentTaskIndex.value--
         return
     }
-    if (currentIsFirstCompetitionTask.value) {
-        hijackWithCompetitionIntro.value = true
+    if (currentIsFirstTask.value) {
+        emit('navigate', 'intro')
         return
     }
     if (currentTaskIndex.value > 0) {
@@ -189,22 +136,6 @@ async function nextTask() {
         }
         emit('navigate', 'more')
     }
-}
-
-const skipCompetition = () => {
-    tasks.value
-        .filter((t) => t.__typename == 'AlternativesTask' && t.competitionMode)
-        .forEach(
-            async (t) =>
-                await completeTask({ taskId: t.id, selectedAlternatives: [] })
-        )
-    const lastCompetitionTaskIndex = findLastIndex(
-        tasks.value,
-        (t) => t.__typename == 'AlternativesTask' && t.competitionMode
-    )
-    currentTaskIndex.value = lastCompetitionTaskIndex
-    nextTask()
-    hijackWithCompetitionIntro.value = false
 }
 
 const lockAnswers = async () => {
@@ -245,50 +176,28 @@ const anyPreviousStep = computed(() => currentTaskIndex.value > 0)
         <div
             class="inline-flex flex-col space-y-6 items-center justify-start w-full embed:pb-36 embed:hide-scrollbar"
         >
-            <div class="p-4 flex flex-col space-y-0.5 h-14 w-full">
-                <template v-if="tasks.length > 1">
-                    <div class="w-full right-0 bottom-0">
-                        <div
-                            class="flex-1 h-full bg-black bg-opacity-50 rounded-full"
-                        >
-                            <div>
-                                <div
-                                    class="w-28 h-[5px] bg-tint-1 rounded-full"
-                                    :style="{ width: `${taskPercent}%` }"
-                                ></div>
-                            </div>
+            <div
+                v-if="tasks.length > 1"
+                class="p-4 flex flex-col space-y-0.5 h-14 w-full"
+            >
+                <div class="w-full right-0 bottom-0">
+                    <div
+                        class="flex-1 h-full bg-black bg-opacity-50 rounded-full"
+                    >
+                        <div>
+                            <div
+                                class="w-28 h-[5px] bg-tint-1 rounded-full"
+                                :style="{ width: `${taskPercent}%` }"
+                            ></div>
                         </div>
                     </div>
-                    <p class="w-full text-lg leading-normal text-label-3">
-                        {{ currentTaskIndex + 1 }} / {{ tasks.length }}
-                    </p>
-                </template>
-            </div>
-            <CompetitionIntro
-                v-if="hijackWithCompetitionIntro"
-                v-model:is-done="isCurrentStepDone"
-            ></CompetitionIntro>
-            <div
-                v-else-if="
-                    currentTask?.__typename == 'AlternativesTask' &&
-                    lockData?.lockLessonAnswers
-                "
-                class="flex flex-col items-center justify-center w-full h-full pb-8 px-4 embed:pb-64 embed:min-h-screen"
-            >
-                <p class="w-full text-white text-style-headline-1 text-center">
-                    {{ t('thankYou') }}
-                </p>
-                <p
-                    class="mt-3 w-full text-white text-style-body-1 text-label-3 text-center"
-                >
-                    {{ t('yourResponseHasBeenSubmitted') }}
-                    <br />
-                    <br />
-                    {{ t('competition.dontMiss') }}
+                </div>
+                <p class="w-full text-lg leading-normal text-label-3">
+                    {{ currentTaskIndex + 1 }} / {{ tasks.length }}
                 </p>
             </div>
             <AlternativesTask
-                v-else-if="currentTask?.__typename == 'AlternativesTask'"
+                v-if="currentTask?.__typename == 'AlternativesTask'"
                 :key="'alt' + currentTask.id"
                 v-model:task="currentTask"
                 v-model:is-done="isCurrentStepDone"
@@ -335,55 +244,19 @@ const anyPreviousStep = computed(() => currentTaskIndex.value > 0)
                 !(currentTask?.__typename == 'TextTask' && !isCurrentStepDone)
             "
             class="flex flex-col space-y-4 items-center justify-end w-full px-4 h-36 pb-16 sticky bottom-0 bg-background-1"
-            :class="showAlreadySentHint ? 'h-48' : ''"
         >
-            <p
-                v-if="showAlreadySentHint"
-                class="text-style-caption-1 text-tint-3 text-center"
-            >
-                {{ t('competition.alreadySent') }}
-            </p>
             <div class="inline-flex space-x-2 items-start justify-start w-full">
                 <VButton
                     v-if="tasks.length > 1"
                     class="w-full"
                     size="large"
-                    :disabled="
-                        !(
-                            anyPreviousStep ||
-                            (currentIsFirstCompetitionTask &&
-                                !hijackWithCompetitionIntro)
-                        )
-                    "
                     color="secondary"
                     @click="previousTask()"
                 >
                     {{ t('buttons.back') }}
                 </VButton>
                 <VButton
-                    v-if="hijackWithCompetitionIntro"
-                    class="w-full"
-                    size="large"
-                    :disabled="!isCurrentStepDone || consentLoading"
-                    @click="() => startCompetition()"
-                    ><Loader
-                        v-if="consentLoading"
-                        variant="spinner"
-                        class="fill-white text-center inline"
-                    ></Loader>
-                    <template v-if="!competitionLocked">{{
-                        t('buttons.start')
-                    }}</template>
-                    <template v-else>
-                        {{ t('buttons.continue') }}
-                    </template>
-                </VButton>
-                <VButton
-                    v-else-if="
-                        currentIsLastCompetitionTask &&
-                        !lockData &&
-                        !competitionLocked
-                    "
+                    v-if="currentIsLastTask && !isCurrentStepDone"
                     class="w-full"
                     size="large"
                     :disabled="!isCurrentStepDone"
@@ -399,7 +272,7 @@ const anyPreviousStep = computed(() => currentTaskIndex.value > 0)
                     v-else
                     class="w-full"
                     size="large"
-                    :disabled="!isCurrentStepDone"
+                    :disabled="!isCurrentStepDone && !lockData"
                     @click="nextTask()"
                 >
                     <template v-if="savingTaskProgress"
@@ -408,9 +281,9 @@ const anyPreviousStep = computed(() => currentTaskIndex.value > 0)
                             class="fill-white text-center inline"
                         ></Loader
                     ></template>
-                    <template v-else-if="isLastTask">{{
-                        t('buttons.continue')
-                    }}</template>
+                    <template v-else-if="isLastTask">
+                        {{ t('buttons.continue') }}
+                    </template>
                     <template v-else>{{ t('buttons.next') }}</template>
                 </VButton>
             </div>
@@ -469,9 +342,10 @@ const anyPreviousStep = computed(() => currentTaskIndex.value > 0)
                         class="flex-1"
                         color="red"
                         size="large"
-                        @click="() => skipCompetition()"
-                        >{{ t('buttons.skip') }}</VButton
+                        @click="() => {}"
                     >
+                        {{ t('buttons.skip') }}
+                    </VButton>
                     <VButton
                         class="flex-1 bg-separator-on-light"
                         size="large"
@@ -505,4 +379,3 @@ const anyPreviousStep = computed(() => currentTaskIndex.value > 0)
         </ModalBase>
     </div>
 </template>
-@/services/webviews/studyHandler

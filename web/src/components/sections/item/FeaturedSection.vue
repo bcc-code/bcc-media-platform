@@ -69,6 +69,29 @@ const options = computed(() => {
                     spaceBetween: 8,
                 },
             }
+        default:
+            return {
+                400: {
+                    slidesPerView: 1,
+                    spaceBetween: 6,
+                },
+                768: {
+                    slidesPerView: 1,
+                    spaceBetween: 6,
+                },
+                1280: {
+                    slidesPerView: 2,
+                    spaceBetween: 8,
+                },
+                1920: {
+                    slidesPerView: 2,
+                    spaceBetween: 8,
+                },
+                2100: {
+                    slidesPerView: 3,
+                    spaceBetween: 8,
+                },
+            }
     }
 })
 </script>
@@ -182,12 +205,12 @@ const options = computed(() => {
                                             i.item.__typename
                                         )
                                     "
-                                    class="flex"
+                                    class="flex gap-1 items-center"
                                 >
-                                    <Play></Play
-                                    ><span class="ml-1 truncate">{{
-                                        t('page.watchNow')
-                                    }}</span>
+                                    <Play class="size-4" />
+                                    <span class="ml-1 truncate">
+                                        {{ t('page.watchNow') }}
+                                    </span>
                                 </div>
                                 <div v-else class="flex">
                                     {{ t('page.explore') }}

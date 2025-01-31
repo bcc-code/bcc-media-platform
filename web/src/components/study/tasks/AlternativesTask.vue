@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { TaskFragment } from '@/graph/generated'
+import { TaskFragment, useCompleteTaskMutation } from '@/graph/generated'
 import { computed, watch } from 'vue'
 import Alternative from './Alternative.vue'
-import { useCompleteTaskMutation } from '@/graph/generated'
 
 const { executeMutation } = useCompleteTaskMutation()
 

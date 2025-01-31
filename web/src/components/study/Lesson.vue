@@ -7,6 +7,7 @@ import { VButton } from '..'
 import Tasks from './Tasks.vue'
 import More from './More.vue'
 import Loader from '../Loader.vue'
+import LessonIntro from './LessonIntro.vue'
 
 export type Page = '' | 'intro' | 'tasks' | 'more'
 
@@ -39,19 +40,28 @@ onMounted(async () => {
         id: 'study',
         title: '',
     })
-    var result = await lessonQuery
-    var data = result.data.value
+    const result = await lessonQuery
+    const data = result.data.value
     if (props.subRoute == '' && data != null) {
-        var completedTasks = data.studyLesson.progress.completed
-        var totalTasks = data.studyLesson.progress.total
-        if (completedTasks == 0) {
+        const completedTasks = data.studyLesson.progress.completed
+        const totalTasks = data.studyLesson.progress.total
+        const showDiscoverPage = data.studyLesson.showDiscoverPage
+        const introScreenCode = data.studyLesson.introScreenCode
+
+        if (showDiscoverPage) {
+            page.value = 'more'
+        } else if (introScreenCode) {
             page.value = 'intro'
         } else if (completedTasks < totalTasks) {
             page.value = 'tasks'
         } else {
-            page.value = 'more'
+            page.value = 'tasks'
         }
     }
+})
+
+watch(page, (val) => {
+    console.log(val)
 })
 
 const reload = () => {
@@ -76,7 +86,7 @@ const reload = () => {
         </div>
         <template v-else-if="data != null">
             <transition name="fade" mode="out-in">
-                <Tasks
+                <LessonIntro
                     v-if="page == 'intro'"
                     :lesson="data"
                     @navigate="(t) => (page = t)"

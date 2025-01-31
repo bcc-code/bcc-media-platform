@@ -59,7 +59,7 @@ const playAgain = () => {
     <div class="w-full">
         <template v-if="lesson.studyLesson.tasks.items.length > 0">
             <div class="p-4 pt-4">
-                <TaskButton @click="() => emit('navigate', 'tasks')" />
+                <TaskButton @click="() => emit('navigate', 'intro')" />
                 <div class="mt-6">
                     <p class="w-full text-white text-style-title-1">
                         {{ t('lesson.watchAgain.title') }}

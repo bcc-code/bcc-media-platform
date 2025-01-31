@@ -36,9 +36,10 @@ onMounted(() => {
 <template>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
-        <div class="flex gap-4 flex-wrap">
+        <div class="flex gap-4 items-start flex-wrap">
             <button
                 v-for="(i, index) in item.items.items"
+                :key="i.id"
                 ref="sectionItem"
                 class="w-20 shrink-0 2xl:w-32 hover:opacity-90 transition focus-visible:ring-4 focus-visible:ring-white/75 rounded-2xl"
                 @click="click(index)"
