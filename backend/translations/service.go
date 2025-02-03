@@ -9,13 +9,14 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/orsinium-labs/enum"
 	"hash/fnv"
+	"net/http"
 )
 
 type UpdateTranslationCallback func(ctx context.Context, collection string, data []common.TranslationData) error
 
 type TranslationsProvider interface {
 	SendToTranslation(ctx context.Context, collection string, data []common.TranslationData) error
-	ProcessWebhook(ctx context.Context, url string, hookData []byte) (collection *TranslatableCollection, data []common.TranslationData, err error)
+	ProcessWebhook(ctx context.Context, originalRequest *http.Request, hookData []byte) (collection *TranslatableCollection, data []common.TranslationData, err error)
 }
 
 type Service struct {
@@ -226,8 +227,8 @@ func (s *Service) UpdateTranslations(ctx context.Context, collection *Translatab
 	return []error{merry.Errorf("Unknown transalatable collection %s", collection)}
 }
 
-func (s *Service) HandleWebhook(ctx context.Context, url string, hookData []byte) error {
-	collection, data, err := s.provider.ProcessWebhook(ctx, url, hookData)
+func (s *Service) HandleWebhook(ctx context.Context, originalRequest *http.Request, hookData []byte) error {
+	collection, data, err := s.provider.ProcessWebhook(ctx, originalRequest, hookData)
 	if err != nil {
 		return merry.Wrap(err)
 	}

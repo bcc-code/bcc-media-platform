@@ -1,5 +1,7 @@
 package phrase
 
+import "time"
+
 type loginRequest struct {
 	UserName string `json:"userName"`
 	Password string `json:"password"`
@@ -270,8 +272,8 @@ type WebhookMetadata struct {
 }
 
 type ResultFileRequest struct {
-	AsyncRequest AsyncRequest `json:"asyncRequest"`
-	Reference    Reference    `json:"reference"`
+	AsyncRequest *AsyncRequest `json:"asyncRequest"`
+	Reference    Reference     `json:"reference"`
 }
 
 type Args map[string]string
@@ -294,8 +296,20 @@ type AsyncResponse struct {
 	Warnings     []Warnings     `json:"warnings"`
 }
 type Parent struct {
+	ID string `json:"id"`
 }
-
+type ParentInt struct {
+	ID int `json:"id"`
+}
+type AsyncRequestInt struct {
+	ID            int           `json:"id"`
+	CreatedBy     CreatedBy     `json:"createdBy"`
+	DateCreated   Datetime      `json:"dateCreated"`
+	Action        string        `json:"action"`
+	AsyncResponse AsyncResponse `json:"asyncResponse"`
+	Parent        ParentInt     `json:"parent"`
+	Project       Project       `json:"project"`
+}
 type AsyncRequest struct {
 	ID            string        `json:"id"`
 	CreatedBy     CreatedBy     `json:"createdBy"`
@@ -311,9 +325,133 @@ type Reference struct {
 }
 
 type WebhookPost struct {
-	JobParts  []JobParts `json:"jobParts"`
-	Metadata  Metadata   `json:"metadata"`
-	Event     string     `json:"event"`
-	Timestamp int        `json:"timestamp"`
-	EventUID  string     `json:"eventUid"`
+	JobParts     []JobParts       `json:"jobParts"`
+	Metadata     Metadata         `json:"metadata"`
+	Event        string           `json:"event"`
+	Timestamp    int              `json:"timestamp"`
+	EventUID     string           `json:"eventUid"`
+	AsyncRequest *AsyncRequestInt `json:"asyncRequest"`
+}
+
+type MachineTranslateSettings struct {
+	ID      int    `json:"id"`
+	UID     string `json:"uid"`
+	Name    string `json:"name"`
+	Type    string `json:"type"`
+	Default bool   `json:"default"`
+	Args    Args   `json:"args"`
+}
+type LangSettings struct {
+	TargetLang string `json:"targetLang"`
+}
+type TargetLength struct {
+	Enabled bool `json:"enabled"`
+	Max     int  `json:"max"`
+}
+type ForbiddenStrings struct {
+	Enabled bool          `json:"enabled"`
+	List    []interface{} `json:"list"`
+}
+type TargetLengthPercent struct {
+	Enabled bool    `json:"enabled"`
+	Max     float64 `json:"max"`
+}
+type QualityAssuranceSettings struct {
+	EmptyTranslation               bool                `json:"emptyTranslation"`
+	InconsistentTranslation        bool                `json:"inconsistentTranslation"`
+	JoinTags                       bool                `json:"joinTags"`
+	MissingNumbers                 bool                `json:"missingNumbers"`
+	SegmentNotConfirmed            bool                `json:"segmentNotConfirmed"`
+	Terminology                    bool                `json:"terminology"`
+	MultipleSpaces                 bool                `json:"multipleSpaces"`
+	TrailingSpace                  bool                `json:"trailingSpace"`
+	TrailingPunctuation            bool                `json:"trailingPunctuation"`
+	TargetLength                   TargetLength        `json:"targetLength"`
+	Formatting                     bool                `json:"formatting"`
+	UnresolvedComment              bool                `json:"unresolvedComment"`
+	EmptyPairTags                  bool                `json:"emptyPairTags"`
+	StrictJobStatus                bool                `json:"strictJobStatus"`
+	ForbiddenStrings               ForbiddenStrings    `json:"forbiddenStrings"`
+	ExcludeLockedSegments          bool                `json:"excludeLockedSegments"`
+	IgnoreNotApprovedTerms         bool                `json:"ignoreNotApprovedTerms"`
+	SpellCheck                     bool                `json:"spellCheck"`
+	RepeatedWords                  bool                `json:"repeatedWords"`
+	InconsistentTagContent         bool                `json:"inconsistentTagContent"`
+	EmptyTagContent                bool                `json:"emptyTagContent"`
+	XliffTags                      bool                `json:"xliffTags"`
+	NestedTags                     bool                `json:"nestedTags"`
+	ForbiddenTerms                 bool                `json:"forbiddenTerms"`
+	TargetLengthPercent            TargetLengthPercent `json:"targetLengthPercent"`
+	TargetLengthPerSegment         bool                `json:"targetLengthPerSegment"`
+	NewerAtPrecedingWorkflowStep   bool                `json:"newerAtPrecedingWorkflowStep"`
+	LeadingAndTrailingSpaces       bool                `json:"leadingAndTrailingSpaces"`
+	IgnoreInAllWorkflowSteps       bool                `json:"ignoreInAllWorkflowSteps"`
+	UnmodifiedFuzzyTranslation     bool                `json:"unmodifiedFuzzyTranslation"`
+	UnmodifiedFuzzyTranslationTM   bool                `json:"unmodifiedFuzzyTranslationTM"`
+	UnmodifiedFuzzyTranslationMTNT bool                `json:"unmodifiedFuzzyTranslationMTNT"`
+	ExtraNumbers                   bool                `json:"extraNumbers"`
+	TargetSourceIdentical          bool                `json:"targetSourceIdentical"`
+	FuzzyInconsistency             bool                `json:"fuzzyInconsistency"`
+	CustomQa                       bool                `json:"customQa"`
+	DoNotTranslate                 bool                `json:"doNotTranslate"`
+}
+type AnalyseSettings struct {
+	Type                             string        `json:"type"`
+	IncludeFuzzyRepetitions          bool          `json:"includeFuzzyRepetitions"`
+	IncludeNonTranslatables          bool          `json:"includeNonTranslatables"`
+	IncludeMachineTranslationMatches bool          `json:"includeMachineTranslationMatches"`
+	IncludeConfirmedSegments         bool          `json:"includeConfirmedSegments"`
+	IncludeNumbers                   bool          `json:"includeNumbers"`
+	IncludeLockedSegments            bool          `json:"includeLockedSegments"`
+	CountSourceUnits                 bool          `json:"countSourceUnits"`
+	IncludeTransMemory               bool          `json:"includeTransMemory"`
+	NamingPattern                    string        `json:"namingPattern"`
+	AnalyzeByLinguist                bool          `json:"analyzeByLinguist"`
+	AnalyzeByLanguage                bool          `json:"analyzeByLanguage"`
+	AllowAutomaticPostAnalysis       bool          `json:"allowAutomaticPostAnalysis"`
+	ConfirmedSegmentsOnly            bool          `json:"confirmedSegmentsOnly"`
+	ConfirmedOnlyByUsers             []interface{} `json:"confirmedOnlyByUsers"`
+}
+
+type AccessSettings struct {
+	DownloadEnabled                      bool `json:"downloadEnabled"`
+	WebEditorEnabledForLinguists         bool `json:"webEditorEnabledForLinguists"`
+	ShowUserDataToLinguists              bool `json:"showUserDataToLinguists"`
+	EmailNotifications                   bool `json:"emailNotifications"`
+	AllowLoadingExternalContentInEditors bool `json:"allowLoadingExternalContentInEditors"`
+	AllowLoadingIframes                  bool `json:"allowLoadingIframes"`
+	StrictWorkflowFinish                 bool `json:"strictWorkflowFinish"`
+	UseVendors                           bool `json:"useVendors"`
+	LinguistsMayEditLockedSegments       bool `json:"linguistsMayEditLockedSegments"`
+	LinguistsMayEditTagContent           bool `json:"linguistsMayEditTagContent"`
+	LinguistsMayEditSource               bool `json:"linguistsMayEditSource"`
+	LinguistsMaySetAutoPropagation       bool `json:"linguistsMaySetAutoPropagation"`
+	UserMaySetInstantQA                  bool `json:"userMaySetInstantQA"`
+	TriggerWebhooks                      bool `json:"triggerWebhooks"`
+}
+
+type FinancialSettings struct {
+}
+
+type ImportResult struct {
+	Warnings []interface{} `json:"warnings"`
+}
+
+type By struct {
+	ID        int    `json:"id"`
+	UserName  string `json:"userName"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Email     string `json:"email"`
+	Role      string `json:"role"`
+	Active    bool   `json:"active"`
+	Deleted   bool   `json:"deleted"`
+}
+type LastModified struct {
+	Date time.Time `json:"date"`
+	By   By        `json:"by"`
+}
+
+type AsyncRequestResponse struct {
+	AsyncRequest AsyncRequest `json:"asyncRequest"`
 }

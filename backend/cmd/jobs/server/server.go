@@ -280,7 +280,7 @@ func (s Server) ProcessTranslationMessage(ctx *gin.Context) {
 	}
 
 	// TODO: Monitor if this naive implementation is good enough or if we need to do async via PubSub
-	err = s.services.TranslationsService.HandleWebhook(ctx.Request.Context(), ctx.Request.URL.String(), body)
+	err = s.services.TranslationsService.HandleWebhook(ctx.Request.Context(), ctx.Request, body)
 	if err != nil {
 		log.L.Error().Err(err).Send()
 		ctx.AbortWithStatus(http.StatusInternalServerError)

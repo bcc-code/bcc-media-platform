@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/bcc-code/bcc-media-platform/backend/translations"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -46,6 +48,7 @@ func langForImport(lang string) string {
 // Client for Phrase TMS based on https://cloud.memsource.com/web/docs/api
 type Client struct {
 	baseURL         string
+	callbackURL     string
 	token           string
 	userName        string
 	password        string
@@ -53,9 +56,10 @@ type Client struct {
 	targetLanguages []string
 	tokenExpiry     time.Time
 	httpClient      *resty.Client
+	redisClient     *redis.Client
 }
 
-func NewClient(baseURL string, userName, password string, projectUID string) *Client {
+func NewClient(redisDB *redis.Client, baseURL, userName, password, projectUID, callbackURL string) *Client {
 	if baseURL == "" {
 		baseURL = "https://cloud.memsource.com/web/api2"
 	}
@@ -68,11 +72,14 @@ func NewClient(baseURL string, userName, password string, projectUID string) *Cl
 	r.BaseURL = baseURL
 
 	return &Client{
-		baseURL:    baseURL,
-		httpClient: r,
-		userName:   userName,
-		password:   password,
-		projectUID: projectUID,
+		baseURL:     baseURL,
+		callbackURL: callbackURL,
+		httpClient:  r,
+		userName:    userName,
+		password:    password,
+		projectUID:  projectUID,
+
+		redisClient: redisDB,
 
 		// Hardcoded, because at the moment I don't see the value in allowing this to be configurable
 		targetLanguages: []string{"da", "de", "en-US", "fr", "fi", "hu", "it", "nl", "pl", "pt", "ro"},
@@ -127,21 +134,60 @@ func (m *Client) SendToTranslation(ctx context.Context, collection string, data 
 
 var ErrUnknownProject = merry.Sentinel("unknown project, ignoring message")
 
-func (c *Client) ProcessWebhook(ctx context.Context, url string, hookData []byte) (*translations.TranslatableCollection, []common.TranslationData, error) {
+func (c *Client) ProcessWebhook(ctx context.Context, originalRequest *http.Request, hookData []byte) (*translations.TranslatableCollection, []common.TranslationData, error) {
 	payload := &WebhookPost{}
 	err := json.Unmarshal(hookData, payload)
 	if err != nil {
 		return nil, nil, merry.Wrap(err)
 	}
 
-	if payload.Metadata.Project.UID != c.projectUID {
+	projectToCheck := payload.Metadata.Project.UID
+
+	if payload.AsyncRequest != nil {
+		projectToCheck = payload.AsyncRequest.Project.UID
+	}
+
+	if projectToCheck != c.projectUID {
 		return nil, nil, merry.Wrap(ErrUnknownProject)
 	}
 
 	outData := []common.TranslationData{}
 
-	for _, part := range payload.JobParts {
+	if payload.AsyncRequest != nil {
 		data := map[string]json.RawMessage{}
+
+		asyncRequestID := fmt.Sprintf("%d", payload.AsyncRequest.ID)
+
+		fileData, err := c.DownloadFile(ctx, payload.JobParts[0].UID, asyncRequestID)
+		if err != nil {
+			return nil, nil, merry.Wrap(err)
+		}
+
+		err = json.Unmarshal(fileData, &data)
+
+		collection := translations.TranslatableCollections.Parse(strings.TrimSuffix(payload.JobParts[0].FileName, ".json"))
+
+		if err != nil {
+			log.L.Error().
+				Err(err).
+				Str("filename", payload.JobParts[0].FileName).
+				Str("data", string(fileData)).
+				Msg("Unable to unmarshal json")
+			return collection, nil, merry.Wrap(err)
+		}
+
+		for k, v := range data {
+			outData = append(outData, common.TranslationData{
+				ID:       k,
+				Value:    v,
+				Language: langForImport(payload.JobParts[0].TargetLang),
+			})
+		}
+
+		return collection, outData, nil
+	}
+
+	for _, part := range payload.JobParts {
 		if !part.Status.IsCompleted() {
 			continue
 		}
@@ -153,31 +199,11 @@ func (c *Client) ProcessWebhook(ctx context.Context, url string, hookData []byte
 			continue
 		}
 
-		fileData, err := c.GetFile(part.UID)
+		err := c.GetFileAsync(ctx, part.UID)
 		if err != nil {
 			return collection, nil, merry.Wrap(err)
 		}
-
-		err = json.Unmarshal(fileData, &data)
-
-		if err != nil {
-			log.L.Error().
-				Err(err).
-				Str("filename", part.FileName).
-				Str("data", string(fileData)).
-				Msg("Unable to unmarshal json")
-			return collection, nil, merry.Wrap(err)
-		}
-
-		for k, v := range data {
-			outData = append(outData, common.TranslationData{
-				ID:       k,
-				Value:    v,
-				Language: langForImport(part.TargetLang),
-			})
-		}
-
-		return collection, outData, nil
+		return collection, nil, nil
 
 	}
 
@@ -375,17 +401,17 @@ func (c *Client) GetJobs(filename string) ([]Job, error) {
 	return res.Result().(*JobsList).Content, nil
 }
 
-func (c *Client) GetFile(jobUID string) ([]byte, error) {
+func (c *Client) GetFileAsync(ctx context.Context, jobUID string) error {
 	req := c.httpClient.R()
 
 	req.SetPathParam("projectUid", c.projectUID)
 	req.SetPathParam("jobUid", jobUID)
-	req.SetBody(struct{}{})
-	req.SetResult(&ResultFileRequest{})
+	req.SetBody(gin.H{"callbackUrl": c.callbackURL})
+	req.SetResult(&AsyncRequestResponse{})
 
 	res, err := req.Put("v3/projects/{projectUid}/jobs/{jobUid}/targetFile")
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if res.StatusCode() != 202 {
@@ -394,36 +420,51 @@ func (c *Client) GetFile(jobUID string) ([]byte, error) {
 			Int("status", res.StatusCode()).
 			Str("body", string(res.Body())).
 			Msg("Unexpected status code when requesting result file")
+		return err
+	}
+
+	log.L.Debug().Str("jobUID", jobUID).Str("body", string(res.Body())).Msg("Requested result file")
+
+	responseData := req.Result.(*AsyncRequestResponse)
+
+	requestID := responseData.AsyncRequest.ID
+	webhookID := responseData.AsyncRequest.Parent.ID
+
+	err = c.redisClient.Set(ctx, fmt.Sprintf("phrase:%s", webhookID), requestID, time.Minute*30).Err()
+
+	if err != nil {
+		log.L.Debug().Err(err).Msg("Unable to set redis key")
+	}
+
+	return err
+}
+
+func (c *Client) DownloadFile(ctx context.Context, jobUID string, asyncRequestID string) ([]byte, error) {
+	req := c.httpClient.R()
+	redisID := fmt.Sprintf("phrase:%s", asyncRequestID)
+	downloadID, err := c.redisClient.Get(ctx, redisID).Int()
+	if err != nil {
 		return nil, err
 	}
 
-	for i := 0; i < 10; i++ {
-		time.Sleep(5 * time.Second)
+	req.SetPathParam("projectUid", c.projectUID)
+	req.SetPathParam("jobUid", jobUID)
+	req.SetPathParam("asyncRequestId", fmt.Sprintf("%d", downloadID))
+	req.SetBody(struct{}{})
+	res, err := req.Get("v2/projects/{projectUid}/jobs/{jobUid}/downloadTargetFile/{asyncRequestId}")
 
-		req = c.httpClient.R()
-
-		req.SetPathParam("projectUid", c.projectUID)
-		req.SetPathParam("jobUid", jobUID)
-		req.SetPathParam("asyncRequestId", res.Result().(*ResultFileRequest).AsyncRequest.ID)
-		req.SetBody(struct{}{})
-		req.SetResult(&ResultFileRequest{})
-		res, err = req.Get("v2/projects/{projectUid}/jobs/{jobUid}/downloadTargetFile/{asyncRequestId}")
-
-		if err != nil {
-			return nil, err
-		}
-
-		if res.StatusCode() == 404 {
-			continue
-		}
-
-		if res.StatusCode() != 200 {
-			log.L.Error().Str("jobUID", jobUID).Int("status", res.StatusCode()).Msg("Unexpected status code when fetching file")
-			continue
-		}
-
-		return res.Body(), nil
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, nil
+	if res.StatusCode() != 200 {
+		log.L.Error().
+			Str("body", string(res.Body())).
+			Str("jobUID", jobUID).
+			Int("status", res.StatusCode()).
+			Msg("Unexpected status code when fetching file")
+		return nil, fmt.Errorf("unable to fetch file, status code: %d", res.StatusCode())
+	}
+
+	return res.Body(), nil
 }

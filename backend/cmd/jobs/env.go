@@ -37,10 +37,11 @@ type videomanipulatorConfig struct {
 }
 
 type phraseConfig struct {
-	BaseURL    string
-	Username   string
-	Password   string
-	ProjectUID string
+	BaseURL     string
+	Username    string
+	Password    string
+	ProjectUID  string
+	CallbackURL string
 }
 
 type envConfig struct {
@@ -144,9 +145,10 @@ func getEnvConfig() envConfig {
 			apiKey:  os.Getenv("VIDEOMANIPULATOR_API_KEY"),
 		},
 		Phrase: phraseConfig{
-			Username:   os.Getenv("PHRASE_USERNAME"),
-			Password:   os.Getenv("PHRASE_PASSWORD"),
-			ProjectUID: os.Getenv("PHRASE_PROJECT_UID"),
+			Username:    os.Getenv("PHRASE_USERNAME"),
+			Password:    os.Getenv("PHRASE_PASSWORD"),
+			ProjectUID:  os.Getenv("PHRASE_PROJECT_UID"),
+			CallbackURL: os.Getenv("PHRASE_CALLBACK_URL"),
 		},
 	}
 }
