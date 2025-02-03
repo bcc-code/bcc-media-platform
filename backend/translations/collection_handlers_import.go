@@ -437,19 +437,25 @@ func (s *Service) updateSurveys(ctx context.Context, data []common.TranslationDa
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdateSurveyTranslation(ctx, sqlc.UpdateSurveyTranslationParams{
+		err = s.queries.UpdateSurveyTranslation(ctx, sqlc.UpdateSurveyTranslationParams{
 			Language:    d.Language,
 			ItemID:      utils.AsUuid(d.ID),
 			Description: value.Description,
 			Title:       null.StringFrom(value.Title),
 		})
+		if err != nil {
+			errs = append(errs, err)
+		}
 
 		for _, q := range value.Questions {
-			s.queries.UpdateSurveyQuestionTranslation(ctx, sqlc.UpdateSurveyQuestionTranslationParams{
+			err = s.queries.UpdateSurveyQuestionTranslation(ctx, sqlc.UpdateSurveyQuestionTranslationParams{
 				Language: d.Language,
 				ItemID:   utils.AsUuid(q.ID),
 				Title:    null.StringFrom(q.Title),
 			})
+			if err != nil {
+				errs = append(errs, err)
+			}
 		}
 
 	}
@@ -476,6 +482,9 @@ func (s *Service) updateTopics(ctx context.Context, data []common.TranslationDat
 			Description: value.Description,
 			Title:       null.StringFrom(value.Title),
 		})
+		if err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {

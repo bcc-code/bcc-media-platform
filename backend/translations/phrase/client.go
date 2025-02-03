@@ -25,7 +25,7 @@ var exportLanguageMap = map[string]string{
 }
 
 var importLanguageMap = map[string]string{
-	"en-US": "en",
+	"en_us": "en",
 	"nb":    "no",
 }
 
@@ -175,6 +175,8 @@ func (c *Client) ProcessWebhook(ctx context.Context, originalRequest *http.Reque
 				Msg("Unable to unmarshal json")
 			return collection, nil, merry.Wrap(err)
 		}
+
+		log.L.Debug().Str("filename", payload.JobParts[0].FileName).Msg("Unmarshalled json")
 
 		for k, v := range data {
 			outData = append(outData, common.TranslationData{
