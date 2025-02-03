@@ -7,7 +7,10 @@ ifneq (,$(findstring xterm,${TERM}))
 else
 	YELLOW       := ""
 endif
-.PHONY: sqlc
+
+.PHONY: sqlc gql
+
+generate: sqlc/.generated gql
 
 build: dist/api dist/jobs dist/pubsub-helper
 

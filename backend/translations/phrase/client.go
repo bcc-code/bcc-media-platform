@@ -384,7 +384,11 @@ func (c *Client) GetFile(jobUID string) ([]byte, error) {
 	}
 
 	if res.StatusCode() != 202 {
-		log.L.Error().Str("jobUID", jobUID).Int("status", res.StatusCode()).Msg("Unexpected status code when requesting result file")
+		log.L.Error().
+			Str("jobUID", jobUID).
+			Int("status", res.StatusCode()).
+			Str("body", string(res.Body())).
+			Msg("Unexpected status code when requesting result file")
 		return nil, err
 	}
 
