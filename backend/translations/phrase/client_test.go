@@ -29,7 +29,7 @@ func newClient(t *testing.T) *phrase.Client {
 		t.Skip("Skipping test because PHRASE_USERNAME, PHRASE_PASSWORD and PHRASE_PROJECT_ID are not set")
 	}
 
-	c := phrase.NewClient(url, userName, password, projectUID)
+	c := phrase.NewClient(nil, url, userName, password, projectUID, "CALLBACK")
 	err := c.Authenticate()
 	assert.NoError(t, err)
 	return c
@@ -115,7 +115,7 @@ func TestWebhook(t *testing.T) {
 
 	ctx := context.Background()
 	c := newClient(t)
-	collection, data, err := c.ProcessWebhook(ctx, "/not/important/here/for/phrase", []byte(jsonData))
+	collection, data, err := c.ProcessWebhook(ctx, nil, []byte(jsonData))
 	assert.NoError(t, err)
 
 	assert.Equal(t, &translations.CollectionSurveys, collection)
