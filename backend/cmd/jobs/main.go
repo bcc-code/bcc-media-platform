@@ -73,7 +73,7 @@ func main() {
 	eventHandler := events.NewHandler()
 	statisticsHandler := statistics.NewHandler(ctx, config.BigQuery, queries)
 
-	phraseClient := phrase.NewClient(rdb, "", config.Phrase.Username, config.Phrase.Password, config.Phrase.ProjectUID, config.Phrase.CallbackURL)
+	phraseClient := phrase.NewClient(rdb, config.Phrase)
 	err = phraseClient.Authenticate()
 	if err != nil {
 		log.L.Panic().Err(err).Msg("Failed to authenticate phrase")
