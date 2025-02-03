@@ -408,6 +408,10 @@ func (c *Client) GetFile(jobUID string) ([]byte, error) {
 			return nil, err
 		}
 
+		if res.StatusCode() == 404 {
+			continue
+		}
+
 		if res.StatusCode() != 200 {
 			log.L.Error().Str("jobUID", jobUID).Int("status", res.StatusCode()).Msg("Unexpected status code when fetching file")
 			continue
