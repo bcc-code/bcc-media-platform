@@ -6,6 +6,8 @@ fragment Task on Task {
     ... on AlternativesTask {
         competitionMode
         locked
+        lockAnswer
+        showAnswer
         alternatives {
             id
             title
