@@ -9,7 +9,7 @@ const props = defineProps<{
     text: string
     selected: boolean
     correct: boolean | null | undefined
-    competitionMode: boolean
+    showAnswer: boolean
     locked: boolean
 }>()
 
@@ -38,7 +38,7 @@ const handleClick = () => {
         if (webViewMain) {
             webViewMain.hapticFeedback('heavyImpact')
         } else if (navigator.vibrate) {
-			   navigator.vibrate(20)
+            navigator.vibrate(20)
         }
     } else if (props.correct === false || props.locked) {
         shake()
@@ -138,7 +138,7 @@ const conditionalClass = computed(() => {
             <div v-else class="w-4">&nbsp;</div>
         </div>
         <div
-            v-if="!competitionMode"
+            v-if="showAnswer"
             class="absolute top-50 left-0 pr-4 pointer-events-none z-20"
         >
             <LottieAnimation

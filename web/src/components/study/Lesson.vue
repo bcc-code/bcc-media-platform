@@ -60,10 +60,6 @@ onMounted(async () => {
     }
 })
 
-watch(page, (val) => {
-    console.log(val)
-})
-
 const reload = () => {
     executeQuery()
 }

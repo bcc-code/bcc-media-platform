@@ -47,7 +47,7 @@ const getLetter = (index: number) => ['A', 'B', 'C', 'D', 'E', 'F', 'G'][index]
 
 watch(
     selectedIndex,
-    (after, before) => {
+    (after) => {
         let alternative = after == null ? null : task.value.alternatives[after]
         if (alternative && task.value.competitionMode) {
             isDone.value = true
@@ -62,6 +62,7 @@ watch(
 
 function selectAnswer(id: string) {
     if (task.value.locked) return
+    if (task.value.lockAnswer) return
     for (const alt of task.value.alternatives) {
         alt.selected = id == alt.id
     }
@@ -92,16 +93,16 @@ function selectAnswer(id: string) {
         >
             <Alternative
                 v-for="(alt, i) in task.alternatives"
-                :key="alt.title"
+                :key="alt.id"
                 :letter="getLetter(i)"
                 :text="alt.title"
-                :locked="task.locked"
+                :locked="task.locked || task.lockAnswer"
                 :correct="
-                    noWrongAnswers || task.competitionMode
+                    noWrongAnswers || task.competitionMode || !task.showAnswer
                         ? undefined
                         : alt.isCorrect
                 "
-                :competition-mode="task.competitionMode"
+                :show-answer="!task.competitionMode || task.showAnswer"
                 :selected="selectedIndex == i"
                 :class="
                     selectedIndex != i && selectedIndex != null
