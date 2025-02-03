@@ -2,9 +2,19 @@ package phrase
 
 import "time"
 
+type Config struct {
+	BaseURL     string
+	Username    string
+	Password    string
+	ProjectUID  string
+	CallbackURL string
+	UserUID     string
+}
+
 type loginRequest struct {
 	UserName string `json:"userName"`
 	Password string `json:"password"`
+	UserUID  string `json:"userUid"`
 	Remember bool   `json:"rememberMe"`
 }
 

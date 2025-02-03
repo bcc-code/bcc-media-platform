@@ -24,12 +24,20 @@ func newClient(t *testing.T) *phrase.Client {
 	userName := os.Getenv("PHRASE_USERNAME")
 	password := os.Getenv("PHRASE_PASSWORD")
 	projectUID := os.Getenv("PHRASE_PROJECT_ID")
+	userUID := os.Getenv("PHRASE_USER_ID")
 
 	if userName == "" || password == "" || projectUID == "" {
 		t.Skip("Skipping test because PHRASE_USERNAME, PHRASE_PASSWORD and PHRASE_PROJECT_ID are not set")
 	}
 
-	c := phrase.NewClient(nil, url, userName, password, projectUID, "CALLBACK")
+	c := phrase.NewClient(nil, phrase.Config{
+		ProjectUID:  projectUID,
+		UserUID:     userUID,
+		BaseURL:     url,
+		Username:    userName,
+		Password:    password,
+		CallbackURL: "CALLBACK",
+	})
 	err := c.Authenticate()
 	assert.NoError(t, err)
 	return c
@@ -38,7 +46,7 @@ func newClient(t *testing.T) *phrase.Client {
 func Test_ListJobs(t *testing.T) {
 	c := newClient(t)
 
-	res, err := c.GetJobs("data.json")
+	res, err := c.GetJobs("Explorers temapakke 8 - Guds ord - Bokhylle.pptx")
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
 

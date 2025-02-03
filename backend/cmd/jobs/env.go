@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/bcc-code/bcc-media-platform/backend/translations/phrase"
 	"github.com/joho/godotenv"
 	"os"
 	"strconv"
@@ -36,14 +37,6 @@ type videomanipulatorConfig struct {
 	apiKey  string
 }
 
-type phraseConfig struct {
-	BaseURL     string
-	Username    string
-	Password    string
-	ProjectUID  string
-	CallbackURL string
-}
-
 type envConfig struct {
 	AWS               awsConfig
 	AzureStorage      files.AzureConfig
@@ -61,7 +54,7 @@ type envConfig struct {
 	Members           members.Config
 	BigQuery          statistics.BigQueryConfig
 	VideoManipulator  videomanipulatorConfig
-	Phrase            phraseConfig
+	Phrase            phrase.Config
 }
 
 func getEnvConfig() envConfig {
@@ -144,9 +137,10 @@ func getEnvConfig() envConfig {
 			baseURL: os.Getenv("VIDEOMANIPULATOR_BASE_URL"),
 			apiKey:  os.Getenv("VIDEOMANIPULATOR_API_KEY"),
 		},
-		Phrase: phraseConfig{
+		Phrase: phrase.Config{
 			Username:    os.Getenv("PHRASE_USERNAME"),
 			Password:    os.Getenv("PHRASE_PASSWORD"),
+			UserUID:     os.Getenv("PHRASE_USER_UID"),
 			ProjectUID:  os.Getenv("PHRASE_PROJECT_UID"),
 			CallbackURL: os.Getenv("PHRASE_CALLBACK_URL"),
 		},

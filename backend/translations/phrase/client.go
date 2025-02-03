@@ -47,19 +47,16 @@ func langForImport(lang string) string {
 
 // Client for Phrase TMS based on https://cloud.memsource.com/web/docs/api
 type Client struct {
-	baseURL         string
-	callbackURL     string
+	Config
 	token           string
-	userName        string
-	password        string
-	projectUID      string
 	targetLanguages []string
 	tokenExpiry     time.Time
 	httpClient      *resty.Client
 	redisClient     *redis.Client
 }
 
-func NewClient(redisDB *redis.Client, baseURL, userName, password, projectUID, callbackURL string) *Client {
+func NewClient(redisDB *redis.Client, config Config) *Client {
+	baseURL := config.BaseURL
 	if baseURL == "" {
 		baseURL = "https://cloud.memsource.com/web/api2"
 	}
@@ -72,12 +69,8 @@ func NewClient(redisDB *redis.Client, baseURL, userName, password, projectUID, c
 	r.BaseURL = baseURL
 
 	return &Client{
-		baseURL:     baseURL,
-		callbackURL: callbackURL,
-		httpClient:  r,
-		userName:    userName,
-		password:    password,
-		projectUID:  projectUID,
+		Config:     config,
+		httpClient: r,
 
 		redisClient: redisDB,
 
@@ -147,7 +140,7 @@ func (c *Client) ProcessWebhook(ctx context.Context, originalRequest *http.Reque
 		projectToCheck = payload.AsyncRequest.Project.UID
 	}
 
-	if projectToCheck != c.projectUID {
+	if projectToCheck != c.ProjectUID {
 		return nil, nil, merry.Wrap(ErrUnknownProject)
 	}
 
@@ -218,7 +211,7 @@ func (c *Client) Authenticate() error {
 	}
 
 	req := c.httpClient.R()
-	req.SetBody(loginRequest{UserName: c.userName, Password: c.password, Remember: true}).
+	req.SetBody(loginRequest{UserName: c.Username, Password: c.Password, UserUID: c.UserUID, Remember: true}).
 		SetResult(&LoginResponse{})
 
 	res, err := req.Post("v3/auth/login")
@@ -281,7 +274,7 @@ func (c *Client) updateJobsStatus(jobs []Job, status Status) error {
 	if res.StatusCode() != 200 {
 		body, _ := json.Marshal(res.Request.Body)
 		log.L.Error().
-			Str("projectID", c.projectUID).
+			Str("projectID", c.ProjectUID).
 			Int("status", res.StatusCode()).
 			Bytes("body", res.Body()).
 			Bytes("req_body", body).
@@ -308,14 +301,14 @@ func (c *Client) CreateJob(targetLanguages []string, path, filename string, data
 		SetHeader("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename)).
 		SetHeader("Content-Type", "application/octet-stream").
 		SetBody(data).
-		Post(fmt.Sprintf("v1/projects/%s/jobs", url.PathEscape(c.projectUID)))
+		Post(fmt.Sprintf("v1/projects/%s/jobs", url.PathEscape(c.ProjectUID)))
 
 	if err != nil {
 		return err
 	}
 
 	if res.StatusCode() != 201 {
-		log.L.Error().Str("projectID", c.projectUID).Str("filename", string(res.Body())).Int("status", res.StatusCode()).Msg("Unexpected status code when creating job")
+		log.L.Error().Str("projectID", c.ProjectUID).Str("filename", string(res.Body())).Int("status", res.StatusCode()).Msg("Unexpected status code when creating job")
 		return merry.Errorf("unable to fetch project")
 	}
 
@@ -345,7 +338,7 @@ func (c *Client) UpdateSource(jobs []string, filename string, data []byte) error
 		SetHeader("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename)).
 		SetHeader("Content-Type", "application/octet-stream").
 		SetBody(data).
-		Post(fmt.Sprintf("v1/projects/%s/jobs/source", url.PathEscape(c.projectUID)))
+		Post(fmt.Sprintf("v1/projects/%s/jobs/source", url.PathEscape(c.ProjectUID)))
 
 	if err != nil {
 		return err
@@ -361,7 +354,7 @@ func (c *Client) UpdateSource(jobs []string, filename string, data []byte) error
 func (c *Client) GetJob(jobUID string) (*Job, error) {
 	req := c.httpClient.R()
 
-	req.SetPathParam("projectID", c.projectUID)
+	req.SetPathParam("projectID", c.ProjectUID)
 	req.SetPathParam("jobUID", jobUID)
 
 	req.SetResult(&Job{})
@@ -382,7 +375,7 @@ func (c *Client) GetJob(jobUID string) (*Job, error) {
 func (c *Client) GetJobs(filename string) ([]Job, error) {
 	req := c.httpClient.R()
 
-	req.SetPathParam("projectID", c.projectUID)
+	req.SetPathParam("projectID", c.ProjectUID)
 
 	if filename != "" {
 		req.SetQueryParam("filename", filename)
@@ -406,9 +399,9 @@ func (c *Client) GetJobs(filename string) ([]Job, error) {
 func (c *Client) GetFileAsync(ctx context.Context, jobUID string) error {
 	req := c.httpClient.R()
 
-	req.SetPathParam("projectUid", c.projectUID)
+	req.SetPathParam("projectUid", c.ProjectUID)
 	req.SetPathParam("jobUid", jobUID)
-	req.SetBody(gin.H{"callbackUrl": c.callbackURL})
+	req.SetBody(gin.H{"callbackUrl": c.CallbackURL})
 	req.SetResult(&AsyncRequestResponse{})
 
 	res, err := req.Put("v3/projects/{projectUid}/jobs/{jobUid}/targetFile")
@@ -449,7 +442,7 @@ func (c *Client) DownloadFile(ctx context.Context, jobUID string, asyncRequestID
 		return nil, err
 	}
 
-	req.SetPathParam("projectUid", c.projectUID)
+	req.SetPathParam("projectUid", c.ProjectUID)
 	req.SetPathParam("jobUid", jobUID)
 	req.SetPathParam("asyncRequestId", fmt.Sprintf("%d", downloadID))
 	req.SetBody(struct{}{})
