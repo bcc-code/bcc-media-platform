@@ -161,6 +161,11 @@ func (c *Client) ProcessWebhook(ctx context.Context, url string, hookData []byte
 		err = json.Unmarshal(fileData, &data)
 
 		if err != nil {
+			log.L.Error().
+				Err(err).
+				Str("filename", part.FileName).
+				Str("data", string(fileData)).
+				Msg("Unable to unmarshal json")
 			return collection, nil, merry.Wrap(err)
 		}
 
