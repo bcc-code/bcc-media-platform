@@ -58,13 +58,6 @@ const currentIsLastTask = computed(() => {
     )
 })
 
-console.log({
-    currentTaskIndex: currentTaskIndex.value,
-    currentTask: currentTask.value,
-    currentIsFirstTask: currentIsFirstTask.value,
-    currentIsLastTask: currentIsLastTask.value,
-})
-
 const competitionAnswers = ref<{ [taskId: string]: string }>({})
 const showConsentModal = ref(false)
 const lockingInProgress = ref(false)

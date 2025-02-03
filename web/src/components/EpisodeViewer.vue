@@ -208,7 +208,6 @@ const setupVideoLanguageMenu = (player: Player) => {
         })
 
     function setVideoLanguage(lang: string | undefined) {
-        console.log('Setting video language to', lang)
         let url = `?t=${player.currentTime()}`
         if (lang) {
             url += `&videoLang=${lang}`

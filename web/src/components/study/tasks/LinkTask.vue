@@ -27,7 +27,6 @@ const task = computed(() => {
     return (props.task.__typename == 'LinkTask' ? props.task : undefined)!
 })
 
-console.log('href: ' + location.href)
 const isSpecialGreetingLink =
     task.value.link.url.indexOf(
         'lesson/2b4d070b-ac92-4c78-ac0b-26abe9de4b89'
@@ -56,14 +55,11 @@ const redirectQuery = useGetRedirectUrlQuery({
         code: redirectCode ?? '',
     },
 })
-console.log(task.value.title)
 
 const openLink = async () => {
     const t = completeTask({ taskId: task.value.id })
     if (isRedirectLink) {
-        console.log('redirectCode: ' + redirectCode)
         const redirect = await redirectQuery
-        console.log('redirect: ' + JSON.stringify(redirect))
         const url = redirect.data.value?.redirect.url
         if (url == null) throw Error('Redirect url was null')
         await t

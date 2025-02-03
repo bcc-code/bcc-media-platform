@@ -117,8 +117,6 @@ const loadMore = async () => {
 
     const bottom = scrollTop + innerHeight * 2 >= offsetHeight
 
-    // console.log(`ScrollTop: ${scrollTop}. \nOffsetHeight: ${offsetHeight}. \nInnerHeight: ${innerHeight}\nBottom: ${bottom} \n\n`)
-
     if (bottom) {
         const p = getSectionsQuery.data.value?.page ?? page.value
         if (!p) {
