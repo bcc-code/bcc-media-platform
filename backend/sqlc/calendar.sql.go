@@ -21,6 +21,7 @@ FROM calendarentries_translations et
     JOIN calendarentries e ON e.id = et.calendarentries_id
 WHERE et.languages_code ='no'
   AND et.date_updated > $1
+  AND e.date_updated > $1
   AND e.status = ANY ('{published,unlisted}')
 `
 

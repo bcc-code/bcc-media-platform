@@ -66,6 +66,7 @@ WITH episodes AS (SELECT e.id
                            LEFT JOIN seasons s ON s.id = e.season_id
                            LEFT JOIN shows sh ON sh.id = s.show_id
                   WHERE e.translations_required
+                    AND e.date_updated > $1
                     AND e.status = ANY ('{published,unlisted}')
                     AND (e.season_id IS NULL OR (s.status = ANY ('{published,unlisted}')
                       AND sh.status = ANY ('{published,unlisted}'))))
@@ -184,6 +185,7 @@ FROM links_translations st
          JOIN links e ON e.id = st.links_id
 WHERE st.languages_code = 'no'
   AND st.date_updated > $1
+  AND e.date_updated > $1
   AND e.translations_required
   AND status = ANY ('{published,unlisted}')
 `
@@ -299,6 +301,7 @@ FROM seasons_translations st
          JOIN shows sh ON sh.id = s.show_id
 WHERE st.languages_code = 'no'
   AND st.date_updated > $1
+  AND s.date_updated > $1
   AND s.translations_required
   AND s.status = ANY ('{published,unlisted}')
   AND sh.status = ANY ('{published,unlisted}')
@@ -339,6 +342,7 @@ FROM sections_translations st
          JOIN sections s ON s.id = st.sections_id
 WHERE st.languages_code = 'no'
   AND st.date_updated > $1
+  AND s.date_updated > $1
   AND s.translations_required
   AND s.status = 'published'
   AND s.show_title = true
@@ -379,6 +383,7 @@ FROM shows_translations st
          JOIN shows s ON s.id = st.shows_id
 WHERE st.languages_code = 'no'
   AND st.date_updated > $1
+  AND s.date_updated > $1
   AND s.translations_required
   AND s.status = ANY ('{published,unlisted}')
 `
