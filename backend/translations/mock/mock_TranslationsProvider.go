@@ -7,6 +7,8 @@ import (
 
 	common "github.com/bcc-code/bcc-media-platform/backend/common"
 
+	http "net/http"
+
 	mock "github.com/stretchr/testify/mock"
 
 	translations "github.com/bcc-code/bcc-media-platform/backend/translations"
@@ -25,9 +27,9 @@ func (_m *MockTranslationsProvider) EXPECT() *MockTranslationsProvider_Expecter 
 	return &MockTranslationsProvider_Expecter{mock: &_m.Mock}
 }
 
-// ProcessWebhook provides a mock function with given fields: ctx, url, hookData
-func (_m *MockTranslationsProvider) ProcessWebhook(ctx context.Context, url string, hookData []byte) (*translations.TranslatableCollection, []common.TranslationData, error) {
-	ret := _m.Called(ctx, url, hookData)
+// ProcessWebhook provides a mock function with given fields: ctx, originalRequest, hookData
+func (_m *MockTranslationsProvider) ProcessWebhook(ctx context.Context, originalRequest *http.Request, hookData []byte) (*translations.TranslatableCollection, []common.TranslationData, error) {
+	ret := _m.Called(ctx, originalRequest, hookData)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ProcessWebhook")
@@ -36,27 +38,27 @@ func (_m *MockTranslationsProvider) ProcessWebhook(ctx context.Context, url stri
 	var r0 *translations.TranslatableCollection
 	var r1 []common.TranslationData
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, []byte) (*translations.TranslatableCollection, []common.TranslationData, error)); ok {
-		return rf(ctx, url, hookData)
+	if rf, ok := ret.Get(0).(func(context.Context, *http.Request, []byte) (*translations.TranslatableCollection, []common.TranslationData, error)); ok {
+		return rf(ctx, originalRequest, hookData)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, []byte) *translations.TranslatableCollection); ok {
-		r0 = rf(ctx, url, hookData)
+	if rf, ok := ret.Get(0).(func(context.Context, *http.Request, []byte) *translations.TranslatableCollection); ok {
+		r0 = rf(ctx, originalRequest, hookData)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*translations.TranslatableCollection)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, []byte) []common.TranslationData); ok {
-		r1 = rf(ctx, url, hookData)
+	if rf, ok := ret.Get(1).(func(context.Context, *http.Request, []byte) []common.TranslationData); ok {
+		r1 = rf(ctx, originalRequest, hookData)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).([]common.TranslationData)
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, string, []byte) error); ok {
-		r2 = rf(ctx, url, hookData)
+	if rf, ok := ret.Get(2).(func(context.Context, *http.Request, []byte) error); ok {
+		r2 = rf(ctx, originalRequest, hookData)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -71,15 +73,15 @@ type MockTranslationsProvider_ProcessWebhook_Call struct {
 
 // ProcessWebhook is a helper method to define mock.On call
 //   - ctx context.Context
-//   - url string
+//   - originalRequest *http.Request
 //   - hookData []byte
-func (_e *MockTranslationsProvider_Expecter) ProcessWebhook(ctx interface{}, url interface{}, hookData interface{}) *MockTranslationsProvider_ProcessWebhook_Call {
-	return &MockTranslationsProvider_ProcessWebhook_Call{Call: _e.mock.On("ProcessWebhook", ctx, url, hookData)}
+func (_e *MockTranslationsProvider_Expecter) ProcessWebhook(ctx interface{}, originalRequest interface{}, hookData interface{}) *MockTranslationsProvider_ProcessWebhook_Call {
+	return &MockTranslationsProvider_ProcessWebhook_Call{Call: _e.mock.On("ProcessWebhook", ctx, originalRequest, hookData)}
 }
 
-func (_c *MockTranslationsProvider_ProcessWebhook_Call) Run(run func(ctx context.Context, url string, hookData []byte)) *MockTranslationsProvider_ProcessWebhook_Call {
+func (_c *MockTranslationsProvider_ProcessWebhook_Call) Run(run func(ctx context.Context, originalRequest *http.Request, hookData []byte)) *MockTranslationsProvider_ProcessWebhook_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].([]byte))
+		run(args[0].(context.Context), args[1].(*http.Request), args[2].([]byte))
 	})
 	return _c
 }
@@ -89,7 +91,7 @@ func (_c *MockTranslationsProvider_ProcessWebhook_Call) Return(collection *trans
 	return _c
 }
 
-func (_c *MockTranslationsProvider_ProcessWebhook_Call) RunAndReturn(run func(context.Context, string, []byte) (*translations.TranslatableCollection, []common.TranslationData, error)) *MockTranslationsProvider_ProcessWebhook_Call {
+func (_c *MockTranslationsProvider_ProcessWebhook_Call) RunAndReturn(run func(context.Context, *http.Request, []byte) (*translations.TranslatableCollection, []common.TranslationData, error)) *MockTranslationsProvider_ProcessWebhook_Call {
 	_c.Call.Return(run)
 	return _c
 }
