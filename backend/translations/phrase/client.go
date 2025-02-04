@@ -82,10 +82,6 @@ func NewClient(redisDB *redis.Client, config Config) *Client {
 type translationFile map[string]json.RawMessage
 
 // SendToTranslation sends the data provided to Phrase
-//
-// Agreed with Milenko 2025-01-13:
-// * There should be one job per logical unit (e.g. shows, questions, episodes, etc.)
-// * The job should be continuously updated
 func (m *Client) SendToTranslation(ctx context.Context, collection string, data []common.TranslationData) error {
 	// Generate the final data structure
 	outputFile := translationFile{}
@@ -117,6 +113,7 @@ func (m *Client) SendToTranslation(ctx context.Context, collection string, data 
 		err = m.UpdateSource(existingJobs, filename, outputData)
 	}
 
+	existingLangs = lo.Map(existingLangs, func(s string, _ int) string { return langForImport(s) })
 	nonExisting, _ := lo.Difference(m.targetLanguages, existingLangs)
 	if len(nonExisting) > 0 {
 		err = m.CreateJob(nonExisting, "/", filename, outputData)

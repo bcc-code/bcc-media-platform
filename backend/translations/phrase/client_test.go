@@ -46,7 +46,7 @@ func newClient(t *testing.T) *phrase.Client {
 func Test_ListJobs(t *testing.T) {
 	c := newClient(t)
 
-	res, err := c.GetJobs("Explorers temapakke 8 - Guds ord - Bokhylle.pptx")
+	res, err := c.GetJobs("events.json")
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
 
