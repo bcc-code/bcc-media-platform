@@ -75,7 +75,7 @@ func NewClient(redisDB *redis.Client, config Config) *Client {
 		redisClient: redisDB,
 
 		// Hardcoded, because at the moment I don't see the value in allowing this to be configurable
-		targetLanguages: []string{"da", "de", "en-US", "fr", "fi", "hu", "it", "nl", "pl", "pt", "ro"},
+		targetLanguages: []string{"da", "de", "en", "fr", "fi", "hu", "it", "nl", "pl", "pt", "ro"},
 	}
 }
 
@@ -106,16 +106,16 @@ func (m *Client) SendToTranslation(ctx context.Context, collection string, data 
 	// Check if we have all targetLanguages
 	for _, job := range jobs {
 		existingJobs = append(existingJobs, job.UID)
-		existingLangs = append(existingLangs, langForExport(job.TargetLang))
+		existingLangs = append(existingLangs, langForImport(job.TargetLang))
 	}
 
 	if len(existingJobs) > 0 {
 		err = m.UpdateSource(existingJobs, filename, outputData)
 	}
 
-	existingLangs = lo.Map(existingLangs, func(s string, _ int) string { return langForImport(s) })
 	nonExisting, _ := lo.Difference(m.targetLanguages, existingLangs)
 	if len(nonExisting) > 0 {
+		nonExisting = lo.Map(nonExisting, func(s string, _ int) string { return langForExport(s) })
 		err = m.CreateJob(nonExisting, "/", filename, outputData)
 	}
 
