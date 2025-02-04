@@ -20,7 +20,7 @@ import (
 )
 
 var exportLanguageMap = map[string]string{
-	"en": "en-US",
+	"en": "en_us",
 	"no": "nb",
 }
 
