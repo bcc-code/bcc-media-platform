@@ -1,6 +1,12 @@
 import { currentWebView } from '@/utils/webview'
 import { WebView } from '@/webview'
 
+export type WebViewStudyHandlerCompletedTask = {
+    questionId: string
+    answerId: string
+    answeredCorrectly: boolean
+}
+
 class WebViewStudyHandler {
     handlerName: string
     webView: WebView
@@ -9,10 +15,11 @@ class WebViewStudyHandler {
         this.handlerName = webView.type == 'flutter' ? 'flutter_study' : 'study'
     }
 
-    tasksCompleted() {
+    tasksCompleted(answers?: WebViewStudyHandlerCompletedTask[]) {
         this.webView.communication.callHandler(
             this.handlerName,
-            'tasks_completed'
+            'tasks_completed',
+            answers
         )
     }
 }

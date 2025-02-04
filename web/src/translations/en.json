@@ -18,7 +18,8 @@
         "skip": "Skip",
         "join": "Join",
         "open": "Open",
-        "showMore": "Show more"
+        "showMore": "Show more",
+        "confirm": "Confirm"
     },
     "download": {
         "resolution": "Resolution",

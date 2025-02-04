@@ -21,8 +21,9 @@ const { t } = useI18n()
 
 const alreadySent = computed(
     () =>
+        props.lesson.studyLesson.progress.alternativesTasksTotal > 0 &&
         props.lesson.studyLesson.progress.alternativesTasksCompleted ===
-        props.lesson.studyLesson.progress.alternativesTasksTotal
+            props.lesson.studyLesson.progress.alternativesTasksTotal
 )
 </script>
 

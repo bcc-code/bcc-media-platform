@@ -13,7 +13,7 @@ const props = defineProps<{
     locked: boolean
 }>()
 
-const confetti = ref()
+const confetti = ref<InstanceType<typeof LottieAnimation>>()
 const shaking = ref(false)
 const scaleShaking = ref(false)
 
@@ -31,16 +31,18 @@ function scaleShake() {
 }
 
 const handleClick = () => {
-    if (props.correct === true) {
-        confetti.value.stop()
-        confetti.value.play()
+    if (props.showAnswer && props.correct === true) {
+        if (confetti.value) {
+            confetti.value.stop()
+            confetti.value.play()
+        }
         scaleShake()
         if (webViewMain) {
             webViewMain.hapticFeedback('heavyImpact')
         } else if (navigator.vibrate) {
             navigator.vibrate(20)
         }
-    } else if (props.correct === false || props.locked) {
+    } else if ((props.showAnswer && props.correct === false) || props.locked) {
         shake()
         if (webViewMain) {
             webViewMain.hapticFeedback('mediumImpact')
@@ -64,7 +66,9 @@ const conditionalClass = computed(() => {
     if (scaleShaking.value) {
         classString += ' scaleShake'
     }
-    if (props.selected && props.correct === true) {
+    if (props.selected && !props.showAnswer) {
+        classString += ' cursor-default border-slate-700'
+    } else if (props.selected && props.correct === true) {
         classString += ' border-tint-3 cursor-default'
     } else if (props.selected && props.correct === false) {
         classString += ' border-tint-2 cursor-default'
@@ -94,7 +98,11 @@ const conditionalClass = computed(() => {
 
         <div class="flex items-center justify-center p-1.5 pr-4">
             <svg
-                v-if="props.selected && props.correct === false"
+                v-if="
+                    props.selected &&
+                    props.correct === false &&
+                    props.showAnswer
+                "
                 width="14"
                 height="14"
                 viewBox="0 0 14 14"
@@ -105,7 +113,9 @@ const conditionalClass = computed(() => {
                 <path d="M1 1L13 13" stroke="#E63C62" stroke-width="2" />
             </svg>
             <svg
-                v-else-if="props.selected && props.correct === true"
+                v-else-if="
+                    props.selected && props.correct === true && props.showAnswer
+                "
                 width="15"
                 height="12"
                 viewBox="0 0 15 12"
@@ -148,8 +158,12 @@ const conditionalClass = computed(() => {
                 width="100%"
                 :speed="1"
                 :animation-data="confettiAnimation"
-                @on-complete="() => confetti.stop()"
-            ></LottieAnimation>
+                @on-complete="
+                    () => {
+                        if (confetti) confetti.stop()
+                    }
+                "
+            />
         </div>
     </div>
 </template>

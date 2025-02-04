@@ -4,7 +4,6 @@ fragment Task on Task {
     title
     completed
     ... on AlternativesTask {
-        competitionMode
         locked
         lockAnswer
         showAnswer
