@@ -64,3 +64,16 @@ WHERE g.id = ANY (@id::uuid[]);
 SELECT p.id, p.code
 FROM applications p
 WHERE p.code = ANY ($1::varchar[]);
+
+-- name: CreateApplicationGroup :one
+INSERT INTO applicationgroups (
+                               id,
+                               user_created,
+                               date_created,
+                               label
+) VALUES (
+          gen_random_uuid(),
+          @user_created::uuid,
+          now(),
+          @label
+) returning id;

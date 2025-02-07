@@ -15,6 +15,21 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const addStudytopicFilterToCondition = `-- name: AddStudytopicFilterToCondition :exec
+INSERT INTO "achievementconditions_studytopics" (achievementconditions_id, studytopics_id)
+VALUES ($1::uuid, $2::uuid)
+`
+
+type AddStudytopicFilterToConditionParams struct {
+	ConditionID  uuid.UUID `db:"condition_id" json:"conditionId"`
+	StudytopicID uuid.UUID `db:"studytopic_id" json:"studytopicId"`
+}
+
+func (q *Queries) AddStudytopicFilterToCondition(ctx context.Context, arg AddStudytopicFilterToConditionParams) error {
+	_, err := q.db.ExecContext(ctx, addStudytopicFilterToCondition, arg.ConditionID, arg.StudytopicID)
+	return err
+}
+
 const confirmAchievement = `-- name: ConfirmAchievement :exec
 UPDATE "users"."achievements"
 SET confirmed_at = NOW()
@@ -32,6 +47,143 @@ func (q *Queries) ConfirmAchievement(ctx context.Context, arg ConfirmAchievement
 	return err
 }
 
+const createAchievement = `-- name: CreateAchievement :one
+
+INSERT INTO "achievements" (
+                                     id,
+    status,
+    user_created,
+    date_created,
+    group_id,
+    title,
+    description,
+    sort
+) VALUES (
+             gen_random_uuid(),
+             $1,
+             $2::uuid,
+             now(),
+             $3::uuid,
+             $4,
+             $5,
+             $6
+         ) returning id
+`
+
+type CreateAchievementParams struct {
+	Status      string         `db:"status" json:"status"`
+	UserCreated uuid.UUID      `db:"user_created" json:"userCreated"`
+	GroupID     uuid.UUID      `db:"group_id" json:"groupId"`
+	Title       string         `db:"title" json:"title"`
+	Description null_v4.String `db:"description" json:"description"`
+	Sort        null_v4.Int    `db:"sort" json:"sort"`
+}
+
+func (q *Queries) CreateAchievement(ctx context.Context, arg CreateAchievementParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, createAchievement,
+		arg.Status,
+		arg.UserCreated,
+		arg.GroupID,
+		arg.Title,
+		arg.Description,
+		arg.Sort,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
+const createAchievementGroup = `-- name: CreateAchievementGroup :one
+INSERT INTO "achievementgroups" (id, user_created, date_created, title) VALUES (
+                                                                                        gen_random_uuid(),
+                                                                                        $1::uuid,
+                                                                                        now(),
+                                                                                        $2
+                                                                                    ) RETURNING id
+`
+
+type CreateAchievementGroupParams struct {
+	UserCreated uuid.UUID      `db:"user_created" json:"userCreated"`
+	Title       null_v4.String `db:"title" json:"title"`
+}
+
+func (q *Queries) CreateAchievementGroup(ctx context.Context, arg CreateAchievementGroupParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, createAchievementGroup, arg.UserCreated, arg.Title)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
+const createCondition = `-- name: CreateCondition :one
+INSERT INTO "achievementconditions" (id, collection, action, amount, achievement_id)
+VALUES (gen_random_uuid(), $1, $2, $3, $4) RETURNING id
+`
+
+type CreateConditionParams struct {
+	Collection    string      `db:"collection" json:"collection"`
+	Action        string      `db:"action" json:"action"`
+	Amount        null_v4.Int `db:"amount" json:"amount"`
+	AchievementID uuid.UUID   `db:"achievement_id" json:"achievementId"`
+}
+
+func (q *Queries) CreateCondition(ctx context.Context, arg CreateConditionParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, createCondition,
+		arg.Collection,
+		arg.Action,
+		arg.Amount,
+		arg.AchievementID,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
+const createTask = `-- name: CreateTask :one
+INSERT INTO tasks (
+                   id,
+                   user_created,
+                   date_created,
+                   question_type,
+                   lesson_id,
+                   title,
+                   type,
+                   status
+)
+VALUES (
+          gen_random_uuid(),
+          $1::uuid,
+          now(),
+          $2,
+          $3::uuid,
+          $4,
+        $5,
+        $6
+       ) returning id
+`
+
+type CreateTaskParams struct {
+	UserCreated  uuid.UUID      `db:"user_created" json:"userCreated"`
+	QuestionType null_v4.String `db:"question_type" json:"questionType"`
+	LessonID     uuid.UUID      `db:"lesson_id" json:"lessonId"`
+	Title        null_v4.String `db:"title" json:"title"`
+	Type         string         `db:"type" json:"type"`
+	Status       string         `db:"status" json:"status"`
+}
+
+func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, createTask,
+		arg.UserCreated,
+		arg.QuestionType,
+		arg.LessonID,
+		arg.Title,
+		arg.Type,
+		arg.Status,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getAchievedAchievements = `-- name: GetAchievedAchievements :many
 SELECT a.achievement_id as id
 FROM "users"."achievements" a
@@ -40,12 +192,12 @@ WHERE a.profile_id = $1
 `
 
 type GetAchievedAchievementsParams struct {
-	ProfileID uuid.UUID   `db:"profile_id" json:"profileId"`
-	Column2   []uuid.UUID `db:"column_2" json:"column2"`
+	ProfileID      uuid.UUID   `db:"profile_id" json:"profileId"`
+	AchievementIds []uuid.UUID `db:"achievement_ids" json:"achievementIds"`
 }
 
 func (q *Queries) GetAchievedAchievements(ctx context.Context, arg GetAchievedAchievementsParams) ([]uuid.UUID, error) {
-	rows, err := q.db.QueryContext(ctx, getAchievedAchievements, arg.ProfileID, pq.Array(arg.Column2))
+	rows, err := q.db.QueryContext(ctx, getAchievedAchievements, arg.ProfileID, pq.Array(arg.AchievementIds))
 	if err != nil {
 		return nil, err
 	}
@@ -232,6 +384,63 @@ func (q *Queries) GetAchieventsTranslatableTexts(ctx context.Context, dateUpdate
 	return items, nil
 }
 
+const getNewConditionsForProfile = `-- name: GetNewConditionsForProfile :many
+SELECT
+    ac.achievement_id::uuid achievement_id,
+    ac.id::uuid condition_id,
+    ac.action,
+    ac.collection,
+    coalesce(ac.amount, 0)::int amount,
+    COALESCE(array_agg(st.studytopics_id) FILTER (WHERE studytopics_id IS NOT NULL), '{}')::uuid[] studytopics
+FROM achievements a
+                                                                                                      LEFT JOIN users.achievements ua ON ua.profile_id = $1::uuid AND a.id = ua.achievement_id
+                                                                                                      LEFT JOIN achievementconditions ac ON ac.achievement_id = a.id
+                                                                                                      LEFT JOIN achievementconditions_studytopics st ON ac.id = st.achievementconditions_id
+WHERE status = 'published'
+  AND action = 'completed'
+  AND profile_id IS NULL
+GROUP BY ac.id
+`
+
+type GetNewConditionsForProfileRow struct {
+	AchievementID uuid.UUID      `db:"achievement_id" json:"achievementId"`
+	ConditionID   uuid.UUID      `db:"condition_id" json:"conditionId"`
+	Action        null_v4.String `db:"action" json:"action"`
+	Collection    null_v4.String `db:"collection" json:"collection"`
+	Amount        int32          `db:"amount" json:"amount"`
+	Studytopics   []uuid.UUID    `db:"studytopics" json:"studytopics"`
+}
+
+func (q *Queries) GetNewConditionsForProfile(ctx context.Context, profileID uuid.UUID) ([]GetNewConditionsForProfileRow, error) {
+	rows, err := q.db.QueryContext(ctx, getNewConditionsForProfile, profileID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetNewConditionsForProfileRow
+	for rows.Next() {
+		var i GetNewConditionsForProfileRow
+		if err := rows.Scan(
+			&i.AchievementID,
+			&i.ConditionID,
+			&i.Action,
+			&i.Collection,
+			&i.Amount,
+			pq.Array(&i.Studytopics),
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listAchievementGroups = `-- name: ListAchievementGroups :many
 SELECT id
 FROM "public"."achievementgroups"
@@ -338,6 +547,55 @@ func (q *Queries) achievementAchievedAt(ctx context.Context, arg achievementAchi
 	for rows.Next() {
 		var i achievementAchievedAtRow
 		if err := rows.Scan(&i.AchievementID, &i.AchievedAt, &i.ConfirmedAt); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const completedLessonsByTopic = `-- name: completedLessonsByTopic :many
+WITH total AS (SELECT l.topic_id, t.lesson_id,
+                      COUNT(t.id) task_count
+               FROM tasks t
+                        JOIN lessons l ON l.id = t.lesson_id
+               WHERE t.status = 'published'
+               GROUP BY l.topic_id, t.lesson_id),
+     completed AS (SELECT l.topic_id, t.lesson_id, ta.profile_id, COUNT(t.id) completed_count
+                   FROM tasks t
+                            JOIN lessons l ON l.id = t.lesson_id
+                            JOIN "users"."taskanswers" ta ON ta.task_id = t.id
+                   GROUP BY l.topic_id, t.lesson_id, ta.profile_id)
+SELECT total.topic_id as topic_id, completed.lesson_id::uuid as lesson_id, completed.profile_id::uuid as profile_id
+FROM completed
+         JOIN total ON total.lesson_id = completed.lesson_id
+WHERE completed.profile_id = ANY ($1::uuid[]) AND
+      completed.completed_count >= total.task_count
+GROUP BY total.topic_id, completed.lesson_id::uuid, completed.profile_id::uuid
+`
+
+type completedLessonsByTopicRow struct {
+	TopicID   uuid.UUID `db:"topic_id" json:"topicId"`
+	LessonID  uuid.UUID `db:"lesson_id" json:"lessonId"`
+	ProfileID uuid.UUID `db:"profile_id" json:"profileId"`
+}
+
+func (q *Queries) completedLessonsByTopic(ctx context.Context, profileIds []uuid.UUID) ([]completedLessonsByTopicRow, error) {
+	rows, err := q.db.QueryContext(ctx, completedLessonsByTopic, pq.Array(profileIds))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []completedLessonsByTopicRow
+	for rows.Next() {
+		var i completedLessonsByTopicRow
+		if err := rows.Scan(&i.TopicID, &i.LessonID, &i.ProfileID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
