@@ -96,7 +96,7 @@ func CheckNewAchievements(ctx context.Context, queries *sqlc.Queries, loaders *c
 	case CollectionLessons:
 		switch action.Action {
 		case ActionCompleted:
-			achieved, err = amountToAchievedResult(ctx, queries, action, p.ID, loaders.CompletedLessonsLoader.Get)
+			achieved, err = CheckCompletedLessonAchivements(ctx, queries, loaders, p.ID)
 		}
 	case CollectionTasks:
 		switch action.Action {
