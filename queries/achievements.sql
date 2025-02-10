@@ -62,8 +62,8 @@ WHERE ag.id = ANY ($1::uuid[]);
 -- name: GetAchievedAchievements :many
 SELECT a.achievement_id as id
 FROM "users"."achievements" a
-WHERE a.profile_id = $1
-  AND a.achievement_id = ANY ($2::uuid[]);
+WHERE a.profile_id = @profile_id
+  AND a.achievement_id = ANY (@achievement_ids::uuid[]);
 
 -- name: getAchievedAchievementsForProfiles :many
 SELECT a.achievement_id as id, a.profile_id as parent_id
@@ -94,6 +94,23 @@ WHERE achieved IS NULL
   AND c.amount <= $4
 GROUP BY c.achievement_id;
 
+-- name: GetNewConditionsForProfile :many
+SELECT
+    ac.achievement_id::uuid achievement_id,
+    ac.id::uuid condition_id,
+    ac.action,
+    ac.collection,
+    coalesce(ac.amount, 0)::int amount,
+    COALESCE(array_agg(st.studytopics_id) FILTER (WHERE studytopics_id IS NOT NULL), '{}')::uuid[] studytopics
+FROM achievements a
+                                                                                                      LEFT JOIN users.achievements ua ON ua.profile_id = @profile_id::uuid AND a.id = ua.achievement_id
+                                                                                                      LEFT JOIN achievementconditions ac ON ac.achievement_id = a.id
+                                                                                                      LEFT JOIN achievementconditions_studytopics st ON ac.id = st.achievementconditions_id
+WHERE status = 'published'
+  AND action = 'completed'
+  AND profile_id IS NULL
+GROUP BY ac.id;
+
 -- name: GetAchievementsWithTopicsCompletedAchieved :many
 SELECT c.achievement_id AS id, array_agg(c.id)::uuid[] AS condition_ids
 FROM "public"."achievementconditions" c
@@ -118,6 +135,26 @@ FROM "users"."achievements" a
 WHERE a.profile_id = $1
   AND a.achievement_id = ANY ($2::uuid[]);
 
+-- name: completedLessonsByTopic :many
+WITH total AS (SELECT l.topic_id, t.lesson_id,
+                      COUNT(t.id) task_count
+               FROM tasks t
+                        JOIN lessons l ON l.id = t.lesson_id
+               WHERE t.status = 'published'
+               GROUP BY l.topic_id, t.lesson_id),
+     completed AS (SELECT l.topic_id, t.lesson_id, ta.profile_id, COUNT(t.id) completed_count
+                   FROM tasks t
+                            JOIN lessons l ON l.id = t.lesson_id
+                            JOIN "users"."taskanswers" ta ON ta.task_id = t.id
+                   GROUP BY l.topic_id, t.lesson_id, ta.profile_id)
+SELECT total.topic_id as topic_id, completed.lesson_id::uuid as lesson_id, completed.profile_id::uuid as profile_id
+FROM completed
+         JOIN total ON total.lesson_id = completed.lesson_id
+WHERE completed.profile_id = ANY (@profile_ids::uuid[]) AND
+      completed.completed_count >= total.task_count
+GROUP BY total.topic_id, completed.lesson_id::uuid, completed.profile_id::uuid;
+
+
 -- name: GetAchieventsTranslatableTexts :many
 SELECT id, title, description FROM achievements a
                               WHERE a.status = ANY ('{published,unlisted}')
@@ -126,3 +163,64 @@ SELECT id, title, description FROM achievements a
 -- name: GetAchieventGroupsTranslatableTexts :many
 SELECT id, title FROM achievementgroups a WHERE a.status = ANY ('{published,unlisted}')
                                                         AND (a.date_updated > @date_updated::timestamp OR a.date_updated IS NULL);
+
+
+-- name: CreateAchievementGroup :one
+INSERT INTO "achievementgroups" (id, user_created, date_created, title) VALUES (
+                                                                                        gen_random_uuid(),
+                                                                                        @user_created::uuid,
+                                                                                        now(),
+                                                                                        @title
+                                                                                    ) RETURNING id;
+
+-- name: CreateAchievement :one
+
+INSERT INTO "achievements" (
+                                     id,
+    status,
+    user_created,
+    date_created,
+    group_id,
+    title,
+    description,
+    sort
+) VALUES (
+             gen_random_uuid(),
+             @status,
+             @user_created::uuid,
+             now(),
+             @group_id::uuid,
+             @title,
+             @description,
+             @sort
+         ) returning id;
+
+-- name: CreateCondition :one
+INSERT INTO "achievementconditions" (id, collection, action, amount, achievement_id)
+VALUES (gen_random_uuid(), @collection, @action, @amount, @achievement_id) RETURNING id;
+
+-- name: CreateTask :one
+INSERT INTO tasks (
+                   id,
+                   user_created,
+                   date_created,
+                   question_type,
+                   lesson_id,
+                   title,
+                   type,
+                   status
+)
+VALUES (
+          gen_random_uuid(),
+          @user_created::uuid,
+          now(),
+          @question_type,
+          @lesson_id::uuid,
+          @title,
+        @type,
+        @status
+       ) returning id;
+
+-- name: AddStudytopicFilterToCondition :exec
+INSERT INTO "achievementconditions_studytopics" (achievementconditions_id, studytopics_id)
+VALUES (@condition_id::uuid, @studytopic_id::uuid);

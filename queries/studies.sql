@@ -175,7 +175,7 @@ WITH total AS (SELECT t.lesson_id,
 SELECT completed.lesson_id::uuid as id, completed.profile_id::uuid as parent_id
 FROM completed
          JOIN total ON total.lesson_id = completed.lesson_id
-WHERE completed.profile_id = ANY ($1::uuid[])
+WHERE completed.profile_id = ANY (@profile::uuid[])
 -- >= instead of = In case somethig has been archived later
   AND completed.completed_count >= total.task_count;
 
@@ -290,3 +290,52 @@ SELECT
              t.question_type = 'alternatives' AND
              (t.alternatives_multiselect IS NULL OR NOT t.alternatives_multiselect)
 GROUP BY t.lesson_id;
+
+
+-- name: CreateStudyTopic :one
+INSERT INTO studytopics (
+                         id,
+    status,
+    user_created,
+    date_created,
+    title,
+    description,
+    translations_required
+) VALUES (
+             gen_random_uuid(),
+             @status,
+             @user_created::uuid,
+             now(),
+             @title,
+             @description,
+             @translations_required
+         )
+RETURNING id;
+
+-- name: CreateLesson :one
+INSERT INTO lessons (
+                     id,
+    status,
+    user_created,
+    date_created,
+    title,
+    topic_id,
+    sort,
+    description,
+    translations_required,
+    intro_screen_code,
+    show_discover_page
+) VALUES (
+          gen_random_uuid(),
+             @status,
+             @user_created::uuid,
+             now(),
+             @title,
+             @topic_id::uuid,
+             @sort,
+             @description,
+             @translations_required,
+             @intro_screen_code,
+             @show_discover_page
+         )
+RETURNING id ;

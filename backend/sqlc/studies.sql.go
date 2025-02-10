@@ -73,6 +73,106 @@ func (q *Queries) CountAlternativesAnswers(ctx context.Context, arg CountAlterna
 	return items, nil
 }
 
+const createLesson = `-- name: CreateLesson :one
+INSERT INTO lessons (
+                     id,
+    status,
+    user_created,
+    date_created,
+    title,
+    topic_id,
+    sort,
+    description,
+    translations_required,
+    intro_screen_code,
+    show_discover_page
+) VALUES (
+          gen_random_uuid(),
+             $1,
+             $2::uuid,
+             now(),
+             $3,
+             $4::uuid,
+             $5,
+             $6,
+             $7,
+             $8,
+             $9
+         )
+RETURNING id
+`
+
+type CreateLessonParams struct {
+	Status               string         `db:"status" json:"status"`
+	UserCreated          uuid.UUID      `db:"user_created" json:"userCreated"`
+	Title                string         `db:"title" json:"title"`
+	TopicID              uuid.UUID      `db:"topic_id" json:"topicId"`
+	Sort                 null_v4.Int    `db:"sort" json:"sort"`
+	Description          null_v4.String `db:"description" json:"description"`
+	TranslationsRequired bool           `db:"translations_required" json:"translationsRequired"`
+	IntroScreenCode      null_v4.String `db:"intro_screen_code" json:"introScreenCode"`
+	ShowDiscoverPage     bool           `db:"show_discover_page" json:"showDiscoverPage"`
+}
+
+func (q *Queries) CreateLesson(ctx context.Context, arg CreateLessonParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, createLesson,
+		arg.Status,
+		arg.UserCreated,
+		arg.Title,
+		arg.TopicID,
+		arg.Sort,
+		arg.Description,
+		arg.TranslationsRequired,
+		arg.IntroScreenCode,
+		arg.ShowDiscoverPage,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
+const createStudyTopic = `-- name: CreateStudyTopic :one
+INSERT INTO studytopics (
+                         id,
+    status,
+    user_created,
+    date_created,
+    title,
+    description,
+    translations_required
+) VALUES (
+             gen_random_uuid(),
+             $1,
+             $2::uuid,
+             now(),
+             $3,
+             $4,
+             $5
+         )
+RETURNING id
+`
+
+type CreateStudyTopicParams struct {
+	Status               string         `db:"status" json:"status"`
+	UserCreated          uuid.UUID      `db:"user_created" json:"userCreated"`
+	Title                string         `db:"title" json:"title"`
+	Description          null_v4.String `db:"description" json:"description"`
+	TranslationsRequired bool           `db:"translations_required" json:"translationsRequired"`
+}
+
+func (q *Queries) CreateStudyTopic(ctx context.Context, arg CreateStudyTopicParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, createStudyTopic,
+		arg.Status,
+		arg.UserCreated,
+		arg.Title,
+		arg.Description,
+		arg.TranslationsRequired,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getAnsweredTasks = `-- name: GetAnsweredTasks :many
 SELECT ta.task_id
 FROM "users"."taskanswers" ta
@@ -431,8 +531,8 @@ type getCompletedLessonsRow struct {
 }
 
 // >= instead of = In case somethig has been archived later
-func (q *Queries) getCompletedLessons(ctx context.Context, dollar_1 []uuid.UUID) ([]getCompletedLessonsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getCompletedLessons, pq.Array(dollar_1))
+func (q *Queries) getCompletedLessons(ctx context.Context, profile []uuid.UUID) ([]getCompletedLessonsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCompletedLessons, pq.Array(profile))
 	if err != nil {
 		return nil, err
 	}

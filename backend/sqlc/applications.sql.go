@@ -13,6 +13,32 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const createApplicationGroup = `-- name: CreateApplicationGroup :one
+INSERT INTO applicationgroups (
+                               id,
+                               user_created,
+                               date_created,
+                               label
+) VALUES (
+          gen_random_uuid(),
+          $1::uuid,
+          now(),
+          $2
+) returning id
+`
+
+type CreateApplicationGroupParams struct {
+	UserCreated uuid.UUID `db:"user_created" json:"userCreated"`
+	Label       string    `db:"label" json:"label"`
+}
+
+func (q *Queries) CreateApplicationGroup(ctx context.Context, arg CreateApplicationGroupParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, createApplicationGroup, arg.UserCreated, arg.Label)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getApplicationGroups = `-- name: getApplicationGroups :many
 WITH roles AS (SELECT r.applicationgroups_id,
                       array_agg(DISTINCT r.usergroups_code) as roles

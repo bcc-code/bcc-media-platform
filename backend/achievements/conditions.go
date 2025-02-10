@@ -121,6 +121,73 @@ func CheckNewAchievements(ctx context.Context, queries *sqlc.Queries, loaders *c
 	return nil
 }
 
+func CheckCompletedLessonAchivements(ctx context.Context, queries *sqlc.Queries, loaders *common.BatchLoaders, profileID uuid.UUID) ([]achievedResult, error) {
+	lessons, err := loaders.CompletedLessonsLoader.Get(ctx, profileID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	l := utils.PointerArrayToArray(lessons)
+	completedLessons, err := loaders.StudyLessonLoader.GetMany(ctx, l)
+
+	if err != nil {
+		return nil, err
+	}
+
+	completedCount := map[uuid.UUID]int32{}
+	totalCompletedLessons := int32(len(completedLessons))
+	for _, l := range completedLessons {
+		if _, ok := completedCount[l.TopicID]; !ok {
+			completedCount[l.TopicID] = 0
+		}
+
+		completedCount[l.TopicID]++
+	}
+
+	conds, err := queries.GetNewConditionsForProfile(ctx, profileID)
+	if err != nil {
+		return nil, err
+	}
+
+	counts := map[uuid.UUID]int32{}
+	achieved := []achievedResult{}
+	// Count completed for each condition
+	for _, c := range conds {
+		if _, ok := counts[c.ConditionID]; !ok {
+			counts[c.ConditionID] = 0
+		}
+
+		if len(c.Studytopics) == 0 {
+			counts[c.ConditionID] = totalCompletedLessons
+			if counts[c.ConditionID] >= c.Amount {
+				achieved = append(achieved, achievedResult{
+					ID: c.AchievementID,
+					ConditionIDs: []uuid.UUID{
+						c.ConditionID,
+					},
+				})
+			}
+			continue
+		}
+
+		for _, t := range c.Studytopics {
+			counts[c.ConditionID] += completedCount[t]
+			if counts[c.ConditionID] >= c.Amount {
+				achieved = append(achieved, achievedResult{
+					ID: c.AchievementID,
+					ConditionIDs: []uuid.UUID{
+						c.ConditionID,
+					},
+				})
+				continue
+			}
+		}
+	}
+
+	return achieved, nil
+}
+
 // CheckAllAchievements checks if any achievement has been achieved
 func CheckAllAchievements(ctx context.Context, queries *sqlc.Queries, loaders *common.BatchLoaders) error {
 	actions := []Action{
