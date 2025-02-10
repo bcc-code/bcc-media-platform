@@ -59,8 +59,14 @@ export type AchievementPagination = Pagination & {
 export type AchievementSection = Section & {
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  source: AchievementsSource;
   title?: Maybe<Scalars['String']['output']>;
 };
+
+export enum AchievementsSource {
+  Bmm = 'bmm',
+  Internal = 'internal'
+}
 
 export type AddToCollectionResult = {
   collection: UserCollection;
@@ -76,10 +82,13 @@ export type Alternative = {
 
 export type AlternativesTask = Task & {
   alternatives: Array<Alternative>;
+  /** @deprecated Equivalent to !showAnswer && lockAnswer */
   competitionMode: Scalars['Boolean']['output'];
   completed: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
+  lockAnswer: Scalars['Boolean']['output'];
   locked: Scalars['Boolean']['output'];
+  showAnswer: Scalars['Boolean']['output'];
   title: Scalars['String']['output'];
 };
 
@@ -662,11 +671,13 @@ export type Lesson = {
   episodes: EpisodePagination;
   id: Scalars['ID']['output'];
   image?: Maybe<Scalars['String']['output']>;
+  introScreenCode?: Maybe<Scalars['String']['output']>;
   links: LinkPagination;
   locked: Scalars['Boolean']['output'];
   next?: Maybe<Lesson>;
   previous?: Maybe<Lesson>;
   progress: TasksProgress;
+  showDiscoverPage: Scalars['Boolean']['output'];
   tasks: TaskPagination;
   title: Scalars['String']['output'];
   topic: StudyTopic;
@@ -1416,6 +1427,8 @@ export type Short = CollectionItem & MediaItem & PlaylistItem & {
   image?: Maybe<Scalars['String']['output']>;
   inMyList: Scalars['Boolean']['output'];
   originalTitle: Scalars['String']['output'];
+  /** @deprecated Only for debugging. Will always be 0 without special flags. */
+  score: Scalars['Float']['output'];
   source?: Maybe<SubclipSource>;
   streams: Array<Stream>;
   title: Scalars['String']['output'];
@@ -1575,6 +1588,15 @@ export type SurveyQuestionsArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type SurveyLinkQuestion = SurveyQuestion & {
+  actionButtonText: Scalars['String']['output'];
+  cancelButtonText?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['UUID']['output'];
+  title: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
 export type SurveyPrompt = Prompt & {
   from: Scalars['Date']['output'];
   id: Scalars['UUID']['output'];
@@ -1623,6 +1645,9 @@ export type TaskPagination = Pagination & {
 };
 
 export type TasksProgress = {
+  alternativesTasksCompleted: Scalars['Int']['output'];
+  alternativesTasksCorrect: Scalars['Int']['output'];
+  alternativesTasksTotal: Scalars['Int']['output'];
   completed: Scalars['Int']['output'];
   total: Scalars['Int']['output'];
 };
@@ -1940,7 +1965,7 @@ export type GetSeasonEpisodesQueryVariables = Exact<{
 
 export type GetSeasonEpisodesQuery = { season: { id: string, title: string, number: number, show: { id: string, title: string }, episodes: { items: Array<{ __typename: 'Episode', title: string, image?: string | null, productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, id: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null }> } } };
 
-type Task_AlternativesTask_Fragment = { __typename: 'AlternativesTask', competitionMode: boolean, locked: boolean, id: string, title: string, completed: boolean, alternatives: Array<{ id: string, title: string, isCorrect?: boolean | null, selected: boolean }> };
+type Task_AlternativesTask_Fragment = { __typename: 'AlternativesTask', locked: boolean, lockAnswer: boolean, showAnswer: boolean, id: string, title: string, completed: boolean, alternatives: Array<{ id: string, title: string, isCorrect?: boolean | null, selected: boolean }> };
 
 type Task_LinkTask_Fragment = { __typename: 'LinkTask', secondaryTitle?: string | null, description?: string | null, id: string, title: string, completed: boolean, link: { type: LinkType, title: string, url: string, image?: string | null, description?: string | null } };
 
@@ -1968,7 +1993,7 @@ export type GetStudyLessonQueryVariables = Exact<{
 }>;
 
 
-export type GetStudyLessonQuery = { studyLesson: { id: string, title: string, progress: { total: number, completed: number }, tasks: { items: Array<{ __typename: 'AlternativesTask', competitionMode: boolean, locked: boolean, id: string, title: string, completed: boolean, alternatives: Array<{ id: string, title: string, isCorrect?: boolean | null, selected: boolean }> } | { __typename: 'LinkTask', secondaryTitle?: string | null, description?: string | null, id: string, title: string, completed: boolean, link: { type: LinkType, title: string, url: string, image?: string | null, description?: string | null } } | { __typename: 'PosterTask', image: string, id: string, title: string, completed: boolean } | { __typename: 'QuoteTask', image: string, id: string, title: string, completed: boolean } | { __typename: 'TextTask', id: string, title: string, completed: boolean } | { __typename: 'VideoTask', secondaryTitle?: string | null, id: string, title: string, completed: boolean, episode: { id: string, image?: string | null, title: string, description: string } }> }, links: { items: Array<{ image?: string | null, title: string, description?: string | null, url: string }> } }, episode: { id: string, title: string, image?: string | null } };
+export type GetStudyLessonQuery = { studyLesson: { id: string, title: string, introScreenCode?: string | null, showDiscoverPage: boolean, progress: { total: number, completed: number, alternativesTasksTotal: number, alternativesTasksCompleted: number, alternativesTasksCorrect: number }, tasks: { items: Array<{ __typename: 'AlternativesTask', locked: boolean, lockAnswer: boolean, showAnswer: boolean, id: string, title: string, completed: boolean, alternatives: Array<{ id: string, title: string, isCorrect?: boolean | null, selected: boolean }> } | { __typename: 'LinkTask', secondaryTitle?: string | null, description?: string | null, id: string, title: string, completed: boolean, link: { type: LinkType, title: string, url: string, image?: string | null, description?: string | null } } | { __typename: 'PosterTask', image: string, id: string, title: string, completed: boolean } | { __typename: 'QuoteTask', image: string, id: string, title: string, completed: boolean } | { __typename: 'TextTask', id: string, title: string, completed: boolean } | { __typename: 'VideoTask', secondaryTitle?: string | null, id: string, title: string, completed: boolean, episode: { id: string, image?: string | null, title: string, description: string } }> }, links: { items: Array<{ image?: string | null, title: string, description?: string | null, url: string }> } }, episode: { id: string, title: string, image?: string | null } };
 
 export type GetStudyTopicLessonStatusesQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -2260,8 +2285,9 @@ export const TaskFragmentDoc = gql`
   title
   completed
   ... on AlternativesTask {
-    competitionMode
     locked
+    lockAnswer
+    showAnswer
     alternatives {
       id
       title
@@ -2764,9 +2790,14 @@ export const GetStudyLessonDocument = gql`
   studyLesson(id: $lessonId) {
     id
     title
+    introScreenCode
+    showDiscoverPage
     progress {
       total
       completed
+      alternativesTasksTotal
+      alternativesTasksCompleted
+      alternativesTasksCorrect
     }
     tasks {
       items {

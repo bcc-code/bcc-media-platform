@@ -4,8 +4,9 @@ fragment Task on Task {
     title
     completed
     ... on AlternativesTask {
-        competitionMode
         locked
+        lockAnswer
+        showAnswer
         alternatives {
             id
             title
@@ -52,9 +53,14 @@ query getStudyLesson($lessonId: ID!, $episodeId: ID!) {
     studyLesson(id: $lessonId) {
         id
         title
+        introScreenCode
+        showDiscoverPage
         progress {
             total
             completed
+            alternativesTasksTotal
+            alternativesTasksCompleted
+            alternativesTasksCorrect
         }
         tasks {
             items {

@@ -70,8 +70,6 @@ watch(
 
         queryString.value = v
 
-        console.log('SET FROM QUERY')
-
         if (v && pause.value) {
             pause.value = false
         }

@@ -32,9 +32,7 @@ const value = computed({
                 !v &&
                 oldPath.value
             ) {
-                router.push(oldPath.value).then((r) => {
-                    console.log(r)
-                })
+                router.push(oldPath.value)
             } else if (router.currentRoute.value.name !== 'search' && v) {
                 oldPath.value = router.currentRoute.value
 

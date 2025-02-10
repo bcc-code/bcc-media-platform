@@ -18,7 +18,8 @@
         "skip": "Skip",
         "join": "Join",
         "open": "Open",
-        "showMore": "Show more"
+        "showMore": "Show more",
+        "confirm": "Confirm"
     },
     "download": {
         "resolution": "Resolution",
@@ -136,7 +137,13 @@
         "question": "Question",
         "wrongAnswerMessage": "Oh, close. Try again!",
         "correctAnswerMessage": "Well done!",
-        "noLocalGroupFound": "No local group found"
+        "noLocalGroupFound": "No local group found",
+        "intro": {
+            "quiz": "Quiz",
+            "quizDescription": "Complete the quiz for all the movies under Extras to unlock an achievement!",
+            "explanationTitle": "How does it work?",
+            "explanation": "You can answer once per question. You get one point for each correct answer."
+        }
     },
     "cookies": {
         "title": "This website uses cookies",

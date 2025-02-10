@@ -117,8 +117,6 @@ const loadMore = async () => {
 
     const bottom = scrollTop + innerHeight * 2 >= offsetHeight
 
-    // console.log(`ScrollTop: ${scrollTop}. \nOffsetHeight: ${offsetHeight}. \nInnerHeight: ${innerHeight}\nBottom: ${bottom} \n\n`)
-
     if (bottom) {
         const p = getSectionsQuery.data.value?.page ?? page.value
         if (!p) {
@@ -178,6 +176,7 @@ const clickItem = (sectionIndex: number, itemIndex: number) => {
                     for (let i = 0; i < section.items.items.length; i++) {
                         if (i === itemIndex) {
                             // TODO: refactor to pass the item. This can cause bugs when the section filters out certain types, like CardSection does
+                            if (!page.value) return
                             goToSectionItem(
                                 {
                                     index: i,
