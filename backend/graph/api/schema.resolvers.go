@@ -162,14 +162,21 @@ func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.Red
 
 	if redir.IncludeToken {
 		// Build a JWT!
-		tok, err := jwt.NewBuilder().
+		tBuilder := jwt.NewBuilder().
 			Claim("person_id", profile.UserID).
 			Claim("gender", usr.Gender).
-			Claim("first_name", usr.FirstName).
+			Claim("first_name", usr.FirstName)
+
+		if len(usr.ChurchIDs) > 0 {
+			tBuilder.Claim("church_id", usr.ChurchIDs[0])
+		}
+
+		tok, err := tBuilder.
 			Issuer("https://api.brunstad.tv/").
 			IssuedAt(time.Now()).
 			Expiration(time.Now().Add(30 * time.Second)).
 			Build()
+
 		if err != nil {
 			return nil, merry.Wrap(err, merry.WithUserMessage("Internal server error. TOKEN-ERROR"))
 		}
