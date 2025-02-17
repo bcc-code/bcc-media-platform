@@ -11,7 +11,7 @@ WITH episodes AS (SELECT e.id
 SELECT e.id, title, description
 FROM episodes_translations et
          JOIN episodes e ON e.id = et.episodes_id
-WHERE et.languages_code = 'no' AND (et.date_updated > @date_updated OR e.date_updated > @date_updated);
+WHERE et.languages_code = 'no' AND et.date_updated > @date_updated;
 
 -- name: GetSeasonTranslatable :many
 SELECT s.id, title, description
