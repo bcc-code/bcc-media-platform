@@ -91,6 +91,7 @@ func (m *Client) SendToTranslation(ctx context.Context, collection string, data 
 
 	outputData, err := json.MarshalIndent(outputFile, "", "    ")
 	if err != nil {
+		log.L.Error().Err(err).Msg("Unable to marshal output data")
 		return err
 	}
 
@@ -98,6 +99,7 @@ func (m *Client) SendToTranslation(ctx context.Context, collection string, data 
 
 	jobs, err := m.GetJobs(filename)
 	if err != nil {
+		log.L.Error().Str("filename", filename).Err(err).Msg("Unable to get jobs")
 		return err
 	}
 
@@ -342,6 +344,7 @@ func (c *Client) UpdateSource(jobs []string, filename string, data []byte) error
 	}
 
 	if res.StatusCode() != 200 {
+		log.L.Error().Str("projectID", c.ProjectUID).Str("filename", filename).Int("status", res.StatusCode()).Msg("Unexpected status code when updating source")
 		return fmt.Errorf("unexpected status code when updating source: %d, (%s)", res.StatusCode(), string(res.Body()))
 	}
 
