@@ -259,7 +259,7 @@ func (c *Client) GetProject(projectID string) (*Project, error) {
 	return res.Result().(*Project), nil
 }
 
-func (c *Client) updateJobsStatus(jobs []Job, status Status) error {
+func (c *Client) updateJobsStatus(jobs []JobOnlyUID, status Status) error {
 	req := c.httpClient.R()
 
 	req.SetBody(gin.H{"status": status, "jobs": jobs})
@@ -317,7 +317,7 @@ func (c *Client) CreateJob(targetLanguages []string, path, filename string, data
 
 func (c *Client) UpdateSource(jobs []string, filename string, data []byte) error {
 	meta := UpdateSourceRequest{
-		Jobs:                       lo.Map(jobs, func(j string, _ int) Job { return Job{UID: j} }),
+		Jobs:                       lo.Map(jobs, func(j string, _ int) JobOnlyUID { return JobOnlyUID{UID: j} }),
 		PreTranslate:               false,
 		AllowAutomaticPostAnalysis: false,
 	}

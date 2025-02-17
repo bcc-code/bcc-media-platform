@@ -65,11 +65,15 @@ type Job struct {
 	ServerTaskID          string            `json:"serverTaskId"`
 }
 
+type JobOnlyUID struct {
+	UID string `json:"uid"`
+}
+
 type UpdateSourceRequest struct {
-	Jobs                       []Job  `json:"jobs"`
-	PreTranslate               bool   `json:"preTranslate"`
-	AllowAutomaticPostAnalysis bool   `json:"allowAutomaticPostAnalysis"`
-	CallbackURL                string `json:"callbackUrl"`
+	Jobs                       []JobOnlyUID `json:"jobs"`
+	PreTranslate               bool         `json:"preTranslate"`
+	AllowAutomaticPostAnalysis bool         `json:"allowAutomaticPostAnalysis"`
+	CallbackURL                string       `json:"callbackUrl"`
 }
 
 type CreateJobHeader struct {
