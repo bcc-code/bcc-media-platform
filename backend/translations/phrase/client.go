@@ -350,7 +350,7 @@ func (c *Client) UpdateSource(jobs []string, filename string, data []byte) error
 			Str("filename", filename).
 			Int("status", res.StatusCode()).
 			Str("url", res.Request.URL).
-			Str("memsource-header", res.Request.Header.Get("Memsource)")).
+			Str("memsource-header", res.Request.Header.Get("Memsource")).
 			Str("content-disposition-header", res.Request.Header.Get("Content-Disposition")).
 			Msg("Unexpected status code when updating source")
 		return fmt.Errorf("unexpected status code when updating source: %d, (%s)", res.StatusCode(), string(res.Body()))
