@@ -318,8 +318,8 @@ func (c *Client) CreateJob(targetLanguages []string, path, filename string, data
 func (c *Client) UpdateSource(jobs []string, filename string, data []byte) error {
 	meta := UpdateSourceRequest{
 		Jobs:                       lo.Map(jobs, func(j string, _ int) Job { return Job{UID: j} }),
-		PreTranslate:               true,
-		AllowAutomaticPostAnalysis: true,
+		PreTranslate:               false,
+		AllowAutomaticPostAnalysis: false,
 	}
 
 	err := c.updateJobsStatus(meta.Jobs, StatusNew)
@@ -337,14 +337,22 @@ func (c *Client) UpdateSource(jobs []string, filename string, data []byte) error
 		SetHeader("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename)).
 		SetHeader("Content-Type", "application/octet-stream").
 		SetBody(data).
-		Post(fmt.Sprintf("v1/projects/%s/jobs/source", url.PathEscape(c.ProjectUID)))
+		SetPathParam("projectUid", c.ProjectUID).
+		Post("v1/projects/{projectUid}/jobs/source")
 
 	if err != nil {
 		return err
 	}
 
 	if res.StatusCode() != 200 {
-		log.L.Error().Str("projectID", c.ProjectUID).Str("filename", filename).Int("status", res.StatusCode()).Msg("Unexpected status code when updating source")
+		log.L.Error().
+			Str("projectID", c.ProjectUID).
+			Str("filename", filename).
+			Int("status", res.StatusCode()).
+			Str("url", res.Request.URL).
+			Str("memsource-header", res.Request.Header.Get("Memsource)")).
+			Str("content-disposition-header", res.Request.Header.Get("Content-Disposition")).
+			Msg("Unexpected status code when updating source")
 		return fmt.Errorf("unexpected status code when updating source: %d, (%s)", res.StatusCode(), string(res.Body()))
 	}
 
