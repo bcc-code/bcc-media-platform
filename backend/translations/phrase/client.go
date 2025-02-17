@@ -386,7 +386,10 @@ func (c *Client) GetJobs(filename string) ([]Job, error) {
 	}
 
 	if res.StatusCode() != 200 {
-		log.L.Error().Int("status", res.StatusCode()).Msg("Unexpected status code when fetching jobs")
+		log.L.Error().
+			Str("projectID", c.ProjectUID).
+			Str("body", string(res.Body())).
+			Int("status", res.StatusCode()).Msg("Unexpected status code when fetching jobs")
 		return nil, err
 	}
 

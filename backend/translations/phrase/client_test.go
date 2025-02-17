@@ -3,6 +3,7 @@ package phrase_test
 import (
 	"context"
 	"github.com/bcc-code/bcc-media-platform/backend/translations"
+	"github.com/davecgh/go-spew/spew"
 	"os"
 	"testing"
 
@@ -50,7 +51,7 @@ func Test_ListJobs(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
 
-	// spew.Dump(res)
+	spew.Dump(res)
 }
 
 func Test_SubmitData(t *testing.T) {
