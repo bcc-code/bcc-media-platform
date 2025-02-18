@@ -6,7 +6,7 @@
         "stayLoggedOut": "Rester déconnecté",
         "cancel": "Annuler",
         "accept": "Accepter",
-        "submit": "Envoyer",
+        "submit": "Soumettre",
         "back": "Retour",
         "next": "Suivant",
         "continue": "Continuer",
@@ -18,7 +18,8 @@
         "skip": "Sauter",
         "join": "Rejoindre",
         "open": "Ouvrir",
-        "showMore": "Afficher plus"
+        "showMore": "Afficher plus",
+        "confirm": "Confirmer"
     },
     "download": {
         "resolution": "Résolution",
@@ -26,12 +27,12 @@
         "progress": "Progression"
     },
     "error": {
-        "couldntSendYourMessage": "Ton message n'a pas pu être envoyé",
-        "somethingWentWrong": "Il y a eu un problème.",
-        "checkNetwork": "Vérifie ta connexion internet et tente à nouveau."
+        "couldntSendYourMessage": "Votre message n'a pas pu être envoyé",
+        "somethingWentWrong": "Un problème est survenu.",
+        "checkNetwork": "Vérifiez votre connexion internet et tentez à nouveau."
     },
     "dashboard": {
-        "loggedOut": "Tu as été déconnecté"
+        "loggedOut": "Vous avez été déconnecté"
     },
     "page": {
         "home": "Accueil",
@@ -52,7 +53,7 @@
     },
     "notFound": {
         "title": "Non trouvé",
-        "description": "Tu n'es peut-être pas connecté ou tu n'as pas les autorisations nécessaires.",
+        "description": "Vous n’êtes peut-être pas connecté ou vous n’avez pas les autorisations nécessaires.",
         "returnHome": "Aller à la page d'accueil"
     },
     "common": {
@@ -70,20 +71,20 @@
         "releaseDate": "Date de sortie",
         "availableFrom": "Disponible à partir du",
         "availableTo": "Disponible jusqu'au",
-        "ageRating": "Évaluation",
+        "ageRating": "Classification",
         "notFound": "Épisode non trouvé",
         "comingSoon": "Bientôt disponible",
         "noAccess": {
             "oops": "Oups !",
-            "mustBeLoggedIn": "Tu dois être connecté pour regarder ce contenu",
-            "otherContent": "Pas d'inquiétude ! Il y a plein d'autres contenus à apprécier !",
+            "mustBeLoggedIn": "Vous devez être connecté pour regarder ce contenu",
+            "otherContent": "Pas d'inquiétude ! Il y a plein d'autres contenus à découvrir !",
             "exploreContent": "Explorer le contenu"
         }
     },
     "live": {
         "now": "Maintenant",
         "title": "Nouvelle application de diffusion en direct",
-        "description": "Nous sommes désolés! Vous ne pouvez plus regarder les diffusions en direct sur ce site Web. Cliquez sur le lien pour accéder à la nouvelle solution !"
+        "description": "Nous sommes désolés ! Il n’est plus possible de regarder des diffusions en direct sur ce site. Cliquez sur le lien pour accéder à la nouvelle solution !"
     },
     "calendar": {
         "noScheduledEvents": "Aucun événement prévu",
@@ -96,7 +97,7 @@
         "cancel": "Annuler",
         "emptyQuery": "La requête est vide.",
         "noResults": "Aucun résultat trouvé",
-        "tryAdjustingQuery": "Essaie d'ajuster la requête"
+        "tryAdjustingQuery": "Essayez d'ajuster la requête"
     },
     "support": {
         "contact": "Contacter le support",
@@ -104,43 +105,49 @@
         "subject": "Objet",
         "content": "Contenu",
         "faq": "FAQ",
-        "describeIssue": "Décris ton problème de manière détaillée."
+        "describeIssue": "Décrivez votre problème de manière détaillée."
     },
     "study": {
         "startStudy": "Commencer l'étude",
         "continueStudy": "Continuer l'étude"
     },
     "competition": {
-        "title": "Doubler tes chances",
-        "description": "Augmente tes chances de remporter le prix exclusif de <strong>Disse mine ord</strong> en répondant correctement.",
+        "title": "Doubler ses chances",
+        "description": "Augmentez vos chances de gagner le prix exclusif <strong>Ces paroles que je dis</strong> en répondant correctement.",
         "howDoesItWork": "Comment cela fonctionne-t-il ?",
-        "onlyOnce": "Tu ne peux répondre au quiz qu'une seule fois.",
+        "onlyOnce": "Vous ne pouvez répondre au quiz qu'une seule fois.",
         "watchNextBroadcast": "Les bonnes réponses seront données lors de la prochaine émission en direct.",
         "joinCompetition": "Rejoindre le concours",
-        "terms": "En participant, tu acceptes que ton nom soit mentionné dans l'émission lors de l'annonce du gagnant.",
-        "alreadySent": "Tu as déjà envoyé ta réponse, mais tu peux consulter ce que tu as répondu.",
-        "areYouSure": "Es-tu sûr ?",
-        "lookThouroughly": "Relis attentivement tes réponses. Une fois envoyées, tu ne pourras plus les modifier.",
-        "submitted": "Ta réponse a été envoyée !",
-        "dontMiss": "Ne manque pas la prochaine émission en studio, où la bonne réponse sera annoncée."
+        "terms": "En participant, vous acceptez que votre nom soit mentionné dans l'émission lors de l'annonce du gagnant.",
+        "alreadySent": "Vous avez déjà envoyé votre réponse, mais vous pouvez toujours la consulter.",
+        "areYouSure": "Êtes-vous sûr ?",
+        "lookThouroughly": "Relisez attentivement vos réponses. Une fois soumise, votre réponse ne pourra plus être modifiée.",
+        "submitted": "Votre réponse a été envoyée !",
+        "dontMiss": "Ne manquez pas la prochaine émission, où la bonne réponse sera annoncée."
     },
     "lesson": {
         "related": "Ressources connexes",
         "watchAgain": {
             "title": "Regarder à nouveau",
-            "description": "Pour une meilleure compréhension, nous vous recommandons de regarder la vidéo plus d'une fois.",
+            "description": "Pour une meilleure compréhension, nous vous recommandons de regarder la vidéo plusieurs fois.",
             "button": "Rejouer"
         },
         "lessonActivityTitle": "Activité de la leçon",
-        "textTaskPlaceholder": "Commence à écrire ici...",
+        "textTaskPlaceholder": "Commencez à écrire ici...",
         "question": "Question",
-        "wrongAnswerMessage": "Oh, c'est fermé. Tente à nouveau !",
+        "wrongAnswerMessage": "Oh, presque ! Essayez à nouveau !",
         "correctAnswerMessage": "Bien joué !",
-        "noLocalGroupFound": "Aucun groupe local trouvé"
+        "noLocalGroupFound": "Aucun groupe local trouvé",
+        "intro": {
+            "quiz": "Quiz",
+            "quizDescription": "Complétez le quiz pour tous les films de la rubrique Extras pour débloquer un trophée !",
+            "explanationTitle": "Comment cela fonctionne-t-il ?",
+            "explanation": "Vous pouvez répondre une fois par question. Vous obtenez un point pour chaque bonne réponse."
+        }
     },
     "cookies": {
         "title": "Ce site web utilise des cookies",
-        "description": "Nous utilisons des cookies pour vous garantir la meilleure expérience sur notre site. Si vous continuez à utiliser ce dernier, nous considérerons que vous acceptez l'utilisation des cookies.",
+        "description": "Nous utilisons des cookies pour améliorer l'expérience de l'utilisateur sur ce site web. En continuant à utiliser ce site web, vous consentez à nos cookies.",
         "necessary": "Nécessaire",
         "preferences": "Préférences",
         "statistics": "Statistiques",
@@ -152,7 +159,7 @@
         "information": "BCC Media est une fondation médiatique de la [fédération BCC](https://bcc.no) qui produit et distribue des contenus aux valeurs positives et chrétiennes.",
         "headOffice": "Siège social",
         "contactUs": "Nous contacter",
-        "downloadApp": "Télécharge notre application",
+        "downloadApp": "Télécharger notre application",
         "termsOfUse": "Conditions d'utilisation"
     },
     "terms": {
@@ -169,29 +176,29 @@
         "markAsUnread": "Marquer comme non lu"
     },
     "feedback": {
-        "appreciated": "Nous apprécions tes commentaires.",
-        "comment": "Ajouter un commentaire sur ton expérience",
-        "episodeTitle": "Comment évalues-tu cet épisode ?",
+        "appreciated": "Nous apprécions vos remarques.",
+        "comment": "Ajouter un commentaire sur votre expérience",
+        "episodeTitle": "Quelle note donneriez-vous à cet épisode ?",
         "howEasyToUnderstand": "La vidéo était-elle facile à comprendre ?",
-        "anonymousInfo": "Ta note sera soumise de manière anonyme",
+        "anonymousInfo": "Votre note sera soumise de manière anonyme",
         "placeholder": "Merci d'être le plus précis possible pour nous aider à comprendre.",
         "giveFeedback": "Donner un avis"
     },
-    "contactLocalBukIfWrong": "Contacte la personne responsable de ton association locale BUK si tu penses qu'il s'agit d'une erreur.",
+    "contactLocalBukIfWrong": "Contactez la personne responsable de votre association locale BUK si vous pensez qu'il s'agit d'une erreur.",
     "thankYou": "Merci beaucoup !",
-    "yourResponseHasBeenSubmitted": "Ta réponse a été envoyée.",
+    "yourResponseHasBeenSubmitted": "Votre réponse a été envoyée.",
     "sending": "Envoi en cours",
-    "defaultInputPlaceholder": "Commence à écrire ici...",
+    "defaultInputPlaceholder": "Commencez à écrire ici...",
     "requests": {
-        "name": "Ton nom",
+        "name": "Votre nom",
         "email": "E-mail",
-        "role": "Ton rôle",
-        "what": "Matériel à demander",
+        "role": "Votre rôle",
+        "what": "Matériel demandé",
         "how": "Comment le matériel sera-t-il utilisé ?",
         "howDescription": "Montré partiellement/entièrement, édité...",
         "where": "Où le matériel sera-t-il utilisé ?",
         "when": "Quand le matériel sera-t-il utilisé ?",
-        "clear": "Annuler",
+        "clear": "Effacer",
         "send": "Envoyer",
         "editor": "Éditeur",
         "director": "Directeur",
@@ -205,13 +212,14 @@
         "description": "Formulaire de demande de matériel audio, photo et vidéo auprès de BCC Media",
         "receitTitle": "Demande reçue",
         "confirmAgenda": "Je confirme que le matériel ne sera utilisé qu'aux fins convenues.",
-        "receitDescription": "Notre équipe te contactera dans les 7 jours ouvrables. Une réponse automatique a été envoyée à ton adresse e-mail."
+        "receitDescription": "Notre équipe vous contactera dans les 7 jours ouvrables. Une réponse automatique a été envoyée à votre e-mail."
     },
     "shorts": {
-        "watchOnOurApp": "Téléchargez l'application mobile pour regarder les courts métrages."
+        "watchOnOurApp": "Télécharger l'application mobile pour regarder les courts métrages."
     },
     "subscriptions": {
         "subscribe": "S'abonner",
         "unsubscribe": "Se désabonner"
     }
+  
 }
