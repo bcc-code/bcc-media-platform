@@ -140,6 +140,7 @@ func (c *Client) ProcessWebhook(ctx context.Context, originalRequest *http.Reque
 	}
 
 	if projectToCheck != c.ProjectUID {
+		log.L.Debug().Str("projectToCheck", projectToCheck).Str("c.ProjectUID", c.ProjectUID).Msg("Ignoring webhook")
 		return nil, nil, merry.Wrap(ErrUnknownProject)
 	}
 
