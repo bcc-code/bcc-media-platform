@@ -18,7 +18,8 @@
         "skip": "Hopp over",
         "join": "Bli med",
         "open": "Åpne",
-        "showMore": "Vis mer"
+        "showMore": "Vis mer",
+        "confirm": "Bekreft"
     },
     "download": {
         "resolution": "Oppløsning",
@@ -74,7 +75,7 @@
         "notFound": "Episode ikke funnet",
         "comingSoon": "Kommer snart",
         "noAccess": {
-            "oops": "Uups!",
+            "oops": "Ups!",
             "mustBeLoggedIn": "Du må være logget inn for å se dette innholdet",
             "otherContent": "Fortvil ikke, det er fortsatt mye annet innhold du kan se!",
             "exploreContent": "Utforsk innhold"
@@ -112,7 +113,7 @@
     },
     "competition": {
         "title": "Dobbelsjansen",
-        "description": "Få en ekstra sjanse til å vinne den eksklusive <strong>Disse mine ord</strong>-premien ved å svare riktig.",
+        "description": "Få større sjanse til å vinne den eksklusive <strong>Disse mine ord-prisen</strong> ved å svare riktig.",
         "howDoesItWork": "Hvordan fungerer det?",
         "onlyOnce": "Du kan kun svare én gang.",
         "watchNextBroadcast": "Riktig svar blir annonsert i neste studiosending.",
@@ -120,7 +121,7 @@
         "terms": "Ved å delta godtar du at navnet ditt kan bli vist i studiosendingen når vinneren annonseres.",
         "alreadySent": "Du har allerede sendt inn ditt svar, men kan fortsatt se hva du svarte.",
         "areYouSure": "Er du sikker?",
-        "lookThouroughly": "Se nøye gjennom svarene dine. Når du har sendt inn, vil du ikke kunne endre svaret.",
+        "lookThouroughly": "Gå nøye gjennom svarene dine. Når du har sendt inn svaret, kan du ikke endre det.",
         "submitted": "Ditt svar har blitt sendt inn!",
         "dontMiss": "Ikke gå glipp av neste studiosending, hvor riktig svar blir annonsert."
     },
@@ -134,13 +135,19 @@
         "lessonActivityTitle": "Oppgave",
         "textTaskPlaceholder": "Begynn å skrive her...",
         "question": "Spørsmål",
-        "wrongAnswerMessage": "Det var nesten. Prøv igjen!",
-        "correctAnswerMessage": "Bra gjort!",
-        "noLocalGroupFound": "Ingen lokal gruppe funnet"
+        "wrongAnswerMessage": "Det var nære på. Prøv igjen",
+        "correctAnswerMessage": "Bra jobbet!",
+        "noLocalGroupFound": "Ingen lokal gruppe funnet",
+        "intro": {
+            "quiz": "Quiz",
+            "quizDescription": "Fullfør quizen til alle filmene under ekstramateriale for å låse opp en prestasjon!",
+            "explanationTitle": "Hvordan fungerer det?",
+            "explanation": "Du kan svare én gang per spørsmål. Du får ett poeng for hvert riktige svar."
+        }
     },
     "cookies": {
         "title": "Dette nettstedet bruker informasjonskapsler",
-        "description": "Vi bruker informasjonskapsler (cookies) for å støtte brukeropplevelsen på siden vår. Ved å fortsette å bruke vårt nettsted samtykker du til vår bruk av informasjonskapsler.",
+        "description": "Vi bruker informasjonskapsler for å forbedre brukeropplevelsen på dette nettstedet. Hvis du fortsetter å bruke dette nettstedet, samtykker du til våre informasjonskapsler.",
         "necessary": "Nødvendige",
         "preferences": "Nettsidepreferanser",
         "statistics": "Statistikk",
@@ -205,7 +212,7 @@
         "description": "Skjema for forespørsel om lyd-, bilde- og videomateriale fra BCC Media",
         "receitTitle": "Forespørsel mottatt",
         "confirmAgenda": "Jeg bekrefter at materialet kun skal brukes til avtalt formål.",
-        "receitDescription": "Vårt team vil kontakte deg innen 7 arbeidsdager. Et automatisk svar er sendt til din e-post."
+        "receitDescription": "Vårt team vil kontakte deg innen 7 virkedager. Et automatisk svar har blitt sendt til e-posten din."
     },
     "shorts": {
         "watchOnOurApp": "Last ned mobilappen for å se shorts."
@@ -214,4 +221,5 @@
         "subscribe": "Abonner",
         "unsubscribe": "Avslutt abonnementet"
     }
+  
 }
