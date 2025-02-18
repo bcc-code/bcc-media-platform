@@ -3,12 +3,10 @@ package translations
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
-	"github.com/bcc-code/bcc-media-platform/backend/translations/phrase"
 	"github.com/orsinium-labs/enum"
 	"hash/fnv"
 	"net/http"
@@ -231,10 +229,6 @@ func (s *Service) UpdateTranslations(ctx context.Context, collection *Translatab
 
 func (s *Service) HandleWebhook(ctx context.Context, originalRequest *http.Request, hookData []byte) error {
 	collection, data, err := s.provider.ProcessWebhook(ctx, originalRequest, hookData)
-	if errors.Is(err, phrase.ErrUnknownProject) {
-		return nil
-	}
-
 	if err != nil {
 		return merry.Wrap(err)
 	}
