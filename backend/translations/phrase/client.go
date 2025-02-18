@@ -179,6 +179,8 @@ func (c *Client) ProcessWebhook(ctx context.Context, originalRequest *http.Reque
 			})
 		}
 
+		log.L.Debug().Str("collection", collection.Value).Int("count", len(outData)).Msg("Prepared translations to insert")
+
 		return collection, outData, nil
 	}
 
