@@ -18,7 +18,8 @@
         "skip": "Überspringen",
         "join": "Beitreten",
         "open": "Öffnen",
-        "showMore": "Mehr anzeigen"
+        "showMore": "Mehr anzeigen",
+        "confirm": "Bestätigen"
     },
     "download": {
         "resolution": "Auflösung",
@@ -46,8 +47,8 @@
     },
     "section": {
         "item": {
-            "episode": "0 Folgen | 1 Folge | {count} Folgen",
-            "season": "0 Staffeln | 1 Staffel | {count} Staffeln"
+            "episode": "",
+            "season": ""
         }
     },
     "notFound": {
@@ -83,7 +84,7 @@
     "live": {
         "now": "Jetzt",
         "title": "Neue Livestream-App",
-        "description": "Es tut uns leid! Du kannst auf dieser Website keine Livestreams mehr ansehen. Klicke auf den Link, um zur neuen Lösung zu gelangen!"
+        "description": "  "
     },
     "calendar": {
         "noScheduledEvents": "Keine geplanten Veranstaltungen",
@@ -112,7 +113,7 @@
     },
     "competition": {
         "title": "Verdopple deine Chancen",
-        "description": "Erhalte eine größere Chance, den exklusiven <strong>Diese meine Worte</strong> Preis zu gewinnen, indem du korrekt antwortest.",
+        "description": "",
         "howDoesItWork": "Wie funktioniert es?",
         "onlyOnce": "Du kannst dieses Quiz nur einmal machen.",
         "watchNextBroadcast": "Schaue die nächste Live Studiosendung, um die richtigen Antworten zu sehen.",
@@ -120,7 +121,7 @@
         "terms": "Wenn du mitmachst, stimmst du zu, dass dein Name in der Sendung gezeigt werden könnte, wenn die Gewinner bekanntgegeben werden.",
         "alreadySent": "Du hast deine Antwort schon eingereicht, aber kannst immer noch sehen, was du geantwortet hast.",
         "areYouSure": "Bist du sicher?",
-        "lookThouroughly": "Schaue deine Antworten genau an. Sobald du sie eingereicht hast, kannst du sie nicht mehr ändern.",
+        "lookThouroughly": " ",
         "submitted": "Deine Antwort wurde eingereicht!",
         "dontMiss": "Verpasse nicht die nächste Studiosendung, in der die richtigen Antworten gezeigt werden."
     },
@@ -134,13 +135,19 @@
         "lessonActivityTitle": "Aufgabe zum Film",
         "textTaskPlaceholder": "Schreibe hier...",
         "question": "Frage",
-        "wrongAnswerMessage": "Oh, fast. Versuche es noch einmal!",
+        "wrongAnswerMessage": " Erneut versuchen",
         "correctAnswerMessage": "Gut gemacht!",
-        "noLocalGroupFound": "Keine lokale Gruppe gefunden"
+        "noLocalGroupFound": "Keine lokale Gruppe gefunden",
+        "intro": {
+            "quiz": "Quiz",
+            "quizDescription": "",
+            "explanationTitle": "Wie funktioniert es?",
+            "explanation": " "
+        }
     },
     "cookies": {
         "title": "Diese Webseite verwendet Cookies",
-        "description": "Wir benutzen Informationsdateien (Cookies), um dein Benutzererlebnis auf unserer Seite zu unterstützen. Besuchst du weiterhin unsere Internetseite, stimmst du gleichzeitig unserem Gebrauch von Informationsdateien zu.",
+        "description": " ",
         "necessary": "Notwendig",
         "preferences": "Präferenzen",
         "statistics": "Statistiken",
@@ -205,7 +212,7 @@
         "description": "Formular zur Anforderung von Audio-, Bild- und Videomaterial bei BCC Media",
         "receitTitle": "Anfrage erhalten",
         "confirmAgenda": "Ich versichere, dass das Material nur für den vereinbarten Zweck verwendet wird.",
-        "receitDescription": "Unser Team wird sich innerhalb von 7 Werktagen mit dir in Verbindung setzen. Eine automatische Antwort wurde an deine E-Mail gesendet."
+        "receitDescription": " "
     },
     "shorts": {
         "watchOnOurApp": "Lade die mobile App herunter, um Kurzfilme anzusehen."
@@ -214,4 +221,5 @@
         "subscribe": "Abonnieren",
         "unsubscribe": "Abbestellen"
     }
+  
 }
