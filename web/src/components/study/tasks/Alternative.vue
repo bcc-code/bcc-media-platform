@@ -31,7 +31,7 @@ function scaleShake() {
 }
 
 const handleClick = () => {
-    if (props.showAnswer && props.correct === true) {
+    if (props.showAnswer && props.correct === true && !props.locked) {
         if (confetti.value) {
             confetti.value.stop()
             confetti.value.play()
