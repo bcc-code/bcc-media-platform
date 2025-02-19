@@ -2,13 +2,13 @@ package translations
 
 import (
 	"context"
-	"encoding/json"
+	"fmt"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/gohugoio/hashstructure"
 	"github.com/orsinium-labs/enum"
-	"hash/fnv"
 	"net/http"
 )
 
@@ -148,18 +148,14 @@ func (s *Service) sendToProviderIfNeeded(ctx context.Context, collection Transla
 		return nil
 	}
 
-	marshalled, err := json.Marshal(data)
-
+	hash, err := hashstructure.Hash(data, nil)
 	if err != nil {
-		return err
+		log.L.Error().Err(err).Msg("Unable to hash data")
 	}
 
-	hash := fnv.New128a()
-	hash.Write(marshalled)
-	hashBytes := hash.Sum(nil)
 	res, err := s.queries.ShouldSendTranslations(ctx, sqlc.ShouldSendTranslationsParams{
 		Collection: collection.Value,
-		Hash:       hashBytes,
+		Hash:       []byte(fmt.Sprintf("%d", hash)),
 	})
 	if err != nil {
 		return err
