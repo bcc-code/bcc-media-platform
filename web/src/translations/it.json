@@ -17,13 +17,14 @@
         "start": "Avvia",
         "skip": "Salta",
         "join": "Partecipa",
-        "open": "",
-        "showMore": ""
+        "open": "Apri",
+        "showMore": "Mostra di più",
+        "confirm": "Conferma"
     },
     "download": {
-        "resolution": "",
-        "language": "",
-        "progress": ""
+        "resolution": "Risoluzione",
+        "language": "Lingua",
+        "progress": "In corso"
     },
     "error": {
         "couldntSendYourMessage": "Impossibile inviare il messaggio",
@@ -60,7 +61,7 @@
         "newEpisodes": "Nuovi episodi"
     },
     "episode": {
-        "chapters": "",
+        "chapters": "Capitoli",
         "details": "Dettagli",
         "episode": "Episodio",
         "episodes": "Episodi",
@@ -68,8 +69,8 @@
         "liveNow": "In onda adesso",
         "seriesDescription": "Descrizione delle serie",
         "releaseDate": "Data di rilascio",
-        "availableFrom": "Disponibile dal",
-        "availableTo": "Disponibile a",
+        "availableFrom": "Disponibile a",
+        "availableTo": "Disponibile fino a",
         "ageRating": "Valutazione",
         "notFound": "Episodio non trovato",
         "comingSoon": "Prossimamente",
@@ -82,8 +83,8 @@
     },
     "live": {
         "now": "Adesso",
-        "title": "",
-        "description": ""
+        "title": "Nuova app livestream",
+        "description": "Ci dispiace! Non è più possibile guardare i livestream su questo sito. Clicca sul link per accedere alla nuova soluzione!"
     },
     "calendar": {
         "noScheduledEvents": "Nessun evento in programma",
@@ -112,7 +113,7 @@
     },
     "competition": {
         "title": "Raddoppia le tue possibilità",
-        "description": "Ottieni maggiori possibilità di vincere l'esclusivo premio <strong>Queste mie parole</strong> rispondendo correttamente.",
+        "description": "Rispondendo correttamente avrai maggiori possibilità di vincere l'esclusivo premio <strong>Queste mie parole</strong>.",
         "howDoesItWork": "Come funziona?",
         "onlyOnce": "Puoi fare il quiz solo una volta.",
         "watchNextBroadcast": "Guarda la prossima trasmissione dal vivo in studio per vedere le risposte giuste.",
@@ -120,7 +121,7 @@
         "terms": "Partecipando accetti che il tuo nome possa essere mostrato nella trasmissione quando si annuncia il vincitore.",
         "alreadySent": "Hai già inviato le risposte, ma puoi ancora vedere cosa hai risposto.",
         "areYouSure": "Sei sicuro?",
-        "lookThouroughly": "Rivedi attentamente le tue risposte. Una volta inviate, non sarai in grado di modificare la tua risposta.",
+        "lookThouroughly": "Esamina attentamente le tue risposte. Una volta inviata, non potrai modificare la tua risposta.",
         "submitted": "La tua risposta è stata inviata!",
         "dontMiss": "Non perderti la prossima trasmissione in studio, dove verrà annunciata la risposta corretta."
     },
@@ -134,13 +135,19 @@
         "lessonActivityTitle": "Attività didattica",
         "textTaskPlaceholder": "Inizia a digitare qui...",
         "question": "Domanda",
-        "wrongAnswerMessage": "Oh, chiudi. Riprova!",
+        "wrongAnswerMessage": "Oh, quasi. Riprova",
         "correctAnswerMessage": "Ben fatto!",
-        "noLocalGroupFound": "Nessun gruppo locale trovato"
+        "noLocalGroupFound": "Nessun gruppo locale trovato",
+        "intro": {
+            "quiz": "Quiz",
+            "quizDescription": "Completa il quiz per tutti i film della sezione Extra per sbloccare un risultato!",
+            "explanationTitle": "Come funziona?",
+            "explanation": "Puoi rispondere una volta per ogni domanda. Ricevi un punto per ogni risposta corretta."
+        }
     },
     "cookies": {
         "title": "Questo sito web utilizza i cookie",
-        "description": "Utilizziamo i cookie per migliorare l'esperienza dell'utente su questo sito web. Se continui a utilizzare questo sito acconsenti ai nostri cookie.",
+        "description": "Utilizziamo i cookie per migliorare l'esperienza dell'utente su questo sito web. Se continui a utilizzare questo sito web, acconsenti ai nostri cookie.",
         "necessary": "Necessario",
         "preferences": "Preferenze",
         "statistics": "Statistiche",
@@ -149,14 +156,14 @@
     "footer": {
         "cookies": "Cookies",
         "privacyPolicy": "Informativa sulla privacy",
-        "information": "",
+        "information": "BCC Media è una fondazione mediatica della [BCC federation] (https://bcc.no) che produce e distribuisce contenuti con valori positivi e cristiani.",
         "headOffice": "Capoufficio",
         "contactUs": "Contattaci",
         "downloadApp": "Scarica la nostra app",
-        "termsOfUse": ""
+        "termsOfUse": "Condizioni d'uso"
     },
     "terms": {
-        "byDownloadingYouAcceptTerms": ""
+        "byDownloadingYouAcceptTerms": "Scaricando questo video, accetti le nostre [condizioni d'uso](https://bcc.media/terms-of-use/) e [norme sulla privacy](https://bcc.media/privacy)."
     },
     "share": {
         "title": "Condividi",
@@ -164,9 +171,9 @@
         "membersOnly": "Questo video è accessibile solo agli utenti che hanno effettuato l'accesso."
     },
     "quotes": {
-        "quoteOfTheDay": "",
-        "markAsRead": "",
-        "markAsUnread": ""
+        "quoteOfTheDay": "Citazione del giorno",
+        "markAsRead": "Segna come letto",
+        "markAsUnread": "Segna come non letto"
     },
     "feedback": {
         "appreciated": "Apprezziamo il tuo feedback.",
@@ -175,43 +182,44 @@
         "howEasyToUnderstand": "Quanto è stato facile capire il video?",
         "anonymousInfo": "La tua valutazione sarà inviata in forma anonima",
         "placeholder": "Sii il più dettagliato possibile per aiutarci a capire.",
-        "giveFeedback": ""
+        "giveFeedback": "Fornisci un feedback"
     },
-    "contactLocalBukIfWrong": "Contatta la persona responsabile nella tua associazione BUK locale se pensi che questo sia sbagliato.",
+    "contactLocalBukIfWrong": "Contatta il responsabile nella tua associazione BUK locale se pensi che questo sia sbagliato.",
     "thankYou": "Grazie!",
     "yourResponseHasBeenSubmitted": "La tua risposta è stata inviata.",
     "sending": "Invio",
     "defaultInputPlaceholder": "Inizia a digitare qui...",
     "requests": {
-        "name": "",
-        "email": "",
-        "role": "",
-        "what": "",
-        "how": "",
-        "howDescription": "",
-        "where": "",
-        "when": "",
-        "clear": "",
+        "name": "Il tuo nome",
+        "email": "Email",
+        "role": "Il tuo ruolo",
+        "what": "Materiale da richiedere",
+        "how": "Come verrà utilizzato il materiale?",
+        "howDescription": "Mostrato in parte/interamente, modificato...",
+        "where": "Dove verrà utilizzato il materiale?",
+        "when": "Quando verrà utilizzato il materiale?",
+        "clear": "Chiaro",
         "send": "Invia",
-        "editor": "",
-        "director": "",
-        "producer": "",
-        "eventCamp": "",
-        "local": "",
-        "mediaResponsible": "",
-        "other": "",
-        "confirmSend": "",
-        "title": "",
-        "description": "",
-        "receitTitle": "",
-        "confirmAgenda": "",
-        "receitDescription": ""
+        "editor": "Editore",
+        "director": "Direttore",
+        "producer": "Produttore",
+        "eventCamp": "Evento/campo",
+        "local": "Raduno locale",
+        "mediaResponsible": "Responsabile dei media",
+        "other": "Altro",
+        "confirmSend": "Invia una richiesta di materiale?",
+        "title": "Richiesta di materiale",
+        "description": "Modulo per la richiesta di materiali audio, immagini e video dai BCC Media",
+        "receitTitle": "Richiesta ricevuta",
+        "confirmAgenda": "Confermo che il materiale sarà utilizzato solo per lo scopo concordato.",
+        "receitDescription": "Il nostro team ti contatterà entro 7 giorni lavorativi. È stata inviata una risposta automatica alla tua e-mail."
     },
     "shorts": {
-        "watchOnOurApp": ""
+        "watchOnOurApp": "Scarica l'applicazione mobile per guardare i cortometraggi."
     },
     "subscriptions": {
-        "subscribe": "",
-        "unsubscribe": ""
+        "subscribe": "Iscriviti",
+        "unsubscribe": "Annullamento dell'iscrizione"
     }
+  
 }
