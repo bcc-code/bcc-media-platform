@@ -264,21 +264,20 @@ type WebhookEvent struct {
 }
 
 type JobParts struct {
-	ID               int           `json:"id"`
-	UID              string        `json:"uid"`
-	InternalID       string        `json:"internalId"`
-	Task             string        `json:"task"`
-	FileName         string        `json:"fileName"`
-	TargetLang       string        `json:"targetLang"`
-	WorkflowLevel    int           `json:"workflowLevel"`
-	Status           Status        `json:"status"`
-	WordsCount       int           `json:"wordsCount"`
-	BeginIndex       int           `json:"beginIndex"`
-	EndIndex         int           `json:"endIndex"`
-	IsParentJobSplit bool          `json:"isParentJobSplit"`
-	DateCreated      Datetime      `json:"dateCreated"`
-	Project          Project       `json:"project"`
-	AssignedTo       []interface{} `json:"assignedTo"`
+	ID               int      `json:"id"`
+	UID              string   `json:"uid"`
+	InternalID       string   `json:"internalId"`
+	Task             string   `json:"task"`
+	FileName         string   `json:"fileName"`
+	TargetLang       string   `json:"targetLang"`
+	WorkflowLevel    int      `json:"workflowLevel"`
+	Status           Status   `json:"status"`
+	WordsCount       int      `json:"wordsCount"`
+	BeginIndex       int      `json:"beginIndex"`
+	EndIndex         int      `json:"endIndex"`
+	IsParentJobSplit bool     `json:"isParentJobSplit"`
+	DateCreated      Datetime `json:"dateCreated"`
+	Project          Project  `json:"project"`
 }
 
 type WebhookMetadata struct {
