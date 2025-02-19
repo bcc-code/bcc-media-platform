@@ -143,7 +143,17 @@
             "quizDescription": "Complétez le quiz pour tous les films de la rubrique Extras pour débloquer un trophée !",
             "explanationTitle": "Comment cela fonctionne-t-il ?",
             "explanation": "Vous pouvez répondre une fois par question. Vous obtenez un point pour chaque bonne réponse."
-        }
+        },
+        "studyAnswerTheQuiz": "Répondre au quiz",
+        "studyAnswerTheQuizDescription": "Gagnez des points en répondant correctement",
+        "studySomeAnswersCorrect": "Vous avez obtenu {correct} de {total} réponses correctes",
+        "studyAllAnswersCorrect": "Toutes vos réponses sont correctes",
+        "studyNoAnswersCorrect": "Vous n’avez aucune réponse correcte",
+        "studyAllAnswersCorrectDescription": "Bien joué !",
+        "studyNoAnswersCorrectDescription": "Soyez plus attentifs la prochaine fois !",
+        "studySomeAnswersCorrectDescription": "Bien joué ! Il reste une marge de progression.",
+        "studyAllQuestionsAnswered": "Vous avez répondu à toutes les questions",
+        "studyAllQuestionsAnsweredDescription": "Bien joué !"
     },
     "cookies": {
         "title": "Ce site web utilise des cookies",
