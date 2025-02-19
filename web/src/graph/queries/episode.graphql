@@ -38,6 +38,9 @@ fragment LessonProgressOverview on Lesson {
     progress {
         total
         completed
+        alternativesTasksTotal
+        alternativesTasksCompleted
+        alternativesTasksCorrect
     }
 }
 

@@ -143,7 +143,17 @@
             "quizDescription": "Complete the quiz for all the movies under Extras to unlock an achievement!",
             "explanationTitle": "How does it work?",
             "explanation": "You can answer once per question. You get one point for each correct answer."
-        }
+        },
+        "studyAnswerTheQuiz": "Answer the quiz",
+        "studyAnswerTheQuizDescription": "Earn points by answering correctly",
+        "studySomeAnswersCorrect": "You got {correct} of {total} answers correct",
+        "studyAllAnswersCorrect": "You got all answers correct",
+        "studyNoAnswersCorrect": "You got no answers correct",
+        "studyAllAnswersCorrectDescription": "Well done!",
+        "studyNoAnswersCorrectDescription": "Better listen a bit closer next time!",
+        "studySomeAnswersCorrectDescription": "Well done! But still room for improvement.",
+        "studyAllQuestionsAnswered": "You answered all questions",
+        "studyAllQuestionsAnsweredDescription": "Well done!"
     },
     "cookies": {
         "title": "This website uses cookies",

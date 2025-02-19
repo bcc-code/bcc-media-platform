@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { LessonProgressOverviewFragment } from '@/graph/generated'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import Check from '../icons/Check.vue'
 
 const props = defineProps<{
     episodeId: string
@@ -8,14 +10,95 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+
+const total = computed(() => props.lesson.progress.alternativesTasksTotal)
+const completed = computed(
+    () => props.lesson.progress.alternativesTasksCompleted
+)
+const correct = computed(() => props.lesson.progress.alternativesTasksCorrect)
+
+const dynamicClasses = computed(() => {
+    const defaultState = !total.value || completed.value === 0
+    const correctState =
+        total.value && completed.value === total.value && correct.value > 0
+    const incorrectState =
+        total.value && completed.value === total.value && correct.value === 0
+
+    return {
+        'bg-separator-on-light border-separator-on-light': defaultState,
+        'bg-primary border-primary': correctState,
+        'bg-red border-red': incorrectState,
+    }
+})
+
+const title = computed(() => {
+    if (!completed.value) return t('lesson.studyAnswerTheQuiz')
+    switch (correct.value) {
+        case 0:
+            return t('lesson.studyNoAnswersCorrect')
+        case total.value:
+            return t('lesson.studyAllAnswersCorrect')
+        default:
+            return t('lesson.studySomeAnswersCorrect', {
+                correct: correct.value,
+                total: total.value,
+            })
+    }
+})
+
+const subtitle = computed(() => {
+    if (!completed.value) return t('lesson.studyAnswerTheQuizDescription')
+    switch (correct.value) {
+        case 0:
+            return t('lesson.studyNoAnswersCorrectDescription')
+        case total.value:
+            return t('lesson.studyAllAnswersCorrectDescription')
+        default:
+            return t('lesson.studySomeAnswersCorrectDescription')
+    }
+})
 </script>
 
 <template>
     <div class="w-full relative">
         <div
-            class="w-full bg-separator-on-light rounded-xl border-separator-on-light border select-none cursor-pointer"
+            :class="[
+                'w-full rounded-xl border select-none cursor-pointer',
+                dynamicClasses,
+            ]"
         >
-            <div class="p-3 flex items-center">
+            <div v-if="total" class="p-3 flex items-center">
+                <div class="flex-1 flex flex-col gap-0.5">
+                    <p class="text-style-title-3 text-on-tint">
+                        {{ title }}
+                    </p>
+                    <p class="text-style-caption-1 opacity-80">
+                        {{ subtitle }}
+                    </p>
+                </div>
+                <div class="pl-3">
+                    <div
+                        class="bg-separator-on-light rounded-full h-9 w-9 flex items-center justify-center border border-separator-on-light"
+                    >
+                        <svg
+                            v-if="completed !== total"
+                            width="8"
+                            height="12"
+                            viewBox="0 0 8 12"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M0.958984 0.897949L6.06103 5.99999L0.958984 11.102"
+                                stroke="white"
+                                stroke-width="1.53061"
+                            />
+                        </svg>
+                        <Check v-else />
+                    </div>
+                </div>
+            </div>
+            <div v-else class="p-3 flex items-center">
                 <div class="pr-3">
                     <svg
                         width="45"
@@ -121,7 +204,7 @@ const { t } = useI18n()
             </div>
             <div
                 class="shine-overlay absolute top-0 right-0 w-full h-full rounded-xl"
-            ></div>
+            />
         </div>
         <svg width="0" height="0">
             <defs>
