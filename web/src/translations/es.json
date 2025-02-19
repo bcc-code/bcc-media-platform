@@ -18,7 +18,8 @@
         "skip": "Saltar",
         "join": "Unirse",
         "open": "Abierta",
-        "showMore": "Ver más"
+        "showMore": "Ver más",
+        "confirm": "Confirmar"
     },
     "download": {
         "resolution": "Resolución",
@@ -60,7 +61,7 @@
         "newEpisodes": "Nuevos episodios"
     },
     "episode": {
-        "chapters": "Capitulos",
+        "chapters": "Capítulos",
         "details": "Detalles",
         "episode": "Episodio",
         "episodes": "Episodios",
@@ -83,7 +84,7 @@
     "live": {
         "now": "Ahora",
         "title": "Nueva aplicación de transmisión en vivo",
-        "description": "¡Lo lamentamos! Ya no puedes ver transmisiones en vivo en este sitio web. ¡Haga clic en el enlace para ir a la nueva solución!"
+        "description": "¡Lo sentimos! Ya no puedes ver transmisiones en vivo en este sitio web. Haz clic en el enlace para acceder a la nueva solución."
     },
     "calendar": {
         "noScheduledEvents": "Sin eventos programados",
@@ -112,7 +113,7 @@
     },
     "competition": {
         "title": "Duplica tus posibilidades",
-        "description": "Obtenga una mayor oportunidad de ganar el exclusivo premio de <strong> Estas mis palabras</strong> al responder correctamente.",
+        "description": "¡Aumenta tus posibilidades de ganar el premio exclusivo <strong>Disse mine ord </strong>respondiendo correctamente!",
         "howDoesItWork": "¿Como funciona?",
         "onlyOnce": "Solo puede realizar el cuestionario una vez.",
         "watchNextBroadcast": "Mire la próxima transmisión en vivo para ver las respuestas correctas.",
@@ -120,7 +121,7 @@
         "terms": "Al participar aceptas que tu nombre pueda ser mostrado en la transmisión al momento de anunciar al ganador.",
         "alreadySent": "Ya ha enviado la respuesta, pero aún puedes verla.",
         "areYouSure": "¿Estás seguro?",
-        "lookThouroughly": "Revise sus respuestas cuidadosamente. Una vez enviado, no podrá cambiar su respuesta.",
+        "lookThouroughly": "Revisa tus respuestas cuidadosamente. Una vez enviadas, no podrás cambiarlas.",
         "submitted": "Su respuesta ha sido enviada!",
         "dontMiss": "No te pierdas la próxima transmisión, donde se anunciará la respuesta correcta."
     },
@@ -134,13 +135,19 @@
         "lessonActivityTitle": "Actividad de la lección",
         "textTaskPlaceholder": "Empieza a escribir aquí...",
         "question": "Pregunta",
-        "wrongAnswerMessage": "Ah, cerca. ¡Intentar otra vez!",
+        "wrongAnswerMessage": "Oh, casi. Inténtalo nuevamente",
         "correctAnswerMessage": "¡Bien hecho!",
-        "noLocalGroupFound": "No se encontró un grupo local"
+        "noLocalGroupFound": "No se encontró un grupo local",
+        "intro": {
+            "quiz": "Quiz",
+            "quizDescription": "Completa el cuestionario de todas las películas en Extras para desbloquear un logro.",
+            "explanationTitle": "¿Como funciona?",
+            "explanation": "Puedes responder una vez por pregunta. Obtienes un punto por cada respuesta correcta."
+        }
     },
     "cookies": {
         "title": "Este sitio web utiliza cookies",
-        "description": "Utilizamos cookies para mejorar la experiencia del usuario en este sitio web. Si continúara utilizando este sitio web, acepta nuestras cookies.",
+        "description": "Usamos cookies para mejorar la experiencia del usuario en este sitio web. Si continúas usando este sitio web, aceptas nuestras cookies.",
         "necessary": "Necesario",
         "preferences": "Preferencias",
         "statistics": "Estadísticas",
@@ -151,7 +158,7 @@
         "privacyPolicy": "Políticas de privacidad",
         "information": "BCC Media es una fundación de medios de la [federación BCC](https://bcc.no) que produce y distribuye contenido con valores positivos y cristianos.",
         "headOffice": "Oficina central",
-        "contactUs": "Contactenos",
+        "contactUs": "Contáctenos",
         "downloadApp": "Descarga nuestra aplicación",
         "termsOfUse": "Condiciones de uso"
     },
@@ -205,7 +212,7 @@
         "description": "Formulario para solicitar material de audio, imagen y vídeo a BCC Media",
         "receitTitle": "Solicitud recibida",
         "confirmAgenda": "Confirmo que el material sólo se utilizará para el fin acordado.",
-        "receitDescription": "Nuestro equipo se pondrá en contacto con usted en un plazo de 7 días laborables. Se ha enviado una respuesta automática a su correo electrónico."
+        "receitDescription": "Nuestro equipo se pondrá en contacto contigo dentro de 7 días hábiles. Se ha enviado una respuesta automática a tu correo electrónico."
     },
     "shorts": {
         "watchOnOurApp": "Descarga la aplicación móvil para ver cortos."
@@ -214,4 +221,5 @@
         "subscribe": "Suscribir",
         "unsubscribe": "Cancelar suscripción"
     }
+  
 }
