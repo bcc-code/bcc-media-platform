@@ -130,6 +130,7 @@ func (c *Client) ProcessWebhook(ctx context.Context, originalRequest *http.Reque
 	payload := &WebhookPost{}
 	err := json.Unmarshal(hookData, payload)
 	if err != nil {
+		log.L.Error().Err(err).Str("data", string(hookData)).Msg("Unable to unmarshal webhook data")
 		return nil, nil, merry.Wrap(err)
 	}
 
