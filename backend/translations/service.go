@@ -175,7 +175,7 @@ func (s *Service) sendToProviderIfNeeded(ctx context.Context, collection Transla
 
 	return s.queries.UpdateTranslationsHash(ctx, sqlc.UpdateTranslationsHashParams{
 		Collection: collection.Value,
-		Hash:       hashBytes,
+		Hash:       []byte(fmt.Sprintf("%d", hash)),
 	})
 }
 
