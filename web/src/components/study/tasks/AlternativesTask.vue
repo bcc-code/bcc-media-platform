@@ -110,7 +110,8 @@ function selectAnswer(id: string) {
                         : alt.isCorrect
                 "
                 :show-answer="
-                    task.showAnswer && task.completed && answerConfirmed
+                    (task.showAnswer && task.completed && answerConfirmed) ||
+                    alt.isCorrect === true
                 "
                 :selected="selectedIndex == i"
                 :class="

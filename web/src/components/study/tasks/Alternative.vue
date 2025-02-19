@@ -66,9 +66,9 @@ const conditionalClass = computed(() => {
     if (scaleShaking.value) {
         classString += ' scaleShake'
     }
-    if (props.selected && !props.showAnswer) {
+    if (!props.showAnswer) {
         classString += ' cursor-default border-slate-700'
-    } else if (props.selected && props.correct === true) {
+    } else if (props.showAnswer && props.correct === true) {
         classString += ' border-tint-3 cursor-default'
     } else if (props.selected && props.correct === false) {
         classString += ' border-tint-2 cursor-default'
@@ -113,9 +113,7 @@ const conditionalClass = computed(() => {
                 <path d="M1 1L13 13" stroke="#E63C62" stroke-width="2" />
             </svg>
             <svg
-                v-else-if="
-                    props.selected && props.correct === true && props.showAnswer
-                "
+                v-else-if="props.correct === true && props.showAnswer"
                 width="15"
                 height="12"
                 viewBox="0 0 15 12"
@@ -197,4 +195,3 @@ const conditionalClass = computed(() => {
     }
 }
 </style>
-@/services/webviews/mainHandler
