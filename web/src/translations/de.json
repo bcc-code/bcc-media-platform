@@ -18,7 +18,8 @@
         "skip": "Überspringen",
         "join": "Beitreten",
         "open": "Öffnen",
-        "showMore": "Mehr anzeigen"
+        "showMore": "Mehr anzeigen",
+        "confirm": "Bestätigen"
     },
     "download": {
         "resolution": "Auflösung",
@@ -67,7 +68,7 @@
         "videos": "Videos",
         "liveNow": "Jetzt live",
         "seriesDescription": "Serienbeschreibung",
-        "releaseDate": "Veröffentlichsdatum",
+        "releaseDate": "Veröffentlichungsdatum",
         "availableFrom": "Verfügbar ab",
         "availableTo": "Verfügbar bis",
         "ageRating": "Bewertung",
@@ -88,7 +89,7 @@
     "calendar": {
         "noScheduledEvents": "Keine geplanten Veranstaltungen",
         "thisWeek": "Diese Woche",
-        "timeTableIsLocalTime": "Das Tv Programm ist deiner Ortszeit angepasst."
+        "timeTableIsLocalTime": "Das TV-Programm ist deiner Ortszeit angepasst"
     },
     "search": {
         "programs": "Programme",
@@ -112,7 +113,7 @@
     },
     "competition": {
         "title": "Verdopple deine Chancen",
-        "description": "Erhalte eine größere Chance, den exklusiven <strong>Diese meine Worte</strong> Preis zu gewinnen, indem du korrekt antwortest.",
+        "description": "Erhalte eine höhere Chance auf den exklusiven <strong>Disse mine ord</strong> Preis, indem du richtig antwortest.",
         "howDoesItWork": "Wie funktioniert es?",
         "onlyOnce": "Du kannst dieses Quiz nur einmal machen.",
         "watchNextBroadcast": "Schaue die nächste Live Studiosendung, um die richtigen Antworten zu sehen.",
@@ -134,13 +135,29 @@
         "lessonActivityTitle": "Aufgabe zum Film",
         "textTaskPlaceholder": "Schreibe hier...",
         "question": "Frage",
-        "wrongAnswerMessage": "Oh, fast. Versuche es noch einmal!",
+        "wrongAnswerMessage": "Oh, knapp. Versuch es noch einmal!",
         "correctAnswerMessage": "Gut gemacht!",
-        "noLocalGroupFound": "Keine lokale Gruppe gefunden"
+        "noLocalGroupFound": "Keine lokale Gruppe gefunden",
+        "intro": {
+            "quiz": "Quiz",
+            "quizDescription": "Schließe das Quiz für alle Filme unter Extras ab, um eine Errungenschaft freizuschalten!",
+            "explanationTitle": "Wie funktioniert es?",
+            "explanation": "Du kannst einmal pro Frage antworten. Für jede richtige Antwort bekommst du einen Punkt."
+        },
+        "studyAnswerTheQuiz": "Beantworte das Quiz",
+        "studyAnswerTheQuizDescription": "Verdiene Punkte, indem du richtig antwortest",
+        "studySomeAnswersCorrect": "Du hast {correct} von {total} richtig beantwortet.",
+        "studyAllAnswersCorrect": "Du hast alle Antworten richtig",
+        "studyNoAnswersCorrect": "Du hast keine richtigen Antworten",
+        "studyAllAnswersCorrectDescription": "Gut gemacht!",
+        "studyNoAnswersCorrectDescription": "Hör das nächste Mal lieber etwas genauer hin!",
+        "studySomeAnswersCorrectDescription": "Gut gemacht! Aber es gibt noch Raum für Verbesserungen.",
+        "studyAllQuestionsAnswered": "Du hast alle Fragen beantwortet",
+        "studyAllQuestionsAnsweredDescription": "Gut gemacht!"
     },
     "cookies": {
         "title": "Diese Webseite verwendet Cookies",
-        "description": "Wir benutzen Informationsdateien (Cookies), um dein Benutzererlebnis auf unserer Seite zu unterstützen. Besuchst du weiterhin unsere Internetseite, stimmst du gleichzeitig unserem Gebrauch von Informationsdateien zu.",
+        "description": "Wir verwenden Cookies, um das Nutzererlebnis auf dieser Internetseite zu verbessern. Wenn du diese Internetseite weiter nutzt, stimmst du unseren Cookies zu.",
         "necessary": "Notwendig",
         "preferences": "Präferenzen",
         "statistics": "Statistiken",
@@ -205,7 +222,7 @@
         "description": "Formular zur Anforderung von Audio-, Bild- und Videomaterial bei BCC Media",
         "receitTitle": "Anfrage erhalten",
         "confirmAgenda": "Ich versichere, dass das Material nur für den vereinbarten Zweck verwendet wird.",
-        "receitDescription": "Unser Team wird sich innerhalb von 7 Werktagen mit dir in Verbindung setzen. Eine automatische Antwort wurde an deine E-Mail gesendet."
+        "receitDescription": "Unser Team wird dich innerhalb von 7 Werktagen kontaktieren. Es wurde eine automatische Antwort auf deine E-Mail gesendet."
     },
     "shorts": {
         "watchOnOurApp": "Lade die mobile App herunter, um Kurzfilme anzusehen."
@@ -214,4 +231,5 @@
         "subscribe": "Abonnieren",
         "unsubscribe": "Abbestellen"
     }
+  
 }
