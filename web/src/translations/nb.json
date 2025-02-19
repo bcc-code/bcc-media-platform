@@ -143,7 +143,17 @@
             "quizDescription": "Fullfør quizen til alle filmene under ekstramateriale for å låse opp en prestasjon!",
             "explanationTitle": "Hvordan fungerer det?",
             "explanation": "Du kan svare én gang per spørsmål. Du får ett poeng for hvert riktige svar."
-        }
+        },
+        "studyAnswerTheQuiz": "Svar på quizen",
+        "studyAnswerTheQuizDescription": "Tjen poeng ved å svare riktig",
+        "studySomeAnswersCorrect": "Du fikk {correct} av {total} riktige svar",
+        "studyAllAnswersCorrect": "Du fikk alle svarene riktig",
+        "studyNoAnswersCorrect": "Du fikk ingen riktige svar",
+        "studyAllAnswersCorrectDescription": "Bra jobbet!",
+        "studyNoAnswersCorrectDescription": "Du bør kanskje lytte litt nøyere neste gang!",
+        "studySomeAnswersCorrectDescription": "Bra jobbet! Men det er fortsatt rom for forbedringer.",
+        "studyAllQuestionsAnswered": "Du svarte på alle spørsmålene",
+        "studyAllQuestionsAnsweredDescription": "Bra jobbet!"
     },
     "cookies": {
         "title": "Dette nettstedet bruker informasjonskapsler",

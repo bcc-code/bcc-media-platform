@@ -143,7 +143,17 @@
             "quizDescription": "Completa el cuestionario de todas las películas en Extras para desbloquear un logro.",
             "explanationTitle": "¿Como funciona?",
             "explanation": "Puedes responder una vez por pregunta. Obtienes un punto por cada respuesta correcta."
-        }
+        },
+        "studyAnswerTheQuiz": "Responde el Cuestionario",
+        "studyAnswerTheQuizDescription": "Gana puntos respondiendo correctamente",
+        "studySomeAnswersCorrect": "Has acertado {correct} de {total} respuestas",
+        "studyAllAnswersCorrect": "Has acertado todas las respuestas",
+        "studyNoAnswersCorrect": "No has acertado ninguna respuesta",
+        "studyAllAnswersCorrectDescription": "¡Bien hecho!",
+        "studyNoAnswersCorrectDescription": "Será mejor que la próxima vez escuches con más atención.",
+        "studySomeAnswersCorrectDescription": "¡Bien hecho! Pero aún se puede mejorar.",
+        "studyAllQuestionsAnswered": "Has respondido a todas las preguntas",
+        "studyAllQuestionsAnsweredDescription": "¡Bien hecho!"
     },
     "cookies": {
         "title": "Este sitio web utiliza cookies",
