@@ -323,8 +323,8 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 	r.Loaders.CompletedTasksLoader.Clear(ctx, p.ID)
 	r.Loaders.CompletedAndLockedTasksLoader.Clear(ctx, p.ID)
 	r.Loaders.CompletedLessonsLoader.Clear(ctx, p.ID)
-	r.ProfileLoaders(ctx).TaskCompletedLoader.Clear(ctx, p.ID)
-	r.ProfileLoaders(ctx).TaskAlternativesAnswersCountLoader.Clear(ctx, p.ID)
+	r.ProfileLoaders(ctx).TaskCompletedLoader.ClearAll()
+	r.ProfileLoaders(ctx).TaskAlternativesAnswersCountLoader.ClearAll()
 
 	return true, nil
 }
@@ -343,8 +343,8 @@ func (r *mutationRootResolver) LockLessonAnswers(ctx context.Context, id string)
 	})
 
 	r.Loaders.CompletedAndLockedTasksLoader.Clear(ctx, p.ID)
-	r.ProfileLoaders(ctx).TaskCompletedLoader.Clear(ctx, p.ID)
-	r.ProfileLoaders(ctx).TaskAlternativesAnswersCountLoader.Clear(ctx, p.ID)
+	r.ProfileLoaders(ctx).TaskCompletedLoader.ClearAll()
+	r.ProfileLoaders(ctx).TaskAlternativesAnswersCountLoader.ClearAll()
 
 	return err == nil, err
 }
