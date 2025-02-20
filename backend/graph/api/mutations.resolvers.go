@@ -343,6 +343,7 @@ func (r *mutationRootResolver) LockLessonAnswers(ctx context.Context, id string)
 	})
 
 	r.Loaders.CompletedAndLockedTasksLoader.Clear(ctx, p.ID)
+	r.Loaders.StudyTaskLoader.ClearAll()
 	r.ProfileLoaders(ctx).TaskCompletedLoader.ClearAll()
 	r.ProfileLoaders(ctx).TaskAlternativesAnswersCountLoader.ClearAll()
 
