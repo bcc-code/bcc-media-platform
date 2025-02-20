@@ -18,7 +18,8 @@
         "skip": "Pular",
         "join": "Partícipe",
         "open": "Abrir",
-        "showMore": "Mostrar mais"
+        "showMore": "Mostrar mais",
+        "confirm": "Confirmar"
     },
     "download": {
         "resolution": "Resolução",
@@ -56,7 +57,7 @@
         "returnHome": "Ir para página principal "
     },
     "common": {
-        "new": "Novo ",
+        "new": "Novo",
         "newEpisodes": "Novos episódios "
     },
     "episode": {
@@ -72,7 +73,7 @@
         "availableTo": "Disponível para ",
         "ageRating": "Avaliação ",
         "notFound": "Episódio não encontrado ",
-        "comingSoon": "Em breve ",
+        "comingSoon": "Em breve",
         "noAccess": {
             "oops": "Oops! ",
             "mustBeLoggedIn": "Você precisa estar logado para assistir a este conteúdo",
@@ -83,7 +84,7 @@
     "live": {
         "now": "Agora",
         "title": "Novo aplicativo de transmissão ao vivo",
-        "description": "Lamentamos! Já não é possível assistir a transmissões ao vivo neste site. Clique no link para ir à nova solução!"
+        "description": "Desculpa-nos! Já não podes ver transmissões ao vivo neste síte. Clique no link para encontrar nova solução!"
     },
     "calendar": {
         "noScheduledEvents": "Nenhum evento agendado",
@@ -94,7 +95,7 @@
         "programs": "Programas",
         "episodes": "Episódios",
         "cancel": "Cancelar",
-        "emptyQuery": "A consulta de pesquisa está vazia.",
+        "emptyQuery": "A caixa de pesquisa está vazia.",
         "noResults": "Nenhum resultado encontrado ",
         "tryAdjustingQuery": "Tente ajustar a consulta de pesquisa "
     },
@@ -108,11 +109,11 @@
     },
     "study": {
         "startStudy": "Começar estudo",
-        "continueStudy": "Continuar estudo"
+        "continueStudy": "Continuar estudo "
     },
     "competition": {
         "title": "Dobre suas chances",
-        "description": "Tenha uma chance maior de ganhar o prêmio exclusivo <strong>Estas minhas palavras</strong> respondendo corretamente.",
+        "description": "Se responderes corretamente, tens mais hipóteses de ganhar o prémio exclusivo <strong>Estas minhas pa </strong>.",
         "howDoesItWork": "Como funciona?",
         "onlyOnce": "Você só pode fazer o teste uma vez.",
         "watchNextBroadcast": "Assista à próxima transmissão de estúdio ao vivo para ver as respostas certas.",
@@ -120,7 +121,7 @@
         "terms": "Ao participar você concorda que seu nome pode ser mostrado na transmissão ao anunciar o vencedor.",
         "alreadySent": "Você já enviou, mas ainda pode ver o que respondeu.",
         "areYouSure": "Tem certeza?",
-        "lookThouroughly": "Revise suas respostas cuidadosamente. Depois de enviada, você não poderá alterar sua resposta.",
+        "lookThouroughly": "Revê cuidadosamente as tuas respostas. Uma vez enviada, não poderás alterar a tua resposta.",
         "submitted": "Sua resposta foi enviada!",
         "dontMiss": "Não perca a próxima transmissão do estúdio, onde a resposta correta será anunciada."
     },
@@ -134,13 +135,29 @@
         "lessonActivityTitle": "Atividade da lição",
         "textTaskPlaceholder": "Começar a escrever aqui...",
         "question": "Questão",
-        "wrongAnswerMessage": "Oh, feche! Tentar novamente!",
-        "correctAnswerMessage": "Bem feito!",
-        "noLocalGroupFound": "Não há grupo local"
+        "wrongAnswerMessage": "Oh, feche. Tente novamente",
+        "correctAnswerMessage": "Muito bem!",
+        "noLocalGroupFound": "Nenhum grupo local encontrado",
+        "intro": {
+            "quiz": "Questionário",
+            "quizDescription": "Completa o questionário de todos os filmes em Extras para desbloqueares um fato!",
+            "explanationTitle": "Como funciona?",
+            "explanation": "Só podes responder uma vez por pergunta. Ganhas um ponto por cada resposta correta."
+        },
+        "studyAnswerTheQuiz": "Responda ao questionário",
+        "studyAnswerTheQuizDescription": "Ganhe pontos respondendo corretamente",
+        "studySomeAnswersCorrect": "Você acertou {correct} de {total} respostas",
+        "studyAllAnswersCorrect": "Você acertou todas as respostas",
+        "studyNoAnswersCorrect": "Você não tem resposta correta",
+        "studyAllAnswersCorrectDescription": "Muito bem!",
+        "studyNoAnswersCorrectDescription": "É melhor você ouvir com mais atenção da próxima vez!",
+        "studySomeAnswersCorrectDescription": "Muito bem! Mas ainda tens margem para melhorar.",
+        "studyAllQuestionsAnswered": "Respondeste todas as perguntas",
+        "studyAllQuestionsAnsweredDescription": "Muito bem!"
     },
     "cookies": {
-        "title": "Este website utiliza cookies ",
-        "description": "Utilizamos cookies para melhorar a experiência do usuário nesse website. Se continuar usando nosso site deve aceitar os cookies.",
+        "title": "Este site utiliza cookies ",
+        "description": "Utilizamos cookies para melhorar a experiência do utilizador neste síte. Se continuares a utilizar este síte, estás de acordo com nossos cookies.",
         "necessary": "Necessário ",
         "preferences": "Preferências ",
         "statistics": "Estatísticas ",
@@ -149,7 +166,7 @@
     "footer": {
         "cookies": "Cookies",
         "privacyPolicy": "Política de privacidade",
-        "information": "",
+        "information": "BCC Mídia é uma fundação de mídia da federação BCC que produz e distribui conteúdo com valores positivos e cristãos.",
         "headOffice": "Sede",
         "contactUs": "Entre em contato ",
         "downloadApp": "Baixe nosso aplicativo ",
@@ -164,9 +181,9 @@
         "membersOnly": "Este vídeo é acessível apenas para usuários que estão logados."
     },
     "quotes": {
-        "quoteOfTheDay": "",
-        "markAsRead": "",
-        "markAsUnread": ""
+        "quoteOfTheDay": "Citação do dia",
+        "markAsRead": "Marca como lido",
+        "markAsUnread": "Marca como não lido"
     },
     "feedback": {
         "appreciated": "Agradecemos seus comentários.",
@@ -174,8 +191,8 @@
         "episodeTitle": "Como classificaria esse episódio?",
         "howEasyToUnderstand": "Quão fácil foi entender o vídeo?",
         "anonymousInfo": "Sua classificação se enviará de forma anônima",
-        "placeholder": "Por favor, seja o mais detalhado possível para nos ajudar a entender.",
-        "giveFeedback": ""
+        "placeholder": "Por favor, seja o mais detalhista possível para nos ajudar a entender.",
+        "giveFeedback": "Dá feedback"
     },
     "contactLocalBukIfWrong": "Entre em contato com a pessoa responsável em sua associação BUK local se achar que isso está errado.",
     "thankYou": "Obrigada!",
@@ -193,25 +210,26 @@
         "when": "Quando se utilizará o material?",
         "clear": "Limpar",
         "send": "Enviar",
-        "editor": "Editor",
+        "editor": "Editora",
         "director": "Diretor",
         "producer": "Produtor",
         "eventCamp": "Evento/acampamento",
         "local": "Reunião local",
-        "mediaResponsible": "Responsáveis dos meios de comunicação",
+        "mediaResponsible": "Responsáveis de midia",
         "other": "Outros",
         "confirmSend": "Enviar solicitação de material?",
         "title": "Solicitação de materiais",
         "description": "Formulário para solicitação de materiais de áudio, imagem e vídeo de BCC Media",
         "receitTitle": "Pedido recebido",
         "confirmAgenda": "Confirmo que o material será utilizado apenas para a finalidade acordada.",
-        "receitDescription": "Nossa equipe entrará em contato com você em até 7 dias úteis. Uma resposta automática foi enviada para seu e-mail."
+        "receitDescription": "A nossa\nequipe entrará em contacto com você no prazo de 7 dias úteis. Foi enviada uma resposta automática para o teu e-mail."
     },
     "shorts": {
         "watchOnOurApp": "Baixe o aplicativo móvel para assistir vídeos curtos."
     },
     "subscriptions": {
-        "subscribe": "",
-        "unsubscribe": ""
+        "subscribe": "Inscreva-se ",
+        "unsubscribe": "Cancelar inscrição"
     }
+  
 }
