@@ -117,7 +117,7 @@
         "howDoesItWork": "Kako deluje?",
         "onlyOnce": "Samo enkrat lahko rešiš kviz.",
         "watchNextBroadcast": "Oglej si naslednjo oddajo v studiu v živo, da izveš pravilne odgovore.",
-        "joinCompetition": "Priduži se tekmovanju",
+        "joinCompetition": "Pridruži se tekmovanju",
         "terms": "S sodelovanjem se strinjaš, da se lahko tvoje ime objavi v oddaji, v kateri bo razglašen zmagovalec.",
         "alreadySent": "Odgovore si že oddal, ampak še vedno si lahko ogledaš, kaj si odgovoril.",
         "areYouSure": "Si prepričan?",
@@ -143,7 +143,17 @@
             "quizDescription": "Dokončaj kviz za vse filme v razdelku Dodatki in odkleni dosežek!",
             "explanationTitle": "Kako deluje?",
             "explanation": "Na posamezno vprašanje lahko odgovoriš samo enkrat. Za vsak pravilen odgovor dobiš eno točko."
-        }
+        },
+        "studyAnswerTheQuiz": "Odgovori na kviz",
+        "studyAnswerTheQuizDescription": "S pravilnim odgovorom dobiš točke",
+        "studySomeAnswersCorrect": "Pravilni odgovori: {correct} od {total}",
+        "studyAllAnswersCorrect": "Vsi odgovori so pravilni",
+        "studyNoAnswersCorrect": "Noben odgovor ni pravilen",
+        "studyAllAnswersCorrectDescription": "Odlično!",
+        "studyNoAnswersCorrectDescription": "Naslednjič raje prisluhni malo bolj pozorno!",
+        "studySomeAnswersCorrectDescription": "Odlično! A lahko si še boljši.",
+        "studyAllQuestionsAnswered": "Odgovoril si na vsa vprašanja",
+        "studyAllQuestionsAnsweredDescription": "Odlično!"
     },
     "cookies": {
         "title": "Ta spletna stran uporablja piškotke",
