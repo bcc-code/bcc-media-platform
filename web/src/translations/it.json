@@ -143,7 +143,17 @@
             "quizDescription": "Completa il quiz per tutti i film della sezione Extra per sbloccare un risultato!",
             "explanationTitle": "Come funziona?",
             "explanation": "Puoi rispondere una volta per ogni domanda. Ricevi un punto per ogni risposta corretta."
-        }
+        },
+        "studyAnswerTheQuiz": "Rispondi al quiz",
+        "studyAnswerTheQuizDescription": "Guadagna punti rispondendo correttamente",
+        "studySomeAnswersCorrect": "Hai ottenuto {correct} di {total} risposte corrette",
+        "studyAllAnswersCorrect": "Hai azzeccato tutte le risposte",
+        "studyNoAnswersCorrect": "Non hai ottenuto risposte corrette",
+        "studyAllAnswersCorrectDescription": "Ben fatto!",
+        "studyNoAnswersCorrectDescription": "La prossima volta sarà meglio ascoltare più attentamente!",
+        "studySomeAnswersCorrectDescription": "Ben fatto! Ma c'è ancora margine di miglioramento.",
+        "studyAllQuestionsAnswered": "Hai risposto a tutte le domande",
+        "studyAllQuestionsAnsweredDescription": "Ben fatto!"
     },
     "cookies": {
         "title": "Questo sito web utilizza i cookie",
