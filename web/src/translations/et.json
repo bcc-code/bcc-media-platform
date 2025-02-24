@@ -1,0 +1,235 @@
+{
+    "buttons": {
+        "save": "Salvesta",
+        "login": "Logi sisse",
+        "logout": "Logi välja",
+        "stayLoggedOut": "Jää välja logituks",
+        "cancel": "Tühista",
+        "accept": "Nõustu",
+        "submit": "Esita",
+        "back": "Tagasi",
+        "next": "Järgmine",
+        "continue": "Jätka",
+        "close": "Sule",
+        "download": "Laadi alla",
+        "goTo": "Mine",
+        "send": "Saada",
+        "start": "Alusta",
+        "skip": "Jäta vahele",
+        "join": "Liitu",
+        "open": "Ava",
+        "showMore": "Näita rohkem",
+        "confirm": "Kinnita"
+    },
+    "download": {
+        "resolution": "Lahendus",
+        "language": "Keel",
+        "progress": "Kulg"
+    },
+    "error": {
+        "couldntSendYourMessage": "Ei saanud su sõnumit saata",
+        "somethingWentWrong": "Midagi läks nässu.",
+        "checkNetwork": "Kontrolli oma interneti ühendust ja proovi uuesti."
+    },
+    "dashboard": {
+        "loggedOut": "Sind logiti välja"
+    },
+    "page": {
+        "home": "Kodu",
+        "search": "Otsi",
+        "live": "Otse",
+        "calendar": "Kalender",
+        "faq": "Korduma kippuvad küsimused",
+        "notFound": "Lehekülge ei leitud",
+        "explore": "Avasta",
+        "watchNow": "Vaata nüüd",
+        "aboutUs": "Meist"
+    },
+    "section": {
+        "item": {
+            "episode": "0 osa | 1 osa | {count} osad",
+            "season": "0 hooaega | 1 hooaeg | {count} hooajad"
+        }
+    },
+    "notFound": {
+        "title": "Ei leitud",
+        "description": "Võib-olla pole sa sisse logitud või sul puuduvad mõned õigused.",
+        "returnHome": "Mine kodulehele"
+    },
+    "common": {
+        "new": "Uus",
+        "newEpisodes": "Uued osad"
+    },
+    "episode": {
+        "chapters": "Peatükid",
+        "details": "Üksikasjad",
+        "episode": "Osa",
+        "episodes": "Osad",
+        "videos": "Videod",
+        "liveNow": "Nüüd otseülekandes",
+        "seriesDescription": "Sarja kirjeldus",
+        "releaseDate": "Avaldamise kuupäev",
+        "availableFrom": "Saadaval alates",
+        "availableTo": "Saadaval kuni",
+        "ageRating": "Hinnang",
+        "notFound": "Osa ei leitud",
+        "comingSoon": "Varsti tulekul",
+        "noAccess": {
+            "oops": "Oih!",
+            "mustBeLoggedIn": "Selle sisu vaatamiseks pead olema sisse logitud",
+            "otherContent": "Ära muretse, seal on veel palju muud sisu, mida nautida!",
+            "exploreContent": "Tutvu sisuga"
+        }
+    },
+    "live": {
+        "now": "Praegu",
+        "title": "Uus otseülekande rakendus",
+        "description": "Vabandame! Sellel veebisaidil ei ole enam võimalik otseülekandeid vaadata. Klõpsa lingile, et minna uuele lahendusele!"
+    },
+    "calendar": {
+        "noScheduledEvents": "Kavandatud üritused puuduvad",
+        "thisWeek": "See nädal",
+        "timeTableIsLocalTime": "Ajakava on sinu kohaliku aja järgi."
+    },
+    "search": {
+        "programs": "Saated",
+        "episodes": "Osad",
+        "cancel": "Tühista",
+        "emptyQuery": "Otsingupäring on tühi.",
+        "noResults": "Ei leidnud midagi",
+        "tryAdjustingQuery": "Proovi otsida teisiti"
+    },
+    "support": {
+        "contact": "Võta ühendust kasutajatoega",
+        "title": "Pealkiri",
+        "subject": "Teema",
+        "content": "Sisu",
+        "faq": "Korduma kippuvad küsimused",
+        "describeIssue": "Palun kirjelda oma probleemi üksikasjalikult."
+    },
+    "study": {
+        "startStudy": "Alusta uuringut",
+        "continueStudy": "Jätka uuringuga"
+    },
+    "competition": {
+        "title": "Kahekordista oma võimalusi",
+        "description": "Saavuta suurem võimalus võita eksklusiivne<strong>Need mu sõnad</strong> auhind vastates õigesti.",
+        "howDoesItWork": "Kuidas see töötab?",
+        "onlyOnce": "Sa võid ainult ühe korra viktoriinis osaleda.",
+        "watchNextBroadcast": "Vaata järgmist otseülekannet stuudios, et näha õigeid vastuseid.",
+        "joinCompetition": "Liitu võistlusega",
+        "terms": "Osalemisega nõustud, et sinu nime võib näidata saates võitja väljakuulutamisel.",
+        "alreadySent": "Sa oled juba vastanud, kuid sa võid veel näha, mida sa vastasid.",
+        "areYouSure": "Oled sa kindel?",
+        "lookThouroughly": "Vaata oma vastused hoolikalt läbi. Kui vastus on esitatud, ei saa sa seda enam muuta.",
+        "submitted": "Sinu vastus on esitatud!",
+        "dontMiss": "Ära unusta järgmist stuudiosaadet, kus õige vastus kuulutatakse välja."
+    },
+    "lesson": {
+        "related": "Seotud allikad",
+        "watchAgain": {
+            "title": "Vaata uuesti",
+            "description": "Põhjalikuma arusaamise huvides soovitame videot vaadata rohkem kui üks kord.",
+            "button": "Mängi uuesti"
+        },
+        "lessonActivityTitle": "Õppetegevus",
+        "textTaskPlaceholder": "Alusta kirjutamist siin...",
+        "question": "Küsimus",
+        "wrongAnswerMessage": "Oh, peaaegu. Proovi uuesti!",
+        "correctAnswerMessage": "Tubli!",
+        "noLocalGroupFound": "Kohalikku rühma ei leitud",
+        "intro": {
+            "quiz": "Viktoriin",
+            "quizDescription": "Saavutuse avamiseks täida kõigi filmide viktoriin Lisad jaotise all!",
+            "explanationTitle": "Kuidas see töötab?",
+            "explanation": "Sa võid vastata ühele küsimusele ainult üks kord. Iga õige vastuse eest saad ühe punkti."
+        },
+        "studyAnswerTheQuiz": "Vasta viktoriinile",
+        "studyAnswerTheQuizDescription": "Teeni punkte õigesti vastates",
+        "studySomeAnswersCorrect": "Sul on {correct} vastust {total}-st õigesti",
+        "studyAllAnswersCorrect": "Sul on kõik vastused õiged",
+        "studyNoAnswersCorrect": "Sa ei saanud ühtegi õiget vastust",
+        "studyAllAnswersCorrectDescription": "Tubli!",
+        "studyNoAnswersCorrectDescription": "Parem kuula järgmine kord natuke hoolikamalt!",
+        "studySomeAnswersCorrectDescription": "Tubli! Kuid veel on arenguruumi.",
+        "studyAllQuestionsAnswered": "Sa vastasid kõigile küsimustele",
+        "studyAllQuestionsAnsweredDescription": "Tubli!"
+    },
+    "cookies": {
+        "title": "See veebileht kasutab küpsiseid",
+        "description": "Kasutame küpsiseid, et parandada selle veebisaidi kasutajakogemust. Kui jätkate selle veebilehe kasutamist, nõustute meie küpsistega.",
+        "necessary": "Vajalikud",
+        "preferences": "Eelistused",
+        "statistics": "Statistika",
+        "accept": "Nõustu"
+    },
+    "footer": {
+        "cookies": "Küpsised",
+        "privacyPolicy": "Privaatsussätted",
+        "information": "BCC Media on [BCC föderatsiooni] (https://bcc.no) kuuluv meedia sihtasutus, mis toodab ja levitab positiivsete ja kristlike väärtustega sisu.",
+        "headOffice": "Peakontor",
+        "contactUs": "Võtke meiega ühendust",
+        "downloadApp": "Laadige alla meie rakendus",
+        "termsOfUse": "Kasutustingimused"
+    },
+    "terms": {
+        "byDownloadingYouAcceptTerms": "Selle video allalaadimisega nõustute meie [kasutustingimustega](https://bcc.media/terms-of-use/) ja [privaatsussätetega](https://bcc.media/privacy)."
+    },
+    "share": {
+        "title": "Jaga",
+        "copied": "Lõikelauale kopeeritud",
+        "membersOnly": "See video on kättesaadav ainult sisselogitud kasutajatele."
+    },
+    "quotes": {
+        "quoteOfTheDay": "Päeva tsitaat",
+        "markAsRead": "Märgi loetuks",
+        "markAsUnread": "Märgi mitteloetuks"
+    },
+    "feedback": {
+        "appreciated": "Me hindame teie tagasisidet.",
+        "comment": "Lisage kommentaar oma kogemuse kohta",
+        "episodeTitle": "Kuidas te seda osa hindate?",
+        "howEasyToUnderstand": "Kui lihtne oli videost aru saada?",
+        "anonymousInfo": "Teie hinnang esitatakse anonüümselt",
+        "placeholder": "Palun olge võimalikult üksikasjalik, et aidata meil aru saada.",
+        "giveFeedback": "Anna tagasisidet"
+    },
+    "contactLocalBukIfWrong": "Võta ühendust oma kohaliku BUKi ühingu vastutava isikuga, kui arvad, et see on vale.",
+    "thankYou": "Aitäh!",
+    "yourResponseHasBeenSubmitted": "Teie vastus on edastatud.",
+    "sending": "Saatmine",
+    "defaultInputPlaceholder": "Alusta kirjutamist siin...",
+    "requests": {
+        "name": "Sinu nimi",
+        "email": "Meiliaadress",
+        "role": "Sinu roll",
+        "what": "Nõutav materjal",
+        "how": "Kuidas seda materjali kasutatakse?",
+        "howDescription": "Näidatud osaliselt/täielikult, muudetud...",
+        "where": "Kus seda materjali kasutatakse?",
+        "when": "Millal seda materjali kasutatakse?",
+        "clear": "Eemalda",
+        "send": "Saada",
+        "editor": "Toimetaja",
+        "director": "Juhataja",
+        "producer": "Tootja",
+        "eventCamp": "Üritus/laager",
+        "local": "Kohalik kogunemine",
+        "mediaResponsible": "Vastutav meedia",
+        "other": "Muu",
+        "confirmSend": "Saada materjalipäring?",
+        "title": "Materjali päring",
+        "description": "Vorm BCC Meediast heli-, pildi- ja videomaterjalide taotlemiseks",
+        "receitTitle": "Päring on vastu võetud",
+        "confirmAgenda": "Kinnitan, et materjali kasutatakse ainult kokkulepitud eesmärgil.",
+        "receitDescription": "Meie meeskond võtab teiega ühendust 7 tööpäeva jooksul. Teie meilile on saadetud automaatne vastus."
+    },
+    "shorts": {
+        "watchOnOurApp": "Lühifilmide vaatamiseks lae alla mobiilirakendus."
+    },
+    "subscriptions": {
+        "subscribe": "Esita tellimus",
+        "unsubscribe": "Loobu tellimusest"
+    }
+  
+}
