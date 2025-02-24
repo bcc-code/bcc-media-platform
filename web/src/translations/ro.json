@@ -3,12 +3,12 @@
         "save": "Salvare",
         "login": "Autentificare",
         "logout": "Deconectare",
-        "stayLoggedOut": "Rămâneți deconectat",
+        "stayLoggedOut": "Rămâi deconectat",
         "cancel": "Anulare",
-        "accept": "Accept",
+        "accept": "Acceptă",
         "submit": "Trimite",
         "back": "Înapoi",
-        "next": "Urmează",
+        "next": "Următorul",
         "continue": "Continuă",
         "close": "Închide",
         "download": "Descarcă",
@@ -18,7 +18,8 @@
         "skip": "Sări peste",
         "join": "Alătură-te",
         "open": "Deschide",
-        "showMore": "Arată mai mult"
+        "showMore": "Arată mai mult",
+        "confirm": "Confirmă"
     },
     "download": {
         "resolution": "Rezoluție",
@@ -26,7 +27,7 @@
         "progress": "Progres"
     },
     "error": {
-        "couldntSendYourMessage": "Nu am putut trimite mesajul dvs",
+        "couldntSendYourMessage": "Nu am putut trimite mesajul tău",
         "somethingWentWrong": "Ceva a mers greșit.",
         "checkNetwork": "Verifică conexiunea la internet și încearcă din nou."
     },
@@ -35,7 +36,7 @@
     },
     "page": {
         "home": "Acasă",
-        "search": "Căutare",
+        "search": "Caută",
         "live": "Direct",
         "calendar": "Calendar",
         "faq": "Întrebări frecvente",
@@ -52,7 +53,7 @@
     },
     "notFound": {
         "title": "Negăsit",
-        "description": "Poate că nu ești autentificat sau îți lipsesc unele accese.",
+        "description": "Poate că nu ești autentificat sau îți lipsesc unele permisiuni.",
         "returnHome": "Mergi acasă"
     },
     "common": {
@@ -66,28 +67,28 @@
         "episodes": "Episoade",
         "videos": "Videouri",
         "liveNow": "Acum în direct",
-        "seriesDescription": "Descrierea seriei",
+        "seriesDescription": "Descrierea serialului",
         "releaseDate": "Data de lansare",
-        "availableFrom": "Disponibil de pe",
+        "availableFrom": "Disponibil din",
         "availableTo": "Disponibil pentru",
         "ageRating": "Evaluare",
         "notFound": "Episodul nu poate fi găsit",
-        "comingSoon": "Apare în curând",
+        "comingSoon": "Va apărea în curând",
         "noAccess": {
-            "oops": "Oops!",
-            "mustBeLoggedIn": "Trebuie să fii conectat cu contul propriu pentru a urmări acest conținut",
-            "otherContent": "Stai liniștit, totuși este foarte mult conținut de care te poți bucura!",
+            "oops": "Ups!",
+            "mustBeLoggedIn": "Trebuie să fii conectat cu un cont pentru a urmări acest conținut",
+            "otherContent": "Stai liniștit, este totuși foarte mult conținut de care te poți bucura!",
             "exploreContent": "Descoperă conținut"
         }
     },
     "live": {
         "now": "Acum",
         "title": "Aplicație nouă pentru transmisiuni în direct",
-        "description": "Ne pare rău! Nu mai poți viziona transmisiuni în direct pe acest site. Faceți clic pe link pentru a accesa noua soluție!"
+        "description": "Ne pare rău! Nu mai poți viziona transmisiuni în direct pe acest site. Selectează linkul pentru a merge la noua soluție!"
     },
     "calendar": {
         "noScheduledEvents": "Nu sunt evenimente programate",
-        "thisWeek": "Această săptămână",
+        "thisWeek": "În această săptămână",
         "timeTableIsLocalTime": "Orarul este în ora ta locală."
     },
     "search": {
@@ -95,14 +96,14 @@
         "episodes": "Episoade",
         "cancel": "Anulare",
         "emptyQuery": "Rezultatul căutării este gol.",
-        "noResults": "Fără rezultate ale căutării",
-        "tryAdjustingQuery": "Ajustează conținutul căutării"
+        "noResults": "Căutarea nu a găsit nimic",
+        "tryAdjustingQuery": "Modifică conținutul căutării"
     },
     "support": {
         "contact": "Contactare suport",
         "title": "Titlu",
         "subject": "Subiect",
-        "content": "Conţinut",
+        "content": "Conținut",
         "faq": "Întrebări frecvente",
         "describeIssue": "Descrie problema in detaliu."
     },
@@ -112,39 +113,55 @@
     },
     "competition": {
         "title": "Dublează-ți șansele",
-        "description": "Obține o șansă mai mare de a câștiga premiul exclusiv <strong>Aceste cuvintele ale Mele</strong> prin a răspunde corect.",
+        "description": "Obține o șansă mai mare de a câștiga premiul exclusiv <strong>Disse mine ord</strong> răspunzând corect.",
         "howDoesItWork": "Cum funcționează?",
-        "onlyOnce": "Poți face testul doar o singură dată.",
-        "watchNextBroadcast": "Urmărește următoarea emisiune în direct din studio în care vei vedea răspunsurile corecte.",
+        "onlyOnce": "Poți face chestionarul o singură dată.",
+        "watchNextBroadcast": "Privește următoarea emisiune în direct din studio în care vei vedea răspunsurile corecte.",
         "joinCompetition": "Alătură-te competiției",
         "terms": "Participând, ești de acord ca numele tău să fie afișat în emisiune la anunțarea câștigătorului.",
         "alreadySent": "Ai trimis deja răspunsul, dar încă poți vedea ce ai răspuns.",
         "areYouSure": "Ești sigur?",
-        "lookThouroughly": "Verifică-ți răspunsurile cu atenție. Odată trimise, nu vei mai putea modifica răspunsul.",
+        "lookThouroughly": "Revizuiește răspunsurile cu atenție. Odată trimis, nu vei mai putea să modifici răspunsul.",
         "submitted": "Răspunsul tău a fost trimis!",
         "dontMiss": "Nu pierde următoarea emisiune din studio, în care va fi anunțat răspunsul corect."
     },
     "lesson": {
         "related": "Resurse aferente",
         "watchAgain": {
-            "title": "Vezi din nou",
+            "title": "Privește din nou",
             "description": "Pentru o înțelegere mai profundă, îți recomandăm să vezi filmarea de mai multe ori.",
-            "button": "Redă"
+            "button": "Redă din nou"
         },
         "lessonActivityTitle": "Activitatea lecției",
         "textTaskPlaceholder": "Începe să scrii aici...",
         "question": "Întrebare",
-        "wrongAnswerMessage": "Oh, pe-aproape. Încearcă din nou!",
+        "wrongAnswerMessage": "Închide Încearcă din nou!",
         "correctAnswerMessage": "Bună treabă!",
-        "noLocalGroupFound": "Nu s-a găsit niciun grup local"
+        "noLocalGroupFound": "Nu s-a găsit niciun grup local",
+        "intro": {
+            "quiz": "Chestionar",
+            "quizDescription": "Completează chestionarul pentru toate filmele din secțiunea Extras pentru a debloca o realizare!",
+            "explanationTitle": "Cum funcționează?",
+            "explanation": "Puteți răspunde o singură dată la fiecare întrebare. Primești un punct pentru fiecare răspuns corect."
+        },
+        "studyAnswerTheQuiz": "Răspunde la chestionar",
+        "studyAnswerTheQuizDescription": "Câștigă puncte răspunzând corect",
+        "studySomeAnswersCorrect": "Ai primit {correct} din {total} răspunsuri corecte",
+        "studyAllAnswersCorrect": "Ai toate răspunsurile corecte",
+        "studyNoAnswersCorrect": "Nu ai niciun răspuns corect",
+        "studyAllAnswersCorrectDescription": "Bună treabă!",
+        "studyNoAnswersCorrectDescription": "Ar fi bine să asculți mai atent data viitoare!",
+        "studySomeAnswersCorrectDescription": "Bună treabă! Dar încă este loc de îmbunătățire.",
+        "studyAllQuestionsAnswered": "Ai răspuns la toate întrebările",
+        "studyAllQuestionsAnsweredDescription": "Bună treabă!"
     },
     "cookies": {
         "title": "Acest site web folosește cookie-uri",
-        "description": "Folosim cookie-uri pentru a îmbunătăți experiența utilizatorului pe acest site web. Continuând să utilizezi acest site, ești de acord cu cookie-urile noastre.",
+        "description": "Utilizăm module cookie pentru a îmbunătăți experiența utilizatorului pe acest site. Dacă continui să utilizezi acest site, ești de acord cu cookie-urile noastre.",
         "necessary": "Necesar",
         "preferences": "Preferințe",
         "statistics": "Statistici",
-        "accept": "Accept"
+        "accept": "Acceptă"
     },
     "footer": {
         "cookies": "Cookie-uri",
@@ -161,7 +178,7 @@
     "share": {
         "title": "Distribuie",
         "copied": "S-a copiat în memorie",
-        "membersOnly": "Acest video este accesibil doar pentru utilizatorii conectați cu cont personal."
+        "membersOnly": "Acest video este accesibil doar pentru utilizatorii autentificați."
     },
     "quotes": {
         "quoteOfTheDay": "Citatul zilei",
@@ -175,9 +192,9 @@
         "howEasyToUnderstand": "Cât de ușor a fost să înțelegi videoul?",
         "anonymousInfo": "Evaluarea ta va fi transmisă în mod anonim",
         "placeholder": "Te rugăm să fii cât mai detaliat posibil pentru a ne ajuta să înțelegem.",
-        "giveFeedback": "Oferă recenzie"
+        "giveFeedback": "Dă feedback"
     },
-    "contactLocalBukIfWrong": "Contactează persoana responsabilă din asociața ta locală BUK dacă tu crezi că acest lucru este greșit.",
+    "contactLocalBukIfWrong": "Contactează persoana responsabilă din asociația ta locală BUK dacă tu crezi că acest lucru este greșit.",
     "thankYou": "Mulțumim!",
     "yourResponseHasBeenSubmitted": "Răspunsul tău a fost trimis.",
     "sending": "Se trimite",
@@ -200,12 +217,12 @@
         "local": "Adunare locală",
         "mediaResponsible": "Responsabil media",
         "other": "Altele",
-        "confirmSend": "Să trimiți cererea de materiale?",
+        "confirmSend": "Trimiți cererea de materiale?",
         "title": "Cerere pentru materiale",
         "description": "Formular pentru cerere de materiale audio, foto și video de la BCC Media",
         "receitTitle": "Cerere primită",
         "confirmAgenda": "Confirm că materialul va fi utilizat numai în scopul convenit.",
-        "receitDescription": "Echipa noastră vă va contacta în termen de 7 zile lucrătoare. Un răspuns automat a fost trimis pe adresa ta de e-mail."
+        "receitDescription": "Echipa noastră vă va contacta în termen de 7 zile lucrătoare. Un răspuns automat a fost trimis la adresa ta de e-mail."
     },
     "shorts": {
         "watchOnOurApp": "Descarcă aplicația mobilă pentru a viziona scurtmetraje."
@@ -214,4 +231,5 @@
         "subscribe": "Abonare",
         "unsubscribe": "Dezabonare"
     }
+  
 }
