@@ -6,7 +6,7 @@
         "stayLoggedOut": "Uitgelogd blijven",
         "cancel": "Annuleren",
         "accept": "Accepteren",
-        "submit": "Invoeren",
+        "submit": "Indienen",
         "back": "Terug",
         "next": "Volgende",
         "continue": "Doorgaan",
@@ -18,7 +18,8 @@
         "skip": "Skip",
         "join": "Meedoen",
         "open": "Open",
-        "showMore": "Toon meer"
+        "showMore": "Toon meer",
+        "confirm": "Bevestig"
     },
     "download": {
         "resolution": "Oplossing",
@@ -46,7 +47,7 @@
     },
     "section": {
         "item": {
-            "episode": "0 Afleveringen | 1 aflevering | {count} afleveringen",
+            "episode": "0 afleveringen | 1 aflevering | {count} afleveringen",
             "season": "0 seizoenen | 1 seizoen | {count} seizoenen"
         }
     },
@@ -83,7 +84,7 @@
     "live": {
         "now": "Nu",
         "title": "Nieuwe livestream app",
-        "description": "Het spijt ons! Je kunt geen livestreams meer bekijken op deze website. Klik op de link om naar de nieuwe omgeving te gaan!"
+        "description": "Het spijt ons! Je kunt niet langer livestreams bekijken op deze website. Klik op de link om naar de nieuwe mogelijkheid te gaan!"
     },
     "calendar": {
         "noScheduledEvents": "Geen geplande evenementen",
@@ -112,7 +113,7 @@
     },
     "competition": {
         "title": "Verdubbel je kansen",
-        "description": "Krijg een grotere kans om de exclusieve  <strong>Deze mijn woorden</strong>  prijs te winnen door juist te antwoorden.",
+        "description": "Maak meer kans op de exclusieve <strong>Disse mine ord</strong> prijs door het juiste antwoord te geven.",
         "howDoesItWork": "Hoe werkt het?",
         "onlyOnce": "Je kan de quiz maar een keer maken.",
         "watchNextBroadcast": "Bekijk de volgende live studio uitzending voor de correcte antwoorden.",
@@ -120,7 +121,7 @@
         "terms": "Door deelname ben je het eens met het feit dat jouw naam zichtbaar kan zijn in de uitzending als de winnaar wordt bekendgemaakt.",
         "alreadySent": "Je hebt je antwoorden al ingestuurd, maar je kan nog wel je antwoorden inzien.",
         "areYouSure": "Weet je het zeker?",
-        "lookThouroughly": "Kijk je antwoorden goed na. Eenmaal ingeleverd kunnen de antwoorden niet meer gewijzigd worden.",
+        "lookThouroughly": "Bekijk je antwoorden zorgvuldig. Eenmaal ingestuurd kun je je antwoord niet meer wijzigen.",
         "submitted": "Jouw antwoord is verzonden!",
         "dontMiss": "Mis de volgende studio uitzending niet, waar het juiste antwoord bekend wordt gemaakt."
     },
@@ -134,13 +135,29 @@
         "lessonActivityTitle": "Les activiteit",
         "textTaskPlaceholder": "Begin hier met typen...",
         "question": "Vraag",
-        "wrongAnswerMessage": "O, bijna. Probeer opnieuw!",
+        "wrongAnswerMessage": "Oh, bijna. Probeer opnieuw",
         "correctAnswerMessage": "Goed gedaan!",
-        "noLocalGroupFound": "Geen lokale groep gevonden"
+        "noLocalGroupFound": "Geen lokale groep gevonden",
+        "intro": {
+            "quiz": "Quiz",
+            "quizDescription": "Voltooi de quiz voor alle films onder Extra's om een prestatie vrij te spelen!",
+            "explanationTitle": "Hoe werkt het?",
+            "explanation": "Je kunt één antwoord per vraag geven. Voor elk goed antwoord krijg je één punt."
+        },
+        "studyAnswerTheQuiz": "Beantwoord de quiz",
+        "studyAnswerTheQuizDescription": "Verdien punten door correct te antwoorden",
+        "studySomeAnswersCorrect": "Je hebt {correct} van {total} antwoorden goed",
+        "studyAllAnswersCorrect": "Je hebt alle antwoorden goed",
+        "studyNoAnswersCorrect": "Je hebt geen antwoorden goed",
+        "studyAllAnswersCorrectDescription": "Goed gedaan!",
+        "studyNoAnswersCorrectDescription": "Volgende keer beter luisteren!",
+        "studySomeAnswersCorrectDescription": "Goed gedaan! Maar nog steeds ruimte voor verbetering.",
+        "studyAllQuestionsAnswered": "Je hebt alle vragen beantwoord",
+        "studyAllQuestionsAnsweredDescription": "Goed gedaan!"
     },
     "cookies": {
         "title": "Deze website maakt gebruik van cookies",
-        "description": "Wij gebruiken cookies om je ervaring op deze website gemakkelijker te maken. Door gebruik te maken van deze website verleen je toestemming voor het opslaan van cookies.",
+        "description": "We gebruiken cookies om de gebruikerservaring op deze website te verbeteren. Als je deze website blijft gebruiken, geef je toestemming voor onze cookies.",
         "necessary": "Noodzakelijk",
         "preferences": "Voorkeuren",
         "statistics": "Statistieken",
@@ -180,7 +197,7 @@
     "contactLocalBukIfWrong": "Neem contact op met de verantwoordelijke in jouw lokale BUK-vereniging als je denkt dat dit niet klopt.",
     "thankYou": "Hartelijk dank!",
     "yourResponseHasBeenSubmitted": "Jouw antwoord is verzonden.",
-    "sending": "Verzenden",
+    "sending": "Aan het verzenden",
     "defaultInputPlaceholder": "Begin hier met typen...",
     "requests": {
         "name": "Jouw naam",
@@ -205,7 +222,7 @@
         "description": "Formulier voor het aanvragen van audio, beeld, video materiaal van BCC Media",
         "receitTitle": "Aanvraag ontvangen",
         "confirmAgenda": "Ik bevestig dat het materiaal alleen gebruikt wordt voor het afgesproken doel.",
-        "receitDescription": "Ons team zal binnen 7 werkdagen contact met je opnemen. Een automatische bevestiging is naar je email-adres gestuurd."
+        "receitDescription": "Ons team neemt binnen 7 werkdagen contact met je op. Er is een automatisch antwoord naar je e-mail gestuurd."
     },
     "shorts": {
         "watchOnOurApp": "Download de mobiele app om korte films te bekijken."
@@ -214,4 +231,5 @@
         "subscribe": "Abonneer",
         "unsubscribe": "Afmelden"
     }
+  
 }
