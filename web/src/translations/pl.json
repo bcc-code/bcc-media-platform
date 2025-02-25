@@ -2,10 +2,10 @@
     "buttons": {
         "save": "Zapisz",
         "login": "Zaloguj się",
-        "logout": "Wyloguj",
+        "logout": "Wyloguj się",
         "stayLoggedOut": "Pozostań wylogowany",
         "cancel": "Anuluj",
-        "accept": "Akceptuję",
+        "accept": "Akceptuj",
         "submit": "Wyślij",
         "back": "Wstecz",
         "next": "Następne",
@@ -18,7 +18,8 @@
         "skip": "Pomiń",
         "join": "Dołącz",
         "open": "Otwórz",
-        "showMore": "Pokaż więcej"
+        "showMore": "Pokaż więcej",
+        "confirm": "Potwierdź"
     },
     "download": {
         "resolution": "Rozdzielczość",
@@ -34,7 +35,7 @@
         "loggedOut": "Zostałeś wylogowany"
     },
     "page": {
-        "home": "Odkrywaj",
+        "home": "Strona główna",
         "search": "Szukaj",
         "live": "Na żywo",
         "calendar": "Kalendarz",
@@ -53,7 +54,7 @@
     "notFound": {
         "title": "Nie znaleziono",
         "description": "Prawdopodobnie nie jesteś zalogowany lub nie masz uprawnień",
-        "returnHome": "Wróc do strony głównej"
+        "returnHome": "Wróć do strony głównej"
     },
     "common": {
         "new": "Nowy",
@@ -64,9 +65,9 @@
         "details": "Szczegóły",
         "episode": "Odcinek",
         "episodes": "Odcinki",
-        "videos": "Video",
+        "videos": "Filmy",
         "liveNow": "Teraz na żywo",
-        "seriesDescription": "Opis serialu",
+        "seriesDescription": "Opis serii",
         "releaseDate": "Data premiery",
         "availableFrom": "Dostępne od",
         "availableTo": "Dostępne do",
@@ -83,12 +84,12 @@
     "live": {
         "now": "Teraz",
         "title": "Nowa aplikacja do transmisji na żywo",
-        "description": "Przepraszamy! Nie możesz już oglądać transmisji na żywo na tej stronie. Kliknij link, aby przejść do nowego rozwiązania!"
+        "description": "Przepraszamy! Nie możesz już oglądać transmisji na żywo na tej stronie. Kliknij w link, aby przejść do nowego rozwiązania!"
     },
     "calendar": {
         "noScheduledEvents": "Brak zaplanowanych wydarzeń",
         "thisWeek": "W tym tygodniu",
-        "timeTableIsLocalTime": "Czasy w programie TV są przedstawione w twojej strefie czasowej."
+        "timeTableIsLocalTime": "Godziny w programie TV są przedstawione w twojej strefie czasowej."
     },
     "search": {
         "programs": "Programy",
@@ -112,7 +113,7 @@
     },
     "competition": {
         "title": "Podwój swoje szanse",
-        "description": "Zdobądź większą szansę na wygranie ekskluzywnej nagrody <strong>Tych słów moich</strong>, udzielając poprawnych odpowiedzi.",
+        "description": "Uzyskaj większą szansę na wygranie ekskluzywnej nagrody w projekcie <strong>Tych słów moich</strong>, udzielając poprawnych odpowiedzi.",
         "howDoesItWork": "Jak to działa?",
         "onlyOnce": "Do quizu możesz podejść tylko raz.",
         "watchNextBroadcast": "Obejrzyj najbliższy przekaz ze studio na żywo, aby poznać prawidłowe odpowiedzi.",
@@ -120,7 +121,7 @@
         "terms": "Biorąc udział w konkursie zgadzasz się, aby twoje imię i nazwisko zostało pokazane na przekazie podczas ogłaszania zwycięzcy.",
         "alreadySent": "Twoja odpowiedź została już wysłana, ale nadal możesz zobaczyć, co odpowiedziałeś.",
         "areYouSure": "Czy jesteś pewien?",
-        "lookThouroughly": "Sprawdź dokładnie swoje odpowiedzi. Po wysłaniu nie będziesz mógł ich zmienić.",
+        "lookThouroughly": "Sprawdź dokładnie swoje odpowiedzi. Po przesłaniu odpowiedzi nie będzie można jej zmienić.",
         "submitted": "Twoja odpowiedź została wysłana!",
         "dontMiss": "Nie przegap kolejnego przekazu ze studio, gdzie zostanie ogłoszona prawidłowa odpowiedź."
     },
@@ -128,23 +129,39 @@
         "related": "Powiązane materiały",
         "watchAgain": {
             "title": "Obejrzyj ponownie",
-            "description": "Aby lepiej zrozumieć zawartość, polecamy ponowne obejrzenie filmu.",
+            "description": "Aby lepiej zrozumieć film, polecamy obejrzeć go więcej, niż raz.",
             "button": "Obejrzyj ponownie"
         },
         "lessonActivityTitle": "Aktywność lekcji",
         "textTaskPlaceholder": "Pisz tutaj...",
         "question": "Pytanie",
-        "wrongAnswerMessage": "Ajj, było blisko. Spróbuj jeszcze raz!",
+        "wrongAnswerMessage": "Och, było blisko. Spróbuj ponownie",
         "correctAnswerMessage": "Dobra robota!",
-        "noLocalGroupFound": "Nie znaleziono żadnej grupy lokalnej"
+        "noLocalGroupFound": "Nie znaleziono żadnej grupy lokalnej",
+        "intro": {
+            "quiz": "Quiz",
+            "quizDescription": "Ukończ quiz dla wszystkich filmów w sekcji Dodatki, aby odblokować osiągnięcie!",
+            "explanationTitle": "Jak to działa?",
+            "explanation": "Na każde pytanie możesz odpowiedzieć tylko raz. Za każdą poprawną odpowiedź otrzymasz jeden punkt."
+        },
+        "studyAnswerTheQuiz": "Odpowiedz na quiz",
+        "studyAnswerTheQuizDescription": "Zdobywaj punkty, udzielając poprawnych odpowiedzi",
+        "studySomeAnswersCorrect": "Odpowiedziałeś poprawnie na {correct} z {total} odpowiedzi",
+        "studyAllAnswersCorrect": "Wszystkie odpowiedzi są poprawne",
+        "studyNoAnswersCorrect": "Żadna odpowiedź nie jest poprawna",
+        "studyAllAnswersCorrectDescription": "Dobra robota!",
+        "studyNoAnswersCorrectDescription": "Następnym razem słuchaj uważniej!",
+        "studySomeAnswersCorrectDescription": "Dobra robota! Ale wciąż masz pole do poprawy.",
+        "studyAllQuestionsAnswered": "Odpowiedziałeś na wszystkie pytania",
+        "studyAllQuestionsAnsweredDescription": "Dobra robota!"
     },
     "cookies": {
         "title": "Ta strona używa ciasteczek",
-        "description": "Używamy ciasteczek, by poprawić jakość użytkowania tej strony. Korzystając ze strony, zgadzasz się na używanie przez nas ciasteczek.",
+        "description": "Używamy plików cookie, aby poprawić komfort korzystania z tej witryny. Jeśli nadal korzystasz z tej witryny, wyrażasz zgodę na nasze pliki cookie.",
         "necessary": "Konieczne",
         "preferences": "Preferencje",
         "statistics": "Statystyki",
-        "accept": "Akceptuję"
+        "accept": "Akceptuj"
     },
     "footer": {
         "cookies": "Ciasteczka",
@@ -175,7 +192,7 @@
         "howEasyToUnderstand": "Jak łatwo było zrozumieć ten film?",
         "anonymousInfo": "Twoja ocena zostanie zapisana anonimowo",
         "placeholder": "Prosimy o szczegółowy opis, który będzie łatwiejszy do zrozumienia.",
-        "giveFeedback": "Przekaż informację zwrotną"
+        "giveFeedback": "Wyślij opinię"
     },
     "contactLocalBukIfWrong": "Skontaktuj się z osobą odpowiedzialną za twoją grupę BUK, jeśli uważasz, że powinno być inaczej.",
     "thankYou": "Dziękujemy!",
@@ -202,7 +219,7 @@
         "other": "Inne",
         "confirmSend": "Wysłać prośbę o materiał?",
         "title": "Prośba o materiał",
-        "description": "Formularz zamówienia materiałów audio, zdjęć i wideo od BCC Media",
+        "description": "Formularz zamówienia materiałów audio, zdjęć i filmów od BCC Media",
         "receitTitle": "Prośba otrzymana",
         "confirmAgenda": "Potwierdzam, że materiały będą wykorzystywane wyłącznie w uzgodnionym celu.",
         "receitDescription": "Nasz zespół skontaktuje się z Tobą w ciągu 7 dni roboczych. Na Twój adres e-mail została wysłana automatyczna odpowiedź."
@@ -214,4 +231,5 @@
         "subscribe": "Subskrybuj",
         "unsubscribe": "Zrezygnuj z subskrypcji"
     }
+  
 }
