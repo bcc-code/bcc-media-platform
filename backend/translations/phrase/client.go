@@ -190,6 +190,11 @@ func (c *Client) ProcessWebhook(ctx context.Context, originalRequest *http.Reque
 			continue
 		}
 
+		if part.WorkflowLevel != 3 {
+			log.L.Debug().Str("filename", part.FileName).Int("workflowLevel", part.WorkflowLevel).Msg("Skipping file")
+			continue
+		}
+
 		collection := translations.TranslatableCollections.Parse(strings.TrimSuffix(part.FileName, ".json"))
 		if collection == nil {
 			// Unknown collection
