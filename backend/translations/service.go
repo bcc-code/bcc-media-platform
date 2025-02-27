@@ -148,7 +148,12 @@ func (s *Service) sendToProviderIfNeeded(ctx context.Context, collection Transla
 		return nil
 	}
 
-	hash, err := hashstructure.Hash(data, nil)
+	hash, err := hashstructure.Hash(data, &hashstructure.HashOptions{
+		ZeroNil:         true,
+		IgnoreZeroValue: true,
+		SlicesAsSets:    true,
+		UseStringer:     false,
+	})
 	if err != nil {
 		log.L.Error().Err(err).Msg("Unable to hash data")
 	}
