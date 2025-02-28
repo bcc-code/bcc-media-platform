@@ -2,14 +2,16 @@ package translations
 
 import (
 	"context"
-	"fmt"
+	"crypto/sha1"
+	"encoding/base64"
+	"encoding/json"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
-	"github.com/gohugoio/hashstructure"
 	"github.com/orsinium-labs/enum"
 	"net/http"
+	"sort"
 )
 
 type UpdateTranslationCallback func(ctx context.Context, collection string, data []common.TranslationData) error
@@ -80,6 +82,7 @@ func NewService(queries *sqlc.Queries, provider TranslationsProvider) *Service {
 func (s *Service) SendAllToTranslation(ctx context.Context) []error {
 	errs := make([]error, 0)
 	for _, collection := range TranslatableCollections.Members() {
+		log.L.Debug().Str("collection", collection.Value).Msg("Checking collection for translatables translation")
 		if err := s.SendCollectionToTranslation(ctx, collection); err != nil {
 			errs = append(errs, err)
 		}
@@ -148,19 +151,21 @@ func (s *Service) sendToProviderIfNeeded(ctx context.Context, collection Transla
 		return nil
 	}
 
-	hash, err := hashstructure.Hash(data, &hashstructure.HashOptions{
-		ZeroNil:         true,
-		IgnoreZeroValue: true,
-		SlicesAsSets:    true,
-		UseStringer:     false,
+	sort.Slice(data, func(i, j int) bool {
+		return data[i].ID < data[j].ID
 	})
-	if err != nil {
-		log.L.Error().Err(err).Msg("Unable to hash data")
-	}
+
+	marshalledData, _ := json.Marshal(data)
+
+	h := sha1.New()
+	h.Write(marshalledData)
+	hash := base64.URLEncoding.EncodeToString(h.Sum(nil))
+
+	log.L.Debug().Str("collection", collection.Value).Str("hash", hash).Send()
 
 	res, err := s.queries.ShouldSendTranslations(ctx, sqlc.ShouldSendTranslationsParams{
 		Collection: collection.Value,
-		Hash:       []byte(fmt.Sprintf("%d", hash)),
+		Hash:       []byte(hash),
 	})
 	if err != nil {
 		return err
@@ -178,9 +183,10 @@ func (s *Service) sendToProviderIfNeeded(ctx context.Context, collection Transla
 		return err
 	}
 
+	log.L.Debug().Str("collection", collection.Value).Str("hash", hash).Msg("Updating hash")
 	return s.queries.UpdateTranslationsHash(ctx, sqlc.UpdateTranslationsHashParams{
 		Collection: collection.Value,
-		Hash:       []byte(fmt.Sprintf("%d", hash)),
+		Hash:       []byte(hash),
 	})
 }
 

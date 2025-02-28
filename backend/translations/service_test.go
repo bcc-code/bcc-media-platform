@@ -5,15 +5,16 @@ package translations_test
 // registers a driver with the name "pgx".
 import (
 	"context"
+	"crypto/sha1"
+	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	Mocktranslations "github.com/bcc-code/bcc-media-platform/backend/translations/mock"
 	"github.com/gin-gonic/gin"
-	"github.com/gohugoio/hashstructure"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
+	"sort"
 	"testing"
 
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
@@ -81,12 +82,12 @@ func Test_Hashing(t *testing.T) {
 		"@context":    "<a href=\"https://app.bcc.media/episode/1\">Link to episode</a>",
 	}
 
-	data, err := json.Marshal(dataRaw)
-	assert.NoError(t, err)
+	jsonData, _ := json.Marshal(dataRaw)
 
-	hash, err := hashstructure.Hash(data, nil)
-	assert.NoError(t, err)
-	assert.Equal(t, "8488696220788560886", fmt.Sprintf("%d", hash))
+	h := sha1.New()
+	h.Write(jsonData)
+	hash := base64.URLEncoding.EncodeToString(h.Sum(nil))
+	assert.Equal(t, "0iYgT2NGvRCXLxSbFI8r3bpX42s=", hash)
 
 	data2 := []common.TranslationData{
 		{Language: "no", Value: json.RawMessage(`{"Title":"title","Description":"description","@context":"\u003ca href=\"https://app.bcc.media/episode/1\"\u003eLink to episode\u003c/a\u003e"}`), ID: "1"},
@@ -96,14 +97,18 @@ func Test_Hashing(t *testing.T) {
 		{Language: "no", Value: json.RawMessage(`{"Title":"title","Description":"description","@context":"\u003ca href=\"https://app.bcc.media/episode/4\"\u003eLink to episode\u003c/a\u003e"}`), ID: "6"},
 	}
 
+	// Simulate the fact that the arrays may not be in the same order as this is not guaranteed in the generation phase
 	lo.Shuffle(data2)
 
-	hash2, err := hashstructure.Hash(data2, &hashstructure.HashOptions{
-		ZeroNil:         true,
-		IgnoreZeroValue: true,
-		SlicesAsSets:    true,
-		UseStringer:     false,
+	sort.Slice(data2, func(i, j int) bool {
+		return data2[i].ID < data2[j].ID
 	})
-	assert.NoError(t, err)
-	assert.Equal(t, "6640425293011133981", fmt.Sprintf("%d", hash2))
+
+	// Turns out json.Marshall actually sorts the keys and preserves the list order
+	jsonData2, _ := json.Marshal(data2)
+
+	h = sha1.New()
+	h.Write(jsonData2)
+	hash = base64.URLEncoding.EncodeToString(h.Sum(nil))
+	assert.Equal(t, "6NxgOd2oT6VzxDV4aKOCJ1hJ4DQ=", hash)
 }
