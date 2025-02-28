@@ -242,6 +242,9 @@ WHERE collection = @collection
   AND hash = @hash::bytea
   AND last_sent > NOW() - INTERVAL '30 minutes';
 
+-- name: GetTranslationsHash :many
+SELECT * FROM translations_hash WHERE hash = @hash;
+
 -- name: UpdateTranslationsHash :exec
 INSERT INTO translations_hash (collection, hash)
 VALUES (@collection, @hash)

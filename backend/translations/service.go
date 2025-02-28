@@ -176,6 +176,19 @@ func (s *Service) sendToProviderIfNeeded(ctx context.Context, collection Transla
 		return nil
 	}
 
+	hashes, err := s.queries.GetTranslationsHash(ctx, []byte(hash))
+	if err != nil {
+		return err
+	}
+
+	if len(hashes) > 0 {
+		log.L.Debug().Str("collection", collection.Value).Msg("Skipping sending to provider as it has already been sent")
+		for _, hash := range hashes {
+			log.L.Debug().Str("hash", string(hash.Hash)).Str("collection", hash.Collection).Msg("Skipping sending to provider as it has already been sent")
+		}
+		return nil
+	}
+
 	log.L.Debug().Str("collection", collection.Value).Int("count", len(data)).Msg("Sending to provider")
 	err = s.provider.SendToTranslation(ctx, collection.Value, data)
 
