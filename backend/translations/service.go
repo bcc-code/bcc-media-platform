@@ -163,6 +163,7 @@ func (s *Service) sendToProviderIfNeeded(ctx context.Context, collection Transla
 
 	log.L.Debug().Str("collection", collection.Value).Str("hash", hash).Send()
 
+	// This does not work in prod (but it does locally). If you can figure out what's wrong, you get a cookie!
 	res, err := s.queries.ShouldSendTranslations(ctx, sqlc.ShouldSendTranslationsParams{
 		Collection: collection.Value,
 		Hash:       []byte(hash),
