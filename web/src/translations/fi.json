@@ -14,11 +14,12 @@
         "download": "Lataa",
         "goTo": "Siirry",
         "send": "Lähetä",
-        "start": "Alkaa",
+        "start": "Aloita",
         "skip": "Ohita",
         "join": "Liity",
         "open": "Avaa",
-        "showMore": "Näytä lisää"
+        "showMore": "Näytä lisää",
+        "confirm": "Vahvista"
     },
     "download": {
         "resolution": "Kuvatarkkuus",
@@ -47,7 +48,7 @@
     "section": {
         "item": {
             "episode": "0 jaksoa | 1 jakso | {count} jaksoa",
-            "season": "0 tuotantokautta | 1 tuotantokausi | {count} tuotantokautta"
+            "season": "0 kautta | 1 kausi | {count} kautta"
         }
     },
     "notFound": {
@@ -83,7 +84,7 @@
     "live": {
         "now": "Nyt",
         "title": "Uusi suoratoistosovellus",
-        "description": "Tällä sivulla ei voi enää seurata lähetyksiä. Alla olevasta linkistä pääset uuteen verkkosovellukseen."
+        "description": "Olemme pahoillamme! Et voi enää katsoa livestreameja tällä verkkosivustolla. Klikkaa linkkiä siirtyäksesi uuteen ratkaisuun!"
     },
     "calendar": {
         "noScheduledEvents": "Ei suunniteltuja tapahtumia",
@@ -112,15 +113,15 @@
     },
     "competition": {
         "title": "Tuplaa mahdollisuutesi",
-        "description": "Vastaamalla oikein nostat mahdollisuuttasi voittaa aivan erityinen <strong>Nämä minun sanani</strong> palkinto.",
+        "description": "Vastaamalla oikein nostat mahdollisuuttasi voittaa aivan erityinen <strong>Nämä minun sanani</strong> -palkinto.",
         "howDoesItWork": "Miten se toimii?",
         "onlyOnce": "Voit vastata kyselyyn vain kerran.",
         "watchNextBroadcast": "Seuraavassa studiolähetyksessä kuulet oikeat vastaukset.",
-        "joinCompetition": "Liity kisaan",
+        "joinCompetition": "Liity kilpailuun",
         "terms": "Osallistumalla hyväksyt että nimesi mahdollisesti näytetään kun voittaja julkistetaan.",
         "alreadySent": "Lähetit jo vastaukset, mutta voit vielä katsoa vastauksiasi.",
         "areYouSure": "Oletko varma?",
-        "lookThouroughly": "Tarkista vastauksesi huolella. Lähettämisen jälkeen niitä ei voi enää muuttaa.",
+        "lookThouroughly": "Tarkista vastauksesi huolellisesti. Kun olet lähettänyt vastauksesi, et voi enää muuttaa sitä.",
         "submitted": "Vastauksesi on lähetetty!",
         "dontMiss": "Älä jää paitsi seuraavasta studiolähetyksestä. Siellä julkistetaan oikea vastaus."
     },
@@ -134,13 +135,29 @@
         "lessonActivityTitle": "Oppitunnin tehtävä",
         "textTaskPlaceholder": "Kirjoita tähän...",
         "question": "Kysymys",
-        "wrongAnswerMessage": "Ei ihan. Yritä uudelleen!",
+        "wrongAnswerMessage": "Läheltä piti. Koita uudelleen",
         "correctAnswerMessage": "Hyvin tehty!",
-        "noLocalGroupFound": "Paikallista ryhmää ei löytynyt"
+        "noLocalGroupFound": "Paikallista ryhmää ei löytynyt",
+        "intro": {
+            "quiz": "Tietokilpailu",
+            "quizDescription": "Suorita kaikkien elokuvien tietokilpailu kohdassa Ekstrat avataksesi saavutuksen!",
+            "explanationTitle": "Miten se toimii?",
+            "explanation": "Voit vastata kerran per kysymys. Saat yhden pisteen jokaisesta oikeasta vastauksesta."
+        },
+        "studyAnswerTheQuiz": "Vastaa tietokilpailuun",
+        "studyAnswerTheQuizDescription": "Ansaitse pisteitä vastaamalla oikein",
+        "studySomeAnswersCorrect": "Sait {correct} of {total} vastaukset oikein",
+        "studyAllAnswersCorrect": "Sait kaikki vastaukset oikein",
+        "studyNoAnswersCorrect": "Et saanut yhtään vastausta oikein",
+        "studyAllAnswersCorrectDescription": "Hyvin tehty!",
+        "studyNoAnswersCorrectDescription": "Parempi kuunnella ensi kerralla hieman tarkemmin!",
+        "studySomeAnswersCorrectDescription": "Hyvin tehty! Mutta vielä on parantamisen varaa.",
+        "studyAllQuestionsAnswered": "Vastasit kaikkiin kysymyksiin",
+        "studyAllQuestionsAnsweredDescription": "Hyvin tehty!"
     },
     "cookies": {
         "title": "Tämä verkkosivusto hyödyntää evästeitä",
-        "description": "Evästeiden tallentaminen parantaa verkkosivuston käyttökokemusta. Jos jatkat sivuston käyttöä, hyväksyt tämän.",
+        "description": "Käytämme evästeitä parantaaksemme käyttäjäkokemusta tällä verkkosivustolla. Jos jatkat tämän verkkosivuston käyttöä, hyväksyt evästeet.",
         "necessary": "Välttämättömät",
         "preferences": "Valinnat",
         "statistics": "Tilastot",
@@ -205,7 +222,7 @@
         "description": "Lomake ääni-, kuva-, ja videoaineiston pyytämistä varten BCC Medialta",
         "receitTitle": "Pyyntö vastaanotettu",
         "confirmAgenda": "Vahvistan, että aineistoa tullaan käyttämään vain sovittuun tarkoitukseen.",
-        "receitDescription": "Otamme sinuun yhteyttä 7 päivän kuluessa. Sähköpostiisi tulee myös automaattinen vastaus."
+        "receitDescription": "Tiimimme ottaa sinuun yhteyttä 7 työpäivän kuluessa. Automaattinen vastaus on lähetetty sähköpostiisi."
     },
     "shorts": {
         "watchOnOurApp": "Lyhytvideoita katsellaksesi asenna kännykkäsovellus."
@@ -214,4 +231,5 @@
         "subscribe": "Tilaa",
         "unsubscribe": "Lopeta tilaus"
     }
+  
 }
