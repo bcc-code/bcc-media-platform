@@ -96,6 +96,12 @@ function confirmAnswer() {
     isCurrentTaskAnswerSelectionConfirmed.value = true
     isCurrentTaskAnswered.value = true
     currentTask.value.completed = true
+
+    const answer = alternativeAnswers.value[currentTask.value.id]
+    completeTask({
+        taskId: answer.taskId,
+        selectedAlternatives: [answer.alternativeId],
+    })
 }
 watch(
     currentTask,

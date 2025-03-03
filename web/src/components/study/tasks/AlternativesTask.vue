@@ -1,9 +1,7 @@
 <script lang="ts" setup>
-import { TaskFragment, useCompleteTaskMutation } from '@/graph/generated'
+import { TaskFragment } from '@/graph/generated'
 import { computed, watch } from 'vue'
 import Alternative from './Alternative.vue'
-
-const { executeMutation } = useCompleteTaskMutation()
 
 const props = defineProps<{
     task: TaskFragment
@@ -68,8 +66,6 @@ function selectAnswer(id: string) {
     for (const alt of task.value.alternatives) {
         alt.selected = id == alt.id
     }
-
-    executeMutation({ taskId: task.value.id, selectedAlternatives: [id] })
 
     const isCorrect = task.value.alternatives.find((a) => a.id == id)!.isCorrect
     if (isCorrect === undefined || isCorrect === null) return
