@@ -6,7 +6,7 @@
         "stayLoggedOut": "Kijelentkezve maradni",
         "cancel": "Mégse",
         "accept": "Jóváhagyás",
-        "submit": "Megerősítés",
+        "submit": "Beküldés",
         "back": "Vissza",
         "next": "Következő",
         "continue": "Folytatás",
@@ -18,7 +18,8 @@
         "skip": "Átugrás",
         "join": "Csatlakozás",
         "open": "Megnyitás",
-        "showMore": "Mutass többet"
+        "showMore": "Mutass többet",
+        "confirm": "Megerősítés"
     },
     "download": {
         "resolution": "Felbontás",
@@ -27,7 +28,7 @@
     },
     "error": {
         "couldntSendYourMessage": "Nem sikerült elküldeni az üzenetedet",
-        "somethingWentWrong": "Valami rosszul ment.",
+        "somethingWentWrong": "Valami hiba történt.",
         "checkNetwork": "Ellenőrizd az internetkapcsolatodat, és próbáld meg újra."
     },
     "dashboard": {
@@ -47,7 +48,7 @@
     "section": {
         "item": {
             "episode": "0 epizód | 1 epizód | {count} epizód",
-            "season": "0 sorozat | 1 sorozat | {count} sorozat"
+            "season": "0 évad | 1 évad | {count} évad"
         }
     },
     "notFound": {
@@ -72,9 +73,9 @@
         "availableTo": "Elérhető dátumig:",
         "ageRating": "Besorolás",
         "notFound": "Epizód nem található",
-        "comingSoon": "Hamarosan jön",
+        "comingSoon": "Hamarosan",
         "noAccess": {
-            "oops": "Uups!",
+            "oops": "Hoppá!",
             "mustBeLoggedIn": "Be kell jelentkezned, hogy megnézhesd ezt a tartalmat",
             "otherContent": "Ne aggódj, még rengeteg más tartalmat is élvezhetsz!",
             "exploreContent": "Tartalom felfedezése"
@@ -83,7 +84,7 @@
     "live": {
         "now": "Most",
         "title": "Új élő közvetítés alkalmazás",
-        "description": "Sajnáljuk! Ezen a weboldalon már nem nézhet élő közvetítést. Kattintson a linkre az új megoldás eléréséhez!"
+        "description": "Sajnáljuk! Ezen a weboldalon már nem tudsz élő közvetítéseket nézni. Kattints a linkre az új megoldáshoz!"
     },
     "calendar": {
         "noScheduledEvents": "Nincs tervezett esemény",
@@ -112,15 +113,15 @@
     },
     "competition": {
         "title": "Duplázd meg esélyeidet",
-        "description": "Ha helyesen válaszolsz, nagyobb eséllyel nyerheted meg az exkluzív <strong>Ezek a szavaim </strong> nyereményt.",
+        "description": "Ha helyesen válaszolsz, nagyobb eséllyel nyerheted meg az exkluzív <strong>Disse mine ord</strong> díjat.",
         "howDoesItWork": "Hogyan működik?",
         "onlyOnce": "Csak egyszer vehetsz részt a kvízben.",
         "watchNextBroadcast": "A helyes válaszokért nézd meg a következő élő közvetítést.",
         "joinCompetition": "Csatlakozz a versenyhez",
         "terms": "A részvétellel hozzájárulsz ahhoz, hogy a neved megjelenjen az adásban a győztes kihirdetésekor.",
         "alreadySent": "Már beküldted, de még mindig láthatod, hogy mit válaszoltál.",
-        "areYouSure": "Biztos vagy abban?",
-        "lookThouroughly": "Gondosan vizsgáld át a válaszaidat. A beküldés után nem tudod megváltoztatni a válaszodat.",
+        "areYouSure": "Biztos vagy ebben?",
+        "lookThouroughly": "Gondosan vizsgáld át a válaszaidat. A beküldés után a válaszodat már nem tudod megváltoztatni.",
         "submitted": "A válaszodat elküldtük!",
         "dontMiss": "Ne hagyd ki a következő adást, ahol a helyes választ bejelentjük."
     },
@@ -134,9 +135,25 @@
         "lessonActivityTitle": "Tanítási tevékenység",
         "textTaskPlaceholder": "Itt kezdj el gépelni...",
         "question": "Kérdés",
-        "wrongAnswerMessage": "Ó, közel. Próbáld újra!",
+        "wrongAnswerMessage": "Bezárás Próbáld újra",
         "correctAnswerMessage": "Jól csináltad!",
-        "noLocalGroupFound": "Nem található helyi csoport"
+        "noLocalGroupFound": "Nem található helyi csoport",
+        "intro": {
+            "quiz": "Kvíz",
+            "quizDescription": "Töltsd ki a kvízt az összes filmhez az Extrák között, hogy feloldd a teljesítményt!",
+            "explanationTitle": "Hogyan működik?",
+            "explanation": "Kérdésenként egyszer válaszolhatsz. Minden helyes válaszért egy pontot kapsz."
+        },
+        "studyAnswerTheQuiz": "Válaszolj a kvízre",
+        "studyAnswerTheQuizDescription": "Szerezz pontokat a helyes válaszadással",
+        "studySomeAnswersCorrect": "{correct} helyes válaszod volt a {total}-ból/ből",
+        "studyAllAnswersCorrect": "Minden válaszod helyes",
+        "studyNoAnswersCorrect": "Egyik válaszod sem helyes",
+        "studyAllAnswersCorrectDescription": "Jól csináltad!",
+        "studyNoAnswersCorrectDescription": "Legközelebb kicsit jobban figyelj!",
+        "studySomeAnswersCorrectDescription": "Jól csináltad! Ám még mindig van hová fejlődni.",
+        "studyAllQuestionsAnswered": "Minden kérdésre válaszoltál",
+        "studyAllQuestionsAnsweredDescription": "Jól csináltad!"
     },
     "cookies": {
         "title": "Ez a weboldal cookie-kat használ",
@@ -149,7 +166,7 @@
     "footer": {
         "cookies": "Sütik",
         "privacyPolicy": "Adatvédelmi szabályzat",
-        "information": "",
+        "information": "A BCC Media a [BCC Szövetség] (https://bcc.no) médiaalapítványa, amely pozitív és keresztény értékeket tartalmazó tartalmakat gyárt és terjeszt.",
         "headOffice": "Székhely",
         "contactUs": "Kapcsolat",
         "downloadApp": "Alkalmazásunk letöltése",
@@ -164,9 +181,9 @@
         "membersOnly": "Ez a videó csak bejelentkezett felhasználók számára érhető el."
     },
     "quotes": {
-        "quoteOfTheDay": "",
-        "markAsRead": "",
-        "markAsUnread": ""
+        "quoteOfTheDay": "A nap idézete",
+        "markAsRead": "Olvasottként jelölni",
+        "markAsUnread": "Olvashatatlannak jelölni"
     },
     "feedback": {
         "appreciated": "Nagyra értékeljük visszajelzésedet.",
@@ -175,12 +192,12 @@
         "howEasyToUnderstand": "Mennyire volt könnyű megérteni a videót?",
         "anonymousInfo": "Az értékelésed névtelenül kerül beküldésre",
         "placeholder": "Legyél a lehető legrészletesebb, hogy segíts nekünk megérteni.",
-        "giveFeedback": ""
+        "giveFeedback": "Adj visszajelzést"
     },
     "contactLocalBukIfWrong": "Ha úgy gondolod, hogy ez nem helyes, vedd fel a kapcsolatot a helyi BUK-felelőssel.",
     "thankYou": "Köszönjük!",
     "yourResponseHasBeenSubmitted": "A válaszodat elküldtük.",
-    "sending": "Adás",
+    "sending": "Küldés folyamatban",
     "defaultInputPlaceholder": "Itt kezdj el gépelni...",
     "requests": {
         "name": "Neved",
@@ -205,13 +222,14 @@
         "description": "Formanyomtatvány hang-, kép- és videóanyagok igényléséhez a BCC Media-tól",
         "receitTitle": "A kérelem beérkezett",
         "confirmAgenda": "Megerősítem, hogy az anyagot csak a megállapodás szerinti célra használom fel.",
-        "receitDescription": "Csapatunk 7 munkanapon belül felveszi veled a kapcsolatot. Automatikus választ küldtünk az e-mail címedre."
+        "receitDescription": "Csapatunk 7 munkanapon belül felveszi veled a kapcsolatot. Automatikus válasz érkezett az e-mail címedre."
     },
     "shorts": {
         "watchOnOurApp": "A shortok megtekintéséhez töltse le a mobilalkalmazást."
     },
     "subscriptions": {
-        "subscribe": "",
-        "unsubscribe": ""
+        "subscribe": "Feliratkozás",
+        "unsubscribe": "Leiratkozás"
     }
+  
 }
