@@ -71,7 +71,7 @@ function selectAnswer(id: string) {
     const alternative = task.value.alternatives.find((a) => a.id == id)
     const isCorrect = alternative?.isCorrect
     if (isCorrect === undefined || isCorrect === null) {
-        analytics.track('error', alternative)
+        analytics.track('error', { data: alternative })
         return
     }
     emit('answer', {

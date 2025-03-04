@@ -114,5 +114,9 @@ export type Events = {
         referenceId?: string
         data?: Record<string, never>
     }
-    error: unknown
+    error: {
+        message?: string
+        code?: string | number
+        data?: Record<string, any>
+    }
 }
