@@ -12,6 +12,7 @@ import {
 import {
     GetStudyLessonQuery,
     useCompleteTaskMutation,
+    useGetTaskAlternativesForStudyLessonQuery,
     useLockAnswersMutation,
 } from '@/graph/generated'
 import TextTask from './tasks/TextTask.vue'
@@ -30,6 +31,17 @@ const { setTitle } = useTitle()
 
 const { executeMutation: executeLockAnswersMutation, data: lockData } =
     useLockAnswersMutation()
+
+const { data: alternativesData, executeQuery: executeAlternativesQuery } =
+    useGetTaskAlternativesForStudyLessonQuery({
+        variables: { lessonId: props.lesson.studyLesson.id },
+    })
+
+const alternativesDataComp = computed(() =>
+    alternativesData.value?.studyLesson.tasks.items
+        .filter((t) => t.__typename === 'AlternativesTask')
+        .map((t) => ({ taskId: t.id, alternatives: t.alternatives }))
+)
 
 const emit = defineEmits<{
     (e: 'navigate', i: Page): any
@@ -152,16 +164,19 @@ async function nextTask() {
         savingTaskProgress.value = false
         if (!allCompletedBeforeStarting) {
             const completedTasks: WebViewStudyHandlerCompletedTask[] = []
-            const answers = alternativeAnswers.value
-            for (const taskId in answers) {
-                completedTasks.push({
-                    questionId: taskId,
-                    answerId: answers[taskId].alternativeId,
-                    answeredCorrectly: answers[taskId].isCorrect,
-                })
-            }
+            await executeAlternativesQuery({ requestPolicy: 'network-only' })
 
-            console.log(completedTasks)
+            alternativesDataComp.value?.forEach((task) => {
+                task.alternatives
+                    .filter((alt) => alt.selected)
+                    .forEach((alt) => {
+                        completedTasks.push({
+                            questionId: task.taskId,
+                            answerId: alt.id,
+                            answeredCorrectly: alt.isCorrect!,
+                        })
+                    })
+            })
 
             webViewStudy?.tasksCompleted(completedTasks)
         }

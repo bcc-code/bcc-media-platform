@@ -2015,6 +2015,13 @@ export type GetFirstSotmLessonForConsentQueryVariables = Exact<{ [key: string]: 
 
 export type GetFirstSotmLessonForConsentQuery = { studyLesson: { tasks: { items: Array<{ __typename: 'AlternativesTask', alternatives: Array<{ id: string, selected: boolean }> } | { __typename: 'LinkTask' } | { __typename: 'PosterTask' } | { __typename: 'QuoteTask' } | { __typename: 'TextTask' } | { __typename: 'VideoTask' }> } } };
 
+export type GetTaskAlternativesForStudyLessonQueryVariables = Exact<{
+  lessonId: Scalars['ID']['input'];
+}>;
+
+
+export type GetTaskAlternativesForStudyLessonQuery = { studyLesson: { id: string, tasks: { items: Array<{ __typename: 'AlternativesTask', id: string, alternatives: Array<{ id: string, isCorrect?: boolean | null, selected: boolean }> } | { __typename: 'LinkTask', id: string } | { __typename: 'PosterTask', id: string } | { __typename: 'QuoteTask', id: string } | { __typename: 'TextTask', id: string } | { __typename: 'VideoTask', id: string }> } } };
+
 export type SetStudyConsentTrueMutationVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -2882,6 +2889,30 @@ export const GetFirstSotmLessonForConsentDocument = gql`
 
 export function useGetFirstSotmLessonForConsentQuery(options: Omit<Urql.UseQueryArgs<never, GetFirstSotmLessonForConsentQueryVariables>, 'query'>) {
   return Urql.useQuery<GetFirstSotmLessonForConsentQuery, GetFirstSotmLessonForConsentQueryVariables>({ query: GetFirstSotmLessonForConsentDocument, ...options });
+};
+export const GetTaskAlternativesForStudyLessonDocument = gql`
+    query getTaskAlternativesForStudyLesson($lessonId: ID!) {
+  studyLesson(id: $lessonId) {
+    id
+    tasks {
+      items {
+        __typename
+        id
+        ... on AlternativesTask {
+          alternatives {
+            id
+            isCorrect
+            selected
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+export function useGetTaskAlternativesForStudyLessonQuery(options: Omit<Urql.UseQueryArgs<never, GetTaskAlternativesForStudyLessonQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetTaskAlternativesForStudyLessonQuery, GetTaskAlternativesForStudyLessonQueryVariables>({ query: GetTaskAlternativesForStudyLessonDocument, ...options });
 };
 export const SetStudyConsentTrueDocument = gql`
     mutation setStudyConsentTrue {

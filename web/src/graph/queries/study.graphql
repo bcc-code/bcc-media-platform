@@ -123,6 +123,26 @@ query getFirstSOTMLessonForConsent {
     }
 }
 
+query getTaskAlternativesForStudyLesson($lessonId: ID!) {
+    studyLesson(id: $lessonId) {
+        id
+        tasks {
+            items {
+                __typename
+                id
+                completed
+                ... on AlternativesTask {
+                    alternatives {
+                        id
+                        isCorrect
+                        selected
+                    }
+                }
+            }
+        }
+    }
+}
+
 mutation setStudyConsentTrue {
     completeTask(id: "9ca12a44-93b3-4c83-8fd6-a1334f0d877e", selectedAlternatives: ["fe8c23c2-0aab-4853-a75f-f148400d005a"])
 }
