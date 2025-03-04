@@ -114,4 +114,5 @@ export type Events = {
         referenceId?: string
         data?: Record<string, never>
     }
+    error: unknown
 }

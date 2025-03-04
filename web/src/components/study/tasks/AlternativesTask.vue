@@ -2,6 +2,7 @@
 import { TaskFragment } from '@/graph/generated'
 import { computed, watch } from 'vue'
 import Alternative from './Alternative.vue'
+import { analytics } from '@/services/analytics'
 
 const props = defineProps<{
     task: TaskFragment
@@ -67,8 +68,12 @@ function selectAnswer(id: string) {
         alt.selected = id == alt.id
     }
 
-    const isCorrect = task.value.alternatives.find((a) => a.id == id)!.isCorrect
-    if (isCorrect === undefined || isCorrect === null) return
+    const alternative = task.value.alternatives.find((a) => a.id == id)
+    const isCorrect = alternative?.isCorrect
+    if (isCorrect === undefined || isCorrect === null) {
+        analytics.track('error', alternative)
+        return
+    }
     emit('answer', {
         alternativeId: id,
         taskId: task.value.id,
