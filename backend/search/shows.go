@@ -14,10 +14,9 @@ func (service *Service) showToSearchItem(ctx context.Context, show common.Show) 
 	}
 
 	var image *string
-	if show.Image.Valid {
+	image = show.Images.GetDefault([]string{"no"}, common.ImageStyleDefault)
+	if image == nil && show.Image.Valid {
 		image = &show.Image.String
-	} else {
-		image = show.Images.GetDefault([]string{"no"}, common.ImageStyleDefault)
 	}
 
 	var item = searchItem{
