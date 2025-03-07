@@ -186,7 +186,13 @@ async function nextTask() {
             const token = await getToken()
             fetch('https://bmm-api.brunstad.org/question/answers', {
                 method: 'POST',
-                body: JSON.stringify(completedTasks),
+                body: JSON.stringify(
+                    completedTasks.map((t) => ({
+                        question_id: t.questionId,
+                        selected_answer_id: t.answerId,
+                        answered_correctly: t.answeredCorrectly,
+                    }))
+                ),
                 headers: {
                     'Accept-Language': locale.value,
                     Authorization: `Bearer ${token}`,
