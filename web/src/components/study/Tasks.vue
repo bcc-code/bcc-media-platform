@@ -115,6 +115,13 @@ function confirmAnswer() {
         taskId: answer.taskId,
         selectedAlternatives: [answer.alternativeId],
     })
+    sendAnswersToBMM([
+        {
+            answerId: answer.alternativeId,
+            questionId: answer.taskId,
+            answeredCorrectly: answer.isCorrect,
+        },
+    ])
 }
 watch(
     currentTask,
@@ -182,28 +189,32 @@ async function nextTask() {
             })
 
             webViewStudy?.tasksCompleted(completedTasks)
-            // Send directly to BMM to work around bug
-            const token = await getToken()
-            fetch('https://bmm-api.brunstad.org/question/answers', {
-                method: 'POST',
-                body: JSON.stringify(
-                    completedTasks.map((t) => ({
-                        question_id: t.questionId,
-                        selected_answer_id: t.answerId,
-                        answered_correctly: t.answeredCorrectly,
-                    }))
-                ),
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept-Language': locale.value,
-                    Authorization: `Bearer ${token}`,
-                },
-            }).catch((error) => {
-                analytics.track('error', { data: { error } })
-            })
+            sendAnswersToBMM(completedTasks)
         }
         emit('navigate', 'more')
     }
+}
+
+// Send quiz answers directly to BMM
+async function sendAnswersToBMM(answers: WebViewStudyHandlerCompletedTask[]) {
+    const token = await getToken()
+    fetch('https://bmm-api.brunstad.org/question/answers', {
+        method: 'POST',
+        body: JSON.stringify(
+            answers.map((t) => ({
+                question_id: t.questionId,
+                selected_answer_id: t.answerId,
+                answered_correctly: t.answeredCorrectly,
+            }))
+        ),
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept-Language': locale.value,
+            Authorization: `Bearer ${token}`,
+        },
+    }).catch((error) => {
+        analytics.track('error', { data: { error } })
+    })
 }
 
 const lockAnswers = async () => {
