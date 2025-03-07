@@ -17,6 +17,7 @@ class WebViewStudyHandler {
     }
 
     tasksCompleted(answers?: WebViewStudyHandlerCompletedTask[]) {
+        analytics.track('tasks_completed', { answers: answers })
         try {
             this.webView.communication.callHandler(
                 this.handlerName,

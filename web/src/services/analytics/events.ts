@@ -119,4 +119,7 @@ export type Events = {
         code?: string | number
         data?: Record<string, any>
     }
+    tasks_completed: {
+        answers?: any
+    }
 }
