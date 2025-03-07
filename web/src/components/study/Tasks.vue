@@ -194,6 +194,7 @@ async function nextTask() {
                     }))
                 ),
                 headers: {
+                    'Content-Type': 'application/json',
                     'Accept-Language': locale.value,
                     Authorization: `Bearer ${token}`,
                 },
