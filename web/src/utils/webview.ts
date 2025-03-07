@@ -38,15 +38,13 @@ function waitForWebview(): Promise<WebView> {
         window.addEventListener('app_webview_ready', () => {
             // Override webview communication to log errors
             window.flutter_webview_manager = {
-                // @ts-expect-error ignore
-                // eslint-disable-next-line no-shadow-restricted-names
-                callHandler: async (name, ...arguments) => {
+                callHandler: async (name, ...args) => {
                     const requestId = Math.random().toString(36).substring(7);
                     // @ts-expect-error ignore
                     window.flutter_channel.postMessage(JSON.stringify({
                         requestId,
                         name,
-                        arguments,
+                        arguments: args,
                     }));
 
                     // @ts-expect-error ignore
