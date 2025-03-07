@@ -23,6 +23,7 @@ import LinkTask from './tasks/LinkTask.vue'
 import Loader from '../Loader.vue'
 import ModalBase from './ModalBase.vue'
 import { findLastIndex } from '@/utils/array'
+import { useAuth } from '@/services/auth'
 
 const props = defineProps<{ lesson: GetStudyLessonQuery }>()
 const { executeMutation: completeTask } = useCompleteTaskMutation()
@@ -139,6 +140,8 @@ const alternativeAnswers = ref<{
     }
 }>({})
 
+const { locale } = useI18n()
+const { getToken } = useAuth()
 const savingTaskProgress = ref(false)
 async function nextTask() {
     const skipSave = currentTask.value.__typename == 'AlternativesTask'
@@ -179,6 +182,18 @@ async function nextTask() {
             })
 
             webViewStudy?.tasksCompleted(completedTasks)
+            // Send directly to BMM to work around bug
+            const token = await getToken()
+            fetch('https://bmm-api.brunstad.org/question/answers', {
+                method: 'POST',
+                body: JSON.stringify(completedTasks),
+                headers: {
+                    'Accept-Language': locale.value,
+                    Authorization: `Bearer ${token}`,
+                },
+            }).catch((error) => {
+                analytics.track('error', { data: { error } })
+            })
         }
         emit('navigate', 'more')
     }
