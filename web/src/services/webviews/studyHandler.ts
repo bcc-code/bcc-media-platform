@@ -1,5 +1,6 @@
 import { currentWebView } from '@/utils/webview'
 import { WebView } from '@/webview'
+import { analytics } from '../analytics'
 
 export type WebViewStudyHandlerCompletedTask = {
     questionId: string
@@ -16,11 +17,16 @@ class WebViewStudyHandler {
     }
 
     tasksCompleted(answers?: WebViewStudyHandlerCompletedTask[]) {
-        this.webView.communication.callHandler(
-            this.handlerName,
-            'tasks_completed',
-            answers
-        )
+        try {
+            this.webView.communication.callHandler(
+                this.handlerName,
+                'tasks_completed',
+                answers
+            )
+        } catch (err) {
+            console.error(err)
+            analytics.track('error', { message: 'Error calling study handler', data: { error: err } })
+        }
     }
 }
 
