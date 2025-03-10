@@ -22,13 +22,13 @@ db.init:
 	./scripts/db_manage.sh
 
 migrate.up:
-	cd ./migrations && goose postgres "postgres://${PGUSER}:${PGPASSWORD}@localhost:5432/${LOCALDB}?sslmode=disable" up
+	cd ./migrations && go tool goose postgres "postgres://${PGUSER}:${PGPASSWORD}@localhost:5432/${LOCALDB}?sslmode=disable" up
 
 migrate.down:
-	cd ./migrations && goose postgres "postgres://${PGUSER}:${PGPASSWORD}@localhost:5432/${LOCALDB}?sslmode=disable" down
+	cd ./migrations && go tool goose postgres "postgres://${PGUSER}:${PGPASSWORD}@localhost:5432/${LOCALDB}?sslmode=disable" down
 
 migrate.status:
-	cd ./migrations && goose postgres "postgres://${PGUSER}:${PGPASSWORD}@localhost:5432/${LOCALDB}?sslmode=disable" status
+	cd ./migrations && go tool goose postgres "postgres://${PGUSER}:${PGPASSWORD}@localhost:5432/${LOCALDB}?sslmode=disable" status
 
 sync.staging:
 	cd ./scripts/staging-sync/ && ./copy.sh

@@ -18,23 +18,20 @@ dist/api dist/jobs dist/pubsub-helper: ./**/*.go sqlc/.generated
 	CGO_ENABLED=0 go build -v -o $@ ./cmd/$(@F)
 
 sqlc/.generated: ../migrations/*.sql
-	@sqlc generate || (printf "${YELLOW}Are you missing sqlc? Install it, e.g. with brew install sqlc.${RESET}\n" && false)
+	@go tool sqlc generate || (printf "${YELLOW}Are you missing sqlc? Install it, e.g. with brew install sqlc.${RESET}\n" && false)
 	touch .generated
 
 run:
 	@echo "No 'run'. Did you mean 'run-api'?"
 
-install-dep-macos:
-	brew install sqlc
-
 gql.api:
-	cd graph/api && go run github.com/99designs/gqlgen
+	cd graph/api && go tool gqlgen
 
 gql.public:
-	cd graph/public && go run github.com/99designs/gqlgen
+	cd graph/public && go tool gqlgen
 
 gql.admin:
-	cd graph/admin && go run github.com/99designs/gqlgen
+	cd graph/admin && go tool gqlgen
 
 gql: gql.api gql.public gql.admin
 
