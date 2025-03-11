@@ -1,6 +1,6 @@
 module github.com/bcc-code/bcc-media-platform
 
-go 1.24
+go 1.22
 
 require (
 	cloud.google.com/go/bigquery v1.62.0
@@ -238,10 +238,4 @@ require (
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.8.0 // indirect
 	modernc.org/sqlite v1.34.5 // indirect
-)
-
-tool (
-	github.com/99designs/gqlgen
-	github.com/pressly/goose/v3/cmd/goose
-	github.com/sqlc-dev/sqlc
 )
