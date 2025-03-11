@@ -294,6 +294,31 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 		return false, err
 	}
 
+	if task.QuestionType == common.QuestionTaskTypeAlternatives && !task.MultiSelect.ValueOrZero() && len(selectedUUIDs) > 1 {
+		correct, err := r.Queries.IsAnswerCorrect(ctx, selectedUUIDs[0])
+		if err != nil {
+			return false, err
+		}
+
+		gCtx, err := utils.GinCtx(ctx)
+		if err != nil {
+			return false, err
+		}
+
+		personID := user.GetFromCtx(gCtx).PersonID
+		err = r.BMMClient.SubmitAnswer(task.ID.String(), correct, selectedUUIDs[0].String(), personID)
+		log.L.Debug().
+			Str("taskID", task.ID.String()).
+			Str("answerID", selectedUUIDs[0].String()).
+			Bool("correct", correct).
+			Msg("Submitted answer to BMM")
+
+		if err != nil {
+			log.L.Error().Err(err).Msg("Error submitting answer to BMM")
+			// Log and continue, we shoudn't block the user here
+		}
+	}
+
 	if !completed {
 		// Check study specific achievements
 		actions := []achievements.Action{

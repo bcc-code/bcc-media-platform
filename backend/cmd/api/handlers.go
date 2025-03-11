@@ -25,6 +25,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
+	"github.com/bcc-code/bmm-sdk-golang"
 	"github.com/gin-gonic/gin"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
@@ -43,6 +44,7 @@ func graphqlHandler(
 	authClient *auth0.Client,
 	remoteCache *remotecache.Client,
 	analyticsClient *analytics.Service,
+	bmmClient *bmm.APIClient,
 ) gin.HandlerFunc {
 	resolver := graphapi.Resolver{
 		Queries:         queries,
@@ -59,6 +61,7 @@ func graphqlHandler(
 		AuthClient:      authClient,
 		RemoteCache:     remoteCache,
 		AnalyticsClient: analyticsClient,
+		BMMClient:       bmmClient,
 		AnalyticsIDFactory: func(ctx context.Context) string {
 			ginCtx, err := utils.GinCtx(ctx)
 			p := user.GetProfileFromCtx(ginCtx)

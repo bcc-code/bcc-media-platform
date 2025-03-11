@@ -22,6 +22,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.19.0
 	github.com/aws/aws-sdk-go-v2/service/mediapackagevod v1.24.2
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.40.2
+	github.com/bcc-code/bmm-sdk-golang v0.1.6
 	github.com/bsm/redislock v0.9.4
 	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/davecgh/go-spew v1.1.1
@@ -30,7 +31,7 @@ require (
 	github.com/gin-contrib/pprof v1.4.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/glebarez/go-sqlite v1.22.0
-	github.com/go-resty/resty/v2 v2.11.0
+	github.com/go-resty/resty/v2 v2.16.5
 	github.com/goodsign/monday v1.0.1
 	github.com/google/uuid v1.6.0
 	github.com/graph-gophers/dataloader/v7 v7.1.0
