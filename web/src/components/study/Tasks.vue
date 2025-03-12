@@ -23,7 +23,8 @@ import LinkTask from './tasks/LinkTask.vue'
 import Loader from '../Loader.vue'
 import ModalBase from './ModalBase.vue'
 import { findLastIndex } from '@/utils/array'
-import { useAuth } from '@/services/auth'
+import { Auth } from '@/services/auth'
+import { webViewMain } from '@/services/webviews/mainHandler'
 
 const props = defineProps<{ lesson: GetStudyLessonQuery }>()
 const { executeMutation: completeTask } = useCompleteTaskMutation()
@@ -148,7 +149,6 @@ const alternativeAnswers = ref<{
 }>({})
 
 const { locale } = useI18n()
-const { getToken } = useAuth()
 const savingTaskProgress = ref(false)
 async function nextTask() {
     const skipSave = currentTask.value.__typename == 'AlternativesTask'
@@ -197,7 +197,9 @@ async function nextTask() {
 
 // Send quiz answers directly to BMM
 async function sendAnswersToBMM(answers: WebViewStudyHandlerCompletedTask[]) {
-    const token = await getToken()
+    const token = webViewMain
+        ? await webViewMain.getAccessToken()
+        : await Auth.getToken()
     fetch('https://bmm-api.brunstad.org/question/answers', {
         method: 'POST',
         body: JSON.stringify(
