@@ -306,12 +306,13 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 		}
 
 		personID := user.GetFromCtx(gCtx).PersonID
-		err = r.BMMClient.SubmitAnswer(task.ID.String(), correct, selectedUUIDs[0].String(), personID)
+
 		log.L.Debug().
 			Str("taskID", task.ID.String()).
 			Str("answerID", selectedUUIDs[0].String()).
 			Bool("correct", correct).
-			Msg("Submitted answer to BMM")
+			Msg("Submitting answer to BMM")
+			err = r.BMMClient.SubmitAnswer(task.ID.String(), correct, selectedUUIDs[0].String(), personID)
 
 		if err != nil {
 			log.L.Error().Err(err).Msg("Error submitting answer to BMM")
