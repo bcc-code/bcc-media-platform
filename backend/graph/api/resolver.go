@@ -53,6 +53,10 @@ type analyticsService interface {
 	SearchEvent(ctx *gin.Context, analyticsID string, query string, typeArg *string, searchProvider string, searchResult common.SearchResult, duration time.Duration)
 }
 
+type bmmClient interface {
+	SubmitAnswer(QuestionID string, AnsweredCorrectly bool, SelectedAnswerID string, PersonID string) error
+}
+
 // Resolver is the main struct for the GQL implementation
 // It contains references to all external services and config
 type Resolver struct {
@@ -71,6 +75,7 @@ type Resolver struct {
 	AuthClient         *auth0.Client
 	RemoteCache        *remotecache.Client
 	AnalyticsClient    analyticsService
+	BMMClient          bmmClient
 }
 
 func (r *Resolver) GetQueries() *sqlc.Queries {

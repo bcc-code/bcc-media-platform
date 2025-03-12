@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/bcc-code/bcc-media-platform/backend/bmm"
 	"net/http"
 	"os"
 	"strings"
@@ -200,6 +201,12 @@ func main() {
 
 	s3Client := s3.NewFromConfig(awsConfig)
 
+	bmmClient, err := bmm.New(config.BMM)
+	if err != nil {
+		log.L.Panic().Err(err).Msg("Failed to create BMM client")
+	}
+	bmmClient.SetDebug(config.BMM.Debug)
+
 	log.L.Debug().Msg("Set up HTTP server")
 
 	if environment.Production() {
@@ -245,6 +252,7 @@ func main() {
 		authClient,
 		remoteCache,
 		analyticsService,
+		bmmClient,
 	))
 	r.GET("/", playgroundHandler())
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, ls))

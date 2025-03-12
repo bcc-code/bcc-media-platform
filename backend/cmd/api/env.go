@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"github.com/bcc-code/bcc-media-platform/backend/bmm"
 	"os"
 	"strings"
 
@@ -70,6 +71,7 @@ type envConfig struct {
 	Email         email.Config
 	Redirect      *redirectConfig
 	Analytics     analytics.Config
+	BMM           bmm.Config
 }
 
 type cdnConfig struct {
@@ -253,6 +255,14 @@ func getEnvConfig() envConfig {
 			DataPlane: os.Getenv("RUDDERSTACK_DATA_PLANE_URL"),
 			WriteKey:  os.Getenv("RUDDERSTACK_WRITE_KEY"),
 			Verbose:   strings.ToLower(os.Getenv("RUDDERSTACK_VERBOSE")) == "true",
+		},
+		BMM: bmm.Config{
+			Auth0BaseURL: os.Getenv("BMM_AUTH0_BASE_URL"),
+			ClientID:     os.Getenv("BMM_CLIENT_ID"),
+			ClientSecret: os.Getenv("BMM_CLIENT_SECRET"),
+			Audience:     os.Getenv("BMM_AUDIENCE"),
+			BaseURL:      os.Getenv("BMM_BASE_URL"),
+			Debug:        os.Getenv("BMM_DEBUG") == "true",
 		},
 	}
 }
