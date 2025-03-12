@@ -205,6 +205,7 @@ func main() {
 	if err != nil {
 		log.L.Panic().Err(err).Msg("Failed to create BMM client")
 	}
+	bmmClient.SetDebug(config.BMM.Debug)
 
 	log.L.Debug().Msg("Set up HTTP server")
 

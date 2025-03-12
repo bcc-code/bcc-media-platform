@@ -1,6 +1,8 @@
 module github.com/bcc-code/bcc-media-platform
 
-go 1.22
+go 1.23.4
+
+toolchain go1.24.1
 
 require (
 	cloud.google.com/go/bigquery v1.62.0
@@ -22,7 +24,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.19.0
 	github.com/aws/aws-sdk-go-v2/service/mediapackagevod v1.24.2
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.40.2
-	github.com/bcc-code/bmm-sdk-golang v0.1.6
+	github.com/bcc-code/bmm-sdk-golang v0.1.7
 	github.com/bsm/redislock v0.9.4
 	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/davecgh/go-spew v1.1.1

@@ -294,7 +294,9 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 		return false, err
 	}
 
-	if task.QuestionType == common.QuestionTaskTypeAlternatives && !task.MultiSelect.ValueOrZero() && len(selectedUUIDs) > 1 {
+	if task.QuestionType == common.QuestionTaskTypeAlternatives &&
+		(task.MultiSelect.Valid || !task.MultiSelect.Bool) &&
+		len(selectedUUIDs) > 0 {
 		correct, err := r.Queries.IsAnswerCorrect(ctx, selectedUUIDs[0])
 		if err != nil {
 			return false, err

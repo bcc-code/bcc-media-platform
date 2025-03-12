@@ -262,6 +262,7 @@ func getEnvConfig() envConfig {
 			ClientSecret: os.Getenv("BMM_CLIENT_SECRET"),
 			Audience:     os.Getenv("BMM_AUDIENCE"),
 			BaseURL:      os.Getenv("BMM_BASE_URL"),
+			Debug:        os.Getenv("BMM_DEBUG") == "true",
 		},
 	}
 }

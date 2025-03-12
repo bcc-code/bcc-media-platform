@@ -18,30 +18,35 @@ type Config struct {
 	// Prod: https://bmm-api.brunstad.org
 	// Integration: https://int-bmm-api.brunstad.org
 	BaseURL string
+
+	Debug bool
 }
 
 // New generates a new BMM
-func New(option Config) (*bmm.APIClient, error) {
-	if option.BaseURL == "" {
+func New(config Config) (*bmm.APIClient, error) {
+	if config.BaseURL == "" {
 		return nil, merry.New("BaseURL is required")
 	}
 
-	if option.Auth0BaseURL == "" {
+	if config.Auth0BaseURL == "" {
 		return nil, merry.New("Auth0BaseURL is required")
 	}
 
-	if option.ClientID == "" {
+	if config.ClientID == "" {
 		return nil, merry.New("ClientID is required")
 	}
 
-	if option.ClientSecret == "" {
+	if config.ClientSecret == "" {
 		return nil, merry.New("ClientSecret is required")
 	}
 
-	token, err := bmm.NewToken(option.Auth0BaseURL, option.ClientID, option.ClientSecret, option.Audience)
+	token, err := bmm.NewToken(config.Auth0BaseURL, config.ClientID, config.ClientSecret, config.Audience)
 	if err != nil {
 		return nil, err
 	}
 
-	return bmm.NewApiClient(option.BaseURL, token), nil
+	client := bmm.NewApiClient(config.BaseURL, token)
+
+	client.SetDebug(config.Debug)
+	return client, nil
 }
