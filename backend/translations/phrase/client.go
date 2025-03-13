@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/bcc-code/bcc-media-platform/backend/translations"
-	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/bcc-code/bcc-media-platform/backend/translations"
+	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -75,7 +76,7 @@ func NewClient(redisDB *redis.Client, config Config) *Client {
 		redisClient: redisDB,
 
 		// Hardcoded, because at the moment I don't see the value in allowing this to be configurable
-		targetLanguages: []string{"da", "de", "en", "fr", "fi", "hu", "it", "nl", "pl", "pt", "ro"},
+		targetLanguages: []string{"da", "de", "en", "fr", "fi", "hu", "it", "nl", "pl", "pt", "ro", "es", "ru"},
 	}
 }
 
