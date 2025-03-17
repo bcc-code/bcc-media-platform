@@ -112,6 +112,16 @@ function confirmAnswer() {
     currentTask.value.completed = true
 
     const answer = alternativeAnswers.value[currentTask.value.id]
+    if (!answer) {
+        analytics.track('error', {
+            message: 'lesson task answer is undefined',
+            data: {
+                taskId: currentTask.value.id,
+                alternativeAnswers: alternativeAnswers.value,
+            },
+        })
+        return
+    }
     completeTask({
         taskId: answer.taskId,
         selectedAlternatives: [answer.alternativeId],
