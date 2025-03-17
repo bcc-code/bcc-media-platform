@@ -9,6 +9,7 @@ type Config struct {
 	ProjectUID  string
 	CallbackURL string
 	UserUID     string
+	Debug       bool
 }
 
 type loginRequest struct {

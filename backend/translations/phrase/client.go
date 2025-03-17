@@ -80,6 +80,12 @@ func NewClient(redisDB *redis.Client, config Config) *Client {
 	}
 }
 
+// SetDebug sets the debug flag which will print details about,
+// and the full request and response
+func (c *Client) SetDebug(debug bool) {
+	c.httpClient.SetDebug(debug)
+}
+
 type translationFile map[string]json.RawMessage
 
 // SendToTranslation sends the data provided to Phrase

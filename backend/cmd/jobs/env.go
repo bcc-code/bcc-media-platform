@@ -143,6 +143,7 @@ func getEnvConfig() envConfig {
 			UserUID:     os.Getenv("PHRASE_USER_UID"),
 			ProjectUID:  os.Getenv("PHRASE_PROJECT_UID"),
 			CallbackURL: os.Getenv("PHRASE_CALLBACK_URL"),
+			Debug:       os.Getenv("PHRASE_DEBUG") == "true",
 		},
 	}
 }
