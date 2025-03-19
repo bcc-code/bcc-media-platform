@@ -10,9 +10,7 @@ import { getFeatureFlags } from '@/services/feature-flags'
 const authExchangeFunction = async (
     utils: AuthUtilities
 ): Promise<AuthConfig> => {
-    let token = webViewMain
-        ? await webViewMain.getAccessToken()
-        : await Auth.getToken()
+    let token = await Auth.getToken()
     return {
         willAuthError(): boolean {
             return true
