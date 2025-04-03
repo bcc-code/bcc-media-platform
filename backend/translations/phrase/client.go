@@ -90,6 +90,11 @@ type translationFile map[string]json.RawMessage
 
 // SendToTranslation sends the data provided to Phrase
 func (m *Client) SendToTranslation(ctx context.Context, collection string, data []common.TranslationData) error {
+	err := m.Authenticate()
+	if err != nil {
+		return err
+	}
+
 	// Generate the final data structure
 	outputFile := translationFile{}
 	for _, d := range data {
@@ -130,8 +135,6 @@ func (m *Client) SendToTranslation(ctx context.Context, collection string, data 
 
 	return err
 }
-
-var ErrUnknownProject = merry.Sentinel("unknown project, ignoring message")
 
 func (c *Client) ProcessWebhook(ctx context.Context, originalRequest *http.Request, hookData []byte) (*translations.TranslatableCollection, []common.TranslationData, error) {
 	payload := &WebhookPost{}
@@ -257,6 +260,11 @@ func (c *Client) Authenticate() error {
 }
 
 func (c *Client) GetProject(projectID string) (*Project, error) {
+	err := c.Authenticate()
+	if err != nil {
+		return nil, err
+	}
+
 	req := c.httpClient.R()
 
 	req.SetPathParam("projectID", projectID)
@@ -276,6 +284,11 @@ func (c *Client) GetProject(projectID string) (*Project, error) {
 }
 
 func (c *Client) updateJobsStatus(jobs []JobOnlyUID, status Status) error {
+	err := c.Authenticate()
+	if err != nil {
+		return err
+	}
+
 	req := c.httpClient.R()
 
 	req.SetBody(gin.H{"status": status, "jobs": jobs})
@@ -301,6 +314,11 @@ func (c *Client) updateJobsStatus(jobs []JobOnlyUID, status Status) error {
 }
 
 func (c *Client) CreateJob(targetLanguages []string, path, filename string, data []byte) error {
+	err := c.Authenticate()
+	if err != nil {
+		return err
+	}
+
 	meta := CreateJobHeader{
 		TargetLangs: targetLanguages,
 		Path:        path,
@@ -332,13 +350,18 @@ func (c *Client) CreateJob(targetLanguages []string, path, filename string, data
 }
 
 func (c *Client) UpdateSource(jobs []string, filename string, data []byte) error {
+	err := c.Authenticate()
+	if err != nil {
+		return err
+	}
+
 	meta := UpdateSourceRequest{
 		Jobs:                       lo.Map(jobs, func(j string, _ int) JobOnlyUID { return JobOnlyUID{UID: j} }),
 		PreTranslate:               false,
 		AllowAutomaticPostAnalysis: false,
 	}
 
-	err := c.updateJobsStatus(meta.Jobs, StatusNew)
+	err = c.updateJobsStatus(meta.Jobs, StatusNew)
 	if err != nil {
 		return err
 	}
@@ -376,6 +399,11 @@ func (c *Client) UpdateSource(jobs []string, filename string, data []byte) error
 }
 
 func (c *Client) GetJob(jobUID string) (*Job, error) {
+	err := c.Authenticate()
+	if err != nil {
+		return nil, err
+	}
+
 	req := c.httpClient.R()
 
 	req.SetPathParam("projectID", c.ProjectUID)
@@ -397,6 +425,11 @@ func (c *Client) GetJob(jobUID string) (*Job, error) {
 }
 
 func (c *Client) GetJobs(filename string) ([]Job, error) {
+	err := c.Authenticate()
+	if err != nil {
+		return nil, err
+	}
+
 	req := c.httpClient.R()
 
 	req.SetPathParam("projectID", c.ProjectUID)
@@ -424,6 +457,11 @@ func (c *Client) GetJobs(filename string) ([]Job, error) {
 }
 
 func (c *Client) GetFileAsync(ctx context.Context, jobUID string) error {
+	err := c.Authenticate()
+	if err != nil {
+		return err
+	}
+
 	req := c.httpClient.R()
 
 	req.SetPathParam("projectUid", c.ProjectUID)
@@ -462,6 +500,11 @@ func (c *Client) GetFileAsync(ctx context.Context, jobUID string) error {
 }
 
 func (c *Client) DownloadFile(ctx context.Context, jobUID string, asyncRequestID string) ([]byte, error) {
+	err := c.Authenticate()
+	if err != nil {
+		return nil, err
+	}
+
 	req := c.httpClient.R()
 	redisID := fmt.Sprintf("phrase:%s", asyncRequestID)
 	downloadID, err := c.redisClient.Get(ctx, redisID).Int()
