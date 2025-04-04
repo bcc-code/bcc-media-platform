@@ -29,7 +29,7 @@ const open = (i: { id: string }) => {
         >
             {{ t('search.episodes') }}
         </h1>
-        <div class="grid lg:grid-cols-4 gap-4">
+        <div class="grid lg:grid-cols-4 gap-5">
             <div
                 v-for="(i, index) in result.search.result"
                 :key="i.id"
@@ -75,7 +75,7 @@ const open = (i: { id: string }) => {
             >
                 <div
                     v-if="i.__typename === 'EpisodeSearchItem'"
-                    class="cursor-pointer"
+                    class="cursor-pointer w-full"
                     @click="$emit('itemClick', index, i.id)"
                 >
                     <div class="relative mb-1">
