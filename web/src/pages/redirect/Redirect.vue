@@ -4,6 +4,8 @@ import { useAuth } from '@/services/auth'
 import { provideClient } from '@urql/vue'
 import Execute from './Execute.vue'
 import { useI18n } from 'vue-i18n'
+import { VButton } from '@/components'
+import { ArrowRightIcon } from '@heroicons/vue/16/solid'
 provideClient(client)
 
 defineProps<{ code: string }>()
@@ -18,8 +20,14 @@ const { t } = useI18n()
             class="h-full w-full"
             :code="code"
         ></Execute>
-        <button v-else class="mx-auto my-auto" @click="signIn()">
+        <VButton
+            v-else
+            class="mx-auto my-auto flex gap-2 items-center pl-6"
+            color="secondary"
+            @click="() => signIn()"
+        >
             {{ t('buttons.login') }}
-        </button>
+            <ArrowRightIcon class="size-5 opacity-60" />
+        </VButton>
     </div>
 </template>
