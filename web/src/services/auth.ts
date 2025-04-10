@@ -55,6 +55,9 @@ export class Auth {
         const { loginWithRedirect } = useAuth0()
 
         await loginWithRedirect({
+            appState: {
+                target: window.location.pathname,
+            },
             authorizationParams: {
                 prompt: silent ? 'none' : undefined,
             },
