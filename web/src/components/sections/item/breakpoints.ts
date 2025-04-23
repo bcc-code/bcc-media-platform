@@ -17,7 +17,7 @@ export default (size: 'small' | 'medium') => {
                     slidesPerGroup: 4,
                 },
                 1920: {
-                    slidesPerView: 6,
+                    slidesPerView: 5,
                     spaceBetween,
                     slidesPerGroup: 6,
                 },
