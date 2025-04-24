@@ -75,6 +75,7 @@ export interface Options {
     autoplay: boolean
     subtitles: any[]
     videojs: PlayerOptions
+    onProgress?: (currentTime: number, duration: number, player: Player) => void
 }
 
 const getDefaults = () => {
@@ -207,7 +208,7 @@ function setupVideoJs(videoElId: Element, options: Options) {
             )
         }
 
-        ;(player as any).hlsQualitySelector()
+        ; (player as any).hlsQualitySelector()
 
         var sl = (player.tech({ IWillNotUseThisInPlugins: true }) as any).vhs
             ?.masterPlaylistController_?.mainSegmentLoader_
@@ -236,6 +237,14 @@ function setupVideoJs(videoElId: Element, options: Options) {
             player,
             options.languagePreferenceDefaults.subtitles
         )
+    })
+
+    player.on("timeupdate", () => {
+        const currentTime = player.currentTime()
+        const duration = player.duration()
+        if (currentTime && duration) {
+            options.onProgress?.(currentTime, duration, player)
+        }
     })
 
     const p = player as any
