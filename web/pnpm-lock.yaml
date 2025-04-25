@@ -11,6 +11,9 @@ importers:
       '@auth0/auth0-vue':
         specifier: ^2.3.3
         version: 2.3.3(typescript@5.7.2)(vue-router@4.5.0(vue@3.5.13(typescript@5.7.2)))
+      '@bcc-code/bmm-sdk-fetch':
+        specifier: 8.8.0
+        version: 8.8.0
       '@headlessui/vue':
         specifier: ^1.7.22
         version: 1.7.23(vue@3.5.13(typescript@5.7.2))
@@ -48,8 +51,8 @@ importers:
         specifier: ^2.2.3
         version: 2.2.6(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
       bccm-video-player:
-        specifier: 1.5.6
-        version: 1.5.6
+        specifier: 1.5.7
+        version: 1.5.7
       graphql:
         specifier: ^16.9.0
         version: 16.9.0
@@ -457,6 +460,9 @@ packages:
   '@babel/types@7.26.3':
     resolution: {integrity: sha512-vN5p+1kl59GVKMvTHt55NzzmYVxprfJD+ql7U9NFIfKCBkYE55LYtS+WtPlaYOyzydrKI8Nezd+aZextrd+FMA==}
     engines: {node: '>=6.9.0'}
+
+  '@bcc-code/bmm-sdk-fetch@8.8.0':
+    resolution: {integrity: sha512-JsYHWO4WmBD+qWgZKC8rnoeyzG/tLnxp1vbM7Xf9DSZhKYWtufB00ZewHQVElT7SqL3QjjzPB9aAIkbE3szXBw==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -1571,8 +1577,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  bccm-video-player@1.5.6:
-    resolution: {integrity: sha512-tkQmkuTGzkDtXnrcwE5F0q6/nSa6leM0XuYlt3TaKwcfpKWe8JgSbABZ69dfa28GQAqIJNPTRIGWKmiifK9iTw==}
+  bccm-video-player@1.5.7:
+    resolution: {integrity: sha512-2wXggO6kxsF0URMexT2q/5Ig44LvhAfWErONQEF9i59LbbaHrR9zfoSG95I7GT4wkqt1gHQCQTrLQoeKiNuA1w==}
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
@@ -3903,6 +3909,8 @@ snapshots:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
 
+  '@bcc-code/bmm-sdk-fetch@8.8.0': {}
+
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
@@ -5373,7 +5381,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  bccm-video-player@1.5.6:
+  bccm-video-player@1.5.7:
     dependencies:
       '@silvermine/videojs-chromecast': 1.5.0(video.js@8.21.0)
       graphql: 16.9.0
