@@ -6,6 +6,7 @@ import {
 } from '@bcc-code/bmm-sdk-fetch'
 import Auth from './auth'
 import i18n from '@/i18n'
+import { analytics } from './analytics'
 
 DefaultConfig.config = new Configuration({
 	basePath: 'https://bmm-api.brunstad.org',
@@ -43,6 +44,11 @@ DefaultConfig.config = new Configuration({
 					const responseContent = await ctx.response.text()
 					try {
 						const errorObject = JSON.parse(responseContent)
+						analytics.track('error', {
+							code: ctx.response.status,
+							message: '[BMM] could not complete request',
+							data: errorObject
+						})
 						console.error(errorObject)
 					} catch {
 						console.error(responseContent)
@@ -51,10 +57,13 @@ DefaultConfig.config = new Configuration({
 			},
 			onError: async (ctx) => {
 				const responseContent = await ctx.response?.text()
-				if (!responseContent) return
-
 				try {
-					const errorObject = JSON.parse(responseContent)
+					const errorObject = JSON.parse(responseContent ?? '')
+					analytics.track('error', {
+						code: ctx.response?.status,
+						message: '[BMM] an error occured',
+						data: errorObject
+					})
 					console.error(errorObject)
 				} catch {
 					console.error(responseContent)
