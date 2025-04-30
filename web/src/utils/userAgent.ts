@@ -4,12 +4,12 @@ export function getOperatingSystem() {
 	const windowsPlatforms = /(win32|win64|windows|wince)/i
 	const iosPlatforms = /(iphone|ipad|ipod)/i
 	if (iosPlatforms.test(userAgent)) {
-		return 'iOS'
+		return 'ios'
 	} else if (windowsPlatforms.test(userAgent)) {
-		return 'Windows'
+		return 'windows'
 	} else if (macosPlatforms.test(userAgent)) {
-		return 'MacOS'
+		return 'macos'
 	} else if (/android/i.test(userAgent)) {
-		return 'Android'
+		return 'android'
 	}
 }

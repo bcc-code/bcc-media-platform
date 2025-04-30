@@ -256,19 +256,16 @@ const checkProgress = async (force?: boolean) => {
     }
 }
 
-let playedOverHalfCounter = 0
+let hasSentHalfwayWatchedEvent = false
 function onVideoProgress(
     currentTime: number,
     duration: number,
     player: Player
 ) {
     const videoProgressPercent = currentTime / duration
-    if (videoProgressPercent >= 0.5 && playedOverHalfCounter < 20) {
-        playedOverHalfCounter++
-    }
     if (
-        (videoProgressPercent >= 0.5 && playedOverHalfCounter === 10) ||
-        (videoProgressPercent === 1 && playedOverHalfCounter > 10)
+        (videoProgressPercent >= 0.5 && !hasSentHalfwayWatchedEvent) ||
+        videoProgressPercent === 1
     ) {
         const event: ProcessWatchedCommandEvent = {
             episodeId: props.episode.id,
@@ -281,6 +278,7 @@ function onVideoProgress(
         }
 
         new BMM().postStatisticsWatched(event)
+        hasSentHalfwayWatchedEvent = true
     }
 }
 
