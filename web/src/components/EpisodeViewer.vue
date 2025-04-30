@@ -256,6 +256,9 @@ const checkProgress = async (force?: boolean) => {
     }
 }
 
+// This is a very naive v1.0 of the BMM streak tracking.
+// With this implementation, we have basically no way of preventing the
+// user from skipping forward to the end, and therefore getting the streak point.
 let hasSentHalfwayWatchedEvent = false
 function onVideoProgress(
     currentTime: number,
