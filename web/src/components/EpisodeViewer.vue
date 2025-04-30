@@ -20,6 +20,9 @@ import { languages } from '@/services/language'
 import { currentApp } from '@/services/app'
 import { languageTo3letter } from '@/utils/languages'
 import { generateUUID } from '@/utils/uuid'
+import { BMM } from '@/services/bmm'
+import { getOperatingSystem } from '@/utils/userAgent'
+import { ProcessWatchedCommandEvent } from '@bcc-code/bmm-sdk-fetch'
 
 const { isAuthenticated } = useAuth0()
 
@@ -109,6 +112,9 @@ const load = async () => {
             videojs: {
                 autoplay: props.autoPlay,
                 playbackRates: [0.75, 1, 1.5, 1.75, 2],
+            },
+            onProgress(currentTime, duration, player) {
+                onVideoProgress(currentTime, duration, player)
             },
             npaw: {
                 enabled: !!import.meta.env.VITE_NPAW_ACCOUNT_CODE,
@@ -247,6 +253,35 @@ const checkProgress = async (force?: boolean) => {
             progress: progress,
         })
         setProgress(episodeId, progress)
+    }
+}
+
+// This is a very naive v1.0 of the BMM streak tracking.
+// With this implementation, we have basically no way of preventing the
+// user from skipping forward to the end, and therefore getting the streak point.
+let hasSentHalfwayWatchedEvent = false
+function onVideoProgress(
+    currentTime: number,
+    duration: number,
+    player: Player
+) {
+    const videoProgressPercent = currentTime / duration
+    if (
+        (videoProgressPercent >= 0.5 && !hasSentHalfwayWatchedEvent) ||
+        videoProgressPercent === 1
+    ) {
+        const event: ProcessWatchedCommandEvent = {
+            episodeId: props.episode.id,
+            os: getOperatingSystem(),
+            language: currentLanguage.value.code,
+            lastPosition: Math.floor(currentTime * 1000),
+            timestampStart: new Date(),
+            adjustedPlaybackSpeed: player.playbackRate(),
+            playbackOrigin: 'bccm-web',
+        }
+
+        new BMM().postStatisticsWatched(event)
+        hasSentHalfwayWatchedEvent = true
     }
 }
 
