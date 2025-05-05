@@ -1,6 +1,7 @@
 {
   "from": {{ .Offset }},
   "size": {{ .Limit }},
+  "min_score": 3,
   "query": {
     "bool": {
       "filter": [
@@ -14,7 +15,7 @@
             "should": [
             {{ range $index, $role := .Roles }}
               {{ if gt $index 0}},{{ end }}
-              { "term": {"roles": "{{ $role }}" } }
+              { "term": {"roles.keyword": "{{ $role }}" } }
             {{ end }}
             ],
             "minimum_should_match": 1
@@ -49,12 +50,71 @@
           }
         }
       ],
-      "must": [
+      "should": [
         {
-          "query_string": {
-            "query": "{{ .QueryString }}~"
+          "multi_match": {
+            "query": "{{ $.QueryString }}",
+            "fields": [
+              {{ range $index, $lang := .Languages }}
+                {{ if gt $index 0}},{{ end }}
+                "title_{{ $lang }}",
+                "description_{{ $lang }}"
+              {{ end }}
+            ],
+            "fuzziness": "AUTO",
+            "boost": 5
           }
-        }
+        },
+        {
+          "multi_match": {
+          "query": "{{ $.QueryString }}",
+          "fields": [
+              "tags",
+              {{ range $index, $lang := .Languages }}
+                {{ if gt $index 0}},{{ end }}
+                "showTitle_{{ $lang }}"
+              {{ end }}
+            ],
+            "fuzziness": 0,
+            "boost": 10
+          }
+        },
+        {
+          "multi_match": {
+            "query": "{{ $.QueryString }}",
+            "fields": [
+              {{ range $index, $lang := .Languages }}
+              {{ if gt $index 0}},{{ end }}
+                "showTitle_{{ $lang }}"
+              {{ end }}
+            ],
+            "fuzziness": "AUTO",
+            "boost": 3
+          }
+        },
+        {{ range $index, $lang := .Languages }}
+          {{ if gt $index 0}},{{ end }}
+          {
+            "prefix": {
+              "title_{{ $lang }}": {"value": "{{ $.QueryString }}"}
+            }
+          },
+          {
+            "prefix": {
+              "description_{{ $lang }}": { "value": "{{ $.QueryString }}" }
+            }
+          },
+          {
+            "prefix": {
+              "showTitle_{{ $lang }}": { "value": "{{ $.QueryString }}" }
+            }
+          },
+          {
+            "prefix": {
+              "seasonTitle_{{ $lang }}": { "value": "{{ $.QueryString }}" }
+            }
+          }
+        {{ end }}
       ]
     }
   }
