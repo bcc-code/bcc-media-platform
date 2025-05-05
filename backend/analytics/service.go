@@ -72,6 +72,7 @@ func (s *Service) SearchEvent(
 	searchProvider string,
 	searchResult common.SearchResult,
 	duration time.Duration,
+	languages []string,
 ) {
 	props := r.NewProperties().
 		Set("query", queryString).
@@ -79,7 +80,8 @@ func (s *Service) SearchEvent(
 		Set("provider", searchProvider).
 		Set("resultCount", searchResult.ResultCount).
 		Set("topScore", searchResult.TopScore).
-		Set("duration", duration.Milliseconds())
+		Set("duration", duration.Milliseconds()).
+		Set("languages", languages)
 
 	s.trackEvent(ctx, analyticsID, "search", props)
 }

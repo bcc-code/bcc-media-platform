@@ -50,7 +50,7 @@ type searchProvider interface {
 }
 
 type analyticsService interface {
-	SearchEvent(ctx *gin.Context, analyticsID string, query string, typeArg *string, searchProvider string, searchResult common.SearchResult, duration time.Duration)
+	SearchEvent(ctx *gin.Context, analyticsID string, query string, typeArg *string, searchProvider string, searchResult common.SearchResult, duration time.Duration, languages []string)
 }
 
 type bmmClient interface {

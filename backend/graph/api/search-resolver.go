@@ -6,6 +6,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
 	"github.com/bcc-code/bcc-media-platform/backend/unleash"
+	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"strconv"
 	"time"
@@ -199,6 +200,7 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 		searchProvider,
 		searchResult,
 		duration,
+		user.GetLanguagesFromCtx(ginCtx),
 	)
 
 	return &model.SearchResult{
