@@ -22,6 +22,16 @@
             "ascii_folding"
           ]
         },
+        "english_us_title_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "bcc_synonyms",
+            "english_stemmer",
+            "ascii_folding"
+          ]
+        },
         "german_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
@@ -30,6 +40,18 @@
             "german_normalization",
             "german_decompounder",
             "german_stop",
+            "german_stemmer",
+            "bcc_synonyms",
+            "ascii_folding"
+          ]
+        },
+        "german_title_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "german_normalization",
+            "german_decompounder",
             "german_stemmer",
             "bcc_synonyms",
             "ascii_folding"
@@ -48,6 +70,18 @@
             "norwegian_stemmer"
           ]
         },
+        "norwegian_title_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "ascii_folding",
+            "lowercase",
+            "bcc_synonyms",
+            "scandinavian_normalization",
+            "norwegian_decompounder",
+            "norwegian_stemmer"
+          ]
+        },
         "danish_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
@@ -56,6 +90,18 @@
             "scandinavian_normalization",
             "danish_decompounder",
             "danish_stop",
+            "danish_stemmer",
+            "bcc_synonyms",
+            "ascii_folding"
+          ]
+        },
+        "danish_title_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "scandinavian_normalization",
+            "danish_decompounder",
             "danish_stemmer",
             "bcc_synonyms",
             "ascii_folding"
@@ -73,6 +119,17 @@
             "ascii_folding"
           ]
         },
+        "finnish_title_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "finnish_decompounder",
+            "finnish_stemmer",
+            "bcc_synonyms",
+            "ascii_folding"
+          ]
+        },
         "dutch_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
@@ -80,6 +137,17 @@
             "lowercase",
             "dutch_decompounder",
             "dutch_stop",
+            "dutch_stemmer",
+            "bcc_synonyms",
+            "ascii_folding"
+          ]
+        },
+        "dutch_title_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "dutch_decompounder",
             "dutch_stemmer",
             "bcc_synonyms",
             "ascii_folding"
@@ -97,6 +165,17 @@
             "ascii_folding"
           ]
         },
+        "spanish_title_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "spanish_decompounder",
+            "spanish_stemmer",
+            "bcc_synonyms",
+            "ascii_folding"
+          ]
+        },
         "polish_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
@@ -104,6 +183,16 @@
             "lowercase",
             "polish_decompounder",
             "polish_stop",
+            "bcc_synonyms",
+            "ascii_folding"
+          ]
+        },
+        "polish_title_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "polish_decompounder",
             "bcc_synonyms",
             "ascii_folding"
           ]
@@ -119,12 +208,31 @@
             "ascii_folding"
           ]
         },
+        "bulgarian_title_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "bulgarian_stemmer",
+            "bcc_synonyms",
+            "ascii_folding"
+          ]
+        },
         "slovenian_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
           "filter": [
             "lowercase",
             "slovenian_stop",
+            "bcc_synonyms",
+            "ascii_folding"
+          ]
+        },
+        "slovenian_title_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
             "bcc_synonyms",
             "ascii_folding"
           ]
@@ -139,7 +247,7 @@
           "type": "synonym",
           "synonyms": [
             "SeaSound => bergen",
-            "maga => magasinet",
+            "maga => magasinet, magazin",
             "paaske,paske,påske",
             "dobb => dobbel",
             "brunstadfest, misjonsfest"
@@ -165,7 +273,7 @@
           "word_list": [],
           "hyphenation_patterns_path": "en_US.xml",
           "max_subword_size": 22,
-          "min_subword_size": 4,
+          "min_subword_size": 3,
           "only_longest_match": false
         },
         "german_stop": {
@@ -178,10 +286,10 @@
         },
         "german_decompounder": {
           "type": "dictionary_decompounder",
-          "word_list": ["konferenz", "bruder", "schwester", "sommer", "versamlung", "morgen", "abend", "jugend", "stunde", "kinder"],
+          "word_list": ["konferenz", "bruder", "schwester", "sommer", "versamlung", "morgen", "abend", "jugend", "stunde", "kinder", "aktion", "pace", "berg", "predigt"],
           "hyphenation_patterns_path": "de.xml",
           "max_subword_size": 22,
-          "min_subword_size": 4,
+          "min_subword_size": 3,
           "only_longest_match": false
         },
         "norwegian_stop": {
@@ -194,7 +302,7 @@
         },
         "norwegian_decompounder": {
           "type": "dictionary_decompounder",
-          "word_list": ["stevne", "møte", "camp", "sommer", "påske", "paske", "morgen", "kveld", "jul", "berg", "prekenen", "søstre", "brødre", "brunstad", "fest"],
+          "word_list": ["stevne", "møte", "camp", "sommer", "påske", "paske", "morgen", "kveld", "jul", "berg", "prekenen", "søstre", "brødre", "brunstad", "fest", "pace", "aksjon"],
           "hyphenation_patterns_path": "no.xml",
           "max_subword_size": 22,
           "min_subword_size": 3,
@@ -210,10 +318,10 @@
         },
         "danish_decompounder": {
           "type": "dictionary_decompounder",
-          "word_list": ["jernbanestation", "brandmand", "fodboldkamp", "sygehus", "børneskole"],
+          "word_list": ["stævne", "møde", "camp", "sommer", "påske", "morgen", "aften", "jul", "bjerg", "prædiken", "søstre", "brødre", "brunstad", "fest", "pace", "aktion"],
           "hyphenation_patterns_path": "da.xml",
           "max_subword_size": 22,
-          "min_subword_size": 4,
+          "min_subword_size": 3,
           "only_longest_match": false
         },
         "finnish_stop": {
@@ -226,10 +334,10 @@
         },
         "finnish_decompounder": {
           "type": "dictionary_decompounder",
-          "word_list": ["rautatieasema", "palomies", "jalkapallo-ottelu", "sairaala", "peruskoulu"],
+          "word_list": [],
           "hyphenation_patterns_path": "fi.xml",
           "max_subword_size": 22,
-          "min_subword_size": 4,
+          "min_subword_size": 3,
           "only_longest_match": false
         },
         "dutch_stop": {
@@ -242,10 +350,10 @@
         },
         "dutch_decompounder": {
           "type": "dictionary_decompounder",
-          "word_list": ["treinstation", "brandweerman", "voetbalwedstrijd", "ziekenhuis", "basisschool"],
+          "word_list": ["conferentie", "samenkomst", "kamp", "zomer", "pasen", "ochtend", "avond", "kerst", "berg", "preek", "rede", "zusters", "broeders", "brunstad", "feest", "pace", "actie"],
           "hyphenation_patterns_path": "nl.xml",
           "max_subword_size": 22,
-          "min_subword_size": 4,
+          "min_subword_size": 3,
           "only_longest_match": false
         },
         "spanish_stop": {
@@ -258,10 +366,10 @@
         },
         "spanish_decompounder": {
           "type": "dictionary_decompounder",
-          "word_list": ["ferrocarril", "baloncesto", "rascacielos"],
+          "word_list": [],
           "hyphenation_patterns_path": "es.xml",
           "max_subword_size": 22,
-          "min_subword_size": 4,
+          "min_subword_size": 3,
           "only_longest_match": false
         },
         "polish_stop": {
@@ -270,10 +378,10 @@
         },
         "polish_decompounder": {
           "type": "dictionary_decompounder",
-          "word_list": ["dworzeckolejowy", "strażpożarna", "meczpiłkinożnej"],
+          "word_list": [],
           "hyphenation_patterns_path": "pl.xml",
           "max_subword_size": 22,
-          "min_subword_size": 4,
+          "min_subword_size": 3,
           "only_longest_match": false
         },
         "bulgarian_stop": {
@@ -295,203 +403,363 @@
     "properties": {
       "title_en": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "english_us_analyzer"
+        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "analyzer": "english_us_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "title_de": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "german_analyzer"
+        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "analyzer": "german_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "title_no": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "norwegian_analyzer"
+        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "analyzer": "norwegian_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "title_da": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "danish_analyzer"
+        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "analyzer": "danish_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "title_fi": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "finnish_analyzer"
+        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "analyzer": "finnish_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "title_nl": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "dutch_analyzer"
+        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "analyzer": "dutch_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "title_es": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "spanish_analyzer"
+        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "analyzer": "spanish_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "title_pl": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "polish_analyzer"
+        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "analyzer": "polish_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "title_bg": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "bulgarian_analyzer"
+        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "analyzer": "bulgarian_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "title_sl": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "slovenian_analyzer"
+        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "analyzer": "slovenian_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "description_en": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "english_us_analyzer"
+        "analyzer": "english_us_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "description_de": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "german_analyzer"
+        "analyzer": "german_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "description_no": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "norwegian_analyzer"
+        "analyzer": "norwegian_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "description_da": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "danish_analyzer"
+        "analyzer": "danish_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "description_fi": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "finnish_analyzer"
+        "analyzer": "finnish_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "description_nl": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "dutch_analyzer"
+        "analyzer": "dutch_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "description_es": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "spanish_analyzer"
+        "analyzer": "spanish_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "description_pl": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "polish_analyzer"
+        "analyzer": "polish_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "description_bg": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "bulgarian_analyzer"
+        "analyzer": "bulgarian_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "description_sl": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "slovenian_analyzer"
+        "analyzer": "slovenian_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "showTitle_en": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "english_us_analyzer"
+        "analyzer": "english_us_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "showTitle_de": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "german_analyzer"
+        "analyzer": "german_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "showTitle_no": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "norwegian_analyzer"
+        "analyzer": "norwegian_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "showTitle_da": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "danish_analyzer"
+        "analyzer": "danish_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "showTitle_fi": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "finnish_analyzer"
+        "analyzer": "finnish_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "showTitle_nl": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "dutch_analyzer"
+        "analyzer": "dutch_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "showTitle_es": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "spanish_analyzer"
+        "analyzer": "spanish_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "showTitle_pl": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "polish_analyzer"
+        "analyzer": "polish_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "showTitle_bg": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "bulgarian_analyzer"
+        "analyzer": "bulgarian_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "showTitle_sl": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "slovenian_analyzer"
+        "analyzer": "slovenian_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "seasonTitle_en": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "english_us_analyzer"
+        "analyzer": "english_us_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "seasonTitle_de": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "german_analyzer"
+        "analyzer": "german_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "seasonTitle_no": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "norwegian_analyzer"
+        "analyzer": "norwegian_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "seasonTitle_da": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "danish_analyzer"
+        "analyzer": "danish_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "seasonTitle_fi": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "finnish_analyzer"
+        "analyzer": "finnish_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "seasonTitle_nl": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "dutch_analyzer"
+        "analyzer": "dutch_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "seasonTitle_es": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "spanish_analyzer"
+        "analyzer": "spanish_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "seasonTitle_pl": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "polish_analyzer"
+        "analyzer": "polish_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "seasonTitle_bg": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "bulgarian_analyzer"
+        "analyzer": "bulgarian_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "seasonTitle_sl": {
         "type": "text",
         "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
-        "analyzer": "slovenian_analyzer"
+        "analyzer": "slovenian_title_analyzer",
+        "index_prefixes": {
+          "min_chars" : 3,
+          "max_chars" : 10
+        }
       },
       "tags": {
         "type": "text",

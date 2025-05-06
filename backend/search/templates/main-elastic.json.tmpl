@@ -62,7 +62,7 @@
               {{ end }}
             ],
             "fuzziness": "AUTO",
-            "boost": 5
+            "boost": 2
           }
         },
         {
@@ -84,8 +84,23 @@
             "query": "{{ $.QueryString }}",
             "fields": [
               {{ range $index, $lang := .Languages }}
+                {{ if gt $index 0}},{{ end }}
+                "title_{{ $lang }}",
+                "description_{{ $lang }}"
+              {{ end }}
+            ],
+            "fuzziness": 0,
+            "boost": 7
+          }
+        },
+        {
+          "multi_match": {
+            "query": "{{ $.QueryString }}",
+            "fields": [
+              {{ range $index, $lang := .Languages }}
               {{ if gt $index 0}},{{ end }}
-                "showTitle_{{ $lang }}"
+                "showTitle_{{ $lang }}",
+                "title_{{ $lang }}"
               {{ end }}
             ],
             "fuzziness": "AUTO",

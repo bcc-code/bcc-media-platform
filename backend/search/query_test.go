@@ -363,7 +363,7 @@ func (s *ElasticQueryTestSuite) Test_EensureExistingGoodResults() {
 			languages: []string{
 				"no",
 			},
-			expectedEpisodes: []int{1377, 2579, 1039},
+			expectedEpisodes: []int{1377, 1945, 1039},
 		},
 		{
 			query:            "Paulus",
@@ -395,6 +395,15 @@ func (s *ElasticQueryTestSuite) Test_EensureExistingGoodResults() {
 			expectEpisodes:              true,
 			expectedEpisodes:            nil,
 			expectedEpisodesInFirstShow: 8,
+		},
+		{
+			query:                       "det som",
+			languages:                   []string{"no"},
+			expectShows:                 true,
+			expectedShows:               []string{"Det som endret alt"},
+			expectEpisodes:              true,
+			expectedEpisodes:            nil,
+			expectedEpisodesInFirstShow: 4,
 		},
 	}
 
