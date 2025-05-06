@@ -194,7 +194,7 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery, userT
 
 type elasticQueryParams struct {
 	Roles       []string
-	QueryString string
+	QueryString template.HTML
 	Limit       int
 	Offset      int
 	TimeNow     int64
@@ -221,7 +221,7 @@ func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, que
 
 	templateParams := &elasticQueryParams{
 		Roles:       roles,
-		QueryString: query.Query,
+		QueryString: template.HTML(template.JSEscapeString(query.Query)),
 		TimeNow:     now,
 		Offset:      0,
 		Limit:       hitsPerPage,

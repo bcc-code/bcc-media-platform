@@ -85,12 +85,24 @@
             "fields": [
               {{ range $index, $lang := .Languages }}
                 {{ if gt $index 0}},{{ end }}
-                "title_{{ $lang }}",
-                "description_{{ $lang }}"
+                "title_{{ $lang }}"
               {{ end }}
             ],
             "fuzziness": 0,
             "boost": 7
+          }
+        },
+        {
+          "multi_match": {
+          "query": "{{ $.QueryString }}",
+            "fields": [
+              {{ range $index, $lang := .Languages }}
+                {{ if gt $index 0}},{{ end }}
+                "description_{{ $lang }}"
+              {{ end }}
+            ],
+            "fuzziness": 0,
+            "boost": 3
           }
         },
         {

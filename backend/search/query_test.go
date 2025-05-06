@@ -394,7 +394,7 @@ func (s *ElasticQueryTestSuite) Test_EensureExistingGoodResults() {
 			expectedShows:               []string{"Kampen om Menigheten"},
 			expectEpisodes:              true,
 			expectedEpisodes:            nil,
-			expectedEpisodesInFirstShow: 8,
+			expectedEpisodesInFirstShow: 2,
 		},
 		{
 			query:                       "det som",
