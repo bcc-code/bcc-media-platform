@@ -182,11 +182,6 @@ func main() {
 
 	span.End()
 
-	err = services.GetSearchService().ReindexElastic(ctx)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to reindex elastic")
-	}
-
 	err = router.Run(":" + config.Port)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Couldn't start server")
