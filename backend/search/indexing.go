@@ -28,11 +28,18 @@ var (
 	Indices       = enum.New(IndexShows, IndexSeasons, IndexEpisodes)
 )
 
-func (service *Service) ensureElasticIndices(ctx context.Context) error {
+func (service *Service) resetElasticIndexes(ctx context.Context) error {
 	for _, index := range Indices.Members() {
 		indexExists, err := service.elasticClient.Indices.Exists(index.Value).Do(ctx)
 		if err != nil {
 			return merry.Wrap(err)
+		}
+
+		if indexExists {
+			_, err = service.elasticClient.Indices.Delete(index.Value).Do(ctx)
+			if err != nil {
+				return err
+			}
 		}
 
 		indexTemplate := &bytes.Buffer{}
@@ -41,19 +48,21 @@ func (service *Service) ensureElasticIndices(ctx context.Context) error {
 			return merry.Wrap(err)
 		}
 
-		if !indexExists {
-			_, err = service.elasticClient.Indices.Create(index.Value).Raw(indexTemplate).Do(ctx)
-			if err != nil {
-				return err
-			}
+		_, err = service.elasticClient.Indices.Create(index.Value).Raw(indexTemplate).Do(ctx)
+		if err != nil {
+			return err
 		}
 	}
 
 	return nil
 }
 
+// ReindexElastic reindexes all data in elastic
+//
+// Please note that this will delete all data in elastic first, then recreate it
+// This may not be what we want in the long term but it works for now, and is simple
 func (service *Service) ReindexElastic(ctx context.Context) error {
-	err := service.ensureElasticIndices(ctx)
+	err := service.resetElasticIndexes(ctx)
 	if err != nil {
 		return err
 	}
