@@ -1,6 +1,7 @@
 package search
 
 import (
+	"bytes"
 	"context"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
@@ -27,26 +28,41 @@ var (
 	Indices       = enum.New(IndexShows, IndexSeasons, IndexEpisodes)
 )
 
-func (service *Service) ensureElasticIndices(ctx context.Context) error {
+func (service *Service) resetElasticIndexes(ctx context.Context) error {
 	for _, index := range Indices.Members() {
 		indexExists, err := service.elasticClient.Indices.Exists(index.Value).Do(ctx)
 		if err != nil {
 			return merry.Wrap(err)
 		}
 
-		if !indexExists {
-			_, err = service.elasticClient.Indices.Create(index.Value).Do(ctx)
+		if indexExists {
+			_, err = service.elasticClient.Indices.Delete(index.Value).Do(ctx)
 			if err != nil {
 				return err
 			}
+		}
+
+		indexTemplate := &bytes.Buffer{}
+		err = templates.ExecuteTemplate(indexTemplate, "indices.json.tmpl", nil)
+		if err != nil {
+			return merry.Wrap(err)
+		}
+
+		_, err = service.elasticClient.Indices.Create(index.Value).Raw(indexTemplate).Do(ctx)
+		if err != nil {
+			return err
 		}
 	}
 
 	return nil
 }
 
+// ReindexElastic reindexes all data in elastic
+//
+// Please note that this will delete all data in elastic first, then recreate it
+// This may not be what we want in the long term but it works for now, and is simple
 func (service *Service) ReindexElastic(ctx context.Context) error {
-	err := service.ensureElasticIndices(ctx)
+	err := service.resetElasticIndexes(ctx)
 	if err != nil {
 		return err
 	}
@@ -212,7 +228,7 @@ func (service *Service) indexShow(ctx context.Context, id int) error {
 		return err
 	}
 
-	err = indexObjectElastic[int, common.Show](ctx, service, IndexShows, *i, p, service.showToSearchItem)
+	err = indexObjectElastic[int, common.Show](ctx, service.elasticClient, IndexShows, *i, p, service.showToSearchItem)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Could not index show in elastic")
 	}
@@ -241,7 +257,7 @@ func (service *Service) indexSeason(ctx context.Context, id int) error {
 		return err
 	}
 
-	err = indexObjectElastic[int, common.Season](ctx, service, IndexSeasons, *i, p, service.seasonToSearchItem)
+	err = indexObjectElastic[int, common.Season](ctx, service.elasticClient, IndexSeasons, *i, p, service.seasonToSearchItem)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Could not index season in elastic")
 	}
@@ -269,7 +285,7 @@ func (service *Service) indexEpisode(ctx context.Context, id int) error {
 		return err
 	}
 
-	err = indexObjectElastic[int, common.Episode](ctx, service, IndexEpisodes, *i, p, service.episodeToSearchItem)
+	err = indexObjectElastic[int, common.Episode](ctx, service.elasticClient, IndexEpisodes, *i, p, service.episodeToSearchItem)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Could not index episode in elastic")
 	}
@@ -422,7 +438,7 @@ func indexObject[k comparable, t indexable[k]](
 
 func indexObjectElastic[k comparable, t indexable[k]](
 	ctx context.Context,
-	service *Service,
+	elasticClient *elasticsearch.TypedClient,
 	index elasticIndex,
 	obj t,
 	perms *common.Permissions[k],
@@ -436,7 +452,7 @@ func indexObjectElastic[k comparable, t indexable[k]](
 	item.assignVisibility(perms.Availability)
 	item.assignRoles(perms.Roles)
 
-	_, err = service.elasticClient.Index(index.Value).
+	_, err = elasticClient.Index(index.Value).
 		Id(item.ID).
 		Request(item.toSearchObject()).
 		Do(ctx)

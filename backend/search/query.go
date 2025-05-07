@@ -194,10 +194,11 @@ func (service *Service) Search(ctx *gin.Context, query common.SearchQuery, userT
 
 type elasticQueryParams struct {
 	Roles       []string
-	QueryString string
+	QueryString template.HTML
 	Limit       int
 	Offset      int
 	TimeNow     int64
+	Languages   []string
 }
 
 var typeToIndexMap = map[string]string{
@@ -212,12 +213,19 @@ var typeToIndexMap = map[string]string{
 func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, query common.SearchQuery, roles []string, languages []string) (common.SearchResult, error) {
 	now := time.Now().Unix()
 
+	if len(roles) == 0 {
+		// Ensure there is always at least one role, otherwise the part of the query
+		// gets ignored and unwanted results are returned
+		roles = []string{"guest"}
+	}
+
 	templateParams := &elasticQueryParams{
 		Roles:       roles,
-		QueryString: query.Query,
+		QueryString: template.HTML(template.JSEscapeString(query.Query)),
 		TimeNow:     now,
 		Offset:      0,
 		Limit:       hitsPerPage,
+		Languages:   languages,
 	}
 
 	if query.Limit != nil {
@@ -244,6 +252,7 @@ func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, que
 		indexName = typeToIndexMap[*query.Type]
 	}
 
+	//spew.Dump(jsonQuery)
 	qResult, err := client.Search().Index(indexName).Raw(jsonQuery).Do(ctx)
 	if err != nil {
 		log.L.Error().Err(err).Send()
