@@ -28,9 +28,10 @@ func TestMain(m *testing.M) {
 
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
 
-	if false && !elasticTestsEnabled {
+	if !elasticTestsEnabled {
 		return
 	}
+
 	os.Exit(m.Run())
 }
 
