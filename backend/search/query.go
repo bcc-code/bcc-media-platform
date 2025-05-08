@@ -199,6 +199,11 @@ type elasticQueryParams struct {
 	Offset      int
 	TimeNow     int64
 	Languages   []string
+
+	// AuxLanguages allows to search with the non-primary languages with a lower priority.
+	// An example use case is if the user has "BG" as their search language but they search for norwegian words
+	// The order of the languages does not matter
+	AuxLanguages []string
 }
 
 var typeToIndexMap = map[string]string{
@@ -220,12 +225,13 @@ func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, que
 	}
 
 	templateParams := &elasticQueryParams{
-		Roles:       roles,
-		QueryString: template.HTML(template.JSEscapeString(query.Query)),
-		TimeNow:     now,
-		Offset:      0,
-		Limit:       hitsPerPage,
-		Languages:   languages,
+		Roles:        roles,
+		QueryString:  template.HTML(template.JSEscapeString(query.Query)),
+		TimeNow:      now,
+		Offset:       0,
+		Limit:        hitsPerPage,
+		Languages:    languages,
+		AuxLanguages: []string{"no", "de", "en"},
 	}
 
 	if query.Limit != nil {

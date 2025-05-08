@@ -142,6 +142,34 @@
             }
           }
         {{ end }}
+        ,{
+          "multi_match": {
+            "query": "{{ $.QueryString }}",
+            "fields": [
+              {{ range $index, $lang := .AuxLanguages }}
+                {{ if gt $index 0}},{{ end }}
+                "title_{{ $lang }}",
+                "description_{{ $lang }}"
+              {{ end }}
+            ],
+            "fuzziness": "AUTO",
+            "boost": 0.5
+            }
+          },
+          {
+            "multi_match": {
+            "query": "{{ $.QueryString }}",
+            "fields": [
+              "tags",
+              {{ range $index, $lang := .AuxLanguages }}
+                {{ if gt $index 0}},{{ end }}
+                "showTitle_{{ $lang }}"
+              {{ end }}
+            ],
+            "fuzziness": 0,
+            "boost": 0.9
+          }
+        }
       ]
     }
   }

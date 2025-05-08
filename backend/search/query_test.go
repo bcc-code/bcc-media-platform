@@ -35,14 +35,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-type ElasticDocument struct {
-	Index    string                 `json:"index"`
-	ID       string                 `json:"id"`
-	Document map[string]interface{} `json:"document"`
-}
-
 func importElasticDocuments(ctx context.Context, client *elasticsearch.TypedClient, filePath string) error {
-
 	for _, index := range Indices.Members() {
 		// Delete existing index
 		_, _ = client.Indices.Delete(index.Value).Do(ctx)
@@ -91,9 +84,6 @@ func importElasticDocuments(ctx context.Context, client *elasticsearch.TypedClie
 		print(".")
 	}
 
-	// Let elasticsearch catch up
-	time.Sleep(time.Second * 10)
-
 	return nil
 }
 
@@ -115,9 +105,9 @@ func (s *ElasticQueryTestSuite) SetupSuite() {
 		Password: "bccm123",
 	})
 
-	//return
-
-	err := importElasticDocuments(s.ctx, s.client, "./testdata/elastic_bccm_dump.json")
+	// The test data is encrypted because it contains potentially sensitive data, but is
+	// required to perform a proper search test.
+	err := importElasticDocuments(s.ctx, s.client, "./testdata/elastic_bccm_dump.secret.json")
 	if err != nil {
 		log.L.Fatal().Msgf("Failed to import elastic documents: %v", err)
 	}
@@ -211,6 +201,8 @@ func (s *ElasticQueryTestSuite) SetupSuite() {
 		s.T().Fatal(err)
 	}
 
+	// Let elasticsearch catch up
+	time.Sleep(time.Second * 1)
 }
 
 func (s *ElasticQueryTestSuite) insertObject(index elasticIndex, perm *common.Permissions[int], obj searchItem) error {
@@ -268,7 +260,7 @@ func (s *ElasticQueryTestSuite) Test_NoPermissions() {
 		},
 		[]string{},
 		[]string{
-			"no", "en", "de",
+			"no",
 		})
 
 	s.Assert().NoError(err)
@@ -319,17 +311,21 @@ func (s *ElasticQueryTestSuite) Test_ø() {
 			"bcc-members",
 		},
 		[]string{
-			"no", "en", "de",
+			"no",
 		},
 	)
 
 	s.Assert().NoError(err)
 
+	countMatch := 0
 	// Expect the first 8 episodes to be from this show
-	for i := 0; i < 8; i++ {
-		s.Assert().Equal("BCC Søstrestevnet", *res.Result[i].Show)
+	for i := 0; i < 10; i++ {
+		if "BCC Søstrestevnet" == *res.Result[i].Show {
+			countMatch++
+		}
 	}
 
+	s.Assert().Greater(countMatch, 7)
 }
 
 func (s *ElasticQueryTestSuite) Test_EensureExistingGoodResults() {

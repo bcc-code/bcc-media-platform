@@ -1,1 +1,3 @@
 backend/graph/**/*.resolvers.go linguist-generated=false
+
+*.secret.* filter=git-crypt diff=git-crypt

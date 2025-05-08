@@ -28,11 +28,10 @@ services:
       - discovery.type=single-node
       - xpack.security.http.ssl.enabled=false
       - xpack.license.self_generated.type=trial
-      - http.cors.enabled=true 
+      - http.cors.enabled=true
       - http.cors.allow-origin="http://localhost:8080"
       - http.cors.allow-headers=X-Requested-With,Content-Type,Content-Length,Authorization
 
 volumes:
   db-data:
     driver: local
-
