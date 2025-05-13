@@ -1,38 +1,48 @@
 -- name: setDeviceToken :exec
-INSERT INTO users.devices (token, languages, profile_id, updated_at, name)
-VALUES (@token::varchar, @languages::varchar[], @profile_id, @updated_at, @name)
+INSERT INTO users.devices (token, languages, profile_id, updated_at, name, application_group_id)
+VALUES (@token::varchar, @languages::varchar[], @profile_id, @updated_at, @name, @application_group_id)
 ON CONFLICT (token, profile_id) DO UPDATE SET updated_at = EXCLUDED.updated_at,
                                               name       = EXCLUDED.name,
-                                              languages  = EXCLUDED.languages;
+                                              languages  = EXCLUDED.languages,
+                                              application_group_id = EXCLUDED.application_group_id;
 
 -- name: getDevicesForProfiles :many
-SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages
+SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages, d.application_group_id
 FROM users.devices d
 WHERE d.profile_id = ANY ($1::uuid[])
   AND d.updated_at > (NOW() - interval '6 months')
 ORDER BY updated_at DESC;
 
 -- name: listDevicesForRoles :many
-SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages
+SELECT
+    d.token,
+    d.profile_id,
+    d.updated_at,
+    d.name,
+    d.languages::varchar[] AS languages,
+    d.application_group_id
 FROM users.devices d
-WHERE d.profile_id IN (
-    SELECT id FROM users.profiles WHERE
-    applicationgroup_id = @appgroupid::uuid
-    AND user_id IN  (SELECT id FROM users.users WHERE roles && @roles::varchar[])
-) AND d.updated_at > (NOW() - interval '6 months')
-ORDER BY updated_at DESC;
+         LEFT JOIN users.profiles p ON d.profile_id = p.id
+         LEFT JOIN users.users u ON p.user_id = u.id
+WHERE
+    d.application_group_id = @appgroupid::uuid
+  AND (
+    (u.roles && @roles::varchar[] AND d.profile_id IS NOT NULL)
+        OR ('public' = ANY(@roles::varchar[]) AND d.profile_id IS NULL)
+    )
+  AND d.updated_at > (NOW() - INTERVAL '6 months')
+ORDER BY d.updated_at DESC;
 
 -- name: listDevices :many
-SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages
+SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages, d.application_group_id
 FROM users.devices d
 WHERE d.updated_at > (NOW() - interval '6 months')
 ORDER BY updated_at DESC;
 
 -- name: ListDevicesInApplicationGroup :many
-SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages
+SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages, d.application_group_id
 FROM users.devices d
-         JOIN users.profiles p ON p.id = d.profile_id
-WHERE p.applicationgroup_id = @group_id::uuid;
+WHERE d.application_group_id = @group_id::uuid;
 
 -- name: DeleteDevices :exec
 DELETE

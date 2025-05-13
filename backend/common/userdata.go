@@ -16,7 +16,7 @@ type Profile struct {
 // Device is a profile-linked device with a token for notifications
 type Device struct {
 	Token     string
-	ProfileID uuid.UUID
+	ProfileID uuid.NullUUID
 	UpdatedAt time.Time
 	Name      string
 	Languages []string
