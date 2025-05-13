@@ -1,10 +1,11 @@
 -- +goose Up
-alter table users.devices
-alter column profile_id
-drop not null;
 
 alter table users.devices
 drop constraint devices_pk;
+
+alter table users.devices
+    alter column profile_id
+        drop not null;
 
 alter table users.devices add constraint devices_pk primary key (token);
 
