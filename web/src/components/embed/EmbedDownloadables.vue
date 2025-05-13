@@ -232,17 +232,21 @@ const downloadFile = () => {
             </div>
         </TransitionGroup>
         <ModalBase v-model:visible="showTerms">
-            <div class="bg-background rounded-lg p-4 flex flex-col">
+            <div
+                class="bg-background border-2 border-separator-on-light rounded-lg p-4 flex flex-col"
+            >
                 <div>
-                    <h3>{{ t('footer.termsOfUse') }}</h3>
+                    <h3 class="text-lg font-bold">
+                        {{ t('footer.termsOfUse') }}
+                    </h3>
                     <div
-                        class="terms"
+                        class="terms my-2"
                         v-html="
                             mdToHTML(t('terms.byDownloadingYouAcceptTerms'))
                         "
                     ></div>
                 </div>
-                <div class="flex gap-2 ml-auto">
+                <div class="flex gap-2 ml-auto mt-2">
                     <button
                         class="bg-primary-light px-4 py-2 rounded-md"
                         :class="{
@@ -270,6 +274,10 @@ const downloadFile = () => {
 </template>
 <style>
 div.terms a {
-    color: var(--color-tint-1);
+    color: rgba(var(--color-tint-1));
+}
+
+div.terms a:hover {
+    text-decoration: underline;
 }
 </style>
