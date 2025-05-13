@@ -38,12 +38,20 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 	if err != nil {
 		return nil, err
 	}
+
+	app, err := applications.GetFromCtx(ginCtx)
+	if err != nil {
+		return nil, err
+	}
+
 	profile := user.GetProfileFromCtx(ginCtx)
-	if profile == nil {
-		return nil, merry.New(
-			"profile is null",
-			merry.WithUserMessage("device must be connected to a profile, which is not supported by anonymous accounts"),
-		)
+	profileID := uuid.NullUUID{}
+
+	if profile != nil {
+		profileID = uuid.NullUUID{
+			UUID:  profile.ID,
+			Valid: true,
+		}
 	}
 
 	for i := 0; i < len(languages); i++ {
@@ -57,7 +65,7 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 
 	d := common.Device{
 		Token:     token,
-		ProfileID: profile.ID,
+		ProfileID: profileID,
 		Name:      "default",
 		UpdatedAt: time.Now(),
 		Languages: languages,
@@ -314,7 +322,7 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 			Str("answerID", selectedUUIDs[0].String()).
 			Bool("correct", correct).
 			Msg("Submitting answer to BMM")
-			err = r.BMMClient.SubmitAnswer(task.ID.String(), correct, selectedUUIDs[0].String(), personID)
+		err = r.BMMClient.SubmitAnswer(task.ID.String(), correct, selectedUUIDs[0].String(), personID)
 
 		if err != nil {
 			log.L.Error().Err(err).Msg("Error submitting answer to BMM")
