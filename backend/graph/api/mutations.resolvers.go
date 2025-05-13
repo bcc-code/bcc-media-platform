@@ -64,11 +64,12 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 	}
 
 	d := common.Device{
-		Token:     token,
-		ProfileID: profileID,
-		Name:      "default",
-		UpdatedAt: time.Now(),
-		Languages: languages,
+		Token:              token,
+		ProfileID:          profileID,
+		Name:               "default",
+		UpdatedAt:          time.Now(),
+		Languages:          languages,
+		ApplicationGroupID: app.GroupID,
 	}
 
 	err = r.Queries.SaveDevice(ginCtx, d)

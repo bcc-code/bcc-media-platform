@@ -15,11 +15,12 @@ type Profile struct {
 
 // Device is a profile-linked device with a token for notifications
 type Device struct {
-	Token     string
-	ProfileID uuid.NullUUID
-	UpdatedAt time.Time
-	Name      string
-	Languages []string
+	Token              string
+	ProfileID          uuid.NullUUID
+	UpdatedAt          time.Time
+	Name               string
+	Languages          []string
+	ApplicationGroupID uuid.UUID
 }
 
 // UserCollection is a collection created by a user
