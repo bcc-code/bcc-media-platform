@@ -1898,6 +1898,7 @@ type UsersDevice struct {
 	UpdatedAt          time.Time     `db:"updated_at" json:"updatedAt"`
 	Name               string        `db:"name" json:"name"`
 	Languages          []string      `db:"languages" json:"languages"`
+	ID                 uuid.UUID     `db:"id" json:"id"`
 	ApplicationGroupID uuid.UUID     `db:"application_group_id" json:"applicationGroupId"`
 }
 
