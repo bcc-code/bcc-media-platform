@@ -230,7 +230,7 @@ func (q *Queries) listDevicesForRoles(ctx context.Context, arg listDevicesForRol
 const setDeviceToken = `-- name: setDeviceToken :exec
 INSERT INTO users.devices (token, languages, profile_id, updated_at, name, application_group_id)
 VALUES ($1::varchar, $2::varchar[], $3, $4, $5, $6)
-ON CONFLICT (token, profile_id) DO UPDATE SET updated_at = EXCLUDED.updated_at,
+ON CONFLICT (token, application_group_id) DO UPDATE SET updated_at = EXCLUDED.updated_at,
                                               name       = EXCLUDED.name,
                                               languages  = EXCLUDED.languages,
                                               application_group_id = EXCLUDED.application_group_id
