@@ -39,7 +39,7 @@ const cancel = () => {
                 leave-from="opacity-100"
                 leave-to="opacity-0"
             >
-                <div class="fixed inset-0 bg-black/30" aria-hidden="true"></div>
+                <div class="fixed inset-0 bg-black/50" aria-hidden="true"></div>
             </TransitionChild>
             <!-- Full-screen container to center the panel -->
             <div class="fixed inset-0 flex items-center justify-center p-4">

@@ -108,7 +108,8 @@ watch(
     ([shows, episodes]) => {
         showCount.value = shows ?? 0
         episodeCount.value = episodes ?? 0
-    }
+    },
+    { immediate: true }
 )
 </script>
 <template>
