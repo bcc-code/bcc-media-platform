@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const deleteDevices = `-- name: DeleteDevices :exec
@@ -25,18 +26,27 @@ func (q *Queries) DeleteDevices(ctx context.Context, tokens []string) error {
 }
 
 const listDevicesInApplicationGroup = `-- name: ListDevicesInApplicationGroup :many
-SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages, d.application_group_id
+SELECT d.token,
+       d.profile_id,
+       d.updated_at,
+       d.name,
+       d.languages::varchar[] as languages,
+       d.application_group_id,
+       d.os,
+       d.app_build_number
 FROM users.devices d
 WHERE d.application_group_id = $1::uuid
 `
 
 type ListDevicesInApplicationGroupRow struct {
-	Token              string        `db:"token" json:"token"`
-	ProfileID          uuid.NullUUID `db:"profile_id" json:"profileId"`
-	UpdatedAt          time.Time     `db:"updated_at" json:"updatedAt"`
-	Name               string        `db:"name" json:"name"`
-	Languages          []string      `db:"languages" json:"languages"`
-	ApplicationGroupID uuid.UUID     `db:"application_group_id" json:"applicationGroupId"`
+	Token              string         `db:"token" json:"token"`
+	ProfileID          uuid.NullUUID  `db:"profile_id" json:"profileId"`
+	UpdatedAt          time.Time      `db:"updated_at" json:"updatedAt"`
+	Name               string         `db:"name" json:"name"`
+	Languages          []string       `db:"languages" json:"languages"`
+	ApplicationGroupID uuid.UUID      `db:"application_group_id" json:"applicationGroupId"`
+	Os                 null_v4.String `db:"os" json:"os"`
+	AppBuildNumber     int32          `db:"app_build_number" json:"appBuildNumber"`
 }
 
 func (q *Queries) ListDevicesInApplicationGroup(ctx context.Context, groupID uuid.UUID) ([]ListDevicesInApplicationGroupRow, error) {
@@ -55,6 +65,8 @@ func (q *Queries) ListDevicesInApplicationGroup(ctx context.Context, groupID uui
 			&i.Name,
 			pq.Array(&i.Languages),
 			&i.ApplicationGroupID,
+			&i.Os,
+			&i.AppBuildNumber,
 		); err != nil {
 			return nil, err
 		}
@@ -70,7 +82,7 @@ func (q *Queries) ListDevicesInApplicationGroup(ctx context.Context, groupID uui
 }
 
 const getDevicesForProfiles = `-- name: getDevicesForProfiles :many
-SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages, d.application_group_id
+SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages, d.application_group_id, d.os, d.app_build_number
 FROM users.devices d
 WHERE d.profile_id = ANY ($1::uuid[])
   AND d.updated_at > (NOW() - interval '6 months')
@@ -78,12 +90,14 @@ ORDER BY updated_at DESC
 `
 
 type getDevicesForProfilesRow struct {
-	Token              string        `db:"token" json:"token"`
-	ProfileID          uuid.NullUUID `db:"profile_id" json:"profileId"`
-	UpdatedAt          time.Time     `db:"updated_at" json:"updatedAt"`
-	Name               string        `db:"name" json:"name"`
-	Languages          []string      `db:"languages" json:"languages"`
-	ApplicationGroupID uuid.UUID     `db:"application_group_id" json:"applicationGroupId"`
+	Token              string         `db:"token" json:"token"`
+	ProfileID          uuid.NullUUID  `db:"profile_id" json:"profileId"`
+	UpdatedAt          time.Time      `db:"updated_at" json:"updatedAt"`
+	Name               string         `db:"name" json:"name"`
+	Languages          []string       `db:"languages" json:"languages"`
+	ApplicationGroupID uuid.UUID      `db:"application_group_id" json:"applicationGroupId"`
+	Os                 null_v4.String `db:"os" json:"os"`
+	AppBuildNumber     int32          `db:"app_build_number" json:"appBuildNumber"`
 }
 
 func (q *Queries) getDevicesForProfiles(ctx context.Context, dollar_1 []uuid.UUID) ([]getDevicesForProfilesRow, error) {
@@ -102,6 +116,8 @@ func (q *Queries) getDevicesForProfiles(ctx context.Context, dollar_1 []uuid.UUI
 			&i.Name,
 			pq.Array(&i.Languages),
 			&i.ApplicationGroupID,
+			&i.Os,
+			&i.AppBuildNumber,
 		); err != nil {
 			return nil, err
 		}
@@ -117,19 +133,24 @@ func (q *Queries) getDevicesForProfiles(ctx context.Context, dollar_1 []uuid.UUI
 }
 
 const listDevices = `-- name: listDevices :many
-SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages, d.application_group_id
+SELECT d.token, d.profile_id,
+       d.updated_at, d.name,
+       d.languages::varchar[] as languages, d.application_group_id,
+       d.os, d.app_build_number
 FROM users.devices d
 WHERE d.updated_at > (NOW() - interval '6 months')
 ORDER BY updated_at DESC
 `
 
 type listDevicesRow struct {
-	Token              string        `db:"token" json:"token"`
-	ProfileID          uuid.NullUUID `db:"profile_id" json:"profileId"`
-	UpdatedAt          time.Time     `db:"updated_at" json:"updatedAt"`
-	Name               string        `db:"name" json:"name"`
-	Languages          []string      `db:"languages" json:"languages"`
-	ApplicationGroupID uuid.UUID     `db:"application_group_id" json:"applicationGroupId"`
+	Token              string         `db:"token" json:"token"`
+	ProfileID          uuid.NullUUID  `db:"profile_id" json:"profileId"`
+	UpdatedAt          time.Time      `db:"updated_at" json:"updatedAt"`
+	Name               string         `db:"name" json:"name"`
+	Languages          []string       `db:"languages" json:"languages"`
+	ApplicationGroupID uuid.UUID      `db:"application_group_id" json:"applicationGroupId"`
+	Os                 null_v4.String `db:"os" json:"os"`
+	AppBuildNumber     int32          `db:"app_build_number" json:"appBuildNumber"`
 }
 
 func (q *Queries) listDevices(ctx context.Context) ([]listDevicesRow, error) {
@@ -148,6 +169,8 @@ func (q *Queries) listDevices(ctx context.Context) ([]listDevicesRow, error) {
 			&i.Name,
 			pq.Array(&i.Languages),
 			&i.ApplicationGroupID,
+			&i.Os,
+			&i.AppBuildNumber,
 		); err != nil {
 			return nil, err
 		}
@@ -169,7 +192,9 @@ SELECT
     d.updated_at,
     d.name,
     d.languages::varchar[] AS languages,
-    d.application_group_id
+    d.application_group_id,
+    d.os,
+    d.app_build_number
 FROM users.devices d
          LEFT JOIN users.profiles p ON d.profile_id = p.id
          LEFT JOIN users.users u ON p.user_id = u.id
@@ -189,12 +214,14 @@ type listDevicesForRolesParams struct {
 }
 
 type listDevicesForRolesRow struct {
-	Token              string        `db:"token" json:"token"`
-	ProfileID          uuid.NullUUID `db:"profile_id" json:"profileId"`
-	UpdatedAt          time.Time     `db:"updated_at" json:"updatedAt"`
-	Name               string        `db:"name" json:"name"`
-	Languages          []string      `db:"languages" json:"languages"`
-	ApplicationGroupID uuid.UUID     `db:"application_group_id" json:"applicationGroupId"`
+	Token              string         `db:"token" json:"token"`
+	ProfileID          uuid.NullUUID  `db:"profile_id" json:"profileId"`
+	UpdatedAt          time.Time      `db:"updated_at" json:"updatedAt"`
+	Name               string         `db:"name" json:"name"`
+	Languages          []string       `db:"languages" json:"languages"`
+	ApplicationGroupID uuid.UUID      `db:"application_group_id" json:"applicationGroupId"`
+	Os                 null_v4.String `db:"os" json:"os"`
+	AppBuildNumber     int32          `db:"app_build_number" json:"appBuildNumber"`
 }
 
 func (q *Queries) listDevicesForRoles(ctx context.Context, arg listDevicesForRolesParams) ([]listDevicesForRolesRow, error) {
@@ -213,6 +240,8 @@ func (q *Queries) listDevicesForRoles(ctx context.Context, arg listDevicesForRol
 			&i.Name,
 			pq.Array(&i.Languages),
 			&i.ApplicationGroupID,
+			&i.Os,
+			&i.AppBuildNumber,
 		); err != nil {
 			return nil, err
 		}
@@ -228,21 +257,25 @@ func (q *Queries) listDevicesForRoles(ctx context.Context, arg listDevicesForRol
 }
 
 const setDeviceToken = `-- name: setDeviceToken :exec
-INSERT INTO users.devices (token, languages, profile_id, updated_at, name, application_group_id)
-VALUES ($1::varchar, $2::varchar[], $3, $4, $5, $6)
-ON CONFLICT (token, profile_id) DO UPDATE SET updated_at = EXCLUDED.updated_at,
+INSERT INTO users.devices (token, languages, profile_id, updated_at, name, application_group_id, os, app_build_number)
+VALUES ($1::varchar, $2::varchar[], $3, $4, $5, $6, $7, $8)
+ON CONFLICT (token, application_group_id) DO UPDATE SET updated_at = EXCLUDED.updated_at,
                                               name       = EXCLUDED.name,
                                               languages  = EXCLUDED.languages,
-                                              application_group_id = EXCLUDED.application_group_id
+                                              application_group_id = EXCLUDED.application_group_id,
+                                              os = EXCLUDED.os,
+                                              app_build_number = EXCLUDED.app_build_number
 `
 
 type setDeviceTokenParams struct {
-	Token              string        `db:"token" json:"token"`
-	Languages          []string      `db:"languages" json:"languages"`
-	ProfileID          uuid.NullUUID `db:"profile_id" json:"profileId"`
-	UpdatedAt          time.Time     `db:"updated_at" json:"updatedAt"`
-	Name               string        `db:"name" json:"name"`
-	ApplicationGroupID uuid.UUID     `db:"application_group_id" json:"applicationGroupId"`
+	Token              string         `db:"token" json:"token"`
+	Languages          []string       `db:"languages" json:"languages"`
+	ProfileID          uuid.NullUUID  `db:"profile_id" json:"profileId"`
+	UpdatedAt          time.Time      `db:"updated_at" json:"updatedAt"`
+	Name               string         `db:"name" json:"name"`
+	ApplicationGroupID uuid.UUID      `db:"application_group_id" json:"applicationGroupId"`
+	Os                 null_v4.String `db:"os" json:"os"`
+	AppVersion         int32          `db:"app_version" json:"appVersion"`
 }
 
 func (q *Queries) setDeviceToken(ctx context.Context, arg setDeviceTokenParams) error {
@@ -253,6 +286,8 @@ func (q *Queries) setDeviceToken(ctx context.Context, arg setDeviceTokenParams) 
 		arg.UpdatedAt,
 		arg.Name,
 		arg.ApplicationGroupID,
+		arg.Os,
+		arg.AppVersion,
 	)
 	return err
 }

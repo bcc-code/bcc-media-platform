@@ -1,5 +1,7 @@
 type MutationRoot {
     setDevicePushToken(token: String!, languages: [String!]!): Device
+    setDevicePushTokenV2(token: String!, languages: [String!]!, os: OS!, appBuildNumber: Int!): Device
+
     setEpisodeProgress(id: ID!, progress: Int, duration: Int, context: EpisodeContext): Episode!
 
     setShortProgress(id: UUID!, progress: Float, duration: Float): Short!
@@ -35,6 +37,13 @@ type MutationRoot {
 
     subscribe(topic: SubscriptionTopic!): Boolean!
     unsubscribe(topic: SubscriptionTopic!): Boolean!
+}
+
+enum OS {
+    iOS
+    Android
+    iPadOS
+    tvOS
 }
 
 enum SubscriptionTopic {

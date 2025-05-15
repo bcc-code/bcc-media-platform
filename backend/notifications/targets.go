@@ -18,10 +18,14 @@ func (u *Utils) ResolveTargets(ctx context.Context, applicationGroupID uuid.UUID
 
 	var devices []common.Device
 	for _, t := range targetRows {
-		target := common.Target(t)
-		if target.Type != common.TargetTypeUsergroups {
-			continue
-		}
+		target := common.Target{}
+		target.FromGetTargetsRow(t)
+
+		u.queries.ListDevicesForTarget(
+			ctx,
+			applicationGroupID,
+			target.ID,
+		)
 
 		ds, err := u.queries.ListDevicesForRoles(ctx,
 			applicationGroupID,

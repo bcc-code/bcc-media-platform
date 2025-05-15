@@ -1,6 +1,7 @@
 package common
 
 import (
+	"gopkg.in/guregu/null.v4"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,6 +22,8 @@ type Device struct {
 	Name               string
 	Languages          []string
 	ApplicationGroupID uuid.UUID
+	Os                 null.String
+	AppBuildNumber     int32
 }
 
 // UserCollection is a collection created by a user
