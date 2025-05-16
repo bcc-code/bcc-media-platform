@@ -4,6 +4,7 @@ VALUES (@token::varchar, @languages::varchar[], @profile_id, @updated_at, @name,
 ON CONFLICT (token, application_group_id) DO UPDATE SET updated_at = EXCLUDED.updated_at,
                                               name       = EXCLUDED.name,
                                               languages  = EXCLUDED.languages,
+                                              profile_id = EXCLUDED.profile_id,
                                               application_group_id = EXCLUDED.application_group_id;
 
 -- name: getDevicesForProfiles :many

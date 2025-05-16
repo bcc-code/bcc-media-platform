@@ -233,6 +233,7 @@ VALUES ($1::varchar, $2::varchar[], $3, $4, $5, $6)
 ON CONFLICT (token, application_group_id) DO UPDATE SET updated_at = EXCLUDED.updated_at,
                                               name       = EXCLUDED.name,
                                               languages  = EXCLUDED.languages,
+                                              profile_id = EXCLUDED.profile_id,
                                               application_group_id = EXCLUDED.application_group_id
 `
 
