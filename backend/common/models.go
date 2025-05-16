@@ -103,9 +103,15 @@ const TargetTypeUsergroups = "usergroups"
 
 // Target specific groups
 type Target struct {
-	ID         uuid.UUID
-	Type       string
-	GroupCodes []string
+	ID                  uuid.UUID
+	Type                string
+	GroupCodes          []string
+	ApplicationBuildMax null.Int
+	ApplicationBuildMin null.Int
+	InactiveDaysMin     null.Int
+	InactiveDaysMax     null.Int
+	DeviceOs            []string
+	Languages           []string
 }
 
 // Progress contains basic data for progress

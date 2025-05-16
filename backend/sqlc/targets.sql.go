@@ -7,9 +7,12 @@ package sqlc
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	"github.com/sqlc-dev/pqtype"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const getMemberIDs = `-- name: GetMemberIDs :many
@@ -42,34 +45,55 @@ func (q *Queries) GetMemberIDs(ctx context.Context, everyone bool) ([]string, er
 	return items, nil
 }
 
-const getTargets = `-- name: GetTargets :many
-WITH groups AS (SELECT targets_id, array_agg(usergroups_code)::varchar[] as codes
-                FROM targets_usergroups
-                GROUP BY targets_id)
-SELECT t.id,
-       t.type,
+const getTargets = `-- name: getTargets :many
+WITH groups AS (
+    SELECT targets_id, array_agg(usergroups_code)::varchar[] as codes
+    FROM targets_usergroups
+    GROUP BY targets_id
+)
+SELECT t.id, t.label, t.type, t.date_updated, t.application_minimum_build_number, t.application_maximum_build_number, t.inactive_days_max, t.inactive_days_min, t.languages, t.device_os,
        g.codes AS group_codes
 FROM targets t
          LEFT JOIN groups g ON g.targets_id = t.id
 WHERE id = ANY ($1::uuid[])
 `
 
-type GetTargetsRow struct {
-	ID         uuid.UUID `db:"id" json:"id"`
-	Type       string    `db:"type" json:"type"`
-	GroupCodes []string  `db:"group_codes" json:"groupCodes"`
+type getTargetsRow struct {
+	ID                            uuid.UUID             `db:"id" json:"id"`
+	Label                         null_v4.String        `db:"label" json:"label"`
+	Type                          string                `db:"type" json:"type"`
+	DateUpdated                   time.Time             `db:"date_updated" json:"dateUpdated"`
+	ApplicationMinimumBuildNumber null_v4.Int           `db:"application_minimum_build_number" json:"applicationMinimumBuildNumber"`
+	ApplicationMaximumBuildNumber null_v4.Int           `db:"application_maximum_build_number" json:"applicationMaximumBuildNumber"`
+	InactiveDaysMax               null_v4.Int           `db:"inactive_days_max" json:"inactiveDaysMax"`
+	InactiveDaysMin               null_v4.Int           `db:"inactive_days_min" json:"inactiveDaysMin"`
+	Languages                     pqtype.NullRawMessage `db:"languages" json:"languages"`
+	DeviceOs                      pqtype.NullRawMessage `db:"device_os" json:"deviceOs"`
+	GroupCodes                    []string              `db:"group_codes" json:"groupCodes"`
 }
 
-func (q *Queries) GetTargets(ctx context.Context, dollar_1 []uuid.UUID) ([]GetTargetsRow, error) {
+func (q *Queries) getTargets(ctx context.Context, dollar_1 []uuid.UUID) ([]getTargetsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getTargets, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetTargetsRow
+	var items []getTargetsRow
 	for rows.Next() {
-		var i GetTargetsRow
-		if err := rows.Scan(&i.ID, &i.Type, pq.Array(&i.GroupCodes)); err != nil {
+		var i getTargetsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Label,
+			&i.Type,
+			&i.DateUpdated,
+			&i.ApplicationMinimumBuildNumber,
+			&i.ApplicationMaximumBuildNumber,
+			&i.InactiveDaysMax,
+			&i.InactiveDaysMin,
+			&i.Languages,
+			&i.DeviceOs,
+			pq.Array(&i.GroupCodes),
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

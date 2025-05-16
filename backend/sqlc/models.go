@@ -1747,10 +1747,16 @@ type TagsTranslation struct {
 }
 
 type Target struct {
-	ID          uuid.UUID      `db:"id" json:"id"`
-	Label       null_v4.String `db:"label" json:"label"`
-	Type        string         `db:"type" json:"type"`
-	DateUpdated time.Time      `db:"date_updated" json:"dateUpdated"`
+	ID                            uuid.UUID             `db:"id" json:"id"`
+	Label                         null_v4.String        `db:"label" json:"label"`
+	Type                          string                `db:"type" json:"type"`
+	DateUpdated                   time.Time             `db:"date_updated" json:"dateUpdated"`
+	ApplicationMinimumBuildNumber null_v4.Int           `db:"application_minimum_build_number" json:"applicationMinimumBuildNumber"`
+	ApplicationMaximumBuildNumber null_v4.Int           `db:"application_maximum_build_number" json:"applicationMaximumBuildNumber"`
+	InactiveDaysMax               null_v4.Int           `db:"inactive_days_max" json:"inactiveDaysMax"`
+	InactiveDaysMin               null_v4.Int           `db:"inactive_days_min" json:"inactiveDaysMin"`
+	Languages                     pqtype.NullRawMessage `db:"languages" json:"languages"`
+	DeviceOs                      pqtype.NullRawMessage `db:"device_os" json:"deviceOs"`
 }
 
 type TargetsUsergroup struct {
@@ -1893,13 +1899,15 @@ type UsersCollectionentry struct {
 }
 
 type UsersDevice struct {
-	Token              string        `db:"token" json:"token"`
-	ProfileID          uuid.NullUUID `db:"profile_id" json:"profileId"`
-	UpdatedAt          time.Time     `db:"updated_at" json:"updatedAt"`
-	Name               string        `db:"name" json:"name"`
-	Languages          []string      `db:"languages" json:"languages"`
-	ID                 uuid.UUID     `db:"id" json:"id"`
-	ApplicationGroupID uuid.UUID     `db:"application_group_id" json:"applicationGroupId"`
+	Token              string         `db:"token" json:"token"`
+	ProfileID          uuid.NullUUID  `db:"profile_id" json:"profileId"`
+	UpdatedAt          time.Time      `db:"updated_at" json:"updatedAt"`
+	Name               string         `db:"name" json:"name"`
+	Languages          []string       `db:"languages" json:"languages"`
+	ID                 uuid.UUID      `db:"id" json:"id"`
+	ApplicationGroupID uuid.UUID      `db:"application_group_id" json:"applicationGroupId"`
+	Os                 null_v4.String `db:"os" json:"os"`
+	AppBuildNumber     int32          `db:"app_build_number" json:"appBuildNumber"`
 }
 
 type UsersMediaProgress struct {
