@@ -1,9 +1,6 @@
 package common
 
 import (
-	"encoding/json"
-	"github.com/bcc-code/bcc-media-platform/backend/log"
-	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"time"
 
 	"github.com/google/uuid"
@@ -109,42 +106,12 @@ type Target struct {
 	ID                  uuid.UUID
 	Type                string
 	GroupCodes          []string
-	ApplicationBuildMax int32
-	ApplicationBuildMin int32
-	InactiveDaysMin     int32
-	InactiveDaysMax     int32
+	ApplicationBuildMax null.Int
+	ApplicationBuildMin null.Int
+	InactiveDaysMin     null.Int
+	InactiveDaysMax     null.Int
 	DeviceOs            []string
 	Languages           []string
-}
-
-func (t *Target) FromGetTargetsRow(row sqlc.GetTargetsRow) {
-	t.ID = row.ID
-	t.Type = row.Type
-	t.GroupCodes = row.GroupCodes
-	t.ApplicationBuildMin = row.ApplicationMinimumBuildNumber
-	t.ApplicationBuildMax = row.ApplicationMaximumBuildNumber
-	t.InactiveDaysMin = row.InactiveDaysMin
-	t.InactiveDaysMax = row.InactiveDaysMax
-
-	var deviceOs []string
-	var languages []string
-
-	if row.DeviceOs.Valid {
-		err := json.Unmarshal(row.DeviceOs.RawMessage, &deviceOs)
-		if err != nil {
-			log.L.Warn().Err(err).Msg("Failed to unmarshal deviceOs")
-		}
-	}
-
-	if row.Languages.Valid {
-		err := json.Unmarshal(row.Languages.RawMessage, &languages)
-		if err != nil {
-			log.L.Warn().Err(err).Msg("Failed to unmarshal languages")
-		}
-	}
-
-	t.DeviceOs = deviceOs
-	t.Languages = languages
 }
 
 // Progress contains basic data for progress

@@ -45,7 +45,7 @@ func (q *Queries) GetMemberIDs(ctx context.Context, everyone bool) ([]string, er
 	return items, nil
 }
 
-const getTargets = `-- name: GetTargets :many
+const getTargets = `-- name: getTargets :many
 WITH groups AS (
     SELECT targets_id, array_agg(usergroups_code)::varchar[] as codes
     FROM targets_usergroups
@@ -58,7 +58,7 @@ FROM targets t
 WHERE id = ANY ($1::uuid[])
 `
 
-type GetTargetsRow struct {
+type getTargetsRow struct {
 	ID                            uuid.UUID             `db:"id" json:"id"`
 	Label                         null_v4.String        `db:"label" json:"label"`
 	Type                          string                `db:"type" json:"type"`
@@ -72,15 +72,15 @@ type GetTargetsRow struct {
 	GroupCodes                    []string              `db:"group_codes" json:"groupCodes"`
 }
 
-func (q *Queries) GetTargets(ctx context.Context, dollar_1 []uuid.UUID) ([]GetTargetsRow, error) {
+func (q *Queries) getTargets(ctx context.Context, dollar_1 []uuid.UUID) ([]getTargetsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getTargets, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetTargetsRow
+	var items []getTargetsRow
 	for rows.Next() {
-		var i GetTargetsRow
+		var i getTargetsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Label,

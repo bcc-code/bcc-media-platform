@@ -79,12 +79,12 @@ func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string,
 					return err
 				}
 			} else {
-				var rows []sqlc.ListDevicesInApplicationGroupRow
+				var rows []sqlc.UsersDevice
 				rows, err = h.queries.ListDevicesInApplicationGroup(ctx, n.ApplicationGroupID)
 				if err != nil {
 					return err
 				}
-				devices = lo.Map(rows, func(r sqlc.ListDevicesInApplicationGroupRow, _ int) common.Device {
+				devices = lo.Map(rows, func(r sqlc.UsersDevice, _ int) common.Device {
 					return common.Device(r)
 				})
 			}

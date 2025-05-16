@@ -1,4 +1,4 @@
--- name: GetTargets :many
+-- name: getTargets :many
 WITH groups AS (
     SELECT targets_id, array_agg(usergroups_code)::varchar[] as codes
     FROM targets_usergroups

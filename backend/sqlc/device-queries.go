@@ -17,6 +17,8 @@ func (q *Queries) SaveDevice(ctx context.Context, device common.Device) error {
 		Name:               device.Name,
 		Languages:          device.Languages,
 		ApplicationGroupID: device.ApplicationGroupID,
+		Os:                 device.Os,
+		AppVersion:         device.AppBuildNumber,
 	})
 }
 
@@ -26,7 +28,7 @@ func (q *Queries) GetDevices(ctx context.Context, profileIDs []uuid.UUID) ([]com
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(devices, func(i getDevicesForProfilesRow, _ int) common.Device {
+	return lo.Map(devices, func(i UsersDevice, _ int) common.Device {
 		return common.Device(i)
 	}), nil
 }
@@ -37,7 +39,7 @@ func (q *Queries) ListDevices(ctx context.Context) ([]common.Device, error) {
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(devices, func(i listDevicesRow, _ int) common.Device {
+	return lo.Map(devices, func(i UsersDevice, _ int) common.Device {
 		return common.Device(i)
 	}), nil
 }
@@ -51,7 +53,7 @@ func (q *Queries) ListDevicesForRoles(ctx context.Context, applicationID uuid.UU
 		return nil, err
 	}
 
-	return lo.Map(devices, func(i listDevicesForRolesRow, _ int) common.Device {
+	return lo.Map(devices, func(i UsersDevice, _ int) common.Device {
 		return common.Device(i)
 	}), nil
 }

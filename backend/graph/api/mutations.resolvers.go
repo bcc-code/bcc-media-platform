@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -35,6 +34,12 @@ func (r *addToCollectionResultResolver) Collection(ctx context.Context, obj *mod
 
 // SetDevicePushToken is the resolver for the setDevicePushToken field.
 func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token string, languages []string) (*model.Device, error) {
+	// For backwards compatibility
+	return r.SetDevicePushTokenV2(ctx, token, languages, model.OsUnknown, 0)
+}
+
+// SetDevicePushTokenV2 is the resolver for the setDevicePushTokenV2 field.
+func (r *mutationRootResolver) SetDevicePushTokenV2(ctx context.Context, token string, languages []string, os model.Os, appBuildNumber int) (*model.Device, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -71,6 +76,8 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 		UpdatedAt:          time.Now(),
 		Languages:          languages,
 		ApplicationGroupID: app.GroupID,
+		Os:                 null.StringFrom(os.String()),
+		AppBuildNumber:     int32(appBuildNumber),
 	}
 
 	err = r.Queries.SaveDevice(ginCtx, d)
@@ -81,11 +88,6 @@ func (r *mutationRootResolver) SetDevicePushToken(ctx context.Context, token str
 		Token:     d.Token,
 		UpdatedAt: d.UpdatedAt.Format(time.RFC3339),
 	}, nil
-}
-
-// SetDevicePushTokenV2 is the resolver for the setDevicePushTokenV2 field.
-func (r *mutationRootResolver) SetDevicePushTokenV2(ctx context.Context, token string, languages []string, os model.Os, appBuildNumber int) (*model.Device, error) {
-	panic(fmt.Errorf("not implemented: SetDevicePushTokenV2 - setDevicePushTokenV2"))
 }
 
 // SetEpisodeProgress is the resolver for the episodeProgress field.

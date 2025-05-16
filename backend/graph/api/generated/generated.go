@@ -6610,7 +6610,7 @@ type Message {
 }
 `, BuiltIn: false},
 	{Name: "../schema/mutations.graphqls", Input: `type MutationRoot {
-    setDevicePushToken(token: String!, languages: [String!]!): Device
+    setDevicePushToken(token: String!, languages: [String!]!): Device @deprecated(reason: "Use setDevicePushTokenV2 instead")
     setDevicePushTokenV2(token: String!, languages: [String!]!, os: OS!, appBuildNumber: Int!): Device
 
     setEpisodeProgress(id: ID!, progress: Int, duration: Int, context: EpisodeContext): Episode!
@@ -6655,6 +6655,7 @@ enum OS {
     Android
     iPadOS
     tvOS
+    unknown
 }
 
 enum SubscriptionTopic {

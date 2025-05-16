@@ -21,6 +21,7 @@ type Device struct {
 	UpdatedAt          time.Time
 	Name               string
 	Languages          []string
+	ID                 uuid.UUID
 	ApplicationGroupID uuid.UUID
 	Os                 null.String
 	AppBuildNumber     int32

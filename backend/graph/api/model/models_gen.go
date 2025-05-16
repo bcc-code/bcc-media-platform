@@ -1839,6 +1839,7 @@ const (
 	OsAndroid Os = "Android"
 	OsIPadOs  Os = "iPadOS"
 	OsTvOs    Os = "tvOS"
+	OsUnknown Os = "unknown"
 )
 
 var AllOs = []Os{
@@ -1846,11 +1847,12 @@ var AllOs = []Os{
 	OsAndroid,
 	OsIPadOs,
 	OsTvOs,
+	OsUnknown,
 }
 
 func (e Os) IsValid() bool {
 	switch e {
-	case OsIOs, OsAndroid, OsIPadOs, OsTvOs:
+	case OsIOs, OsAndroid, OsIPadOs, OsTvOs, OsUnknown:
 		return true
 	}
 	return false
