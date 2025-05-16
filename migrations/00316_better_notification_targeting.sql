@@ -1,8 +1,8 @@
 -- +goose Up
-/**********************************************************/
-/*** SCRIPT AUTHOR: Matjaz Debelak (matjaz@debelak.org) ***/
-/***    CREATED ON: 2025-05-15T08:54:37.378Z            ***/
-/**********************************************************/
+/*************************************************************/
+/*** SCRIPT AUTHOR: Matjaz Debelak (matjaz.debelak@bcc.no) ***/
+/***        CREATED ON: 2025-05-15T08:54:37.378Z           ***/
+/*************************************************************/
 
 ALTER TABLE IF EXISTS "public"."targets" ADD COLUMN IF NOT EXISTS "application_minimum_build_number" int4;
 ALTER TABLE IF EXISTS "public"."targets" ADD COLUMN IF NOT EXISTS "application_maximum_build_number" int4;
@@ -18,10 +18,16 @@ INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", 
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display", "display_options", "readonly", "hidden", "sort", "width", "translations", "note", "conditions", "required", "group", "validation", "validation_message")  VALUES (3058, 'targets', 'languages', 'cast-json', 'select-multiple-checkbox', '{"choices":[{"text":"German","value":"de"},{"text":"English","value":"en"},{"text":"Spanish","value":"es"},{"text":"Finnish","value":"fi"},{"text":"French","value":"fr"},{"text":"Hungarian","value":"hu"},{"text":"Italian","value":"it"},{"text":"Dutch","value":"nl"},{"text":"Norwegian","value":"no"},{"text":"Polish","value":"pl"},{"text":"Portuguese","value":"pt"},{"text":"Romanian","value":"ro"},{"text":"Russian","value":"ru"},{"text":"Slovenian","value":"sl"},{"text":"Turkish","value":"tr"},{"text":"Danish","value":"da"},{"text":"Bulgarian","value":"bg"}],"itemsShown":20}', 'labels', NULL, false, false, 10, 'full', NULL, 'If nothing is selected the message will be sent to all languages', NULL, true, NULL, NULL, NULL);
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display", "display_options", "readonly", "hidden", "sort", "width", "translations", "note", "conditions", "required", "group", "validation", "validation_message")  VALUES (3059, 'targets', 'device_os', 'cast-json', 'select-multiple-checkbox', '{"choices":[{"text":"iOs","value":"ios"},{"text":"tvOS","value":"tvos"},{"text":"Android","value":"android"}]}', NULL, NULL, false, false, 11, 'full', NULL, NULL, NULL, true, NULL, NULL, NULL);
 
-SELECT setval(pg_get_serial_sequence('"public"."directus_fields"', 'id'), max("id"), true) FROM "public"."directus_fields";
+-- Some changes to above inserts lines
+UPDATE "public"."directus_fields" SET "note" = 'Users Build Number >= This value', "required" = false WHERE "id" = 3049;
+UPDATE "public"."directus_fields" SET "note" = 'Users Build Number =< This value', "required" = false WHERE "id" = 3051;
+UPDATE "public"."directus_fields" SET "required" = false WHERE "id" = 3053;
+UPDATE "public"."directus_fields" SET "required" = false WHERE "id" = 3052;
 
 ALTER TABLE users.devices ADD os TEXT;
 ALTER TABLE users.devices ADD app_build_number INTEGER NOT NULl DEFAULT -1;
+
+SELECT setval(pg_get_serial_sequence('"public"."directus_fields"', 'id'), max("id"), true) FROM "public"."directus_fields";
 
 -- +goose Down
 
@@ -31,7 +37,6 @@ ALTER TABLE IF EXISTS "public"."targets" DROP COLUMN IF EXISTS "inactive_days_ma
 ALTER TABLE IF EXISTS "public"."targets" DROP COLUMN IF EXISTS "inactive_days_min" CASCADE; --WARN: Drop column can occure in data loss!
 ALTER TABLE IF EXISTS "public"."targets" DROP COLUMN IF EXISTS "languages" CASCADE; --WARN: Drop column can occure in data loss!
 ALTER TABLE IF EXISTS "public"."targets" DROP COLUMN IF EXISTS "device_os" CASCADE; --WARN: Drop column can occure in data loss!
-
 
 DELETE FROM "public"."directus_fields" WHERE "id" = 3049;
 DELETE FROM "public"."directus_fields" WHERE "id" = 3051;
