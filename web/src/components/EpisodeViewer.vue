@@ -112,6 +112,7 @@ const load = async () => {
             videojs: {
                 autoplay: props.autoPlay,
                 playbackRates: [0.75, 1, 1.5, 1.75, 2],
+                aspectRatio: '16:9',
             },
             onProgress(currentTime, duration, player) {
                 onVideoProgress(currentTime, duration, player)
