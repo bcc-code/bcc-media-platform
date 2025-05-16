@@ -5,6 +5,7 @@ ON CONFLICT (token, application_group_id) DO UPDATE SET updated_at = EXCLUDED.up
                                               name       = EXCLUDED.name,
                                               languages  = EXCLUDED.languages,
                                               application_group_id = EXCLUDED.application_group_id,
+                                              profile_id = EXCLUDED.profile_id,
                                               os = EXCLUDED.os,
                                               app_build_number = EXCLUDED.app_build_number;
 

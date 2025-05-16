@@ -11,11 +11,12 @@ import (
 // SaveDevice saves the specified device to database, keyed by token and profileId
 func (q *Queries) SaveDevice(ctx context.Context, device common.Device) error {
 	return q.setDeviceToken(ctx, setDeviceTokenParams{
-		Token:     device.Token,
-		ProfileID: device.ProfileID,
-		UpdatedAt: device.UpdatedAt,
-		Name:      device.Name,
-		Languages: device.Languages,
+		Token:              device.Token,
+		ProfileID:          device.ProfileID,
+		UpdatedAt:          device.UpdatedAt,
+		Name:               device.Name,
+		Languages:          device.Languages,
+		ApplicationGroupID: device.ApplicationGroupID,
 	})
 }
 
