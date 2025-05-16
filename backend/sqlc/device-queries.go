@@ -18,7 +18,7 @@ func (q *Queries) SaveDevice(ctx context.Context, device common.Device) error {
 		Languages:          device.Languages,
 		ApplicationGroupID: device.ApplicationGroupID,
 		Os:                 device.Os,
-		AppVersion:         device.AppBuildNumber,
+		AppBuildNumber:     device.AppBuildNumber,
 	})
 }
 

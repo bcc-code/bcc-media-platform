@@ -1,6 +1,6 @@
 -- name: setDeviceToken :exec
 INSERT INTO users.devices (token, languages, profile_id, updated_at, name, application_group_id, os, app_build_number)
-VALUES (@token::varchar, @languages::varchar[], @profile_id, @updated_at, @name, @application_group_id, @os, @app_version)
+VALUES (@token::varchar, @languages::varchar[], @profile_id, @updated_at, @name, @application_group_id, @os, @app_build_number)
 ON CONFLICT (token, application_group_id) DO UPDATE SET updated_at = EXCLUDED.updated_at,
                                               name       = EXCLUDED.name,
                                               languages  = EXCLUDED.languages,

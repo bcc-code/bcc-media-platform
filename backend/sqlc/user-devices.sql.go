@@ -267,7 +267,7 @@ type setDeviceTokenParams struct {
 	Name               string         `db:"name" json:"name"`
 	ApplicationGroupID uuid.UUID      `db:"application_group_id" json:"applicationGroupId"`
 	Os                 null_v4.String `db:"os" json:"os"`
-	AppVersion         int32          `db:"app_version" json:"appVersion"`
+	AppBuildNumber     int32          `db:"app_build_number" json:"appBuildNumber"`
 }
 
 func (q *Queries) setDeviceToken(ctx context.Context, arg setDeviceTokenParams) error {
@@ -279,7 +279,7 @@ func (q *Queries) setDeviceToken(ctx context.Context, arg setDeviceTokenParams) 
 		arg.Name,
 		arg.ApplicationGroupID,
 		arg.Os,
-		arg.AppVersion,
+		arg.AppBuildNumber,
 	)
 	return err
 }
