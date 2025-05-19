@@ -16,7 +16,11 @@ func (u *Utils) ResolveTargets(ctx context.Context, applicationGroupID uuid.UUID
 
 	var devices []common.Device
 	for _, t := range targetIDs {
-		ds, err := u.queries.GetSegmentedDevicesForTarget(ctx, t)
+		ds, err := u.queries.GetSegmentedDevicesForTarget(ctx,
+			sqlc.GetSegmentedDevicesForTargetParams{
+				TargetID:           t,
+				ApplicationgroupID: applicationGroupID,
+			})
 		if err != nil {
 			return nil, err
 		}

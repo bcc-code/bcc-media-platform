@@ -29,20 +29,48 @@ const getSegmentedDevicesForTarget = `-- name: GetSegmentedDevicesForTarget :man
 WITH t as (SELECT
                int4range(application_minimum_build_number, application_maximum_build_number, '[]') AS build_range,
                int4range(inactive_days_min, inactive_days_max, '[]') as inactive_range,
-               device_os, languages
-           FROM targets
-           WHERE id = $1::uuid)
-SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages, d.id, d.application_group_id, d.os, d.app_build_number FROM users.devices d , t
+               device_os, languages, (SELECT array_agg(usergroups_code) FROM targets_usergroups WHERE targets_id = $2) usergroups
+           FROM targets t
+           WHERE t.id = $2)
+SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages, d.id, d.application_group_id, d.os, d.app_build_number FROM users.devices d
+                  CROSS JOIN t
+                  LEFT JOIN users.profiles p ON d.profile_id = p.id
+                  LEFT JOIN users.users u ON p.user_id = u.id
 WHERE
     (
-        (to_jsonb(d.os) <@ t.device_os OR jsonb_array_length(t.device_os ) = 0)
-            AND (d.app_build_number <@ t.build_range OR t.build_range IS NULL)
-            AND (date_part('day', now() - d.updated_at)::int <@ t.inactive_range OR t.inactive_range IS NULL)
-        )
+        (
+            -- Filter by roles. If profile is not available, filter by public role
+               u.roles && t.usergroups AND d.profile_id IS NOT NULL)
+            OR ('public' = ANY(t.usergroups) AND d.profile_id IS NULL)
+
+        ) AND (
+            -- Filter out stuff that has not been updated in the last 6 months
+            d.updated_at > (NOW() - INTERVAL '6 months')
+
+        -- OS filter. If no OS is specified, we don't filter
+        AND (to_jsonb(d.os) <@ t.device_os OR jsonb_array_length(t.device_os) = 0)
+
+        -- Build number filter. If the min and max are NULL then the filter == (-INF, +INF)
+        AND (d.app_build_number <@ t.build_range OR t.build_range IS NULL)
+
+        -- Inactive days. If the min and max are NULL then the filter == (-INF, +INF)
+        AND (date_part('day', now() - d.updated_at)::int <@ t.inactive_range OR t.inactive_range IS NULL)
+
+        -- Language filter. If languages are not specified, we don't filter
+        AND (to_jsonb(d.languages) <@ t.languages OR jsonb_array_length(t.languages) = 0)
+
+        -- Filter by application group, otherwise we sent all notifications to all apps
+        AND d.application_group_id = $1
+    )
 `
 
-func (q *Queries) GetSegmentedDevicesForTarget(ctx context.Context, targetID uuid.UUID) ([]UsersDevice, error) {
-	rows, err := q.db.QueryContext(ctx, getSegmentedDevicesForTarget, targetID)
+type GetSegmentedDevicesForTargetParams struct {
+	ApplicationgroupID uuid.UUID `db:"applicationgroup_id" json:"applicationgroupId"`
+	TargetID           uuid.UUID `db:"target_id" json:"targetId"`
+}
+
+func (q *Queries) GetSegmentedDevicesForTarget(ctx context.Context, arg GetSegmentedDevicesForTargetParams) ([]UsersDevice, error) {
+	rows, err := q.db.QueryContext(ctx, getSegmentedDevicesForTarget, arg.ApplicationgroupID, arg.TargetID)
 	if err != nil {
 		return nil, err
 	}
