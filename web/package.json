@@ -71,7 +71,7 @@
         "ts-node": "^10.9.2",
         "typescript": "^5.5.4",
         "typescript-eslint": "^8.1.0",
-        "vite": "^5.4.0",
+        "vite": "^5.4.19",
         "vue-tsc": "https://pkg.pr.new/vuejs/language-tools/vue-tsc@3fb59af"
     },
     "packageManager": "pnpm@9.7.1"
