@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const deleteDevices = `-- name: DeleteDevices :exec
@@ -24,37 +25,80 @@ func (q *Queries) DeleteDevices(ctx context.Context, tokens []string) error {
 	return err
 }
 
-const listDevicesInApplicationGroup = `-- name: ListDevicesInApplicationGroup :many
-SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages, d.application_group_id
-FROM users.devices d
-WHERE d.application_group_id = $1::uuid
+const getSegmentedDevicesForTarget = `-- name: GetSegmentedDevicesForTarget :many
+WITH t as (SELECT
+               int4range(application_minimum_build_number, application_maximum_build_number, '[]') AS build_range,
+               int4range(inactive_days_min, inactive_days_max, '[]') as inactive_range,
+               device_os, languages
+           FROM targets
+           WHERE id = $1::uuid)
+SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages, d.id, d.application_group_id, d.os, d.app_build_number FROM users.devices d , t
+WHERE
+    (
+        (to_jsonb(d.os) <@ t.device_os OR jsonb_array_length(t.device_os ) = 0)
+            AND (d.app_build_number <@ t.build_range OR t.build_range IS NULL)
+            AND (date_part('day', now() - d.updated_at)::int <@ t.inactive_range OR t.inactive_range IS NULL)
+        )
 `
 
-type ListDevicesInApplicationGroupRow struct {
-	Token              string        `db:"token" json:"token"`
-	ProfileID          uuid.NullUUID `db:"profile_id" json:"profileId"`
-	UpdatedAt          time.Time     `db:"updated_at" json:"updatedAt"`
-	Name               string        `db:"name" json:"name"`
-	Languages          []string      `db:"languages" json:"languages"`
-	ApplicationGroupID uuid.UUID     `db:"application_group_id" json:"applicationGroupId"`
-}
-
-func (q *Queries) ListDevicesInApplicationGroup(ctx context.Context, groupID uuid.UUID) ([]ListDevicesInApplicationGroupRow, error) {
-	rows, err := q.db.QueryContext(ctx, listDevicesInApplicationGroup, groupID)
+func (q *Queries) GetSegmentedDevicesForTarget(ctx context.Context, targetID uuid.UUID) ([]UsersDevice, error) {
+	rows, err := q.db.QueryContext(ctx, getSegmentedDevicesForTarget, targetID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListDevicesInApplicationGroupRow
+	var items []UsersDevice
 	for rows.Next() {
-		var i ListDevicesInApplicationGroupRow
+		var i UsersDevice
 		if err := rows.Scan(
 			&i.Token,
 			&i.ProfileID,
 			&i.UpdatedAt,
 			&i.Name,
 			pq.Array(&i.Languages),
+			&i.ID,
 			&i.ApplicationGroupID,
+			&i.Os,
+			&i.AppBuildNumber,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listDevicesInApplicationGroup = `-- name: ListDevicesInApplicationGroup :many
+SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages, d.id, d.application_group_id, d.os, d.app_build_number
+FROM users.devices d
+WHERE d.application_group_id = $1::uuid
+`
+
+func (q *Queries) ListDevicesInApplicationGroup(ctx context.Context, groupID uuid.UUID) ([]UsersDevice, error) {
+	rows, err := q.db.QueryContext(ctx, listDevicesInApplicationGroup, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []UsersDevice
+	for rows.Next() {
+		var i UsersDevice
+		if err := rows.Scan(
+			&i.Token,
+			&i.ProfileID,
+			&i.UpdatedAt,
+			&i.Name,
+			pq.Array(&i.Languages),
+			&i.ID,
+			&i.ApplicationGroupID,
+			&i.Os,
+			&i.AppBuildNumber,
 		); err != nil {
 			return nil, err
 		}
@@ -70,38 +114,32 @@ func (q *Queries) ListDevicesInApplicationGroup(ctx context.Context, groupID uui
 }
 
 const getDevicesForProfiles = `-- name: getDevicesForProfiles :many
-SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages, d.application_group_id
+SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages, d.id, d.application_group_id, d.os, d.app_build_number
 FROM users.devices d
 WHERE d.profile_id = ANY ($1::uuid[])
   AND d.updated_at > (NOW() - interval '6 months')
 ORDER BY updated_at DESC
 `
 
-type getDevicesForProfilesRow struct {
-	Token              string        `db:"token" json:"token"`
-	ProfileID          uuid.NullUUID `db:"profile_id" json:"profileId"`
-	UpdatedAt          time.Time     `db:"updated_at" json:"updatedAt"`
-	Name               string        `db:"name" json:"name"`
-	Languages          []string      `db:"languages" json:"languages"`
-	ApplicationGroupID uuid.UUID     `db:"application_group_id" json:"applicationGroupId"`
-}
-
-func (q *Queries) getDevicesForProfiles(ctx context.Context, dollar_1 []uuid.UUID) ([]getDevicesForProfilesRow, error) {
+func (q *Queries) getDevicesForProfiles(ctx context.Context, dollar_1 []uuid.UUID) ([]UsersDevice, error) {
 	rows, err := q.db.QueryContext(ctx, getDevicesForProfiles, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []getDevicesForProfilesRow
+	var items []UsersDevice
 	for rows.Next() {
-		var i getDevicesForProfilesRow
+		var i UsersDevice
 		if err := rows.Scan(
 			&i.Token,
 			&i.ProfileID,
 			&i.UpdatedAt,
 			&i.Name,
 			pq.Array(&i.Languages),
+			&i.ID,
 			&i.ApplicationGroupID,
+			&i.Os,
+			&i.AppBuildNumber,
 		); err != nil {
 			return nil, err
 		}
@@ -117,37 +155,31 @@ func (q *Queries) getDevicesForProfiles(ctx context.Context, dollar_1 []uuid.UUI
 }
 
 const listDevices = `-- name: listDevices :many
-SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages::varchar[] as languages, d.application_group_id
+SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages, d.id, d.application_group_id, d.os, d.app_build_number
 FROM users.devices d
 WHERE d.updated_at > (NOW() - interval '6 months')
 ORDER BY updated_at DESC
 `
 
-type listDevicesRow struct {
-	Token              string        `db:"token" json:"token"`
-	ProfileID          uuid.NullUUID `db:"profile_id" json:"profileId"`
-	UpdatedAt          time.Time     `db:"updated_at" json:"updatedAt"`
-	Name               string        `db:"name" json:"name"`
-	Languages          []string      `db:"languages" json:"languages"`
-	ApplicationGroupID uuid.UUID     `db:"application_group_id" json:"applicationGroupId"`
-}
-
-func (q *Queries) listDevices(ctx context.Context) ([]listDevicesRow, error) {
+func (q *Queries) listDevices(ctx context.Context) ([]UsersDevice, error) {
 	rows, err := q.db.QueryContext(ctx, listDevices)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []listDevicesRow
+	var items []UsersDevice
 	for rows.Next() {
-		var i listDevicesRow
+		var i UsersDevice
 		if err := rows.Scan(
 			&i.Token,
 			&i.ProfileID,
 			&i.UpdatedAt,
 			&i.Name,
 			pq.Array(&i.Languages),
+			&i.ID,
 			&i.ApplicationGroupID,
+			&i.Os,
+			&i.AppBuildNumber,
 		); err != nil {
 			return nil, err
 		}
@@ -163,13 +195,7 @@ func (q *Queries) listDevices(ctx context.Context) ([]listDevicesRow, error) {
 }
 
 const listDevicesForRoles = `-- name: listDevicesForRoles :many
-SELECT
-    d.token,
-    d.profile_id,
-    d.updated_at,
-    d.name,
-    d.languages::varchar[] AS languages,
-    d.application_group_id
+SELECT d.token, d.profile_id, d.updated_at, d.name, d.languages, d.id, d.application_group_id, d.os, d.app_build_number
 FROM users.devices d
          LEFT JOIN users.profiles p ON d.profile_id = p.id
          LEFT JOIN users.users u ON p.user_id = u.id
@@ -188,31 +214,25 @@ type listDevicesForRolesParams struct {
 	Roles      []string  `db:"roles" json:"roles"`
 }
 
-type listDevicesForRolesRow struct {
-	Token              string        `db:"token" json:"token"`
-	ProfileID          uuid.NullUUID `db:"profile_id" json:"profileId"`
-	UpdatedAt          time.Time     `db:"updated_at" json:"updatedAt"`
-	Name               string        `db:"name" json:"name"`
-	Languages          []string      `db:"languages" json:"languages"`
-	ApplicationGroupID uuid.UUID     `db:"application_group_id" json:"applicationGroupId"`
-}
-
-func (q *Queries) listDevicesForRoles(ctx context.Context, arg listDevicesForRolesParams) ([]listDevicesForRolesRow, error) {
+func (q *Queries) listDevicesForRoles(ctx context.Context, arg listDevicesForRolesParams) ([]UsersDevice, error) {
 	rows, err := q.db.QueryContext(ctx, listDevicesForRoles, arg.Appgroupid, pq.Array(arg.Roles))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []listDevicesForRolesRow
+	var items []UsersDevice
 	for rows.Next() {
-		var i listDevicesForRolesRow
+		var i UsersDevice
 		if err := rows.Scan(
 			&i.Token,
 			&i.ProfileID,
 			&i.UpdatedAt,
 			&i.Name,
 			pq.Array(&i.Languages),
+			&i.ID,
 			&i.ApplicationGroupID,
+			&i.Os,
+			&i.AppBuildNumber,
 		); err != nil {
 			return nil, err
 		}
@@ -228,22 +248,26 @@ func (q *Queries) listDevicesForRoles(ctx context.Context, arg listDevicesForRol
 }
 
 const setDeviceToken = `-- name: setDeviceToken :exec
-INSERT INTO users.devices (token, languages, profile_id, updated_at, name, application_group_id)
-VALUES ($1::varchar, $2::varchar[], $3, $4, $5, $6)
+INSERT INTO users.devices (token, languages, profile_id, updated_at, name, application_group_id, os, app_build_number)
+VALUES ($1::varchar, $2::varchar[], $3, $4, $5, $6, $7, $8)
 ON CONFLICT (token, application_group_id) DO UPDATE SET updated_at = EXCLUDED.updated_at,
                                               name       = EXCLUDED.name,
                                               languages  = EXCLUDED.languages,
+                                              application_group_id = EXCLUDED.application_group_id,
                                               profile_id = EXCLUDED.profile_id,
-                                              application_group_id = EXCLUDED.application_group_id
+                                              os = EXCLUDED.os,
+                                              app_build_number = EXCLUDED.app_build_number
 `
 
 type setDeviceTokenParams struct {
-	Token              string        `db:"token" json:"token"`
-	Languages          []string      `db:"languages" json:"languages"`
-	ProfileID          uuid.NullUUID `db:"profile_id" json:"profileId"`
-	UpdatedAt          time.Time     `db:"updated_at" json:"updatedAt"`
-	Name               string        `db:"name" json:"name"`
-	ApplicationGroupID uuid.UUID     `db:"application_group_id" json:"applicationGroupId"`
+	Token              string         `db:"token" json:"token"`
+	Languages          []string       `db:"languages" json:"languages"`
+	ProfileID          uuid.NullUUID  `db:"profile_id" json:"profileId"`
+	UpdatedAt          time.Time      `db:"updated_at" json:"updatedAt"`
+	Name               string         `db:"name" json:"name"`
+	ApplicationGroupID uuid.UUID      `db:"application_group_id" json:"applicationGroupId"`
+	Os                 null_v4.String `db:"os" json:"os"`
+	AppBuildNumber     int32          `db:"app_build_number" json:"appBuildNumber"`
 }
 
 func (q *Queries) setDeviceToken(ctx context.Context, arg setDeviceTokenParams) error {
@@ -254,6 +278,8 @@ func (q *Queries) setDeviceToken(ctx context.Context, arg setDeviceTokenParams) 
 		arg.UpdatedAt,
 		arg.Name,
 		arg.ApplicationGroupID,
+		arg.Os,
+		arg.AppBuildNumber,
 	)
 	return err
 }

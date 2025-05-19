@@ -1563,7 +1563,7 @@ func (e AchievementsSource) String() string {
 	return string(e)
 }
 
-func (e *AchievementsSource) UnmarshalGQL(v interface{}) error {
+func (e *AchievementsSource) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1604,7 +1604,7 @@ func (e CardSectionSize) String() string {
 	return string(e)
 }
 
-func (e *CardSectionSize) UnmarshalGQL(v interface{}) error {
+func (e *CardSectionSize) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1645,7 +1645,7 @@ func (e EpisodeType) String() string {
 	return string(e)
 }
 
-func (e *EpisodeType) UnmarshalGQL(v interface{}) error {
+func (e *EpisodeType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1688,7 +1688,7 @@ func (e Gender) String() string {
 	return string(e)
 }
 
-func (e *Gender) UnmarshalGQL(v interface{}) error {
+func (e *Gender) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1727,7 +1727,7 @@ func (e GridSectionSize) String() string {
 	return string(e)
 }
 
-func (e *GridSectionSize) UnmarshalGQL(v interface{}) error {
+func (e *GridSectionSize) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1770,7 +1770,7 @@ func (e ImageStyle) String() string {
 	return string(e)
 }
 
-func (e *ImageStyle) UnmarshalGQL(v interface{}) error {
+func (e *ImageStyle) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1815,7 +1815,7 @@ func (e LinkType) String() string {
 	return string(e)
 }
 
-func (e *LinkType) UnmarshalGQL(v interface{}) error {
+func (e *LinkType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1829,6 +1829,53 @@ func (e *LinkType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e LinkType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type Os string
+
+const (
+	OsIOs     Os = "iOS"
+	OsAndroid Os = "Android"
+	OsIPadOs  Os = "iPadOS"
+	OsTvOs    Os = "tvOS"
+	OsUnknown Os = "unknown"
+)
+
+var AllOs = []Os{
+	OsIOs,
+	OsAndroid,
+	OsIPadOs,
+	OsTvOs,
+	OsUnknown,
+}
+
+func (e Os) IsValid() bool {
+	switch e {
+	case OsIOs, OsAndroid, OsIPadOs, OsTvOs, OsUnknown:
+		return true
+	}
+	return false
+}
+
+func (e Os) String() string {
+	return string(e)
+}
+
+func (e *Os) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Os(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OS", str)
+	}
+	return nil
+}
+
+func (e Os) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -1856,7 +1903,7 @@ func (e SectionSize) String() string {
 	return string(e)
 }
 
-func (e *SectionSize) UnmarshalGQL(v interface{}) error {
+func (e *SectionSize) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1899,7 +1946,7 @@ func (e ShareRestriction) String() string {
 	return string(e)
 }
 
-func (e *ShareRestriction) UnmarshalGQL(v interface{}) error {
+func (e *ShareRestriction) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1940,7 +1987,7 @@ func (e ShowType) String() string {
 	return string(e)
 }
 
-func (e *ShowType) UnmarshalGQL(v interface{}) error {
+func (e *ShowType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1981,7 +2028,7 @@ func (e Status) String() string {
 	return string(e)
 }
 
-func (e *Status) UnmarshalGQL(v interface{}) error {
+func (e *Status) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2024,7 +2071,7 @@ func (e StreamType) String() string {
 	return string(e)
 }
 
-func (e *StreamType) UnmarshalGQL(v interface{}) error {
+func (e *StreamType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2063,7 +2110,7 @@ func (e SubscriptionTopic) String() string {
 	return string(e)
 }
 
-func (e *SubscriptionTopic) UnmarshalGQL(v interface{}) error {
+func (e *SubscriptionTopic) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
