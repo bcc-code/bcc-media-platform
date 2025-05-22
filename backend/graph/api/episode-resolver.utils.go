@@ -261,6 +261,23 @@ func (r *episodeResolver) getRelatedEpisodeIDs(ctx context.Context, episodeID st
 	if err != nil {
 		return nil, err
 	}
+
+	tags := episode.TagIDs
+
+	if len(tags) == 0 {
+		season, err := r.Loaders.SeasonLoader.Get(ctx, int(episode.SeasonID.Int64))
+		if err != nil || season == nil {
+			return nil, err
+		}
+
+		show, err := r.Loaders.ShowLoader.Get(ctx, season.ShowID)
+		if err != nil || show == nil {
+			return nil, err
+		}
+
+		tags = show.TagIDs
+	}
+
 	episodeGroupIDs, err := r.GetFilteredLoaders(ctx).TagEpisodesLoader.GetMany(ctx, episode.TagIDs)
 	if err != nil {
 		return nil, err
