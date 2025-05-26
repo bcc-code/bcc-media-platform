@@ -42,7 +42,7 @@ WHERE
             -- Filter by roles. If profile is not available, filter by public role
                u.roles && t.usergroups AND d.profile_id IS NOT NULL)
             OR ('public' = ANY(t.usergroups) AND d.profile_id IS NULL)
-
+            OR t.usergroups IS NULL -- If no usergroups are specified, we send to everyone
         ) AND (
             -- Filter out stuff that has not been updated in the last 6 months
             d.updated_at > (NOW() - INTERVAL '6 months')
