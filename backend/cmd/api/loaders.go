@@ -89,9 +89,6 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		SectionsLoader:          loaders.NewRelationLoader(ctx, rq.GetSectionIDsForPagesWithRoles, loaders.WithName("sections")),
 		EpisodesLoader:          loaders.NewRelationLoader(ctx, rq.GetEpisodeIDsForSeasonsWithRoles, loaders.WithName("episodes")),
 		TagEpisodesLoader:       loaders.NewRelationLoader(ctx, rq.GetEpisodeIDsWithTagIDs, loaders.WithName("tags-episodes")),
-		CollectionItemsLoader: loaders.NewListLoader(ctx, rq.GetItemsForCollectionsWithRoles, func(i common.CollectionItem) int {
-			return i.CollectionID
-		}, loaders.WithName("collection-items")),
 		CollectionItemIDsLoader: collection.NewCollectionItemLoaderWithNoLanguageFilter(ctx, db, collectionLoader, roles),
 		CalendarEntryLoader:     loaders.New(ctx, rq.GetCalendarEntries, loaders.WithMemoryCache(time.Minute*5)),
 		StudyTopicFilterLoader:  loaders.NewFilterLoader(ctx, rq.GetTopicIDsWithRoles, loaders.WithName("study-topic-filter")),

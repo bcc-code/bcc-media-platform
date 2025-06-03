@@ -114,7 +114,6 @@ type LoadersWithPermissions struct {
 	ShowFilterLoader             *loaders.Loader[int, *int]
 	ShowUUIDFilterLoader         *loaders.Loader[uuid.UUID, *uuid.UUID]
 	SectionsLoader               *loaders.Loader[int, []*int]
-	CollectionItemsLoader        *loaders.Loader[int, []*CollectionItem]
 	CollectionItemIDsLoader      *loaders.Loader[int, []Identifier]
 	CalendarEntryLoader          *loaders.Loader[int, *CalendarEntry]
 	StudyTopicFilterLoader       *loaders.Loader[uuid.UUID, *uuid.UUID]

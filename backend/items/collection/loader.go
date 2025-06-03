@@ -109,7 +109,6 @@ func GetBaseCollectionEntries(
 	switch col.Type {
 	case "select":
 		items, err := personalizedLoaders.CollectionItemsLoader.Get(ctx, col.ID)
-		// items, err := filteredLoaders.CollectionItemsLoader.Get(ctx, col.ID)
 		if err != nil {
 			return nil, err
 		}
