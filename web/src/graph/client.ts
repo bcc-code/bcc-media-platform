@@ -6,6 +6,7 @@ import { current } from '@/services/language'
 import { currentApp as currentApp } from '@/services/app'
 import { webViewMain } from '@/services/webviews/mainHandler'
 import { getFeatureFlags } from '@/services/feature-flags'
+import { useSearch } from '@/utils/search'
 
 const authExchangeFunction = async (
     utils: AuthUtilities
@@ -32,6 +33,8 @@ const authExchangeFunction = async (
     }
 }
 
+const { searchSessionId, sessionId } = useSearch()
+
 export default createClient({
     url: config.api.url + '/query',
     fetchOptions: () => {
@@ -43,6 +46,13 @@ export default createClient({
         const featureFlags = getFeatureFlags()
         if (featureFlags) {
             headers['X-Feature-Flags'] = featureFlags
+        }
+
+        if (sessionId) {
+            headers['X-Session-Id'] = sessionId
+        }
+        if (searchSessionId.value) {
+            headers['X-Search-Session-Id'] = searchSessionId.value
         }
 
         return { headers }

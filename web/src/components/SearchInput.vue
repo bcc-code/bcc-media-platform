@@ -68,12 +68,12 @@ const cancel = () => {
             :placeholder="t('page.search')"
             @keydown.enter="emit('keydown.enter')"
         />
-        <p
+        <button
             v-if="value"
-            class="absolute flex right-2 ml-10 px-2 inset-y-2 cursor-pointer text-xs opacity-50 bg-slate-700 rounded-full"
+            class="absolute flex right-2 ml-10 px-2 inset-y-2 cursor-pointer text-xs opacity-50 bg-slate-700 rounded-full focus-visible:ring-2 focus-visible:ring-white/75"
             @click="cancel"
         >
             <span class="my-auto uppercase">{{ t('search.cancel') }}</span>
-        </p>
+        </button>
     </div>
 </template>

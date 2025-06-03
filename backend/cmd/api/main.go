@@ -225,6 +225,8 @@ func main() {
 			"x-api-key",
 			"x-application",
 			"x-feature-flags",
+			"x-session-id",
+			"x-search-session-id",
 		},
 		AllowCredentials: true,
 	}))
