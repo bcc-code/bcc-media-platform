@@ -22,7 +22,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/ansel1/merry/v2"
-	"github.com/bcc-code/bcc-media-platform/backend/applications"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/export/sqlexport"
 	"github.com/bcc-code/bcc-media-platform/backend/items/collection"
@@ -63,7 +62,8 @@ type CDNConfig interface {
 type serviceProvider interface {
 	GetQueries() *sqlc.Queries
 	GetLoaders() *common.BatchLoaders
-	GetFilteredLoaders(ctx context.Context) *common.FilteredLoaders
+	GetFilteredLoaders(ctx context.Context) *common.LoadersWithPermissions
+	GetPersonalizedLoaders(ctx context.Context) *common.PersonalizedLoaders
 	GetS3Client() *s3.Client
 	GetURLSigner() *signing.Signer
 	GetCDNConfig() CDNConfig
@@ -308,7 +308,7 @@ func exportStreams(ctx context.Context, q serviceProvider, liteQueries *sqlexpor
 }
 
 func exportCurrentApplication(ctx *gin.Context, liteQueries *sqlexport.Queries) error {
-	app, err := applications.GetFromCtx(ctx)
+	app, err := common.GetApplicationFromCtx(ctx)
 	if err != nil {
 		return err
 	}
@@ -407,6 +407,7 @@ type collectionEntry struct {
 
 func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries, collectionIDs []int) error {
 	filteredLoaders := q.GetFilteredLoaders(ctx)
+	personalizedLoaders := q.GetPersonalizedLoaders(ctx)
 	collections, err := q.GetLoaders().CollectionLoader.GetMany(ctx, collectionIDs)
 	if err != nil {
 		return merry.Wrap(err)
@@ -416,7 +417,7 @@ func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqle
 		if c == nil {
 			continue
 		}
-		entries, err := collection.GetBaseCollectionEntries(ctx, q.GetLoaders(), filteredLoaders, c.ID)
+		entries, err := collection.GetBaseCollectionEntries(ctx, q.GetLoaders(), filteredLoaders, personalizedLoaders, c.ID)
 		if err != nil {
 			return merry.Wrap(err)
 		}

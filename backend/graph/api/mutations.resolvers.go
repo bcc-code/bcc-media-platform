@@ -11,7 +11,6 @@ import (
 
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/achievements"
-	"github.com/bcc-code/bcc-media-platform/backend/applications"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/email"
@@ -45,7 +44,7 @@ func (r *mutationRootResolver) SetDevicePushTokenV2(ctx context.Context, token s
 		return nil, err
 	}
 
-	app, err := applications.GetFromCtx(ginCtx)
+	app, err := common.GetApplicationFromCtx(ginCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -225,7 +224,7 @@ func (r *mutationRootResolver) SendSupportEmail(ctx context.Context, title strin
 		n = u.DisplayName
 	}
 
-	app, err := applications.GetFromCtx(ginCtx)
+	app, err := common.GetApplicationFromCtx(ginCtx)
 	if err != nil {
 		return false, err
 	}

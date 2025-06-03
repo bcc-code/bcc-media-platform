@@ -101,8 +101,8 @@ type BatchLoaders struct {
 	ContributionsLoader             *loaders.Loader[int32, *Contribution]
 }
 
-// FilteredLoaders contains loaders that will be filtered by permissions.
-type FilteredLoaders struct {
+// LoadersWithPermissions contains loaders that will be filtered by permissions.
+type LoadersWithPermissions struct {
 	Key string
 
 	EpisodeFilterLoader          *loaders.Loader[int, *int]
@@ -138,6 +138,18 @@ type FilteredLoaders struct {
 	FAQCategoryIDsLoader  func(ctx context.Context) ([]uuid.UUID, error)
 	ShortIDsLoader        func(ctx context.Context) ([][]uuid.UUID, error)
 	ShortWithScoresLoader func(ctx context.Context) ([]ShortIDWithMeta, error)
+}
+
+// PersonalizedLoaders contains loaders that are personalized to the user
+//
+// This includes things like permissions, settings, langauges, etc
+type PersonalizedLoaders struct {
+	// TODO: consider making this private, and have a method that takes the params and calculates a hash key
+	// The be benefit would be that it is centralized, but at the same time we only create this in one place
+	Key string
+
+	CollectionItemsLoader   *loaders.Loader[int, []*CollectionItem]
+	CollectionItemIDsLoader *loaders.Loader[int, []Identifier]
 }
 
 // ProfileLoaders contains loaders per profile

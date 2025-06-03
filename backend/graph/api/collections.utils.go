@@ -112,12 +112,14 @@ func collectionEntriesToModels(ctx context.Context, ls *common.BatchLoaders, ent
 func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int) ([]collection.Entry, error) {
 	ls := r.GetLoaders()
 	filteredLoaders := r.FilteredLoaders(ctx)
+	personalizedLoaders := r.PersonalizedLoaders(ctx)
+
 	col, err := ls.CollectionLoader.Get(ctx, collectionId)
 	if err != nil {
 		return nil, err
 	}
 
-	entries, err := collection.GetBaseCollectionEntries(ctx, ls, filteredLoaders, collectionId)
+	entries, err := collection.GetBaseCollectionEntries(ctx, ls, filteredLoaders, personalizedLoaders, collectionId)
 	if err != nil {
 		return nil, err
 	}

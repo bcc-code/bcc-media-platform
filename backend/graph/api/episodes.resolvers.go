@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bcc-code/bcc-media-platform/backend/applications"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
@@ -315,7 +314,7 @@ func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, 
 		if err != nil {
 			return nil, err
 		}
-		app, err := applications.GetFromCtx(ginCtx)
+		app, err := common.GetApplicationFromCtx(ginCtx)
 		if err != nil {
 			return nil, err
 		}

@@ -55,10 +55,16 @@ WITH roles AS (SELECT r.applicationgroups_id,
                FROM applicationgroups_usergroups r
                GROUP BY r.applicationgroups_id)
 SELECT g.id,
-       COALESCE(r.roles, '{}')::varchar[] AS roles
+       COALESCE(r.roles, '{}')::varchar[] AS roles,
+       array_remove(array_agg(DISTINCT al.languages_code), NULL)::text[]  AS default_preferred_audio_languages,
+       array_remove(array_agg(DISTINCT pas.languages_code), NULL)::text[] AS default_preferred_subtitle_languages,
+       only_content_in_preferred_languages
 FROM applicationgroups g
          LEFT JOIN roles r ON g.id = r.applicationgroups_id
-WHERE g.id = ANY (@id::uuid[]);
+         LEFT JOIN applicationgroups_languages al ON al.applicationgroups_id = g.id
+         LEFT JOIN applicationgroups_languages_subs pas ON pas.applicationgroups_id = g.id
+WHERE g.id = ANY (@id::uuid[])
+GROUP BY g.id, r.roles;
 
 -- name: getApplicationIDsForCodes :many
 SELECT p.id, p.code

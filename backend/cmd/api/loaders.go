@@ -22,9 +22,49 @@ import (
 	"gopkg.in/guregu/null.v4"
 )
 
-var roleLoaders = loaders.NewCollection[string, *common.FilteredLoaders](time.Minute)
+var personalizedLoaders = loaders.NewCollection[string, *common.PersonalizedLoaders](time.Minute)
 
-func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loaders.Loader[int, *common.Collection], roles []string) *common.FilteredLoaders {
+func getPersonalizedLoaders(
+	queries *sqlc.Queries,
+	db *sql.DB,
+	collectionLoader *loaders.Loader[int, *common.Collection],
+	roles []string,
+	languagePreferences common.LanguagePreferences,
+) *common.PersonalizedLoaders {
+	pq := queries.PersonalizedQueries(roles, languagePreferences)
+
+	key := fmt.Sprintf(
+		"%s-%s-%s-%s",
+		strings.Join(roles, "-"),
+		strings.Join(languagePreferences.PreferredAudioLanguages, "-"),
+		strings.Join(languagePreferences.PreferredSubtitlesLanguages, "-"),
+		fmt.Sprintf("%t", languagePreferences.ContentOnlyInPreferredLanguage),
+	)
+
+	if ls, ok := personalizedLoaders.Get(key); ok {
+		return ls
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	ls := &common.PersonalizedLoaders{
+		Key: key,
+
+		CollectionItemsLoader: loaders.NewListLoader(ctx, pq.GetEntriesForCollectionsFilteredByRolesAndLanguages, func(i common.CollectionItem) int {
+			return i.CollectionID
+		}),
+		CollectionItemIDsLoader: collection.NewCollectionItemLoader(ctx, db, collectionLoader, roles, languagePreferences),
+	}
+
+	// Canceling the context on delete stops janitors nested inside the loaders as well.
+	personalizedLoaders.Set(key, ls, loaders.WithOnDelete(cancel))
+
+	return ls
+}
+
+var roleLoaders = loaders.NewCollection[string, *common.LoadersWithPermissions](time.Minute)
+
+func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loaders.Loader[int, *common.Collection], roles []string) *common.LoadersWithPermissions {
 	sort.Strings(roles)
 
 	key := strings.Join(roles, "-")
@@ -37,7 +77,7 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 
 	rq := queries.RoleQueries(roles)
 
-	ls := &common.FilteredLoaders{
+	ls := &common.LoadersWithPermissions{
 		Key: key,
 
 		ShowFilterLoader:        loaders.NewFilterLoader(ctx, rq.GetShowIDsWithRoles, loaders.WithName("show-filter")),
@@ -52,7 +92,7 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		CollectionItemsLoader: loaders.NewListLoader(ctx, rq.GetItemsForCollectionsWithRoles, func(i common.CollectionItem) int {
 			return i.CollectionID
 		}, loaders.WithName("collection-items")),
-		CollectionItemIDsLoader: collection.NewCollectionItemLoader(ctx, db, collectionLoader, roles),
+		CollectionItemIDsLoader: collection.NewCollectionItemLoaderWithNoLanguageFilter(ctx, db, collectionLoader, roles),
 		CalendarEntryLoader:     loaders.New(ctx, rq.GetCalendarEntries, loaders.WithMemoryCache(time.Minute*5)),
 		StudyTopicFilterLoader:  loaders.NewFilterLoader(ctx, rq.GetTopicIDsWithRoles, loaders.WithName("study-topic-filter")),
 		StudyLessonFilterLoader: loaders.NewFilterLoader(ctx, rq.GetLessonIDsWithRoles, loaders.WithName("study-lesson-filter")),
@@ -120,19 +160,19 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 
 var profileLoaders = loaders.NewCollection[uuid.UUID, *common.ProfileLoaders](time.Minute)
 
-func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.ProfileLoaders {
-	if ls, ok := profileLoaders.Get(profileID); ok {
+func getLoadersForProfile(queries *sqlc.Queries, profile *common.Profile) *common.ProfileLoaders {
+	if ls, ok := profileLoaders.Get(profile.ID); ok {
 		return ls
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	profileQueries := queries.ProfileQueries(profileID)
+	profileQueries := queries.ProfileQueries(profile.ID)
 	ls := &common.ProfileLoaders{
 		ProgressLoader: loaders.New(ctx, profileQueries.GetProgressForEpisodes, loaders.WithMemoryCache(time.Second*5), loaders.WithName("progress")),
 		TaskCompletedLoader: loaders.NewFilterLoader(ctx, func(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
 			return queries.GetAnsweredTasks(ctx, sqlc.GetAnsweredTasksParams{
-				ProfileID: profileID,
+				ProfileID: profile.ID,
 				Column2:   ids,
 			})
 		}, loaders.WithMemoryCache(time.Second*5), loaders.WithName("task-completed")),
@@ -147,7 +187,7 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 
 		MediaProgressLoader: loaders.New(ctx, func(ctx context.Context, ids []uuid.UUID) ([]common.MediaProgress, error) {
 			rows, err := queries.GetMediaProgress(ctx, sqlc.GetMediaProgressParams{
-				ProfileID: profileID,
+				ProfileID: profile.ID,
 				ItemIds:   ids,
 			})
 			if err != nil {
@@ -165,7 +205,7 @@ func getLoadersForProfile(queries *sqlc.Queries, profileID uuid.UUID) *common.Pr
 		}), loaders.WithMemoryCache(time.Second*30)),
 	}
 
-	profileLoaders.Set(profileID, ls, loaders.WithOnDelete(func() {
+	profileLoaders.Set(profile.ID, ls, loaders.WithOnDelete(func() {
 		log.L.Debug().Msg("Clearing profile loader")
 
 		ls.TaskCompletedLoader.ClearAll()

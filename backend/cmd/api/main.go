@@ -1,59 +1,91 @@
 package main
 
 import (
+	"cloud.google.com/go/profiler"
 	"context"
 	"database/sql"
-	"github.com/bcc-code/bcc-media-platform/backend/bmm"
-	"net/http"
-	"os"
-	"strings"
-	"time"
-
-	"github.com/bcc-code/bcc-media-platform/backend/analytics"
-
-	"cloud.google.com/go/profiler"
-	cache "github.com/Code-Hex/go-generics-cache"
-	"github.com/bcc-code/bcc-media-platform/backend/applications"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
-	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
-	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
-	"github.com/bcc-code/bcc-media-platform/backend/user/middleware"
-	"github.com/bsm/redislock"
-	"github.com/gin-contrib/pprof"
-	"github.com/sony/gobreaker"
-
-	"github.com/bcc-code/bcc-media-platform/backend/email"
-	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
-	"github.com/lestrrat-go/jwx/v2/jwa"
-	"github.com/lestrrat-go/jwx/v2/jwk"
-
 	"github.com/99designs/gqlgen/graphql/playground"
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/bcc-code/bcc-media-platform/backend/analytics"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
+	"github.com/bcc-code/bcc-media-platform/backend/bmm"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/email"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
+	commonMiddleware "github.com/bcc-code/bcc-media-platform/backend/middleware"
+	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
+	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
 	"github.com/bcc-code/bcc-media-platform/backend/search"
 	"github.com/bcc-code/bcc-media-platform/backend/signing"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
+	userMiddleware "github.com/bcc-code/bcc-media-platform/backend/user/middleware"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/bcc-media-platform/backend/version"
+	"github.com/bsm/redislock"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
+	"github.com/lestrrat-go/jwx/v2/jwa"
+	"github.com/lestrrat-go/jwx/v2/jwk"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
+	"github.com/sony/gobreaker"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
+	"net/http"
+	"os"
+	"time"
 )
 
 const filteredLoadersCtxKey = "filtered-loaders"
 const profileLoadersCtxKey = "profile-loaders"
+const personalizedLoadersCtxKey = "personalized-loaders"
 
-func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *loaders.Loader[int, *common.Collection]) func(ctx context.Context) *common.FilteredLoaders {
-	return func(ctx context.Context) *common.FilteredLoaders {
+func personalizedLoaderFactory(
+	db *sql.DB,
+	queries *sqlc.Queries,
+	collectionLoader *loaders.Loader[int, *common.Collection],
+) func(ctx context.Context) *common.PersonalizedLoaders {
+	return func(ctx context.Context) *common.PersonalizedLoaders {
+		ginCtx, err := utils.GinCtx(ctx)
+		if err != nil {
+			return nil
+		}
+
+		if ls := ginCtx.Value(personalizedLoadersCtxKey); ls != nil {
+			return ls.(*common.PersonalizedLoaders)
+		}
+
+		var roles []string
+		if err != nil {
+			log.L.Error().Err(err).Msg("failed to get gin ctx from context")
+			roles = []string{"unknown"}
+		} else {
+			roles = user.GetRolesFromCtx(ginCtx)
+		}
+
+		langPreferences := common.GetLanguagePreferencesFromCtx(ginCtx)
+
+		ls := getPersonalizedLoaders(
+			queries,
+			db,
+			collectionLoader,
+			roles,
+			langPreferences,
+		)
+
+		ginCtx.Set(personalizedLoadersCtxKey, ls)
+		return ls
+	}
+}
+
+func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *loaders.Loader[int, *common.Collection]) func(ctx context.Context) *common.LoadersWithPermissions {
+	return func(ctx context.Context) *common.LoadersWithPermissions {
 		ginCtx, err := utils.GinCtx(ctx)
 		var roles []string
 		if err != nil {
@@ -63,7 +95,7 @@ func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *
 			roles = user.GetRolesFromCtx(ginCtx)
 		}
 		if ls := ginCtx.Value(filteredLoadersCtxKey); ls != nil {
-			return ls.(*common.FilteredLoaders)
+			return ls.(*common.LoadersWithPermissions)
 		}
 		ls := getLoadersForRoles(db, queries, collectionLoader, roles)
 		ginCtx.Set(filteredLoadersCtxKey, ls)
@@ -84,7 +116,7 @@ func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *comm
 		if ls := ginCtx.Value(profileLoadersCtxKey); ls != nil {
 			return ls.(*common.ProfileLoaders)
 		}
-		ls := getLoadersForProfile(queries, p.ID)
+		ls := getLoadersForProfile(queries, p)
 		ginCtx.Set(profileLoadersCtxKey, ls)
 		return ls
 	}
@@ -96,34 +128,6 @@ func playgroundHandler() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
-	}
-}
-
-func getApplications(ctx context.Context, queries *sqlc.Queries) []common.Application {
-	apps, err := memorycache.GetOrSet(ctx, "applications", queries.ListApplications, cache.WithExpiration(time.Minute*2))
-	if err != nil {
-		log.L.Panic().Err(err).Send()
-	}
-	return apps
-}
-
-func applicationFactory(queries *sqlc.Queries) func(ctx context.Context, code string) *common.Application {
-	return func(ctx context.Context, code string) *common.Application {
-		apps := getApplications(ctx, queries)
-
-		app, found := lo.Find(apps, func(i common.Application) bool {
-			return i.Code == strings.ToLower(strings.TrimSpace(code))
-		})
-		if found {
-			return &app
-		}
-		app, found = lo.Find(apps, func(i common.Application) bool {
-			return i.Default
-		})
-		if found {
-			return &app
-		}
-		return nil
 	}
 }
 
@@ -225,6 +229,9 @@ func main() {
 			"x-api-key",
 			"x-application",
 			"x-feature-flags",
+			"x-accept-audio-language",
+			"x-accept-subtitle-language",
+			"x-only-preferred-languages-content",
 		},
 		AllowCredentials: true,
 	}))
@@ -232,12 +239,13 @@ func main() {
 	r.Use(utils.RequestIDMiddleware)
 	r.Use(otelgin.Middleware("api"))
 	r.Use(authClient.ValidateToken())
-	r.Use(applications.ApplicationMiddleware(applicationFactory(queries)))
-	r.Use(middleware.NewUserMiddleware(queries, remoteCache, ls, authClient))
-	r.Use(middleware.NewFakeUserMiddleware(os.Getenv("FAKE_USER_SECRET")))
-	r.Use(middleware.NewProfileMiddleware(queries, remoteCache))
-	r.Use(applications.RoleMiddleware())
-	r.Use(ratelimit.Middleware())
+	r.Use(commonMiddleware.ApplicationMiddleware(queries))
+	r.Use(commonMiddleware.LanguagePreferencesMiddleware(ls))
+	r.Use(userMiddleware.NewUserMiddleware(queries, remoteCache, ls, authClient))
+	r.Use(userMiddleware.NewFakeUserMiddleware(os.Getenv("FAKE_USER_SECRET")))
+	r.Use(userMiddleware.NewProfileMiddleware(queries, remoteCache))
+	r.Use(commonMiddleware.RoleMiddleware)
+	r.Use(ratelimit.Middleware)
 
 	r.POST("/query", graphqlHandler(
 		db,
