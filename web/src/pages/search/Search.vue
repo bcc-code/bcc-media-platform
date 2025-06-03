@@ -12,9 +12,10 @@ import { goToEpisode } from '@/utils/items'
 import NotFound from '@/components/NotFound.vue'
 import { usePage } from '@/utils/page'
 import { useSearchQuery } from '@/graph/generated'
+import { generateUUID } from '@/utils/uuid'
 
 const { t } = useI18n()
-const { query } = useSearch()
+const { query, sessionId, searchSessionId } = useSearch()
 const queryString = ref(query.value)
 
 const showCount = ref<number>()
@@ -27,6 +28,8 @@ const clickEpisode = (index: number, id: string) => {
         elementPosition: index,
         elementType: 'Episode',
         searchText: queryVariable.value,
+        sessionId: sessionId,
+        searchSessionId: searchSessionId.value,
     })
 
     goToEpisode(id)
@@ -61,28 +64,29 @@ onMounted(async () => {
     loaded.value = true
 })
 
-watch(
-    () => query.value,
-    () => {
-        router.replace({ query: { q: query.value } })
+watch(query, (q) => {
+    router.replace({ query: { q } })
 
-        const v = query.value
+    const v = q
 
-        queryString.value = v
+    queryString.value = v
 
-        if (v && pause.value) {
-            pause.value = false
-        }
-
-        // Delay the query itself, in case you add more characters to the string
-        if (timeout.value) {
-            clearTimeout(timeout.value)
-        }
-        timeout.value = setTimeout(() => {
-            queryVariable.value = v
-        }, 150)
+    if (v && pause.value) {
+        pause.value = false
     }
-)
+
+    // Delay the query itself, in case you add more characters to the string
+    if (timeout.value) {
+        clearTimeout(timeout.value)
+    }
+    timeout.value = setTimeout(() => {
+        queryVariable.value = v
+    }, 150)
+
+    if (!q || q === '') {
+        searchSessionId.value = generateUUID()
+    }
+})
 
 const pause = ref(false)
 

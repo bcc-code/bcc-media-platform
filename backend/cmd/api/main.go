@@ -229,6 +229,8 @@ func main() {
 			"x-api-key",
 			"x-application",
 			"x-feature-flags",
+			"x-session-id",
+			"x-search-session-id",
 			"x-accept-audio-language",
 			"x-accept-subtitle-language",
 			"x-only-preferred-languages-content",

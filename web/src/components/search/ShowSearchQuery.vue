@@ -8,6 +8,7 @@ import { Navigation } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useSearch } from '@/utils/search'
 import VButton from '../VButton.vue'
 
 const { t } = useI18n()
@@ -21,6 +22,7 @@ const modules = [Navigation]
 
 const loading = reactive<Record<string, boolean>>({})
 
+const { sessionId, searchSessionId } = useSearch()
 const onclick = async (index: number, id: string) => {
     analytics.track('searchresult_clicked', {
         elementId: id,
@@ -28,6 +30,8 @@ const onclick = async (index: number, id: string) => {
         group: 'shows',
         elementPosition: index,
         searchText: props.queryString,
+        sessionId: sessionId,
+        searchSessionId: searchSessionId.value,
     })
 
     goToShow(id)
