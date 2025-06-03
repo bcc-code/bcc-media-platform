@@ -64,6 +64,8 @@ export type Events = {
         /** in milliseconds */
         searchLatency: number
         searchResultCount: number
+        sessionId: string
+        searchSessionId: string
     }
     searchresult_clicked: {
         searchText: string
@@ -71,6 +73,8 @@ export type Events = {
         elementType: ElementType
         elementId: string
         group: 'shows' | 'episodes'
+        sessionId: string
+        searchSessionId: string
     }
     language_changed: {
         pageCode: string
