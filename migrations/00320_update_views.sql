@@ -1,33 +1,58 @@
 -- +goose Up
 
-drop materialized view public.filter_dataset;
+DROP MATERIALIZED VIEW public.filter_dataset;
 
+DROP VIEW public.show_availability;
+DROP VIEW public.season_availability;
 DROP VIEW public.episode_availability;
 
+-- +goose StatementBegin
+CREATE OR REPLACE VIEW public.episode_availability AS
+SELECT
+    e.id,
+    (e.status::text = 'published'::text AND (e.season_id IS NULL OR (se.status::text = 'published'::text AND s.status::text = 'published'::text) ) ) AS published,
+    COALESCE(GREATEST(mi.available_from, se.available_from, s.available_from), '1800-01-01 00:00:00'::timestamp without time zone) AS available_from,
+    COALESCE(LEAST(mi.available_to, se.available_to, s.available_to), '3000-01-01 00:00:00'::timestamp without time zone) AS available_to,
+    COALESCE(GREATEST(mi.published_at, se.publish_date, s.publish_date), '3000-01-01 00:00:00'::timestamp without time zone) AS published_on,
+    COALESCE(array_remove(array_agg(DISTINCT aal.languages_code), NULL), '{}'::text[]) AS audio,
+    COALESCE(array_remove(array_agg(DISTINCT asl.languages_code), NULL), '{}'::text[]) AS subtitle,
+    e.season_id
+FROM episodes e
+         JOIN mediaitems mi ON mi.id = e.mediaitem_id
+         LEFT JOIN seasons se ON e.season_id = se.id
+         LEFT JOIN shows s ON se.show_id = s.id
+         LEFT JOIN assetstreams astr ON mi.asset_id = astr.asset_id
+         LEFT JOIN assetstreams_audio_languages aal ON astr.id = aal.assetstreams_id
+         LEFT JOIN assetstreams_subtitle_languages asl ON astr.id = asl.assetstreams_id
+GROUP BY e.id, mi.id, se.id, s.id;
+-- +goose StatementEnd
 
 -- +goose StatementBegin
-CREATE OR REPLACE VIEW public.episode_availability(id, published, available_from, available_to, published_on, audio, subtitle) AS
-SELECT e.id,
-       e.status::text = 'published'::text AND
-       (e.season_id IS NULL OR se.status::text = 'published'::text AND s.status::text = 'published'::text) AS published,
-       COALESCE(GREATEST(mi.available_from, se.available_from, s.available_from),
-                '1800-01-01 00:00:00'::timestamp without time zone)                                        AS available_from,
-       COALESCE(LEAST(mi.available_to, se.available_to, s.available_to),
-                '3000-01-01 00:00:00'::timestamp without time zone)                                        AS available_to,
-       COALESCE(GREATEST(mi.published_at, se.publish_date, s.publish_date),
-                '3000-01-01 00:00:00'::timestamp without time zone)                                        AS published_on,
-       array_agg(DISTINCT aal.languages_code) as audio,
-       array_agg(DISTINCT asl.languages_code) as subtitle
-FROM episodes e
-JOIN mediaitems mi ON mi.id = e.mediaitem_id
-LEFT JOIN seasons se ON e.season_id = se.id
-LEFT JOIN shows s ON se.show_id = s.id
-LEFT JOIN assetstreams astr ON mi.asset_id = astr.asset_id
-LEFT JOIN public.assetstreams_audio_languages aal ON astr.id = aal.assetstreams_id
-LEFT JOIN public.assetstreams_subtitle_languages asl ON astr.id = asl.assetstreams_id
-WHERE aal.languages_code != ''
-  AND asl.languages_code != ''
-GROUP BY e.id, mi.id, se.id, s.id;
+create or replace view public.season_availability(id, published, available_from, available_to) as
+SELECT
+    se.id,
+    se.status::text = 'published'::text AND s.status::text = 'published'::text AS published,
+    COALESCE(GREATEST(se.available_from, s.available_from), '1800-01-01 00:00:00'::timestamp without time zone) AS available_from,
+    COALESCE(LEAST(se.available_to, s.available_to), '3000-01-01 00:00:00'::timestamp without time zone) AS available_to,
+    COALESCE(( SELECT array_agg(DISTINCT a) FROM unnest(ea.audio) a WHERE a IS NOT NULL AND a != ''), '{}'::text[]) as audio,
+    COALESCE(( SELECT array_agg(DISTINCT s) FROM unnest(ea.subtitle) s WHERE s IS NOT NULL AND s != ''), '{}'::text[]) as subtitles,
+    se.show_id
+FROM seasons se
+         LEFT JOIN shows s ON se.show_id = s.id
+         LEFT JOIN episode_availability ea ON se.id = ea.season_id AND ea.published
+GROUP BY se.id, se.status, s.status, se.available_from, s.available_from, se.available_to, s.available_to, ea.audio, ea.subtitle;
+-- +goose StatementEnd
+
+-- +goose StatementBegin
+create or replace view public.show_availability(id, published, available_from, available_to) as
+SELECT sh.id,
+       sh.status::text = 'published'::text                                             AS published,
+       COALESCE(sh.available_from, '1800-01-01 00:00:00'::timestamp without time zone) AS available_from,
+       COALESCE(sh.available_to, '3000-01-01 00:00:00'::timestamp without time zone)   AS available_to,
+       COALESCE(( SELECT array_agg(DISTINCT a) FROM unnest(sa.audio) a WHERE a IS NOT NULL AND a != '' ), '{}'::text[]) as audio,
+       COALESCE(( SELECT array_agg(DISTINCT s) FROM unnest(sa.subtitles) s WHERE s IS NOT NULL AND s != ''), '{}'::text[]) as subtitles
+FROM shows sh
+         LEFT JOIN season_availability sa ON sh.id = sa.show_id AND sa.published;
 -- +goose StatementEnd
 
 -- +goose StatementBegin
@@ -181,13 +206,26 @@ create unique index filter_dataset_uuid on public.filter_dataset (uuid);
 
 SELECT setval(pg_get_serial_sequence('"public"."directus_relations"', 'id'), max("id"), true) FROM "public"."directus_relations";
 
+GRANT SELECT ON public.episode_availability TO background_worker;
+GRANT SELECT ON public.season_availability TO background_worker;
+GRANT SELECT ON public.show_availability TO background_worker;
+GRANT SELECT ON public.filter_dataset TO background_worker;
+
+GRANT SELECT ON public.episode_availability TO api;
+GRANT SELECT ON public.season_availability TO api;
+GRANT SELECT ON public.show_availability TO api;
+GRANT SELECT ON public.filter_dataset TO api;
+
 -- +goose Down
 
 -- First, drop the materialized view that depends on the episode_availability view
 DROP MATERIALIZED VIEW IF EXISTS public.filter_dataset;
 
 -- Drop the current episode_availability view
+DROP VIEW IF EXISTS public.show_availability;
+DROP VIEW IF EXISTS public.season_availability;
 DROP VIEW IF EXISTS public.episode_availability;
+
 
 -- Recreate the original episode_availability view without the language columns
 -- +goose StatementBegin
@@ -205,6 +243,26 @@ FROM episodes e
 JOIN mediaitems mi ON mi.id = e.mediaitem_id
 LEFT JOIN seasons se ON e.season_id = se.id
 LEFT JOIN shows s ON se.show_id = s.id;
+-- +goose StatementEnd
+
+-- +goose StatementBegin
+create or replace view public.season_availability(id, published, available_from, available_to) as
+SELECT
+    se.id,
+    se.status::text = 'published'::text AND s.status::text = 'published'::text AS published,
+    COALESCE(GREATEST(se.available_from, s.available_from), '1800-01-01 00:00:00'::timestamp without time zone) AS available_from,
+    COALESCE(LEAST(se.available_to, s.available_to), '3000-01-01 00:00:00'::timestamp without time zone) AS available_to
+FROM seasons se
+         LEFT JOIN shows s ON se.show_id = s.id;
+-- +goose StatementEnd
+
+-- +goose StatementBegin
+create or replace view public.show_availability(id, published, available_from, available_to) as
+SELECT sh.id,
+       sh.status::text = 'published'::text                                             AS published,
+       COALESCE(sh.available_from, '1800-01-01 00:00:00'::timestamp without time zone) AS available_from,
+       COALESCE(sh.available_to, '3000-01-01 00:00:00'::timestamp without time zone)   AS available_to
+FROM shows sh;
 -- +goose StatementEnd
 
 -- +goose StatementBegin
@@ -354,3 +412,13 @@ FROM shorts s
 
 -- Recreate the index on the materialized view
 CREATE UNIQUE INDEX filter_dataset_uuid ON public.filter_dataset (uuid);
+
+GRANT SELECT ON public.episode_availability TO background_worker;
+GRANT SELECT ON public.season_availability TO background_worker;
+GRANT SELECT ON public.show_availability TO background_worker;
+GRANT SELECT ON public.filter_dataset TO background_worker;
+
+GRANT SELECT ON public.episode_availability TO api;
+GRANT SELECT ON public.season_availability TO api;
+GRANT SELECT ON public.show_availability TO api;
+GRANT SELECT ON public.filter_dataset TO api;
