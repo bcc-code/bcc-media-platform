@@ -100,12 +100,22 @@ WHERE ce.collections_id = ANY ($1::int[])
         AND sa.available_to > now()
         AND sr.roles && $2::varchar[]
         AND sa.available_from < now()
+        AND (
+            NOT $3
+            OR sa.audio && $4::varchar[]
+            OR sa.subtitles && $5::varchar[]
+        )
     ) OR (
             ce.collection = 'shows'
         AND sha.published
         AND sha.available_to > now()
         AND shr.roles && $2::varchar[]
         AND sha.available_from < now()
+        AND (
+            NOT $3
+            OR sha.audio && $4::varchar[]
+            OR sha.subtitles && $5::varchar[]
+        )
     )
     OR (ce.collection = 'games' AND gr.roles && $2::varchar[])
     OR (ce.collection = 'playlists' AND pr.roles && $2::varchar[])

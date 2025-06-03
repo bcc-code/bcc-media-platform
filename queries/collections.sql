@@ -134,12 +134,22 @@ WHERE ce.collections_id = ANY (@ids::int[])
         AND sa.available_to > now()
         AND sr.roles && @roles::varchar[]
         AND sa.available_from < now()
+        AND (
+            NOT @only_prefered_languages
+            OR sa.audio && @preferred_audio_languages::varchar[]
+            OR sa.subtitles && @preferred_subtitle_languages::varchar[]
+        )
     ) OR (
             ce.collection = 'shows'
         AND sha.published
         AND sha.available_to > now()
         AND shr.roles && @roles::varchar[]
         AND sha.available_from < now()
+        AND (
+            NOT @only_prefered_languages
+            OR sha.audio && @preferred_audio_languages::varchar[]
+            OR sha.subtitles && @preferred_subtitle_languages::varchar[]
+        )
     )
     OR (ce.collection = 'games' AND gr.roles && @roles::varchar[])
     OR (ce.collection = 'playlists' AND pr.roles && @roles::varchar[])

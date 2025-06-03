@@ -748,6 +748,7 @@ type EpisodeAvailability struct {
 	PublishedOn   interface{}  `db:"published_on" json:"publishedOn"`
 	Audio         interface{}  `db:"audio" json:"audio"`
 	Subtitle      interface{}  `db:"subtitle" json:"subtitle"`
+	SeasonID      null_v4.Int  `db:"season_id" json:"seasonId"`
 }
 
 type EpisodeRole struct {
@@ -1439,6 +1440,9 @@ type SeasonAvailability struct {
 	Published     sql.NullBool `db:"published" json:"published"`
 	AvailableFrom interface{}  `db:"available_from" json:"availableFrom"`
 	AvailableTo   interface{}  `db:"available_to" json:"availableTo"`
+	Audio         interface{}  `db:"audio" json:"audio"`
+	Subtitles     interface{}  `db:"subtitles" json:"subtitles"`
+	ShowID        int32        `db:"show_id" json:"showId"`
 }
 
 type SeasonRole struct {
@@ -1566,6 +1570,8 @@ type ShowAvailability struct {
 	Published     bool         `db:"published" json:"published"`
 	AvailableFrom null_v4.Time `db:"available_from" json:"availableFrom"`
 	AvailableTo   null_v4.Time `db:"available_to" json:"availableTo"`
+	Audio         interface{}  `db:"audio" json:"audio"`
+	Subtitles     interface{}  `db:"subtitles" json:"subtitles"`
 }
 
 type ShowRole struct {
