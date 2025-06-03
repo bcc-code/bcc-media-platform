@@ -6,6 +6,16 @@ DROP VIEW public.show_availability;
 DROP VIEW public.season_availability;
 DROP VIEW public.episode_availability;
 
+-- Create a new aggregate function that can handle empty arrays
+-- +goose StatementBegin
+CREATE OR REPLACE AGGREGATE array_accum (anyarray)
+    (
+    sfunc = array_cat,
+    stype = anyarray,
+    initcond = '{}'
+    );
+-- +goose StatementEnd
+
 -- +goose StatementBegin
 CREATE OR REPLACE VIEW public.episode_availability AS
 SELECT
@@ -14,8 +24,8 @@ SELECT
     COALESCE(GREATEST(mi.available_from, se.available_from, s.available_from), '1800-01-01 00:00:00'::timestamp without time zone) AS available_from,
     COALESCE(LEAST(mi.available_to, se.available_to, s.available_to), '3000-01-01 00:00:00'::timestamp without time zone) AS available_to,
     COALESCE(GREATEST(mi.published_at, se.publish_date, s.publish_date), '3000-01-01 00:00:00'::timestamp without time zone) AS published_on,
-    array_remove(array_agg(DISTINCT aal.languages_code), NULL) AS audio,
-    array_remove(array_agg(DISTINCT asl.languages_code), NULL) AS subtitle,
+    COALESCE(array_remove(array_agg(DISTINCT aal.languages_code), NULL), '{}'::character varying[]) AS audio,
+    COALESCE(array_remove(array_agg(DISTINCT asl.languages_code), NULL), '{}'::character varying[]) AS subtitle,
     e.season_id
 FROM episodes e
          JOIN mediaitems mi ON mi.id = e.mediaitem_id
@@ -29,33 +39,17 @@ GROUP BY e.id, mi.id, se.id, s.id;
 
 -- +goose StatementBegin
 CREATE OR REPLACE VIEW public.season_availability AS
-SELECT
-    se.id,
-    se.status::text = 'published'::text AND s.status::text = 'published'::text AS published,
-    COALESCE(GREATEST(se.available_from, s.available_from), '1800-01-01 00:00:00'::timestamp) AS available_from,
-    COALESCE(LEAST(se.available_to, s.available_to), '3000-01-01 00:00:00'::timestamp) AS available_to,
-    (
-        SELECT array_agg(DISTINCT unnest_audio)
-        FROM unnest(array_agg(ea.audio)) AS unnest_audio
-        WHERE unnest_audio IS NOT NULL
-    ) AS audio,
-    (
-        SELECT array_agg(DISTINCT unnest_subtitle)
-        FROM unnest(array_agg(ea.subtitle)) AS unnest_subtitle
-        WHERE unnest_subtitle IS NOT NULL
-    ) AS subtitles,
-    se.show_id
+SELECT se.id,
+       se.status::text = 'published'::text AND s.status::text = 'published'::text AS published,
+       COALESCE(GREATEST(se.available_from, s.available_from), '1800-01-01 00:00:00'::timestamp) AS available_from,
+       COALESCE(LEAST(se.available_to, s.available_to), '3000-01-01 00:00:00'::timestamp) AS available_to,
+       ARRAY( SELECT DISTINCT * FROM unnest(array_accum(ea.audio))) AS audio,
+       ARRAY( SELECT DISTINCT * FROM unnest(array_accum(ea.subtitle))) AS subtitles,
+       se.show_id
 FROM seasons se
          LEFT JOIN shows s ON se.show_id = s.id
          LEFT JOIN episode_availability ea ON se.id = ea.season_id AND ea.published
-GROUP BY
-    se.id,
-    se.status,
-    s.status,
-    se.available_from,
-    s.available_from,
-    se.available_to,
-    s.available_to;
+GROUP BY se.id, published, se.available_from, se.available_to, show_id, s.status, s.available_from, s.available_to;
 -- +goose StatementEnd
 
 -- +goose StatementBegin
@@ -64,16 +58,8 @@ SELECT sh.id,
        sh.status::text = 'published'::text                                             AS published,
        COALESCE(sh.available_from, '1800-01-01 00:00:00'::timestamp without time zone) AS available_from,
        COALESCE(sh.available_to, '3000-01-01 00:00:00'::timestamp without time zone)   AS available_to,
-    (
-        SELECT array_agg(DISTINCT unnest_audio)
-        FROM unnest(array_agg(sa.audio)) AS unnest_audio
-        WHERE unnest_audio IS NOT NULL
-    ) AS audio,
-    (
-        SELECT array_agg(DISTINCT unnest_subtitle)
-        FROM unnest(array_agg(sa.subtitles)) AS unnest_subtitle
-        WHERE unnest_subtitle IS NOT NULL
-    ) AS subtitles,
+       ARRAY(SELECT DISTINCT * FROM unnest(array_accum(sa.audio))) AS audio,
+       ARRAY(SELECT DISTINCT * FROM unnest(array_accum(sa.subtitles))) AS subtitles,
        sh.id as show_id
 FROM shows sh
          LEFT JOIN season_availability sa ON sh.id = sa.show_id AND sa.published
@@ -451,3 +437,5 @@ GRANT SELECT ON public.episode_availability TO api;
 GRANT SELECT ON public.season_availability TO api;
 GRANT SELECT ON public.show_availability TO api;
 GRANT SELECT ON public.filter_dataset TO api;
+
+DROP AGGREGATE array_accum (anyarray);
