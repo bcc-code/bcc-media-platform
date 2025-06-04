@@ -5,7 +5,7 @@
 /**********************************************************/
 
 
-ALTER TABLE IF EXISTS "public"."applicationgroups" ADD COLUMN IF NOT EXISTS "only_content_in_preferred_languages" bool NOT NULL DEFAULT true ;
+ALTER TABLE IF EXISTS "public"."applicationgroups" ADD COLUMN IF NOT EXISTS "only_content_in_preferred_languages" bool NOT NULL DEFAULT false;
 
 CREATE SEQUENCE IF NOT EXISTS "public"."applicationgroups_languages_id_seq" START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
 
