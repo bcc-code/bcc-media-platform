@@ -29,15 +29,15 @@ func (q *Queries) PersonalizedQueries(
 	}
 }
 
-func (q *PersonalizedQueries) GetEntriesForCollectionsFilteredByRolesAndLanguages(ctx context.Context, collectionIDs []int) ([]common.CollectionItem, error) {
+func (pq *PersonalizedQueries) GetEntriesForCollectionsFilteredByRolesAndLanguages(ctx context.Context, collectionIDs []int) ([]common.CollectionItem, error) {
 	params := getCollectionEntriesForCollectionsFilteredByRolesAndLanguagesParams{
 		Ids:                        intToInt32(collectionIDs),
-		Roles:                      q.roles,
-		OnlyPreferedLanguages:      q.languagePreferences.ContentOnlyInPreferredLanguage,
-		PreferredAudioLanguages:    q.languagePreferences.PreferredAudioLanguages,
-		PreferredSubtitleLanguages: q.languagePreferences.PreferredSubtitlesLanguages,
+		Roles:                      pq.roles,
+		OnlyPreferedLanguages:      pq.languagePreferences.ContentOnlyInPreferredLanguage,
+		PreferredAudioLanguages:    pq.languagePreferences.PreferredAudioLanguages,
+		PreferredSubtitleLanguages: pq.languagePreferences.PreferredSubtitlesLanguages,
 	}
-	res, err := q.queries.getCollectionEntriesForCollectionsFilteredByRolesAndLanguages(ctx, params)
+	res, err := pq.queries.getCollectionEntriesForCollectionsFilteredByRolesAndLanguages(ctx, params)
 
 	if err != nil {
 		return nil, err

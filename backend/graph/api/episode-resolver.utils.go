@@ -261,7 +261,7 @@ func (r *episodeResolver) getRelatedEpisodeIDs(ctx context.Context, episodeID st
 	if err != nil {
 		return nil, err
 	}
-	episodeGroupIDs, err := r.GetFilteredLoaders(ctx).TagEpisodesLoader.GetMany(ctx, episode.TagIDs)
+	episodeGroupIDs, err := r.GetPersonalizedLoaders(ctx).TagEpisodesLoader.GetMany(ctx, episode.TagIDs)
 	if err != nil {
 		return nil, err
 	}

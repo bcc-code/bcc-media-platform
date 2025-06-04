@@ -273,10 +273,13 @@ func (q *Queries) GetEpisodeIDsForUuids(ctx context.Context, uuids []uuid.UUID) 
 }
 
 // GetEpisodeIDsWithTagIDs returns episodeIDs with the specified tags.
-func (rq *RoleQueries) GetEpisodeIDsWithTagIDs(ctx context.Context, ids []int) ([]loaders.Relation[int, int], error) {
-	rows, err := rq.queries.getEpisodeIDsWithTagIDs(ctx, getEpisodeIDsWithTagIDsParams{
-		Roles:  rq.roles,
-		TagIds: intToInt32(ids),
+func (pq *PersonalizedQueries) GetEpisodeIDsWithTagIDs(ctx context.Context, ids []int) ([]loaders.Relation[int, int], error) {
+	rows, err := pq.queries.getEpisodeIDsWithTagIDs(ctx, getEpisodeIDsWithTagIDsParams{
+		Roles:                      pq.roles,
+		TagIds:                     intToInt32(ids),
+		OnlyPreferredLanguages:     pq.languagePreferences.ContentOnlyInPreferredLanguage,
+		PreferredAudioLanguages:    pq.languagePreferences.PreferredAudioLanguages,
+		PreferredSubtitleLanguages: pq.languagePreferences.PreferredSubtitlesLanguages,
 	})
 	if err != nil {
 		return nil, err

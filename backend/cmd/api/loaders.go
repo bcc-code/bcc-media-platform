@@ -57,6 +57,7 @@ func getPersonalizedLoaders(
 		ContributionsForPersonLoader: loaders.NewListLoader(ctx, pq.GetContributionsForPersonsWithRoles, func(i common.Contribution) uuid.UUID {
 			return i.PersonID
 		}, loaders.WithName("person-contributions")),
+		TagEpisodesLoader: loaders.NewRelationLoader(ctx, pq.GetEpisodeIDsWithTagIDs, loaders.WithName("tags-episodes")),
 	}
 
 	// Canceling the context on delete stops janitors nested inside the loaders as well.
@@ -91,7 +92,6 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		SeasonsLoader:           loaders.NewRelationLoader(ctx, rq.GetSeasonIDsForShowsWithRoles, loaders.WithName("seasons")),
 		SectionsLoader:          loaders.NewRelationLoader(ctx, rq.GetSectionIDsForPagesWithRoles, loaders.WithName("sections")),
 		EpisodesLoader:          loaders.NewRelationLoader(ctx, rq.GetEpisodeIDsForSeasonsWithRoles, loaders.WithName("episodes")),
-		TagEpisodesLoader:       loaders.NewRelationLoader(ctx, rq.GetEpisodeIDsWithTagIDs, loaders.WithName("tags-episodes")),
 		CalendarEntryLoader:     loaders.New(ctx, rq.GetCalendarEntries, loaders.WithMemoryCache(time.Minute*5)),
 		StudyTopicFilterLoader:  loaders.NewFilterLoader(ctx, rq.GetTopicIDsWithRoles, loaders.WithName("study-topic-filter")),
 		StudyLessonFilterLoader: loaders.NewFilterLoader(ctx, rq.GetLessonIDsWithRoles, loaders.WithName("study-lesson-filter")),

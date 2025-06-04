@@ -281,17 +281,25 @@ FROM episodes_tags t
          LEFT JOIN episode_availability access ON access.id = t.episodes_id
          LEFT JOIN episode_roles roles ON roles.id = t.episodes_id
 WHERE t.tags_id = ANY ($1::int[])
+  AND (
+      NOT $2
+      OR access.audio && $3::varchar[]
+      OR access.subtitle && $4::varchar[]
+  )
   AND access.published
   AND access.available_to > now()
   AND (
-    (roles.roles && $2::varchar[] AND access.available_from < now()) OR
-    (roles.roles_earlyaccess && $2::varchar[])
+    (roles.roles && $5::varchar[] AND access.available_from < now()) OR
+    (roles.roles_earlyaccess && $5::varchar[])
     )
 `
 
 type getEpisodeIDsWithTagIDsParams struct {
-	TagIds []int32  `db:"tag_ids" json:"tagIds"`
-	Roles  []string `db:"roles" json:"roles"`
+	TagIds                     []int32     `db:"tag_ids" json:"tagIds"`
+	OnlyPreferredLanguages     interface{} `db:"only_preferred_languages" json:"onlyPreferredLanguages"`
+	PreferredAudioLanguages    []string    `db:"preferred_audio_languages" json:"preferredAudioLanguages"`
+	PreferredSubtitleLanguages []string    `db:"preferred_subtitle_languages" json:"preferredSubtitleLanguages"`
+	Roles                      []string    `db:"roles" json:"roles"`
 }
 
 type getEpisodeIDsWithTagIDsRow struct {
@@ -300,7 +308,13 @@ type getEpisodeIDsWithTagIDsRow struct {
 }
 
 func (q *Queries) getEpisodeIDsWithTagIDs(ctx context.Context, arg getEpisodeIDsWithTagIDsParams) ([]getEpisodeIDsWithTagIDsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getEpisodeIDsWithTagIDs, pq.Array(arg.TagIds), pq.Array(arg.Roles))
+	rows, err := q.db.QueryContext(ctx, getEpisodeIDsWithTagIDs,
+		pq.Array(arg.TagIds),
+		arg.OnlyPreferredLanguages,
+		pq.Array(arg.PreferredAudioLanguages),
+		pq.Array(arg.PreferredSubtitleLanguages),
+		pq.Array(arg.Roles),
+	)
 	if err != nil {
 		return nil, err
 	}
