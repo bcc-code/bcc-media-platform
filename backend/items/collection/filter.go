@@ -57,8 +57,25 @@ func addPermissionFilter(query squirrel.SelectBuilder, roles []string) squirrel.
 	return query
 }
 
+func addLanguageFilter(query jsonlogic.Query, languagePreferences common.LanguagePreferences) jsonlogic.Query {
+	if !languagePreferences.ContentOnlyInPreferredLanguage {
+		return query
+	}
+
+	filter := squirrel.And{}
+
+	filter = append(filter,
+		query.Filter,
+		squirrel.Expr("audio && ?", pq.Array(languagePreferences.PreferredAudioLanguages)),
+		squirrel.Expr("subtitles && ?", pq.Array(languagePreferences.PreferredSubtitlesLanguages)),
+	)
+
+	query.Filter = filter
+	return query
+}
+
 // GetItemIDsForFilter returns an array of ids for the collection
-func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, f common.Filter, noLimit bool) ([]common.Identifier, error) {
+func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, languagePreferences common.LanguagePreferences, f common.Filter, noLimit bool) ([]common.Identifier, error) {
 	if f.Filter == nil {
 		return nil, nil
 	}
@@ -80,9 +97,14 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, f comm
 	}
 
 	query := jsonlogic.GetSQLQueryFromFilter(filterObject)
+	query = addLanguageFilter(query, languagePreferences)
 
 	from := "filter_dataset t"
-	q := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Select("t.collection", "t.id", "t.uuid").From(from).Where(query.Filter)
+	q := squirrel.StatementBuilder.
+		PlaceholderFormat(squirrel.Dollar).
+		Select("t.collection", "t.id", "t.uuid").
+		From(from).
+		Where(query.Filter)
 
 	if !noLimit {
 		if f.Limit != nil && *f.Limit > 0 {
