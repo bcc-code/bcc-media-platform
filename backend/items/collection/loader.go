@@ -97,7 +97,6 @@ type Entry struct {
 func GetBaseCollectionEntries(
 	ctx context.Context,
 	ls *common.BatchLoaders,
-	filteredLoaders *common.LoadersWithPermissions,
 	personalizedLoaders *common.PersonalizedLoaders,
 	collectionId int,
 ) ([]Entry, error) {
@@ -120,7 +119,7 @@ func GetBaseCollectionEntries(
 			}
 		}), nil
 	case "query":
-		itemIds, err := filteredLoaders.CollectionItemIDsLoader.Load(ctx, col.ID)()
+		itemIds, err := personalizedLoaders.CollectionItemIDsLoader.Load(ctx, col.ID)()
 		if err != nil {
 			return nil, err
 		}

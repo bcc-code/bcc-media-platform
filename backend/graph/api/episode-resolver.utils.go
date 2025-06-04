@@ -54,7 +54,7 @@ func (r *episodeResolver) getEpisodeQueue(ctx context.Context, episodeID string)
 	// If the EpisodeContext has a valid CollectionID, use the collectionID to retrieve episodeIDs
 	// else, use the episodes in the season (if any)
 	if episodeContext.CollectionID.Valid {
-		items, err := collection.GetBaseCollectionEntries(ctx, r.Loaders, r.GetFilteredLoaders(ctx), r.GetPersonalizedLoaders(ctx), int(episodeContext.CollectionID.Int64))
+		items, err := collection.GetBaseCollectionEntries(ctx, r.Loaders, r.GetPersonalizedLoaders(ctx), int(episodeContext.CollectionID.Int64))
 		if err != nil {
 			return nil, err
 		}
@@ -240,7 +240,7 @@ func (r *episodeResolver) getNextEpisodeIDsFromShowCollection(ctx context.Contex
 	if err != nil || show == nil || !show.RelatedCollectionID.Valid {
 		return nil, err
 	}
-	entries, err := collection.GetBaseCollectionEntries(ctx, r.Loaders, r.GetFilteredLoaders(ctx), r.GetPersonalizedLoaders(ctx), int(show.RelatedCollectionID.Int64))
+	entries, err := collection.GetBaseCollectionEntries(ctx, r.Loaders, r.GetPersonalizedLoaders(ctx), int(show.RelatedCollectionID.Int64))
 	if err != nil {
 		return nil, err
 	}

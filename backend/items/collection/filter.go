@@ -66,8 +66,10 @@ func addLanguageFilter(query jsonlogic.Query, languagePreferences common.Languag
 
 	filter = append(filter,
 		query.Filter,
-		squirrel.Expr("audio && ?", pq.Array(languagePreferences.PreferredAudioLanguages)),
-		squirrel.Expr("subtitles && ?", pq.Array(languagePreferences.PreferredSubtitlesLanguages)),
+		squirrel.Or{
+			squirrel.Expr("audio && ?", pq.Array(languagePreferences.PreferredAudioLanguages)),
+			squirrel.Expr("subtitles && ?", pq.Array(languagePreferences.PreferredSubtitlesLanguages)),
+		},
 	)
 
 	query.Filter = filter

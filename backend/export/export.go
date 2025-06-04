@@ -406,7 +406,6 @@ type collectionEntry struct {
 }
 
 func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries, collectionIDs []int) error {
-	filteredLoaders := q.GetFilteredLoaders(ctx)
 	personalizedLoaders := q.GetPersonalizedLoaders(ctx)
 	collections, err := q.GetLoaders().CollectionLoader.GetMany(ctx, collectionIDs)
 	if err != nil {
@@ -417,7 +416,7 @@ func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqle
 		if c == nil {
 			continue
 		}
-		entries, err := collection.GetBaseCollectionEntries(ctx, q.GetLoaders(), filteredLoaders, personalizedLoaders, c.ID)
+		entries, err := collection.GetBaseCollectionEntries(ctx, q.GetLoaders(), personalizedLoaders, c.ID)
 		if err != nil {
 			return merry.Wrap(err)
 		}
