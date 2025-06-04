@@ -895,6 +895,8 @@ type FilterDataset struct {
 	AvailableTo   interface{}    `db:"available_to" json:"availableTo"`
 	Roles         interface{}    `db:"roles" json:"roles"`
 	Tags          interface{}    `db:"tags" json:"tags"`
+	Audio         interface{}    `db:"audio" json:"audio"`
+	Subtitles     interface{}    `db:"subtitles" json:"subtitles"`
 }
 
 type Game struct {
@@ -1572,6 +1574,7 @@ type ShowAvailability struct {
 	AvailableTo   null_v4.Time `db:"available_to" json:"availableTo"`
 	Audio         interface{}  `db:"audio" json:"audio"`
 	Subtitles     interface{}  `db:"subtitles" json:"subtitles"`
+	ShowID        int32        `db:"show_id" json:"showId"`
 }
 
 type ShowRole struct {

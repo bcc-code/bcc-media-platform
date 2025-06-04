@@ -276,7 +276,7 @@ func (r *Resolver) sectionCollectionEntryResolver(
 	}
 
 	if limit > 0 {
-		entries = entries[:limit]
+		entries = entries[:min(len(entries), limit)]
 	}
 
 	pagination := utils.Paginate(entries, first, offset, nil)

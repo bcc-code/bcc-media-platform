@@ -54,6 +54,9 @@ func getPersonalizedLoaders(
 			return i.CollectionID
 		}),
 		CollectionItemIDsLoader: collection.NewCollectionItemLoader(ctx, db, collectionLoader, roles, languagePreferences),
+		ContributionsForPersonLoader: loaders.NewListLoader(ctx, pq.GetContributionsForPersonsWithRoles, func(i common.Contribution) uuid.UUID {
+			return i.PersonID
+		}, loaders.WithName("person-contributions")),
 	}
 
 	// Canceling the context on delete stops janitors nested inside the loaders as well.
@@ -95,9 +98,6 @@ func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loa
 		StudyTaskFilterLoader:   loaders.NewFilterLoader(ctx, rq.GetTaskIDsWithRoles, loaders.WithName("study-task-filter")),
 		StudyLessonsLoader:      loaders.NewRelationLoader(ctx, rq.GetLessonIDsForTopics, loaders.WithName("study-lessons")),
 		StudyTasksLoader:        loaders.NewRelationLoader(ctx, rq.GetTaskIDsForLessons, loaders.WithName("study-tasks")),
-		ContributionsForPersonLoader: loaders.NewListLoader(ctx, rq.GetContributionsForPersonsWithRoles, func(i common.Contribution) uuid.UUID {
-			return i.PersonID
-		}, loaders.WithName("person-contributions")),
 
 		// Study Relations
 		StudyLessonEpisodesLoader: loaders.NewRelationLoader(ctx, rq.GetEpisodeIDsForLessons, loaders.WithName("study-lesson-episodes")),

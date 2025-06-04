@@ -8,11 +8,15 @@ import (
 	"github.com/samber/lo"
 )
 
-func (q *RoleQueries) GetContributionsForPersonsWithRoles(ctx context.Context, ids []uuid.UUID) ([]common.Contribution, error) {
+func (q *PersonalizedQueries) GetContributionsForPersonsWithRoles(ctx context.Context, ids []uuid.UUID) ([]common.Contribution, error) {
 	rows, err := q.queries.getContributionIDsForPersonsWithRoles(ctx, getContributionIDsForPersonsWithRolesParams{
-		PersonIds: ids,
-		Roles:     q.roles,
+		PersonIds:                  ids,
+		Roles:                      q.roles,
+		PreferredLanguagesOnly:     q.languagePreferences.ContentOnlyInPreferredLanguage,
+		PreferredAudioLanguages:    q.languagePreferences.PreferredAudioLanguages,
+		PreferredSubtitleLanguages: q.languagePreferences.PreferredSubtitlesLanguages,
 	})
+
 	if err != nil {
 		return nil, err
 	}

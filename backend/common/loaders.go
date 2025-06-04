@@ -105,23 +105,22 @@ type BatchLoaders struct {
 type LoadersWithPermissions struct {
 	Key string
 
-	EpisodeFilterLoader          *loaders.Loader[int, *int]
-	EpisodeUUIDFilterLoader      *loaders.Loader[uuid.UUID, *uuid.UUID]
-	EpisodesLoader               *loaders.Loader[int, []*int]
-	TagEpisodesLoader            *loaders.Loader[int, []*int]
-	SeasonFilterLoader           *loaders.Loader[int, *int]
-	SeasonsLoader                *loaders.Loader[int, []*int]
-	ShowFilterLoader             *loaders.Loader[int, *int]
-	ShowUUIDFilterLoader         *loaders.Loader[uuid.UUID, *uuid.UUID]
-	SectionsLoader               *loaders.Loader[int, []*int]
-	CalendarEntryLoader          *loaders.Loader[int, *CalendarEntry]
-	StudyTopicFilterLoader       *loaders.Loader[uuid.UUID, *uuid.UUID]
-	StudyLessonsLoader           *loaders.Loader[uuid.UUID, []*uuid.UUID]
-	StudyLessonFilterLoader      *loaders.Loader[uuid.UUID, *uuid.UUID]
-	StudyTasksLoader             *loaders.Loader[uuid.UUID, []*uuid.UUID]
-	StudyTaskFilterLoader        *loaders.Loader[uuid.UUID, *uuid.UUID]
-	SurveyQuestionsLoader        *loaders.Loader[uuid.UUID, []*uuid.UUID]
-	ContributionsForPersonLoader *loaders.Loader[uuid.UUID, []*Contribution]
+	EpisodeFilterLoader     *loaders.Loader[int, *int]
+	EpisodeUUIDFilterLoader *loaders.Loader[uuid.UUID, *uuid.UUID]
+	EpisodesLoader          *loaders.Loader[int, []*int]
+	TagEpisodesLoader       *loaders.Loader[int, []*int]
+	SeasonFilterLoader      *loaders.Loader[int, *int]
+	SeasonsLoader           *loaders.Loader[int, []*int]
+	ShowFilterLoader        *loaders.Loader[int, *int]
+	ShowUUIDFilterLoader    *loaders.Loader[uuid.UUID, *uuid.UUID]
+	SectionsLoader          *loaders.Loader[int, []*int]
+	CalendarEntryLoader     *loaders.Loader[int, *CalendarEntry]
+	StudyTopicFilterLoader  *loaders.Loader[uuid.UUID, *uuid.UUID]
+	StudyLessonsLoader      *loaders.Loader[uuid.UUID, []*uuid.UUID]
+	StudyLessonFilterLoader *loaders.Loader[uuid.UUID, *uuid.UUID]
+	StudyTasksLoader        *loaders.Loader[uuid.UUID, []*uuid.UUID]
+	StudyTaskFilterLoader   *loaders.Loader[uuid.UUID, *uuid.UUID]
+	SurveyQuestionsLoader   *loaders.Loader[uuid.UUID, []*uuid.UUID]
 
 	FAQQuestionsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
 
@@ -142,12 +141,11 @@ type LoadersWithPermissions struct {
 //
 // This includes things like permissions, settings, langauges, etc
 type PersonalizedLoaders struct {
-	// TODO: consider making this private, and have a method that takes the params and calculates a hash key
-	// The be benefit would be that it is centralized, but at the same time we only create this in one place
 	Key string
 
-	CollectionItemsLoader   *loaders.Loader[int, []*CollectionItem]
-	CollectionItemIDsLoader *loaders.Loader[int, []Identifier]
+	CollectionItemsLoader        *loaders.Loader[int, []*CollectionItem]
+	CollectionItemIDsLoader      *loaders.Loader[int, []Identifier]
+	ContributionsForPersonLoader *loaders.Loader[uuid.UUID, []*Contribution]
 }
 
 // ProfileLoaders contains loaders per profile
