@@ -1,13 +1,3 @@
-// Package loaders provides utilities for efficient batch loading and data conversion.
-// It's particularly useful for GraphQL servers to solve the N+1 query problem.
-//
-// The package provides several types of loaders:
-// - NewLoader: Basic key-value batch loader
-// - NewListLoader: Loads lists of values for each key
-// - NewConversionLoader: Converts between types during loading
-// - NewRelationLoader: Handles many-to-many relationships
-//
-// For detailed documentation and examples, see the individual functions and types.
 package loaders
 
 import (
@@ -27,8 +17,6 @@ import (
 //
 //	func (c UUIDToStringConversion) GetOriginal() uuid.UUID { return c.original }
 //	func (c UUIDToStringConversion) GetResult() string     { return c.result }
-//
-// See the package documentation for more examples and usage patterns.
 type Conversion[O comparable, R any] interface {
 	// GetOriginal returns the original key used for the conversion
 	GetOriginal() O
@@ -37,10 +25,9 @@ type Conversion[O comparable, R any] interface {
 }
 
 // NewConversionLoader creates a new batch loader that converts between two types.
-// It's particularly useful for GraphQL data loaders where you need to fetch data in batches
-// and convert it to a different type.
+// It's particularly useful for when the query returns data of a different type than the object we want out.
 //
-// The function takes a factory function that knows how to convert a batch of input keys (type O)
+// The function takes a `converter` function that knows how to convert a batch of input keys (type O)
 // into a slice of Conversion[O, R] results. The loader handles batching, caching, and error
 // propagation automatically.
 //
@@ -63,17 +50,15 @@ type Conversion[O comparable, R any] interface {
 //		WithMemoryCache(5*time.Minute),
 //		WithName("my-loader"),
 //	)
-//
-// For more detailed documentation and examples, see the package documentation.
 func NewConversionLoader[o comparable, rt any](
 	ctx context.Context,
-	factory func(ctx context.Context, ids []o) ([]Conversion[o, rt], error),
+	converter func(ctx context.Context, ids []o) ([]Conversion[o, rt], error),
 	opts ...Option,
 ) *Loader[o, *rt] {
 	batchLoadLists := func(ctx context.Context, keys []o) []*dataloader.Result[*rt] {
 		var results []*dataloader.Result[*rt]
 
-		res, err := factory(ctx, keys)
+		res, err := converter(ctx, keys)
 
 		resMap := map[o]*rt{}
 
