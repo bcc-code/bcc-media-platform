@@ -114,7 +114,8 @@ SELECT 'episodes'::text                                                         
        av.available_from,
        av.available_to,
        COALESCE(roles.roles, '{}'::character varying[])                                                      AS roles,
-       ARRAY(SELECT DISTINCT unnest(array_cat(e_tags.tags, array_cat(s_tags.tags, sh_tags.tags))) AS unnest) AS tags
+       ARRAY(SELECT DISTINCT unnest(array_cat(e_tags.tags, array_cat(s_tags.tags, sh_tags.tags))) AS unnest) AS tags,
+       av.audio, av.subtitle as subtitles
 FROM episodes e
          JOIN mediaitems mi ON mi.id = e.mediaitem_id
          LEFT JOIN episode_roles roles ON roles.id = e.id
@@ -137,7 +138,8 @@ SELECT 'seasons'::text                                                          
        av.available_from,
        av.available_to,
        COALESCE(roles.roles, '{}'::character varying[])                              AS roles,
-       ARRAY(SELECT DISTINCT unnest(array_cat(s_tags.tags, sh_tags.tags)) AS unnest) AS tags
+       ARRAY(SELECT DISTINCT unnest(array_cat(s_tags.tags, sh_tags.tags)) AS unnest) AS tags,
+       av.audio, av.subtitles
 FROM seasons se
          LEFT JOIN season_roles roles ON roles.id = se.id
          LEFT JOIN season_availability av ON av.id = se.id
@@ -157,7 +159,8 @@ SELECT 'shows'::text                                      AS collection,
        av.available_from,
        av.available_to,
        COALESCE(shr.roles, '{}'::character varying[])     AS roles,
-       COALESCE(sh_tags.tags, '{}'::character varying[])  AS tags
+       COALESCE(sh_tags.tags, '{}'::character varying[])  AS tags,
+       av.audio, av.subtitles
 FROM shows sh
          LEFT JOIN show_roles shr ON shr.id = sh.id
          LEFT JOIN show_availability av ON av.id = sh.id
@@ -176,7 +179,9 @@ SELECT 'games'::text                                      AS collection,
        '1800-01-01 00:00:00'::timestamp without time zone AS available_from,
        '3000-01-01 00:00:00'::timestamp without time zone AS available_to,
        COALESCE(r.roles, '{}'::character varying[])       AS roles,
-       '{}'::character varying[]                          AS tags
+       '{}'::character varying[]                          AS tags,
+       '{}'::character varying[]                          AS audio,
+       '{}'::character varying[]                          AS subtitles
 FROM games g
          LEFT JOIN g_roles r ON r.games_id = g.id
 UNION
@@ -193,7 +198,9 @@ SELECT 'playlists'::text                                  AS collection,
        '1800-01-01 00:00:00'::timestamp without time zone AS available_from,
        '3000-01-01 00:00:00'::timestamp without time zone AS available_to,
        COALESCE(r.roles, '{}'::character varying[])       AS roles,
-       '{}'::character varying[]                          AS tags
+       '{}'::character varying[]                          AS tags,
+       '{}'::character varying[]                          AS audio,
+       '{}'::character varying[]                          AS subtitles
 FROM playlists p
          LEFT JOIN p_roles r ON r.playlists_id = p.id
 UNION
@@ -210,7 +217,9 @@ SELECT 'shorts'::text                                     AS collection,
        '1800-01-01 00:00:00'::timestamp without time zone AS available_from,
        '3000-01-01 00:00:00'::timestamp without time zone AS available_to,
        COALESCE(r.roles, '{}'::character varying[])       AS roles,
-       '{}'::character varying[]                          AS tags
+       '{}'::character varying[]                          AS tags,
+       '{no}'::character varying[]                          AS audio,
+       '{no}'::character varying[]                          AS subtitles
 FROM shorts s
          LEFT JOIN s_roles r ON r.shorts_id = s.id;
 -- +goose StatementEnd
