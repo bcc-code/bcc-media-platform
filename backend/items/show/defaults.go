@@ -6,7 +6,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func getEpisodeIDFromSeason(ctx context.Context, ls *common.FilteredLoaders, sID *int, first bool) (*int, error) {
+func getEpisodeIDFromSeason(ctx context.Context, ls *common.LoadersWithPermissions, sID *int, first bool) (*int, error) {
 	if sID == nil {
 		return nil, nil
 	}
@@ -36,7 +36,7 @@ func getDefaultEpisodeString(show *common.Show) string {
 }
 
 // DefaultSeasonID retrieves the default seasonID from show
-func DefaultSeasonID(ctx context.Context, ls *common.FilteredLoaders, show *common.Show) (*int, error) {
+func DefaultSeasonID(ctx context.Context, ls *common.LoadersWithPermissions, show *common.Show) (*int, error) {
 	sIDs, err := ls.SeasonsLoader.Get(ctx, show.ID)
 	if err != nil || len(sIDs) == 0 {
 		return nil, err
@@ -53,7 +53,7 @@ func DefaultSeasonID(ctx context.Context, ls *common.FilteredLoaders, show *comm
 }
 
 // DefaultEpisodeID returns the default episode for the show
-func DefaultEpisodeID(ctx context.Context, ls *common.FilteredLoaders, show *common.Show) (*int, error) {
+func DefaultEpisodeID(ctx context.Context, ls *common.LoadersWithPermissions, show *common.Show) (*int, error) {
 	sId, err := DefaultSeasonID(ctx, ls, show)
 	if err != nil {
 		return nil, err

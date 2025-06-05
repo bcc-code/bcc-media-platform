@@ -83,7 +83,7 @@ WITH RelevantContributions AS (
   FROM
     public.mediaitems m
   INNER JOIN contributions c ON c.mediaitem_id = m.id
-    and c.person_id = ANY ($2::uuid[])
+    and c.person_id = ANY ($5::uuid[])
     and m.primary_episode_id is not null
   UNION
   ALL
@@ -99,7 +99,7 @@ WITH RelevantContributions AS (
     (m.timedmetadata_from_asset AND tm.asset_id = m.asset_id)
     OR (NOT m.timedmetadata_from_asset AND tm.mediaitem_id = m.id)
   INNER JOIN contributions c ON c.timedmetadata_id = tm.id
-  and c.person_id = ANY ($2::uuid[])
+  and c.person_id = ANY ($5::uuid[])
   WHERE tm.status = 'published'
 )
 SELECT
@@ -116,21 +116,29 @@ FROM
   JOIN public.episode_roles roles ON roles.id = m.primary_episode_id
 WHERE
   access.published
+  AND (
+    NOT $1
+     OR access.audio && $2::varchar[]
+     OR access.subtitle && $3::varchar[]
+  )
   AND access.available_to > now()
   AND (
     (
-      roles.roles && $1::varchar[]
+      roles.roles && $4::varchar[]
       AND access.available_from < now()
     )
-    OR (roles.roles_earlyaccess && $1::varchar[])
+    OR (roles.roles_earlyaccess && $4::varchar[])
   )
 ORDER BY
   m.published_at DESC
 `
 
 type getContributionIDsForPersonsWithRolesParams struct {
-	Roles     []string    `db:"roles" json:"roles"`
-	PersonIds []uuid.UUID `db:"person_ids" json:"personIds"`
+	PreferredLanguagesOnly     interface{} `db:"preferred_languages_only" json:"preferredLanguagesOnly"`
+	PreferredAudioLanguages    []string    `db:"preferred_audio_languages" json:"preferredAudioLanguages"`
+	PreferredSubtitleLanguages []string    `db:"preferred_subtitle_languages" json:"preferredSubtitleLanguages"`
+	Roles                      []string    `db:"roles" json:"roles"`
+	PersonIds                  []uuid.UUID `db:"person_ids" json:"personIds"`
 }
 
 type getContributionIDsForPersonsWithRolesRow struct {
@@ -143,7 +151,13 @@ type getContributionIDsForPersonsWithRolesRow struct {
 }
 
 func (q *Queries) getContributionIDsForPersonsWithRoles(ctx context.Context, arg getContributionIDsForPersonsWithRolesParams) ([]getContributionIDsForPersonsWithRolesRow, error) {
-	rows, err := q.db.QueryContext(ctx, getContributionIDsForPersonsWithRoles, pq.Array(arg.Roles), pq.Array(arg.PersonIds))
+	rows, err := q.db.QueryContext(ctx, getContributionIDsForPersonsWithRoles,
+		arg.PreferredLanguagesOnly,
+		pq.Array(arg.PreferredAudioLanguages),
+		pq.Array(arg.PreferredSubtitleLanguages),
+		pq.Array(arg.Roles),
+		pq.Array(arg.PersonIds),
+	)
 	if err != nil {
 		return nil, err
 	}

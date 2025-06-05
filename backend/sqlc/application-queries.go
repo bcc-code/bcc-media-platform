@@ -2,7 +2,6 @@ package sqlc
 
 import (
 	"context"
-
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/google/uuid"
@@ -73,6 +72,12 @@ func (q *Queries) GetApplicationGroups(ctx context.Context, ids []uuid.UUID) ([]
 		return common.ApplicationGroup{
 			ID:    i.ID,
 			Roles: i.Roles,
+
+			DefaultLanguagePreferences: common.LanguagePreferences{
+				ContentOnlyInPreferredLanguage: i.OnlyContentInPreferredLanguages,
+				PreferredAudioLanguages:        i.DefaultPreferredAudioLanguages,
+				PreferredSubtitlesLanguages:    i.DefaultPreferredSubtitleLanguages,
+			},
 		}
 	}), nil
 }

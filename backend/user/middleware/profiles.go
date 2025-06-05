@@ -5,7 +5,6 @@ import (
 	"time"
 
 	cache "github.com/Code-Hex/go-generics-cache"
-	"github.com/bcc-code/bcc-media-platform/backend/applications"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
@@ -83,7 +82,7 @@ func NewProfileMiddleware(queries *sqlc.Queries, client *remotecache.Client) fun
 			return
 		}
 
-		app, err := applications.GetFromCtx(ctx)
+		app, err := common.GetApplicationFromCtx(ctx)
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to get application from context")
 			return

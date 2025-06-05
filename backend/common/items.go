@@ -460,6 +460,8 @@ func (i Application) GetKey() int {
 type ApplicationGroup struct {
 	ID    uuid.UUID
 	Roles []string
+
+	DefaultLanguagePreferences LanguagePreferences
 }
 
 // GetKey returns the key for this item

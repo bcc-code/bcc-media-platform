@@ -15,8 +15,25 @@ import (
 	"github.com/samber/lo"
 )
 
+func NewCollectionItemLoaderWithNoLanguageFilter(
+	ctx context.Context,
+	db *sql.DB,
+	collectionLoader *loaders.Loader[int, *common.Collection],
+	roles []string,
+) *loaders.Loader[int, []common.Identifier] {
+	return NewCollectionItemLoader(ctx, db, collectionLoader, roles, common.LanguagePreferences{
+		ContentOnlyInPreferredLanguage: false,
+	})
+}
+
 // NewCollectionItemLoader returns a new loader for getting ItemIds for Collection
-func NewCollectionItemLoader(ctx context.Context, db *sql.DB, collectionLoader *loaders.Loader[int, *common.Collection], roles []string) *loaders.Loader[int, []common.Identifier] {
+func NewCollectionItemLoader(
+	ctx context.Context,
+	db *sql.DB,
+	collectionLoader *loaders.Loader[int, *common.Collection],
+	roles []string,
+	languagePreferences common.LanguagePreferences,
+) *loaders.Loader[int, []common.Identifier] {
 	batchLoader := func(ctx context.Context, keys []int) []*dataloader.Result[[]common.Identifier] {
 		var results []*dataloader.Result[[]common.Identifier]
 		var err error
@@ -35,7 +52,7 @@ func NewCollectionItemLoader(ctx context.Context, db *sql.DB, collectionLoader *
 					if i.Filter == nil {
 						i.Filter = &common.Filter{}
 					}
-					identifiers, err = GetItemIDsForFilter(ctx, db, roles, *i.Filter, i.AdvancedType.String == "continue_watching" || i.AdvancedType.String == "my_list")
+					identifiers, err = GetItemIDsForFilter(ctx, db, roles, languagePreferences, *i.Filter, i.AdvancedType.String == "continue_watching" || i.AdvancedType.String == "my_list")
 					if err != nil {
 						log.L.Error().Err(err).
 							Msg("Failed to select itemIds from collection")
@@ -77,7 +94,12 @@ type Entry struct {
 // GetBaseCollectionEntries returns entries for the specified collection, without any special filtering
 //
 // Note: The collection config might specify advanced filtering, like continue watching or my list, which is not handled here
-func GetBaseCollectionEntries(ctx context.Context, ls *common.BatchLoaders, filteredLoaders *common.FilteredLoaders, collectionId int) ([]Entry, error) {
+func GetBaseCollectionEntries(
+	ctx context.Context,
+	ls *common.BatchLoaders,
+	personalizedLoaders *common.PersonalizedLoaders,
+	collectionId int,
+) ([]Entry, error) {
 	col, err := ls.CollectionLoader.Get(ctx, collectionId)
 	if err != nil {
 		return nil, err
@@ -85,7 +107,7 @@ func GetBaseCollectionEntries(ctx context.Context, ls *common.BatchLoaders, filt
 
 	switch col.Type {
 	case "select":
-		items, err := filteredLoaders.CollectionItemsLoader.Get(ctx, col.ID)
+		items, err := personalizedLoaders.CollectionItemsLoader.Get(ctx, col.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -97,7 +119,7 @@ func GetBaseCollectionEntries(ctx context.Context, ls *common.BatchLoaders, filt
 			}
 		}), nil
 	case "query":
-		itemIds, err := filteredLoaders.CollectionItemIDsLoader.Load(ctx, col.ID)()
+		itemIds, err := personalizedLoaders.CollectionItemIDsLoader.Load(ctx, col.ID)()
 		if err != nil {
 			return nil, err
 		}

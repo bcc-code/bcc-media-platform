@@ -116,14 +116,27 @@ type Application struct {
 }
 
 type Applicationgroup struct {
-	ID                uuid.UUID      `db:"id" json:"id"`
-	UserCreated       uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	DateCreated       null_v4.Time   `db:"date_created" json:"dateCreated"`
-	UserUpdated       uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	DateUpdated       null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	Label             string         `db:"label" json:"label"`
-	SupportEmail      null_v4.String `db:"support_email" json:"supportEmail"`
-	FirebaseProjectID null_v4.String `db:"firebase_project_id" json:"firebaseProjectId"`
+	ID                              uuid.UUID      `db:"id" json:"id"`
+	UserCreated                     uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	DateCreated                     null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserUpdated                     uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	DateUpdated                     null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	Label                           string         `db:"label" json:"label"`
+	SupportEmail                    null_v4.String `db:"support_email" json:"supportEmail"`
+	FirebaseProjectID               null_v4.String `db:"firebase_project_id" json:"firebaseProjectId"`
+	OnlyContentInPreferredLanguages bool           `db:"only_content_in_preferred_languages" json:"onlyContentInPreferredLanguages"`
+}
+
+type ApplicationgroupsLanguage struct {
+	ID                  int32          `db:"id" json:"id"`
+	ApplicationgroupsID uuid.NullUUID  `db:"applicationgroups_id" json:"applicationgroupsId"`
+	LanguagesCode       null_v4.String `db:"languages_code" json:"languagesCode"`
+}
+
+type ApplicationgroupsLanguagesSub struct {
+	ID                  int32          `db:"id" json:"id"`
+	ApplicationgroupsID uuid.NullUUID  `db:"applicationgroups_id" json:"applicationgroupsId"`
+	LanguagesCode       null_v4.String `db:"languages_code" json:"languagesCode"`
 }
 
 type ApplicationgroupsUsergroup struct {
@@ -733,6 +746,9 @@ type EpisodeAvailability struct {
 	AvailableFrom interface{}  `db:"available_from" json:"availableFrom"`
 	AvailableTo   interface{}  `db:"available_to" json:"availableTo"`
 	PublishedOn   interface{}  `db:"published_on" json:"publishedOn"`
+	Audio         interface{}  `db:"audio" json:"audio"`
+	Subtitle      interface{}  `db:"subtitle" json:"subtitle"`
+	SeasonID      null_v4.Int  `db:"season_id" json:"seasonId"`
 }
 
 type EpisodeRole struct {
@@ -879,6 +895,8 @@ type FilterDataset struct {
 	AvailableTo   interface{}    `db:"available_to" json:"availableTo"`
 	Roles         interface{}    `db:"roles" json:"roles"`
 	Tags          interface{}    `db:"tags" json:"tags"`
+	Audio         interface{}    `db:"audio" json:"audio"`
+	Subtitles     interface{}    `db:"subtitles" json:"subtitles"`
 }
 
 type Game struct {
@@ -1424,6 +1442,9 @@ type SeasonAvailability struct {
 	Published     sql.NullBool `db:"published" json:"published"`
 	AvailableFrom interface{}  `db:"available_from" json:"availableFrom"`
 	AvailableTo   interface{}  `db:"available_to" json:"availableTo"`
+	Audio         interface{}  `db:"audio" json:"audio"`
+	Subtitles     interface{}  `db:"subtitles" json:"subtitles"`
+	ShowID        int32        `db:"show_id" json:"showId"`
 }
 
 type SeasonRole struct {
@@ -1551,6 +1572,9 @@ type ShowAvailability struct {
 	Published     bool         `db:"published" json:"published"`
 	AvailableFrom null_v4.Time `db:"available_from" json:"availableFrom"`
 	AvailableTo   null_v4.Time `db:"available_to" json:"availableTo"`
+	Audio         interface{}  `db:"audio" json:"audio"`
+	Subtitles     interface{}  `db:"subtitles" json:"subtitles"`
+	ShowID        int32        `db:"show_id" json:"showId"`
 }
 
 type ShowRole struct {

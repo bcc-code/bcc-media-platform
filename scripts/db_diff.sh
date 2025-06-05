@@ -82,13 +82,14 @@ fi
 ## CREATE A NEW MIGRATION AND SAVE FILENAME
 MIGRATION=$(goose create "$MIGRATIONNAME" sql 2>&1 | sed 's/.*: //')
 
-## FILL THE MIGRATION FILE
+## FIX THE MIGRATION FILE
 echo "-- +goose Up" > $MIGRATION
 cat $UP | sed 's/CREATE FUNCTION/-- +goose StatementBegin\nCREATE FUNCTION/' | sed 's/$$;/$$;\n-- +goose StatementEnd/' >> $MIGRATION
 echo "-- +goose Down" >> $MIGRATION
 cat $DOWN | sed 's/CREATE FUNCTION/-- +goose StatementBegin\nCREATE FUNCTION/' | sed 's/$$;/$$;\n-- +goose StatementEnd/' >> $MIGRATION
 
 echo Cleanup
+./cleanup_sql.sh $MIGRATION
 rm -v $UP $DOWN
 
 goose fix

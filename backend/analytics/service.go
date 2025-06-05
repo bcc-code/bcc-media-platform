@@ -1,7 +1,6 @@
 package analytics
 
 import (
-	"github.com/bcc-code/bcc-media-platform/backend/applications"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/gin-gonic/gin"
@@ -43,7 +42,7 @@ func NewService(config Config) *Service {
 }
 
 func (s *Service) trackEvent(ctx *gin.Context, analyticsID string, event string, props r.Properties) {
-	app, _ := applications.GetFromCtx(ctx)
+	app, _ := common.GetApplicationFromCtx(ctx)
 
 	props = props.Set("requestId", ctx.GetHeader("X-Request-ID")).
 		Set("sessionId", ctx.GetHeader("X-Session-ID")).

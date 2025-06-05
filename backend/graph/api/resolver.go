@@ -60,22 +60,23 @@ type bmmClient interface {
 // Resolver is the main struct for the GQL implementation
 // It contains references to all external services and config
 type Resolver struct {
-	Queries            *sqlc.Queries
-	Loaders            *common.BatchLoaders
-	FilteredLoaders    func(ctx context.Context) *common.FilteredLoaders
-	ProfileLoaders     func(ctx context.Context) *common.ProfileLoaders
-	SearchService      searchProvider
-	EmailService       *email.Service
-	URLSigner          *signing.Signer
-	S3Client           *s3.Client
-	APIConfig          apiConfig
-	AWSConfig          awsConfig
-	AnalyticsIDFactory func(ctx context.Context) string
-	RedirectConfig     redirectConfig
-	AuthClient         *auth0.Client
-	RemoteCache        *remotecache.Client
-	AnalyticsClient    analyticsService
-	BMMClient          bmmClient
+	Queries             *sqlc.Queries
+	Loaders             *common.BatchLoaders
+	FilteredLoaders     func(ctx context.Context) *common.LoadersWithPermissions
+	ProfileLoaders      func(ctx context.Context) *common.ProfileLoaders
+	PersonalizedLoaders func(ctx context.Context) *common.PersonalizedLoaders
+	SearchService       searchProvider
+	EmailService        *email.Service
+	URLSigner           *signing.Signer
+	S3Client            *s3.Client
+	APIConfig           apiConfig
+	AWSConfig           awsConfig
+	AnalyticsIDFactory  func(ctx context.Context) string
+	RedirectConfig      redirectConfig
+	AuthClient          *auth0.Client
+	RemoteCache         *remotecache.Client
+	AnalyticsClient     analyticsService
+	BMMClient           bmmClient
 }
 
 func (r *Resolver) GetQueries() *sqlc.Queries {
@@ -86,8 +87,12 @@ func (r *Resolver) GetLoaders() *common.BatchLoaders {
 	return r.Loaders
 }
 
-func (r *Resolver) GetFilteredLoaders(ctx context.Context) *common.FilteredLoaders {
+func (r *Resolver) GetFilteredLoaders(ctx context.Context) *common.LoadersWithPermissions {
 	return r.FilteredLoaders(ctx)
+}
+
+func (r *Resolver) GetPersonalizedLoaders(ctx context.Context) *common.PersonalizedLoaders {
+	return r.PersonalizedLoaders(ctx)
 }
 
 func (r *Resolver) GetProfileLoaders(ctx context.Context) *common.ProfileLoaders {

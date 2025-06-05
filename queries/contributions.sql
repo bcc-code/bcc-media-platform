@@ -44,6 +44,11 @@ FROM
   JOIN public.episode_roles roles ON roles.id = m.primary_episode_id
 WHERE
   access.published
+  AND (
+    NOT @preferred_languages_only
+     OR access.audio && @preferred_audio_languages::varchar[]
+     OR access.subtitle && @preferred_subtitle_languages::varchar[]
+  )
   AND access.available_to > now()
   AND (
     (

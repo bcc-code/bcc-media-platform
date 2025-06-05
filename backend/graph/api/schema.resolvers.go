@@ -14,7 +14,6 @@ import (
 
 	"github.com/Code-Hex/go-generics-cache"
 	merry "github.com/ansel1/merry/v2"
-	"github.com/bcc-code/bcc-media-platform/backend/applications"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/export"
@@ -39,7 +38,7 @@ func (r *queryRootResolver) Application(ctx context.Context, timestamp *string) 
 	if err != nil {
 		return nil, err
 	}
-	ctxApp, err := applications.GetFromCtx(ginCtx)
+	ctxApp, err := common.GetApplicationFromCtx(ginCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -573,7 +572,7 @@ func (r *queryRootResolver) MyList(ctx context.Context) (*model.UserCollection, 
 	if err != nil {
 		return nil, err
 	}
-	app, err := applications.GetFromCtx(ginCtx)
+	app, err := common.GetApplicationFromCtx(ginCtx)
 	if err != nil {
 		return nil, err
 	}

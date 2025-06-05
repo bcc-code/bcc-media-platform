@@ -175,6 +175,11 @@ FROM episodes_tags t
          LEFT JOIN episode_availability access ON access.id = t.episodes_id
          LEFT JOIN episode_roles roles ON roles.id = t.episodes_id
 WHERE t.tags_id = ANY (@tag_ids::int[])
+  AND (
+      NOT @only_preferred_languages
+      OR access.audio && @preferred_audio_languages::varchar[]
+      OR access.subtitle && @preferred_subtitle_languages::varchar[]
+  )
   AND access.published
   AND access.available_to > now()
   AND (
