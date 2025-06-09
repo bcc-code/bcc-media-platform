@@ -26,7 +26,7 @@
 		"typescript": "^5.6.2"
 	},
 	"dependencies": {
-		"@directus/types": "^12.0.1",
+		"@directus/types": "^13.0.0",
 		"@google-cloud/pubsub": "^4.7.2",
 		"cloudevents": "^8.0.2"
 	},
