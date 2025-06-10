@@ -8,10 +8,10 @@ DROP VIEW public.episode_availability;
 
 -- Create a new aggregate function that can handle empty arrays
 -- +goose StatementBegin
-CREATE OR REPLACE AGGREGATE array_accum (anyarray)
+CREATE OR REPLACE AGGREGATE array_accum (anycompatiblearray)
     (
     sfunc = array_cat,
-    stype = anyarray,
+    stype = anycompatiblearray,
     initcond = '{}'
     );
 -- +goose StatementEnd
