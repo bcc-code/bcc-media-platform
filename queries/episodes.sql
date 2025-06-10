@@ -104,7 +104,7 @@ SELECT e.id,
 FROM episodes e
          LEFT JOIN episode_availability access ON access.id = e.id
          LEFT JOIN episode_roles roles ON roles.id = e.id
-WHERE season_id = ANY ($1::int[])
+WHERE e.season_id = ANY ($1::int[])
   AND access.published
   AND access.available_to > now()
   AND (
