@@ -50,7 +50,7 @@ func TestAddLanguageFilterWithPreferredLanguages(t *testing.T) {
 
 	actual, params, err := result.Filter.ToSql()
 	assert.NoError(t, err)
-	assert.Equal(t, "(id = ? AND audio && ? AND subtitles && ?)", actual)
+	assert.Equal(t, "(id = ? AND (audio && ? OR subtitles && ?))", actual)
 	assert.Equal(t, 3, len(params))
 	assert.Equal(t, query.Joins, result.Joins)
 }
@@ -78,7 +78,7 @@ func TestAddLanguageFilterWithComplexOriginalFilter(t *testing.T) {
 	// Assert - Compare the number of conditions
 	andFilter, ok := result.Filter.(squirrel.And)
 	assert.True(t, ok, "Result filter should be of type squirrel.And")
-	assert.Equal(t, 3, len(andFilter), "Should have 3 conditions in AND (original + 2 language filters)")
+	assert.Equal(t, 2, len(andFilter), "Should have 2 conditions in AND (original + (2 language filters combined with OR))")
 
 	// Convert to SQL to check all conditions are preserved
 	sql, args, err := result.Filter.ToSql()
