@@ -57,6 +57,125 @@ func (q *Queries) getCollectionEntriesForCollections(ctx context.Context, dollar
 	return items, nil
 }
 
+const getCollectionEntriesForCollectionsFilteredByRolesAndLanguages = `-- name: getCollectionEntriesForCollectionsFilteredByRolesAndLanguages :many
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+         LEFT JOIN episode_roles er ON ce.collection = 'episodes' AND er.id::varchar = ce.item
+         LEFT JOIN episode_availability ea ON ce.collection = 'episodes' AND ea.id::varchar = ce.item
+         LEFT JOIN season_roles sr ON ce.collection = 'seasons' AND sr.id::varchar = ce.item
+         LEFT JOIN season_availability sa ON ce.collection = 'seasons' AND sa.id::varchar = ce.item
+         LEFT JOIN show_roles shr ON ce.collection = 'shows' AND shr.id::varchar = ce.item
+         LEFT JOIN show_availability sha ON ce.collection = 'shows' AND sha.id::varchar = ce.item
+         LEFT JOIN (SELECT gr.games_id::varchar, array_agg(gr.usergroups_code)::varchar[] roles
+                    FROM games_usergroups gr
+                    GROUP BY gr.games_id) gr ON ce.collection = 'games' AND gr.games_id::varchar = ce.item
+         LEFT JOIN (SELECT pr.playlists_id::varchar, array_agg(pr.usergroups_code)::varchar[] roles
+                    FROM playlists_usergroups pr
+                    GROUP BY pr.playlists_id) pr ON ce.collection = 'playlists' AND pr.playlists_id = ce.item
+         LEFT JOIN (SELECT s.page_id::varchar, array_agg(DISTINCT (ug.usergroups_code)) roles
+                    FROM sections_usergroups ug
+                             JOIN sections s ON s.id = ug.sections_id
+                    GROUP BY s.page_id) pageroles ON ce.collection = 'pages' AND pageroles.page_id = ce.item
+         LEFT JOIN (SELECT shortsr.shorts_id::varchar, array_agg(shortsr.usergroups_code)::varchar[] roles
+                    FROM shorts_usergroups shortsr
+                    GROUP BY shortsr.shorts_id::varchar) shortsr
+                   ON ce.collection = 'shorts' AND shortsr.shorts_id = ce.item
+
+WHERE ce.collections_id = ANY ($1::int[])
+  AND (
+    (
+            ce.collection = 'episodes'
+        AND ea.published
+        AND ea.available_to > now()
+        AND er.roles && $2::varchar[]
+        AND ea.available_from < now()
+        AND (
+                NOT $3
+                OR ea.audio && $4::varchar[]
+                OR ea.subtitle && $5::varchar[]
+            )
+        ) OR (
+            ce.collection = 'seasons'
+        AND sa.published
+        AND sa.available_to > now()
+        AND sr.roles && $2::varchar[]
+        AND sa.available_from < now()
+        AND (
+            NOT $3
+            OR sa.audio && $4::varchar[]
+            OR sa.subtitles && $5::varchar[]
+        )
+    ) OR (
+            ce.collection = 'shows'
+        AND sha.published
+        AND sha.available_to > now()
+        AND shr.roles && $2::varchar[]
+        AND sha.available_from < now()
+        AND (
+            NOT $3
+            OR sha.audio && $4::varchar[]
+            OR sha.subtitles && $5::varchar[]
+        )
+    )
+    OR (ce.collection = 'games' AND gr.roles && $2::varchar[])
+    OR (ce.collection = 'playlists' AND pr.roles && $2::varchar[])
+    OR (ce.collection = 'pages' AND pageroles.roles && $2::varchar[])
+    OR (ce.collection = 'shorts' AND shortsr.roles && $2::varchar[])
+    OR (ce.collection NOT IN ('episodes', 'seasons', 'shows', 'games', 'playlists', 'pages', 'shorts')))
+ORDER BY ce.sort
+`
+
+type getCollectionEntriesForCollectionsFilteredByRolesAndLanguagesParams struct {
+	Ids                        []int32     `db:"ids" json:"ids"`
+	Roles                      []string    `db:"roles" json:"roles"`
+	OnlyPreferedLanguages      interface{} `db:"only_prefered_languages" json:"onlyPreferedLanguages"`
+	PreferredAudioLanguages    []string    `db:"preferred_audio_languages" json:"preferredAudioLanguages"`
+	PreferredSubtitleLanguages []string    `db:"preferred_subtitle_languages" json:"preferredSubtitleLanguages"`
+}
+
+type getCollectionEntriesForCollectionsFilteredByRolesAndLanguagesRow struct {
+	ID            int32       `db:"id" json:"id"`
+	CollectionsID int32       `db:"collections_id" json:"collectionsId"`
+	Item          string      `db:"item" json:"item"`
+	Collection    string      `db:"collection" json:"collection"`
+	Sort          null_v4.Int `db:"sort" json:"sort"`
+}
+
+func (q *Queries) getCollectionEntriesForCollectionsFilteredByRolesAndLanguages(ctx context.Context, arg getCollectionEntriesForCollectionsFilteredByRolesAndLanguagesParams) ([]getCollectionEntriesForCollectionsFilteredByRolesAndLanguagesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCollectionEntriesForCollectionsFilteredByRolesAndLanguages,
+		pq.Array(arg.Ids),
+		pq.Array(arg.Roles),
+		arg.OnlyPreferedLanguages,
+		pq.Array(arg.PreferredAudioLanguages),
+		pq.Array(arg.PreferredSubtitleLanguages),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getCollectionEntriesForCollectionsFilteredByRolesAndLanguagesRow
+	for rows.Next() {
+		var i getCollectionEntriesForCollectionsFilteredByRolesAndLanguagesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CollectionsID,
+			&i.Item,
+			&i.Collection,
+			&i.Sort,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getCollectionEntriesForCollectionsWithRoles = `-- name: getCollectionEntriesForCollectionsWithRoles :many
 SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
 FROM collections_entries ce

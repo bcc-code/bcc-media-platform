@@ -45,15 +45,24 @@ WITH roles AS (SELECT r.applicationgroups_id,
                FROM applicationgroups_usergroups r
                GROUP BY r.applicationgroups_id)
 SELECT g.id,
-       COALESCE(r.roles, '{}')::varchar[] AS roles
+       COALESCE(r.roles, '{}')::varchar[] AS roles,
+       array_remove(array_agg(DISTINCT al.languages_code), NULL)::text[]  AS default_preferred_audio_languages,
+       array_remove(array_agg(DISTINCT pas.languages_code), NULL)::text[] AS default_preferred_subtitle_languages,
+       only_content_in_preferred_languages
 FROM applicationgroups g
          LEFT JOIN roles r ON g.id = r.applicationgroups_id
+         LEFT JOIN applicationgroups_languages al ON al.applicationgroups_id = g.id
+         LEFT JOIN applicationgroups_languages_subs pas ON pas.applicationgroups_id = g.id
 WHERE g.id = ANY ($1::uuid[])
+GROUP BY g.id, r.roles
 `
 
 type getApplicationGroupsRow struct {
-	ID    uuid.UUID `db:"id" json:"id"`
-	Roles []string  `db:"roles" json:"roles"`
+	ID                                uuid.UUID `db:"id" json:"id"`
+	Roles                             []string  `db:"roles" json:"roles"`
+	DefaultPreferredAudioLanguages    []string  `db:"default_preferred_audio_languages" json:"defaultPreferredAudioLanguages"`
+	DefaultPreferredSubtitleLanguages []string  `db:"default_preferred_subtitle_languages" json:"defaultPreferredSubtitleLanguages"`
+	OnlyContentInPreferredLanguages   bool      `db:"only_content_in_preferred_languages" json:"onlyContentInPreferredLanguages"`
 }
 
 func (q *Queries) getApplicationGroups(ctx context.Context, id []uuid.UUID) ([]getApplicationGroupsRow, error) {
@@ -65,7 +74,13 @@ func (q *Queries) getApplicationGroups(ctx context.Context, id []uuid.UUID) ([]g
 	var items []getApplicationGroupsRow
 	for rows.Next() {
 		var i getApplicationGroupsRow
-		if err := rows.Scan(&i.ID, pq.Array(&i.Roles)); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			pq.Array(&i.Roles),
+			pq.Array(&i.DefaultPreferredAudioLanguages),
+			pq.Array(&i.DefaultPreferredSubtitleLanguages),
+			&i.OnlyContentInPreferredLanguages,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

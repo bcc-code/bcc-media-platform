@@ -19,31 +19,29 @@ type RateLimit struct {
 }
 
 // Middleware protects the API globally from anonymous requests
-func Middleware() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		u := user.GetFromCtx(ctx)
+func Middleware(ctx *gin.Context) {
+	u := user.GetFromCtx(ctx)
 
-		if !u.Anonymous {
-			return
-		}
-
-		const rateLimit = 10000
-
-		forwardedFor := ctx.Request.Header.Get("X-Forwarded-For")
-
-		limit, _ := limitCache.Get(forwardedFor)
-		if limit.Increment >= rateLimit {
-			ctx.JSON(429, map[string]string{
-				"error": "Too many requests",
-			})
-			ctx.Abort()
-			return
-		}
-
-		limit.Increment++
-
-		limitCache.Set(forwardedFor, limit, cache.WithExpiration(time.Minute*5))
+	if !u.Anonymous {
+		return
 	}
+
+	const rateLimit = 10000
+
+	forwardedFor := ctx.Request.Header.Get("X-Forwarded-For")
+
+	limit, _ := limitCache.Get(forwardedFor)
+	if limit.Increment >= rateLimit {
+		ctx.JSON(429, map[string]string{
+			"error": "Too many requests",
+		})
+		ctx.Abort()
+		return
+	}
+
+	limit.Increment++
+
+	limitCache.Set(forwardedFor, limit, cache.WithExpiration(time.Minute*5))
 }
 
 func getUniqueKeyForCtx(ginCtx *gin.Context) string {

@@ -101,29 +101,25 @@ type BatchLoaders struct {
 	ContributionsLoader             *loaders.Loader[int32, *Contribution]
 }
 
-// FilteredLoaders contains loaders that will be filtered by permissions.
-type FilteredLoaders struct {
+// LoadersWithPermissions contains loaders that will be filtered by permissions.
+type LoadersWithPermissions struct {
 	Key string
 
-	EpisodeFilterLoader          *loaders.Loader[int, *int]
-	EpisodeUUIDFilterLoader      *loaders.Loader[uuid.UUID, *uuid.UUID]
-	EpisodesLoader               *loaders.Loader[int, []*int]
-	TagEpisodesLoader            *loaders.Loader[int, []*int]
-	SeasonFilterLoader           *loaders.Loader[int, *int]
-	SeasonsLoader                *loaders.Loader[int, []*int]
-	ShowFilterLoader             *loaders.Loader[int, *int]
-	ShowUUIDFilterLoader         *loaders.Loader[uuid.UUID, *uuid.UUID]
-	SectionsLoader               *loaders.Loader[int, []*int]
-	CollectionItemsLoader        *loaders.Loader[int, []*CollectionItem]
-	CollectionItemIDsLoader      *loaders.Loader[int, []Identifier]
-	CalendarEntryLoader          *loaders.Loader[int, *CalendarEntry]
-	StudyTopicFilterLoader       *loaders.Loader[uuid.UUID, *uuid.UUID]
-	StudyLessonsLoader           *loaders.Loader[uuid.UUID, []*uuid.UUID]
-	StudyLessonFilterLoader      *loaders.Loader[uuid.UUID, *uuid.UUID]
-	StudyTasksLoader             *loaders.Loader[uuid.UUID, []*uuid.UUID]
-	StudyTaskFilterLoader        *loaders.Loader[uuid.UUID, *uuid.UUID]
-	SurveyQuestionsLoader        *loaders.Loader[uuid.UUID, []*uuid.UUID]
-	ContributionsForPersonLoader *loaders.Loader[uuid.UUID, []*Contribution]
+	EpisodeFilterLoader     *loaders.Loader[int, *int]
+	EpisodeUUIDFilterLoader *loaders.Loader[uuid.UUID, *uuid.UUID]
+	EpisodesLoader          *loaders.Loader[int, []*int]
+	SeasonFilterLoader      *loaders.Loader[int, *int]
+	SeasonsLoader           *loaders.Loader[int, []*int]
+	ShowFilterLoader        *loaders.Loader[int, *int]
+	ShowUUIDFilterLoader    *loaders.Loader[uuid.UUID, *uuid.UUID]
+	SectionsLoader          *loaders.Loader[int, []*int]
+	CalendarEntryLoader     *loaders.Loader[int, *CalendarEntry]
+	StudyTopicFilterLoader  *loaders.Loader[uuid.UUID, *uuid.UUID]
+	StudyLessonsLoader      *loaders.Loader[uuid.UUID, []*uuid.UUID]
+	StudyLessonFilterLoader *loaders.Loader[uuid.UUID, *uuid.UUID]
+	StudyTasksLoader        *loaders.Loader[uuid.UUID, []*uuid.UUID]
+	StudyTaskFilterLoader   *loaders.Loader[uuid.UUID, *uuid.UUID]
+	SurveyQuestionsLoader   *loaders.Loader[uuid.UUID, []*uuid.UUID]
 
 	FAQQuestionsLoader *loaders.Loader[uuid.UUID, []*uuid.UUID]
 
@@ -138,6 +134,18 @@ type FilteredLoaders struct {
 	FAQCategoryIDsLoader  func(ctx context.Context) ([]uuid.UUID, error)
 	ShortIDsLoader        func(ctx context.Context) ([][]uuid.UUID, error)
 	ShortWithScoresLoader func(ctx context.Context) ([]ShortIDWithMeta, error)
+}
+
+// PersonalizedLoaders contains loaders that are personalized to the user
+//
+// This includes things like permissions, settings, langauges, etc
+type PersonalizedLoaders struct {
+	Key string
+
+	CollectionItemsLoader        *loaders.Loader[int, []*CollectionItem]
+	CollectionItemIDsLoader      *loaders.Loader[int, []Identifier]
+	ContributionsForPersonLoader *loaders.Loader[uuid.UUID, []*Contribution]
+	TagEpisodesLoader            *loaders.Loader[int, []*int]
 }
 
 // ProfileLoaders contains loaders per profile
