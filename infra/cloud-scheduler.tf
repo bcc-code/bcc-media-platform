@@ -92,3 +92,72 @@ resource "google_cloud_scheduler_job" "shorts_scores_sync" {
     }))
   }
 }
+
+resource "google_cloud_scheduler_job" "refresh_episode_availability" {
+  project     = google_project.brunstadtv.project_id
+  name        = "refresh-episode-availability"
+  description = "Refresh the episode_availability materialized view"
+  schedule    = var.views_refresh_schedule
+  region      = "europe-west1"
+
+  pubsub_target {
+    topic_name = google_pubsub_topic.background_worker.id
+    data = base64encode(jsonencode({
+      "specversion" : "1.0",
+      "id" : "cloudscheduler-episode-availability",
+      "source" : "cloudscheduler",
+      "type" : "view.refresh",
+      "datacontenttype" : "application/json",
+      "data" : {
+        "viewName" : "episode_availability",
+        "force" : false
+      }
+    }))
+  }
+}
+
+resource "google_cloud_scheduler_job" "refresh_season_availability" {
+  project     = google_project.brunstadtv.project_id
+  name        = "refresh-season-availability"
+  description = "Refresh the season_availability materialized view"
+  schedule    = var.views_refresh_schedule
+  region      = "europe-west1"
+
+  pubsub_target {
+    topic_name = google_pubsub_topic.background_worker.id
+    data = base64encode(jsonencode({
+      "specversion" : "1.0",
+      "id" : "cloudscheduler-season-availability",
+      "source" : "cloudscheduler",
+      "type" : "view.refresh",
+      "datacontenttype" : "application/json",
+      "data" : {
+        "viewName" : "season_availability",
+        "force" : false
+      }
+    }))
+  }
+}
+
+resource "google_cloud_scheduler_job" "refresh_show_availability" {
+  project     = google_project.brunstadtv.project_id
+  name        = "refresh-show-availability"
+  description = "Refresh the show_availability materialized view"
+  schedule    = var.views_refresh_schedule
+  region      = "europe-west1"
+
+  pubsub_target {
+    topic_name = google_pubsub_topic.background_worker.id
+    data = base64encode(jsonencode({
+      "specversion" : "1.0",
+      "id" : "cloudscheduler-show-availability",
+      "source" : "cloudscheduler",
+      "type" : "view.refresh",
+      "datacontenttype" : "application/json",
+      "data" : {
+        "viewName" : "show_availability",
+        "force" : false
+      }
+    }))
+  }
+}

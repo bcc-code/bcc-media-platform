@@ -14,56 +14,80 @@ WHERE a.id = ANY ($1::int[]);
 
 
 -- name: getStreamsForEpisodes :many
-WITH audiolang AS (SELECT s.id, array_agg(al.languages_code) langs
-                   FROM episodes e
-                            JOIN mediaitems mi ON mi.id = e.mediaitem_id
-                            JOIN assets a ON mi.asset_id = a.id
-                            LEFT JOIN assetstreams s ON a.id = s.asset_id
-                            LEFT JOIN assetstreams_audio_languages al ON al.assetstreams_id = s.id
-                   WHERE al.languages_code IS NOT NULL
-                   GROUP BY s.id),
-     sublang AS (SELECT s.id, array_agg(al.languages_code) langs
-                 FROM episodes e
-                          JOIN mediaitems mi ON mi.id = e.mediaitem_id
-                          JOIN assets a ON mi.asset_id = a.id
-                          LEFT JOIN assetstreams s ON a.id = s.asset_id
-                          LEFT JOIN assetstreams_subtitle_languages al ON al.assetstreams_id = s.id
-                 WHERE al.languages_code IS NOT NULL
-                 GROUP BY s.id)
-SELECT e.id AS                          episodes_id,
-       s.*,
-       COALESCE(al.langs, '{}')::text[] audio_languages,
-       COALESCE(sl.langs, '{}')::text[] subtitle_languages
+SELECT
+    e.id AS episodes_id,
+    s.asset_id,
+    s.date_created,
+    s.date_updated,
+    s.encryption_key_id,
+    s.extra_metadata::text,
+    s.id,
+    s.legacy_videourl_id,
+    s.path,
+    s.service,
+    s.status,
+    s.type,
+    s.url,
+    s.user_created,
+    s.user_updated,
+    s.configuration_id,
+    COALESCE(
+                    array_agg(DISTINCT al.languages_code ORDER BY al.languages_code)
+                    FILTER (WHERE al.languages_code IS NOT NULL),
+                    '{}'
+    )::text[] as audio_languages,
+    COALESCE(
+                    array_agg(DISTINCT sl.languages_code ORDER BY sl.languages_code)
+                    FILTER (WHERE sl.languages_code IS NOT NULL),
+                    '{}'
+    )::text[] as subtitle_languages
 FROM episodes e
          JOIN mediaitems mi ON mi.id = e.mediaitem_id
          JOIN assets a ON mi.asset_id = a.id
          JOIN assetstreams s ON a.id = s.asset_id
-         LEFT JOIN audiolang al ON al.id = s.id
-         LEFT JOIN sublang sl ON sl.id = s.id
-WHERE e.id = ANY ($1::int[]);
+         LEFT JOIN assetstreams_audio_languages al ON al.assetstreams_id = s.id
+         LEFT JOIN assetstreams_subtitle_languages sl ON sl.assetstreams_id = s.id
+WHERE e.id = ANY ($1::int[])
+GROUP BY e.id, s.id, s.asset_id, s.date_created, s.date_updated, s.encryption_key_id,
+         s.extra_metadata::text, s.legacy_videourl_id, s.path, s.service, s.status,
+         s.type, s.url, s.user_created, s.user_updated, s.configuration_id;
 
 -- name: getStreamsForAssets :many
-WITH audiolang AS (SELECT s.id, array_agg(al.languages_code) langs
-                   FROM assets a
-                            LEFT JOIN assetstreams s ON a.id = s.asset_id
-                            LEFT JOIN assetstreams_audio_languages al ON al.assetstreams_id = s.id
-                   WHERE al.languages_code IS NOT NULL
-                   GROUP BY s.id),
-     sublang AS (SELECT s.id, array_agg(al.languages_code) langs
-                 FROM assets a
-                          LEFT JOIN assetstreams s ON a.id = s.asset_id
-                          LEFT JOIN assetstreams_subtitle_languages al ON al.assetstreams_id = s.id
-                 WHERE al.languages_code IS NOT NULL
-                 GROUP BY s.id)
-SELECT 0::int as                        episodes_id,
-       s.*,
-       COALESCE(al.langs, '{}')::text[] audio_languages,
-       COALESCE(sl.langs, '{}')::text[] subtitle_languages
+SELECT
+    0::int as episodes_id,
+    s.asset_id,
+    s.date_created,
+    s.date_updated,
+    s.encryption_key_id,
+    s.extra_metadata::text,
+    s.id,
+    s.legacy_videourl_id,
+    s.path,
+    s.service,
+    s.status,
+    s.type,
+    s.url,
+    s.user_created,
+    s.user_updated,
+    s.configuration_id,
+    COALESCE(
+                    array_agg(DISTINCT al.languages_code ORDER BY al.languages_code)
+                    FILTER (WHERE al.languages_code IS NOT NULL),
+                    '{}'
+    )::text[] as audio_languages,
+    COALESCE(
+                    array_agg(DISTINCT sl.languages_code ORDER BY sl.languages_code)
+                    FILTER (WHERE sl.languages_code IS NOT NULL),
+                    '{}'
+    )::text[] as subtitle_languages
 FROM assets a
          JOIN assetstreams s ON a.id = s.asset_id
-         LEFT JOIN audiolang al ON al.id = s.id
-         LEFT JOIN sublang sl ON sl.id = s.id
-WHERE a.id = ANY ($1::int[]);
+         LEFT JOIN assetstreams_audio_languages al ON al.assetstreams_id = s.id
+         LEFT JOIN assetstreams_subtitle_languages sl ON sl.assetstreams_id = s.id
+WHERE a.id = ANY ($1::int[])
+GROUP BY s.id, s.asset_id, s.date_created, s.date_updated, s.encryption_key_id,
+         s.extra_metadata::text, s.legacy_videourl_id, s.path, s.service, s.status,
+         s.type, s.url, s.user_created, s.user_updated, s.configuration_id;
 
 -- name: ListAssets :many
 SELECT *

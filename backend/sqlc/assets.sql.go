@@ -479,48 +479,62 @@ func (q *Queries) getFilesForEpisodes(ctx context.Context, dollar_1 []int32) ([]
 }
 
 const getStreamsForAssets = `-- name: getStreamsForAssets :many
-WITH audiolang AS (SELECT s.id, array_agg(al.languages_code) langs
-                   FROM assets a
-                            LEFT JOIN assetstreams s ON a.id = s.asset_id
-                            LEFT JOIN assetstreams_audio_languages al ON al.assetstreams_id = s.id
-                   WHERE al.languages_code IS NOT NULL
-                   GROUP BY s.id),
-     sublang AS (SELECT s.id, array_agg(al.languages_code) langs
-                 FROM assets a
-                          LEFT JOIN assetstreams s ON a.id = s.asset_id
-                          LEFT JOIN assetstreams_subtitle_languages al ON al.assetstreams_id = s.id
-                 WHERE al.languages_code IS NOT NULL
-                 GROUP BY s.id)
-SELECT 0::int as                        episodes_id,
-       s.asset_id, s.date_created, s.date_updated, s.encryption_key_id, s.extra_metadata, s.id, s.legacy_videourl_id, s.path, s.service, s.status, s.type, s.url, s.user_created, s.user_updated, s.configuration_id,
-       COALESCE(al.langs, '{}')::text[] audio_languages,
-       COALESCE(sl.langs, '{}')::text[] subtitle_languages
+SELECT
+    0::int as episodes_id,
+    s.asset_id,
+    s.date_created,
+    s.date_updated,
+    s.encryption_key_id,
+    s.extra_metadata::text,
+    s.id,
+    s.legacy_videourl_id,
+    s.path,
+    s.service,
+    s.status,
+    s.type,
+    s.url,
+    s.user_created,
+    s.user_updated,
+    s.configuration_id,
+    COALESCE(
+                    array_agg(DISTINCT al.languages_code ORDER BY al.languages_code)
+                    FILTER (WHERE al.languages_code IS NOT NULL),
+                    '{}'
+    )::text[] as audio_languages,
+    COALESCE(
+                    array_agg(DISTINCT sl.languages_code ORDER BY sl.languages_code)
+                    FILTER (WHERE sl.languages_code IS NOT NULL),
+                    '{}'
+    )::text[] as subtitle_languages
 FROM assets a
          JOIN assetstreams s ON a.id = s.asset_id
-         LEFT JOIN audiolang al ON al.id = s.id
-         LEFT JOIN sublang sl ON sl.id = s.id
+         LEFT JOIN assetstreams_audio_languages al ON al.assetstreams_id = s.id
+         LEFT JOIN assetstreams_subtitle_languages sl ON sl.assetstreams_id = s.id
 WHERE a.id = ANY ($1::int[])
+GROUP BY s.id, s.asset_id, s.date_created, s.date_updated, s.encryption_key_id,
+         s.extra_metadata::text, s.legacy_videourl_id, s.path, s.service, s.status,
+         s.type, s.url, s.user_created, s.user_updated, s.configuration_id
 `
 
 type getStreamsForAssetsRow struct {
-	EpisodesID        int32                 `db:"episodes_id" json:"episodesId"`
-	AssetID           int32                 `db:"asset_id" json:"assetId"`
-	DateCreated       time.Time             `db:"date_created" json:"dateCreated"`
-	DateUpdated       time.Time             `db:"date_updated" json:"dateUpdated"`
-	EncryptionKeyID   null_v4.String        `db:"encryption_key_id" json:"encryptionKeyId"`
-	ExtraMetadata     pqtype.NullRawMessage `db:"extra_metadata" json:"extraMetadata"`
-	ID                int32                 `db:"id" json:"id"`
-	LegacyVideourlID  null_v4.Int           `db:"legacy_videourl_id" json:"legacyVideourlId"`
-	Path              string                `db:"path" json:"path"`
-	Service           string                `db:"service" json:"service"`
-	Status            string                `db:"status" json:"status"`
-	Type              string                `db:"type" json:"type"`
-	Url               string                `db:"url" json:"url"`
-	UserCreated       uuid.NullUUID         `db:"user_created" json:"userCreated"`
-	UserUpdated       uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
-	ConfigurationID   null_v4.String        `db:"configuration_id" json:"configurationId"`
-	AudioLanguages    []string              `db:"audio_languages" json:"audioLanguages"`
-	SubtitleLanguages []string              `db:"subtitle_languages" json:"subtitleLanguages"`
+	EpisodesID        int32          `db:"episodes_id" json:"episodesId"`
+	AssetID           int32          `db:"asset_id" json:"assetId"`
+	DateCreated       time.Time      `db:"date_created" json:"dateCreated"`
+	DateUpdated       time.Time      `db:"date_updated" json:"dateUpdated"`
+	EncryptionKeyID   null_v4.String `db:"encryption_key_id" json:"encryptionKeyId"`
+	SExtraMetadata    string         `db:"s_extra_metadata" json:"sExtraMetadata"`
+	ID                int32          `db:"id" json:"id"`
+	LegacyVideourlID  null_v4.Int    `db:"legacy_videourl_id" json:"legacyVideourlId"`
+	Path              string         `db:"path" json:"path"`
+	Service           string         `db:"service" json:"service"`
+	Status            string         `db:"status" json:"status"`
+	Type              string         `db:"type" json:"type"`
+	Url               string         `db:"url" json:"url"`
+	UserCreated       uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	UserUpdated       uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	ConfigurationID   null_v4.String `db:"configuration_id" json:"configurationId"`
+	AudioLanguages    []string       `db:"audio_languages" json:"audioLanguages"`
+	SubtitleLanguages []string       `db:"subtitle_languages" json:"subtitleLanguages"`
 }
 
 func (q *Queries) getStreamsForAssets(ctx context.Context, dollar_1 []int32) ([]getStreamsForAssetsRow, error) {
@@ -538,7 +552,7 @@ func (q *Queries) getStreamsForAssets(ctx context.Context, dollar_1 []int32) ([]
 			&i.DateCreated,
 			&i.DateUpdated,
 			&i.EncryptionKeyID,
-			&i.ExtraMetadata,
+			&i.SExtraMetadata,
 			&i.ID,
 			&i.LegacyVideourlID,
 			&i.Path,
@@ -566,54 +580,64 @@ func (q *Queries) getStreamsForAssets(ctx context.Context, dollar_1 []int32) ([]
 }
 
 const getStreamsForEpisodes = `-- name: getStreamsForEpisodes :many
-WITH audiolang AS (SELECT s.id, array_agg(al.languages_code) langs
-                   FROM episodes e
-                            JOIN mediaitems mi ON mi.id = e.mediaitem_id
-                            JOIN assets a ON mi.asset_id = a.id
-                            LEFT JOIN assetstreams s ON a.id = s.asset_id
-                            LEFT JOIN assetstreams_audio_languages al ON al.assetstreams_id = s.id
-                   WHERE al.languages_code IS NOT NULL
-                   GROUP BY s.id),
-     sublang AS (SELECT s.id, array_agg(al.languages_code) langs
-                 FROM episodes e
-                          JOIN mediaitems mi ON mi.id = e.mediaitem_id
-                          JOIN assets a ON mi.asset_id = a.id
-                          LEFT JOIN assetstreams s ON a.id = s.asset_id
-                          LEFT JOIN assetstreams_subtitle_languages al ON al.assetstreams_id = s.id
-                 WHERE al.languages_code IS NOT NULL
-                 GROUP BY s.id)
-SELECT e.id AS                          episodes_id,
-       s.asset_id, s.date_created, s.date_updated, s.encryption_key_id, s.extra_metadata, s.id, s.legacy_videourl_id, s.path, s.service, s.status, s.type, s.url, s.user_created, s.user_updated, s.configuration_id,
-       COALESCE(al.langs, '{}')::text[] audio_languages,
-       COALESCE(sl.langs, '{}')::text[] subtitle_languages
+SELECT
+    e.id AS episodes_id,
+    s.asset_id,
+    s.date_created,
+    s.date_updated,
+    s.encryption_key_id,
+    s.extra_metadata::text,
+    s.id,
+    s.legacy_videourl_id,
+    s.path,
+    s.service,
+    s.status,
+    s.type,
+    s.url,
+    s.user_created,
+    s.user_updated,
+    s.configuration_id,
+    COALESCE(
+                    array_agg(DISTINCT al.languages_code ORDER BY al.languages_code)
+                    FILTER (WHERE al.languages_code IS NOT NULL),
+                    '{}'
+    )::text[] as audio_languages,
+    COALESCE(
+                    array_agg(DISTINCT sl.languages_code ORDER BY sl.languages_code)
+                    FILTER (WHERE sl.languages_code IS NOT NULL),
+                    '{}'
+    )::text[] as subtitle_languages
 FROM episodes e
          JOIN mediaitems mi ON mi.id = e.mediaitem_id
          JOIN assets a ON mi.asset_id = a.id
          JOIN assetstreams s ON a.id = s.asset_id
-         LEFT JOIN audiolang al ON al.id = s.id
-         LEFT JOIN sublang sl ON sl.id = s.id
+         LEFT JOIN assetstreams_audio_languages al ON al.assetstreams_id = s.id
+         LEFT JOIN assetstreams_subtitle_languages sl ON sl.assetstreams_id = s.id
 WHERE e.id = ANY ($1::int[])
+GROUP BY e.id, s.id, s.asset_id, s.date_created, s.date_updated, s.encryption_key_id,
+         s.extra_metadata::text, s.legacy_videourl_id, s.path, s.service, s.status,
+         s.type, s.url, s.user_created, s.user_updated, s.configuration_id
 `
 
 type getStreamsForEpisodesRow struct {
-	EpisodesID        int32                 `db:"episodes_id" json:"episodesId"`
-	AssetID           int32                 `db:"asset_id" json:"assetId"`
-	DateCreated       time.Time             `db:"date_created" json:"dateCreated"`
-	DateUpdated       time.Time             `db:"date_updated" json:"dateUpdated"`
-	EncryptionKeyID   null_v4.String        `db:"encryption_key_id" json:"encryptionKeyId"`
-	ExtraMetadata     pqtype.NullRawMessage `db:"extra_metadata" json:"extraMetadata"`
-	ID                int32                 `db:"id" json:"id"`
-	LegacyVideourlID  null_v4.Int           `db:"legacy_videourl_id" json:"legacyVideourlId"`
-	Path              string                `db:"path" json:"path"`
-	Service           string                `db:"service" json:"service"`
-	Status            string                `db:"status" json:"status"`
-	Type              string                `db:"type" json:"type"`
-	Url               string                `db:"url" json:"url"`
-	UserCreated       uuid.NullUUID         `db:"user_created" json:"userCreated"`
-	UserUpdated       uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
-	ConfigurationID   null_v4.String        `db:"configuration_id" json:"configurationId"`
-	AudioLanguages    []string              `db:"audio_languages" json:"audioLanguages"`
-	SubtitleLanguages []string              `db:"subtitle_languages" json:"subtitleLanguages"`
+	EpisodesID        int32          `db:"episodes_id" json:"episodesId"`
+	AssetID           int32          `db:"asset_id" json:"assetId"`
+	DateCreated       time.Time      `db:"date_created" json:"dateCreated"`
+	DateUpdated       time.Time      `db:"date_updated" json:"dateUpdated"`
+	EncryptionKeyID   null_v4.String `db:"encryption_key_id" json:"encryptionKeyId"`
+	SExtraMetadata    string         `db:"s_extra_metadata" json:"sExtraMetadata"`
+	ID                int32          `db:"id" json:"id"`
+	LegacyVideourlID  null_v4.Int    `db:"legacy_videourl_id" json:"legacyVideourlId"`
+	Path              string         `db:"path" json:"path"`
+	Service           string         `db:"service" json:"service"`
+	Status            string         `db:"status" json:"status"`
+	Type              string         `db:"type" json:"type"`
+	Url               string         `db:"url" json:"url"`
+	UserCreated       uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	UserUpdated       uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	ConfigurationID   null_v4.String `db:"configuration_id" json:"configurationId"`
+	AudioLanguages    []string       `db:"audio_languages" json:"audioLanguages"`
+	SubtitleLanguages []string       `db:"subtitle_languages" json:"subtitleLanguages"`
 }
 
 func (q *Queries) getStreamsForEpisodes(ctx context.Context, dollar_1 []int32) ([]getStreamsForEpisodesRow, error) {
@@ -631,7 +655,7 @@ func (q *Queries) getStreamsForEpisodes(ctx context.Context, dollar_1 []int32) (
 			&i.DateCreated,
 			&i.DateUpdated,
 			&i.EncryptionKeyID,
-			&i.ExtraMetadata,
+			&i.SExtraMetadata,
 			&i.ID,
 			&i.LegacyVideourlID,
 			&i.Path,
