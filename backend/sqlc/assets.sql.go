@@ -485,7 +485,7 @@ SELECT
     s.date_created,
     s.date_updated,
     s.encryption_key_id,
-    s.extra_metadata::text,
+    s.extra_metadata,
     s.id,
     s.legacy_videourl_id,
     s.path,
@@ -517,24 +517,24 @@ GROUP BY s.id, s.asset_id, s.date_created, s.date_updated, s.encryption_key_id,
 `
 
 type getStreamsForAssetsRow struct {
-	EpisodesID        int32          `db:"episodes_id" json:"episodesId"`
-	AssetID           int32          `db:"asset_id" json:"assetId"`
-	DateCreated       time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated       time.Time      `db:"date_updated" json:"dateUpdated"`
-	EncryptionKeyID   null_v4.String `db:"encryption_key_id" json:"encryptionKeyId"`
-	SExtraMetadata    string         `db:"s_extra_metadata" json:"sExtraMetadata"`
-	ID                int32          `db:"id" json:"id"`
-	LegacyVideourlID  null_v4.Int    `db:"legacy_videourl_id" json:"legacyVideourlId"`
-	Path              string         `db:"path" json:"path"`
-	Service           string         `db:"service" json:"service"`
-	Status            string         `db:"status" json:"status"`
-	Type              string         `db:"type" json:"type"`
-	Url               string         `db:"url" json:"url"`
-	UserCreated       uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated       uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	ConfigurationID   null_v4.String `db:"configuration_id" json:"configurationId"`
-	AudioLanguages    []string       `db:"audio_languages" json:"audioLanguages"`
-	SubtitleLanguages []string       `db:"subtitle_languages" json:"subtitleLanguages"`
+	EpisodesID        int32                 `db:"episodes_id" json:"episodesId"`
+	AssetID           int32                 `db:"asset_id" json:"assetId"`
+	DateCreated       time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated       time.Time             `db:"date_updated" json:"dateUpdated"`
+	EncryptionKeyID   null_v4.String        `db:"encryption_key_id" json:"encryptionKeyId"`
+	ExtraMetadata     pqtype.NullRawMessage `db:"extra_metadata" json:"extraMetadata"`
+	ID                int32                 `db:"id" json:"id"`
+	LegacyVideourlID  null_v4.Int           `db:"legacy_videourl_id" json:"legacyVideourlId"`
+	Path              string                `db:"path" json:"path"`
+	Service           string                `db:"service" json:"service"`
+	Status            string                `db:"status" json:"status"`
+	Type              string                `db:"type" json:"type"`
+	Url               string                `db:"url" json:"url"`
+	UserCreated       uuid.NullUUID         `db:"user_created" json:"userCreated"`
+	UserUpdated       uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	ConfigurationID   null_v4.String        `db:"configuration_id" json:"configurationId"`
+	AudioLanguages    []string              `db:"audio_languages" json:"audioLanguages"`
+	SubtitleLanguages []string              `db:"subtitle_languages" json:"subtitleLanguages"`
 }
 
 func (q *Queries) getStreamsForAssets(ctx context.Context, dollar_1 []int32) ([]getStreamsForAssetsRow, error) {
@@ -552,7 +552,7 @@ func (q *Queries) getStreamsForAssets(ctx context.Context, dollar_1 []int32) ([]
 			&i.DateCreated,
 			&i.DateUpdated,
 			&i.EncryptionKeyID,
-			&i.SExtraMetadata,
+			&i.ExtraMetadata,
 			&i.ID,
 			&i.LegacyVideourlID,
 			&i.Path,
@@ -586,7 +586,7 @@ SELECT
     s.date_created,
     s.date_updated,
     s.encryption_key_id,
-    s.extra_metadata::text,
+    s.extra_metadata,
     s.id,
     s.legacy_videourl_id,
     s.path,
@@ -620,24 +620,24 @@ GROUP BY e.id, s.id, s.asset_id, s.date_created, s.date_updated, s.encryption_ke
 `
 
 type getStreamsForEpisodesRow struct {
-	EpisodesID        int32          `db:"episodes_id" json:"episodesId"`
-	AssetID           int32          `db:"asset_id" json:"assetId"`
-	DateCreated       time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated       time.Time      `db:"date_updated" json:"dateUpdated"`
-	EncryptionKeyID   null_v4.String `db:"encryption_key_id" json:"encryptionKeyId"`
-	SExtraMetadata    string         `db:"s_extra_metadata" json:"sExtraMetadata"`
-	ID                int32          `db:"id" json:"id"`
-	LegacyVideourlID  null_v4.Int    `db:"legacy_videourl_id" json:"legacyVideourlId"`
-	Path              string         `db:"path" json:"path"`
-	Service           string         `db:"service" json:"service"`
-	Status            string         `db:"status" json:"status"`
-	Type              string         `db:"type" json:"type"`
-	Url               string         `db:"url" json:"url"`
-	UserCreated       uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated       uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	ConfigurationID   null_v4.String `db:"configuration_id" json:"configurationId"`
-	AudioLanguages    []string       `db:"audio_languages" json:"audioLanguages"`
-	SubtitleLanguages []string       `db:"subtitle_languages" json:"subtitleLanguages"`
+	EpisodesID        int32                 `db:"episodes_id" json:"episodesId"`
+	AssetID           int32                 `db:"asset_id" json:"assetId"`
+	DateCreated       time.Time             `db:"date_created" json:"dateCreated"`
+	DateUpdated       time.Time             `db:"date_updated" json:"dateUpdated"`
+	EncryptionKeyID   null_v4.String        `db:"encryption_key_id" json:"encryptionKeyId"`
+	ExtraMetadata     pqtype.NullRawMessage `db:"extra_metadata" json:"extraMetadata"`
+	ID                int32                 `db:"id" json:"id"`
+	LegacyVideourlID  null_v4.Int           `db:"legacy_videourl_id" json:"legacyVideourlId"`
+	Path              string                `db:"path" json:"path"`
+	Service           string                `db:"service" json:"service"`
+	Status            string                `db:"status" json:"status"`
+	Type              string                `db:"type" json:"type"`
+	Url               string                `db:"url" json:"url"`
+	UserCreated       uuid.NullUUID         `db:"user_created" json:"userCreated"`
+	UserUpdated       uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	ConfigurationID   null_v4.String        `db:"configuration_id" json:"configurationId"`
+	AudioLanguages    []string              `db:"audio_languages" json:"audioLanguages"`
+	SubtitleLanguages []string              `db:"subtitle_languages" json:"subtitleLanguages"`
 }
 
 func (q *Queries) getStreamsForEpisodes(ctx context.Context, dollar_1 []int32) ([]getStreamsForEpisodesRow, error) {
@@ -655,7 +655,7 @@ func (q *Queries) getStreamsForEpisodes(ctx context.Context, dollar_1 []int32) (
 			&i.DateCreated,
 			&i.DateUpdated,
 			&i.EncryptionKeyID,
-			&i.SExtraMetadata,
+			&i.ExtraMetadata,
 			&i.ID,
 			&i.LegacyVideourlID,
 			&i.Path,
