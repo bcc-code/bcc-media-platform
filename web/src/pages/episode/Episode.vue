@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import EpisodeDisplay from '@/components/episodes/EpisodeDisplay.vue'
 import { GetEpisodeQuery } from '@/graph/generated'
-import { computed, ref } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { setTitle } from '@/utils/title'
 import { analytics } from '@/services/analytics'
@@ -22,12 +22,15 @@ const context = computed(() => ({
     playlistId: props.playlistId,
 }))
 
+const root = useTemplateRef('root')
 const setEpisode = (episode: GetEpisodeQuery['episode']) => {
     autoPlay.value = true
     router.push({
         params: { episodeId: episode.id },
         query: router.currentRoute.value.query,
     })
+
+    root.value?.scrollIntoView({ behavior: 'smooth' })
 
     setTitle(episode.title)
 
@@ -44,7 +47,7 @@ const setEpisode = (episode: GetEpisodeQuery['episode']) => {
 </script>
 
 <template>
-    <div class="px-2 lg:px-20">
+    <div ref="root" class="px-2 lg:px-20">
         <EpisodeDisplay
             :auto-play="autoPlay"
             :initial-episode-id="episodeId"
