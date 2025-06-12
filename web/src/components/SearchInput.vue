@@ -4,6 +4,7 @@ import { computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { SearchIcon } from './icons'
 import { useI18n } from 'vue-i18n'
+import { useDebounceFn } from '@vueuse/core'
 
 const { oldPath } = useSearch()
 const { t } = useI18n()
@@ -20,29 +21,34 @@ const emit = defineEmits<{
     (e: 'keydown.enter'): void
 }>()
 
+const debounce = useDebounceFn((fn: () => void) => fn(), 100, {
+    maxWait: 500,
+})
 const value = computed({
     get() {
         return props.modelValue
     },
     set(v) {
-        emit('update:modelValue', v)
-        nextTick().then(() => {
-            if (
-                router.currentRoute.value.name === 'search' &&
-                !v &&
-                oldPath.value
-            ) {
-                router.push(oldPath.value)
-            } else if (router.currentRoute.value.name !== 'search' && v) {
-                oldPath.value = router.currentRoute.value
+        debounce(() => {
+            emit('update:modelValue', v)
+            nextTick().then(() => {
+                if (
+                    router.currentRoute.value.name === 'search' &&
+                    !v &&
+                    oldPath.value
+                ) {
+                    router.push(oldPath.value)
+                } else if (router.currentRoute.value.name !== 'search' && v) {
+                    oldPath.value = router.currentRoute.value
 
-                router.replace({
-                    name: 'search',
-                    query: {
-                        q: props.modelValue,
-                    },
-                })
-            }
+                    router.replace({
+                        name: 'search',
+                        query: {
+                            q: props.modelValue,
+                        },
+                    })
+                }
+            })
         })
     },
 })
