@@ -26,7 +26,9 @@ func itemIdsFromRows(rows *sql.Rows) []common.Identifier {
 
 	for rows.Next() {
 		var row filterDataSetRow
-		err := rows.Scan(&row.Collection, &row.ID, &row.UUID)
+		// Always scan the random field, but throw it away
+		var ignoredRandom float64
+		err := rows.Scan(&row.Collection, &row.ID, &row.UUID, &ignoredRandom)
 		if err != nil {
 			log.L.Debug().Err(err).Msg("couldn't scan")
 		}
@@ -77,7 +79,7 @@ func addLanguageFilter(query jsonlogic.Query, languagePreferences common.Languag
 }
 
 // GetItemIDsForFilter returns an array of ids for the collection
-func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, languagePreferences common.LanguagePreferences, f common.Filter, noLimit bool) ([]common.Identifier, error) {
+func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, languagePreferences common.LanguagePreferences, f common.Filter, noLimit bool, randomized bool) ([]common.Identifier, error) {
 	if f.Filter == nil {
 		return nil, nil
 	}
@@ -102,9 +104,16 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, langua
 	query = addLanguageFilter(query, languagePreferences)
 
 	from := "filter_dataset t"
+	selectFields := []string{"t.collection", "t.id", "t.uuid"}
+	// Always apply the complex randomization logic, regardless of randomized flag
+	selectFields = append(selectFields, fmt.Sprintf(`CASE
+    WHEN t.tags @> ARRAY['%s']::varchar[] AND %f > 0.0
+      THEN CASE WHEN random() < %f THEN random() ELSE random() + 1 END
+    ELSE random()
+  END AS r`, f.DeboostTag, f.DeboostFactor, f.DeboostFactor))
 	q := squirrel.StatementBuilder.
 		PlaceholderFormat(squirrel.Dollar).
-		Select("t.collection", "t.id", "t.uuid").
+		Select(selectFields...).
 		From(from).
 		Where(query.Filter)
 
@@ -123,7 +132,14 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, langua
 		q = addPermissionFilter(q, roles)
 	}
 
-	if orderByString != "" {
+	// Always append random order as last if randomized
+	if randomized {
+		if orderByString != "" {
+			q = q.OrderBy(orderByString, "r")
+		} else {
+			q = q.OrderBy("r")
+		}
+	} else if orderByString != "" {
 		q = q.OrderBy(orderByString)
 	}
 

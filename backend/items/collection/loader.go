@@ -15,17 +15,6 @@ import (
 	"github.com/samber/lo"
 )
 
-func NewCollectionItemLoaderWithNoLanguageFilter(
-	ctx context.Context,
-	db *sql.DB,
-	collectionLoader *loaders.Loader[int, *common.Collection],
-	roles []string,
-) *loaders.Loader[int, []common.Identifier] {
-	return NewCollectionItemLoader(ctx, db, collectionLoader, roles, common.LanguagePreferences{
-		ContentOnlyInPreferredLanguage: false,
-	})
-}
-
 // NewCollectionItemLoader returns a new loader for getting ItemIds for Collection
 func NewCollectionItemLoader(
 	ctx context.Context,
@@ -48,11 +37,12 @@ func NewCollectionItemLoader(
 		if err == nil {
 			parallel.ForEach(collections, func(i *common.Collection, _ int) {
 				var identifiers []common.Identifier
-				if i.Type == "query" {
+				if i.Type == "query" || i.Type == "randomized_query" {
 					if i.Filter == nil {
 						i.Filter = &common.Filter{}
 					}
-					identifiers, err = GetItemIDsForFilter(ctx, db, roles, languagePreferences, *i.Filter, i.AdvancedType.String == "continue_watching" || i.AdvancedType.String == "my_list")
+					// Pass randomized=true for randomized_query, false otherwise
+					identifiers, err = GetItemIDsForFilter(ctx, db, roles, languagePreferences, *i.Filter, i.AdvancedType.String == "continue_watching" || i.AdvancedType.String == "my_list", i.Type == "randomized_query")
 					if err != nil {
 						log.L.Error().Err(err).
 							Msg("Failed to select itemIds from collection")
@@ -118,6 +108,8 @@ func GetBaseCollectionEntries(
 				Sort:       i.Sort,
 			}
 		}), nil
+	case "randomized_query":
+		fallthrough
 	case "query":
 		itemIds, err := personalizedLoaders.CollectionItemIDsLoader.Load(ctx, col.ID)()
 		if err != nil {

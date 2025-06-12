@@ -3,9 +3,9 @@ package sqlc
 import (
 	"context"
 	"encoding/json"
-
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/samber/lo"
 )
 
@@ -19,8 +19,13 @@ func mapToCollections(collections []getCollectionsRow) []common.Collection {
 		var filter *common.Filter
 
 		switch e.FilterType.ValueOrZero() {
+		case "randomized_query":
+			fallthrough
 		case "query":
-			_ = json.Unmarshal(e.QueryFilter.RawMessage, &filter)
+			err := json.Unmarshal(e.QueryFilter.RawMessage, &filter)
+			if err != nil {
+				log.L.Error().Err(err).Msg("Unmarshalling filter")
+			}
 		}
 
 		return common.Collection{

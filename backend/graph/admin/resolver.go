@@ -22,7 +22,7 @@ type Resolver struct {
 }
 
 func (r *previewResolver) getItemsForFilter(ctx context.Context, filter common.Filter) ([]*model.CollectionItem, error) {
-	identifiers, err := collection.GetItemIDsForFilter(ctx, r.DB, nil, common.LanguagePreferences{ContentOnlyInPreferredLanguage: false}, filter, false)
+	identifiers, err := collection.GetItemIDsForFilter(ctx, r.DB, nil, common.LanguagePreferences{ContentOnlyInPreferredLanguage: false}, filter, false, true)
 	if err != nil {
 		return nil, err
 	}
