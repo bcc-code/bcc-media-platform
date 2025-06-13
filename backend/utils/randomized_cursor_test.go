@@ -73,7 +73,7 @@ func TestApplyCursor(t *testing.T) {
 	}
 
 	seed := int64(999999999999999999)
-	c := Cursor[uuid.UUID]{
+	c := RandomizedCursor[uuid.UUID]{
 		CurrentIndex: 5,
 		Seed:         &seed,
 	}
@@ -155,7 +155,7 @@ func TestApplyCursorWithRandomness(t *testing.T) {
 	randomFactor := 1.0
 	segmentSize := 20
 
-	c := Cursor[uuid.UUID]{
+	c := RandomizedCursor[uuid.UUID]{
 		CurrentIndex: segmentSize,
 		Seed:         &seed,
 		RandomFactor: randomFactor,

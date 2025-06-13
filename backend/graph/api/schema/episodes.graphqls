@@ -45,10 +45,10 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     audioLanguages: [Language!]!
     subtitleLanguages: [Language!]!
     context: EpisodeContextUnion @goField(forceResolver: true)
-    relatedItems(first: Int, offset: Int): SectionItemPagination @goField(forceResolver: true)
+    relatedItems(first: Int, offset: Int, cursor: Cursor): SectionItemPagination @goField(forceResolver: true)
     images: [Image!]!
     number: Int
-    lessons(first: Int, offset: Int): LessonPagination! @goField(forceResolver: true)
+    lessons(first: Int, offset: Int, cursor: Cursor): LessonPagination! @goField(forceResolver: true)
     shareRestriction: ShareRestriction! @goField(forceResolver: true)
     inMyList: Boolean! @goField(forceResolver: true)
 
@@ -62,7 +62,11 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
 type EpisodePagination implements Pagination {
     total: Int!
     first: Int!
-    offset: Int!
+    offset: Int! @deprecated(reason: "Offset is deprecated, use cursor")
+    cursor: Cursor!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    nextCursor: Cursor!
     items: [Episode!]!
 }
 

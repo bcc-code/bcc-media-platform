@@ -3,6 +3,7 @@
 package model
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strconv"
@@ -70,6 +71,10 @@ type Pagination interface {
 	GetTotal() int
 	GetFirst() int
 	GetOffset() int
+	GetCursor() string
+	GetHasNext() bool
+	GetHasPrevious() bool
+	GetNextCursor() string
 }
 
 type PlaylistItem interface {
@@ -153,28 +158,44 @@ type AchievementGroup struct {
 }
 
 type AchievementGroupPagination struct {
-	Offset int                 `json:"offset"`
-	First  int                 `json:"first"`
-	Total  int                 `json:"total"`
-	Items  []*AchievementGroup `json:"items"`
+	Total       int                 `json:"total"`
+	First       int                 `json:"first"`
+	Offset      int                 `json:"offset"`
+	Cursor      string              `json:"cursor"`
+	HasNext     bool                `json:"hasNext"`
+	HasPrevious bool                `json:"hasPrevious"`
+	NextCursor  string              `json:"nextCursor"`
+	Items       []*AchievementGroup `json:"items"`
 }
 
-func (AchievementGroupPagination) IsPagination()       {}
-func (this AchievementGroupPagination) GetTotal() int  { return this.Total }
-func (this AchievementGroupPagination) GetFirst() int  { return this.First }
-func (this AchievementGroupPagination) GetOffset() int { return this.Offset }
+func (AchievementGroupPagination) IsPagination()              {}
+func (this AchievementGroupPagination) GetTotal() int         { return this.Total }
+func (this AchievementGroupPagination) GetFirst() int         { return this.First }
+func (this AchievementGroupPagination) GetOffset() int        { return this.Offset }
+func (this AchievementGroupPagination) GetCursor() string     { return this.Cursor }
+func (this AchievementGroupPagination) GetHasNext() bool      { return this.HasNext }
+func (this AchievementGroupPagination) GetHasPrevious() bool  { return this.HasPrevious }
+func (this AchievementGroupPagination) GetNextCursor() string { return this.NextCursor }
 
 type AchievementPagination struct {
-	Offset int            `json:"offset"`
-	First  int            `json:"first"`
-	Total  int            `json:"total"`
-	Items  []*Achievement `json:"items"`
+	Total       int            `json:"total"`
+	First       int            `json:"first"`
+	Offset      int            `json:"offset"`
+	Cursor      string         `json:"cursor"`
+	HasNext     bool           `json:"hasNext"`
+	HasPrevious bool           `json:"hasPrevious"`
+	NextCursor  string         `json:"nextCursor"`
+	Items       []*Achievement `json:"items"`
 }
 
-func (AchievementPagination) IsPagination()       {}
-func (this AchievementPagination) GetTotal() int  { return this.Total }
-func (this AchievementPagination) GetFirst() int  { return this.First }
-func (this AchievementPagination) GetOffset() int { return this.Offset }
+func (AchievementPagination) IsPagination()              {}
+func (this AchievementPagination) GetTotal() int         { return this.Total }
+func (this AchievementPagination) GetFirst() int         { return this.First }
+func (this AchievementPagination) GetOffset() int        { return this.Offset }
+func (this AchievementPagination) GetCursor() string     { return this.Cursor }
+func (this AchievementPagination) GetHasNext() bool      { return this.HasNext }
+func (this AchievementPagination) GetHasPrevious() bool  { return this.HasPrevious }
+func (this AchievementPagination) GetNextCursor() string { return this.NextCursor }
 
 type AchievementSection struct {
 	ID          string             `json:"id"`
@@ -375,16 +396,24 @@ type ContributionTypeCount struct {
 }
 
 type ContributionsPagination struct {
-	Total  int             `json:"total"`
-	First  int             `json:"first"`
-	Offset int             `json:"offset"`
-	Items  []*Contribution `json:"items"`
+	Total       int             `json:"total"`
+	First       int             `json:"first"`
+	Offset      int             `json:"offset"`
+	Cursor      string          `json:"cursor"`
+	HasNext     bool            `json:"hasNext"`
+	HasPrevious bool            `json:"hasPrevious"`
+	NextCursor  string          `json:"nextCursor"`
+	Items       []*Contribution `json:"items"`
 }
 
-func (ContributionsPagination) IsPagination()       {}
-func (this ContributionsPagination) GetTotal() int  { return this.Total }
-func (this ContributionsPagination) GetFirst() int  { return this.First }
-func (this ContributionsPagination) GetOffset() int { return this.Offset }
+func (ContributionsPagination) IsPagination()              {}
+func (this ContributionsPagination) GetTotal() int         { return this.Total }
+func (this ContributionsPagination) GetFirst() int         { return this.First }
+func (this ContributionsPagination) GetOffset() int        { return this.Offset }
+func (this ContributionsPagination) GetCursor() string     { return this.Cursor }
+func (this ContributionsPagination) GetHasNext() bool      { return this.HasNext }
+func (this ContributionsPagination) GetHasPrevious() bool  { return this.HasPrevious }
+func (this ContributionsPagination) GetNextCursor() string { return this.NextCursor }
 
 type DefaultGridSection struct {
 	ID          string                 `json:"id"`
@@ -552,16 +581,24 @@ type EpisodeContext struct {
 }
 
 type EpisodePagination struct {
-	Total  int        `json:"total"`
-	First  int        `json:"first"`
-	Offset int        `json:"offset"`
-	Items  []*Episode `json:"items"`
+	Total       int        `json:"total"`
+	First       int        `json:"first"`
+	Offset      int        `json:"offset"`
+	Cursor      string     `json:"cursor"`
+	HasNext     bool       `json:"hasNext"`
+	HasPrevious bool       `json:"hasPrevious"`
+	NextCursor  string     `json:"nextCursor"`
+	Items       []*Episode `json:"items"`
 }
 
-func (EpisodePagination) IsPagination()       {}
-func (this EpisodePagination) GetTotal() int  { return this.Total }
-func (this EpisodePagination) GetFirst() int  { return this.First }
-func (this EpisodePagination) GetOffset() int { return this.Offset }
+func (EpisodePagination) IsPagination()              {}
+func (this EpisodePagination) GetTotal() int         { return this.Total }
+func (this EpisodePagination) GetFirst() int         { return this.First }
+func (this EpisodePagination) GetOffset() int        { return this.Offset }
+func (this EpisodePagination) GetCursor() string     { return this.Cursor }
+func (this EpisodePagination) GetHasNext() bool      { return this.HasNext }
+func (this EpisodePagination) GetHasPrevious() bool  { return this.HasPrevious }
+func (this EpisodePagination) GetNextCursor() string { return this.NextCursor }
 
 type EpisodeSearchItem struct {
 	ID              string  `json:"id"`
@@ -622,16 +659,24 @@ type FAQCategory struct {
 }
 
 type FAQCategoryPagination struct {
-	Total  int            `json:"total"`
-	First  int            `json:"first"`
-	Offset int            `json:"offset"`
-	Items  []*FAQCategory `json:"items"`
+	Total       int            `json:"total"`
+	First       int            `json:"first"`
+	Offset      int            `json:"offset"`
+	Cursor      string         `json:"cursor"`
+	HasNext     bool           `json:"hasNext"`
+	HasPrevious bool           `json:"hasPrevious"`
+	NextCursor  string         `json:"nextCursor"`
+	Items       []*FAQCategory `json:"items"`
 }
 
-func (FAQCategoryPagination) IsPagination()       {}
-func (this FAQCategoryPagination) GetTotal() int  { return this.Total }
-func (this FAQCategoryPagination) GetFirst() int  { return this.First }
-func (this FAQCategoryPagination) GetOffset() int { return this.Offset }
+func (FAQCategoryPagination) IsPagination()              {}
+func (this FAQCategoryPagination) GetTotal() int         { return this.Total }
+func (this FAQCategoryPagination) GetFirst() int         { return this.First }
+func (this FAQCategoryPagination) GetOffset() int        { return this.Offset }
+func (this FAQCategoryPagination) GetCursor() string     { return this.Cursor }
+func (this FAQCategoryPagination) GetHasNext() bool      { return this.HasNext }
+func (this FAQCategoryPagination) GetHasPrevious() bool  { return this.HasPrevious }
+func (this FAQCategoryPagination) GetNextCursor() string { return this.NextCursor }
 
 type FeaturedSection struct {
 	ID          string                 `json:"id"`
@@ -794,16 +839,24 @@ type Lesson struct {
 }
 
 type LessonPagination struct {
-	Offset int       `json:"offset"`
-	First  int       `json:"first"`
-	Total  int       `json:"total"`
-	Items  []*Lesson `json:"items"`
+	Total       int       `json:"total"`
+	First       int       `json:"first"`
+	Offset      int       `json:"offset"`
+	Cursor      string    `json:"cursor"`
+	HasNext     bool      `json:"hasNext"`
+	HasPrevious bool      `json:"hasPrevious"`
+	NextCursor  string    `json:"nextCursor"`
+	Items       []*Lesson `json:"items"`
 }
 
-func (LessonPagination) IsPagination()       {}
-func (this LessonPagination) GetTotal() int  { return this.Total }
-func (this LessonPagination) GetFirst() int  { return this.First }
-func (this LessonPagination) GetOffset() int { return this.Offset }
+func (LessonPagination) IsPagination()              {}
+func (this LessonPagination) GetTotal() int         { return this.Total }
+func (this LessonPagination) GetFirst() int         { return this.First }
+func (this LessonPagination) GetOffset() int        { return this.Offset }
+func (this LessonPagination) GetCursor() string     { return this.Cursor }
+func (this LessonPagination) GetHasNext() bool      { return this.HasNext }
+func (this LessonPagination) GetHasPrevious() bool  { return this.HasPrevious }
+func (this LessonPagination) GetNextCursor() string { return this.NextCursor }
 
 type LessonsProgress struct {
 	Total     int `json:"total"`
@@ -822,16 +875,24 @@ type Link struct {
 func (Link) IsSectionItemType() {}
 
 type LinkPagination struct {
-	Total  int     `json:"total"`
-	First  int     `json:"first"`
-	Offset int     `json:"offset"`
-	Items  []*Link `json:"items"`
+	Total       int     `json:"total"`
+	First       int     `json:"first"`
+	Offset      int     `json:"offset"`
+	Cursor      string  `json:"cursor"`
+	HasNext     bool    `json:"hasNext"`
+	HasPrevious bool    `json:"hasPrevious"`
+	NextCursor  string  `json:"nextCursor"`
+	Items       []*Link `json:"items"`
 }
 
-func (LinkPagination) IsPagination()       {}
-func (this LinkPagination) GetTotal() int  { return this.Total }
-func (this LinkPagination) GetFirst() int  { return this.First }
-func (this LinkPagination) GetOffset() int { return this.Offset }
+func (LinkPagination) IsPagination()              {}
+func (this LinkPagination) GetTotal() int         { return this.Total }
+func (this LinkPagination) GetFirst() int         { return this.First }
+func (this LinkPagination) GetOffset() int        { return this.Offset }
+func (this LinkPagination) GetCursor() string     { return this.Cursor }
+func (this LinkPagination) GetHasNext() bool      { return this.HasNext }
+func (this LinkPagination) GetHasPrevious() bool  { return this.HasPrevious }
+func (this LinkPagination) GetNextCursor() string { return this.NextCursor }
 
 type LinkTask struct {
 	ID             string  `json:"id"`
@@ -949,16 +1010,24 @@ func (this Playlist) GetDescription() *string { return this.Description }
 func (Playlist) IsSectionItemType() {}
 
 type PlaylistItemPagination struct {
-	Total  int            `json:"total"`
-	First  int            `json:"first"`
-	Offset int            `json:"offset"`
-	Items  []PlaylistItem `json:"items"`
+	Total       int            `json:"total"`
+	First       int            `json:"first"`
+	Offset      int            `json:"offset"`
+	Cursor      string         `json:"cursor"`
+	HasNext     bool           `json:"hasNext"`
+	HasPrevious bool           `json:"hasPrevious"`
+	NextCursor  string         `json:"nextCursor"`
+	Items       []PlaylistItem `json:"items"`
 }
 
-func (PlaylistItemPagination) IsPagination()       {}
-func (this PlaylistItemPagination) GetTotal() int  { return this.Total }
-func (this PlaylistItemPagination) GetFirst() int  { return this.First }
-func (this PlaylistItemPagination) GetOffset() int { return this.Offset }
+func (PlaylistItemPagination) IsPagination()              {}
+func (this PlaylistItemPagination) GetTotal() int         { return this.Total }
+func (this PlaylistItemPagination) GetFirst() int         { return this.First }
+func (this PlaylistItemPagination) GetOffset() int        { return this.Offset }
+func (this PlaylistItemPagination) GetCursor() string     { return this.Cursor }
+func (this PlaylistItemPagination) GetHasNext() bool      { return this.HasNext }
+func (this PlaylistItemPagination) GetHasPrevious() bool  { return this.HasPrevious }
+func (this PlaylistItemPagination) GetNextCursor() string { return this.NextCursor }
 
 type PosterGridSection struct {
 	ID          string                 `json:"id"`
@@ -1032,16 +1101,24 @@ type Question struct {
 }
 
 type QuestionPagination struct {
-	Total  int         `json:"total"`
-	First  int         `json:"first"`
-	Offset int         `json:"offset"`
-	Items  []*Question `json:"items"`
+	Total       int         `json:"total"`
+	First       int         `json:"first"`
+	Offset      int         `json:"offset"`
+	Cursor      string      `json:"cursor"`
+	HasNext     bool        `json:"hasNext"`
+	HasPrevious bool        `json:"hasPrevious"`
+	NextCursor  string      `json:"nextCursor"`
+	Items       []*Question `json:"items"`
 }
 
-func (QuestionPagination) IsPagination()       {}
-func (this QuestionPagination) GetTotal() int  { return this.Total }
-func (this QuestionPagination) GetFirst() int  { return this.First }
-func (this QuestionPagination) GetOffset() int { return this.Offset }
+func (QuestionPagination) IsPagination()              {}
+func (this QuestionPagination) GetTotal() int         { return this.Total }
+func (this QuestionPagination) GetFirst() int         { return this.First }
+func (this QuestionPagination) GetOffset() int        { return this.Offset }
+func (this QuestionPagination) GetCursor() string     { return this.Cursor }
+func (this QuestionPagination) GetHasNext() bool      { return this.HasNext }
+func (this QuestionPagination) GetHasPrevious() bool  { return this.HasPrevious }
+func (this QuestionPagination) GetNextCursor() string { return this.NextCursor }
 
 type QuoteTask struct {
 	ID        string `json:"id"`
@@ -1118,16 +1195,24 @@ func (this SeasonCalendarEntry) GetStart() string       { return this.Start }
 func (this SeasonCalendarEntry) GetEnd() string         { return this.End }
 
 type SeasonPagination struct {
-	Total  int       `json:"total"`
-	First  int       `json:"first"`
-	Offset int       `json:"offset"`
-	Items  []*Season `json:"items"`
+	Total       int       `json:"total"`
+	First       int       `json:"first"`
+	Offset      int       `json:"offset"`
+	Cursor      string    `json:"cursor"`
+	HasNext     bool      `json:"hasNext"`
+	HasPrevious bool      `json:"hasPrevious"`
+	NextCursor  string    `json:"nextCursor"`
+	Items       []*Season `json:"items"`
 }
 
-func (SeasonPagination) IsPagination()       {}
-func (this SeasonPagination) GetTotal() int  { return this.Total }
-func (this SeasonPagination) GetFirst() int  { return this.First }
-func (this SeasonPagination) GetOffset() int { return this.Offset }
+func (SeasonPagination) IsPagination()              {}
+func (this SeasonPagination) GetTotal() int         { return this.Total }
+func (this SeasonPagination) GetFirst() int         { return this.First }
+func (this SeasonPagination) GetOffset() int        { return this.Offset }
+func (this SeasonPagination) GetCursor() string     { return this.Cursor }
+func (this SeasonPagination) GetHasNext() bool      { return this.HasNext }
+func (this SeasonPagination) GetHasPrevious() bool  { return this.HasPrevious }
+func (this SeasonPagination) GetNextCursor() string { return this.NextCursor }
 
 type SeasonSearchItem struct {
 	ID          string  `json:"id"`
@@ -1166,28 +1251,44 @@ type SectionItem struct {
 }
 
 type SectionItemPagination struct {
-	First  int            `json:"first"`
-	Offset int            `json:"offset"`
-	Total  int            `json:"total"`
-	Items  []*SectionItem `json:"items"`
+	Total       int            `json:"total"`
+	First       int            `json:"first"`
+	Offset      int            `json:"offset"`
+	Cursor      string         `json:"cursor"`
+	HasNext     bool           `json:"hasNext"`
+	HasPrevious bool           `json:"hasPrevious"`
+	NextCursor  string         `json:"nextCursor"`
+	Items       []*SectionItem `json:"items"`
 }
 
-func (SectionItemPagination) IsPagination()       {}
-func (this SectionItemPagination) GetTotal() int  { return this.Total }
-func (this SectionItemPagination) GetFirst() int  { return this.First }
-func (this SectionItemPagination) GetOffset() int { return this.Offset }
+func (SectionItemPagination) IsPagination()              {}
+func (this SectionItemPagination) GetTotal() int         { return this.Total }
+func (this SectionItemPagination) GetFirst() int         { return this.First }
+func (this SectionItemPagination) GetOffset() int        { return this.Offset }
+func (this SectionItemPagination) GetCursor() string     { return this.Cursor }
+func (this SectionItemPagination) GetHasNext() bool      { return this.HasNext }
+func (this SectionItemPagination) GetHasPrevious() bool  { return this.HasPrevious }
+func (this SectionItemPagination) GetNextCursor() string { return this.NextCursor }
 
 type SectionPagination struct {
-	Total  int       `json:"total"`
-	First  int       `json:"first"`
-	Offset int       `json:"offset"`
-	Items  []Section `json:"items"`
+	Total       int       `json:"total"`
+	First       int       `json:"first"`
+	Offset      int       `json:"offset"`
+	Cursor      string    `json:"cursor"`
+	HasNext     bool      `json:"hasNext"`
+	HasPrevious bool      `json:"hasPrevious"`
+	NextCursor  string    `json:"nextCursor"`
+	Items       []Section `json:"items"`
 }
 
-func (SectionPagination) IsPagination()       {}
-func (this SectionPagination) GetTotal() int  { return this.Total }
-func (this SectionPagination) GetFirst() int  { return this.First }
-func (this SectionPagination) GetOffset() int { return this.Offset }
+func (SectionPagination) IsPagination()              {}
+func (this SectionPagination) GetTotal() int         { return this.Total }
+func (this SectionPagination) GetFirst() int         { return this.First }
+func (this SectionPagination) GetOffset() int        { return this.Offset }
+func (this SectionPagination) GetCursor() string     { return this.Cursor }
+func (this SectionPagination) GetHasNext() bool      { return this.HasNext }
+func (this SectionPagination) GetHasPrevious() bool  { return this.HasPrevious }
+func (this SectionPagination) GetNextCursor() string { return this.NextCursor }
 
 type Short struct {
 	ID            string         `json:"id"`
@@ -1407,16 +1508,24 @@ func (this SurveyPrompt) GetFrom() string            { return this.From }
 func (this SurveyPrompt) GetTo() string              { return this.To }
 
 type SurveyQuestionPagination struct {
-	First  int              `json:"first"`
-	Offset int              `json:"offset"`
-	Total  int              `json:"total"`
-	Items  []SurveyQuestion `json:"items"`
+	Total       int              `json:"total"`
+	First       int              `json:"first"`
+	Offset      int              `json:"offset"`
+	Cursor      string           `json:"cursor"`
+	HasNext     bool             `json:"hasNext"`
+	HasPrevious bool             `json:"hasPrevious"`
+	NextCursor  string           `json:"nextCursor"`
+	Items       []SurveyQuestion `json:"items"`
 }
 
-func (SurveyQuestionPagination) IsPagination()       {}
-func (this SurveyQuestionPagination) GetTotal() int  { return this.Total }
-func (this SurveyQuestionPagination) GetFirst() int  { return this.First }
-func (this SurveyQuestionPagination) GetOffset() int { return this.Offset }
+func (SurveyQuestionPagination) IsPagination()              {}
+func (this SurveyQuestionPagination) GetTotal() int         { return this.Total }
+func (this SurveyQuestionPagination) GetFirst() int         { return this.First }
+func (this SurveyQuestionPagination) GetOffset() int        { return this.Offset }
+func (this SurveyQuestionPagination) GetCursor() string     { return this.Cursor }
+func (this SurveyQuestionPagination) GetHasNext() bool      { return this.HasNext }
+func (this SurveyQuestionPagination) GetHasPrevious() bool  { return this.HasPrevious }
+func (this SurveyQuestionPagination) GetNextCursor() string { return this.NextCursor }
 
 type SurveyRatingQuestion struct {
 	ID          string  `json:"id"`
@@ -1441,16 +1550,24 @@ func (this SurveyTextQuestion) GetTitle() string        { return this.Title }
 func (this SurveyTextQuestion) GetDescription() *string { return this.Description }
 
 type TaskPagination struct {
-	Offset int    `json:"offset"`
-	First  int    `json:"first"`
-	Total  int    `json:"total"`
-	Items  []Task `json:"items"`
+	Total       int    `json:"total"`
+	First       int    `json:"first"`
+	Offset      int    `json:"offset"`
+	Cursor      string `json:"cursor"`
+	HasNext     bool   `json:"hasNext"`
+	HasPrevious bool   `json:"hasPrevious"`
+	NextCursor  string `json:"nextCursor"`
+	Items       []Task `json:"items"`
 }
 
-func (TaskPagination) IsPagination()       {}
-func (this TaskPagination) GetTotal() int  { return this.Total }
-func (this TaskPagination) GetFirst() int  { return this.First }
-func (this TaskPagination) GetOffset() int { return this.Offset }
+func (TaskPagination) IsPagination()              {}
+func (this TaskPagination) GetTotal() int         { return this.Total }
+func (this TaskPagination) GetFirst() int         { return this.First }
+func (this TaskPagination) GetOffset() int        { return this.Offset }
+func (this TaskPagination) GetCursor() string     { return this.Cursor }
+func (this TaskPagination) GetHasNext() bool      { return this.HasNext }
+func (this TaskPagination) GetHasPrevious() bool  { return this.HasPrevious }
+func (this TaskPagination) GetNextCursor() string { return this.NextCursor }
 
 type TasksProgress struct {
 	Total                      int `json:"total"`
@@ -1498,16 +1615,24 @@ type UserCollectionEntry struct {
 }
 
 type UserCollectionEntryPagination struct {
-	Total  int                    `json:"total"`
-	Offset int                    `json:"offset"`
-	First  int                    `json:"first"`
-	Items  []*UserCollectionEntry `json:"items"`
+	Total       int                    `json:"total"`
+	First       int                    `json:"first"`
+	Offset      int                    `json:"offset"`
+	Cursor      string                 `json:"cursor"`
+	HasNext     bool                   `json:"hasNext"`
+	HasPrevious bool                   `json:"hasPrevious"`
+	NextCursor  string                 `json:"nextCursor"`
+	Items       []*UserCollectionEntry `json:"items"`
 }
 
-func (UserCollectionEntryPagination) IsPagination()       {}
-func (this UserCollectionEntryPagination) GetTotal() int  { return this.Total }
-func (this UserCollectionEntryPagination) GetFirst() int  { return this.First }
-func (this UserCollectionEntryPagination) GetOffset() int { return this.Offset }
+func (UserCollectionEntryPagination) IsPagination()              {}
+func (this UserCollectionEntryPagination) GetTotal() int         { return this.Total }
+func (this UserCollectionEntryPagination) GetFirst() int         { return this.First }
+func (this UserCollectionEntryPagination) GetOffset() int        { return this.Offset }
+func (this UserCollectionEntryPagination) GetCursor() string     { return this.Cursor }
+func (this UserCollectionEntryPagination) GetHasNext() bool      { return this.HasNext }
+func (this UserCollectionEntryPagination) GetHasPrevious() bool  { return this.HasPrevious }
+func (this UserCollectionEntryPagination) GetNextCursor() string { return this.NextCursor }
 
 type VideoTask struct {
 	ID             string   `json:"id"`
@@ -1580,6 +1705,20 @@ func (e AchievementsSource) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *AchievementsSource) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AchievementsSource) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 type CardSectionSize string
 
 const (
@@ -1621,6 +1760,20 @@ func (e CardSectionSize) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *CardSectionSize) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CardSectionSize) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 type EpisodeType string
 
 const (
@@ -1660,6 +1813,20 @@ func (e *EpisodeType) UnmarshalGQL(v any) error {
 
 func (e EpisodeType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *EpisodeType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e EpisodeType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type Gender string
@@ -1705,6 +1872,20 @@ func (e Gender) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *Gender) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e Gender) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 type GridSectionSize string
 
 const (
@@ -1742,6 +1923,20 @@ func (e *GridSectionSize) UnmarshalGQL(v any) error {
 
 func (e GridSectionSize) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GridSectionSize) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GridSectionSize) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type ImageStyle string
@@ -1787,6 +1982,20 @@ func (e ImageStyle) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *ImageStyle) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ImageStyle) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 type LinkType string
 
 const (
@@ -1830,6 +2039,20 @@ func (e *LinkType) UnmarshalGQL(v any) error {
 
 func (e LinkType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *LinkType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e LinkType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type Os string
@@ -1879,6 +2102,20 @@ func (e Os) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *Os) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e Os) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 type SectionSize string
 
 const (
@@ -1918,6 +2155,20 @@ func (e *SectionSize) UnmarshalGQL(v any) error {
 
 func (e SectionSize) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *SectionSize) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e SectionSize) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type ShareRestriction string
@@ -1963,6 +2214,20 @@ func (e ShareRestriction) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *ShareRestriction) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ShareRestriction) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 type ShowType string
 
 const (
@@ -2004,6 +2269,20 @@ func (e ShowType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *ShowType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ShowType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 type Status string
 
 const (
@@ -2043,6 +2322,20 @@ func (e *Status) UnmarshalGQL(v any) error {
 
 func (e Status) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *Status) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e Status) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type StreamType string
@@ -2088,6 +2381,20 @@ func (e StreamType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *StreamType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e StreamType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 type SubscriptionTopic string
 
 const (
@@ -2125,4 +2432,18 @@ func (e *SubscriptionTopic) UnmarshalGQL(v any) error {
 
 func (e SubscriptionTopic) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *SubscriptionTopic) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e SubscriptionTopic) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }

@@ -257,6 +257,7 @@ func (r *Resolver) sectionCollectionEntryResolver(
 	section *common.Section,
 	first *int,
 	offset *int,
+	cursor *string,
 	limit int,
 ) (*utils.PaginationResult[*model.SectionItem], error) {
 	ls := r.GetLoaders()
@@ -279,7 +280,16 @@ func (r *Resolver) sectionCollectionEntryResolver(
 		entries = entries[:min(len(entries), limit)]
 	}
 
-	pagination := utils.Paginate(entries, first, offset, nil)
+	var parsedCursor *utils.OffsetCursor
+	if cursor != nil && *cursor != "" {
+		var err error
+		parsedCursor, err = utils.ParseOffsetCursor(*cursor)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	pagination := utils.Paginate(entries, first, offset, nil, parsedCursor)
 	preloadEntryLoaders(ctx, ls, pagination.Items)
 
 	imageStyle := sectionStyleToImageStyle(section.Style)
@@ -289,18 +299,22 @@ func (r *Resolver) sectionCollectionEntryResolver(
 	}
 
 	return &utils.PaginationResult[*model.SectionItem]{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  items,
+		Total:       pagination.Total,
+		First:       pagination.First,
+		Offset:      pagination.Offset,
+		Items:       items,
+		Cursor:      pagination.Cursor,
+		NextCursor:  pagination.NextCursor,
+		HasNext:     pagination.HasNext,
+		HasPrevious: pagination.HasPrevious,
 	}, nil
 }
 
-func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*model.SectionItemPagination, error) {
+func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
 	if strings.HasPrefix(id, "c-") {
 		collectionId := utils.AsIntOrNil(strings.TrimPrefix(id, "c-"))
 		if collectionId != nil {
-			return getSectionItemsForCollectionPage(ctx, r, *collectionId, first, offset)
+			return getSectionItemsForCollectionPage(ctx, r, *collectionId, first, offset, cursor)
 		}
 		return nil, merry.New("invalid collection id")
 	}
@@ -312,15 +326,19 @@ func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, 
 		return nil, err
 	}
 
-	pagination, err := r.sectionCollectionEntryResolver(ctx, section, first, offset, section.Options.Limit)
+	pagination, err := r.sectionCollectionEntryResolver(ctx, section, first, offset, cursor, section.Options.Limit)
 	if err != nil {
 		return nil, err
 	}
 
 	return &model.SectionItemPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  pagination.Items,
+		Total:       pagination.Total,
+		First:       pagination.First,
+		Offset:      pagination.Offset,
+		Items:       pagination.Items,
+		Cursor:      pagination.Cursor.Encode(),
+		NextCursor:  pagination.NextCursor.Encode(),
+		HasNext:     pagination.HasNext,
+		HasPrevious: pagination.HasPrevious,
 	}, nil
 }

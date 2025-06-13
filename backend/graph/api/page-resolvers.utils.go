@@ -43,7 +43,7 @@ func getSectionsForCollectionPage(collectionID int) (*model.SectionPagination, e
 	}, nil
 }
 
-func getSectionItemsForCollectionPage(ctx context.Context, r *Resolver, collectionId int, first, offset *int) (*model.SectionItemPagination, error) {
+func getSectionItemsForCollectionPage(ctx context.Context, r *Resolver, collectionId int, first, offset *int, cursor *string) (*model.SectionItemPagination, error) {
 	ls := r.GetLoaders()
 
 	col, err := ls.CollectionLoader.Get(ctx, collectionId)
@@ -56,7 +56,16 @@ func getSectionItemsForCollectionPage(ctx context.Context, r *Resolver, collecti
 		return nil, err
 	}
 
-	pagination := utils.Paginate(entries, first, offset, nil)
+	var parsedCursor *utils.OffsetCursor
+	if cursor != nil && *cursor != "" {
+		var err error
+		parsedCursor, err = utils.ParseOffsetCursor(*cursor)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	pagination := utils.Paginate(entries, first, offset, nil, parsedCursor)
 
 	preloadEntryLoaders(ctx, ls, pagination.Items)
 
@@ -66,9 +75,13 @@ func getSectionItemsForCollectionPage(ctx context.Context, r *Resolver, collecti
 	}
 
 	return &model.SectionItemPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  items,
+		Total:       pagination.Total,
+		First:       pagination.First,
+		Offset:      pagination.Offset,
+		Items:       items,
+		Cursor:      pagination.Cursor.Encode(),
+		NextCursor:  pagination.NextCursor.Encode(),
+		HasNext:     pagination.HasNext,
+		HasPrevious: pagination.HasPrevious,
 	}, nil
 }
