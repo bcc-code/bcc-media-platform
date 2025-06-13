@@ -116,7 +116,7 @@ type ComplexityRoot struct {
 	}
 
 	AchievementGroup struct {
-		Achievements func(childComplexity int, first *int, offset *int) int
+		Achievements func(childComplexity int, first *int, offset *int, cursor *string) int
 		ID           func(childComplexity int) int
 		Title        func(childComplexity int) int
 	}
@@ -194,7 +194,7 @@ type ComplexityRoot struct {
 	AvatarSection struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Items       func(childComplexity int, first *int, offset *int) int
+		Items       func(childComplexity int, first *int, offset *int, cursor *string) int
 		Metadata    func(childComplexity int) int
 		Size        func(childComplexity int) int
 		Title       func(childComplexity int) int
@@ -219,7 +219,7 @@ type ComplexityRoot struct {
 	CardListSection struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Items       func(childComplexity int, first *int, offset *int) int
+		Items       func(childComplexity int, first *int, offset *int, cursor *string) int
 		Metadata    func(childComplexity int) int
 		Size        func(childComplexity int) int
 		Title       func(childComplexity int) int
@@ -228,7 +228,7 @@ type ComplexityRoot struct {
 	CardSection struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Items       func(childComplexity int, first *int, offset *int) int
+		Items       func(childComplexity int, first *int, offset *int, cursor *string) int
 		Metadata    func(childComplexity int) int
 		Size        func(childComplexity int) int
 		Title       func(childComplexity int) int
@@ -265,7 +265,7 @@ type ComplexityRoot struct {
 
 	ContextCollection struct {
 		ID    func(childComplexity int) int
-		Items func(childComplexity int, first *int, offset *int) int
+		Items func(childComplexity int, first *int, offset *int, cursor *string) int
 		Slug  func(childComplexity int) int
 	}
 
@@ -299,7 +299,7 @@ type ComplexityRoot struct {
 	DefaultGridSection struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Items       func(childComplexity int, first *int, offset *int) int
+		Items       func(childComplexity int, first *int, offset *int, cursor *string) int
 		Metadata    func(childComplexity int) int
 		Size        func(childComplexity int) int
 		Title       func(childComplexity int) int
@@ -308,7 +308,7 @@ type ComplexityRoot struct {
 	DefaultSection struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Items       func(childComplexity int, first *int, offset *int) int
+		Items       func(childComplexity int, first *int, offset *int, cursor *string) int
 		Metadata    func(childComplexity int) int
 		Size        func(childComplexity int) int
 		Title       func(childComplexity int) int
@@ -339,7 +339,7 @@ type ComplexityRoot struct {
 		InMyList              func(childComplexity int) int
 		LegacyID              func(childComplexity int) int
 		LegacyProgramID       func(childComplexity int) int
-		Lessons               func(childComplexity int, first *int, offset *int) int
+		Lessons               func(childComplexity int, first *int, offset *int, cursor *string) int
 		Locked                func(childComplexity int) int
 		Next                  func(childComplexity int, limit *int) int
 		Number                func(childComplexity int) int
@@ -348,7 +348,7 @@ type ComplexityRoot struct {
 		ProductionDateInTitle func(childComplexity int) int
 		Progress              func(childComplexity int) int
 		PublishDate           func(childComplexity int) int
-		RelatedItems          func(childComplexity int, first *int, offset *int) int
+		RelatedItems          func(childComplexity int, first *int, offset *int, cursor *string) int
 		Season                func(childComplexity int) int
 		ShareRestriction      func(childComplexity int) int
 		SkipToChapter         func(childComplexity int) int
@@ -419,14 +419,14 @@ type ComplexityRoot struct {
 	}
 
 	FAQ struct {
-		Categories func(childComplexity int, first *int, offset *int) int
+		Categories func(childComplexity int, first *int, offset *int, cursor *string) int
 		Category   func(childComplexity int, id string) int
 		Question   func(childComplexity int, id string) int
 	}
 
 	FAQCategory struct {
 		ID        func(childComplexity int) int
-		Questions func(childComplexity int, first *int, offset *int) int
+		Questions func(childComplexity int, first *int, offset *int, cursor *string) int
 		Title     func(childComplexity int) int
 	}
 
@@ -444,7 +444,7 @@ type ComplexityRoot struct {
 	FeaturedSection struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Items       func(childComplexity int, first *int, offset *int) int
+		Items       func(childComplexity int, first *int, offset *int, cursor *string) int
 		Metadata    func(childComplexity int) int
 		Size        func(childComplexity int) int
 		Title       func(childComplexity int) int
@@ -478,7 +478,7 @@ type ComplexityRoot struct {
 	IconGridSection struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Items       func(childComplexity int, first *int, offset *int) int
+		Items       func(childComplexity int, first *int, offset *int, cursor *string) int
 		Metadata    func(childComplexity int) int
 		Size        func(childComplexity int) int
 		Title       func(childComplexity int) int
@@ -487,7 +487,7 @@ type ComplexityRoot struct {
 	IconSection struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Items       func(childComplexity int, first *int, offset *int) int
+		Items       func(childComplexity int, first *int, offset *int, cursor *string) int
 		Metadata    func(childComplexity int) int
 		Title       func(childComplexity int) int
 	}
@@ -511,7 +511,7 @@ type ComplexityRoot struct {
 	LabelSection struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Items       func(childComplexity int, first *int, offset *int) int
+		Items       func(childComplexity int, first *int, offset *int, cursor *string) int
 		Metadata    func(childComplexity int) int
 		Title       func(childComplexity int) int
 	}
@@ -524,17 +524,17 @@ type ComplexityRoot struct {
 		Completed        func(childComplexity int) int
 		DefaultEpisode   func(childComplexity int) int
 		Description      func(childComplexity int) int
-		Episodes         func(childComplexity int, first *int, offset *int) int
+		Episodes         func(childComplexity int, first *int, offset *int, cursor *string) int
 		ID               func(childComplexity int) int
 		Image            func(childComplexity int, style *model.ImageStyle) int
 		IntroScreenCode  func(childComplexity int) int
-		Links            func(childComplexity int, first *int, offset *int) int
+		Links            func(childComplexity int, first *int, offset *int, cursor *string) int
 		Locked           func(childComplexity int) int
 		Next             func(childComplexity int) int
 		Previous         func(childComplexity int) int
 		Progress         func(childComplexity int) int
 		ShowDiscoverPage func(childComplexity int) int
-		Tasks            func(childComplexity int, first *int, offset *int) int
+		Tasks            func(childComplexity int, first *int, offset *int, cursor *string) int
 		Title            func(childComplexity int) int
 		Topic            func(childComplexity int) int
 	}
@@ -587,7 +587,7 @@ type ComplexityRoot struct {
 	ListSection struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Items       func(childComplexity int, first *int, offset *int) int
+		Items       func(childComplexity int, first *int, offset *int, cursor *string) int
 		Metadata    func(childComplexity int) int
 		Size        func(childComplexity int) int
 		Title       func(childComplexity int) int
@@ -643,7 +643,7 @@ type ComplexityRoot struct {
 		ID          func(childComplexity int) int
 		Image       func(childComplexity int, style *model.ImageStyle) int
 		Images      func(childComplexity int) int
-		Sections    func(childComplexity int, first *int, offset *int) int
+		Sections    func(childComplexity int, first *int, offset *int, cursor *string) int
 		Title       func(childComplexity int) int
 	}
 
@@ -656,7 +656,7 @@ type ComplexityRoot struct {
 	Person struct {
 		ContributionContentTypes func(childComplexity int) int
 		ContributionTypes        func(childComplexity int) int
-		Contributions            func(childComplexity int, first *int, offset *int, types []string, contentTypes []string, shuffle *bool) int
+		Contributions            func(childComplexity int, first *int, offset *int, cursor *string, types []string, contentTypes []string, shuffle *bool) int
 		ID                       func(childComplexity int) int
 		Image                    func(childComplexity int, style *model.ImageStyle) int
 		Name                     func(childComplexity int) int
@@ -666,7 +666,7 @@ type ComplexityRoot struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Image       func(childComplexity int, style *model.ImageStyle) int
-		Items       func(childComplexity int, first *int, offset *int) int
+		Items       func(childComplexity int, first *int, offset *int, cursor *string) int
 		Title       func(childComplexity int) int
 	}
 
@@ -684,7 +684,7 @@ type ComplexityRoot struct {
 	PosterGridSection struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Items       func(childComplexity int, first *int, offset *int) int
+		Items       func(childComplexity int, first *int, offset *int, cursor *string) int
 		Metadata    func(childComplexity int) int
 		Size        func(childComplexity int) int
 		Title       func(childComplexity int) int
@@ -693,7 +693,7 @@ type ComplexityRoot struct {
 	PosterSection struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Items       func(childComplexity int, first *int, offset *int) int
+		Items       func(childComplexity int, first *int, offset *int, cursor *string) int
 		Metadata    func(childComplexity int) int
 		Size        func(childComplexity int) int
 		Title       func(childComplexity int) int
@@ -714,7 +714,7 @@ type ComplexityRoot struct {
 	QueryRoot struct {
 		Achievement         func(childComplexity int, id string) int
 		AchievementGroup    func(childComplexity int, id string) int
-		AchievementGroups   func(childComplexity int, first *int, offset *int) int
+		AchievementGroups   func(childComplexity int, first *int, offset *int, cursor *string) int
 		Application         func(childComplexity int, timestamp *string) int
 		Calendar            func(childComplexity int) int
 		Config              func(childComplexity int) int
@@ -736,7 +736,7 @@ type ComplexityRoot struct {
 		Profiles            func(childComplexity int) int
 		Prompts             func(childComplexity int, timestamp *string) int
 		Redirect            func(childComplexity int, id string) int
-		Search              func(childComplexity int, queryString string, first *int, offset *int, typeArg *string, minScore *int) int
+		Search              func(childComplexity int, queryString string, first *int, offset *int, cursor *string, typeArg *string, minScore *int) int
 		Season              func(childComplexity int, id string) int
 		Section             func(childComplexity int, id string, timestamp *string) int
 		Short               func(childComplexity int, id string) int
@@ -794,7 +794,7 @@ type ComplexityRoot struct {
 		AgeRating      func(childComplexity int) int
 		DefaultEpisode func(childComplexity int) int
 		Description    func(childComplexity int) int
-		Episodes       func(childComplexity int, first *int, offset *int, dir *string) int
+		Episodes       func(childComplexity int, first *int, offset *int, cursor *string, dir *string) int
 		ID             func(childComplexity int) int
 		Image          func(childComplexity int, style *model.ImageStyle) int
 		ImageURL       func(childComplexity int) int
@@ -903,7 +903,7 @@ type ComplexityRoot struct {
 		Images         func(childComplexity int) int
 		LegacyID       func(childComplexity int) int
 		SeasonCount    func(childComplexity int) int
-		Seasons        func(childComplexity int, first *int, offset *int, dir *string) int
+		Seasons        func(childComplexity int, first *int, offset *int, cursor *string, dir *string) int
 		Status         func(childComplexity int) int
 		Title          func(childComplexity int) int
 		Type           func(childComplexity int) int
@@ -958,7 +958,7 @@ type ComplexityRoot struct {
 		ID            func(childComplexity int) int
 		Image         func(childComplexity int, style *model.ImageStyle) int
 		Images        func(childComplexity int) int
-		Lessons       func(childComplexity int, first *int, offset *int) int
+		Lessons       func(childComplexity int, first *int, offset *int, cursor *string) int
 		Progress      func(childComplexity int) int
 		Title         func(childComplexity int) int
 	}
@@ -972,7 +972,7 @@ type ComplexityRoot struct {
 	Survey struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Questions   func(childComplexity int, first *int, offset *int) int
+		Questions   func(childComplexity int, first *int, offset *int, cursor *string) int
 		Title       func(childComplexity int) int
 	}
 
@@ -1058,7 +1058,7 @@ type ComplexityRoot struct {
 	}
 
 	UserCollection struct {
-		Entries func(childComplexity int, first *int, offset *int) int
+		Entries func(childComplexity int, first *int, offset *int, cursor *string) int
 		ID      func(childComplexity int) int
 		Title   func(childComplexity int) int
 	}
@@ -1106,7 +1106,7 @@ type AchievementResolver interface {
 	Group(ctx context.Context, obj *model.Achievement) (*model.AchievementGroup, error)
 }
 type AchievementGroupResolver interface {
-	Achievements(ctx context.Context, obj *model.AchievementGroup, first *int, offset *int) (*model.AchievementPagination, error)
+	Achievements(ctx context.Context, obj *model.AchievementGroup, first *int, offset *int, cursor *string) (*model.AchievementPagination, error)
 }
 type AddToCollectionResultResolver interface {
 	Collection(ctx context.Context, obj *model.AddToCollectionResult) (*model.UserCollection, error)
@@ -1126,7 +1126,7 @@ type ApplicationResolver interface {
 	GamesPage(ctx context.Context, obj *model.Application) (*model.Page, error)
 }
 type AvatarSectionResolver interface {
-	Items(ctx context.Context, obj *model.AvatarSection, first *int, offset *int) (*model.SectionItemPagination, error)
+	Items(ctx context.Context, obj *model.AvatarSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 }
 type CalendarResolver interface {
 	Events(ctx context.Context, obj *model.Calendar, from *string, to *string) ([]*model.Event, error)
@@ -1134,10 +1134,10 @@ type CalendarResolver interface {
 	Day(ctx context.Context, obj *model.Calendar, day string) (*model.CalendarDay, error)
 }
 type CardListSectionResolver interface {
-	Items(ctx context.Context, obj *model.CardListSection, first *int, offset *int) (*model.SectionItemPagination, error)
+	Items(ctx context.Context, obj *model.CardListSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 }
 type CardSectionResolver interface {
-	Items(ctx context.Context, obj *model.CardSection, first *int, offset *int) (*model.SectionItemPagination, error)
+	Items(ctx context.Context, obj *model.CardSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 }
 type ChapterResolver interface {
 	Episode(ctx context.Context, obj *model.Chapter) (*model.Episode, error)
@@ -1149,16 +1149,16 @@ type ContentTypeResolver interface {
 	Title(ctx context.Context, obj *model.ContentType) (string, error)
 }
 type ContextCollectionResolver interface {
-	Items(ctx context.Context, obj *model.ContextCollection, first *int, offset *int) (*model.SectionItemPagination, error)
+	Items(ctx context.Context, obj *model.ContextCollection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 }
 type ContributionTypeResolver interface {
 	Title(ctx context.Context, obj *model.ContributionType) (string, error)
 }
 type DefaultGridSectionResolver interface {
-	Items(ctx context.Context, obj *model.DefaultGridSection, first *int, offset *int) (*model.SectionItemPagination, error)
+	Items(ctx context.Context, obj *model.DefaultGridSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 }
 type DefaultSectionResolver interface {
-	Items(ctx context.Context, obj *model.DefaultSection, first *int, offset *int) (*model.SectionItemPagination, error)
+	Items(ctx context.Context, obj *model.DefaultSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 }
 type EpisodeResolver interface {
 	Locked(ctx context.Context, obj *model.Episode) (bool, error)
@@ -1181,9 +1181,9 @@ type EpisodeResolver interface {
 	Watched(ctx context.Context, obj *model.Episode) (bool, error)
 
 	Context(ctx context.Context, obj *model.Episode) (model.EpisodeContextUnion, error)
-	RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error)
+	RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 
-	Lessons(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.LessonPagination, error)
+	Lessons(ctx context.Context, obj *model.Episode, first *int, offset *int, cursor *string) (*model.LessonPagination, error)
 	ShareRestriction(ctx context.Context, obj *model.Episode) (model.ShareRestriction, error)
 	InMyList(ctx context.Context, obj *model.Episode) (bool, error)
 	Next(ctx context.Context, obj *model.Episode, limit *int) ([]*model.Episode, error)
@@ -1205,38 +1205,38 @@ type EventResolver interface {
 	Entries(ctx context.Context, obj *model.Event) ([]model.CalendarEntry, error)
 }
 type FAQResolver interface {
-	Categories(ctx context.Context, obj *model.Faq, first *int, offset *int) (*model.FAQCategoryPagination, error)
+	Categories(ctx context.Context, obj *model.Faq, first *int, offset *int, cursor *string) (*model.FAQCategoryPagination, error)
 	Category(ctx context.Context, obj *model.Faq, id string) (*model.FAQCategory, error)
 	Question(ctx context.Context, obj *model.Faq, id string) (*model.Question, error)
 }
 type FAQCategoryResolver interface {
-	Questions(ctx context.Context, obj *model.FAQCategory, first *int, offset *int) (*model.QuestionPagination, error)
+	Questions(ctx context.Context, obj *model.FAQCategory, first *int, offset *int, cursor *string) (*model.QuestionPagination, error)
 }
 type FeaturedSectionResolver interface {
-	Items(ctx context.Context, obj *model.FeaturedSection, first *int, offset *int) (*model.SectionItemPagination, error)
+	Items(ctx context.Context, obj *model.FeaturedSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 }
 type GameResolver interface {
 	Image(ctx context.Context, obj *model.Game, style *model.ImageStyle) (*string, error)
 }
 type IconGridSectionResolver interface {
-	Items(ctx context.Context, obj *model.IconGridSection, first *int, offset *int) (*model.SectionItemPagination, error)
+	Items(ctx context.Context, obj *model.IconGridSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 }
 type IconSectionResolver interface {
-	Items(ctx context.Context, obj *model.IconSection, first *int, offset *int) (*model.SectionItemPagination, error)
+	Items(ctx context.Context, obj *model.IconSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 }
 type ItemSectionMetadataResolver interface {
 	Page(ctx context.Context, obj *model.ItemSectionMetadata) (*model.Page, error)
 }
 type LabelSectionResolver interface {
-	Items(ctx context.Context, obj *model.LabelSection, first *int, offset *int) (*model.SectionItemPagination, error)
+	Items(ctx context.Context, obj *model.LabelSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 }
 type LessonResolver interface {
 	Image(ctx context.Context, obj *model.Lesson, style *model.ImageStyle) (*string, error)
-	Tasks(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.TaskPagination, error)
+	Tasks(ctx context.Context, obj *model.Lesson, first *int, offset *int, cursor *string) (*model.TaskPagination, error)
 	Topic(ctx context.Context, obj *model.Lesson) (*model.StudyTopic, error)
 	DefaultEpisode(ctx context.Context, obj *model.Lesson) (*model.Episode, error)
-	Episodes(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.EpisodePagination, error)
-	Links(ctx context.Context, obj *model.Lesson, first *int, offset *int) (*model.LinkPagination, error)
+	Episodes(ctx context.Context, obj *model.Lesson, first *int, offset *int, cursor *string) (*model.EpisodePagination, error)
+	Links(ctx context.Context, obj *model.Lesson, first *int, offset *int, cursor *string) (*model.LinkPagination, error)
 	Progress(ctx context.Context, obj *model.Lesson) (*model.TasksProgress, error)
 	Completed(ctx context.Context, obj *model.Lesson) (bool, error)
 	Locked(ctx context.Context, obj *model.Lesson) (bool, error)
@@ -1253,7 +1253,7 @@ type LinkTaskResolver interface {
 	Link(ctx context.Context, obj *model.LinkTask) (*model.Link, error)
 }
 type ListSectionResolver interface {
-	Items(ctx context.Context, obj *model.ListSection, first *int, offset *int) (*model.SectionItemPagination, error)
+	Items(ctx context.Context, obj *model.ListSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 }
 type MessageSectionResolver interface {
 	Messages(ctx context.Context, obj *model.MessageSection) ([]*model.Message, error)
@@ -1285,23 +1285,23 @@ type MutationRootResolver interface {
 type PageResolver interface {
 	Image(ctx context.Context, obj *model.Page, style *model.ImageStyle) (*string, error)
 
-	Sections(ctx context.Context, obj *model.Page, first *int, offset *int) (*model.SectionPagination, error)
+	Sections(ctx context.Context, obj *model.Page, first *int, offset *int, cursor *string) (*model.SectionPagination, error)
 }
 type PersonResolver interface {
 	Image(ctx context.Context, obj *model.Person, style *model.ImageStyle) (*string, error)
 	ContributionTypes(ctx context.Context, obj *model.Person) ([]*model.ContributionTypeCount, error)
 	ContributionContentTypes(ctx context.Context, obj *model.Person) ([]*model.ContentTypeCount, error)
-	Contributions(ctx context.Context, obj *model.Person, first *int, offset *int, types []string, contentTypes []string, shuffle *bool) (*model.ContributionsPagination, error)
+	Contributions(ctx context.Context, obj *model.Person, first *int, offset *int, cursor *string, types []string, contentTypes []string, shuffle *bool) (*model.ContributionsPagination, error)
 }
 type PlaylistResolver interface {
 	Image(ctx context.Context, obj *model.Playlist, style *model.ImageStyle) (*string, error)
-	Items(ctx context.Context, obj *model.Playlist, first *int, offset *int) (*model.PlaylistItemPagination, error)
+	Items(ctx context.Context, obj *model.Playlist, first *int, offset *int, cursor *string) (*model.PlaylistItemPagination, error)
 }
 type PosterGridSectionResolver interface {
-	Items(ctx context.Context, obj *model.PosterGridSection, first *int, offset *int) (*model.SectionItemPagination, error)
+	Items(ctx context.Context, obj *model.PosterGridSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 }
 type PosterSectionResolver interface {
-	Items(ctx context.Context, obj *model.PosterSection, first *int, offset *int) (*model.SectionItemPagination, error)
+	Items(ctx context.Context, obj *model.PosterSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 }
 type PosterTaskResolver interface {
 	Completed(ctx context.Context, obj *model.PosterTask) (bool, error)
@@ -1319,14 +1319,14 @@ type QueryRootResolver interface {
 	Episode(ctx context.Context, id string, context *model.EpisodeContext) (*model.Episode, error)
 	Episodes(ctx context.Context, ids []string) ([]*model.Episode, error)
 	Playlist(ctx context.Context, id string) (*model.Playlist, error)
-	Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error)
+	Search(ctx context.Context, queryString string, first *int, offset *int, cursor *string, typeArg *string, minScore *int) (*model.SearchResult, error)
 	Game(ctx context.Context, id string) (*model.Game, error)
 	Short(ctx context.Context, id string) (*model.Short, error)
 	Shorts(ctx context.Context, cursor *string, limit *int, initialShortID *string) (*model.ShortsPagination, error)
 	PendingAchievements(ctx context.Context) ([]*model.Achievement, error)
 	Achievement(ctx context.Context, id string) (*model.Achievement, error)
 	AchievementGroup(ctx context.Context, id string) (*model.AchievementGroup, error)
-	AchievementGroups(ctx context.Context, first *int, offset *int) (*model.AchievementGroupPagination, error)
+	AchievementGroups(ctx context.Context, first *int, offset *int, cursor *string) (*model.AchievementGroupPagination, error)
 	StudyTopic(ctx context.Context, id string) (*model.StudyTopic, error)
 	StudyLesson(ctx context.Context, id string) (*model.Lesson, error)
 	Calendar(ctx context.Context) (*model.Calendar, error)
@@ -1353,7 +1353,7 @@ type SeasonResolver interface {
 
 	Show(ctx context.Context, obj *model.Season) (*model.Show, error)
 	DefaultEpisode(ctx context.Context, obj *model.Season) (*model.Episode, error)
-	Episodes(ctx context.Context, obj *model.Season, first *int, offset *int, dir *string) (*model.EpisodePagination, error)
+	Episodes(ctx context.Context, obj *model.Season, first *int, offset *int, cursor *string, dir *string) (*model.EpisodePagination, error)
 }
 type SeasonCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *model.SeasonCalendarEntry) (*model.Event, error)
@@ -1383,7 +1383,7 @@ type ShowResolver interface {
 
 	EpisodeCount(ctx context.Context, obj *model.Show) (int, error)
 	SeasonCount(ctx context.Context, obj *model.Show) (int, error)
-	Seasons(ctx context.Context, obj *model.Show, first *int, offset *int, dir *string) (*model.SeasonPagination, error)
+	Seasons(ctx context.Context, obj *model.Show, first *int, offset *int, cursor *string, dir *string) (*model.SeasonPagination, error)
 	DefaultEpisode(ctx context.Context, obj *model.Show) (*model.Episode, error)
 }
 type ShowCalendarEntryResolver interface {
@@ -1403,11 +1403,11 @@ type StudyTopicResolver interface {
 	Image(ctx context.Context, obj *model.StudyTopic, style *model.ImageStyle) (*string, error)
 
 	DefaultLesson(ctx context.Context, obj *model.StudyTopic) (*model.Lesson, error)
-	Lessons(ctx context.Context, obj *model.StudyTopic, first *int, offset *int) (*model.LessonPagination, error)
+	Lessons(ctx context.Context, obj *model.StudyTopic, first *int, offset *int, cursor *string) (*model.LessonPagination, error)
 	Progress(ctx context.Context, obj *model.StudyTopic) (*model.LessonsProgress, error)
 }
 type SurveyResolver interface {
-	Questions(ctx context.Context, obj *model.Survey, first *int, offset *int) (*model.SurveyQuestionPagination, error)
+	Questions(ctx context.Context, obj *model.Survey, first *int, offset *int, cursor *string) (*model.SurveyQuestionPagination, error)
 }
 type SurveyPromptResolver interface {
 	Survey(ctx context.Context, obj *model.SurveyPrompt) (*model.Survey, error)
@@ -1421,7 +1421,7 @@ type UserResolver interface {
 	CompletedRegistration(ctx context.Context, obj *model.User) (bool, error)
 }
 type UserCollectionResolver interface {
-	Entries(ctx context.Context, obj *model.UserCollection, first *int, offset *int) (*model.UserCollectionEntryPagination, error)
+	Entries(ctx context.Context, obj *model.UserCollection, first *int, offset *int, cursor *string) (*model.UserCollectionEntryPagination, error)
 }
 type UserCollectionEntryResolver interface {
 	Item(ctx context.Context, obj *model.UserCollectionEntry) (model.UserCollectionEntryItem, error)
@@ -1509,7 +1509,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.AchievementGroup.Achievements(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.AchievementGroup.Achievements(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "AchievementGroup.id":
 		if e.complexity.AchievementGroup.ID == nil {
@@ -1850,7 +1850,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.AvatarSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.AvatarSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "AvatarSection.metadata":
 		if e.complexity.AvatarSection.Metadata == nil {
@@ -1961,7 +1961,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.CardListSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.CardListSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "CardListSection.metadata":
 		if e.complexity.CardListSection.Metadata == nil {
@@ -2008,7 +2008,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.CardSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.CardSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "CardSection.metadata":
 		if e.complexity.CardSection.Metadata == nil {
@@ -2151,7 +2151,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.ContextCollection.Items(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.ContextCollection.Items(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "ContextCollection.slug":
 		if e.complexity.ContextCollection.Slug == nil {
@@ -2289,7 +2289,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.DefaultGridSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.DefaultGridSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "DefaultGridSection.metadata":
 		if e.complexity.DefaultGridSection.Metadata == nil {
@@ -2336,7 +2336,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.DefaultSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.DefaultSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "DefaultSection.metadata":
 		if e.complexity.DefaultSection.Metadata == nil {
@@ -2526,7 +2526,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Episode.Lessons(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.Episode.Lessons(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "Episode.locked":
 		if e.complexity.Episode.Locked == nil {
@@ -2599,7 +2599,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Episode.RelatedItems(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.Episode.RelatedItems(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "Episode.season":
 		if e.complexity.Episode.Season == nil {
@@ -2975,7 +2975,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.FAQ.Categories(childComplexity, args["first"].(*int), args["Offset"].(*int)), true
+		return e.complexity.FAQ.Categories(childComplexity, args["first"].(*int), args["Offset"].(*int), args["cursor"].(*string)), true
 
 	case "FAQ.category":
 		if e.complexity.FAQ.Category == nil {
@@ -3018,7 +3018,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.FAQCategory.Questions(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.FAQCategory.Questions(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "FAQCategory.title":
 		if e.complexity.FAQCategory.Title == nil {
@@ -3107,7 +3107,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.FeaturedSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.FeaturedSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "FeaturedSection.metadata":
 		if e.complexity.FeaturedSection.Metadata == nil {
@@ -3271,7 +3271,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.IconGridSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.IconGridSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "IconGridSection.metadata":
 		if e.complexity.IconGridSection.Metadata == nil {
@@ -3318,7 +3318,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.IconSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.IconSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "IconSection.metadata":
 		if e.complexity.IconSection.Metadata == nil {
@@ -3428,7 +3428,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.LabelSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.LabelSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "LabelSection.metadata":
 		if e.complexity.LabelSection.Metadata == nil {
@@ -3482,7 +3482,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Lesson.Episodes(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.Lesson.Episodes(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "Lesson.id":
 		if e.complexity.Lesson.ID == nil {
@@ -3520,7 +3520,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Lesson.Links(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.Lesson.Links(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "Lesson.locked":
 		if e.complexity.Lesson.Locked == nil {
@@ -3567,7 +3567,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Lesson.Tasks(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.Lesson.Tasks(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "Lesson.title":
 		if e.complexity.Lesson.Title == nil {
@@ -3822,7 +3822,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.ListSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.ListSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "ListSection.metadata":
 		if e.complexity.ListSection.Metadata == nil {
@@ -4224,7 +4224,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Page.Sections(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.Page.Sections(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "Page.title":
 		if e.complexity.Page.Title == nil {
@@ -4278,7 +4278,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Person.Contributions(childComplexity, args["first"].(*int), args["offset"].(*int), args["types"].([]string), args["contentTypes"].([]string), args["shuffle"].(*bool)), true
+		return e.complexity.Person.Contributions(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string), args["types"].([]string), args["contentTypes"].([]string), args["shuffle"].(*bool)), true
 
 	case "Person.id":
 		if e.complexity.Person.ID == nil {
@@ -4342,7 +4342,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Playlist.Items(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.Playlist.Items(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "Playlist.title":
 		if e.complexity.Playlist.Title == nil {
@@ -4431,7 +4431,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.PosterGridSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.PosterGridSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "PosterGridSection.metadata":
 		if e.complexity.PosterGridSection.Metadata == nil {
@@ -4478,7 +4478,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.PosterSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.PosterSection.Items(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "PosterSection.metadata":
 		if e.complexity.PosterSection.Metadata == nil {
@@ -4577,7 +4577,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.QueryRoot.AchievementGroups(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.QueryRoot.AchievementGroups(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "QueryRoot.application":
 		if e.complexity.QueryRoot.Application == nil {
@@ -4796,7 +4796,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.QueryRoot.Search(childComplexity, args["queryString"].(string), args["first"].(*int), args["offset"].(*int), args["type"].(*string), args["minScore"].(*int)), true
+		return e.complexity.QueryRoot.Search(childComplexity, args["queryString"].(string), args["first"].(*int), args["offset"].(*int), args["cursor"].(*string), args["type"].(*string), args["minScore"].(*int)), true
 
 	case "QueryRoot.season":
 		if e.complexity.QueryRoot.Season == nil {
@@ -5100,7 +5100,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Season.Episodes(childComplexity, args["first"].(*int), args["offset"].(*int), args["dir"].(*string)), true
+		return e.complexity.Season.Episodes(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string), args["dir"].(*string)), true
 
 	case "Season.id":
 		if e.complexity.Season.ID == nil {
@@ -5694,7 +5694,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Show.Seasons(childComplexity, args["first"].(*int), args["offset"].(*int), args["dir"].(*string)), true
+		return e.complexity.Show.Seasons(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string), args["dir"].(*string)), true
 
 	case "Show.status":
 		if e.complexity.Show.Status == nil {
@@ -5984,7 +5984,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.StudyTopic.Lessons(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.StudyTopic.Lessons(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "StudyTopic.progress":
 		if e.complexity.StudyTopic.Progress == nil {
@@ -6045,7 +6045,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Survey.Questions(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.Survey.Questions(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "Survey.title":
 		if e.complexity.Survey.Title == nil {
@@ -6442,7 +6442,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.UserCollection.Entries(childComplexity, args["first"].(*int), args["offset"].(*int)), true
+		return e.complexity.UserCollection.Entries(childComplexity, args["first"].(*int), args["offset"].(*int), args["cursor"].(*string)), true
 
 	case "UserCollection.id":
 		if e.complexity.UserCollection.ID == nil {
@@ -6760,7 +6760,7 @@ type AchievementPagination implements Pagination {
 type AchievementGroup {
     id: ID!
     title: String!
-    achievements(first: Int, offset: Int): AchievementPagination! @goField(forceResolver: true)
+    achievements(first: Int, offset: Int, cursor: Cursor): AchievementPagination! @goField(forceResolver: true)
 }
 
 type AchievementGroupPagination implements Pagination {
@@ -6944,10 +6944,10 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     audioLanguages: [Language!]!
     subtitleLanguages: [Language!]!
     context: EpisodeContextUnion @goField(forceResolver: true)
-    relatedItems(first: Int, offset: Int): SectionItemPagination @goField(forceResolver: true)
+    relatedItems(first: Int, offset: Int, cursor: Cursor): SectionItemPagination @goField(forceResolver: true)
     images: [Image!]!
     number: Int
-    lessons(first: Int, offset: Int): LessonPagination! @goField(forceResolver: true)
+    lessons(first: Int, offset: Int, cursor: Cursor): LessonPagination! @goField(forceResolver: true)
     shareRestriction: ShareRestriction! @goField(forceResolver: true)
     inMyList: Boolean! @goField(forceResolver: true)
 
@@ -7049,6 +7049,7 @@ type FAQCategory {
     questions(
         first: Int
         offset: Int
+        cursor: Cursor
     ): QuestionPagination @goField(forceResolver: true)
 }
 
@@ -7056,6 +7057,7 @@ type FAQ {
     categories(
         first: Int
         Offset: Int
+        cursor: Cursor
     ): FAQCategoryPagination @goField(forceResolver: true)
 
     category(
@@ -7190,8 +7192,7 @@ input EmailOptions {
     email: String!
 }
 `, BuiltIn: false},
-	{Name: "../schema/pages.graphqls", Input: `
-type Page{
+	{Name: "../schema/pages.graphqls", Input: `type Page{
     id: ID!
     code: String!
     title: String!
@@ -7201,6 +7202,7 @@ type Page{
     sections(
         first: Int
         offset: Int
+        cursor: Cursor
     ): SectionPagination! @goField(forceResolver: true)
 }
 
@@ -7210,6 +7212,7 @@ type ContextCollection {
     items(
         first: Int,
         offset: Int,
+        cursor: Cursor
     ): SectionItemPagination @goField(forceResolver: true)
 }
 `, BuiltIn: false},
@@ -7252,7 +7255,7 @@ type Person {
     image(style: ImageStyle): String @goField(forceResolver: true)
     contributionTypes: [ContributionTypeCount!]! @goField(forceResolver: true)
     contributionContentTypes: [ContentTypeCount!]! @goField(forceResolver: true)
-    contributions(first: Int, offset: Int, types: [String!], contentTypes: [String!], shuffle: Boolean): ContributionsPagination! @goField(forceResolver: true)
+    contributions(first: Int, offset: Int, cursor: Cursor, types: [String!], contentTypes: [String!], shuffle: Boolean): ContributionsPagination! @goField(forceResolver: true)
 }
 
 type Contribution {
@@ -7266,7 +7269,7 @@ type Contribution {
     title: String!
     description: String
     image(style: ImageStyle): String @goField(forceResolver: true)
-    items(first: Int, offset: Int): PlaylistItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int, cursor: Cursor): PlaylistItemPagination! @goField(forceResolver: true)
 }
 
 type PlaylistItemPagination implements Pagination {
@@ -7420,7 +7423,7 @@ type QueryRoot {
 
     playlist(id: ID!): Playlist!
 
-    search(queryString: String!, first: Int, offset: Int, type: String, minScore: Int): SearchResult!
+    search(queryString: String!, first: Int, offset: Int, cursor: Cursor, type: String, minScore: Int): SearchResult!
 
     game(id: UUID!): Game!
 
@@ -7433,7 +7436,7 @@ type QueryRoot {
     achievement(id: ID!): Achievement!
 
     achievementGroup(id: ID!): AchievementGroup!
-    achievementGroups(first: Int, offset: Int): AchievementGroupPagination!
+    achievementGroups(first: Int, offset: Int, cursor: Cursor): AchievementGroupPagination!
 
     studyTopic(id: ID!): StudyTopic!
     studyLesson(id: ID!): Lesson!
@@ -7553,6 +7556,7 @@ type SearchResult {
     episodes(
         first: Int
         offset: Int
+        cursor: Cursor
         dir: String
     ): EpisodePagination! @goField(forceResolver: true)
 }
@@ -7620,7 +7624,7 @@ interface ItemSection implements Section {
     metadata: ItemSectionMetadata
     title: String
     description: String
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int, cursor: Cursor): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type PosterSection implements Section & ItemSection {
@@ -7629,7 +7633,7 @@ type PosterSection implements Section & ItemSection {
     title: String
     description: String
     size: SectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int, cursor: Cursor): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type FeaturedSection implements Section & ItemSection {
@@ -7638,7 +7642,7 @@ type FeaturedSection implements Section & ItemSection {
     title: String
     description: String
     size: SectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int, cursor: Cursor): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type DefaultSection implements Section & ItemSection {
@@ -7647,7 +7651,7 @@ type DefaultSection implements Section & ItemSection {
     title: String
     description: String
     size: SectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int, cursor: Cursor): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type CardSection implements Section & ItemSection {
@@ -7656,7 +7660,7 @@ type CardSection implements Section & ItemSection {
     title: String
     description: String
     size: CardSectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int, cursor: Cursor): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type ListSection implements Section & ItemSection {
@@ -7665,7 +7669,7 @@ type ListSection implements Section & ItemSection {
     title: String
     description: String
     size: SectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int, cursor: Cursor): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type CardListSection implements Section & ItemSection {
@@ -7674,7 +7678,7 @@ type CardListSection implements Section & ItemSection {
     title: String
     description: String
     size: CardSectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int, cursor: Cursor): SectionItemPagination! @goField(forceResolver: true)
 }
 
 interface GridSection implements Section & ItemSection {
@@ -7683,7 +7687,7 @@ interface GridSection implements Section & ItemSection {
     title: String
     description: String
     size: GridSectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int, cursor: Cursor): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type DefaultGridSection implements Section & ItemSection & GridSection {
@@ -7692,7 +7696,7 @@ type DefaultGridSection implements Section & ItemSection & GridSection {
     title: String
     description: String
     size: GridSectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int, cursor: Cursor): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type PosterGridSection implements Section & ItemSection & GridSection {
@@ -7701,7 +7705,7 @@ type PosterGridSection implements Section & ItemSection & GridSection {
     title: String
     description: String
     size: GridSectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int, cursor: Cursor): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type IconGridSection implements Section & ItemSection & GridSection {
@@ -7710,7 +7714,7 @@ type IconGridSection implements Section & ItemSection & GridSection {
     title: String
     description: String
     size: GridSectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int, cursor: Cursor): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type IconSection implements Section & ItemSection {
@@ -7718,7 +7722,7 @@ type IconSection implements Section & ItemSection {
     metadata: ItemSectionMetadata
     title: String
     description: String
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int, cursor: Cursor): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type LabelSection implements Section & ItemSection {
@@ -7726,7 +7730,7 @@ type LabelSection implements Section & ItemSection {
     metadata: ItemSectionMetadata
     title: String
     description: String
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int, cursor: Cursor): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type AvatarSection implements Section & ItemSection {
@@ -7735,7 +7739,7 @@ type AvatarSection implements Section & ItemSection {
     title: String
     description: String
     size: SectionSize!
-    items(first: Int, offset: Int): SectionItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int, cursor: Cursor): SectionItemPagination! @goField(forceResolver: true)
 }
 
 type MessageSection implements Section {
@@ -7838,6 +7842,7 @@ type Show implements CollectionItem {
     seasons(
         first: Int
         offset: Int
+        cursor: Cursor
         dir: String
     ): SeasonPagination! @goField(forceResolver: true)
 
@@ -7860,7 +7865,7 @@ type Show implements CollectionItem {
     Should not be used actively in lists, as it could affect query speeds.
     """
     defaultLesson: Lesson! @goField(forceResolver: true)
-    lessons(first: Int, offset: Int): LessonPagination! @goField(forceResolver: true)
+    lessons(first: Int, offset: Int, cursor: Cursor): LessonPagination! @goField(forceResolver: true)
 
     progress: LessonsProgress! @goField(forceResolver: true)
 }
@@ -7873,7 +7878,7 @@ type Lesson {
     showDiscoverPage: Boolean!
 
     image(style: ImageStyle): String @goField(forceResolver: true)
-    tasks(first: Int, offset: Int): TaskPagination! @goField(forceResolver: true)
+    tasks(first: Int, offset: Int, cursor: Cursor): TaskPagination! @goField(forceResolver: true)
     topic: StudyTopic! @goField(forceResolver: true)
 
     """
@@ -7881,8 +7886,8 @@ type Lesson {
     Should not be used actively in lists, as it could affect query speeds.
     """
     defaultEpisode: Episode @goField(forceResolver: true)
-    episodes(first: Int, offset: Int): EpisodePagination! @goField(forceResolver: true)
-    links(first: Int, offset: Int): LinkPagination! @goField(forceResolver: true)
+    episodes(first: Int, offset: Int, cursor: Cursor): EpisodePagination! @goField(forceResolver: true)
+    links(first: Int, offset: Int, cursor: Cursor): LinkPagination! @goField(forceResolver: true)
 
     progress: TasksProgress! @goField(forceResolver: true)
 
@@ -7995,7 +8000,7 @@ type LinkTask implements Task {
     id: UUID!
     title: String!
     description: String
-    questions(first: Int, offset: Int): SurveyQuestionPagination!
+    questions(first: Int, offset: Int, cursor: Cursor): SurveyQuestionPagination!
         @goField(forceResolver: true)
 }
 
@@ -8063,7 +8068,7 @@ type UserCollection {
     title: String!
     #    updatedAt: Date!
     #    createdAt: Date!
-    entries(first: Int, offset: Int): UserCollectionEntryPagination! @goField(forceResolver: true)
+    entries(first: Int, offset: Int, cursor: Cursor): UserCollectionEntryPagination! @goField(forceResolver: true)
 }
 
 union UserCollectionEntryItem = Show | Episode | Short
@@ -8107,6 +8112,11 @@ func (ec *executionContext) field_AchievementGroup_achievements_args(ctx context
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_AchievementGroup_achievements_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_AchievementGroup_achievements_argsFirst(
@@ -8145,6 +8155,24 @@ func (ec *executionContext) field_AchievementGroup_achievements_argsOffset(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_AchievementGroup_achievements_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_AvatarSection_items_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -8158,6 +8186,11 @@ func (ec *executionContext) field_AvatarSection_items_args(ctx context.Context, 
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_AvatarSection_items_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_AvatarSection_items_argsFirst(
@@ -8193,6 +8226,24 @@ func (ec *executionContext) field_AvatarSection_items_argsOffset(
 	}
 
 	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_AvatarSection_items_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -8339,6 +8390,11 @@ func (ec *executionContext) field_CardListSection_items_args(ctx context.Context
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_CardListSection_items_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_CardListSection_items_argsFirst(
@@ -8377,6 +8433,24 @@ func (ec *executionContext) field_CardListSection_items_argsOffset(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_CardListSection_items_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_CardSection_items_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -8390,6 +8464,11 @@ func (ec *executionContext) field_CardSection_items_args(ctx context.Context, ra
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_CardSection_items_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_CardSection_items_argsFirst(
@@ -8425,6 +8504,24 @@ func (ec *executionContext) field_CardSection_items_argsOffset(
 	}
 
 	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_CardSection_items_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -8469,6 +8566,11 @@ func (ec *executionContext) field_ContextCollection_items_args(ctx context.Conte
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_ContextCollection_items_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_ContextCollection_items_argsFirst(
@@ -8507,6 +8609,24 @@ func (ec *executionContext) field_ContextCollection_items_argsOffset(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_ContextCollection_items_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_DefaultGridSection_items_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -8520,6 +8640,11 @@ func (ec *executionContext) field_DefaultGridSection_items_args(ctx context.Cont
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_DefaultGridSection_items_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_DefaultGridSection_items_argsFirst(
@@ -8558,6 +8683,24 @@ func (ec *executionContext) field_DefaultGridSection_items_argsOffset(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_DefaultGridSection_items_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_DefaultSection_items_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -8571,6 +8714,11 @@ func (ec *executionContext) field_DefaultSection_items_args(ctx context.Context,
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_DefaultSection_items_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_DefaultSection_items_argsFirst(
@@ -8606,6 +8754,24 @@ func (ec *executionContext) field_DefaultSection_items_argsOffset(
 	}
 
 	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_DefaultSection_items_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -8678,6 +8844,11 @@ func (ec *executionContext) field_Episode_lessons_args(ctx context.Context, rawA
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_Episode_lessons_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_Episode_lessons_argsFirst(
@@ -8713,6 +8884,24 @@ func (ec *executionContext) field_Episode_lessons_argsOffset(
 	}
 
 	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Episode_lessons_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -8757,6 +8946,11 @@ func (ec *executionContext) field_Episode_relatedItems_args(ctx context.Context,
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_Episode_relatedItems_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_Episode_relatedItems_argsFirst(
@@ -8795,6 +8989,24 @@ func (ec *executionContext) field_Episode_relatedItems_argsOffset(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Episode_relatedItems_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_FAQCategory_questions_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -8808,6 +9020,11 @@ func (ec *executionContext) field_FAQCategory_questions_args(ctx context.Context
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_FAQCategory_questions_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_FAQCategory_questions_argsFirst(
@@ -8846,6 +9063,24 @@ func (ec *executionContext) field_FAQCategory_questions_argsOffset(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_FAQCategory_questions_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_FAQ_categories_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -8859,6 +9094,11 @@ func (ec *executionContext) field_FAQ_categories_args(ctx context.Context, rawAr
 		return nil, err
 	}
 	args["Offset"] = arg1
+	arg2, err := ec.field_FAQ_categories_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_FAQ_categories_argsFirst(
@@ -8894,6 +9134,24 @@ func (ec *executionContext) field_FAQ_categories_argsOffset(
 	}
 
 	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_FAQ_categories_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -8966,6 +9224,11 @@ func (ec *executionContext) field_FeaturedSection_items_args(ctx context.Context
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_FeaturedSection_items_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_FeaturedSection_items_argsFirst(
@@ -9001,6 +9264,24 @@ func (ec *executionContext) field_FeaturedSection_items_argsOffset(
 	}
 
 	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_FeaturedSection_items_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -9045,6 +9326,11 @@ func (ec *executionContext) field_IconGridSection_items_args(ctx context.Context
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_IconGridSection_items_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_IconGridSection_items_argsFirst(
@@ -9083,6 +9369,24 @@ func (ec *executionContext) field_IconGridSection_items_argsOffset(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_IconGridSection_items_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_IconSection_items_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -9096,6 +9400,11 @@ func (ec *executionContext) field_IconSection_items_args(ctx context.Context, ra
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_IconSection_items_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_IconSection_items_argsFirst(
@@ -9134,6 +9443,24 @@ func (ec *executionContext) field_IconSection_items_argsOffset(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_IconSection_items_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_LabelSection_items_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -9147,6 +9474,11 @@ func (ec *executionContext) field_LabelSection_items_args(ctx context.Context, r
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_LabelSection_items_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_LabelSection_items_argsFirst(
@@ -9185,6 +9517,24 @@ func (ec *executionContext) field_LabelSection_items_argsOffset(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_LabelSection_items_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Lesson_episodes_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -9198,6 +9548,11 @@ func (ec *executionContext) field_Lesson_episodes_args(ctx context.Context, rawA
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_Lesson_episodes_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_Lesson_episodes_argsFirst(
@@ -9233,6 +9588,24 @@ func (ec *executionContext) field_Lesson_episodes_argsOffset(
 	}
 
 	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Lesson_episodes_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -9277,6 +9650,11 @@ func (ec *executionContext) field_Lesson_links_args(ctx context.Context, rawArgs
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_Lesson_links_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_Lesson_links_argsFirst(
@@ -9315,6 +9693,24 @@ func (ec *executionContext) field_Lesson_links_argsOffset(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Lesson_links_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Lesson_tasks_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -9328,6 +9724,11 @@ func (ec *executionContext) field_Lesson_tasks_args(ctx context.Context, rawArgs
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_Lesson_tasks_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_Lesson_tasks_argsFirst(
@@ -9363,6 +9764,24 @@ func (ec *executionContext) field_Lesson_tasks_argsOffset(
 	}
 
 	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Lesson_tasks_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -9407,6 +9826,11 @@ func (ec *executionContext) field_ListSection_items_args(ctx context.Context, ra
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_ListSection_items_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_ListSection_items_argsFirst(
@@ -9442,6 +9866,24 @@ func (ec *executionContext) field_ListSection_items_argsOffset(
 	}
 
 	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ListSection_items_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -10580,6 +11022,11 @@ func (ec *executionContext) field_Page_sections_args(ctx context.Context, rawArg
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_Page_sections_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_Page_sections_argsFirst(
@@ -10618,6 +11065,24 @@ func (ec *executionContext) field_Page_sections_argsOffset(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Page_sections_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Person_contributions_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -10631,21 +11096,26 @@ func (ec *executionContext) field_Person_contributions_args(ctx context.Context,
 		return nil, err
 	}
 	args["offset"] = arg1
-	arg2, err := ec.field_Person_contributions_argsTypes(ctx, rawArgs)
+	arg2, err := ec.field_Person_contributions_argsCursor(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["types"] = arg2
-	arg3, err := ec.field_Person_contributions_argsContentTypes(ctx, rawArgs)
+	args["cursor"] = arg2
+	arg3, err := ec.field_Person_contributions_argsTypes(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["contentTypes"] = arg3
-	arg4, err := ec.field_Person_contributions_argsShuffle(ctx, rawArgs)
+	args["types"] = arg3
+	arg4, err := ec.field_Person_contributions_argsContentTypes(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["shuffle"] = arg4
+	args["contentTypes"] = arg4
+	arg5, err := ec.field_Person_contributions_argsShuffle(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["shuffle"] = arg5
 	return args, nil
 }
 func (ec *executionContext) field_Person_contributions_argsFirst(
@@ -10681,6 +11151,24 @@ func (ec *executionContext) field_Person_contributions_argsOffset(
 	}
 
 	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Person_contributions_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -10807,6 +11295,11 @@ func (ec *executionContext) field_Playlist_items_args(ctx context.Context, rawAr
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_Playlist_items_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_Playlist_items_argsFirst(
@@ -10845,6 +11338,24 @@ func (ec *executionContext) field_Playlist_items_argsOffset(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Playlist_items_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_PosterGridSection_items_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -10858,6 +11369,11 @@ func (ec *executionContext) field_PosterGridSection_items_args(ctx context.Conte
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_PosterGridSection_items_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_PosterGridSection_items_argsFirst(
@@ -10896,6 +11412,24 @@ func (ec *executionContext) field_PosterGridSection_items_argsOffset(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_PosterGridSection_items_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_PosterSection_items_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -10909,6 +11443,11 @@ func (ec *executionContext) field_PosterSection_items_args(ctx context.Context, 
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_PosterSection_items_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_PosterSection_items_argsFirst(
@@ -10944,6 +11483,24 @@ func (ec *executionContext) field_PosterSection_items_argsOffset(
 	}
 
 	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_PosterSection_items_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -11016,6 +11573,11 @@ func (ec *executionContext) field_QueryRoot_achievementGroups_args(ctx context.C
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_QueryRoot_achievementGroups_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_QueryRoot_achievementGroups_argsFirst(
@@ -11051,6 +11613,24 @@ func (ec *executionContext) field_QueryRoot_achievementGroups_argsOffset(
 	}
 
 	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_QueryRoot_achievementGroups_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -11482,16 +12062,21 @@ func (ec *executionContext) field_QueryRoot_search_args(ctx context.Context, raw
 		return nil, err
 	}
 	args["offset"] = arg2
-	arg3, err := ec.field_QueryRoot_search_argsType(ctx, rawArgs)
+	arg3, err := ec.field_QueryRoot_search_argsCursor(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["type"] = arg3
-	arg4, err := ec.field_QueryRoot_search_argsMinScore(ctx, rawArgs)
+	args["cursor"] = arg3
+	arg4, err := ec.field_QueryRoot_search_argsType(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["minScore"] = arg4
+	args["type"] = arg4
+	arg5, err := ec.field_QueryRoot_search_argsMinScore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["minScore"] = arg5
 	return args, nil
 }
 func (ec *executionContext) field_QueryRoot_search_argsQueryString(
@@ -11545,6 +12130,24 @@ func (ec *executionContext) field_QueryRoot_search_argsOffset(
 	}
 
 	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_QueryRoot_search_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -11890,11 +12493,16 @@ func (ec *executionContext) field_Season_episodes_args(ctx context.Context, rawA
 		return nil, err
 	}
 	args["offset"] = arg1
-	arg2, err := ec.field_Season_episodes_argsDir(ctx, rawArgs)
+	arg2, err := ec.field_Season_episodes_argsCursor(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["dir"] = arg2
+	args["cursor"] = arg2
+	arg3, err := ec.field_Season_episodes_argsDir(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["dir"] = arg3
 	return args, nil
 }
 func (ec *executionContext) field_Season_episodes_argsFirst(
@@ -11930,6 +12538,24 @@ func (ec *executionContext) field_Season_episodes_argsOffset(
 	}
 
 	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Season_episodes_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -12048,11 +12674,16 @@ func (ec *executionContext) field_Show_seasons_args(ctx context.Context, rawArgs
 		return nil, err
 	}
 	args["offset"] = arg1
-	arg2, err := ec.field_Show_seasons_argsDir(ctx, rawArgs)
+	arg2, err := ec.field_Show_seasons_argsCursor(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["dir"] = arg2
+	args["cursor"] = arg2
+	arg3, err := ec.field_Show_seasons_argsDir(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["dir"] = arg3
 	return args, nil
 }
 func (ec *executionContext) field_Show_seasons_argsFirst(
@@ -12088,6 +12719,24 @@ func (ec *executionContext) field_Show_seasons_argsOffset(
 	}
 
 	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Show_seasons_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -12150,6 +12799,11 @@ func (ec *executionContext) field_StudyTopic_lessons_args(ctx context.Context, r
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_StudyTopic_lessons_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_StudyTopic_lessons_argsFirst(
@@ -12188,6 +12842,24 @@ func (ec *executionContext) field_StudyTopic_lessons_argsOffset(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_StudyTopic_lessons_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Survey_questions_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -12201,6 +12873,11 @@ func (ec *executionContext) field_Survey_questions_args(ctx context.Context, raw
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_Survey_questions_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_Survey_questions_argsFirst(
@@ -12239,6 +12916,24 @@ func (ec *executionContext) field_Survey_questions_argsOffset(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Survey_questions_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_UserCollection_entries_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -12252,6 +12947,11 @@ func (ec *executionContext) field_UserCollection_entries_args(ctx context.Contex
 		return nil, err
 	}
 	args["offset"] = arg1
+	arg2, err := ec.field_UserCollection_entries_argsCursor(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["cursor"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_UserCollection_entries_argsFirst(
@@ -12287,6 +12987,24 @@ func (ec *executionContext) field_UserCollection_entries_argsOffset(
 	}
 
 	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_UserCollection_entries_argsCursor(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["cursor"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+	if tmp, ok := rawArgs["cursor"]; ok {
+		return ec.unmarshalOCursor2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -12816,7 +13534,7 @@ func (ec *executionContext) _AchievementGroup_achievements(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AchievementGroup().Achievements(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.AchievementGroup().Achievements(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15082,7 +15800,7 @@ func (ec *executionContext) _AvatarSection_items(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AvatarSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.AvatarSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15779,7 +16497,7 @@ func (ec *executionContext) _CardListSection_items(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CardListSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.CardListSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16081,7 +16799,7 @@ func (ec *executionContext) _CardSection_items(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CardSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.CardSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16955,7 +17673,7 @@ func (ec *executionContext) _ContextCollection_items(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.ContextCollection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.ContextCollection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17940,7 +18658,7 @@ func (ec *executionContext) _DefaultGridSection_items(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.DefaultGridSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.DefaultGridSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18242,7 +18960,7 @@ func (ec *executionContext) _DefaultSection_items(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.DefaultSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.DefaultSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19867,7 +20585,7 @@ func (ec *executionContext) _Episode_relatedItems(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Episode().RelatedItems(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Episode().RelatedItems(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20028,7 +20746,7 @@ func (ec *executionContext) _Episode_lessons(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Episode().Lessons(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Episode().Lessons(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22404,7 +23122,7 @@ func (ec *executionContext) _FAQ_categories(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.FAQ().Categories(rctx, obj, fc.Args["first"].(*int), fc.Args["Offset"].(*int))
+		return ec.resolvers.FAQ().Categories(rctx, obj, fc.Args["first"].(*int), fc.Args["Offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22690,7 +23408,7 @@ func (ec *executionContext) _FAQCategory_questions(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.FAQCategory().Questions(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.FAQCategory().Questions(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23349,7 +24067,7 @@ func (ec *executionContext) _FeaturedSection_items(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.FeaturedSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.FeaturedSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24351,7 +25069,7 @@ func (ec *executionContext) _IconGridSection_items(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.IconGridSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.IconGridSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24609,7 +25327,7 @@ func (ec *executionContext) _IconSection_items(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.IconSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.IconSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -25317,7 +26035,7 @@ func (ec *executionContext) _LabelSection_items(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.LabelSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.LabelSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -25703,7 +26421,7 @@ func (ec *executionContext) _Lesson_tasks(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Lesson().Tasks(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Lesson().Tasks(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -25959,7 +26677,7 @@ func (ec *executionContext) _Lesson_episodes(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Lesson().Episodes(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Lesson().Episodes(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -26032,7 +26750,7 @@ func (ec *executionContext) _Lesson_links(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Lesson().Links(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Lesson().Links(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -28009,7 +28727,7 @@ func (ec *executionContext) _ListSection_items(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.ListSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.ListSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -30149,7 +30867,7 @@ func (ec *executionContext) _Page_sections(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Page().Sections(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Page().Sections(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -30588,7 +31306,7 @@ func (ec *executionContext) _Person_contributions(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Person().Contributions(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["types"].([]string), fc.Args["contentTypes"].([]string), fc.Args["shuffle"].(*bool))
+		return ec.resolvers.Person().Contributions(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string), fc.Args["types"].([]string), fc.Args["contentTypes"].([]string), fc.Args["shuffle"].(*bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -30842,7 +31560,7 @@ func (ec *executionContext) _Playlist_items(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Playlist().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Playlist().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -31496,7 +32214,7 @@ func (ec *executionContext) _PosterGridSection_items(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.PosterGridSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.PosterGridSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -31798,7 +32516,7 @@ func (ec *executionContext) _PosterSection_items(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.PosterSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.PosterSection().Items(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -33070,7 +33788,7 @@ func (ec *executionContext) _QueryRoot_search(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().Search(rctx, fc.Args["queryString"].(string), fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["type"].(*string), fc.Args["minScore"].(*int))
+		return ec.resolvers.QueryRoot().Search(rctx, fc.Args["queryString"].(string), fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string), fc.Args["type"].(*string), fc.Args["minScore"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -33536,7 +34254,7 @@ func (ec *executionContext) _QueryRoot_achievementGroups(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.QueryRoot().AchievementGroups(rctx, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.QueryRoot().AchievementGroups(rctx, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -36278,7 +36996,7 @@ func (ec *executionContext) _Season_episodes(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Season().Episodes(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["dir"].(*string))
+		return ec.resolvers.Season().Episodes(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string), fc.Args["dir"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -39773,7 +40491,7 @@ func (ec *executionContext) _Show_seasons(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Show().Seasons(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["dir"].(*string))
+		return ec.resolvers.Show().Seasons(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string), fc.Args["dir"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -41703,7 +42421,7 @@ func (ec *executionContext) _StudyTopic_lessons(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.StudyTopic().Lessons(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.StudyTopic().Lessons(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -42081,7 +42799,7 @@ func (ec *executionContext) _Survey_questions(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Survey().Questions(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Survey().Questions(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -44608,7 +45326,7 @@ func (ec *executionContext) _UserCollection_entries(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UserCollection().Entries(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.UserCollection().Entries(rctx, obj, fc.Args["first"].(*int), fc.Args["offset"].(*int), fc.Args["cursor"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -63297,6 +64015,24 @@ func (ec *executionContext) marshalOChapter2ᚖgithubᚗcomᚋbccᚑcodeᚋbcc�
 		return graphql.Null
 	}
 	return ec._Chapter(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOCursor2ᚖstring(ctx context.Context, v any) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalString(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOCursor2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	_ = sel
+	_ = ctx
+	res := graphql.MarshalString(*v)
+	return res
 }
 
 func (ec *executionContext) unmarshalODate2ᚖstring(ctx context.Context, v any) (*string, error) {

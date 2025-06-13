@@ -17,7 +17,7 @@ import (
 )
 
 // Items is the resolver for the items field.
-func (r *contextCollectionResolver) Items(ctx context.Context, obj *model.ContextCollection, first *int, offset *int) (*model.SectionItemPagination, error) {
+func (r *contextCollectionResolver) Items(ctx context.Context, obj *model.ContextCollection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
 	pagination, err := r.sectionCollectionEntryResolver(ctx, &common.Section{
 		Style:        "default",
 		CollectionID: utils.AsNullInt(&obj.ID),
@@ -44,7 +44,7 @@ func (r *pageResolver) Image(ctx context.Context, obj *model.Page, style *model.
 }
 
 // Sections is the resolver for the sections field.
-func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int, offset *int) (*model.SectionPagination, error) {
+func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int, offset *int, cursor *string) (*model.SectionPagination, error) {
 	if strings.HasPrefix(obj.Code, "c-") {
 		collectionId := strings.TrimPrefix(obj.Code, "c-")
 		intID, err := strconv.ParseInt(collectionId, 10, 64)
@@ -64,7 +64,15 @@ func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int
 		return nil, err
 	}
 
-	page := utils.Paginate(itemIDs, first, offset, nil)
+	var offsetCursor *utils.OffsetCursor
+	if cursor != nil && *cursor != "" {
+		offsetCursor, err = utils.ParseOffsetCursor(*cursor)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	page := utils.Paginate(itemIDs, first, offset, nil, offsetCursor)
 
 	sections, err := r.Loaders.SectionLoader.GetMany(ctx, utils.PointerIntArrayToIntArray(page.Items))
 	if err != nil {
@@ -73,11 +81,16 @@ func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int
 	sections = lo.Filter(sections, func(i *common.Section, _ int) bool {
 		return i != nil
 	})
+
 	return &model.SectionPagination{
-		Total:  page.Total,
-		First:  page.First,
-		Offset: page.Offset,
-		Items:  utils.MapWithCtx(ctx, sections, model.SectionFrom),
+		Offset:      page.Offset,
+		First:       page.First,
+		Total:       page.Total,
+		Items:       utils.MapWithCtx(ctx, sections, model.SectionFrom),
+		Cursor:      page.Cursor.Encode(),
+		NextCursor:  page.NextCursor.Encode(),
+		HasNext:     page.HasNext,
+		HasPrevious: page.HasPrevious,
 	}, nil
 }
 

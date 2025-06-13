@@ -19,6 +19,7 @@ type Season implements CollectionItem {
     episodes(
         first: Int
         offset: Int
+        cursor: Cursor
         dir: String
     ): EpisodePagination! @goField(forceResolver: true)
 }

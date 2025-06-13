@@ -51,21 +51,35 @@ func (r *achievementResolver) Group(ctx context.Context, obj *model.Achievement)
 }
 
 // Achievements is the resolver for the achievements field.
-func (r *achievementGroupResolver) Achievements(ctx context.Context, obj *model.AchievementGroup, first *int, offset *int) (*model.AchievementPagination, error) {
+func (r *achievementGroupResolver) Achievements(ctx context.Context, obj *model.AchievementGroup, first *int, offset *int, cursor *string) (*model.AchievementPagination, error) {
 	ids, err := r.GetLoaders().AchievementGroupAchievementsLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
 	}
-	page := utils.Paginate(ids, first, offset, nil)
+
+	var offsetCursor *utils.OffsetCursor
+	if cursor != nil && *cursor != "" {
+		offsetCursor, err = utils.ParseOffsetCursor(*cursor)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 	items, err := r.GetLoaders().AchievementLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
 	if err != nil {
 		return nil, err
 	}
+
 	return &model.AchievementPagination{
-		Offset: page.Offset,
-		First:  page.First,
-		Total:  page.Total,
-		Items:  utils.MapWithCtx(ctx, items, model.AchievementFrom),
+		Offset:      page.Offset,
+		First:       page.First,
+		Total:       page.Total,
+		Cursor:      page.Cursor.Encode(),
+		NextCursor:  page.NextCursor.Encode(),
+		HasNext:     page.HasNext,
+		HasPrevious: page.HasPrevious,
+		Items:       utils.MapWithCtx(ctx, items, model.AchievementFrom),
 	}, nil
 }
 

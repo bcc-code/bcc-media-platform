@@ -56,7 +56,7 @@ func (r *showResolver) SeasonCount(ctx context.Context, obj *model.Show) (int, e
 }
 
 // Seasons is the resolver for the seasons field.
-func (r *showResolver) Seasons(ctx context.Context, obj *model.Show, first *int, offset *int, dir *string) (*model.SeasonPagination, error) {
+func (r *showResolver) Seasons(ctx context.Context, obj *model.Show, first *int, offset *int, cursor *string, dir *string) (*model.SeasonPagination, error) {
 	intID, err := strconv.ParseInt(obj.ID, 10, 64)
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func (r *showResolver) Seasons(ctx context.Context, obj *model.Show, first *int,
 		return nil, err
 	}
 
-	page := utils.Paginate(itemIDs, first, offset, dir)
+	page := utils.Paginate(itemIDs, first, offset, dir, nil)
 
 	seasons, err := r.Loaders.SeasonLoader.GetMany(ctx, utils.PointerIntArrayToIntArray(page.Items))
 	if err != nil {

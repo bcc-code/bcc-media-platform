@@ -2,7 +2,7 @@ type Survey {
     id: UUID!
     title: String!
     description: String
-    questions(first: Int, offset: Int): SurveyQuestionPagination!
+    questions(first: Int, offset: Int, cursor: Cursor): SurveyQuestionPagination!
         @goField(forceResolver: true)
 }
 

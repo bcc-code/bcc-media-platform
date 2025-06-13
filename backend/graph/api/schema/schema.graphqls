@@ -108,7 +108,7 @@ type QueryRoot {
 
     playlist(id: ID!): Playlist!
 
-    search(queryString: String!, first: Int, offset: Int, type: String, minScore: Int): SearchResult!
+    search(queryString: String!, first: Int, offset: Int, cursor: Cursor, type: String, minScore: Int): SearchResult!
 
     game(id: UUID!): Game!
 
@@ -121,7 +121,7 @@ type QueryRoot {
     achievement(id: ID!): Achievement!
 
     achievementGroup(id: ID!): AchievementGroup!
-    achievementGroups(first: Int, offset: Int): AchievementGroupPagination!
+    achievementGroups(first: Int, offset: Int, cursor: Cursor): AchievementGroupPagination!
 
     studyTopic(id: ID!): StudyTopic!
     studyLesson(id: ID!): Lesson!

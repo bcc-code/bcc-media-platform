@@ -279,7 +279,7 @@ func (r *Resolver) sectionCollectionEntryResolver(
 		entries = entries[:min(len(entries), limit)]
 	}
 
-	pagination := utils.Paginate(entries, first, offset, nil)
+	pagination := utils.Paginate(entries, first, offset, nil, nil)
 	preloadEntryLoaders(ctx, ls, pagination.Items)
 
 	imageStyle := sectionStyleToImageStyle(section.Style)

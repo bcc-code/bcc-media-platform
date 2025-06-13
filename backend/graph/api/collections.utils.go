@@ -163,7 +163,7 @@ func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, f
 		})
 	}
 
-	pagination := utils.Paginate(entries, first, offset, nil)
+	pagination := utils.Paginate(entries, first, offset, nil, nil)
 
 	items, err := collectionEntriesToModels(ctx, r.Loaders, pagination.Items)
 	if err != nil {

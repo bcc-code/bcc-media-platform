@@ -22,7 +22,7 @@ func (r *playlistResolver) Image(ctx context.Context, obj *model.Playlist, style
 }
 
 // Items is the resolver for the items field.
-func (r *playlistResolver) Items(ctx context.Context, obj *model.Playlist, first *int, offset *int) (*model.PlaylistItemPagination, error) {
+func (r *playlistResolver) Items(ctx context.Context, obj *model.Playlist, first *int, offset *int, cursor *string) (*model.PlaylistItemPagination, error) {
 	i, err := r.Loaders.PlaylistLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err

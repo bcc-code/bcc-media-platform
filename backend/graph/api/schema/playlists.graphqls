@@ -3,7 +3,7 @@ type Playlist implements CollectionItem {
     title: String!
     description: String
     image(style: ImageStyle): String @goField(forceResolver: true)
-    items(first: Int, offset: Int): PlaylistItemPagination! @goField(forceResolver: true)
+    items(first: Int, offset: Int, cursor: Cursor): PlaylistItemPagination! @goField(forceResolver: true)
 }
 
 type PlaylistItemPagination implements Pagination {

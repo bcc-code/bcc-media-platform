@@ -15,12 +15,21 @@ import (
 )
 
 // Categories is the resolver for the categories field.
-func (r *fAQResolver) Categories(ctx context.Context, obj *model.Faq, first *int, offset *int) (*model.FAQCategoryPagination, error) {
+func (r *fAQResolver) Categories(ctx context.Context, obj *model.Faq, first *int, offset *int, cursor *string) (*model.FAQCategoryPagination, error) {
 	ids, err := r.GetFilteredLoaders(ctx).FAQCategoryIDsLoader(ctx)
 	if err != nil {
 		return nil, err
 	}
-	page := utils.Paginate(ids, first, offset, nil)
+
+	var offsetCursor *utils.OffsetCursor
+	if cursor != nil && *cursor != "" {
+		offsetCursor, err = utils.ParseOffsetCursor(*cursor)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
 	items, err := r.GetLoaders().FAQCategoryLoader.GetMany(ctx, page.Items)
 	if err != nil {
@@ -28,10 +37,14 @@ func (r *fAQResolver) Categories(ctx context.Context, obj *model.Faq, first *int
 	}
 
 	return &model.FAQCategoryPagination{
-		Total:  page.Total,
-		First:  page.First,
-		Offset: page.Offset,
-		Items:  utils.MapWithCtx(ctx, items, model.FAQCategoryFrom),
+		Offset:      page.Offset,
+		First:       page.First,
+		Total:       page.Total,
+		Cursor:      page.Cursor.Encode(),
+		NextCursor:  page.NextCursor.Encode(),
+		HasNext:     page.HasNext,
+		HasPrevious: page.HasPrevious,
+		Items:       utils.MapWithCtx(ctx, items, model.FAQCategoryFrom),
 	}, nil
 }
 
@@ -58,13 +71,21 @@ func (r *fAQResolver) Question(ctx context.Context, obj *model.Faq, id string) (
 }
 
 // Questions is the resolver for the questions field.
-func (r *fAQCategoryResolver) Questions(ctx context.Context, obj *model.FAQCategory, first *int, offset *int) (*model.QuestionPagination, error) {
+func (r *fAQCategoryResolver) Questions(ctx context.Context, obj *model.FAQCategory, first *int, offset *int, cursor *string) (*model.QuestionPagination, error) {
 	itemIDs, err := r.GetFilteredLoaders(ctx).FAQQuestionsLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
 	}
 
-	page := utils.Paginate(itemIDs, first, offset, nil)
+	var offsetCursor *utils.OffsetCursor
+	if cursor != nil && *cursor != "" {
+		offsetCursor, err = utils.ParseOffsetCursor(*cursor)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	page := utils.Paginate(itemIDs, first, offset, nil, offsetCursor)
 
 	items, err := r.Loaders.QuestionLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
 	if err != nil {
@@ -72,10 +93,14 @@ func (r *fAQCategoryResolver) Questions(ctx context.Context, obj *model.FAQCateg
 	}
 
 	return &model.QuestionPagination{
-		Total:  page.Total,
-		First:  page.First,
-		Offset: page.Offset,
-		Items:  utils.MapWithCtx(ctx, items, model.QuestionFrom),
+		Offset:      page.Offset,
+		First:       page.First,
+		Total:       page.Total,
+		Cursor:      page.Cursor.Encode(),
+		NextCursor:  page.NextCursor.Encode(),
+		HasNext:     page.HasNext,
+		HasPrevious: page.HasPrevious,
+		Items:       utils.MapWithCtx(ctx, items, model.QuestionFrom),
 	}, nil
 }
 

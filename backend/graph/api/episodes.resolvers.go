@@ -307,7 +307,7 @@ func (r *episodeResolver) Context(ctx context.Context, obj *model.Episode) (mode
 }
 
 // RelatedItems is the resolver for the relatedItems field.
-func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.SectionItemPagination, error) {
+func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
 	var collectionId *int
 	if obj.Type == model.EpisodeTypeStandalone {
 		ginCtx, err := utils.GinCtx(ctx)
@@ -343,12 +343,21 @@ func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, 
 }
 
 // Lessons is the resolver for the lessons field.
-func (r *episodeResolver) Lessons(ctx context.Context, obj *model.Episode, first *int, offset *int) (*model.LessonPagination, error) {
+func (r *episodeResolver) Lessons(ctx context.Context, obj *model.Episode, first *int, offset *int, cursor *string) (*model.LessonPagination, error) {
 	ids, err := r.GetFilteredLoaders(ctx).EpisodeStudyLessonsLoader.Get(ctx, utils.AsInt(obj.ID))
 	if err != nil {
 		return nil, err
 	}
-	page := utils.Paginate(ids, first, offset, nil)
+
+	var offsetCursor *utils.OffsetCursor
+	if cursor != nil && *cursor != "" {
+		offsetCursor, err = utils.ParseOffsetCursor(*cursor)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
 	lessons, err := r.Loaders.StudyLessonLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
 	if err != nil {
@@ -356,10 +365,14 @@ func (r *episodeResolver) Lessons(ctx context.Context, obj *model.Episode, first
 	}
 
 	return &model.LessonPagination{
-		Items:  utils.MapWithCtx(ctx, lessons, model.LessonFrom),
-		Total:  page.Total,
-		First:  page.First,
-		Offset: page.Offset,
+		Offset:      page.Offset,
+		First:       page.First,
+		Total:       page.Total,
+		Items:       utils.MapWithCtx(ctx, lessons, model.LessonFrom),
+		Cursor:      page.Cursor.Encode(),
+		NextCursor:  page.NextCursor.Encode(),
+		HasNext:     page.HasNext,
+		HasPrevious: page.HasPrevious,
 	}, nil
 }
 

@@ -24,7 +24,7 @@ type UserCollection {
     title: String!
     #    updatedAt: Date!
     #    createdAt: Date!
-    entries(first: Int, offset: Int): UserCollectionEntryPagination! @goField(forceResolver: true)
+    entries(first: Int, offset: Int, cursor: Cursor): UserCollectionEntryPagination! @goField(forceResolver: true)
 }
 
 union UserCollectionEntryItem = Show | Episode | Short

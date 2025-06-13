@@ -46,20 +46,32 @@ func (r *userResolver) CompletedRegistration(ctx context.Context, obj *model.Use
 }
 
 // Entries is the resolver for the entries field.
-func (r *userCollectionResolver) Entries(ctx context.Context, obj *model.UserCollection, first *int, offset *int) (*model.UserCollectionEntryPagination, error) {
+func (r *userCollectionResolver) Entries(ctx context.Context, obj *model.UserCollection, first *int, offset *int, cursor *string) (*model.UserCollectionEntryPagination, error) {
 	ids, err := r.Loaders.UserCollectionEntryIDsLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
 	}
-	page := utils.Paginate(ids, first, offset, nil)
+	var offsetCursor *utils.OffsetCursor
+	if cursor != nil && *cursor != "" {
+		offsetCursor, err = utils.ParseOffsetCursor(*cursor)
+		if err != nil {
+			return nil, err
+		}
+	}
+	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 	entries, err := r.Loaders.UserCollectionEntryLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
 	if err != nil {
 		return nil, err
 	}
+
 	return &model.UserCollectionEntryPagination{
-		Total:  page.Total,
-		Offset: page.Offset,
-		First:  page.First,
+		Offset:      page.Offset,
+		First:       page.First,
+		Total:       page.Total,
+		Cursor:      page.Cursor.Encode(),
+		NextCursor:  page.NextCursor.Encode(),
+		HasNext:     page.HasNext,
+		HasPrevious: page.HasPrevious,
 		Items: lo.Map(entries, func(i *common.UserCollectionEntry, _ int) *model.UserCollectionEntry {
 			return &model.UserCollectionEntry{
 				ID: i.ID.String(),

@@ -13,21 +13,35 @@ import (
 )
 
 // Questions is the resolver for the questions field.
-func (r *surveyResolver) Questions(ctx context.Context, obj *model.Survey, first *int, offset *int) (*model.SurveyQuestionPagination, error) {
+func (r *surveyResolver) Questions(ctx context.Context, obj *model.Survey, first *int, offset *int, cursor *string) (*model.SurveyQuestionPagination, error) {
 	items, err := r.GetFilteredLoaders(ctx).SurveyQuestionsLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
 	}
-	page := utils.Paginate(items, first, offset, nil)
-	questions, err := r.GetLoaders().SurveyQuestionLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
+
+	var offsetCursor *utils.OffsetCursor
+	if cursor != nil && *cursor != "" {
+		offsetCursor, err = utils.ParseOffsetCursor(*cursor)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	page := utils.Paginate(items, first, offset, nil, offsetCursor)
+	questions, err := r.Loaders.SurveyQuestionLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
 	if err != nil {
 		return nil, err
 	}
+
 	return &model.SurveyQuestionPagination{
-		First:  page.First,
-		Offset: page.Offset,
-		Total:  page.Total,
-		Items:  utils.MapWithCtx(ctx, questions, model.SurveyQuestionFrom),
+		Offset:      page.Offset,
+		First:       page.First,
+		Total:       page.Total,
+		Cursor:      page.Cursor.Encode(),
+		NextCursor:  page.NextCursor.Encode(),
+		HasNext:     page.HasNext,
+		HasPrevious: page.HasPrevious,
+		Items:       utils.MapWithCtx(ctx, questions, model.SurveyQuestionFrom),
 	}, nil
 }
 

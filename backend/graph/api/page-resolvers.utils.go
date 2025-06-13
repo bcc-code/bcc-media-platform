@@ -56,7 +56,7 @@ func getSectionItemsForCollectionPage(ctx context.Context, r *Resolver, collecti
 		return nil, err
 	}
 
-	pagination := utils.Paginate(entries, first, offset, nil)
+	pagination := utils.Paginate(entries, first, offset, nil, nil)
 
 	preloadEntryLoaders(ctx, ls, pagination.Items)
 

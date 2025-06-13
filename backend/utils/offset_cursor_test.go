@@ -9,16 +9,15 @@ import (
 
 func TestOffsetCursor_Encode(t *testing.T) {
 	cursor := &OffsetCursor{Offset: 10}
-	encoded, err := cursor.Encode()
-	require.NoError(t, err)
+	encoded := cursor.Encode()
 	assert.NotEmpty(t, encoded)
 }
 
 func TestOffsetCursor_EncodeDecode(t *testing.T) {
 	cursor := &OffsetCursor{Offset: 25}
 	
-	encoded, err := cursor.Encode()
-	require.NoError(t, err)
+	encoded := cursor.Encode()
+	assert.NotEmpty(t, encoded)
 	
 	decoded, err := ParseOffsetCursor(encoded)
 	require.NoError(t, err)
@@ -28,8 +27,8 @@ func TestOffsetCursor_EncodeDecode(t *testing.T) {
 func TestOffsetCursor_EncodeDecodeZero(t *testing.T) {
 	cursor := &OffsetCursor{Offset: 0}
 	
-	encoded, err := cursor.Encode()
-	require.NoError(t, err)
+	encoded := cursor.Encode()
+	assert.NotEmpty(t, encoded)
 	
 	decoded, err := ParseOffsetCursor(encoded)
 	require.NoError(t, err)
@@ -52,8 +51,7 @@ func TestOffsetCursor_Integration(t *testing.T) {
 	assert.Equal(t, 100, cursor.Offset)
 	
 	// Encode
-	encoded, err := cursor.Encode()
-	require.NoError(t, err)
+	encoded := cursor.Encode()
 	assert.NotEmpty(t, encoded)
 	
 	// Decode

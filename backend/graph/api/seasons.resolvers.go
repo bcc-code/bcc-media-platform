@@ -65,7 +65,7 @@ func (r *seasonResolver) DefaultEpisode(ctx context.Context, obj *model.Season) 
 }
 
 // Episodes is the resolver for the episodes field.
-func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first *int, offset *int, dir *string) (*model.EpisodePagination, error) {
+func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first *int, offset *int, cursor *string, dir *string) (*model.EpisodePagination, error) {
 	intID, err := strconv.ParseInt(obj.ID, 10, 64)
 	if err != nil {
 		return nil, err
@@ -81,7 +81,7 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first 
 		first = &f
 	}
 
-	page := utils.Paginate(itemIDs, first, offset, dir)
+	page := utils.Paginate(itemIDs, first, offset, dir, nil)
 
 	episodes, err := r.Loaders.EpisodeLoader.GetMany(ctx, utils.PointerIntArrayToIntArray(page.Items))
 	if err != nil {

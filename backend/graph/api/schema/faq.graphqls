@@ -33,6 +33,7 @@ type FAQCategory {
     questions(
         first: Int
         offset: Int
+        cursor: Cursor
     ): QuestionPagination @goField(forceResolver: true)
 }
 
@@ -40,6 +41,7 @@ type FAQ {
     categories(
         first: Int
         Offset: Int
+        cursor: Cursor
     ): FAQCategoryPagination @goField(forceResolver: true)
 
     category(

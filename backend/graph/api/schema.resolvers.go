@@ -381,7 +381,7 @@ func (r *queryRootResolver) Playlist(ctx context.Context, id string) (*model.Pla
 }
 
 // Search is the resolver for the search field.
-func (r *queryRootResolver) Search(ctx context.Context, queryString string, first *int, offset *int, typeArg *string, minScore *int) (*model.SearchResult, error) {
+func (r *queryRootResolver) Search(ctx context.Context, queryString string, first *int, offset *int, cursor *string, typeArg *string, minScore *int) (*model.SearchResult, error) {
 	return searchResolver(r, ctx, queryString, first, offset, typeArg, minScore)
 }
 
@@ -444,7 +444,7 @@ func (r *queryRootResolver) AchievementGroup(ctx context.Context, id string) (*m
 }
 
 // AchievementGroups is the resolver for the achievementGroups field.
-func (r *queryRootResolver) AchievementGroups(ctx context.Context, first *int, offset *int) (*model.AchievementGroupPagination, error) {
+func (r *queryRootResolver) AchievementGroups(ctx context.Context, first *int, offset *int, cursor *string) (*model.AchievementGroupPagination, error) {
 	ids, err := memorycache.GetOrSet(ctx, "achievement_groups", r.Queries.ListAchievementGroups)
 	if err != nil {
 		return nil, err
@@ -452,7 +452,16 @@ func (r *queryRootResolver) AchievementGroups(ctx context.Context, first *int, o
 	if ids == nil {
 		ids = []uuid.UUID{}
 	}
-	page := utils.Paginate(ids, first, offset, nil)
+
+	var offsetCursor *utils.OffsetCursor
+	if cursor != nil && *cursor != "" {
+		offsetCursor, err = utils.ParseOffsetCursor(*cursor)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
 	groups, err := r.Loaders.AchievementGroupLoader.GetMany(ctx, page.Items)
 	if err != nil {
@@ -460,10 +469,14 @@ func (r *queryRootResolver) AchievementGroups(ctx context.Context, first *int, o
 	}
 
 	return &model.AchievementGroupPagination{
-		Total:  page.Total,
-		First:  page.First,
-		Offset: page.Offset,
-		Items:  utils.MapWithCtx(ctx, groups, model.AchievementGroupFrom),
+		Offset:      page.Offset,
+		First:       page.First,
+		Total:       page.Total,
+		Items:       utils.MapWithCtx(ctx, groups, model.AchievementGroupFrom),
+		Cursor:      page.Cursor.Encode(),
+		NextCursor:  page.NextCursor.Encode(),
+		HasNext:     page.HasNext,
+		HasPrevious: page.HasPrevious,
 	}, nil
 }
 

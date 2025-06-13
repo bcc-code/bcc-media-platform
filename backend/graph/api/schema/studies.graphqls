@@ -10,7 +10,7 @@ type StudyTopic implements CollectionItem {
     Should not be used actively in lists, as it could affect query speeds.
     """
     defaultLesson: Lesson! @goField(forceResolver: true)
-    lessons(first: Int, offset: Int): LessonPagination! @goField(forceResolver: true)
+    lessons(first: Int, offset: Int, cursor: Cursor): LessonPagination! @goField(forceResolver: true)
 
     progress: LessonsProgress! @goField(forceResolver: true)
 }
@@ -23,7 +23,7 @@ type Lesson {
     showDiscoverPage: Boolean!
 
     image(style: ImageStyle): String @goField(forceResolver: true)
-    tasks(first: Int, offset: Int): TaskPagination! @goField(forceResolver: true)
+    tasks(first: Int, offset: Int, cursor: Cursor): TaskPagination! @goField(forceResolver: true)
     topic: StudyTopic! @goField(forceResolver: true)
 
     """
@@ -31,8 +31,8 @@ type Lesson {
     Should not be used actively in lists, as it could affect query speeds.
     """
     defaultEpisode: Episode @goField(forceResolver: true)
-    episodes(first: Int, offset: Int): EpisodePagination! @goField(forceResolver: true)
-    links(first: Int, offset: Int): LinkPagination! @goField(forceResolver: true)
+    episodes(first: Int, offset: Int, cursor: Cursor): EpisodePagination! @goField(forceResolver: true)
+    links(first: Int, offset: Int, cursor: Cursor): LinkPagination! @goField(forceResolver: true)
 
     progress: TasksProgress! @goField(forceResolver: true)
 

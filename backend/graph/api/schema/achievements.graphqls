@@ -22,7 +22,7 @@ type AchievementPagination implements Pagination {
 type AchievementGroup {
     id: ID!
     title: String!
-    achievements(first: Int, offset: Int): AchievementPagination! @goField(forceResolver: true)
+    achievements(first: Int, offset: Int, cursor: Cursor): AchievementPagination! @goField(forceResolver: true)
 }
 
 type AchievementGroupPagination implements Pagination {
