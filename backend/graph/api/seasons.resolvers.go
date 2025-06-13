@@ -81,7 +81,16 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first 
 		first = &f
 	}
 
-	page := utils.Paginate(itemIDs, first, offset, dir, nil)
+	// Parse cursor if provided
+	var parsedCursor *utils.OffsetCursor
+	if cursor != nil && *cursor != "" {
+		parsedCursor, err = utils.ParseOffsetCursor(*cursor)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	page := utils.Paginate(itemIDs, first, offset, dir, parsedCursor)
 
 	episodes, err := r.Loaders.EpisodeLoader.GetMany(ctx, utils.PointerIntArrayToIntArray(page.Items))
 	if err != nil {
@@ -89,10 +98,14 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first 
 	}
 
 	return &model.EpisodePagination{
-		Total:  page.Total,
-		First:  page.First,
-		Offset: page.Offset,
-		Items:  utils.MapWithCtx(ctx, episodes, model.EpisodeFrom),
+		Total:       page.Total,
+		First:       page.First,
+		Offset:      page.Offset,
+		Items:       utils.MapWithCtx(ctx, episodes, model.EpisodeFrom),
+		Cursor:      page.Cursor.Encode(),
+		NextCursor:  page.NextCursor.Encode(),
+		HasNext:     page.HasNext,
+		HasPrevious: page.HasPrevious,
 	}, nil
 }
 
