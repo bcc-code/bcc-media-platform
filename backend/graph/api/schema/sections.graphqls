@@ -18,7 +18,11 @@ interface Section {
 type SectionPagination implements Pagination {
     total: Int!
     first: Int!
-    offset: Int!
+    offset: Int! @deprecated(reason: "Offset is deprecated, use cursor")
+    cursor: Cursor!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    nextCursor: Cursor!
     items: [Section!]!
 }
 
@@ -207,8 +211,12 @@ type SectionItem {
 }
 
 type SectionItemPagination implements Pagination {
-    first: Int!
-    offset: Int!
     total: Int!
+    first: Int!
+    offset: Int! @deprecated(reason: "Offset is deprecated, use cursor")
+    cursor: Cursor!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    nextCursor: Cursor!
     items: [SectionItem!]!
 }

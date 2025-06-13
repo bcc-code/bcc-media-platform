@@ -9,7 +9,11 @@ type Playlist implements CollectionItem {
 type PlaylistItemPagination implements Pagination {
     total: Int!
     first: Int!
-    offset: Int!
+    offset: Int! @deprecated(reason: "Offset is deprecated, use cursor")
+    cursor: Cursor!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    nextCursor: Cursor!
     items: [PlaylistItem!]!
 }
 

@@ -39,7 +39,11 @@ type UserCollectionEntry {
 
 type UserCollectionEntryPagination implements Pagination {
     total: Int!
-    offset: Int!
     first: Int!
+    offset: Int! @deprecated(reason: "Offset is deprecated, use cursor")
+    cursor: Cursor!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    nextCursor: Cursor!
     items: [UserCollectionEntry!]!
 }

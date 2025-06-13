@@ -9,9 +9,13 @@ type Achievement {
 }
 
 type AchievementPagination implements Pagination {
-    offset: Int!
-    first: Int!
     total: Int!
+    first: Int!
+    offset: Int! @deprecated(reason: "Offset is deprecated, use cursor")
+    cursor: Cursor!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    nextCursor: Cursor!
     items: [Achievement!]!
 }
 
@@ -22,9 +26,13 @@ type AchievementGroup {
 }
 
 type AchievementGroupPagination implements Pagination {
-    offset: Int!
-    first: Int!
     total: Int!
+    first: Int!
+    offset: Int! @deprecated(reason: "Offset is deprecated, use cursor")
+    cursor: Cursor!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    nextCursor: Cursor!
     items: [AchievementGroup!]!
 }
 

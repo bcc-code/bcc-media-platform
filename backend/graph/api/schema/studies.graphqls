@@ -44,9 +44,13 @@ type Lesson {
 }
 
 type LessonPagination implements Pagination {
-    offset: Int!
-    first: Int!
     total: Int!
+    first: Int!
+    offset: Int! @deprecated(reason: "Offset is deprecated, use cursor")
+    cursor: Cursor!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    nextCursor: Cursor!
     items: [Lesson!]!
 }
 
@@ -71,9 +75,13 @@ type TasksProgress {
 }
 
 type TaskPagination implements Pagination {
-    offset: Int!
-    first: Int!
     total: Int!
+    first: Int!
+    offset: Int! @deprecated(reason: "Offset is deprecated, use cursor")
+    cursor: Cursor!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    nextCursor: Cursor!
     items: [Task!]!
 }
 

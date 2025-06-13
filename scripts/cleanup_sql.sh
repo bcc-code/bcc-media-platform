@@ -21,4 +21,4 @@ sed -E '/^--[^+]*$/d' "$input_file" | \
     sed -E '/^ALTER [A-Za-z_]+( IF EXISTS)? "[A-Za-z_]+"\."[A-Za-z0-9_]+"(\(\))?(\.[A-Za-z0-9_]+")* OWNER TO (bccm|builder|manager);$/d' | \
     cat -s > "$output_file"
 
-echo "Cleaned SQL has been saved to $output_file"
+mv "$output_file" "$input_file"

@@ -8,14 +8,22 @@ type Question {
 type QuestionPagination implements Pagination {
     total: Int!
     first: Int!
-    offset: Int!
+    offset: Int! @deprecated(reason: "Offset is deprecated, use cursor")
+    cursor: Cursor!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    nextCursor: Cursor!
     items: [Question!]!
 }
 
 type FAQCategoryPagination implements Pagination {
     total: Int!
     first: Int!
-    offset: Int!
+    offset: Int! @deprecated(reason: "Offset is deprecated, use cursor")
+    cursor: Cursor!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    nextCursor: Cursor!
     items: [FAQCategory!]!
 }
 

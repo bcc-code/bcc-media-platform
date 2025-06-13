@@ -10,7 +10,7 @@ require (
 	cloud.google.com/go/profiler v0.3.1
 	cloud.google.com/go/pubsub v1.42.0
 	firebase.google.com/go/v4 v4.15.0
-	github.com/99designs/gqlgen v0.17.66
+	github.com/99designs/gqlgen v0.17.74
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.3.2
 	github.com/Code-Hex/go-generics-cache v1.3.1
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.20.0
@@ -57,7 +57,7 @@ require (
 	github.com/sqlc-dev/pqtype v0.3.0
 	github.com/stretchr/testify v1.10.0
 	github.com/uptrace/uptrace-go v1.20.0
-	github.com/vektah/gqlparser/v2 v2.5.22
+	github.com/vektah/gqlparser/v2 v2.5.27
 	github.com/vmihailenco/msgpack/v5 v5.4.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.45.0
 	go.opentelemetry.io/otel v1.31.0
@@ -65,10 +65,10 @@ require (
 	go.opentelemetry.io/otel/sdk v1.31.0
 	go.opentelemetry.io/otel/trace v1.31.0
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842
-	golang.org/x/net v0.38.0
-	golang.org/x/sync v0.12.0
+	golang.org/x/net v0.40.0
+	golang.org/x/sync v0.14.0
 	google.golang.org/api v0.197.0
-	google.golang.org/protobuf v1.36.5
+	google.golang.org/protobuf v1.36.6
 	gopkg.in/guregu/null.v4 v4.0.0
 )
 
@@ -87,7 +87,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.8.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.44.0 // indirect
 	github.com/MicahParks/keyfunc v1.9.0 // indirect
-	github.com/agnivade/levenshtein v1.2.0 // indirect
+	github.com/agnivade/levenshtein v1.2.1 // indirect
 	github.com/apache/arrow/go/v15 v15.0.2 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.14 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.13.43 // indirect
@@ -174,7 +174,7 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
-	github.com/urfave/cli/v2 v2.27.5 // indirect
+	github.com/urfave/cli/v2 v2.27.6 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
@@ -192,13 +192,13 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/arch v0.8.0 // indirect
-	golang.org/x/crypto v0.36.0 // indirect
-	golang.org/x/mod v0.23.0 // indirect
+	golang.org/x/crypto v0.38.0 // indirect
+	golang.org/x/mod v0.24.0 // indirect
 	golang.org/x/oauth2 v0.23.0 // indirect
-	golang.org/x/sys v0.31.0 // indirect
-	golang.org/x/text v0.23.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/text v0.25.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
-	golang.org/x/tools v0.30.0 // indirect
+	golang.org/x/tools v0.33.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	google.golang.org/appengine/v2 v2.0.2 // indirect
 	google.golang.org/genproto v0.0.0-20240903143218-8af14fe29dc1 // indirect
@@ -212,3 +212,5 @@ require (
 	modernc.org/memory v1.8.0 // indirect
 	modernc.org/sqlite v1.34.5 // indirect
 )
+
+tool github.com/99designs/gqlgen
