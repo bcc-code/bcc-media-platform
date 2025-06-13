@@ -15,42 +15,52 @@ import (
 
 // Items is the resolver for the items field.
 func (r *avatarSectionResolver) Items(ctx context.Context, obj *model.AvatarSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
-	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
 }
 
 // Items is the resolver for the items field.
 func (r *cardListSectionResolver) Items(ctx context.Context, obj *model.CardListSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
-	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
 }
 
 // Items is the resolver for the items field.
 func (r *cardSectionResolver) Items(ctx context.Context, obj *model.CardSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
-	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
 }
 
 // Items is the resolver for the items field.
 func (r *defaultGridSectionResolver) Items(ctx context.Context, obj *model.DefaultGridSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
-	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
 }
 
 // Items is the resolver for the items field.
 func (r *defaultSectionResolver) Items(ctx context.Context, obj *model.DefaultSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
-	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
 }
 
 // Items is the resolver for the items field.
 func (r *featuredSectionResolver) Items(ctx context.Context, obj *model.FeaturedSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
-	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
 }
 
 // Items is the resolver for the items field.
 func (r *iconGridSectionResolver) Items(ctx context.Context, obj *model.IconGridSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
-	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
 }
 
 // Items is the resolver for the items field.
 func (r *iconSectionResolver) Items(ctx context.Context, obj *model.IconSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
-	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
+}
+
+// Items is the resolver for the items field.
+func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
+}
+
+// Items is the resolver for the items field.
+func (r *listSectionResolver) Items(ctx context.Context, obj *model.ListSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
 }
 
 // Page is the resolver for the page field.
@@ -59,16 +69,6 @@ func (r *itemSectionMetadataResolver) Page(ctx context.Context, obj *model.ItemS
 		return nil, nil
 	}
 	return r.QueryRoot().Page(ctx, &obj.Page.ID, &obj.Page.Code)
-}
-
-// Items is the resolver for the items field.
-func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
-	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
-}
-
-// Items is the resolver for the items field.
-func (r *listSectionResolver) Items(ctx context.Context, obj *model.ListSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
-	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
 }
 
 // Messages is the resolver for the messages field.
@@ -82,12 +82,12 @@ func (r *messageSectionResolver) Messages(ctx context.Context, obj *model.Messag
 
 // Items is the resolver for the items field.
 func (r *posterGridSectionResolver) Items(ctx context.Context, obj *model.PosterGridSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
-	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
 }
 
 // Items is the resolver for the items field.
 func (r *posterSectionResolver) Items(ctx context.Context, obj *model.PosterSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
-	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset)
+	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
 }
 
 // Image is the resolver for the image field.

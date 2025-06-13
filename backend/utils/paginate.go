@@ -67,10 +67,3 @@ func Paginate[t any](collection []t, first *int, offset *int, dir *string, curso
 
 	return result
 }
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}

@@ -328,15 +328,19 @@ func (r *episodeResolver) RelatedItems(ctx context.Context, obj *model.Episode, 
 		page, err := r.sectionCollectionEntryResolver(ctx, &common.Section{
 			CollectionID: null.IntFrom(int64(*collectionId)),
 			Style:        "default",
-		}, first, offset, 0)
+		}, first, offset, cursor, 0)
 		if err != nil {
 			return nil, err
 		}
 		return &model.SectionItemPagination{
-			Total:  page.Total,
-			First:  page.First,
-			Offset: page.Offset,
-			Items:  page.Items,
+			Total:       page.Total,
+			First:       page.First,
+			Offset:      page.Offset,
+			Items:       page.Items,
+			Cursor:      page.Cursor.Encode(),
+			NextCursor:  page.NextCursor.Encode(),
+			HasNext:     page.HasNext,
+			HasPrevious: page.HasPrevious,
 		}, nil
 	}
 	return nil, nil

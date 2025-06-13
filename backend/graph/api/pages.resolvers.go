@@ -21,16 +21,20 @@ func (r *contextCollectionResolver) Items(ctx context.Context, obj *model.Contex
 	pagination, err := r.sectionCollectionEntryResolver(ctx, &common.Section{
 		Style:        "default",
 		CollectionID: utils.AsNullInt(&obj.ID),
-	}, first, offset, 0)
+	}, first, offset, cursor, 0)
 	if err != nil {
 		return nil, err
 	}
 
 	return &model.SectionItemPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  pagination.Items,
+		Total:       pagination.Total,
+		First:       pagination.First,
+		Offset:      pagination.Offset,
+		Items:       pagination.Items,
+		Cursor:      pagination.Cursor.Encode(),
+		NextCursor:  pagination.NextCursor.Encode(),
+		HasNext:     pagination.HasNext,
+		HasPrevious: pagination.HasPrevious,
 	}, nil
 }
 
