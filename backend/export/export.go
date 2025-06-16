@@ -63,7 +63,7 @@ type serviceProvider interface {
 	GetQueries() *sqlc.Queries
 	GetLoaders() *common.BatchLoaders
 	GetFilteredLoaders(ctx context.Context) *common.LoadersWithPermissions
-	GetPersonalizedLoaders(ctx context.Context) *common.PersonalizedLoaders
+	GetPersonalizedLoaders(ctx context.Context, randomizedCursor *utils.RandomizedCursor) *common.PersonalizedLoaders
 	GetS3Client() *s3.Client
 	GetURLSigner() *signing.Signer
 	GetCDNConfig() CDNConfig
@@ -406,7 +406,7 @@ type collectionEntry struct {
 }
 
 func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries, collectionIDs []int) error {
-	personalizedLoaders := q.GetPersonalizedLoaders(ctx)
+	personalizedLoaders := q.GetPersonalizedLoaders(ctx, nil)
 	collections, err := q.GetLoaders().CollectionLoader.GetMany(ctx, collectionIDs)
 	if err != nil {
 		return merry.Wrap(err)

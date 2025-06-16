@@ -49,14 +49,14 @@ func (r *Resolver) getShortToMediaIDMap(ctx context.Context, shortIDs []uuid.UUI
 }
 
 type shortsShuffledResult struct {
-	Cursor     *utils.RandomizedCursor[uuid.UUID]
-	NextCursor *utils.RandomizedCursor[uuid.UUID]
+	Cursor     *utils.RandomizedCursor
+	NextCursor *utils.RandomizedCursor
 	Keys       []uuid.UUID
 }
 
-func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.Profile, cursor *utils.RandomizedCursor[uuid.UUID], limit *int, initialID uuid.UUID) (*shortsShuffledResult, error) {
+func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.Profile, cursor *utils.RandomizedCursor, limit *int, initialID uuid.UUID) (*shortsShuffledResult, error) {
 	if cursor == nil {
-		cursor = utils.NewRandomizedCursor[uuid.UUID](true, 1)
+		cursor = utils.NewRandomizedCursor(true, 1)
 	}
 
 	if cursor.Seed == nil {
@@ -107,7 +107,7 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 		}
 	}
 
-	shortIDs = cursor.ApplyToSegments(shortIDs, 5)
+	shortIDs = utils.ApplyRandomizedCursorToSegments(*cursor, shortIDs, 5)
 
 	if initialID != uuid.Nil {
 		shortIDs = applyInitialShort(shortIDs, initialID, *cursor)
@@ -131,7 +131,7 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 
 	lastID, _ := lo.Last(keys)
 
-	nextCursor := &utils.RandomizedCursor[uuid.UUID]{
+	nextCursor := &utils.RandomizedCursor{
 		Seed:         cursor.Seed,
 		RandomFactor: cursor.RandomFactor,
 		CurrentIndex: cursor.CurrentIndex + lo.IndexOf(shortIDs, lastID) + 1,
@@ -219,9 +219,9 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int, in
 	if err != nil && !errors.Is(err, ErrProfileNotSet) {
 		return nil, err
 	}
-	var c *utils.RandomizedCursor[uuid.UUID]
+	var c *utils.RandomizedCursor
 	if cursor != nil {
-		c, err = utils.ParseRandomizedCursor[uuid.UUID](*cursor)
+		c, err = utils.ParseRandomizedCursor(*cursor)
 	}
 	if err != nil {
 		return nil, err
@@ -290,7 +290,7 @@ func shortToShort(ctx context.Context, short *common.Short) *model.Short {
 	}
 }
 
-func applyInitialShort(shortIDs []uuid.UUID, initialID uuid.UUID, cursor utils.RandomizedCursor[uuid.UUID]) []uuid.UUID {
+func applyInitialShort(shortIDs []uuid.UUID, initialID uuid.UUID, cursor utils.RandomizedCursor) []uuid.UUID {
 	for i, id := range shortIDs {
 		if id == initialID {
 			shortIDs = append(shortIDs[:i], shortIDs[i+1:]...)

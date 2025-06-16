@@ -109,9 +109,14 @@ func collectionEntriesToModels(ctx context.Context, ls *common.BatchLoaders, ent
 	return items, nil
 }
 
-func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int) ([]collection.Entry, error) {
+func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int, cursor *string) ([]collection.Entry, error) {
+	var rc *utils.RandomizedCursor
+	if cursor != nil {
+		rc, _ = utils.Base64DecodeAndUnmarshal[utils.RandomizedCursor](*cursor)
+	}
+
 	ls := r.GetLoaders()
-	personalizedLoaders := r.PersonalizedLoaders(ctx)
+	personalizedLoaders := r.PersonalizedLoaders(ctx, rc)
 
 	col, err := ls.CollectionLoader.Get(ctx, collectionId)
 	if err != nil {
@@ -150,8 +155,8 @@ func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int) (
 // getItemsPageAs returns a pagination result of items of type T
 // returns only the items and no additional metadata like sort or other relational data
 // it will also filter out items that don't conform to the interface or type T
-func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, first, offset *int, collections ...common.ItemCollection) (*utils.PaginationResult[T], error) {
-	entries, err := r.GetCollectionEntries(ctx, collectionID)
+func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, first, offset *int, cursor *string, collections ...common.ItemCollection) (*utils.PaginationResult[T], error) {
+	entries, err := r.GetCollectionEntries(ctx, collectionID, cursor)
 	if err != nil {
 		return nil, err
 	}
@@ -185,8 +190,8 @@ func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, f
 	}, nil
 }
 
-func (r *Resolver) getPlaylistItemsPage(ctx context.Context, collectionID int, first, offset *int) (*model.PlaylistItemPagination, error) {
-	p, err := getItemsPageAs[model.PlaylistItem](ctx, r, collectionID, first, offset, common.CollectionEpisodes)
+func (r *Resolver) getPlaylistItemsPage(ctx context.Context, collectionID int, first, offset *int, cursor *string) (*model.PlaylistItemPagination, error) {
+	p, err := getItemsPageAs[model.PlaylistItem](ctx, r, collectionID, first, offset, cursor, common.CollectionEpisodes)
 	if err != nil {
 		return nil, err
 	}

@@ -73,12 +73,12 @@ func TestApplyCursor(t *testing.T) {
 	}
 
 	seed := int64(999999999999999999)
-	c := RandomizedCursor[uuid.UUID]{
+	c := RandomizedCursor{
 		CurrentIndex: 5,
 		Seed:         &seed,
 	}
 
-	data2 := c.ApplyToSegments(data, 5)
+	data2 := ApplyRandomizedCursorToSegments(c, data, 5)
 	assert.Len(t, data2, 60-c.CurrentIndex)
 
 	for i := 0; i < c.CurrentIndex; i++ {
@@ -155,13 +155,13 @@ func TestApplyCursorWithRandomness(t *testing.T) {
 	randomFactor := 1.0
 	segmentSize := 20
 
-	c := RandomizedCursor[uuid.UUID]{
+	c := RandomizedCursor{
 		CurrentIndex: segmentSize,
 		Seed:         &seed,
 		RandomFactor: randomFactor,
 	}
 
-	data2 := c.ApplyToSegments(data, segmentSize)
+	data2 := ApplyRandomizedCursorToSegments(c, data, segmentSize)
 	assert.Len(t, data2, 60-c.CurrentIndex)
 
 	for i := 0; i < c.CurrentIndex; i++ {

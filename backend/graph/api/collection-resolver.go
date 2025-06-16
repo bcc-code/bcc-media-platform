@@ -271,7 +271,7 @@ func (r *Resolver) sectionCollectionEntryResolver(
 		return nil, err
 	}
 
-	entries, err := r.GetCollectionEntries(ctx, collectionId)
+	entries, err := r.GetCollectionEntries(ctx, collectionId, cursor)
 	if err != nil {
 		return nil, err
 	}

@@ -9,6 +9,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/jsonlogic"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"strconv"
@@ -78,21 +79,32 @@ func addLanguageFilter(query jsonlogic.Query, languagePreferences common.Languag
 	return query
 }
 
+type FilterParams struct {
+	Roles               []string
+	LanguagePreferences common.LanguagePreferences
+	Filter              common.Filter
+	NoLimit             bool
+	Randomized          bool
+	Cursor              *utils.RandomizedCursor
+}
+
 // GetItemIDsForFilter returns an array of ids for the collection
-func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, languagePreferences common.LanguagePreferences, f common.Filter, noLimit bool, randomized bool) ([]common.Identifier, error) {
-	if f.Filter == nil {
+func GetItemIDsForFilter(ctx context.Context, db *sql.DB,
+	args FilterParams,
+) ([]common.Identifier, error) {
+	if args.Filter.Filter == nil {
 		return nil, nil
 	}
 
 	var filterObject map[string]any
-	_ = json.Unmarshal(f.Filter, &filterObject)
+	_ = json.Unmarshal(args.Filter.Filter, &filterObject)
 
 	var orderByString string
-	if f.SortBy != "" {
-		orderByString = "t." + pq.QuoteIdentifier(f.SortBy)
+	if args.Filter.SortBy != "" {
+		orderByString = "t." + pq.QuoteIdentifier(args.Filter.SortBy)
 	}
-	if orderByString != "" && f.SortByDirection != "" {
-		switch f.SortByDirection {
+	if orderByString != "" && args.Filter.SortByDirection != "" {
+		switch args.Filter.SortByDirection {
 		case "desc":
 			orderByString += " DESC"
 		case "asc":
@@ -101,7 +113,7 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, langua
 	}
 
 	query := jsonlogic.GetSQLQueryFromFilter(filterObject)
-	query = addLanguageFilter(query, languagePreferences)
+	query = addLanguageFilter(query, args.LanguagePreferences)
 
 	from := "filter_dataset t"
 	selectFields := []string{"t.collection", "t.id", "t.uuid"}
@@ -110,16 +122,16 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, langua
     WHEN t.tags @> ARRAY['%s']::varchar[] AND %f > 0.0
       THEN CASE WHEN random() < %f THEN random() ELSE random() + 1 END
     ELSE random()
-  END AS r`, f.DeboostTag, f.DeboostFactor, f.DeboostFactor))
+  END AS r`, args.Filter.DeboostTag, args.Filter.DeboostFactor, args.Filter.DeboostFactor))
 	q := squirrel.StatementBuilder.
 		PlaceholderFormat(squirrel.Dollar).
 		Select(selectFields...).
 		From(from).
 		Where(query.Filter)
 
-	if !noLimit {
-		if f.Limit != nil && *f.Limit > 0 {
-			limit := *f.Limit
+	if !args.NoLimit {
+		if args.Filter.Limit != nil && *args.Filter.Limit > 0 {
+			limit := *args.Filter.Limit
 			q = q.Limit(uint64(limit))
 		} else {
 			q = q.Limit(20)
@@ -128,12 +140,12 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, langua
 
 	//q = parseJoins(q, collection, query.Joins)
 
-	if roles != nil {
-		q = addPermissionFilter(q, roles)
+	if args.Roles != nil {
+		q = addPermissionFilter(q, args.Roles)
 	}
 
 	// Always append random order as last if randomized
-	if randomized {
+	if args.Randomized {
 		if orderByString != "" {
 			q = q.OrderBy(orderByString, "r")
 		} else {

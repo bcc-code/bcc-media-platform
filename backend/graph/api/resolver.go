@@ -64,7 +64,7 @@ type Resolver struct {
 	Loaders             *common.BatchLoaders
 	FilteredLoaders     func(ctx context.Context) *common.LoadersWithPermissions
 	ProfileLoaders      func(ctx context.Context) *common.ProfileLoaders
-	PersonalizedLoaders func(ctx context.Context) *common.PersonalizedLoaders
+	PersonalizedLoaders func(ctx context.Context, randomizedCursor *utils.RandomizedCursor) *common.PersonalizedLoaders
 	SearchService       searchProvider
 	EmailService        *email.Service
 	URLSigner           *signing.Signer
@@ -91,8 +91,8 @@ func (r *Resolver) GetFilteredLoaders(ctx context.Context) *common.LoadersWithPe
 	return r.FilteredLoaders(ctx)
 }
 
-func (r *Resolver) GetPersonalizedLoaders(ctx context.Context) *common.PersonalizedLoaders {
-	return r.PersonalizedLoaders(ctx)
+func (r *Resolver) GetPersonalizedLoaders(ctx context.Context, randomizedCursor *utils.RandomizedCursor) *common.PersonalizedLoaders {
+	return r.PersonalizedLoaders(ctx, randomizedCursor)
 }
 
 func (r *Resolver) GetProfileLoaders(ctx context.Context) *common.ProfileLoaders {

@@ -35,7 +35,7 @@ func (r *playlistResolver) Items(ctx context.Context, obj *model.Playlist, first
 			Items:  nil,
 		}, nil
 	}
-	return r.getPlaylistItemsPage(ctx, int(i.CollectionID.Int64), first, offset)
+	return r.getPlaylistItemsPage(ctx, int(i.CollectionID.Int64), first, offset, cursor)
 }
 
 // Playlist returns generated.PlaylistResolver implementation.

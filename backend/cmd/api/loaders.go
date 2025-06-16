@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"sort"
 	"strings"
 	"time"
@@ -30,6 +31,7 @@ func getPersonalizedLoaders(
 	collectionLoader *loaders.Loader[int, *common.Collection],
 	roles []string,
 	languagePreferences common.LanguagePreferences,
+	randomizedCursor *utils.RandomizedCursor,
 ) *common.PersonalizedLoaders {
 	pq := queries.PersonalizedQueries(roles, languagePreferences)
 
@@ -48,12 +50,13 @@ func getPersonalizedLoaders(
 	ctx, cancel := context.WithCancel(context.Background())
 
 	ls := &common.PersonalizedLoaders{
-		Key: key,
+		Key:              key,
+		RandomizedCursor: *randomizedCursor,
 
 		CollectionItemsLoader: loaders.NewListLoader(ctx, pq.GetEntriesForCollectionsFilteredByRolesAndLanguages, func(i common.CollectionItem) int {
 			return i.CollectionID
 		}),
-		CollectionItemIDsLoader: collection.NewCollectionItemLoader(ctx, db, collectionLoader, roles, languagePreferences),
+		CollectionItemIDsLoader: collection.NewCollectionItemLoader(ctx, db, collectionLoader, roles, languagePreferences, randomizedCursor),
 		ContributionsForPersonLoader: loaders.NewListLoader(ctx, pq.GetContributionsForPersonsWithRoles, func(i common.Contribution) uuid.UUID {
 			return i.PersonID
 		}, loaders.WithName("person-contributions")),

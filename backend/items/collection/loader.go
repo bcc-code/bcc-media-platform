@@ -11,6 +11,7 @@ import (
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
 )
@@ -22,6 +23,7 @@ func NewCollectionItemLoader(
 	collectionLoader *loaders.Loader[int, *common.Collection],
 	roles []string,
 	languagePreferences common.LanguagePreferences,
+	randomizedCursor *utils.RandomizedCursor,
 ) *loaders.Loader[int, []common.Identifier] {
 	batchLoader := func(ctx context.Context, keys []int) []*dataloader.Result[[]common.Identifier] {
 		var results []*dataloader.Result[[]common.Identifier]
@@ -42,7 +44,18 @@ func NewCollectionItemLoader(
 						i.Filter = &common.Filter{}
 					}
 					// Pass randomized=true for randomized_query, false otherwise
-					identifiers, err = GetItemIDsForFilter(ctx, db, roles, languagePreferences, *i.Filter, i.AdvancedType.String == "continue_watching" || i.AdvancedType.String == "my_list", i.Type == "randomized_query")
+					identifiers, err = GetItemIDsForFilter(
+						ctx,
+						db,
+						FilterParams{
+							Roles:               roles,
+							LanguagePreferences: languagePreferences,
+							Filter:              *i.Filter,
+							Randomized:          i.Type == "randomized_query",
+							NoLimit:             i.AdvancedType.String == "continue_watching" || i.AdvancedType.String == "my_list",
+							Cursor:              randomizedCursor,
+						},
+					)
 					if err != nil {
 						log.L.Error().Err(err).
 							Msg("Failed to select itemIds from collection")

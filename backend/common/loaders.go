@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
@@ -140,12 +141,21 @@ type LoadersWithPermissions struct {
 //
 // This includes things like permissions, settings, langauges, etc
 type PersonalizedLoaders struct {
-	Key string
+	Key              string
+	RandomizedCursor utils.RandomizedCursor
 
 	CollectionItemsLoader        *loaders.Loader[int, []*CollectionItem]
 	CollectionItemIDsLoader      *loaders.Loader[int, []Identifier]
 	ContributionsForPersonLoader *loaders.Loader[uuid.UUID, []*Contribution]
 	TagEpisodesLoader            *loaders.Loader[int, []*int]
+}
+
+// ApplyRandomizedCursor sets the randomized cursor for the loaders
+//
+// This may not be thread safe, but currently we are only using it in a single place, so it is fit for purpose
+func (p *PersonalizedLoaders) ApplyRandomizedCursor(cursor utils.RandomizedCursor) *PersonalizedLoaders {
+	p.RandomizedCursor = cursor
+	return p
 }
 
 // ProfileLoaders contains loaders per profile

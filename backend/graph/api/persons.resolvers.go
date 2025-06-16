@@ -59,7 +59,7 @@ func (r *personResolver) Image(ctx context.Context, obj *model.Person, style *mo
 
 // ContributionTypes is the resolver for the contributionTypes field.
 func (r *personResolver) ContributionTypes(ctx context.Context, obj *model.Person) ([]*model.ContributionTypeCount, error) {
-	items, err := r.PersonalizedLoaders(ctx).ContributionsForPersonLoader.Get(ctx, utils.AsUuid(obj.ID))
+	items, err := r.PersonalizedLoaders(ctx, nil).ContributionsForPersonLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (r *personResolver) ContributionTypes(ctx context.Context, obj *model.Perso
 
 // ContributionContentTypes is the resolver for the contributionContentTypes field.
 func (r *personResolver) ContributionContentTypes(ctx context.Context, obj *model.Person) ([]*model.ContentTypeCount, error) {
-	items, err := r.PersonalizedLoaders(ctx).ContributionsForPersonLoader.Get(ctx, utils.AsUuid(obj.ID))
+	items, err := r.PersonalizedLoaders(ctx, nil).ContributionsForPersonLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (r *personResolver) ContributionContentTypes(ctx context.Context, obj *mode
 
 // Contributions is the resolver for the contributions field.
 func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, first *int, offset *int, cursor *string, types []string, contentTypes []string, shuffle *bool) (*model.ContributionsPagination, error) {
-	items, err := r.PersonalizedLoaders(ctx).ContributionsForPersonLoader.Get(ctx, utils.AsUuid(obj.ID))
+	items, err := r.PersonalizedLoaders(ctx, nil).ContributionsForPersonLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
 	}
