@@ -1,7 +1,6 @@
 package collection
 
 import (
-	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -9,9 +8,9 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/jsonlogic"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
-	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	"gopkg.in/guregu/null.v4"
 	"math"
 	"strconv"
 	"strings"
@@ -23,7 +22,7 @@ type filterDataSetRow struct {
 	UUID       uuid.UUID
 }
 
-func itemIdsFromRows(rows *sql.Rows) []common.Identifier {
+func ItemIdsFromRows(rows *sql.Rows) []common.Identifier {
 	var ids []common.Identifier
 
 	for rows.Next() {
@@ -85,17 +84,13 @@ type FilterParams struct {
 	LanguagePreferences common.LanguagePreferences
 	Filter              common.Filter
 	NoLimit             bool
-	Randomized          bool
-	Cursor              *utils.RandomizedCursor
+	RandomSeed          null.Int
 }
 
 // GetItemIDsForFilter returns an array of ids for the collection
-func GetItemIDsForFilter(ctx context.Context, db *sql.DB,
-	args FilterParams,
-) ([]common.Identifier, error) {
-
+func GetSQLForFilter(args FilterParams) *squirrel.SelectBuilder {
 	if args.Filter.Filter == nil {
-		return nil, nil
+		return nil
 	}
 
 	var filterObject map[string]any
@@ -121,10 +116,10 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB,
 	selectFields := []string{"t.collection", "t.id", "t.uuid"}
 
 	var randomFunc string
-	if args.Cursor != nil && args.Cursor.Seed != nil {
+	if args.RandomSeed.Valid {
 		// Use deterministic randomization with seed from cursor
 		// PostgreSQL setseed() expects a value between -1 and 1
-		seed := float64(*args.Cursor.Seed) / math.MaxInt64 // Convert int64 to float between -1 and 1
+		seed := float64(args.RandomSeed.Int64) / math.MaxInt64 // Convert int64 to float between -1 and 1
 		randomFunc = "random()"
 		// We'll need to set the seed before the main query
 		from = fmt.Sprintf("(SELECT setseed(%f)) seed_setter, filter_dataset t", seed)
@@ -144,7 +139,7 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB,
 		From(from).
 		Where(query.Filter)
 
-	if !args.NoLimit && !args.Randomized {
+	if !args.NoLimit && args.RandomSeed.Valid {
 		if args.Filter.Limit != nil && *args.Filter.Limit > 0 {
 			limit := *args.Filter.Limit
 			q = q.Limit(uint64(limit))
@@ -160,7 +155,7 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB,
 	}
 
 	// Always append random order as last if randomized
-	if args.Randomized {
+	if args.RandomSeed.Valid {
 		if orderByString != "" {
 			q = q.OrderBy(orderByString, "r")
 		} else {
@@ -170,23 +165,8 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB,
 		q = q.OrderBy(orderByString)
 	}
 
-	if ctx.Value("preview") == true {
-		queryString, _, err := q.ToSql()
-		if err != nil {
-			return nil, err
-		}
-		log.L.Debug().Str("query", queryString).Msg("Querying database for previewing filter")
-	}
+	return &q
 
-	rows, err := q.RunWith(db).Query()
-
-	if err != nil {
-		queryString, _, _ := q.ToSql()
-		log.L.Debug().Str("query", queryString).Err(err).Msg("Error occurred when trying to run query")
-		return nil, err
-	}
-
-	items := itemIdsFromRows(rows)
-
-	return items, nil
+	/*
+	 */
 }

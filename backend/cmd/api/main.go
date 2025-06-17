@@ -50,8 +50,8 @@ func personalizedLoaderFactory(
 	db *sql.DB,
 	queries *sqlc.Queries,
 	collectionLoader *loaders.Loader[int, *common.Collection],
-) func(ctx context.Context, randomizedCursor *utils.RandomizedCursor) *common.PersonalizedLoaders {
-	return func(ctx context.Context, randomizedCursor *utils.RandomizedCursor) *common.PersonalizedLoaders {
+) func(ctx context.Context) *common.PersonalizedLoaders {
+	return func(ctx context.Context) *common.PersonalizedLoaders {
 		ginCtx, err := utils.GinCtx(ctx)
 		if err != nil {
 			return nil
@@ -77,7 +77,6 @@ func personalizedLoaderFactory(
 			collectionLoader,
 			roles,
 			langPreferences,
-			randomizedCursor,
 		)
 
 		ginCtx.Set(personalizedLoadersCtxKey, ls)

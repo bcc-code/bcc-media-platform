@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"gopkg.in/guregu/null.v4"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
@@ -111,14 +112,28 @@ func collectionEntriesToModels(ctx context.Context, ls *common.BatchLoaders, ent
 
 func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int, cursor *utils.RandomizedCursor) ([]collection.Entry, error) {
 	ls := r.GetLoaders()
-	personalizedLoaders := r.PersonalizedLoaders(ctx, cursor)
+	personalizedLoaders := r.PersonalizedLoaders(ctx)
 
 	col, err := ls.CollectionLoader.Get(ctx, collectionId)
 	if err != nil {
 		return nil, err
 	}
 
-	entries, err := collection.GetBaseCollectionEntries(ctx, ls, personalizedLoaders, collectionId)
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	languagePreferences := common.GetLanguagePreferencesFromCtx(ginCtx)
+
+	entries, err := collection.GetBaseCollectionEntries(
+		ctx,
+		r.DB,
+		ls,
+		personalizedLoaders,
+		collectionId,
+		languagePreferences,
+		null.IntFromPtr(cursor.Seed),
+	)
 	if err != nil {
 		return nil, err
 	}

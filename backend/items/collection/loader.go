@@ -3,89 +3,14 @@ package collection
 import (
 	"context"
 	"database/sql"
-	"sync"
-	"time"
-
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
-	"github.com/samber/lo/parallel"
-
+	"fmt"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
+	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
-	"github.com/graph-gophers/dataloader/v7"
 	"github.com/samber/lo"
+	"gopkg.in/guregu/null.v4"
 )
-
-// NewCollectionItemLoader returns a new loader for getting ItemIds for Collection
-func NewCollectionItemLoader(
-	ctx context.Context,
-	db *sql.DB,
-	collectionLoader *loaders.Loader[int, *common.Collection],
-	roles []string,
-	languagePreferences common.LanguagePreferences,
-	randomizedCursor *utils.RandomizedCursor,
-) *loaders.Loader[int, []common.Identifier] {
-	batchLoader := func(ctx context.Context, keys []int) []*dataloader.Result[[]common.Identifier] {
-		var results []*dataloader.Result[[]common.Identifier]
-		var err error
-
-		collections, errs := collectionLoader.LoadMany(ctx, keys)()
-		if len(errs) > 0 {
-			err = errs[0]
-		}
-
-		var resMap = map[int][]common.Identifier{}
-		var lock = &sync.Mutex{}
-		if err == nil {
-			parallel.ForEach(collections, func(i *common.Collection, _ int) {
-				var identifiers []common.Identifier
-				if i.Type == "query" || i.Type == "randomized_query" {
-					if i.Filter == nil {
-						i.Filter = &common.Filter{}
-					}
-					// Pass randomized=true for randomized_query, false otherwise
-					identifiers, err = GetItemIDsForFilter(
-						ctx,
-						db,
-						FilterParams{
-							Roles:               roles,
-							LanguagePreferences: languagePreferences,
-							Filter:              *i.Filter,
-							Randomized:          i.Type == "randomized_query",
-							NoLimit:             i.AdvancedType.String == "continue_watching" || i.AdvancedType.String == "my_list",
-							Cursor:              randomizedCursor,
-						},
-					)
-					if err != nil {
-						log.L.Error().Err(err).
-							Msg("Failed to select itemIds from collection")
-					}
-				}
-				lock.Lock()
-				resMap[i.ID] = identifiers
-				lock.Unlock()
-			})
-		}
-
-		for _, key := range keys {
-			r := &dataloader.Result[[]common.Identifier]{
-				Error: err,
-			}
-
-			if val, ok := resMap[key]; ok {
-				r.Data = val
-			}
-
-			results = append(results, r)
-		}
-
-		return results
-	}
-
-	return &loaders.Loader[int, []common.Identifier]{
-		Loader: dataloader.NewBatchedLoader(batchLoader, dataloader.WithCache[int, []common.Identifier](loaders.NewMemoryLoaderCache[int, []common.Identifier](ctx, "collection-item", time.Minute*5))),
-	}
-}
 
 // Entry contains the ID and collection of a CollectionItem
 type Entry struct {
@@ -99,11 +24,15 @@ type Entry struct {
 // Note: The collection config might specify advanced filtering, like continue watching or my list, which is not handled here
 func GetBaseCollectionEntries(
 	ctx context.Context,
-	ls *common.BatchLoaders,
+	db *sql.DB,
+	loaders *common.BatchLoaders,
 	personalizedLoaders *common.PersonalizedLoaders,
 	collectionId int,
+	langPreferences common.LanguagePreferences,
+	randomSeed null.Int,
+
 ) ([]Entry, error) {
-	col, err := ls.CollectionLoader.Get(ctx, collectionId)
+	col, err := loaders.CollectionLoader.Get(ctx, collectionId)
 	if err != nil {
 		return nil, err
 	}
@@ -124,21 +53,50 @@ func GetBaseCollectionEntries(
 	case "randomized_query":
 		fallthrough
 	case "query":
-		itemIds, err := personalizedLoaders.CollectionItemIDsLoader.Load(ctx, col.ID)()
-		if err != nil {
-			return nil, err
-		}
-		return lo.Map(itemIds, func(id common.Identifier, index int) Entry {
-			c := common.Collections.Parse(id.Collection)
-			if c == nil {
-				c = &common.CollectionEpisodes
-			}
-			return Entry{
-				ID:         id.ID,
-				Collection: *c,
-				Sort:       index,
-			}
-		}), nil
+		return processQuery(ctx, db, col, langPreferences, randomSeed)
 	}
 	return nil, nil
+}
+
+func processQuery(ctx context.Context, db *sql.DB, col *common.Collection, langPrefs common.LanguagePreferences, randomSeed null.Int) ([]Entry, error) {
+
+	if col.Filter == nil {
+		return nil, fmt.Errorf("no filter provided")
+	}
+
+	ginCtx, _ := utils.GinCtx(ctx)
+	roles := user.GetRolesFromCtx(ginCtx)
+
+	query := GetSQLForFilter(FilterParams{
+		Roles:               roles,
+		LanguagePreferences: langPrefs,
+		Filter:              *col.Filter,
+		NoLimit:             col.AdvancedType.Valid,
+		RandomSeed:          randomSeed,
+	})
+	if query == nil {
+		return nil, fmt.Errorf("no filter provided")
+	}
+
+	rows, err := query.RunWith(db).Query()
+
+	if err != nil {
+		queryString, _, _ := query.ToSql()
+		log.L.Debug().Str("query", queryString).Err(err).Msg("Error occurred when trying to run query")
+		return nil, err
+	}
+
+	identifiers := ItemIdsFromRows(rows)
+
+	return lo.Map(identifiers, func(id common.Identifier, index int) Entry {
+		c := common.Collections.Parse(id.Collection)
+		if c == nil {
+			c = &common.CollectionEpisodes
+		}
+		return Entry{
+			ID:         id.ID,
+			Collection: *c,
+			Sort:       index,
+		}
+	}), nil
 }

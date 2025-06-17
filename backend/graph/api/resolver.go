@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"crypto/rsa"
+	"database/sql"
 	"fmt"
 	"github.com/samber/lo"
 	"strconv"
@@ -60,11 +61,12 @@ type bmmClient interface {
 // Resolver is the main struct for the GQL implementation
 // It contains references to all external services and config
 type Resolver struct {
+	DB                  *sql.DB
 	Queries             *sqlc.Queries
 	Loaders             *common.BatchLoaders
 	FilteredLoaders     func(ctx context.Context) *common.LoadersWithPermissions
 	ProfileLoaders      func(ctx context.Context) *common.ProfileLoaders
-	PersonalizedLoaders func(ctx context.Context, randomizedCursor *utils.RandomizedCursor) *common.PersonalizedLoaders
+	PersonalizedLoaders func(ctx context.Context) *common.PersonalizedLoaders
 	SearchService       searchProvider
 	EmailService        *email.Service
 	URLSigner           *signing.Signer
@@ -91,8 +93,8 @@ func (r *Resolver) GetFilteredLoaders(ctx context.Context) *common.LoadersWithPe
 	return r.FilteredLoaders(ctx)
 }
 
-func (r *Resolver) GetPersonalizedLoaders(ctx context.Context, randomizedCursor *utils.RandomizedCursor) *common.PersonalizedLoaders {
-	return r.PersonalizedLoaders(ctx, randomizedCursor)
+func (r *Resolver) GetPersonalizedLoaders(ctx context.Context) *common.PersonalizedLoaders {
+	return r.PersonalizedLoaders(ctx)
 }
 
 func (r *Resolver) GetProfileLoaders(ctx context.Context) *common.ProfileLoaders {
@@ -109,6 +111,10 @@ func (r *Resolver) GetURLSigner() *signing.Signer {
 
 func (r *Resolver) GetCDNConfig() export.CDNConfig {
 	return r.APIConfig
+}
+
+func (r *Resolver) GetDB() *sql.DB {
+	return r.DB
 }
 
 type awsConfig interface {

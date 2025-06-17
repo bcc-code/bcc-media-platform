@@ -3,6 +3,8 @@ package graph
 import (
 	"context"
 	"database/sql"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
+	"gopkg.in/guregu/null.v4"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/admin/model"
@@ -22,21 +24,23 @@ type Resolver struct {
 }
 
 func (r *previewResolver) getItemsForFilter(ctx context.Context, filter common.Filter) ([]*model.CollectionItem, error) {
-	identifiers, err := collection.GetItemIDsForFilter(ctx, r.DB,
-		collection.FilterParams{
-			Cursor: nil,
-			Filter: filter,
-			LanguagePreferences: common.LanguagePreferences{
-				ContentOnlyInPreferredLanguage: false,
-			},
-			Roles:      nil,
-			NoLimit:    false,
-			Randomized: true,
-		},
-	)
+	query := collection.GetSQLForFilter(collection.FilterParams{
+		Roles:               nil,
+		LanguagePreferences: common.LanguagePreferences{ContentOnlyInPreferredLanguage: false},
+		Filter:              filter,
+		NoLimit:             false,
+		RandomSeed:          null.Int{},
+	})
+
+	rows, err := query.RunWith(r.DB).Query()
+
 	if err != nil {
+		queryString, _, _ := query.ToSql()
+		log.L.Debug().Str("query", queryString).Err(err).Msg("Error occurred when trying to run query")
 		return nil, err
 	}
+
+	identifiers := collection.ItemIdsFromRows(rows)
 
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
