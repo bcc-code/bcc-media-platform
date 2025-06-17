@@ -4,16 +4,18 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/Masterminds/squirrel"
-	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/bcc-code/bcc-media-platform/backend/jsonlogic"
-	"github.com/bcc-code/bcc-media-platform/backend/log"
-	"github.com/google/uuid"
-	"github.com/lib/pq"
-	"gopkg.in/guregu/null.v4"
 	"math"
 	"strconv"
 	"strings"
+
+	"github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
+	"github.com/lib/pq"
+	"gopkg.in/guregu/null.v4"
+
+	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/jsonlogic"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 )
 
 type filterDataSetRow struct {
