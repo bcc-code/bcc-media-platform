@@ -150,14 +150,6 @@ type PersonalizedLoaders struct {
 	TagEpisodesLoader            *loaders.Loader[int, []*int]
 }
 
-// ApplyRandomizedCursor sets the randomized cursor for the loaders
-//
-// This may not be thread safe, but currently we are only using it in a single place, so it is fit for purpose
-func (p *PersonalizedLoaders) ApplyRandomizedCursor(cursor utils.RandomizedCursor) *PersonalizedLoaders {
-	p.RandomizedCursor = cursor
-	return p
-}
-
 // ProfileLoaders contains loaders per profile
 type ProfileLoaders struct {
 	ProgressLoader                     *loaders.Loader[int, *Progress]
