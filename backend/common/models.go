@@ -133,11 +133,6 @@ type EpisodeContext struct {
 	Shuffle      null.Bool
 }
 
-type ResultWithNextCursor[T any] struct {
-	Result []T
-	Cursor string
-}
-
 // Identifier contains basic data for identifying an item in a list
 type Identifier struct {
 	Collection string
