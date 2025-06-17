@@ -52,7 +52,7 @@ func graphqlHandler(
 		Loaders:             loaders,
 		FilteredLoaders:     filteredLoaderFactory(db, queries, loaders.CollectionLoader),
 		ProfileLoaders:      profileLoaderFactory(queries),
-		PersonalizedLoaders: personalizedLoaderFactory(db, queries, loaders.CollectionLoader),
+		PersonalizedLoaders: personalizedLoaderFactory(queries),
 		SearchService:       searchService,
 		EmailService:        emailService,
 		URLSigner:           urlSigner,
