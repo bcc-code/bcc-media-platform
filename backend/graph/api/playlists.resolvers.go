@@ -29,10 +29,14 @@ func (r *playlistResolver) Items(ctx context.Context, obj *model.Playlist, first
 	}
 	if !i.CollectionID.Valid {
 		return &model.PlaylistItemPagination{
-			Total:  0,
-			First:  0,
-			Offset: 0,
-			Items:  nil,
+			Total:       0,
+			First:       0,
+			Offset:      0,
+			Items:       nil,
+			Cursor:      utils.NewOffsetCursor(0).Encode(),
+			NextCursor:  utils.NewOffsetCursor(0).Encode(),
+			HasNext:     false,
+			HasPrevious: false,
 		}, nil
 	}
 	return r.getPlaylistItemsPage(ctx, int(i.CollectionID.Int64), first, offset, cursor)

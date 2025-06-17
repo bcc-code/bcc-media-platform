@@ -13,14 +13,24 @@ type PaginationResult[t any] struct {
 	Total       int
 	First       int
 	Offset      int
-	Cursor      *OffsetCursor
-	NextCursor  *OffsetCursor
+	Cursor      Cursor
+	NextCursor  Cursor
 	HasNext     bool
 	HasPrevious bool
 }
 
+type Cursor interface {
+	Encode() string
+}
+
+type CursorWithOffset[T Cursor] interface {
+	GetOffset() int
+	NewWithOffset(offset int) T
+	Encode() string
+}
+
 // Paginate a collection with specified parameters
-func Paginate[t any](collection []t, first *int, offset *int, dir *string, cursor *OffsetCursor) PaginationResult[t] {
+func Paginate[t any, c Cursor](collection []t, first *int, offset *int, dir *string, cursor CursorWithOffset[c]) PaginationResult[t] {
 	var arr []t
 	for _, v := range collection {
 		arr = append(arr, v)
@@ -30,7 +40,7 @@ func Paginate[t any](collection []t, first *int, offset *int, dir *string, curso
 
 	// Handle cursor vs offset precedence - cursor takes priority
 	if cursor != nil {
-		result.Offset = cursor.Offset
+		result.Offset = cursor.GetOffset()
 	} else if offset != nil {
 		result.Offset = *offset
 	}
@@ -53,8 +63,12 @@ func Paginate[t any](collection []t, first *int, offset *int, dir *string, curso
 		result.Items = []t{}
 	}
 
-	// Populate cursor-related fields
-	result.Cursor = NewOffsetCursor(result.Offset)
+	if cursor != nil {
+		// Populate cursor-related fields
+		result.Cursor = cursor
+	} else {
+		result.Cursor = NewOffsetCursor(result.Offset)
+	}
 
 	// Calculate HasNext: there are more items beyond current page
 	result.HasNext = result.Offset+len(result.Items) < result.Total
@@ -63,7 +77,12 @@ func Paginate[t any](collection []t, first *int, offset *int, dir *string, curso
 	result.HasPrevious = result.Offset > 0
 
 	nextOffset := result.Offset + len(result.Items)
-	result.NextCursor = NewOffsetCursor(nextOffset)
+
+	if cursor != nil {
+		result.NextCursor = cursor.NewWithOffset(nextOffset)
+	} else {
+		result.NextCursor = NewOffsetCursor(nextOffset)
+	}
 
 	return result
 }

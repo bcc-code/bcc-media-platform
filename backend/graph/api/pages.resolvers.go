@@ -68,13 +68,7 @@ func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int
 		return nil, err
 	}
 
-	var offsetCursor *utils.OffsetCursor
-	if cursor != nil && *cursor != "" {
-		offsetCursor, err = utils.ParseOffsetCursor(*cursor)
-		if err != nil {
-			return nil, err
-		}
-	}
+	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
 
 	page := utils.Paginate(itemIDs, first, offset, nil, offsetCursor)
 

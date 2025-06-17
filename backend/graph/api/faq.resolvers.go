@@ -21,14 +21,7 @@ func (r *fAQResolver) Categories(ctx context.Context, obj *model.Faq, first *int
 		return nil, err
 	}
 
-	var offsetCursor *utils.OffsetCursor
-	if cursor != nil && *cursor != "" {
-		offsetCursor, err = utils.ParseOffsetCursor(*cursor)
-		if err != nil {
-			return nil, err
-		}
-	}
-
+	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
 	items, err := r.GetLoaders().FAQCategoryLoader.GetMany(ctx, page.Items)
@@ -77,13 +70,7 @@ func (r *fAQCategoryResolver) Questions(ctx context.Context, obj *model.FAQCateg
 		return nil, err
 	}
 
-	var offsetCursor *utils.OffsetCursor
-	if cursor != nil && *cursor != "" {
-		offsetCursor, err = utils.ParseOffsetCursor(*cursor)
-		if err != nil {
-			return nil, err
-		}
-	}
+	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
 
 	page := utils.Paginate(itemIDs, first, offset, nil, offsetCursor)
 

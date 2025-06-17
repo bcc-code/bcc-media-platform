@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/bcc-code/bcc-media-platform/backend/items/collection"
 	"strconv"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -51,21 +52,14 @@ func getSectionItemsForCollectionPage(ctx context.Context, r *Resolver, collecti
 		return nil, err
 	}
 
-	entries, err := r.GetCollectionEntries(ctx, collectionId, cursor)
+	randomizedCursor := utils.ParseOrDefaultRandomizedCursor(cursor)
+
+	entries, err := r.GetCollectionEntries(ctx, collectionId, randomizedCursor)
 	if err != nil {
 		return nil, err
 	}
 
-	var parsedCursor *utils.OffsetCursor
-	if cursor != nil && *cursor != "" {
-		var err error
-		parsedCursor, err = utils.ParseOffsetCursor(*cursor)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	pagination := utils.Paginate(entries, first, offset, nil, parsedCursor)
+	pagination := utils.Paginate[collection.Entry, *utils.RandomizedCursor](entries, first, offset, nil, randomizedCursor)
 
 	preloadEntryLoaders(ctx, ls, pagination.Items)
 

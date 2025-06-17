@@ -19,14 +19,7 @@ func (r *surveyResolver) Questions(ctx context.Context, obj *model.Survey, first
 		return nil, err
 	}
 
-	var offsetCursor *utils.OffsetCursor
-	if cursor != nil && *cursor != "" {
-		offsetCursor, err = utils.ParseOffsetCursor(*cursor)
-		if err != nil {
-			return nil, err
-		}
-	}
-
+	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(items, first, offset, nil, offsetCursor)
 	questions, err := r.Loaders.SurveyQuestionLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
 	if err != nil {

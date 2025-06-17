@@ -25,7 +25,7 @@ func NewRandomizedCursor(withSeed bool, randomFactor float64) *RandomizedCursor 
 }
 
 // Encode marshals to json and encodes to base64
-func (c RandomizedCursor) Encode() string {
+func (c *RandomizedCursor) Encode() string {
 	str, err := MarshalAndBase64Encode(c)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to encode randomized cursor")
@@ -34,9 +34,36 @@ func (c RandomizedCursor) Encode() string {
 	return str
 }
 
+// NewWithOffset creates a new RandomizedCursor with the given offset
+func (c *RandomizedCursor) NewWithOffset(offset int) *RandomizedCursor {
+	return &RandomizedCursor{
+		Seed:         c.Seed,
+		RandomFactor: c.RandomFactor,
+		CurrentIndex: offset,
+	}
+}
+
+// GetOffset returns the offset of the RandomizedCursor
+func (c *RandomizedCursor) GetOffset() int {
+	return c.CurrentIndex
+}
+
 // ParseRandomizedCursor decodes from base64 and will unmarshal from json
 func ParseRandomizedCursor(cursorString string) (*RandomizedCursor, error) {
 	return Base64DecodeAndUnmarshal[RandomizedCursor](cursorString)
+}
+
+// ParseOrDefaultRandomizedCursor parses a base64 encoded cursor string back to a RandomizedCursor
+// If the cursorString is nil or empty, it returns a new RandomizedCursor with a random seed
+func ParseOrDefaultRandomizedCursor(cursorString *string) *RandomizedCursor {
+	if cursorString == nil || *cursorString == "" {
+		return NewRandomizedCursor(true, 0.5)
+	}
+	c, err := ParseRandomizedCursor(*cursorString)
+	if err != nil {
+		log.L.Error().Err(err).Str("cursorString", *cursorString).Msg("Failed to parse randomized cursor")
+	}
+	return c
 }
 
 // ApplyRandomizedCursorTo applies the cursor to a collection of keys

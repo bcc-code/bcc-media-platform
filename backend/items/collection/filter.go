@@ -12,6 +12,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -92,6 +93,7 @@ type FilterParams struct {
 func GetItemIDsForFilter(ctx context.Context, db *sql.DB,
 	args FilterParams,
 ) ([]common.Identifier, error) {
+
 	if args.Filter.Filter == nil {
 		return nil, nil
 	}
@@ -117,19 +119,32 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB,
 
 	from := "filter_dataset t"
 	selectFields := []string{"t.collection", "t.id", "t.uuid"}
+
+	var randomFunc string
+	if args.Cursor != nil && args.Cursor.Seed != nil {
+		// Use deterministic randomization with seed from cursor
+		// PostgreSQL setseed() expects a value between -1 and 1
+		seed := float64(*args.Cursor.Seed) / math.MaxInt64 // Convert int64 to float between -1 and 1
+		randomFunc = "random()"
+		// We'll need to set the seed before the main query
+		from = fmt.Sprintf("(SELECT setseed(%f)) seed_setter, filter_dataset t", seed)
+	} else {
+		randomFunc = "random()"
+	}
+
 	// Always apply the complex randomization logic, regardless of randomized flag
 	selectFields = append(selectFields, fmt.Sprintf(`CASE
     WHEN t.tags @> ARRAY['%s']::varchar[] AND %f > 0.0
-      THEN CASE WHEN random() < %f THEN random() ELSE random() + 1 END
-    ELSE random()
-  END AS r`, args.Filter.DeboostTag, args.Filter.DeboostFactor, args.Filter.DeboostFactor))
+      THEN CASE WHEN %s < %f THEN %s ELSE %s + 1 END
+    ELSE %s
+  END AS r`, args.Filter.DeboostTag, args.Filter.DeboostFactor, randomFunc, args.Filter.DeboostFactor, randomFunc, randomFunc, randomFunc))
 	q := squirrel.StatementBuilder.
 		PlaceholderFormat(squirrel.Dollar).
 		Select(selectFields...).
 		From(from).
 		Where(query.Filter)
 
-	if !args.NoLimit {
+	if !args.NoLimit && !args.Randomized {
 		if args.Filter.Limit != nil && *args.Filter.Limit > 0 {
 			limit := *args.Filter.Limit
 			q = q.Limit(uint64(limit))
@@ -164,10 +179,14 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB,
 	}
 
 	rows, err := q.RunWith(db).Query()
+
 	if err != nil {
 		queryString, _, _ := q.ToSql()
 		log.L.Debug().Str("query", queryString).Err(err).Msg("Error occurred when trying to run query")
 		return nil, err
 	}
-	return itemIdsFromRows(rows), nil
+
+	items := itemIdsFromRows(rows)
+
+	return items, nil
 }

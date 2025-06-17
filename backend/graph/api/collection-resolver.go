@@ -252,6 +252,8 @@ func mapCollectionEntriesToSectionItems(ctx context.Context, ls *common.BatchLoa
 	return items, nil
 }
 
+// Note: This whole function is a bit of a mess as it is doing several related but different things
+// It should probably be refactored into smaller functions, that return something similar, based on the input
 func (r *Resolver) sectionCollectionEntryResolver(
 	ctx context.Context,
 	section *common.Section,
@@ -271,7 +273,9 @@ func (r *Resolver) sectionCollectionEntryResolver(
 		return nil, err
 	}
 
-	entries, err := r.GetCollectionEntries(ctx, collectionId, cursor)
+	randomizedCursor := utils.ParseOrDefaultRandomizedCursor(cursor)
+
+	entries, err := r.GetCollectionEntries(ctx, collectionId, randomizedCursor)
 	if err != nil {
 		return nil, err
 	}
@@ -280,16 +284,15 @@ func (r *Resolver) sectionCollectionEntryResolver(
 		entries = entries[:min(len(entries), limit)]
 	}
 
-	var parsedCursor *utils.OffsetCursor
-	if cursor != nil && *cursor != "" {
-		var err error
-		parsedCursor, err = utils.ParseOffsetCursor(*cursor)
-		if err != nil {
-			return nil, err
-		}
+	var pagination utils.PaginationResult[collection.Entry]
+	if col.Type == "randomized_query" {
+		// If we have a randomized cursor, we want to use it
+		pagination = utils.Paginate(entries, first, offset, nil, randomizedCursor)
+	} else {
+		// Else we use the offset cursor or generate a new one
+		pagination = utils.Paginate(entries, first, offset, nil, utils.ParseOrDefaultOffsetCursor(cursor))
 	}
 
-	pagination := utils.Paginate(entries, first, offset, nil, parsedCursor)
 	preloadEntryLoaders(ctx, ls, pagination.Items)
 
 	imageStyle := sectionStyleToImageStyle(section.Style)

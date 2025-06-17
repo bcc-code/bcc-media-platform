@@ -135,14 +135,7 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 		items = lo.Shuffle(items)
 	}
 
-	var offsetCursor *utils.OffsetCursor
-	if cursor != nil && *cursor != "" {
-		offsetCursor, err = utils.ParseOffsetCursor(*cursor)
-		if err != nil {
-			return nil, err
-		}
-	}
-
+	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(items, first, offset, nil, offsetCursor)
 
 	var wg sync.WaitGroup

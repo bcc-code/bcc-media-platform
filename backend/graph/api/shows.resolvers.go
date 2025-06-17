@@ -67,17 +67,22 @@ func (r *showResolver) Seasons(ctx context.Context, obj *model.Show, first *int,
 		return nil, err
 	}
 
-	page := utils.Paginate(itemIDs, first, offset, dir, nil)
+	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
+	page := utils.Paginate[*int, *utils.OffsetCursor](itemIDs, first, offset, dir, offsetCursor)
 
 	seasons, err := r.Loaders.SeasonLoader.GetMany(ctx, utils.PointerIntArrayToIntArray(page.Items))
 	if err != nil {
 		return nil, err
 	}
 	return &model.SeasonPagination{
-		Total:  page.Total,
-		First:  page.First,
-		Offset: page.Offset,
-		Items:  utils.MapWithCtx(ctx, seasons, model.SeasonFrom),
+		Total:       page.Total,
+		First:       page.First,
+		Offset:      page.Offset,
+		Items:       utils.MapWithCtx(ctx, seasons, model.SeasonFrom),
+		NextCursor:  page.NextCursor.Encode(),
+		HasNext:     page.HasNext,
+		HasPrevious: page.HasPrevious,
+		Cursor:      page.Cursor.Encode(),
 	}, nil
 }
 

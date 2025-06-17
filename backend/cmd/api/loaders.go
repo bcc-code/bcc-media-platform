@@ -36,11 +36,12 @@ func getPersonalizedLoaders(
 	pq := queries.PersonalizedQueries(roles, languagePreferences)
 
 	key := fmt.Sprintf(
-		"%s-%s-%s-%s",
+		"%s-%s-%s-%s-%s",
 		strings.Join(roles, "-"),
 		strings.Join(languagePreferences.PreferredAudioLanguages, "-"),
 		strings.Join(languagePreferences.PreferredSubtitlesLanguages, "-"),
 		fmt.Sprintf("%t", languagePreferences.ContentOnlyInPreferredLanguage),
+		fmt.Sprintf("%v", randomizedCursor.Seed),
 	)
 
 	if ls, ok := personalizedLoaders.Get(key); ok {

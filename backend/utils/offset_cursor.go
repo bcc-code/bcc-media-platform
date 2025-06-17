@@ -17,6 +17,18 @@ func (c *OffsetCursor) Encode() string {
 	return result
 }
 
+// GetOffset returns the offset of the OffsetCursor
+func (c *OffsetCursor) GetOffset() int {
+	return c.Offset
+}
+
+// NewWithOffset creates a new OffsetCursor with the given offset
+func (c *OffsetCursor) NewWithOffset(offset int) *OffsetCursor {
+	return &OffsetCursor{
+		Offset: offset,
+	}
+}
+
 // ParseOffsetCursor parses a base64 encoded cursor string back to an OffsetCursor
 func ParseOffsetCursor(cursorString string) (*OffsetCursor, error) {
 	cursor, err := Base64DecodeAndUnmarshal[OffsetCursor](cursorString)
@@ -24,6 +36,19 @@ func ParseOffsetCursor(cursorString string) (*OffsetCursor, error) {
 		return nil, err
 	}
 	return cursor, nil
+}
+
+// ParseOrDefaultOffsetCursor parses a base64 encoded cursor string back to an OffsetCursor
+// If the cursorString is nil or empty, it returns a new OffsetCursor with offset 0
+func ParseOrDefaultOffsetCursor(cursorString *string) *OffsetCursor {
+	if cursorString == nil || *cursorString == "" {
+		return NewOffsetCursor(0)
+	}
+	c, err := ParseOffsetCursor(*cursorString)
+	if err != nil {
+		log.L.Error().Err(err).Str("cursorString", *cursorString).Msg("Failed to parse OffsetCursor")
+	}
+	return c
 }
 
 // NewOffsetCursor creates a new OffsetCursor with the given offset

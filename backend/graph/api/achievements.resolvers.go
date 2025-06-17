@@ -57,13 +57,7 @@ func (r *achievementGroupResolver) Achievements(ctx context.Context, obj *model.
 		return nil, err
 	}
 
-	var offsetCursor *utils.OffsetCursor
-	if cursor != nil && *cursor != "" {
-		offsetCursor, err = utils.ParseOffsetCursor(*cursor)
-		if err != nil {
-			return nil, err
-		}
-	}
+	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
 
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 	items, err := r.GetLoaders().AchievementLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))

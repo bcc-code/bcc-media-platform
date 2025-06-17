@@ -51,13 +51,8 @@ func (r *userCollectionResolver) Entries(ctx context.Context, obj *model.UserCol
 	if err != nil {
 		return nil, err
 	}
-	var offsetCursor *utils.OffsetCursor
-	if cursor != nil && *cursor != "" {
-		offsetCursor, err = utils.ParseOffsetCursor(*cursor)
-		if err != nil {
-			return nil, err
-		}
-	}
+
+	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 	entries, err := r.Loaders.UserCollectionEntryLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
 	if err != nil {

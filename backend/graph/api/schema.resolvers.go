@@ -453,14 +453,7 @@ func (r *queryRootResolver) AchievementGroups(ctx context.Context, first *int, o
 		ids = []uuid.UUID{}
 	}
 
-	var offsetCursor *utils.OffsetCursor
-	if cursor != nil && *cursor != "" {
-		offsetCursor, err = utils.ParseOffsetCursor(*cursor)
-		if err != nil {
-			return nil, err
-		}
-	}
-
+	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
 	groups, err := r.Loaders.AchievementGroupLoader.GetMany(ctx, page.Items)

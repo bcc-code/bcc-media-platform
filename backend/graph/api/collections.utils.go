@@ -109,14 +109,9 @@ func collectionEntriesToModels(ctx context.Context, ls *common.BatchLoaders, ent
 	return items, nil
 }
 
-func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int, cursor *string) ([]collection.Entry, error) {
-	var rc *utils.RandomizedCursor
-	if cursor != nil {
-		rc, _ = utils.Base64DecodeAndUnmarshal[utils.RandomizedCursor](*cursor)
-	}
-
+func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int, cursor *utils.RandomizedCursor) ([]collection.Entry, error) {
 	ls := r.GetLoaders()
-	personalizedLoaders := r.PersonalizedLoaders(ctx, rc)
+	personalizedLoaders := r.PersonalizedLoaders(ctx, cursor)
 
 	col, err := ls.CollectionLoader.Get(ctx, collectionId)
 	if err != nil {
@@ -156,7 +151,7 @@ func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int, c
 // returns only the items and no additional metadata like sort or other relational data
 // it will also filter out items that don't conform to the interface or type T
 func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, first, offset *int, cursor *string, collections ...common.ItemCollection) (*utils.PaginationResult[T], error) {
-	entries, err := r.GetCollectionEntries(ctx, collectionID, cursor)
+	entries, err := r.GetCollectionEntries(ctx, collectionID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +163,9 @@ func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, f
 		})
 	}
 
-	pagination := utils.Paginate(entries, first, offset, nil, nil)
+	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
+
+	pagination := utils.Paginate[collection.Entry, *utils.OffsetCursor](entries, first, offset, nil, offsetCursor)
 
 	items, err := collectionEntriesToModels(ctx, r.Loaders, pagination.Items)
 	if err != nil {
@@ -183,10 +180,14 @@ func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, f
 	}
 
 	return &utils.PaginationResult[T]{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  result,
+		Total:       pagination.Total,
+		First:       pagination.First,
+		Offset:      pagination.Offset,
+		Items:       result,
+		Cursor:      pagination.Cursor,
+		NextCursor:  pagination.NextCursor,
+		HasNext:     pagination.HasNext,
+		HasPrevious: pagination.HasPrevious,
 	}, nil
 }
 
@@ -196,9 +197,13 @@ func (r *Resolver) getPlaylistItemsPage(ctx context.Context, collectionID int, f
 		return nil, err
 	}
 	return &model.PlaylistItemPagination{
-		Total:  p.Total,
-		First:  p.First,
-		Offset: p.Offset,
-		Items:  p.Items,
+		Total:       p.Total,
+		First:       p.First,
+		Offset:      p.Offset,
+		Items:       p.Items,
+		Cursor:      p.Cursor.Encode(),
+		NextCursor:  p.NextCursor.Encode(),
+		HasNext:     p.HasNext,
+		HasPrevious: p.HasPrevious,
 	}, nil
 }
