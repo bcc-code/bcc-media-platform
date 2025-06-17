@@ -2,13 +2,19 @@ package graph
 
 import (
 	"context"
-	"gopkg.in/guregu/null.v4"
-
+	"fmt"
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/items/collection"
+	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
+	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
+	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
+	"gopkg.in/guregu/null.v4"
+	"strconv"
+	"time"
 )
 
 func preloadEntryLoaders(ctx context.Context, loaders *common.BatchLoaders, entries []collection.Entry) {
@@ -110,7 +116,36 @@ func collectionEntriesToModels(ctx context.Context, ls *common.BatchLoaders, ent
 	return items, nil
 }
 
+func collectionCacheKey(ginCtx *gin.Context, languagePreferences common.LanguagePreferences, collectionId int, cursor *utils.RandomizedCursor) string {
+	profile := user.GetProfileFromCtx(ginCtx)
+
+	cacheKey := "collection-entries-" + strconv.Itoa(collectionId) + "-"
+
+	if profile != nil {
+		cacheKey += profile.ID.String() + "-"
+	}
+
+	if cursor != nil {
+		cacheKey += fmt.Sprintf("%d-%f-", cursor.CurrentIndex, cursor.RandomFactor)
+	}
+
+	cacheKey += languagePreferences.String()
+
+	return cacheKey
+}
+
 func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int, cursor *utils.RandomizedCursor) ([]collection.Entry, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	languagePreferences := common.GetLanguagePreferencesFromCtx(ginCtx)
+
+	cacheKey := collectionCacheKey(ginCtx, languagePreferences, collectionId, cursor)
+	if entries, ok := memorycache.Get[[]collection.Entry](cacheKey); ok {
+		return entries, nil
+	}
+
 	ls := r.GetLoaders()
 	personalizedLoaders := r.PersonalizedLoaders(ctx)
 
@@ -118,12 +153,6 @@ func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int, c
 	if err != nil {
 		return nil, err
 	}
-
-	ginCtx, err := utils.GinCtx(ctx)
-	if err != nil {
-		return nil, err
-	}
-	languagePreferences := common.GetLanguagePreferencesFromCtx(ginCtx)
 
 	entries, err := collection.GetBaseCollectionEntries(
 		ctx,
@@ -158,6 +187,8 @@ func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int, c
 		}
 		entries = filterWithUuids(col, common.CollectionShorts, entries, ids)
 	}
+
+	memorycache.Set(cacheKey, entries, cache.WithExpiration(time.Minute*10))
 
 	return entries, nil
 }
