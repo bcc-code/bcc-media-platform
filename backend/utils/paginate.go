@@ -57,11 +57,10 @@ func Paginate[t any, c Cursor](collection []t, first *int, offset *int, dir *str
 	var result PaginationResult[t]
 	result.Total = len(arr)
 
-	// Handle cursor vs offset precedence - cursor takes priority
-	if cursor != nil {
-		result.Offset = cursor.GetOffset()
-	} else if offset != nil {
+	if offset != nil && *offset > 0 {
 		result.Offset = *offset
+	} else if cursor != nil {
+		result.Offset = cursor.GetOffset()
 	}
 
 	if first != nil {

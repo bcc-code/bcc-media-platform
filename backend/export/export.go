@@ -559,10 +559,6 @@ func DoExport(ctx context.Context, q serviceProvider, bucketName string) (string
 	}
 
 	presignClient := s3.NewPresignClient(q.GetS3Client(), s3.WithPresignExpires(1*time.Hour))
-	if err != nil {
-		log.L.Error().Err(err).Str("exportStep", "Presign Client").Msg("")
-		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
-	}
 
 	res, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucketName),
