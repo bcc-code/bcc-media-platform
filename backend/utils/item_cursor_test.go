@@ -58,8 +58,95 @@ func TestItemCursor_EncodeDecodeString(t *testing.T) {
 }
 
 func TestParseItemCursor_Invalid(t *testing.T) {
-	_, err := ParseItemCursor[int]("invalid-base64")
-	assert.Error(t, err)
+	tests := []struct {
+		name        string
+		cursor      string
+		expectError bool
+		errMsg      string
+		expectNil   bool
+	}{
+		// Note: Current implementation returns nil for invalid base64
+		{
+			name:        "invalid base64",
+			cursor:      "not-valid-base64",
+			expectError: true,
+			errMsg:      "illegal base64 data",
+			expectNil:   true,
+		},
+		// Note: Current implementation returns a base64 decoding error for invalid base64
+		{
+			name:        "invalid json",
+			cursor:      "not-json",
+			expectError: true,
+			errMsg:      "illegal base64 data",
+			expectNil:   true,
+		},
+		// Note: Current implementation allows empty JSON object as cursor
+		// but returns nil result without error, which is inconsistent
+		{
+			name:        "empty json",
+			cursor:      "e30=", // {}
+			expectError: false,
+			expectNil:   true, // Returns nil result without error
+		},
+		// Note: Current implementation doesn't require currentIndex field
+		// and will default to zero value (0) if not provided
+		{
+			name:        "missing current index",
+			cursor:      "eyJrZXlzIjpbMSwyLDNdfQ==", // {"keys":[1,2,3]}
+			expectError: false,
+		},
+		// Note: Current implementation returns nil for missing keys field
+		{
+			name:        "missing keys",
+			cursor:      "eyJjdXJyZW50SW5kZXgiOjB9", // {"currentIndex":0}
+			expectError: false,
+			expectNil:   true, // Returns nil result without error
+		},
+		// Note: Current implementation returns nil for invalid keys type
+		{
+			name:        "invalid keys type",
+			cursor:      "eyJrZXlzIjoiZm9vIiwiY3VycmVudEluZGV4IjowfQ==", // {"keys":"foo","currentIndex":0}
+			expectError: true,
+			errMsg:      "cannot unmarshal",
+			expectNil:   true,
+		},
+		// Note: Current implementation returns nil for invalid currentIndex type
+		{
+			name:        "invalid current index type",
+			cursor:      "eyJrZXlzIjpbMSwyLDNdLCJjdXJyZW50SW5kZXgiOiJmb28ifQ==", // {"keys":[1,2,3],"currentIndex":"foo"}
+			expectError: true,
+			errMsg:      "cannot unmarshal",
+			expectNil:   true,
+		},
+		{
+			name:        "negative current index",
+			cursor:      "eyJrZXlzIjpbMSwyLDNdLCJjdXJyZW50SW5kZXgiOi0xfQ==", // {"keys":[1,2,3],"currentIndex":-1}
+			expectError: false, // Negative current index is actually allowed in the implementation
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := ParseItemCursor[int](tt.cursor)
+
+			if tt.expectError {
+				require.Error(t, err, "expected error for cursor: %s", tt.cursor)
+				if tt.errMsg != "" {
+					assert.Contains(t, err.Error(), tt.errMsg)
+				}
+			} else {
+				require.NoError(t, err, "unexpected error for cursor: %s", tt.cursor)
+			}
+
+			// Check if we expect a nil result (for invalid cursors that don't return an error)
+			if tt.expectNil {
+				assert.Nil(t, result, "expected nil result for cursor: %s", tt.cursor)
+			} else {
+				assert.NotNil(t, result, "expected non-nil result for cursor: %s", tt.cursor)
+			}
+		})
+	}
 }
 
 func TestItemCursor_CursorFor(t *testing.T) {

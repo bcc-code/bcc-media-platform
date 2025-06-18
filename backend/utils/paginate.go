@@ -29,7 +29,25 @@ type CursorWithOffset[T Cursor] interface {
 	Encode() string
 }
 
-// Paginate a collection with specified parameters
+// Paginate performs pagination on a collection of items with support for both offset-based and cursor-based pagination.
+// It returns a PaginationResult containing the paginated items and metadata about the pagination state.
+//
+// Behavior:
+//   - Cursor-based pagination takes precedence over offset-based pagination when both are provided
+//   - If no pagination parameters are provided, defaults to first 20 items
+//   - The function is safe to use with nil slices (returns empty result)
+//   - Handles out-of-bounds offsets gracefully
+//
+// Example (offset-based):
+//
+//	result := Paginate(items, ptr(10), ptr(20), nil, nil)
+//	// Returns items 20-29 (inclusive) from the collection
+//
+// Example (cursor-based):
+//
+//	cursor := ParseOffsetCursor("eyJvZmZzZXQiOjIwfQ==")
+//	result := Paginate(items, ptr(10), nil, nil, cursor)
+//	// Returns next 10 items starting from the cursor position
 func Paginate[t any, c Cursor](collection []t, first *int, offset *int, dir *string, cursor CursorWithOffset[c]) PaginationResult[t] {
 	var arr []t
 	for _, v := range collection {

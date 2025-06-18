@@ -47,6 +47,7 @@ func ParseOrDefaultOffsetCursor(cursorString *string) *OffsetCursor {
 	c, err := ParseOffsetCursor(*cursorString)
 	if err != nil {
 		log.L.Error().Err(err).Str("cursorString", *cursorString).Msg("Failed to parse OffsetCursor")
+		return NewOffsetCursor(0)
 	}
 	return c
 }
