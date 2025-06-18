@@ -141,8 +141,7 @@ type LoadersWithPermissions struct {
 type PersonalizedLoaders struct {
 	Key string
 
-	CollectionItemsLoader *loaders.Loader[int, []*CollectionItem]
-	//CollectionItemIDsLoader      *loaders.Loader[int, []Identifier]
+	CollectionItemsLoader        *loaders.Loader[int, []*CollectionItem]
 	ContributionsForPersonLoader *loaders.Loader[uuid.UUID, []*Contribution]
 	TagEpisodesLoader            *loaders.Loader[int, []*int]
 }
