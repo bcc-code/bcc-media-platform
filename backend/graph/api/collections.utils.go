@@ -196,7 +196,7 @@ func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int, c
 // getItemsPageAs returns a pagination result of items of type T
 // returns only the items and no additional metadata like sort or other relational data
 // it will also filter out items that don't conform to the interface or type T
-func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, first, offset *int, cursor *string, collections ...common.ItemCollection) (*utils.PaginationResult[T], error) {
+func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, first, offset *int, offsetCursor *utils.OffsetCursor, collections ...common.ItemCollection) (*utils.PaginationResult[T], error) {
 	entries, err := r.GetCollectionEntries(ctx, collectionID, nil)
 	if err != nil {
 		return nil, err
@@ -208,8 +208,6 @@ func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, f
 			return lo.Contains(collections, e.Collection)
 		})
 	}
-
-	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
 
 	pagination := utils.Paginate[collection.Entry, *utils.OffsetCursor](entries, first, offset, nil, offsetCursor)
 
@@ -238,7 +236,8 @@ func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, f
 }
 
 func (r *Resolver) getPlaylistItemsPage(ctx context.Context, collectionID int, first, offset *int, cursor *string) (*model.PlaylistItemPagination, error) {
-	p, err := getItemsPageAs[model.PlaylistItem](ctx, r, collectionID, first, offset, cursor, common.CollectionEpisodes)
+	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
+	p, err := getItemsPageAs[model.PlaylistItem](ctx, r, collectionID, first, offset, offsetCursor, common.CollectionEpisodes)
 	if err != nil {
 		return nil, err
 	}
