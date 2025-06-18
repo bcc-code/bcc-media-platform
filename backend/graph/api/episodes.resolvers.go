@@ -8,6 +8,7 @@ import (
 	"cmp"
 	"context"
 	"errors"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"strconv"
 	"strings"
 	"time"
@@ -353,7 +354,7 @@ func (r *episodeResolver) Lessons(ctx context.Context, obj *model.Episode, first
 		return nil, err
 	}
 
-	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
+	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
 	lessons, err := r.Loaders.StudyLessonLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))

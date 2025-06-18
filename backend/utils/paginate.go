@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"github.com/samber/lo"
 	"strings"
 )
@@ -85,7 +86,7 @@ func Paginate[t any, c Cursor](collection []t, first *int, offset *int, dir *str
 		// Populate cursor-related fields
 		result.Cursor = cursor
 	} else {
-		result.Cursor = NewOffsetCursor(result.Offset)
+		result.Cursor = cursors.NewOffsetCursor(result.Offset)
 	}
 
 	// Calculate HasNext: there are more items beyond current page
@@ -99,7 +100,7 @@ func Paginate[t any, c Cursor](collection []t, first *int, offset *int, dir *str
 	if cursor != nil {
 		result.NextCursor = cursor.NewWithOffset(nextOffset)
 	} else {
-		result.NextCursor = NewOffsetCursor(nextOffset)
+		result.NextCursor = cursors.NewOffsetCursor(nextOffset)
 	}
 
 	return result

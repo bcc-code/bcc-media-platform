@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"strconv"
 
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
@@ -81,7 +82,7 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first 
 		first = &f
 	}
 
-	parsedCursor := utils.ParseOrDefaultOffsetCursor(cursor)
+	parsedCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(itemIDs, first, offset, dir, parsedCursor)
 
 	episodes, err := r.Loaders.EpisodeLoader.GetMany(ctx, utils.PointerIntArrayToIntArray(page.Items))

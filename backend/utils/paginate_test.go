@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,7 +9,7 @@ import (
 
 func TestPaginate_DefaultParameters(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	result := Paginate[int, *OffsetCursor](collection, nil, nil, nil, nil)
+	result := Paginate[int, *cursors.OffsetCursor](collection, nil, nil, nil, nil)
 
 	assert.Equal(t, 10, result.Total)
 	assert.Equal(t, 20, result.First)         // default first
@@ -19,7 +20,7 @@ func TestPaginate_DefaultParameters(t *testing.T) {
 func TestPaginate_WithFirst(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	first := 5
-	result := Paginate[int, *OffsetCursor](collection, &first, nil, nil, nil)
+	result := Paginate[int, *cursors.OffsetCursor](collection, &first, nil, nil, nil)
 
 	assert.Equal(t, 10, result.Total)
 	assert.Equal(t, 5, result.First)
@@ -30,7 +31,7 @@ func TestPaginate_WithFirst(t *testing.T) {
 func TestPaginate_WithOffset(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	offset := 3
-	result := Paginate[int, *OffsetCursor](collection, nil, &offset, nil, nil)
+	result := Paginate[int, *cursors.OffsetCursor](collection, nil, &offset, nil, nil)
 
 	assert.Equal(t, 10, result.Total)
 	assert.Equal(t, 20, result.First) // default first
@@ -42,7 +43,7 @@ func TestPaginate_WithFirstAndOffset(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	first := 3
 	offset := 2
-	result := Paginate[int, *OffsetCursor](collection, &first, &offset, nil, nil)
+	result := Paginate[int, *cursors.OffsetCursor](collection, &first, &offset, nil, nil)
 
 	assert.Equal(t, 10, result.Total)
 	assert.Equal(t, 3, result.First)
@@ -53,7 +54,7 @@ func TestPaginate_WithFirstAndOffset(t *testing.T) {
 func TestPaginate_WithDirection_Asc(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5}
 	dir := "asc"
-	result := Paginate[int, *OffsetCursor](collection, nil, nil, &dir, nil)
+	result := Paginate[int, *cursors.OffsetCursor](collection, nil, nil, &dir, nil)
 
 	assert.Equal(t, 5, result.Total)
 	assert.Equal(t, []int{1, 2, 3, 4, 5}, result.Items) // original order
@@ -62,7 +63,7 @@ func TestPaginate_WithDirection_Asc(t *testing.T) {
 func TestPaginate_WithDirection_Desc(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5}
 	dir := "desc"
-	result := Paginate[int, *OffsetCursor](collection, nil, nil, &dir, nil)
+	result := Paginate[int, *cursors.OffsetCursor](collection, nil, nil, &dir, nil)
 
 	assert.Equal(t, 5, result.Total)
 	assert.Equal(t, []int{5, 4, 3, 2, 1}, result.Items) // reversed order
@@ -71,7 +72,7 @@ func TestPaginate_WithDirection_Desc(t *testing.T) {
 func TestPaginate_WithDirection_DescCaseInsensitive(t *testing.T) {
 	collection := []string{"a", "b", "c", "d"}
 	dir := "DESC"
-	result := Paginate[string, *OffsetCursor](collection, nil, nil, &dir, nil)
+	result := Paginate[string, *cursors.OffsetCursor](collection, nil, nil, &dir, nil)
 
 	assert.Equal(t, 4, result.Total)
 	assert.Equal(t, []string{"d", "c", "b", "a"}, result.Items) // reversed order
@@ -82,7 +83,7 @@ func TestPaginate_WithAllParameters(t *testing.T) {
 	first := 3
 	offset := 2
 	dir := "desc"
-	result := Paginate[int, *OffsetCursor](collection, &first, &offset, &dir, nil)
+	result := Paginate[int, *cursors.OffsetCursor](collection, &first, &offset, &dir, nil)
 
 	assert.Equal(t, 10, result.Total)
 	assert.Equal(t, 3, result.First)
@@ -95,7 +96,7 @@ func TestPaginate_WithAllParameters(t *testing.T) {
 
 func TestPaginate_EmptyCollection(t *testing.T) {
 	collection := []int{}
-	result := Paginate[int, *OffsetCursor](collection, nil, nil, nil, nil)
+	result := Paginate[int, *cursors.OffsetCursor](collection, nil, nil, nil, nil)
 
 	assert.Equal(t, 0, result.Total)
 	assert.Equal(t, 20, result.First) // default first
@@ -106,7 +107,7 @@ func TestPaginate_EmptyCollection(t *testing.T) {
 func TestPaginate_OffsetBeyondCollection(t *testing.T) {
 	collection := []int{1, 2, 3}
 	offset := 10
-	result := Paginate[int, *OffsetCursor](collection, nil, &offset, nil, nil)
+	result := Paginate[int, *cursors.OffsetCursor](collection, nil, &offset, nil, nil)
 
 	assert.Equal(t, 3, result.Total)
 	assert.Equal(t, 10, result.Offset)
@@ -116,7 +117,7 @@ func TestPaginate_OffsetBeyondCollection(t *testing.T) {
 func TestPaginate_FirstZero(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5}
 	first := 0
-	result := Paginate[int, *OffsetCursor](collection, &first, nil, nil, nil)
+	result := Paginate[int, *cursors.OffsetCursor](collection, &first, nil, nil, nil)
 
 	assert.Equal(t, 5, result.Total)
 	assert.Equal(t, 0, result.First)
@@ -127,7 +128,7 @@ func TestPaginate_StringCollection(t *testing.T) {
 	collection := []string{"apple", "banana", "cherry", "date", "elderberry"}
 	first := 3
 	offset := 1
-	result := Paginate[string, *OffsetCursor](collection, &first, &offset, nil, nil)
+	result := Paginate[string, *cursors.OffsetCursor](collection, &first, &offset, nil, nil)
 
 	assert.Equal(t, 5, result.Total)
 	assert.Equal(t, 3, result.First)
@@ -150,7 +151,7 @@ func TestPaginate_StructCollection(t *testing.T) {
 
 	first := 2
 	offset := 1
-	result := Paginate[Person, *OffsetCursor](collection, &first, &offset, nil, nil)
+	result := Paginate[Person, *cursors.OffsetCursor](collection, &first, &offset, nil, nil)
 
 	assert.Equal(t, 4, result.Total)
 	assert.Equal(t, 2, result.First)
@@ -172,7 +173,7 @@ func TestPaginate_Integration(t *testing.T) {
 	// Page 1: first 10 items
 	first := 10
 	offset := 0
-	result := Paginate[int, *OffsetCursor](collection, &first, &offset, nil, nil)
+	result := Paginate[int, *cursors.OffsetCursor](collection, &first, &offset, nil, nil)
 	assert.Equal(t, 100, result.Total)
 	assert.Equal(t, 10, result.First)
 	assert.Equal(t, 0, result.Offset)
@@ -180,7 +181,7 @@ func TestPaginate_Integration(t *testing.T) {
 
 	// Page 2: next 10 items
 	offset = 10
-	result = Paginate[int, *OffsetCursor](collection, &first, &offset, nil, nil)
+	result = Paginate[int, *cursors.OffsetCursor](collection, &first, &offset, nil, nil)
 	assert.Equal(t, 100, result.Total)
 	assert.Equal(t, 10, result.First)
 	assert.Equal(t, 10, result.Offset)
@@ -188,7 +189,7 @@ func TestPaginate_Integration(t *testing.T) {
 
 	// Last page: remaining items
 	offset = 95
-	result = Paginate[int, *OffsetCursor](collection, &first, &offset, nil, nil)
+	result = Paginate[int, *cursors.OffsetCursor](collection, &first, &offset, nil, nil)
 	assert.Equal(t, 100, result.Total)
 	assert.Equal(t, 10, result.First)
 	assert.Equal(t, 95, result.Offset)
@@ -198,8 +199,8 @@ func TestPaginate_Integration(t *testing.T) {
 // OffsetCursor-specific tests
 func TestPaginate_WithOffsetCursor(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	cursor := NewOffsetCursor(3)
-	result := Paginate[int, *OffsetCursor](collection, nil, nil, nil, cursor)
+	cursor := cursors.NewOffsetCursor(3)
+	result := Paginate[int, *cursors.OffsetCursor](collection, nil, nil, nil, cursor)
 
 	assert.Equal(t, 10, result.Total)
 	assert.Equal(t, 20, result.First)                          // default first
@@ -209,9 +210,9 @@ func TestPaginate_WithOffsetCursor(t *testing.T) {
 
 func TestPaginate_WithOffsetCursorAndFirst(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	cursor := NewOffsetCursor(2)
+	cursor := cursors.NewOffsetCursor(2)
 	first := 4
-	result := Paginate[int, *OffsetCursor](collection, &first, nil, nil, cursor)
+	result := Paginate[int, *cursors.OffsetCursor](collection, &first, nil, nil, cursor)
 
 	assert.Equal(t, 10, result.Total)
 	assert.Equal(t, 4, result.First)
@@ -221,10 +222,10 @@ func TestPaginate_WithOffsetCursorAndFirst(t *testing.T) {
 
 func TestPaginate_CursorOverridesOffset(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	cursor := NewOffsetCursor(5)
+	cursor := cursors.NewOffsetCursor(5)
 	offset := 2 // this should be ignored
 	first := 3
-	result := Paginate[int, *OffsetCursor](collection, &first, &offset, nil, cursor)
+	result := Paginate[int, *cursors.OffsetCursor](collection, &first, &offset, nil, cursor)
 
 	assert.Equal(t, 10, result.Total)
 	assert.Equal(t, 3, result.First)
@@ -234,10 +235,10 @@ func TestPaginate_CursorOverridesOffset(t *testing.T) {
 
 func TestPaginate_WithOffsetCursorAndDirection(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	cursor := NewOffsetCursor(2)
+	cursor := cursors.NewOffsetCursor(2)
 	first := 3
 	dir := "desc"
-	result := Paginate[int, *OffsetCursor](collection, &first, nil, &dir, cursor)
+	result := Paginate[int, *cursors.OffsetCursor](collection, &first, nil, &dir, cursor)
 
 	assert.Equal(t, 10, result.Total)
 	assert.Equal(t, 3, result.First)
@@ -250,9 +251,9 @@ func TestPaginate_WithOffsetCursorAndDirection(t *testing.T) {
 
 func TestPaginate_WithZeroOffsetCursor(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5}
-	cursor := NewOffsetCursor(0)
+	cursor := cursors.NewOffsetCursor(0)
 	first := 3
-	result := Paginate[int, *OffsetCursor](collection, &first, nil, nil, cursor)
+	result := Paginate[int, *cursors.OffsetCursor](collection, &first, nil, nil, cursor)
 
 	assert.Equal(t, 5, result.Total)
 	assert.Equal(t, 3, result.First)
@@ -262,8 +263,8 @@ func TestPaginate_WithZeroOffsetCursor(t *testing.T) {
 
 func TestPaginate_WithOffsetCursorBeyondCollection(t *testing.T) {
 	collection := []int{1, 2, 3}
-	cursor := NewOffsetCursor(10)
-	result := Paginate[int, *OffsetCursor](collection, nil, nil, nil, cursor)
+	cursor := cursors.NewOffsetCursor(10)
+	result := Paginate[int, *cursors.OffsetCursor](collection, nil, nil, nil, cursor)
 
 	assert.Equal(t, 3, result.Total)
 	assert.Equal(t, 10, result.Offset)     // from cursor
@@ -272,9 +273,9 @@ func TestPaginate_WithOffsetCursorBeyondCollection(t *testing.T) {
 
 func TestPaginate_OffsetCursorStringCollection(t *testing.T) {
 	collection := []string{"apple", "banana", "cherry", "date", "elderberry"}
-	cursor := NewOffsetCursor(1)
+	cursor := cursors.NewOffsetCursor(1)
 	first := 3
-	result := Paginate[string, *OffsetCursor](collection, &first, nil, nil, cursor)
+	result := Paginate[string, *cursors.OffsetCursor](collection, &first, nil, nil, cursor)
 
 	assert.Equal(t, 5, result.Total)
 	assert.Equal(t, 3, result.First)
@@ -286,10 +287,10 @@ func TestPaginate_WithTypedNilCursor(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5}
 
 	// Create a typed nil cursor - this is different from a nil interface
-	var typedNilCursor *OffsetCursor = nil
+	var typedNilCursor *cursors.OffsetCursor = nil
 
 	assert.Panics(t, func() {
-		Paginate[int, *OffsetCursor](collection, nil, nil, nil, typedNilCursor)
+		Paginate[int, *cursors.OffsetCursor](collection, nil, nil, nil, typedNilCursor)
 	})
 }
 
@@ -301,33 +302,33 @@ func TestPaginate_OffsetCursorIntegration(t *testing.T) {
 	}
 
 	// Page 1: first 10 items using cursor
-	cursor := NewOffsetCursor(0)
+	cursor := cursors.NewOffsetCursor(0)
 	first := 10
-	result := Paginate[int, *OffsetCursor](collection, &first, nil, nil, cursor)
+	result := Paginate[int, *cursors.OffsetCursor](collection, &first, nil, nil, cursor)
 	assert.Equal(t, 50, result.Total)
 	assert.Equal(t, 10, result.First)
 	assert.Equal(t, 0, result.Offset)
 	assert.Equal(t, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, result.Items)
 
 	// Page 2: next 10 items using cursor
-	cursor = NewOffsetCursor(10)
-	result = Paginate[int, *OffsetCursor](collection, &first, nil, nil, cursor)
+	cursor = cursors.NewOffsetCursor(10)
+	result = Paginate[int, *cursors.OffsetCursor](collection, &first, nil, nil, cursor)
 	assert.Equal(t, 50, result.Total)
 	assert.Equal(t, 10, result.First)
 	assert.Equal(t, 10, result.Offset)
 	assert.Equal(t, []int{11, 12, 13, 14, 15, 16, 17, 18, 19, 20}, result.Items)
 
 	// Page 3: next 10 items using cursor
-	cursor = NewOffsetCursor(20)
-	result = Paginate[int, *OffsetCursor](collection, &first, nil, nil, cursor)
+	cursor = cursors.NewOffsetCursor(20)
+	result = Paginate[int, *cursors.OffsetCursor](collection, &first, nil, nil, cursor)
 	assert.Equal(t, 50, result.Total)
 	assert.Equal(t, 10, result.First)
 	assert.Equal(t, 20, result.Offset)
 	assert.Equal(t, []int{21, 22, 23, 24, 25, 26, 27, 28, 29, 30}, result.Items)
 
 	// Last page: remaining items using cursor
-	cursor = NewOffsetCursor(45)
-	result = Paginate[int, *OffsetCursor](collection, &first, nil, nil, cursor)
+	cursor = cursors.NewOffsetCursor(45)
+	result = Paginate[int, *cursors.OffsetCursor](collection, &first, nil, nil, cursor)
 	assert.Equal(t, 50, result.Total)
 	assert.Equal(t, 10, result.First)
 	assert.Equal(t, 45, result.Offset)
@@ -338,26 +339,26 @@ func TestPaginate_OffsetCursorIntegration(t *testing.T) {
 func TestPaginate_CursorFields_FirstPage(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	first := 3
-	result := Paginate[int, *OffsetCursor](collection, &first, nil, nil, nil)
+	result := Paginate[int, *cursors.OffsetCursor](collection, &first, nil, nil, nil)
 
 	// Verify cursor fields for first page
 	assert.NotNil(t, result.Cursor)
-	assert.Equal(t, 0, result.Cursor.(*OffsetCursor).GetOffset())
+	assert.Equal(t, 0, result.Cursor.(*cursors.OffsetCursor).GetOffset())
 	assert.False(t, result.HasPrevious) // first page has no previous
 	assert.True(t, result.HasNext)      // more items available
 	assert.NotNil(t, result.NextCursor)
-	assert.Equal(t, 3, result.NextCursor.(*OffsetCursor).GetOffset()) // next page starts at offset 3
+	assert.Equal(t, 3, result.NextCursor.(*cursors.OffsetCursor).GetOffset()) // next page starts at offset 3
 }
 
 func TestPaginate_CursorFields_MiddlePage(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	first := 3
 	offset := 3
-	result := Paginate[int, *OffsetCursor](collection, &first, &offset, nil, nil)
+	result := Paginate[int, *cursors.OffsetCursor](collection, &first, &offset, nil, nil)
 
 	// Verify cursor fields for middle page
 	assert.NotNil(t, result.Cursor)
-	assert.Equal(t, 3, result.Cursor.(*OffsetCursor).GetOffset())
+	assert.Equal(t, 3, result.Cursor.(*cursors.OffsetCursor).GetOffset())
 	assert.True(t, result.HasPrevious) // has previous pages
 	assert.True(t, result.HasNext)     // has next pages
 	assert.NotNil(t, result.NextCursor)
@@ -368,7 +369,7 @@ func TestPaginate_CursorFields_LastPage(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	first := 3
 	offset := 8 // last page with only 2 items
-	result := Paginate[int, *OffsetCursor](collection, &first, &offset, nil, nil)
+	result := Paginate[int, *cursors.OffsetCursor](collection, &first, &offset, nil, nil)
 
 	// Verify cursor fields for last page
 	assert.NotNil(t, result.Cursor)
@@ -381,7 +382,7 @@ func TestPaginate_CursorFields_LastPage(t *testing.T) {
 func TestPaginate_CursorFields_SinglePage(t *testing.T) {
 	collection := []int{1, 2, 3}
 	first := 10 // more than collection size
-	result := Paginate[int, *OffsetCursor](collection, &first, nil, nil, nil)
+	result := Paginate[int, *cursors.OffsetCursor](collection, &first, nil, nil, nil)
 
 	// Verify cursor fields for single page (all items fit)
 	assert.NotNil(t, result.Cursor)
@@ -394,21 +395,21 @@ func TestPaginate_CursorFields_SinglePage(t *testing.T) {
 func TestPaginate_CursorFields_EmptyResult(t *testing.T) {
 	collection := []int{1, 2, 3}
 	offset := 10 // beyond collection
-	result := Paginate[int, *OffsetCursor](collection, nil, &offset, nil, nil)
+	result := Paginate[int, *cursors.OffsetCursor](collection, nil, &offset, nil, nil)
 
 	// Verify cursor fields for empty result
 	assert.NotNil(t, result.Cursor)
 	assert.Equal(t, "eyJvZmZzZXQiOjEwfQ==", result.Cursor.Encode())
-	assert.True(t, result.HasPrevious)                            // offset > 0 means has previous
-	assert.False(t, result.HasNext)                               // no items returned, no next
-	assert.Equal(t, &OffsetCursor{Offset: 10}, result.NextCursor) // no next cursor
+	assert.True(t, result.HasPrevious)                                    // offset > 0 means has previous
+	assert.False(t, result.HasNext)                                       // no items returned, no next
+	assert.Equal(t, &cursors.OffsetCursor{Offset: 10}, result.NextCursor) // no next cursor
 }
 
 func TestPaginate_CursorFields_WithOffsetCursor(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	cursor := NewOffsetCursor(4)
+	cursor := cursors.NewOffsetCursor(4)
 	first := 3
-	result := Paginate[int, *OffsetCursor](collection, &first, nil, nil, cursor)
+	result := Paginate[int, *cursors.OffsetCursor](collection, &first, nil, nil, cursor)
 
 	// Verify cursor fields when using OffsetCursor
 	assert.NotNil(t, result.Cursor)

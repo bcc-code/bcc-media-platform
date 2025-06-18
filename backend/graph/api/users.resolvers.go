@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"strconv"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -52,7 +53,7 @@ func (r *userCollectionResolver) Entries(ctx context.Context, obj *model.UserCol
 		return nil, err
 	}
 
-	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
+	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 	entries, err := r.Loaders.UserCollectionEntryLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
 	if err != nil {

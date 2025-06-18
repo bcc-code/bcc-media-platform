@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"net/url"
 	"strconv"
 	"strings"
@@ -453,7 +454,7 @@ func (r *queryRootResolver) AchievementGroups(ctx context.Context, first *int, o
 		ids = []uuid.UUID{}
 	}
 
-	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
+	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
 	groups, err := r.Loaders.AchievementGroupLoader.GetMany(ctx, page.Items)

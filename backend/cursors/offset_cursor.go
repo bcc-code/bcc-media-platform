@@ -1,6 +1,8 @@
-package utils
+package cursors
 
-import "github.com/bcc-code/bcc-media-platform/backend/log"
+import (
+	"github.com/bcc-code/bcc-media-platform/backend/log"
+)
 
 // OffsetCursor represents a cursor that stores an offset position for pagination
 type OffsetCursor struct {

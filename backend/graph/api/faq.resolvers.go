@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
@@ -21,7 +22,7 @@ func (r *fAQResolver) Categories(ctx context.Context, obj *model.Faq, first *int
 		return nil, err
 	}
 
-	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
+	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
 	items, err := r.GetLoaders().FAQCategoryLoader.GetMany(ctx, page.Items)
@@ -70,7 +71,7 @@ func (r *fAQCategoryResolver) Questions(ctx context.Context, obj *model.FAQCateg
 		return nil, err
 	}
 
-	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
+	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 
 	page := utils.Paginate(itemIDs, first, offset, nil, offsetCursor)
 

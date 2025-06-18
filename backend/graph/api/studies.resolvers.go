@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"errors"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"strconv"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -91,7 +92,7 @@ func (r *lessonResolver) Tasks(ctx context.Context, obj *model.Lesson, first *in
 		return nil, err
 	}
 
-	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
+	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
 	tasks, err := r.Loaders.StudyTaskLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
@@ -145,7 +146,7 @@ func (r *lessonResolver) Episodes(ctx context.Context, obj *model.Lesson, first 
 		return nil, err
 	}
 
-	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
+	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
 	episodes, err := r.Loaders.EpisodeLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
@@ -172,7 +173,7 @@ func (r *lessonResolver) Links(ctx context.Context, obj *model.Lesson, first *in
 		return nil, err
 	}
 
-	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
+	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
 	links, err := r.Loaders.LinkLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
@@ -426,7 +427,7 @@ func (r *studyTopicResolver) Lessons(ctx context.Context, obj *model.StudyTopic,
 		return nil, err
 	}
 
-	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
+	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
 	lessons, err := r.Loaders.StudyLessonLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))

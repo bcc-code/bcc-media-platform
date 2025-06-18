@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"strconv"
 
 	merry "github.com/ansel1/merry/v2"
@@ -67,8 +68,8 @@ func (r *showResolver) Seasons(ctx context.Context, obj *model.Show, first *int,
 		return nil, err
 	}
 
-	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
-	page := utils.Paginate[*int, *utils.OffsetCursor](itemIDs, first, offset, dir, offsetCursor)
+	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
+	page := utils.Paginate[*int, *cursors.OffsetCursor](itemIDs, first, offset, dir, offsetCursor)
 
 	seasons, err := r.Loaders.SeasonLoader.GetMany(ctx, utils.PointerIntArrayToIntArray(page.Items))
 	if err != nil {

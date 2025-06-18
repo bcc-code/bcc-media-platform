@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
@@ -57,7 +58,7 @@ func (r *achievementGroupResolver) Achievements(ctx context.Context, obj *model.
 		return nil, err
 	}
 
-	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
+	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 	items, err := r.GetLoaders().AchievementLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))

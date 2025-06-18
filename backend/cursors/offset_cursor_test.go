@@ -1,4 +1,4 @@
-package utils
+package cursors
 
 import (
 	"github.com/bcc-code/bcc-media-platform/backend/log"

@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"strconv"
 	"strings"
 
@@ -273,7 +274,7 @@ func (r *Resolver) sectionCollectionEntryResolver(
 		return nil, err
 	}
 
-	randomizedCursor := utils.ParseOrDefaultRandomizedCursor(cursor)
+	randomizedCursor := cursors.ParseOrDefaultRandomizedCursor(cursor)
 
 	entries, err := r.GetCollectionEntries(ctx, collectionId, randomizedCursor)
 	if err != nil {
@@ -290,7 +291,7 @@ func (r *Resolver) sectionCollectionEntryResolver(
 		pagination = utils.Paginate(entries, first, offset, nil, randomizedCursor)
 	} else {
 		// Else we use the offset cursor or generate a new one
-		pagination = utils.Paginate(entries, first, offset, nil, utils.ParseOrDefaultOffsetCursor(cursor))
+		pagination = utils.Paginate(entries, first, offset, nil, cursors.ParseOrDefaultOffsetCursor(cursor))
 	}
 
 	preloadEntryLoaders(ctx, ls, pagination.Items)

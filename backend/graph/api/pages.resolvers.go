@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"strconv"
 	"strings"
 
@@ -68,7 +69,7 @@ func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int
 		return nil, err
 	}
 
-	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
+	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 
 	page := utils.Paginate(itemIDs, first, offset, nil, offsetCursor)
 

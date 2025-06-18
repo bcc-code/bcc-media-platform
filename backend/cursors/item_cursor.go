@@ -1,4 +1,4 @@
-package utils
+package cursors
 
 import (
 	"github.com/samber/lo"

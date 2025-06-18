@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
@@ -33,8 +34,8 @@ func (r *playlistResolver) Items(ctx context.Context, obj *model.Playlist, first
 			First:       0,
 			Offset:      0,
 			Items:       nil,
-			Cursor:      utils.NewOffsetCursor(0).Encode(),
-			NextCursor:  utils.NewOffsetCursor(0).Encode(),
+			Cursor:      cursors.NewOffsetCursor(0).Encode(),
+			NextCursor:  cursors.NewOffsetCursor(0).Encode(),
 			HasNext:     false,
 			HasPrevious: false,
 		}, nil

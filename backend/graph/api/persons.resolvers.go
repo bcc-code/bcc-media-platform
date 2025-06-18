@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"sync"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -135,7 +136,7 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 		items = lo.Shuffle(items)
 	}
 
-	offsetCursor := utils.ParseOrDefaultOffsetCursor(cursor)
+	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(items, first, offset, nil, offsetCursor)
 
 	var wg sync.WaitGroup

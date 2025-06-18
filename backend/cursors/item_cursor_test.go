@@ -1,4 +1,4 @@
-package utils
+package cursors
 
 import (
 	"testing"
@@ -32,10 +32,10 @@ func TestItemCursor_EncodeDecode(t *testing.T) {
 		Keys:         []int{1, 2, 3, 4, 5},
 		CurrentIndex: 2,
 	}
-	
+
 	encoded, err := cursor.Encode()
 	require.NoError(t, err)
-	
+
 	decoded, err := ParseItemCursor[int](encoded)
 	require.NoError(t, err)
 	assert.Equal(t, cursor.Keys, decoded.Keys)
@@ -47,10 +47,10 @@ func TestItemCursor_EncodeDecodeString(t *testing.T) {
 		Keys:         []string{"a", "b", "c"},
 		CurrentIndex: 1,
 	}
-	
+
 	encoded, err := cursor.Encode()
 	require.NoError(t, err)
-	
+
 	decoded, err := ParseItemCursor[string](encoded)
 	require.NoError(t, err)
 	assert.Equal(t, cursor.Keys, decoded.Keys)
@@ -122,7 +122,7 @@ func TestParseItemCursor_Invalid(t *testing.T) {
 		{
 			name:        "negative current index",
 			cursor:      "eyJrZXlzIjpbMSwyLDNdLCJjdXJyZW50SW5kZXgiOi0xfQ==", // {"keys":[1,2,3],"currentIndex":-1}
-			expectError: false, // Negative current index is actually allowed in the implementation
+			expectError: false,                                              // Negative current index is actually allowed in the implementation
 		},
 	}
 
@@ -215,16 +215,16 @@ func TestItemCursor_Integration(t *testing.T) {
 	ids := []string{"item1", "item2", "item3", "item4", "item5"}
 	cursor := ToItemCursor(ids, "item2")
 	assert.Equal(t, 1, cursor.CurrentIndex)
-	
+
 	// Get next keys
 	nextKeys := cursor.NextKeys(2)
 	assert.Equal(t, []string{"item3", "item4"}, nextKeys)
-	
+
 	// Move to different position
 	newCursor := cursor.CursorFor("item4")
 	require.NotNil(t, newCursor)
 	assert.Equal(t, 3, newCursor.CurrentIndex)
-	
+
 	// Encode and decode
 	encoded, err := newCursor.Encode()
 	require.NoError(t, err)
