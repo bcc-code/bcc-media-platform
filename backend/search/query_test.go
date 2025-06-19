@@ -402,6 +402,44 @@ func (s *ElasticQueryTestSuite) Test_EensureExistingGoodResults() {
 			expectedEpisodes:            nil,
 			expectedEpisodesInFirstShow: 4,
 		},
+		// Test partial word matching with special characters
+		{
+			query:                       "søndag",
+			languages:                   []string{"no"},
+			expectShows:                 true,
+			expectedShows:               []string{"Søndagsskole"},
+			expectEpisodes:              false,
+			expectedEpisodes:            nil,
+			expectedEpisodesInFirstShow: 0,
+		},
+		// Test incremental partial matching with special characters
+		{
+			query:                       "høstc",
+			languages:                   []string{"no"},
+			expectShows:                 true,
+			expectedShows:               []string{"Høstcamp"},
+			expectEpisodes:              false,
+			expectedEpisodes:            nil,
+			expectedEpisodesInFirstShow: 0,
+		},
+		{
+			query:                       "høstca",
+			languages:                   []string{"no"},
+			expectShows:                 true,
+			expectedShows:               []string{"Høstcamp"},
+			expectEpisodes:              false,
+			expectedEpisodes:            nil,
+			expectedEpisodesInFirstShow: 0,
+		},
+		{
+			query:                       "høstcam",
+			languages:                   []string{"no"},
+			expectShows:                 true,
+			expectedShows:               []string{"Høstcamp"},
+			expectEpisodes:              false,
+			expectedEpisodes:            nil,
+			expectedEpisodesInFirstShow: 0,
+		},
 	}
 
 	show := "show"
