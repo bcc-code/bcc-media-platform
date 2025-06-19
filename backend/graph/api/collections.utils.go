@@ -155,6 +155,13 @@ func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int, c
 		return nil, err
 	}
 
+	if cursor == nil {
+		cursor = &cursors.RandomizedCursor{
+			CurrentIndex: 0,
+			RandomFactor: 0,
+		}
+	}
+
 	entries, err := collection.GetBaseCollectionEntries(
 		ctx,
 		r.DB,
