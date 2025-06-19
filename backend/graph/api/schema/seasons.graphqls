@@ -19,6 +19,7 @@ type Season implements CollectionItem {
     episodes(
         first: Int
         offset: Int
+        cursor: Cursor
         dir: String
     ): EpisodePagination! @goField(forceResolver: true)
 }
@@ -26,6 +27,10 @@ type Season implements CollectionItem {
 type SeasonPagination implements Pagination {
     total: Int!
     first: Int!
-    offset: Int!
+    offset: Int! @deprecated(reason: "Offset is deprecated, use cursor")
+    cursor: Cursor!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    nextCursor: Cursor!
     items: [Season!]!
 }

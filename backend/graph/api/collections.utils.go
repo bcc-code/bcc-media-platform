@@ -2,12 +2,20 @@ package graph
 
 import (
 	"context"
-
+	"fmt"
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/items/collection"
+	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
+	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
+	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
+	"gopkg.in/guregu/null.v4"
+	"strconv"
+	"time"
 )
 
 func preloadEntryLoaders(ctx context.Context, loaders *common.BatchLoaders, entries []collection.Entry) {
@@ -109,7 +117,36 @@ func collectionEntriesToModels(ctx context.Context, ls *common.BatchLoaders, ent
 	return items, nil
 }
 
-func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int) ([]collection.Entry, error) {
+func collectionCacheKey(ginCtx *gin.Context, languagePreferences common.LanguagePreferences, collectionId int, cursor *cursors.RandomizedCursor) string {
+	profile := user.GetProfileFromCtx(ginCtx)
+
+	cacheKey := "collection-entries-" + strconv.Itoa(collectionId) + "-"
+
+	if profile != nil {
+		cacheKey += profile.ID.String() + "-"
+	}
+
+	if cursor != nil {
+		cacheKey += fmt.Sprintf("%d-%f-", cursor.CurrentIndex, cursor.RandomFactor)
+	}
+
+	cacheKey += languagePreferences.String()
+
+	return cacheKey
+}
+
+func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int, cursor *cursors.RandomizedCursor) ([]collection.Entry, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	languagePreferences := common.GetLanguagePreferencesFromCtx(ginCtx)
+
+	cacheKey := collectionCacheKey(ginCtx, languagePreferences, collectionId, cursor)
+	if entries, ok := memorycache.Get[[]collection.Entry](cacheKey); ok {
+		return entries, nil
+	}
+
 	ls := r.GetLoaders()
 	personalizedLoaders := r.PersonalizedLoaders(ctx)
 
@@ -118,7 +155,15 @@ func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int) (
 		return nil, err
 	}
 
-	entries, err := collection.GetBaseCollectionEntries(ctx, ls, personalizedLoaders, collectionId)
+	entries, err := collection.GetBaseCollectionEntries(
+		ctx,
+		r.DB,
+		ls,
+		personalizedLoaders,
+		collectionId,
+		languagePreferences,
+		null.IntFromPtr(cursor.Seed),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -144,14 +189,16 @@ func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int) (
 		entries = filterWithUuids(col, common.CollectionShorts, entries, ids)
 	}
 
+	memorycache.Set(cacheKey, entries, cache.WithExpiration(time.Minute*10))
+
 	return entries, nil
 }
 
 // getItemsPageAs returns a pagination result of items of type T
 // returns only the items and no additional metadata like sort or other relational data
 // it will also filter out items that don't conform to the interface or type T
-func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, first, offset *int, collections ...common.ItemCollection) (*utils.PaginationResult[T], error) {
-	entries, err := r.GetCollectionEntries(ctx, collectionID)
+func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, first, offset *int, offsetCursor *cursors.OffsetCursor, collections ...common.ItemCollection) (*utils.PaginationResult[T], error) {
+	entries, err := r.GetCollectionEntries(ctx, collectionID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +210,7 @@ func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, f
 		})
 	}
 
-	pagination := utils.Paginate(entries, first, offset, nil)
+	pagination := utils.Paginate[collection.Entry, *cursors.OffsetCursor](entries, first, offset, nil, offsetCursor)
 
 	items, err := collectionEntriesToModels(ctx, r.Loaders, pagination.Items)
 	if err != nil {
@@ -178,22 +225,31 @@ func getItemsPageAs[T any](ctx context.Context, r *Resolver, collectionID int, f
 	}
 
 	return &utils.PaginationResult[T]{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  result,
+		Total:       pagination.Total,
+		First:       pagination.First,
+		Offset:      pagination.Offset,
+		Items:       result,
+		Cursor:      pagination.Cursor,
+		NextCursor:  pagination.NextCursor,
+		HasNext:     pagination.HasNext,
+		HasPrevious: pagination.HasPrevious,
 	}, nil
 }
 
-func (r *Resolver) getPlaylistItemsPage(ctx context.Context, collectionID int, first, offset *int) (*model.PlaylistItemPagination, error) {
-	p, err := getItemsPageAs[model.PlaylistItem](ctx, r, collectionID, first, offset, common.CollectionEpisodes)
+func (r *Resolver) getPlaylistItemsPage(ctx context.Context, collectionID int, first, offset *int, cursor *string) (*model.PlaylistItemPagination, error) {
+	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
+	p, err := getItemsPageAs[model.PlaylistItem](ctx, r, collectionID, first, offset, offsetCursor, common.CollectionEpisodes)
 	if err != nil {
 		return nil, err
 	}
 	return &model.PlaylistItemPagination{
-		Total:  p.Total,
-		First:  p.First,
-		Offset: p.Offset,
-		Items:  p.Items,
+		Total:       p.Total,
+		First:       p.First,
+		Offset:      p.Offset,
+		Items:       p.Items,
+		Cursor:      p.Cursor.Encode(),
+		NextCursor:  p.NextCursor.Encode(),
+		HasNext:     p.HasNext,
+		HasPrevious: p.HasPrevious,
 	}, nil
 }

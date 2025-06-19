@@ -89,7 +89,7 @@ echo "-- +goose Down" >> $MIGRATION
 cat $DOWN | sed 's/CREATE FUNCTION/-- +goose StatementBegin\nCREATE FUNCTION/' | sed 's/$$;/$$;\n-- +goose StatementEnd/' >> $MIGRATION
 
 echo Cleanup
-./cleanup_sql.sh $MIGRATION
+bash $script_dir/cleanup_sql.sh $MIGRATION
 rm -v $UP $DOWN
 
 goose fix

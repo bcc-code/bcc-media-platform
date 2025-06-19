@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"strconv"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -54,7 +55,21 @@ func (r *episodeResolver) getEpisodeQueue(ctx context.Context, episodeID string)
 	// If the EpisodeContext has a valid CollectionID, use the collectionID to retrieve episodeIDs
 	// else, use the episodes in the season (if any)
 	if episodeContext.CollectionID.Valid {
-		items, err := collection.GetBaseCollectionEntries(ctx, r.Loaders, r.GetPersonalizedLoaders(ctx), int(episodeContext.CollectionID.Int64))
+		ginCtx, err := utils.GinCtx(ctx)
+		if err != nil {
+			return nil, err
+		}
+		languagePreferences := common.GetLanguagePreferencesFromCtx(ginCtx)
+
+		items, err := collection.GetBaseCollectionEntries(
+			ctx,
+			r.DB,
+			r.Loaders,
+			r.GetPersonalizedLoaders(ctx),
+			int(episodeContext.CollectionID.Int64),
+			languagePreferences,
+			null.Int{},
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -129,18 +144,18 @@ func (r *episodeResolver) getRootEpisodeID(ctx context.Context) (string, error) 
 	return "", fmt.Errorf("no root episode found")
 }
 
-func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string) (*utils.ItemCursor[int], error) {
+func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string) (*cursors.ItemCursor[int], error) {
 	ctx, span := otel.Tracer("episode-resolver").Start(ctx, "getEpisodeCursor")
 	defer span.End()
-	return utils.GetOrSetContextWithLock(ctx, "cursor-lock-"+episodeID, func() (*utils.ItemCursor[int], error) {
+	return utils.GetOrSetContextWithLock(ctx, "cursor-lock-"+episodeID, func() (*cursors.ItemCursor[int], error) {
 		intID := utils.AsInt(episodeID)
 		episodeContext, err := r.getEpisodeContext(ctx, episodeID)
 		if err != nil {
 			return nil, err
 		}
-		var cursor *utils.ItemCursor[int]
+		var cursor *cursors.ItemCursor[int]
 		if episodeContext.Cursor.Valid {
-			cursor, err = utils.ParseItemCursor[int](episodeContext.Cursor.String)
+			cursor, err = cursors.ParseItemCursor[int](episodeContext.Cursor.String)
 			if err != nil {
 				return nil, err
 			}
@@ -166,7 +181,7 @@ func (r *episodeResolver) getEpisodeCursor(ctx context.Context, episodeID string
 					return id != intID
 				}))...)
 			}
-			cursor = utils.ToItemCursor(episodeIDs, intID)
+			cursor = cursors.ToItemCursor(episodeIDs, intID)
 		}
 		return cursor, nil
 	})
@@ -240,7 +255,21 @@ func (r *episodeResolver) getNextEpisodeIDsFromShowCollection(ctx context.Contex
 	if err != nil || show == nil || !show.RelatedCollectionID.Valid {
 		return nil, err
 	}
-	entries, err := collection.GetBaseCollectionEntries(ctx, r.Loaders, r.GetPersonalizedLoaders(ctx), int(show.RelatedCollectionID.Int64))
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	languagePreferences := common.GetLanguagePreferencesFromCtx(ginCtx)
+
+	entries, err := collection.GetBaseCollectionEntries(
+		ctx,
+		r.DB,
+		r.Loaders,
+		r.GetPersonalizedLoaders(ctx),
+		int(show.RelatedCollectionID.Int64),
+		languagePreferences,
+		null.Int{},
+	)
 	if err != nil {
 		return nil, err
 	}

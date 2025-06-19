@@ -47,9 +47,7 @@ const profileLoadersCtxKey = "profile-loaders"
 const personalizedLoadersCtxKey = "personalized-loaders"
 
 func personalizedLoaderFactory(
-	db *sql.DB,
 	queries *sqlc.Queries,
-	collectionLoader *loaders.Loader[int, *common.Collection],
 ) func(ctx context.Context) *common.PersonalizedLoaders {
 	return func(ctx context.Context) *common.PersonalizedLoaders {
 		ginCtx, err := utils.GinCtx(ctx)
@@ -73,8 +71,6 @@ func personalizedLoaderFactory(
 
 		ls := getPersonalizedLoaders(
 			queries,
-			db,
-			collectionLoader,
 			roles,
 			langPreferences,
 		)
@@ -97,7 +93,7 @@ func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *
 		if ls := ginCtx.Value(filteredLoadersCtxKey); ls != nil {
 			return ls.(*common.LoadersWithPermissions)
 		}
-		ls := getLoadersForRoles(db, queries, collectionLoader, roles)
+		ls := getLoadersForRoles(queries, roles)
 		ginCtx.Set(filteredLoadersCtxKey, ls)
 		return ls
 	}

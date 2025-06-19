@@ -21,7 +21,11 @@ type ContentTypeCount {
 type ContributionsPagination implements Pagination {
     total: Int!
     first: Int!
-    offset: Int!
+    offset: Int! @deprecated(reason: "Offset is deprecated, use cursor")
+    cursor: Cursor!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    nextCursor: Cursor!
     items: [Contribution!]!
 }
 
@@ -33,7 +37,7 @@ type Person {
     image(style: ImageStyle): String @goField(forceResolver: true)
     contributionTypes: [ContributionTypeCount!]! @goField(forceResolver: true)
     contributionContentTypes: [ContentTypeCount!]! @goField(forceResolver: true)
-    contributions(first: Int, offset: Int, types: [String!], contentTypes: [String!], shuffle: Boolean): ContributionsPagination! @goField(forceResolver: true)
+    contributions(first: Int, offset: Int, cursor: Cursor, types: [String!], contentTypes: [String!], shuffle: Boolean): ContributionsPagination! @goField(forceResolver: true)
 }
 
 type Contribution {

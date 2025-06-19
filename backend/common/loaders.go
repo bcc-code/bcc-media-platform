@@ -2,7 +2,6 @@ package common
 
 import (
 	"context"
-
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/google/uuid"
@@ -143,7 +142,6 @@ type PersonalizedLoaders struct {
 	Key string
 
 	CollectionItemsLoader        *loaders.Loader[int, []*CollectionItem]
-	CollectionItemIDsLoader      *loaders.Loader[int, []Identifier]
 	ContributionsForPersonLoader *loaders.Loader[uuid.UUID, []*Contribution]
 	TagEpisodesLoader            *loaders.Loader[int, []*int]
 }

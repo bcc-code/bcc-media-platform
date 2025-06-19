@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"strconv"
 	"strings"
 
@@ -252,11 +253,14 @@ func mapCollectionEntriesToSectionItems(ctx context.Context, ls *common.BatchLoa
 	return items, nil
 }
 
+// Note: This whole function is a bit of a mess as it is doing several related but different things
+// It should probably be refactored into smaller functions, that return something similar, based on the input
 func (r *Resolver) sectionCollectionEntryResolver(
 	ctx context.Context,
 	section *common.Section,
 	first *int,
 	offset *int,
+	cursor *string,
 	limit int,
 ) (*utils.PaginationResult[*model.SectionItem], error) {
 	ls := r.GetLoaders()
@@ -270,7 +274,9 @@ func (r *Resolver) sectionCollectionEntryResolver(
 		return nil, err
 	}
 
-	entries, err := r.GetCollectionEntries(ctx, collectionId)
+	randomizedCursor := cursors.ParseOrDefaultRandomizedCursor(cursor)
+
+	entries, err := r.GetCollectionEntries(ctx, collectionId, randomizedCursor)
 	if err != nil {
 		return nil, err
 	}
@@ -279,7 +285,15 @@ func (r *Resolver) sectionCollectionEntryResolver(
 		entries = entries[:min(len(entries), limit)]
 	}
 
-	pagination := utils.Paginate(entries, first, offset, nil)
+	var pagination utils.PaginationResult[collection.Entry]
+	if col.Type == "randomized_query" {
+		// If we have a randomized cursor, we want to use it
+		pagination = utils.Paginate(entries, first, offset, nil, randomizedCursor)
+	} else {
+		// Else we use the offset cursor or generate a new one
+		pagination = utils.Paginate(entries, first, offset, nil, cursors.ParseOrDefaultOffsetCursor(cursor))
+	}
+
 	preloadEntryLoaders(ctx, ls, pagination.Items)
 
 	imageStyle := sectionStyleToImageStyle(section.Style)
@@ -289,18 +303,22 @@ func (r *Resolver) sectionCollectionEntryResolver(
 	}
 
 	return &utils.PaginationResult[*model.SectionItem]{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  items,
+		Total:       pagination.Total,
+		First:       pagination.First,
+		Offset:      pagination.Offset,
+		Items:       items,
+		Cursor:      pagination.Cursor,
+		NextCursor:  pagination.NextCursor,
+		HasNext:     pagination.HasNext,
+		HasPrevious: pagination.HasPrevious,
 	}, nil
 }
 
-func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, first *int, offset *int) (*model.SectionItemPagination, error) {
+func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
 	if strings.HasPrefix(id, "c-") {
 		collectionId := utils.AsIntOrNil(strings.TrimPrefix(id, "c-"))
 		if collectionId != nil {
-			return getSectionItemsForCollectionPage(ctx, r, *collectionId, first, offset)
+			return getSectionItemsForCollectionPage(ctx, r, *collectionId, first, offset, cursor)
 		}
 		return nil, merry.New("invalid collection id")
 	}
@@ -312,15 +330,19 @@ func sectionCollectionItemResolver(ctx context.Context, r *Resolver, id string, 
 		return nil, err
 	}
 
-	pagination, err := r.sectionCollectionEntryResolver(ctx, section, first, offset, section.Options.Limit)
+	pagination, err := r.sectionCollectionEntryResolver(ctx, section, first, offset, cursor, section.Options.Limit)
 	if err != nil {
 		return nil, err
 	}
 
 	return &model.SectionItemPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  pagination.Items,
+		Total:       pagination.Total,
+		First:       pagination.First,
+		Offset:      pagination.Offset,
+		Items:       pagination.Items,
+		Cursor:      pagination.Cursor.Encode(),
+		NextCursor:  pagination.NextCursor.Encode(),
+		HasNext:     pagination.HasNext,
+		HasPrevious: pagination.HasPrevious,
 	}, nil
 }

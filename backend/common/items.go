@@ -351,6 +351,8 @@ type Filter struct {
 	SortBy          string
 	SortByDirection string
 	Limit           *int
+	DeboostFactor   float64 `json:"deboostFactor,omitempty"` // Deboost factor (0-1), applies to items with DeboostTag
+	DeboostTag      string  `json:"deboostTag,omitempty"`    // Tag to be deboosted
 }
 
 // CollectionItem is the definition of the CollectionItem object

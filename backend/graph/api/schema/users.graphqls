@@ -24,7 +24,7 @@ type UserCollection {
     title: String!
     #    updatedAt: Date!
     #    createdAt: Date!
-    entries(first: Int, offset: Int): UserCollectionEntryPagination! @goField(forceResolver: true)
+    entries(first: Int, offset: Int, cursor: Cursor): UserCollectionEntryPagination! @goField(forceResolver: true)
 }
 
 union UserCollectionEntryItem = Show | Episode | Short
@@ -39,7 +39,11 @@ type UserCollectionEntry {
 
 type UserCollectionEntryPagination implements Pagination {
     total: Int!
-    offset: Int!
     first: Int!
+    offset: Int! @deprecated(reason: "Offset is deprecated, use cursor")
+    cursor: Cursor!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    nextCursor: Cursor!
     items: [UserCollectionEntry!]!
 }

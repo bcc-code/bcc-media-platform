@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"crypto/rsa"
+	"database/sql"
 	"fmt"
 	"github.com/samber/lo"
 	"strconv"
@@ -60,6 +61,7 @@ type bmmClient interface {
 // Resolver is the main struct for the GQL implementation
 // It contains references to all external services and config
 type Resolver struct {
+	DB                  *sql.DB
 	Queries             *sqlc.Queries
 	Loaders             *common.BatchLoaders
 	FilteredLoaders     func(ctx context.Context) *common.LoadersWithPermissions
@@ -109,6 +111,10 @@ func (r *Resolver) GetURLSigner() *signing.Signer {
 
 func (r *Resolver) GetCDNConfig() export.CDNConfig {
 	return r.APIConfig
+}
+
+func (r *Resolver) GetDB() *sql.DB {
+	return r.DB
 }
 
 type awsConfig interface {

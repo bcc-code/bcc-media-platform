@@ -9,22 +9,30 @@ type Achievement {
 }
 
 type AchievementPagination implements Pagination {
-    offset: Int!
-    first: Int!
     total: Int!
+    first: Int!
+    offset: Int! @deprecated(reason: "Offset is deprecated, use cursor")
+    cursor: Cursor!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    nextCursor: Cursor!
     items: [Achievement!]!
 }
 
 type AchievementGroup {
     id: ID!
     title: String!
-    achievements(first: Int, offset: Int): AchievementPagination! @goField(forceResolver: true)
+    achievements(first: Int, offset: Int, cursor: Cursor): AchievementPagination! @goField(forceResolver: true)
 }
 
 type AchievementGroupPagination implements Pagination {
-    offset: Int!
-    first: Int!
     total: Int!
+    first: Int!
+    offset: Int! @deprecated(reason: "Offset is deprecated, use cursor")
+    cursor: Cursor!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    nextCursor: Cursor!
     items: [AchievementGroup!]!
 }
 

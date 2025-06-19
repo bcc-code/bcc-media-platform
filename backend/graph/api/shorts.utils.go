@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"errors"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/unleash"
@@ -27,7 +28,7 @@ func (r *Resolver) getShuffledShortIDs(ctx context.Context, seed int64) ([]uuid.
 
 	ids := lo.Flatten(shortIDSegments)
 
-	return utils.ShuffleSegmentedArray(ids, 10, 1, seed), nil
+	return cursors.ShuffleSegmentedArray(ids, 10, 1, seed), nil
 }
 
 func (r *Resolver) getShortToMediaIDMap(ctx context.Context, shortIDs []uuid.UUID) (map[uuid.UUID]uuid.UUID, error) {
@@ -49,14 +50,14 @@ func (r *Resolver) getShortToMediaIDMap(ctx context.Context, shortIDs []uuid.UUI
 }
 
 type shortsShuffledResult struct {
-	Cursor     *utils.Cursor[uuid.UUID]
-	NextCursor *utils.Cursor[uuid.UUID]
+	Cursor     *cursors.RandomizedCursor
+	NextCursor *cursors.RandomizedCursor
 	Keys       []uuid.UUID
 }
 
-func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.Profile, cursor *utils.Cursor[uuid.UUID], limit *int, initialID uuid.UUID) (*shortsShuffledResult, error) {
+func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.Profile, cursor *cursors.RandomizedCursor, limit *int, initialID uuid.UUID) (*shortsShuffledResult, error) {
 	if cursor == nil {
-		cursor = utils.NewCursor[uuid.UUID](true, 1)
+		cursor = cursors.NewRandomizedCursor(true, 1)
 	}
 
 	if cursor.Seed == nil {
@@ -107,7 +108,7 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 		}
 	}
 
-	shortIDs = cursor.ApplyToSegments(shortIDs, 5)
+	shortIDs = cursors.ApplyRandomizedCursorToSegments(*cursor, shortIDs, 5)
 
 	if initialID != uuid.Nil {
 		shortIDs = applyInitialShort(shortIDs, initialID, *cursor)
@@ -131,7 +132,7 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 
 	lastID, _ := lo.Last(keys)
 
-	nextCursor := &utils.Cursor[uuid.UUID]{
+	nextCursor := &cursors.RandomizedCursor{
 		Seed:         cursor.Seed,
 		RandomFactor: cursor.RandomFactor,
 		CurrentIndex: cursor.CurrentIndex + lo.IndexOf(shortIDs, lastID) + 1,
@@ -219,9 +220,9 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int, in
 	if err != nil && !errors.Is(err, ErrProfileNotSet) {
 		return nil, err
 	}
-	var c *utils.Cursor[uuid.UUID]
+	var c *cursors.RandomizedCursor
 	if cursor != nil {
-		c, err = utils.ParseCursor[uuid.UUID](*cursor)
+		c, err = cursors.ParseRandomizedCursor(*cursor)
 	}
 	if err != nil {
 		return nil, err
@@ -258,12 +259,12 @@ func (r *Resolver) getShorts(ctx context.Context, cursor *string, limit *int, in
 		}
 	}
 
-	currentCursorString, err := utils.MarshalAndBase64Encode(result.Cursor)
+	currentCursorString, err := cursors.MarshalAndBase64Encode(result.Cursor)
 	if err != nil {
 		return nil, err
 	}
 
-	nextCursorString, err := utils.MarshalAndBase64Encode(result.NextCursor)
+	nextCursorString, err := cursors.MarshalAndBase64Encode(result.NextCursor)
 	if err != nil {
 		return nil, err
 	}
@@ -290,7 +291,7 @@ func shortToShort(ctx context.Context, short *common.Short) *model.Short {
 	}
 }
 
-func applyInitialShort(shortIDs []uuid.UUID, initialID uuid.UUID, cursor utils.Cursor[uuid.UUID]) []uuid.UUID {
+func applyInitialShort(shortIDs []uuid.UUID, initialID uuid.UUID, cursor cursors.RandomizedCursor) []uuid.UUID {
 	for i, id := range shortIDs {
 		if id == initialID {
 			shortIDs = append(shortIDs[:i], shortIDs[i+1:]...)

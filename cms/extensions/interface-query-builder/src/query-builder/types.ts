@@ -58,6 +58,7 @@ export type Field = ({column: string, title: string, supportedOperators: string[
 }))
 
 export type Root = {
+    deboost_factor: 0;
 	id: string;
 	filter: Group | null;
 	sortBy: string | null;
@@ -78,6 +79,16 @@ export type DataSetRow = {
 	tags: string[]
 }
 
+export interface QueryBuilderConfig {
+	sortBy: string | null;
+	sortByDirection: "asc" | "desc" | null;
+	limit: number | null;
+	/** Deboost Factor, 0-100 (percent), integer */
+	deboostFactor?: number | null;
+	/** Deboost Tag, string, only items with this tag are affected by deboost factor */
+	deboostTag?: string | null;
+}
+
 export const fields: Field[] = [
 	{
 		column: "collection",
@@ -92,10 +103,10 @@ export const fields: Field[] = [
 				title: "Seasons",
 				value: "seasons"
 			},
-			{
-				title: "Shows",
-				value: "shows"
-			},
+            {
+                title: "Shows",
+                value: "shows"
+            },
             {
                 title: "Playlists",
                 value: "playlists",

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"sort"
@@ -11,7 +10,6 @@ import (
 
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/bcc-code/bcc-media-platform/backend/items/collection"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
@@ -26,8 +24,6 @@ var personalizedLoaders = loaders.NewCollection[string, *common.PersonalizedLoad
 
 func getPersonalizedLoaders(
 	queries *sqlc.Queries,
-	db *sql.DB,
-	collectionLoader *loaders.Loader[int, *common.Collection],
 	roles []string,
 	languagePreferences common.LanguagePreferences,
 ) *common.PersonalizedLoaders {
@@ -53,7 +49,6 @@ func getPersonalizedLoaders(
 		CollectionItemsLoader: loaders.NewListLoader(ctx, pq.GetEntriesForCollectionsFilteredByRolesAndLanguages, func(i common.CollectionItem) int {
 			return i.CollectionID
 		}),
-		CollectionItemIDsLoader: collection.NewCollectionItemLoader(ctx, db, collectionLoader, roles, languagePreferences),
 		ContributionsForPersonLoader: loaders.NewListLoader(ctx, pq.GetContributionsForPersonsWithRoles, func(i common.Contribution) uuid.UUID {
 			return i.PersonID
 		}, loaders.WithName("person-contributions")),
@@ -68,7 +63,7 @@ func getPersonalizedLoaders(
 
 var roleLoaders = loaders.NewCollection[string, *common.LoadersWithPermissions](time.Minute)
 
-func getLoadersForRoles(db *sql.DB, queries *sqlc.Queries, collectionLoader *loaders.Loader[int, *common.Collection], roles []string) *common.LoadersWithPermissions {
+func getLoadersForRoles(queries *sqlc.Queries, roles []string) *common.LoadersWithPermissions {
 	sort.Strings(roles)
 
 	key := strings.Join(roles, "-")

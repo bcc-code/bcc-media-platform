@@ -1,8 +1,10 @@
 package common
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
+	"strings"
 )
 
 const (
@@ -29,6 +31,14 @@ func (lp *LanguagePreferences) PreferredLanguages() []string {
 	return lp.preferredLanguages
 }
 
+func (lp *LanguagePreferences) String() string {
+	return fmt.Sprintf("contentonly_%v_audio_%s_subs_%s",
+		lp.ContentOnlyInPreferredLanguage,
+		strings.Join(lp.PreferredAudioLanguages, ","),
+		strings.Join(lp.PreferredSubtitlesLanguages, ","),
+	)
+}
+
 // GetLanguagePreferencesFromCtx returns the language preferences from the context
 // This is normally set by the middleware from the headers,
 // but if the headers do not exist we fall back to the application group, and hardcoded defaults
@@ -38,7 +48,6 @@ func GetLanguagePreferencesFromCtx(ctx *gin.Context) LanguagePreferences {
 		return langPrefs.(LanguagePreferences)
 	}
 
-	// TODO: Change to application group
 	return LanguagePreferences{
 		ContentOnlyInPreferredLanguage: false,
 		PreferredAudioLanguages:        []string{"no"},

@@ -6,6 +6,7 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+	"gopkg.in/guregu/null.v4"
 	"os"
 	"path"
 	"path/filepath"
@@ -60,6 +61,7 @@ type CDNConfig interface {
 }
 
 type serviceProvider interface {
+	GetDB() *sql.DB
 	GetQueries() *sqlc.Queries
 	GetLoaders() *common.BatchLoaders
 	GetFilteredLoaders(ctx context.Context) *common.LoadersWithPermissions
@@ -416,7 +418,17 @@ func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqle
 		if c == nil {
 			continue
 		}
-		entries, err := collection.GetBaseCollectionEntries(ctx, q.GetLoaders(), personalizedLoaders, c.ID)
+		//entries, err := collection.GetBaseCollectionEntries(ctx, q.GetLoaders(), personalizedLoaders, c.ID)
+
+		entries, err := collection.GetBaseCollectionEntries(
+			ctx,
+			q.GetDB(),
+			q.GetLoaders(),
+			personalizedLoaders,
+			c.ID,
+			common.LanguagePreferences{ContentOnlyInPreferredLanguage: false},
+			null.NewInt(0, false),
+		)
 		if err != nil {
 			return merry.Wrap(err)
 		}
@@ -547,10 +559,6 @@ func DoExport(ctx context.Context, q serviceProvider, bucketName string) (string
 	}
 
 	presignClient := s3.NewPresignClient(q.GetS3Client(), s3.WithPresignExpires(1*time.Hour))
-	if err != nil {
-		log.L.Error().Err(err).Str("exportStep", "Presign Client").Msg("")
-		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
-	}
 
 	res, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucketName),

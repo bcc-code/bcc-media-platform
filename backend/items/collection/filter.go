@@ -1,18 +1,21 @@
 package collection
 
 import (
-	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"math"
+	"strconv"
+	"strings"
+
 	"github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
+	"github.com/lib/pq"
+	"gopkg.in/guregu/null.v4"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/jsonlogic"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
-	"github.com/google/uuid"
-	"github.com/lib/pq"
-	"strconv"
-	"strings"
 )
 
 type filterDataSetRow struct {
@@ -21,12 +24,14 @@ type filterDataSetRow struct {
 	UUID       uuid.UUID
 }
 
-func itemIdsFromRows(rows *sql.Rows) []common.Identifier {
+func ItemIdsFromRows(rows *sql.Rows) []common.Identifier {
 	var ids []common.Identifier
 
 	for rows.Next() {
 		var row filterDataSetRow
-		err := rows.Scan(&row.Collection, &row.ID, &row.UUID)
+		// Always scan the random field, but throw it away
+		var ignoredRandom float64
+		err := rows.Scan(&row.Collection, &row.ID, &row.UUID, &ignoredRandom)
 		if err != nil {
 			log.L.Debug().Err(err).Msg("couldn't scan")
 		}
@@ -76,21 +81,29 @@ func addLanguageFilter(query jsonlogic.Query, languagePreferences common.Languag
 	return query
 }
 
+type FilterParams struct {
+	Roles               []string
+	LanguagePreferences common.LanguagePreferences
+	Filter              common.Filter
+	NoLimit             bool
+	RandomSeed          null.Int
+}
+
 // GetItemIDsForFilter returns an array of ids for the collection
-func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, languagePreferences common.LanguagePreferences, f common.Filter, noLimit bool) ([]common.Identifier, error) {
-	if f.Filter == nil {
-		return nil, nil
+func GetSQLForFilter(args FilterParams) *squirrel.SelectBuilder {
+	if args.Filter.Filter == nil {
+		return nil
 	}
 
 	var filterObject map[string]any
-	_ = json.Unmarshal(f.Filter, &filterObject)
+	_ = json.Unmarshal(args.Filter.Filter, &filterObject)
 
 	var orderByString string
-	if f.SortBy != "" {
-		orderByString = "t." + pq.QuoteIdentifier(f.SortBy)
+	if args.Filter.SortBy != "" {
+		orderByString = "t." + pq.QuoteIdentifier(args.Filter.SortBy)
 	}
-	if orderByString != "" && f.SortByDirection != "" {
-		switch f.SortByDirection {
+	if orderByString != "" && args.Filter.SortByDirection != "" {
+		switch args.Filter.SortByDirection {
 		case "desc":
 			orderByString += " DESC"
 		case "asc":
@@ -99,18 +112,38 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, langua
 	}
 
 	query := jsonlogic.GetSQLQueryFromFilter(filterObject)
-	query = addLanguageFilter(query, languagePreferences)
+	query = addLanguageFilter(query, args.LanguagePreferences)
 
 	from := "filter_dataset t"
+	selectFields := []string{"t.collection", "t.id", "t.uuid"}
+
+	var randomFunc string
+	if args.RandomSeed.Valid {
+		// Use deterministic randomization with seed from cursor
+		// PostgreSQL setseed() expects a value between -1 and 1
+		seed := float64(args.RandomSeed.Int64) / math.MaxInt64 // Convert int64 to float between -1 and 1
+		randomFunc = "random()"
+		// We'll need to set the seed before the main query
+		from = fmt.Sprintf("(SELECT setseed(%f)) seed_setter, filter_dataset t", seed)
+	} else {
+		randomFunc = "random()"
+	}
+
+	// Always apply the complex randomization logic, regardless of randomized flag
+	selectFields = append(selectFields, fmt.Sprintf(`CASE
+    WHEN t.tags @> ARRAY['%s']::varchar[] AND %f > 0.0
+      THEN CASE WHEN %s < %f THEN %s ELSE %s + 1 END
+    ELSE %s
+  END AS r`, args.Filter.DeboostTag, args.Filter.DeboostFactor, randomFunc, args.Filter.DeboostFactor, randomFunc, randomFunc, randomFunc))
 	q := squirrel.StatementBuilder.
 		PlaceholderFormat(squirrel.Dollar).
-		Select("t.collection", "t.id", "t.uuid").
+		Select(selectFields...).
 		From(from).
 		Where(query.Filter)
 
-	if !noLimit {
-		if f.Limit != nil && *f.Limit > 0 {
-			limit := *f.Limit
+	if !args.NoLimit && args.RandomSeed.Valid {
+		if args.Filter.Limit != nil && *args.Filter.Limit > 0 {
+			limit := *args.Filter.Limit
 			q = q.Limit(uint64(limit))
 		} else {
 			q = q.Limit(20)
@@ -119,27 +152,23 @@ func GetItemIDsForFilter(ctx context.Context, db *sql.DB, roles []string, langua
 
 	//q = parseJoins(q, collection, query.Joins)
 
-	if roles != nil {
-		q = addPermissionFilter(q, roles)
+	if args.Roles != nil {
+		q = addPermissionFilter(q, args.Roles)
 	}
 
-	if orderByString != "" {
+	// Always append random order as last if randomized
+	if args.RandomSeed.Valid {
+		if orderByString != "" {
+			q = q.OrderBy(orderByString, "r")
+		} else {
+			q = q.OrderBy("r")
+		}
+	} else if orderByString != "" {
 		q = q.OrderBy(orderByString)
 	}
 
-	if ctx.Value("preview") == true {
-		queryString, _, err := q.ToSql()
-		if err != nil {
-			return nil, err
-		}
-		log.L.Debug().Str("query", queryString).Msg("Querying database for previewing filter")
-	}
+	return &q
 
-	rows, err := q.RunWith(db).Query()
-	if err != nil {
-		queryString, _, _ := q.ToSql()
-		log.L.Debug().Str("query", queryString).Err(err).Msg("Error occurred when trying to run query")
-		return nil, err
-	}
-	return itemIdsFromRows(rows), nil
+	/*
+	 */
 }

@@ -32,6 +32,20 @@
         <div class="limit">
             <v-input v-model="limit" @change="handleChange" type="number" />
         </div>
+        <h1>Deboost Factor</h1>
+        <div class="limit">
+            <v-input v-model="deboostFactor" @change="handleChange" type="number" min="0" max="100" suffix="%" />
+            <small style="display:block;margin-top:4px;color:#888;">
+                Controls how likely items tagged with the deboost tag are to appear at the top. 0% means such items will never be prioritized, 100% means they are treated the same as untagged items. For example, 30% gives tagged items a 30% chance to be prioritized like untagged content.
+            </small>
+        </div>
+        <h1>Deboost Tag</h1>
+        <div class="limit">
+            <v-input v-model="deboostTag" @change="handleChange" type="text" placeholder="e.g. serie" />
+            <small style="display:block;margin-top:4px;color:#888;">
+                Only items containing this tag in their tags array will be affected by the deboost factor above.
+            </small>
+        </div>
 	</div>
 	<div v-else>
 		<v-button @click="clearGroup()">Create filter</v-button>
@@ -55,6 +69,8 @@ const group = ref(props.value?.filter ?? null);
 const sortBy = ref(props.value?.sortBy ?? null);
 const sortByDirection = ref(props.value?.sortByDirection ?? null)
 const limit = ref(props.value?.limit ?? null);
+const deboostFactor = ref(props.value?.deboostFactor ?? null);
+const deboostTag = ref(props.value?.deboostTag ?? "");
 
 watch(() => [sortBy.value, sortByDirection.value], handleChange)
 
@@ -65,6 +81,8 @@ function handleChange(): void {
         sortBy: sortBy.value,
         sortByDirection: sortByDirection.value,
         limit: limit.value,
+        deboostFactor: deboostFactor.value,
+        deboostTag: deboostTag.value,
     })
 }
 

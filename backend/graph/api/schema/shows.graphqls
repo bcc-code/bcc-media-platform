@@ -18,6 +18,7 @@ type Show implements CollectionItem {
     seasons(
         first: Int
         offset: Int
+        cursor: Cursor
         dir: String
     ): SeasonPagination! @goField(forceResolver: true)
 

@@ -47,11 +47,12 @@ func graphqlHandler(
 	bmmClient *bmm.APIClient,
 ) gin.HandlerFunc {
 	resolver := graphapi.Resolver{
+		DB:                  db,
 		Queries:             queries,
 		Loaders:             loaders,
 		FilteredLoaders:     filteredLoaderFactory(db, queries, loaders.CollectionLoader),
 		ProfileLoaders:      profileLoaderFactory(queries),
-		PersonalizedLoaders: personalizedLoaderFactory(db, queries, loaders.CollectionLoader),
+		PersonalizedLoaders: personalizedLoaderFactory(queries),
 		SearchService:       searchService,
 		EmailService:        emailService,
 		URLSigner:           urlSigner,

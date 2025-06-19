@@ -3,6 +3,8 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
+	"github.com/bcc-code/bcc-media-platform/backend/items/collection"
 	"strconv"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -43,7 +45,7 @@ func getSectionsForCollectionPage(collectionID int) (*model.SectionPagination, e
 	}, nil
 }
 
-func getSectionItemsForCollectionPage(ctx context.Context, r *Resolver, collectionId int, first, offset *int) (*model.SectionItemPagination, error) {
+func getSectionItemsForCollectionPage(ctx context.Context, r *Resolver, collectionId int, first, offset *int, cursor *string) (*model.SectionItemPagination, error) {
 	ls := r.GetLoaders()
 
 	col, err := ls.CollectionLoader.Get(ctx, collectionId)
@@ -51,12 +53,14 @@ func getSectionItemsForCollectionPage(ctx context.Context, r *Resolver, collecti
 		return nil, err
 	}
 
-	entries, err := r.GetCollectionEntries(ctx, collectionId)
+	randomizedCursor := cursors.ParseOrDefaultRandomizedCursor(cursor)
+
+	entries, err := r.GetCollectionEntries(ctx, collectionId, randomizedCursor)
 	if err != nil {
 		return nil, err
 	}
 
-	pagination := utils.Paginate(entries, first, offset, nil)
+	pagination := utils.Paginate[collection.Entry, *cursors.RandomizedCursor](entries, first, offset, nil, randomizedCursor)
 
 	preloadEntryLoaders(ctx, ls, pagination.Items)
 
@@ -66,9 +70,13 @@ func getSectionItemsForCollectionPage(ctx context.Context, r *Resolver, collecti
 	}
 
 	return &model.SectionItemPagination{
-		Total:  pagination.Total,
-		First:  pagination.First,
-		Offset: pagination.Offset,
-		Items:  items,
+		Total:       pagination.Total,
+		First:       pagination.First,
+		Offset:      pagination.Offset,
+		Items:       items,
+		Cursor:      pagination.Cursor.Encode(),
+		NextCursor:  pagination.NextCursor.Encode(),
+		HasNext:     pagination.HasNext,
+		HasPrevious: pagination.HasPrevious,
 	}, nil
 }
