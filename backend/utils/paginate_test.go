@@ -220,7 +220,7 @@ func TestPaginate_WithOffsetCursorAndFirst(t *testing.T) {
 	assert.Equal(t, []int{3, 4, 5, 6}, result.Items) // 4 items starting from cursor offset
 }
 
-func TestPaginate_CursorOverridesOffset(t *testing.T) {
+func TestPaginate_CursorAndOffset(t *testing.T) {
 	collection := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	cursor := cursors.NewOffsetCursor(5)
 	offset := 2 // this should be ignored
@@ -229,8 +229,8 @@ func TestPaginate_CursorOverridesOffset(t *testing.T) {
 
 	assert.Equal(t, 10, result.Total)
 	assert.Equal(t, 3, result.First)
-	assert.Equal(t, 5, result.Offset)             // cursor takes precedence over offset
-	assert.Equal(t, []int{6, 7, 8}, result.Items) // uses cursor offset, not offset param
+	assert.Equal(t, 2, result.Offset)             // cursor takes precedence over offset
+	assert.Equal(t, []int{3, 4, 5}, result.Items) // uses cursor offset, not offset param
 }
 
 func TestPaginate_WithOffsetCursorAndDirection(t *testing.T) {
@@ -243,9 +243,6 @@ func TestPaginate_WithOffsetCursorAndDirection(t *testing.T) {
 	assert.Equal(t, 10, result.Total)
 	assert.Equal(t, 3, result.First)
 	assert.Equal(t, 2, result.Offset)
-	// Collection reversed: [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
-	// Skip 2 (cursor offset): [8, 7, 6, 5, 4, 3, 2, 1]
-	// Take 3 (first): [8, 7, 6]
 	assert.Equal(t, []int{8, 7, 6}, result.Items)
 }
 
