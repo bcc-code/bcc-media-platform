@@ -1,7 +1,26 @@
 {
   "settings": {
     "analysis": {
+      "tokenizer": {
+        "edge_ngram_tokenizer": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 15,
+          "token_chars": [
+            "letter",
+            "digit"
+          ]
+        }
+      },
       "analyzer": {
+        "ngram_analyzer": {
+          "type": "custom",
+          "tokenizer": "edge_ngram_tokenizer",
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ]
+        },
         "keyword_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
@@ -400,11 +419,45 @@
     }
   },
   "mappings": {
+    "_source": {
+      "excludes": [
+        "*_ngram"
+      ]
+    },
+    "dynamic_templates": [
+      {
+        "strings_as_keywords": {
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              },
+              "ngram": {
+                "type": "text",
+                "analyzer": "ngram_analyzer"
+              }
+            },
+            "copy_to": "{name}_ngram"
+          }
+        }
+      }
+    ],
     "properties": {
       "title_en": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "complete": { "type": "completion" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "english_us_title_analyzer",
+        "copy_to": ["title_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -412,8 +465,16 @@
       },
       "title_de": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "complete": { "type": "completion" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "german_title_analyzer",
+        "copy_to": ["title_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -421,8 +482,16 @@
       },
       "title_no": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "complete": { "type": "completion" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "norwegian_title_analyzer",
+        "copy_to": ["title_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -430,8 +499,16 @@
       },
       "title_da": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "complete": { "type": "completion" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "danish_title_analyzer",
+        "copy_to": ["title_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -439,8 +516,16 @@
       },
       "title_fi": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "complete": { "type": "completion" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "finnish_title_analyzer",
+        "copy_to": ["title_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -448,8 +533,16 @@
       },
       "title_nl": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "complete": { "type": "completion" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "dutch_title_analyzer",
+        "copy_to": ["title_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -457,8 +550,16 @@
       },
       "title_es": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "complete": { "type": "completion" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "spanish_title_analyzer",
+        "copy_to": ["title_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -466,8 +567,16 @@
       },
       "title_pl": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "complete": { "type": "completion" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "polish_title_analyzer",
+        "copy_to": ["title_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -475,8 +584,16 @@
       },
       "title_bg": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "complete": { "type": "completion" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "bulgarian_title_analyzer",
+        "copy_to": ["title_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -484,17 +601,52 @@
       },
       "title_sl": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 },"complete": { "type": "completion" }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "complete": { "type": "completion" },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "slovenian_title_analyzer",
+        "copy_to": ["title_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
         }
       },
+      "title_ngram": {
+        "type": "text",
+        "analyzer": "ngram_analyzer"
+      },
+      "description_ngram": {
+        "type": "text",
+        "analyzer": "ngram_analyzer"
+      },
+      "seasonTitle_ngram": {
+        "type": "text",
+        "analyzer": "ngram_analyzer"
+      },
+      "showTitle_ngram": {
+        "type": "text",
+        "analyzer": "ngram_analyzer"
+      },
+      "studyTopicTitle_ngram": {
+        "type": "text",
+        "analyzer": "ngram_analyzer"
+      },
       "description_en": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "english_us_analyzer",
+        "copy_to": ["description_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -502,8 +654,15 @@
       },
       "description_de": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "german_analyzer",
+        "copy_to": ["description_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -511,8 +670,15 @@
       },
       "description_no": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "norwegian_analyzer",
+        "copy_to": ["description_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -520,8 +686,15 @@
       },
       "description_da": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "danish_analyzer",
+        "copy_to": ["description_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -529,8 +702,15 @@
       },
       "description_fi": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "finnish_analyzer",
+        "copy_to": ["description_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -538,8 +718,15 @@
       },
       "description_nl": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "dutch_analyzer",
+        "copy_to": ["description_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -547,8 +734,15 @@
       },
       "description_es": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "spanish_analyzer",
+        "copy_to": ["description_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -556,8 +750,15 @@
       },
       "description_pl": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "polish_analyzer",
+        "copy_to": ["description_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -565,8 +766,15 @@
       },
       "description_bg": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "bulgarian_analyzer",
+        "copy_to": ["description_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -574,8 +782,15 @@
       },
       "description_sl": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "slovenian_analyzer",
+        "copy_to": ["description_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -583,8 +798,15 @@
       },
       "showTitle_en": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "english_us_title_analyzer",
+        "copy_to": ["showTitle_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -592,8 +814,15 @@
       },
       "showTitle_de": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "german_title_analyzer",
+        "copy_to": ["showTitle_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -601,8 +830,15 @@
       },
       "showTitle_no": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "norwegian_title_analyzer",
+        "copy_to": ["showTitle_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -610,8 +846,15 @@
       },
       "showTitle_da": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "danish_title_analyzer",
+        "copy_to": ["showTitle_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -619,8 +862,15 @@
       },
       "showTitle_fi": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "finnish_title_analyzer",
+        "copy_to": ["showTitle_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -628,8 +878,15 @@
       },
       "showTitle_nl": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "dutch_title_analyzer",
+        "copy_to": ["showTitle_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -637,8 +894,15 @@
       },
       "showTitle_es": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "spanish_title_analyzer",
+        "copy_to": ["showTitle_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -646,8 +910,15 @@
       },
       "showTitle_pl": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "polish_title_analyzer",
+        "copy_to": ["showTitle_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -655,8 +926,15 @@
       },
       "showTitle_bg": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "bulgarian_title_analyzer",
+        "copy_to": ["showTitle_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -664,8 +942,15 @@
       },
       "showTitle_sl": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "slovenian_title_analyzer",
+        "copy_to": ["showTitle_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -673,8 +958,15 @@
       },
       "seasonTitle_en": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "english_us_title_analyzer",
+        "copy_to": ["seasonTitle_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -682,8 +974,15 @@
       },
       "seasonTitle_de": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "german_title_analyzer",
+        "copy_to": ["seasonTitle_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -691,8 +990,15 @@
       },
       "seasonTitle_no": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "norwegian_title_analyzer",
+        "copy_to": ["seasonTitle_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -700,8 +1006,15 @@
       },
       "seasonTitle_da": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "danish_title_analyzer",
+        "copy_to": ["seasonTitle_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -709,8 +1022,15 @@
       },
       "seasonTitle_fi": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "finnish_title_analyzer",
+        "copy_to": ["seasonTitle_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
@@ -718,8 +1038,15 @@
       },
       "seasonTitle_nl": {
         "type": "text",
-        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 }},
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        },
         "analyzer": "dutch_title_analyzer",
+        "copy_to": ["seasonTitle_ngram"],
         "index_prefixes": {
           "min_chars" : 3,
           "max_chars" : 10
