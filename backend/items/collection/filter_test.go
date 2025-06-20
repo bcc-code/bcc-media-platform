@@ -77,7 +77,6 @@ func TestAddLanguageFilterWithComplexOriginalFilter(t *testing.T) {
 	// Act
 	result := addLanguageFilter(query, langPrefs)
 
-
 	// Assert - Compare the number of conditions
 	andFilter, ok := result.Filter.(squirrel.And)
 	assert.True(t, ok, "Result filter should be of type squirrel.And")
@@ -116,11 +115,11 @@ func TestGetSQLForFilter_WithSorting(t *testing.T) {
 	sortBy := "title"
 	sortDir := "desc"
 	filterJSON := `{"==": [{"var": "type"}, "show"]}`
-	
+
 	params := FilterParams{
 		Filter: common.Filter{
-			Filter:  json.RawMessage(filterJSON),
-			SortBy:  sortBy,
+			Filter:          json.RawMessage(filterJSON),
+			SortBy:          sortBy,
 			SortByDirection: sortDir,
 		},
 	}
@@ -148,7 +147,7 @@ func TestGetSQLForFilter_WithRandomization(t *testing.T) {
 
 	assert.NotNil(t, result)
 	sql, _, _ := result.ToSql()
-	
+
 	// Verify the SQL contains the expected randomization logic
 	assert.Contains(t, sql, "SELECT setseed")
 	assert.Contains(t, sql, "ORDER BY r")
@@ -170,7 +169,7 @@ func TestGetSQLForFilter_WithRoles(t *testing.T) {
 
 	assert.NotNil(t, result)
 	sql, args, _ := result.ToSql()
-	
+
 	// Verify the SQL contains role-based filtering
 	assert.Contains(t, sql, "roles && '{user,premium}'")
 	assert.GreaterOrEqual(t, len(args), 1) // At least the roles parameter should be there
@@ -184,8 +183,8 @@ func TestGetSQLForFilter_WithDeboost(t *testing.T) {
 	deboostFactor := 0.5
 	params := FilterParams{
 		Filter: common.Filter{
-			Filter:       json.RawMessage(filterJSON),
-			DeboostTag:   deboostTag,
+			Filter:        json.RawMessage(filterJSON),
+			DeboostTag:    deboostTag,
 			DeboostFactor: deboostFactor,
 		},
 	}
@@ -194,7 +193,7 @@ func TestGetSQLForFilter_WithDeboost(t *testing.T) {
 
 	assert.NotNil(t, result)
 	sql, _, _ := result.ToSql()
-	
+
 	// Verify the SQL contains deboost logic
 	assert.Contains(t, sql, "WHEN t.tags @> ARRAY['preview']::varchar[] AND 0.500000 > 0.0")
 	assert.Contains(t, sql, "THEN CASE WHEN random() < 0.500000 THEN random() ELSE random() + 1 END")
@@ -211,14 +210,13 @@ func TestGetSQLForFilter_WithLimit(t *testing.T) {
 			Filter: json.RawMessage(filterJSON),
 			Limit:  &limit,
 		},
-		RandomSeed: null.IntFrom(12345), // Required for limit to take effect
 	}
 
 	result := GetSQLForFilter(params)
 
 	assert.NotNil(t, result)
 	sql, _, _ := result.ToSql()
-	
+
 	// Should include LIMIT
 	assert.Contains(t, sql, "LIMIT 10")
 }
