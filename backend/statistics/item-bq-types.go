@@ -100,6 +100,7 @@ func SeasonFromCommon(s common.Season, tags []common.Tag) Season {
 type Episode struct {
 	ID                    int                 `json:"id"`
 	UUID                  uuid.UUID           `json:"uuid"`
+	Status                common.Status       `json:"status"`
 	Unlisted              bool                `json:"unlisted"`
 	Type                  string              `json:"type"`
 	PreventPublicIndexing bool                `json:"preventPublicIndexing"`
@@ -141,6 +142,7 @@ func EpisodeFromCommon(e common.Episode, tags []common.Tag) Episode {
 	return Episode{
 		ID:                    e.ID,
 		UUID:                  e.UUID,
+		Status:                e.Status,
 		Unlisted:              e.Unlisted(),
 		Type:                  e.Type,
 		PreventPublicIndexing: e.PreventPublicIndexing,
