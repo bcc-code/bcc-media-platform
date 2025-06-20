@@ -36,6 +36,12 @@ func RefreshView(ctx context.Context, s services, event cloudevents.Event) error
 	switch msg.ViewName {
 	case "filter_dataset":
 		err = s.GetQueries().RefreshView(ctx, msg.ViewName)
+	case "episode_availability":
+		err = s.GetQueries().RefreshView(ctx, msg.ViewName)
+	case "season_availability":
+		err = s.GetQueries().RefreshView(ctx, msg.ViewName)
+	case "show_availability":
+		err = s.GetQueries().RefreshView(ctx, msg.ViewName)
 	default:
 		err = merry.Wrap(ErrUnknownView)
 	}
