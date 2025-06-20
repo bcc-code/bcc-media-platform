@@ -141,7 +141,7 @@ func GetSQLForFilter(args FilterParams) *squirrel.SelectBuilder {
 		From(from).
 		Where(query.Filter)
 
-	if !args.NoLimit && args.RandomSeed.Valid {
+	if !args.NoLimit && !args.RandomSeed.Valid {
 		if args.Filter.Limit != nil && *args.Filter.Limit > 0 {
 			limit := *args.Filter.Limit
 			q = q.Limit(uint64(limit))
