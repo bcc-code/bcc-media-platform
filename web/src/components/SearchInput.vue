@@ -21,9 +21,7 @@ const emit = defineEmits<{
     (e: 'keydown.enter'): void
 }>()
 
-const debounce = useDebounceFn((fn: () => void) => fn(), 100, {
-    maxWait: 500,
-})
+const debounce = useDebounceFn((fn: () => void) => fn(), 100)
 const value = computed({
     get() {
         return props.modelValue
