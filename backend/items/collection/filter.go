@@ -129,12 +129,43 @@ func GetSQLForFilter(args FilterParams) *squirrel.SelectBuilder {
 		randomFunc = "random()"
 	}
 
-	// Always apply the complex randomization logic, regardless of randomized flag
-	selectFields = append(selectFields, fmt.Sprintf(`CASE
-    WHEN t.tags @> ARRAY['%s']::varchar[] AND %f > 0.0
-      THEN CASE WHEN %s < %f THEN %s ELSE %s + 1 END
-    ELSE %s
-  END AS r`, args.Filter.DeboostTag, args.Filter.DeboostFactor, randomFunc, args.Filter.DeboostFactor, randomFunc, randomFunc, randomFunc))
+	// Convert % value to a [-1, 1] float
+	deboostFactor := args.Filter.DeboostFactor / 100.0
+
+	// --- Randomization/Deboost Logic ---
+	//
+	// This CASE expression calculates a pseudo-random value for each row, with optional deboosting if a specific tag is present.
+	//
+	// Variables:
+	//   - args.Filter.DeboostTag:     The tag (string) that triggers deboosting if present in t.tags (array)
+	//   - args.Filter.DeboostFactor:  The deboost factor (float64) to apply if the tag is present
+	//   - randomFunc:                 The SQL expression/function that produces a random value per row (e.g. random() or seeded value)
+	//
+	// Logic:
+	//   - If the row's tags contain DeboostTag AND DeboostFactor > 0:
+	//       - If the random value is less than DeboostFactor, increment the random value by 1 (pushes it to the end)
+	//       - Otherwise, keep the random value as is
+	//   - Else: just use the random value
+	//
+	// The result is aliased as 'r' and used for randomized ordering with deboost applied to tagged items.
+	selectFields = append(
+		selectFields,
+		fmt.Sprintf(
+			`CASE
+				WHEN t.tags @> ARRAY['%s']::varchar[] /* DeboostTag */ AND %f > 0.0 /* DeboostFactor */
+					THEN CASE WHEN %s < %f /* randomFunc < DeboostFactor */ THEN %s /* randomFunc */ ELSE %s + 1 /* randomFunc + 1 */ END
+				ELSE %s /* randomFunc */
+			END AS r`,
+			args.Filter.DeboostTag, // Tag to check for deboost
+			deboostFactor,          // Deboost factor threshold
+			randomFunc,             // Random value per row
+			deboostFactor,          // Deboost factor threshold
+			randomFunc,             // If random < deboost, keep random
+			randomFunc,             // If random >= deboost, push to end
+			randomFunc,             // Default random value
+		),
+	)
+
 	q := squirrel.StatementBuilder.
 		PlaceholderFormat(squirrel.Dollar).
 		Select(selectFields...).
