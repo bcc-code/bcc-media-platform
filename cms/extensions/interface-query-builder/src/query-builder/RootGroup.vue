@@ -12,7 +12,7 @@
         <hr class="separator"/>
         <h1>Sort by</h1>
 		<div class="sort-by">
-            <v-select 
+            <v-select
                 v-model="sortBy"
                 @change="handleChange"
                 :items="fields"
@@ -20,7 +20,7 @@
                 item-value="column"
             />
             <h3>Direction</h3>
-            <v-select 
+            <v-select
                 v-model="sortByDirection"
                 :items="[{title: 'Ascending', column: 'asc'}, {title: 'Descending', column: 'desc'}]"
                 item-text="title"
@@ -36,7 +36,8 @@
         <div class="limit">
             <v-input v-model="deboostFactor" @change="handleChange" type="number" min="0" max="100" suffix="%" />
             <small style="display:block;margin-top:4px;color:#888;">
-                Controls how likely items tagged with the deboost tag are to appear at the top. 0% means such items will never be prioritized, 100% means they are treated the same as untagged items. For example, 30% gives tagged items a 30% chance to be prioritized like untagged content.
+              Controls how likely items tagged with the deboost tag are to appear at the top. 0% means such items will never be deboosetd and are treated the same as untagged items. 100% means such items are always deboosted, and should generally appear at the botton.
+              For example, 30% gives tagged items a 30% chance to be pushed to the end of the list.
             </small>
         </div>
         <h1>Deboost Tag</h1>
