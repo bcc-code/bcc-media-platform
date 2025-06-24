@@ -180,7 +180,7 @@ func TestGetSQLForFilter_WithDeboost(t *testing.T) {
 	filterJSON := `{"==": [{"var": "type"}, "episode"]}`
 
 	deboostTag := "preview"
-	deboostFactor := 0.5
+	deboostFactor := 50.0
 	params := FilterParams{
 		Filter: common.Filter{
 			Filter:        json.RawMessage(filterJSON),
@@ -195,9 +195,9 @@ func TestGetSQLForFilter_WithDeboost(t *testing.T) {
 	sql, _, _ := result.ToSql()
 
 	// Verify the SQL contains deboost logic
-	assert.Contains(t, sql, "WHEN t.tags @> ARRAY['preview']::varchar[] AND 0.500000 > 0.0")
-	assert.Contains(t, sql, "THEN CASE WHEN random() < 0.500000 THEN random() ELSE random() + 1 END")
-	assert.Contains(t, sql, "ELSE random()")
+	assert.Contains(t, sql, "WHEN t.tags @> ARRAY['preview']::varchar[] /* DeboostTag */ AND 0.500000 > 0.0 /* DeboostFactor */")
+	assert.Contains(t, sql, "THEN CASE WHEN random() < 0.500000 /* randomFunc < DeboostFactor */ THEN random() /* randomFunc */ ELSE random() + 1 /* randomFunc + 1 */ END")
+	assert.Contains(t, sql, "ELSE random() /* randomFunc */")
 }
 
 func TestGetSQLForFilter_WithLimit(t *testing.T) {
