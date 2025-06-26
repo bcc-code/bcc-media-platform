@@ -4,7 +4,6 @@
     <file url="file://$PROJECT_DIR$/migrations/00001_init.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/migrations/00011_applications.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/migrations/00304_optimize_mediaitem_view.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/migrations/00330_trigger_propagate_show_and_season_tags.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/migrations/special/post/01-admin-user.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/queries/contributions.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/queries/shorts.sql" dialect="PostgreSQL" />

@@ -147,7 +147,7 @@ func (m *Client) SendToTranslation(ctx context.Context, collection string, data 
 	// Notify assigned users for all jobs at the end
 	if len(jobs) > 0 {
 		// Find the first step jobs
-		firstStepJobs := lo.Filter(jobs, func(j Job, _ int) bool { return j.WorkflowLevel == 0 })
+		firstStepJobs := lo.Filter(jobs, func(j Job, _ int) bool { return j.WorkflowLevel == 0 && j.Status != "new" })
 		firstStepJobIDs := lo.Map(firstStepJobs, func(j Job, _ int) string { return j.UID })
 		err = m.NotifyAssignedJobs(m.ProjectUID, firstStepJobIDs, NotificationSourceChanged, nil, nil)
 		if err != nil {
