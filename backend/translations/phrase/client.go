@@ -88,7 +88,8 @@ func (c *Client) SetDebug(debug bool) {
 
 type translationFile map[string]json.RawMessage
 
-const NotificationSourceChanged string = "HwiJ0yOI4knHriGQ531nP5"
+// SourceChangedNotificationID is the notification ID for the source changed notification in Phrase
+const SourceChangedNotificationID string = "HwiJ0yOI4knHriGQ531nP5"
 
 // SendToTranslation sends the data provided to Phrase
 func (m *Client) SendToTranslation(ctx context.Context, collection string, data []common.TranslationData) error {
@@ -149,7 +150,7 @@ func (m *Client) SendToTranslation(ctx context.Context, collection string, data 
 		// Find the first step jobs
 		firstStepJobs := lo.Filter(jobs, func(j Job, _ int) bool { return j.WorkflowLevel == 0 && j.Status != "new" })
 		firstStepJobIDs := lo.Map(firstStepJobs, func(j Job, _ int) string { return j.UID })
-		err = m.NotifyAssignedJobs(m.ProjectUID, firstStepJobIDs, NotificationSourceChanged, nil, nil)
+		err = m.NotifyAssignedJobs(m.ProjectUID, firstStepJobIDs, SourceChangedNotificationID, nil, nil)
 		if err != nil {
 			log.L.Error().Err(err).Msg("Failed to notify assigned users after translation submission")
 			errList = append(errList, err)
