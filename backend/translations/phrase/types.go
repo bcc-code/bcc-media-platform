@@ -469,3 +469,12 @@ type LastModified struct {
 type AsyncRequestResponse struct {
 	AsyncRequest AsyncRequest `json:"asyncRequest"`
 }
+
+type NotifyAssignedJobsRequest struct {
+	Jobs []JobOnlyUID `json:"jobs"`
+	EmailTemplate *struct {
+		ID string `json:"id"`
+	} `json:"emailTemplate,omitempty"`
+	CC  []string `json:"cc,omitempty"`
+	BCC []string `json:"bcc,omitempty"`
+}

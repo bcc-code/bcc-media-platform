@@ -88,6 +88,9 @@ func (c *Client) SetDebug(debug bool) {
 
 type translationFile map[string]json.RawMessage
 
+// SourceChangedNotificationID is the notification ID for the source changed notification in Phrase
+const SourceChangedNotificationID string = "HwiJ0yOI4knHriGQ531nP5"
+
 // SendToTranslation sends the data provided to Phrase
 func (m *Client) SendToTranslation(ctx context.Context, collection string, data []common.TranslationData) error {
 	err := m.Authenticate()
@@ -115,25 +118,49 @@ func (m *Client) SendToTranslation(ctx context.Context, collection string, data 
 		return err
 	}
 
-	existingJobs := []string{}
+	existingJobs := []Job{}
 	existingLangs := []string{}
-	// Check if we have all targetLanguages
 	for _, job := range jobs {
-		existingJobs = append(existingJobs, job.UID)
+		existingJobs = append(existingJobs, job)
 		existingLangs = append(existingLangs, langForImport(job.TargetLang))
 	}
 
+	errList := []error{}
 	if len(existingJobs) > 0 {
-		err = m.UpdateSource(existingJobs, filename, outputData)
+		jobIDs := lo.Map(existingJobs, func(j Job, _ int) string { return j.UID })
+		err = m.UpdateSource(jobIDs, filename, outputData)
+		if err != nil {
+			log.L.Error().Err(err).Msg("Failed to update jobs in Phrase")
+			errList = append(errList, err)
+		}
 	}
 
 	nonExisting, _ := lo.Difference(m.targetLanguages, existingLangs)
 	if len(nonExisting) > 0 {
 		nonExisting = lo.Map(nonExisting, func(s string, _ int) string { return langForExport(s) })
 		err = m.CreateJob(nonExisting, "/", filename, outputData)
+		if err != nil {
+			log.L.Error().Err(err).Msg("Failed to create jobs in Phrase")
+			errList = append(errList, err)
+		}
 	}
 
-	return err
+	// Notify assigned users for all jobs at the end
+	if len(jobs) > 0 {
+		// Find the first step jobs
+		firstStepJobs := lo.Filter(jobs, func(j Job, _ int) bool { return j.WorkflowLevel == 0 && j.Status != "new" })
+		firstStepJobIDs := lo.Map(firstStepJobs, func(j Job, _ int) string { return j.UID })
+		err = m.NotifyAssignedJobs(m.ProjectUID, firstStepJobIDs, SourceChangedNotificationID, nil, nil)
+		if err != nil {
+			log.L.Error().Err(err).Msg("Failed to notify assigned users after translation submission")
+			errList = append(errList, err)
+		}
+	}
+
+	if len(errList) > 0 {
+		return merry.Errorf("SendToTranslation encountered %d error(s)", len(errList))
+	}
+	return nil
 }
 
 func (c *Client) ProcessWebhook(ctx context.Context, originalRequest *http.Request, hookData []byte) (*translations.TranslatableCollection, []common.TranslationData, error) {
@@ -532,4 +559,46 @@ func (c *Client) DownloadFile(ctx context.Context, jobUID string, asyncRequestID
 	}
 
 	return res.Body(), nil
+}
+
+// NotifyAssignedJobs notifies assigned users for jobs in a project
+func (c *Client) NotifyAssignedJobs(projectUID string, jobUIDs []string, emailTemplateID string, cc, bcc []string) error {
+	err := c.Authenticate()
+	if err != nil {
+		return err
+	}
+
+	jobs := lo.Map(jobUIDs, func(uid string, _ int) JobOnlyUID { return JobOnlyUID{UID: uid} })
+	var emailTemplate *struct {
+		ID string `json:"id"`
+	}
+
+	if emailTemplateID != "" {
+		emailTemplate = &struct {
+			ID string `json:"id"`
+		}{ID: emailTemplateID}
+	}
+
+	body := NotifyAssignedJobsRequest{
+		Jobs:          jobs,
+		EmailTemplate: emailTemplate,
+		CC:            cc,
+		BCC:           bcc,
+	}
+
+	req := c.httpClient.R()
+	req.SetPathParam("projectUid", projectUID)
+	req.SetHeader("Content-Type", "application/json")
+	req.SetBody(body)
+
+	resp, err := req.Post("v1/projects/{projectUid}/jobs/notifyAssigned")
+	if err != nil {
+		log.L.Error().Str("projectUID", projectUID).Err(err).Msg("Failed to call notifyAssigned")
+		return merry.Wrap(err)
+	}
+	if resp.StatusCode() >= 300 {
+		log.L.Error().Str("projectUID", projectUID).Int("status", resp.StatusCode()).Str("body", resp.String()).Msg("Phrase notifyAssigned failed")
+		return merry.Errorf("Phrase notifyAssigned failed: %s", resp.String())
+	}
+	return nil
 }
