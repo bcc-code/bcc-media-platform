@@ -112,8 +112,6 @@ func main() {
 		return mh.handleModelUpdate(ctx, item.Collection, item.ID)
 	})
 
-	eventHandler.On([]string{events.EventItemsCreate, events.EventItemsUpdate}, mh.handleModelUpdate)
-
 	eventService, err := events.NewService(ctx, config.Firebase.ProjectID, queries)
 	if err != nil {
 		log.L.Error().Err(err).Msg("Failed to initialize event service, disabling")
@@ -121,6 +119,7 @@ func main() {
 		eventHandler.On([]string{events.EventItemsCreate, events.EventItemsUpdate}, eventService.HandleModelUpdate)
 	}
 
+	eventHandler.On([]string{events.EventItemsCreate, events.EventItemsUpdate}, mh.handleModelUpdate)
 	eventHandler.On([]string{events.EventItemsCreate, events.EventItemsUpdate}, searchService.IndexModel)
 	eventHandler.On([]string{events.EventItemsDelete}, searchService.DeleteModel)
 

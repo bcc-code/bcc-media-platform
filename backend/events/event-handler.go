@@ -55,8 +55,8 @@ var (
 	ErrErrorDuringProcessing = merry.Sentinel("Error while processing event")
 )
 
-// ProcessCloudEvent creates an Event from CloudEvent
-func (handler *Handler) ProcessCloudEvent(ctx context.Context, e cevent.Event) error {
+// ProcessDirectusEvent creates an Event from CloudEvent
+func (handler *Handler) ProcessDirectusEvent(ctx context.Context, e cevent.Event) error {
 	var event Event
 	err := e.DataAs(&event)
 	if err != nil {
