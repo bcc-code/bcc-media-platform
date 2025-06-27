@@ -12,6 +12,7 @@ RUN_IN_DIRS = \
 	done
 
 run:
+	[ -s "$$NVM_DIR/nvm.sh" ] && . "$$NVM_DIR/nvm.sh" && nvm use || echo "WARNING: nvm not found, not switching Node version"
 	pnpm directus start
 
 install:
