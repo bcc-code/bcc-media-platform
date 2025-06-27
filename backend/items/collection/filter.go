@@ -117,16 +117,12 @@ func GetSQLForFilter(args FilterParams) *squirrel.SelectBuilder {
 	from := "filter_dataset t"
 	selectFields := []string{"t.collection", "t.id", "t.uuid"}
 
-	var randomFunc string
 	if args.RandomSeed.Valid {
 		// Use deterministic randomization with seed from cursor
 		// PostgreSQL setseed() expects a value between -1 and 1
 		seed := float64(args.RandomSeed.Int64) / math.MaxInt64 // Convert int64 to float between -1 and 1
-		randomFunc = "random()"
 		// We'll need to set the seed before the main query
 		from = fmt.Sprintf("(SELECT setseed(%f)) seed_setter, filter_dataset t", seed)
-	} else {
-		randomFunc = "random()"
 	}
 
 	// Convert % value to a [-1, 1] float
@@ -153,16 +149,12 @@ func GetSQLForFilter(args FilterParams) *squirrel.SelectBuilder {
 		fmt.Sprintf(
 			`CASE
 				WHEN t.tags @> ARRAY['%s']::varchar[] /* DeboostTag */ AND %f > 0.0 /* DeboostFactor */
-					THEN CASE WHEN %s < %f /* randomFunc < DeboostFactor */ THEN %s /* randomFunc */ ELSE %s + 1 /* randomFunc + 1 */ END
-				ELSE %s /* randomFunc */
+					THEN CASE WHEN random() < 1.0 - %f /* DeboostFactor */ THEN random() ELSE random() + 1 END
+				ELSE random()
 			END AS r`,
 			args.Filter.DeboostTag, // Tag to check for deboost
 			deboostFactor,          // Deboost factor threshold
-			randomFunc,             // Random value per row
 			deboostFactor,          // Deboost factor threshold
-			randomFunc,             // If random < deboost, keep random
-			randomFunc,             // If random >= deboost, push to end
-			randomFunc,             // Default random value
 		),
 	)
 

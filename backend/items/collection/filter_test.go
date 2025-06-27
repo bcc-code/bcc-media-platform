@@ -196,8 +196,8 @@ func TestGetSQLForFilter_WithDeboost(t *testing.T) {
 
 	// Verify the SQL contains deboost logic
 	assert.Contains(t, sql, "WHEN t.tags @> ARRAY['preview']::varchar[] /* DeboostTag */ AND 0.500000 > 0.0 /* DeboostFactor */")
-	assert.Contains(t, sql, "THEN CASE WHEN random() < 0.500000 /* randomFunc < DeboostFactor */ THEN random() /* randomFunc */ ELSE random() + 1 /* randomFunc + 1 */ END")
-	assert.Contains(t, sql, "ELSE random() /* randomFunc */")
+	assert.Contains(t, sql, "THEN CASE WHEN random() < 1.0 - 0.500000 /* DeboostFactor */ THEN random() ELSE random() + 1 END")
+	assert.Contains(t, sql, "ELSE random()")
 }
 
 func TestGetSQLForFilter_WithLimit(t *testing.T) {
