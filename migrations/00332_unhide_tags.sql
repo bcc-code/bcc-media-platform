@@ -30,6 +30,8 @@ UPDATE "public"."directus_fields" SET "sort" = 4 WHERE "id" = 118;
 
 UPDATE "public"."directus_fields" SET "collection" = 'seasons', "field" = 'tags', "interface" = 'list-m2m' WHERE "id" = '571';
 
+UPDATE "public"."directus_fields" SET "collection" = 'episodes', "field" = 'tags', "group" = NULL WHERE "id" = '142';
+
 -- +goose Down
 
 UPDATE "public"."directus_fields" SET "sort" = 17 WHERE "id" = 130;
@@ -57,3 +59,5 @@ UPDATE "public"."directus_fields" SET "sort" = 11 WHERE "id" = 1314;
 UPDATE "public"."directus_fields" SET "sort" = 9 WHERE "id" = 1378;
 
 UPDATE "public"."directus_fields" SET "collection" = 'seasons', "field" = 'tags', "interface" = NULL WHERE "id" = '571';
+
+UPDATE "public"."directus_fields" SET "collection" = 'episodes', "field" = 'tags', "group" = 'metadata' WHERE "id" = '142';
