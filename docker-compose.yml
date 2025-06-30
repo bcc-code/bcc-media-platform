@@ -6,7 +6,7 @@ services:
     image: thekevjames/gcloud-pubsub-emulator:latest
   db:
     command: ["postgres", "-c", "log_statement=all"]
-    image: postgres:13
+    image: postgres:16
     volumes:
     - db-data:/var/lib/postgresql/data
     ports:
