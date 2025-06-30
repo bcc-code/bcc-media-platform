@@ -84,9 +84,9 @@ const open = (i: { id: string }) => {
                             class="absolute top-2 right-2"
                             size="thin"
                             color="secondary"
-                            @click="open(i)"
+                            @click.stop="open(i)"
                         >
-                            EDIT
+                            Edit
                         </VButton>
                         <img
                             :id="i.id"
@@ -103,9 +103,9 @@ const open = (i: { id: string }) => {
                             <h3 class="text-sm text-primary">
                                 {{ i.showTitle }}
                             </h3>
-                            <!-- <p class="text-gray text-sm ml-1">
+                            <p class="text-gray text-sm ml-1">
                                 {{ i.seasonTitle }}
-                            </p> -->
+                            </p>
                         </div>
                         <h1 class="text-lg">{{ i.title }}</h1>
                     </div>
