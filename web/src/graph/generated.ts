@@ -2484,8 +2484,8 @@ export const GetMeDocument = gql`
 }
     `;
 
-export function useGetMeQuery(options: Omit<Urql.UseQueryArgs<never, GetMeQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetMeQuery, GetMeQueryVariables>({ query: GetMeDocument, ...options });
+export function useGetMeQuery(options?: Omit<Urql.UseQueryArgs<never, GetMeQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetMeQuery, GetMeQueryVariables | undefined>({ query: GetMeDocument, variables: undefined, ...options });
 };
 export const SendSupportEmailDocument = gql`
     mutation sendSupportEmail($title: String!, $content: String!, $html: String!) {
@@ -2524,8 +2524,8 @@ export const GetSeasonOnEpisodePageDocument = gql`
 }
     ${SimpleEpisodeFragmentDoc}`;
 
-export function useGetSeasonOnEpisodePageQuery(options: Omit<Urql.UseQueryArgs<never, GetSeasonOnEpisodePageQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetSeasonOnEpisodePageQuery, GetSeasonOnEpisodePageQueryVariables>({ query: GetSeasonOnEpisodePageDocument, ...options });
+export function useGetSeasonOnEpisodePageQuery(options?: Omit<Urql.UseQueryArgs<never, GetSeasonOnEpisodePageQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetSeasonOnEpisodePageQuery, GetSeasonOnEpisodePageQueryVariables | undefined>({ query: GetSeasonOnEpisodePageDocument, variables: undefined, ...options });
 };
 export const GetEpisodeDocument = gql`
     query getEpisode($episodeId: ID!, $context: EpisodeContext) {
@@ -2612,8 +2612,8 @@ ${StreamFragmentDoc}
 ${LessonProgressOverviewFragmentDoc}
 ${SectionItemFragmentDoc}`;
 
-export function useGetEpisodeQuery(options: Omit<Urql.UseQueryArgs<never, GetEpisodeQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetEpisodeQuery, GetEpisodeQueryVariables>({ query: GetEpisodeDocument, ...options });
+export function useGetEpisodeQuery(options?: Omit<Urql.UseQueryArgs<never, GetEpisodeQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetEpisodeQuery, GetEpisodeQueryVariables | undefined>({ query: GetEpisodeDocument, variables: undefined, ...options });
 };
 export const UpdateEpisodeProgressDocument = gql`
     mutation updateEpisodeProgress($episodeId: ID!, $progress: Int, $duration: Int, $context: EpisodeContext!) {
@@ -2641,8 +2641,8 @@ export const GetDefaultEpisodeForShowDocument = gql`
 }
     `;
 
-export function useGetDefaultEpisodeForShowQuery(options: Omit<Urql.UseQueryArgs<never, GetDefaultEpisodeForShowQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetDefaultEpisodeForShowQuery, GetDefaultEpisodeForShowQueryVariables>({ query: GetDefaultEpisodeForShowDocument, ...options });
+export function useGetDefaultEpisodeForShowQuery(options?: Omit<Urql.UseQueryArgs<never, GetDefaultEpisodeForShowQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetDefaultEpisodeForShowQuery, GetDefaultEpisodeForShowQueryVariables | undefined>({ query: GetDefaultEpisodeForShowDocument, variables: undefined, ...options });
 };
 export const GetEpisodeEmbedDocument = gql`
     query getEpisodeEmbed($id: ID!) {
@@ -2661,8 +2661,8 @@ export const GetEpisodeEmbedDocument = gql`
 }
     `;
 
-export function useGetEpisodeEmbedQuery(options: Omit<Urql.UseQueryArgs<never, GetEpisodeEmbedQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetEpisodeEmbedQuery, GetEpisodeEmbedQueryVariables>({ query: GetEpisodeEmbedDocument, ...options });
+export function useGetEpisodeEmbedQuery(options?: Omit<Urql.UseQueryArgs<never, GetEpisodeEmbedQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetEpisodeEmbedQuery, GetEpisodeEmbedQueryVariables | undefined>({ query: GetEpisodeEmbedDocument, variables: undefined, ...options });
 };
 export const GetFaqDocument = gql`
     query getFAQ {
@@ -2682,8 +2682,8 @@ export const GetFaqDocument = gql`
 }
     `;
 
-export function useGetFaqQuery(options: Omit<Urql.UseQueryArgs<never, GetFaqQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetFaqQuery, GetFaqQueryVariables>({ query: GetFaqDocument, ...options });
+export function useGetFaqQuery(options?: Omit<Urql.UseQueryArgs<never, GetFaqQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetFaqQuery, GetFaqQueryVariables | undefined>({ query: GetFaqDocument, variables: undefined, ...options });
 };
 export const SendEpisodeFeedbackDocument = gql`
     mutation SendEpisodeFeedback($episodeId: ID!, $rating: Int!, $message: String) {
@@ -2702,8 +2702,8 @@ export const GetLegacyIdDocument = gql`
 }
     `;
 
-export function useGetLegacyIdQuery(options: Omit<Urql.UseQueryArgs<never, GetLegacyIdQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetLegacyIdQuery, GetLegacyIdQueryVariables>({ query: GetLegacyIdDocument, ...options });
+export function useGetLegacyIdQuery(options?: Omit<Urql.UseQueryArgs<never, GetLegacyIdQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetLegacyIdQuery, GetLegacyIdQueryVariables | undefined>({ query: GetLegacyIdDocument, variables: undefined, ...options });
 };
 export const GetPageDocument = gql`
     query getPage($code: String!, $first: Int, $offset: Int, $sectionFirst: Int, $sectionOffset: Int) {
@@ -2746,8 +2746,8 @@ export const GetPageDocument = gql`
 }
     ${ItemSectionFragmentDoc}`;
 
-export function useGetPageQuery(options: Omit<Urql.UseQueryArgs<never, GetPageQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetPageQuery, GetPageQueryVariables>({ query: GetPageDocument, ...options });
+export function useGetPageQuery(options?: Omit<Urql.UseQueryArgs<never, GetPageQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetPageQuery, GetPageQueryVariables | undefined>({ query: GetPageDocument, variables: undefined, ...options });
 };
 export const GetSectionsForPageDocument = gql`
     query getSectionsForPage($code: String!, $first: Int, $offset: Int, $sectionFirst: Int, $sectionOffset: Int) {
@@ -2788,8 +2788,8 @@ export const GetSectionsForPageDocument = gql`
 }
     ${ItemSectionFragmentDoc}`;
 
-export function useGetSectionsForPageQuery(options: Omit<Urql.UseQueryArgs<never, GetSectionsForPageQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetSectionsForPageQuery, GetSectionsForPageQueryVariables>({ query: GetSectionsForPageDocument, ...options });
+export function useGetSectionsForPageQuery(options?: Omit<Urql.UseQueryArgs<never, GetSectionsForPageQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetSectionsForPageQuery, GetSectionsForPageQueryVariables | undefined>({ query: GetSectionsForPageDocument, variables: undefined, ...options });
 };
 export const GetPlaylistEpisodeDocument = gql`
     query getPlaylistEpisode($id: ID!) {
@@ -2806,8 +2806,8 @@ export const GetPlaylistEpisodeDocument = gql`
 }
     `;
 
-export function useGetPlaylistEpisodeQuery(options: Omit<Urql.UseQueryArgs<never, GetPlaylistEpisodeQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetPlaylistEpisodeQuery, GetPlaylistEpisodeQueryVariables>({ query: GetPlaylistEpisodeDocument, ...options });
+export function useGetPlaylistEpisodeQuery(options?: Omit<Urql.UseQueryArgs<never, GetPlaylistEpisodeQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetPlaylistEpisodeQuery, GetPlaylistEpisodeQueryVariables | undefined>({ query: GetPlaylistEpisodeDocument, variables: undefined, ...options });
 };
 export const GetRedirectUrlDocument = gql`
     query getRedirectUrl($code: String!) {
@@ -2817,8 +2817,8 @@ export const GetRedirectUrlDocument = gql`
 }
     `;
 
-export function useGetRedirectUrlQuery(options: Omit<Urql.UseQueryArgs<never, GetRedirectUrlQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetRedirectUrlQuery, GetRedirectUrlQueryVariables>({ query: GetRedirectUrlDocument, ...options });
+export function useGetRedirectUrlQuery(options?: Omit<Urql.UseQueryArgs<never, GetRedirectUrlQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetRedirectUrlQuery, GetRedirectUrlQueryVariables | undefined>({ query: GetRedirectUrlDocument, variables: undefined, ...options });
 };
 export const SearchDocument = gql`
     query search($query: String!, $type: String, $minScore: Int) {
@@ -2841,8 +2841,8 @@ export const SearchDocument = gql`
 }
     `;
 
-export function useSearchQuery(options: Omit<Urql.UseQueryArgs<never, SearchQueryVariables>, 'query'>) {
-  return Urql.useQuery<SearchQuery, SearchQueryVariables>({ query: SearchDocument, ...options });
+export function useSearchQuery(options?: Omit<Urql.UseQueryArgs<never, SearchQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<SearchQuery, SearchQueryVariables | undefined>({ query: SearchDocument, variables: undefined, ...options });
 };
 export const GetDefaultEpisodeIdDocument = gql`
     query getDefaultEpisodeId($showId: ID!) {
@@ -2854,8 +2854,8 @@ export const GetDefaultEpisodeIdDocument = gql`
 }
     `;
 
-export function useGetDefaultEpisodeIdQuery(options: Omit<Urql.UseQueryArgs<never, GetDefaultEpisodeIdQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetDefaultEpisodeIdQuery, GetDefaultEpisodeIdQueryVariables>({ query: GetDefaultEpisodeIdDocument, ...options });
+export function useGetDefaultEpisodeIdQuery(options?: Omit<Urql.UseQueryArgs<never, GetDefaultEpisodeIdQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetDefaultEpisodeIdQuery, GetDefaultEpisodeIdQueryVariables | undefined>({ query: GetDefaultEpisodeIdDocument, variables: undefined, ...options });
 };
 export const GetSectionDocument = gql`
     query getSection($id: ID!, $first: Int!, $offset: Int!) {
@@ -2883,8 +2883,8 @@ export const GetSectionDocument = gql`
 }
     ${SectionItemFragmentDoc}`;
 
-export function useGetSectionQuery(options: Omit<Urql.UseQueryArgs<never, GetSectionQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetSectionQuery, GetSectionQueryVariables>({ query: GetSectionDocument, ...options });
+export function useGetSectionQuery(options?: Omit<Urql.UseQueryArgs<never, GetSectionQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetSectionQuery, GetSectionQueryVariables | undefined>({ query: GetSectionDocument, variables: undefined, ...options });
 };
 export const GetShortDetailsDocument = gql`
     query getShortDetails($id: UUID!) {
@@ -2896,8 +2896,8 @@ export const GetShortDetailsDocument = gql`
 }
     `;
 
-export function useGetShortDetailsQuery(options: Omit<Urql.UseQueryArgs<never, GetShortDetailsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetShortDetailsQuery, GetShortDetailsQueryVariables>({ query: GetShortDetailsDocument, ...options });
+export function useGetShortDetailsQuery(options?: Omit<Urql.UseQueryArgs<never, GetShortDetailsQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetShortDetailsQuery, GetShortDetailsQueryVariables | undefined>({ query: GetShortDetailsDocument, variables: undefined, ...options });
 };
 export const GetShowDocument = gql`
     query getShow($id: ID!, $dir: String) {
@@ -2915,8 +2915,8 @@ export const GetShowDocument = gql`
 }
     ${ShowSeasonFragmentDoc}`;
 
-export function useGetShowQuery(options: Omit<Urql.UseQueryArgs<never, GetShowQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetShowQuery, GetShowQueryVariables>({ query: GetShowDocument, ...options });
+export function useGetShowQuery(options?: Omit<Urql.UseQueryArgs<never, GetShowQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetShowQuery, GetShowQueryVariables | undefined>({ query: GetShowDocument, variables: undefined, ...options });
 };
 export const GetSeasonEpisodesDocument = gql`
     query getSeasonEpisodes($id: ID!, $dir: String) {
@@ -2926,8 +2926,8 @@ export const GetSeasonEpisodesDocument = gql`
 }
     ${ShowSeasonFragmentDoc}`;
 
-export function useGetSeasonEpisodesQuery(options: Omit<Urql.UseQueryArgs<never, GetSeasonEpisodesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetSeasonEpisodesQuery, GetSeasonEpisodesQueryVariables>({ query: GetSeasonEpisodesDocument, ...options });
+export function useGetSeasonEpisodesQuery(options?: Omit<Urql.UseQueryArgs<never, GetSeasonEpisodesQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetSeasonEpisodesQuery, GetSeasonEpisodesQueryVariables | undefined>({ query: GetSeasonEpisodesDocument, variables: undefined, ...options });
 };
 export const GetStudyLessonDocument = gql`
     query getStudyLesson($lessonId: ID!, $episodeId: ID!) {
@@ -2963,8 +2963,8 @@ export const GetStudyLessonDocument = gql`
     ${TaskFragmentDoc}
 ${LessonLinkFragmentDoc}`;
 
-export function useGetStudyLessonQuery(options: Omit<Urql.UseQueryArgs<never, GetStudyLessonQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetStudyLessonQuery, GetStudyLessonQueryVariables>({ query: GetStudyLessonDocument, ...options });
+export function useGetStudyLessonQuery(options?: Omit<Urql.UseQueryArgs<never, GetStudyLessonQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetStudyLessonQuery, GetStudyLessonQueryVariables | undefined>({ query: GetStudyLessonDocument, variables: undefined, ...options });
 };
 export const GetStudyTopicLessonStatusesDocument = gql`
     query GetStudyTopicLessonStatuses($id: ID!, $first: Int!) {
@@ -2985,8 +2985,8 @@ export const GetStudyTopicLessonStatusesDocument = gql`
 }
     `;
 
-export function useGetStudyTopicLessonStatusesQuery(options: Omit<Urql.UseQueryArgs<never, GetStudyTopicLessonStatusesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetStudyTopicLessonStatusesQuery, GetStudyTopicLessonStatusesQueryVariables>({ query: GetStudyTopicLessonStatusesDocument, ...options });
+export function useGetStudyTopicLessonStatusesQuery(options?: Omit<Urql.UseQueryArgs<never, GetStudyTopicLessonStatusesQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetStudyTopicLessonStatusesQuery, GetStudyTopicLessonStatusesQueryVariables | undefined>({ query: GetStudyTopicLessonStatusesDocument, variables: undefined, ...options });
 };
 export const GetDefaultEpisodeForTopicDocument = gql`
     query getDefaultEpisodeForTopic($id: ID!) {
@@ -3000,8 +3000,8 @@ export const GetDefaultEpisodeForTopicDocument = gql`
 }
     `;
 
-export function useGetDefaultEpisodeForTopicQuery(options: Omit<Urql.UseQueryArgs<never, GetDefaultEpisodeForTopicQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetDefaultEpisodeForTopicQuery, GetDefaultEpisodeForTopicQueryVariables>({ query: GetDefaultEpisodeForTopicDocument, ...options });
+export function useGetDefaultEpisodeForTopicQuery(options?: Omit<Urql.UseQueryArgs<never, GetDefaultEpisodeForTopicQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetDefaultEpisodeForTopicQuery, GetDefaultEpisodeForTopicQueryVariables | undefined>({ query: GetDefaultEpisodeForTopicDocument, variables: undefined, ...options });
 };
 export const GetFirstSotmLessonForConsentDocument = gql`
     query getFirstSOTMLessonForConsent {
@@ -3021,8 +3021,8 @@ export const GetFirstSotmLessonForConsentDocument = gql`
 }
     `;
 
-export function useGetFirstSotmLessonForConsentQuery(options: Omit<Urql.UseQueryArgs<never, GetFirstSotmLessonForConsentQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetFirstSotmLessonForConsentQuery, GetFirstSotmLessonForConsentQueryVariables>({ query: GetFirstSotmLessonForConsentDocument, ...options });
+export function useGetFirstSotmLessonForConsentQuery(options?: Omit<Urql.UseQueryArgs<never, GetFirstSotmLessonForConsentQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetFirstSotmLessonForConsentQuery, GetFirstSotmLessonForConsentQueryVariables | undefined>({ query: GetFirstSotmLessonForConsentDocument, variables: undefined, ...options });
 };
 export const GetTaskAlternativesForStudyLessonDocument = gql`
     query getTaskAlternativesForStudyLesson($lessonId: ID!) {
@@ -3046,8 +3046,8 @@ export const GetTaskAlternativesForStudyLessonDocument = gql`
 }
     `;
 
-export function useGetTaskAlternativesForStudyLessonQuery(options: Omit<Urql.UseQueryArgs<never, GetTaskAlternativesForStudyLessonQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetTaskAlternativesForStudyLessonQuery, GetTaskAlternativesForStudyLessonQueryVariables>({ query: GetTaskAlternativesForStudyLessonDocument, ...options });
+export function useGetTaskAlternativesForStudyLessonQuery(options?: Omit<Urql.UseQueryArgs<never, GetTaskAlternativesForStudyLessonQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetTaskAlternativesForStudyLessonQuery, GetTaskAlternativesForStudyLessonQueryVariables | undefined>({ query: GetTaskAlternativesForStudyLessonDocument, variables: undefined, ...options });
 };
 export const SetStudyConsentTrueDocument = gql`
     mutation setStudyConsentTrue {
@@ -3112,8 +3112,8 @@ export const GetSubscriptionsDocument = gql`
 }
     `;
 
-export function useGetSubscriptionsQuery(options: Omit<Urql.UseQueryArgs<never, GetSubscriptionsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetSubscriptionsQuery, GetSubscriptionsQueryVariables>({ query: GetSubscriptionsDocument, ...options });
+export function useGetSubscriptionsQuery(options?: Omit<Urql.UseQueryArgs<never, GetSubscriptionsQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetSubscriptionsQuery, GetSubscriptionsQueryVariables | undefined>({ query: GetSubscriptionsDocument, variables: undefined, ...options });
 };
 export const GetCalendarStatusDocument = gql`
     query getCalendarStatus($day: Date!) {
@@ -3128,8 +3128,8 @@ export const GetCalendarStatusDocument = gql`
 }
     `;
 
-export function useGetCalendarStatusQuery(options: Omit<Urql.UseQueryArgs<never, GetCalendarStatusQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetCalendarStatusQuery, GetCalendarStatusQueryVariables>({ query: GetCalendarStatusDocument, ...options });
+export function useGetCalendarStatusQuery(options?: Omit<Urql.UseQueryArgs<never, GetCalendarStatusQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetCalendarStatusQuery, GetCalendarStatusQueryVariables | undefined>({ query: GetCalendarStatusDocument, variables: undefined, ...options });
 };
 export const ApplicationDocument = gql`
     query application {
@@ -3145,6 +3145,6 @@ export const ApplicationDocument = gql`
 }
     `;
 
-export function useApplicationQuery(options: Omit<Urql.UseQueryArgs<never, ApplicationQueryVariables>, 'query'>) {
-  return Urql.useQuery<ApplicationQuery, ApplicationQueryVariables>({ query: ApplicationDocument, ...options });
+export function useApplicationQuery(options?: Omit<Urql.UseQueryArgs<never, ApplicationQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<ApplicationQuery, ApplicationQueryVariables | undefined>({ query: ApplicationDocument, variables: undefined, ...options });
 };
