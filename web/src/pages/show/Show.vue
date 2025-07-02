@@ -60,7 +60,10 @@ then(async ({ data }) => {
             <h1 class="text-style-headline-1 mb-2">
                 {{ show.show.title }}
             </h1>
-            <p class="text-style-body-2 text-label-3">
+            <p
+                v-if="show.show.description"
+                class="text-style-body-2 text-label-3"
+            >
                 {{ show.show.description }}
             </p>
         </div>

@@ -6,7 +6,6 @@ import CollectionItemThumbnail from './CollectionItemThumbnail.vue'
 import { isCollectionItem } from '@/utils/items'
 
 defineProps<{
-    position: number
     section: Section & { __typename: 'DefaultGridSection' }
 }>()
 
@@ -14,10 +13,11 @@ defineEmits<{
     (event: 'clickItem', index: number): void
 }>()
 </script>
+
 <template>
     <section>
         <SectionTitle v-if="section.title">{{ section.title }}</SectionTitle>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 xl:gap-6">
             <div
                 v-for="(item, index) in section.items.items"
                 class="relative mb-5"

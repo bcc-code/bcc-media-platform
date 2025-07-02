@@ -31,6 +31,9 @@ query getPage($code: String!, $first: Int, $offset: Int, $sectionFirst: Int, $se
                         }
                     }
                 }
+                ... on PageDetailsSection {
+                    description
+                }
             }
         }
     }
@@ -96,6 +99,7 @@ fragment ItemSection on ItemSection {
         }
     }
 }
+
 fragment StudyTopicSectionItem on StudyTopic {
     id
     title
@@ -140,6 +144,9 @@ query getSectionsForPage($code: String!, $first: Int, $offset: Int, $sectionFirs
                             border
                         }
                     }
+                }
+                ... on PageDetailsSection {
+                    description
                 }
             }
         }
