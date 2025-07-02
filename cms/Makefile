@@ -13,18 +13,21 @@ RUN_IN_DIRS = \
 
 run:
 	[ -s "$$NVM_DIR/nvm.sh" ] && . "$$NVM_DIR/nvm.sh" && nvm use || echo "WARNING: nvm not found, not switching Node version"
-	pnpm directus start
+	npx directus start
 
 install:
-	pnpm i
-	@$(call RUN_IN_DIRS, pnpm i)
+    [ -s "$$NVM_DIR/nvm.sh" ] && . "$$NVM_DIR/nvm.sh" && nvm use || echo "WARNING: nvm not found, not switching Node version"
+	npm i
+	@$(call RUN_IN_DIRS, npm i)
 
 update:
-	pnpm update --latest
-	@$(call RUN_IN_DIRS, pnpm update --latest)
+	[ -s "$$NVM_DIR/nvm.sh" ] && . "$$NVM_DIR/nvm.sh" && nvm use || echo "WARNING: nvm not found, not switching Node version"
+	npm update --latest
+	@$(call RUN_IN_DIRS, npm update --latest)
 
 build:
-	@$(call RUN_IN_DIRS, pnpm build)
+	[ -s "$$NVM_DIR/nvm.sh" ] && . "$$NVM_DIR/nvm.sh" && nvm use || echo "WARNING: nvm not found, not switching Node version"
+	@$(call RUN_IN_DIRS, npm run build)
 
 init:
 	make install
