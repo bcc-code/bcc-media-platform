@@ -65,10 +65,10 @@ type bmmClient interface {
 type Resolver struct {
 	DB                    *sql.DB
 	Queries               *sqlc.Queries
-	Loaders               *common.BatchLoaders
-	FilteredLoaders       func(ctx context.Context) *common.LoadersWithPermissions
-	ProfileLoaders        func(ctx context.Context) *common.ProfileLoaders
-	PersonalizedLoaders   func(ctx context.Context) *common.PersonalizedLoaders
+	Loaders               *loaders.BatchLoaders
+	FilteredLoaders       func(ctx context.Context) *loaders.LoadersWithPermissions
+	ProfileLoaders        func(ctx context.Context) *loaders.ProfileLoaders
+	PersonalizedLoaders   func(ctx context.Context) *loaders.PersonalizedLoaders
 	SearchService         searchProvider
 	EmailService          *email.Service
 	URLSigner             *signing.Signer
@@ -88,19 +88,19 @@ func (r *Resolver) GetQueries() *sqlc.Queries {
 	return r.Queries
 }
 
-func (r *Resolver) GetLoaders() *common.BatchLoaders {
+func (r *Resolver) GetLoaders() *loaders.BatchLoaders {
 	return r.Loaders
 }
 
-func (r *Resolver) GetFilteredLoaders(ctx context.Context) *common.LoadersWithPermissions {
+func (r *Resolver) GetFilteredLoaders(ctx context.Context) *loaders.LoadersWithPermissions {
 	return r.FilteredLoaders(ctx)
 }
 
-func (r *Resolver) GetPersonalizedLoaders(ctx context.Context) *common.PersonalizedLoaders {
+func (r *Resolver) GetPersonalizedLoaders(ctx context.Context) *loaders.PersonalizedLoaders {
 	return r.PersonalizedLoaders(ctx)
 }
 
-func (r *Resolver) GetProfileLoaders(ctx context.Context) *common.ProfileLoaders {
+func (r *Resolver) GetProfileLoaders(ctx context.Context) *loaders.ProfileLoaders {
 	return r.ProfileLoaders(ctx)
 }
 
@@ -117,6 +117,10 @@ func (r *Resolver) GetCDNConfig() export.CDNConfig {
 }
 
 func (r *Resolver) GetDB() *sql.DB {
+	return r.DB
+}
+
+func (r *Resolver) GetDatabase() *sql.DB {
 	return r.DB
 }
 

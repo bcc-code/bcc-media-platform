@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
-
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
@@ -95,18 +93,18 @@ func (row getSectionIDsForPagesRow) GetRelationID() int {
 }
 
 // GetSectionIDsForPages returns a list of episodes specified by seasons
-func (q *Queries) GetSectionIDsForPages(ctx context.Context, ids []int) ([]loaders.Relation[int, int], error) {
+func (q *Queries) GetSectionIDsForPages(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
 	rows, err := q.getSectionIDsForPages(ctx, intToInt32(ids))
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getSectionIDsForPagesRow, _ int) loaders.Relation[int, int] {
+	return lo.Map(rows, func(i getSectionIDsForPagesRow, _ int) common.Relation[int, int] {
 		return i
 	}), nil
 }
 
 // GetSectionIDsForPagesWithRoles returns a list of episodes specified by seasons
-func (rq *RoleQueries) GetSectionIDsForPagesWithRoles(ctx context.Context, ids []int) ([]loaders.Relation[int, int], error) {
+func (rq *RoleQueries) GetSectionIDsForPagesWithRoles(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
 	rows, err := rq.queries.getSectionIDsForPagesWithRoles(ctx, getSectionIDsForPagesWithRolesParams{
 		Column1: intToInt32(ids),
 		Column2: rq.roles,
@@ -114,7 +112,7 @@ func (rq *RoleQueries) GetSectionIDsForPagesWithRoles(ctx context.Context, ids [
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getSectionIDsForPagesWithRolesRow, _ int) loaders.Relation[int, int] {
+	return lo.Map(rows, func(i getSectionIDsForPagesWithRolesRow, _ int) common.Relation[int, int] {
 		return getSectionIDsForPagesRow(i)
 	}), nil
 }

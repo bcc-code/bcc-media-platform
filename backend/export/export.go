@@ -6,6 +6,7 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"os"
 	"path"
 	"path/filepath"
@@ -14,15 +15,11 @@ import (
 	"gopkg.in/guregu/null.v4"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/gin-gonic/gin"
-
-	"github.com/cloudevents/sdk-go/v2/event"
-
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/signing"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
+	"github.com/cloudevents/sdk-go/v2/event"
 	"github.com/google/uuid"
 
 	"github.com/ansel1/merry/v2"
@@ -59,19 +56,29 @@ import (
 const SQLiteExportDBVersion = "v0.0.5"
 
 type CDNConfig interface {
-	GetLegacyVODDomain() string
 	GetVOD2Domain() string
 }
 
 type serviceProvider interface {
-	GetDB() *sql.DB
+	GetDatabase() *sql.DB
 	GetQueries() *sqlc.Queries
-	GetLoaders() *common.BatchLoaders
-	GetFilteredLoaders(ctx context.Context) *common.LoadersWithPermissions
-	GetPersonalizedLoaders(ctx context.Context) *common.PersonalizedLoaders
+	GetLoaders() *loaders.BatchLoaders
+	GetLoadersForRoles(roles []string) *loaders.LoadersWithPermissions
+	GetPersonalizedLoaders(roles []string, langPreferences common.LanguagePreferences) *loaders.PersonalizedLoaders
 	GetS3Client() *s3.Client
 	GetURLSigner() *signing.Signer
 	GetCDNConfig() CDNConfig
+}
+
+type serviceProviderAPI interface {
+	GetCDNConfig() CDNConfig
+	GetDatabase() *sql.DB
+	GetLoaders() *loaders.BatchLoaders
+	GetFilteredLoaders(ctx context.Context) *loaders.LoadersWithPermissions
+	GetPersonalizedLoaders(ctx context.Context) *loaders.PersonalizedLoaders
+	GetQueries() *sqlc.Queries
+	GetURLSigner() *signing.Signer
+	GetS3Client() *s3.Client
 }
 
 // Embed the migrations into the binary
@@ -104,21 +111,21 @@ func migrate(db *sql.DB) error {
 	return merry.Wrap(err)
 }
 
-func exportShows(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries, userRoles []string) ([]int, error) {
-	showIDs, err := q.GetQueries().ListAllPermittedShowIDs(ctx, userRoles)
+func exportShows(ctx context.Context, q *sqlc.Queries, l *loaders.BatchLoaders, roleLoaders *loaders.LoadersWithPermissions, liteQueries *sqlexport.Queries, userRoles []string) ([]int, error) { // q serviceProvider, liteQueries *sqlexport.Queries, userRoles []string) ([]int, error) {
+	showIDs, err := q.ListAllPermittedShowIDs(ctx, userRoles)
 	if err != nil {
 		err = merry.Wrap(err)
 		return nil, err
 	}
 
-	shows, err := q.GetLoaders().ShowLoader.GetMany(ctx, showIDs)
+	shows, err := l.ShowLoader.GetMany(ctx, showIDs)
 	if err != nil {
 		err = merry.Wrap(err)
 		return nil, err
 	}
 
 	for _, s := range shows {
-		eID, err := show.DefaultEpisodeID(ctx, q.GetFilteredLoaders(ctx), s)
+		eID, err := show.DefaultEpisodeID(ctx, roleLoaders, s)
 		if err != nil {
 			return nil, err
 		}
@@ -150,8 +157,7 @@ func exportShows(ctx context.Context, q serviceProvider, liteQueries *sqlexport.
 	return showIDs, nil
 }
 
-func exportSeasons(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries, showIDs []int) ([]int, error) {
-	filteredLoaders := q.GetFilteredLoaders(ctx)
+func exportSeasons(ctx context.Context, l *loaders.BatchLoaders, filteredLoaders *loaders.LoadersWithPermissions, liteQueries *sqlexport.Queries, showIDs []int) ([]int, error) {
 
 	// TODO: Refactor? common.GetManyFromLoader is refusing to fit nicely.
 	thunk := filteredLoaders.SeasonsLoader.LoadMany(ctx, showIDs)
@@ -164,7 +170,7 @@ func exportSeasons(ctx context.Context, q serviceProvider, liteQueries *sqlexpor
 	}
 
 	seasonIDs := lo.Map(lo.Flatten(seasonIDsResult), func(i *int, _ int) int { return *i })
-	seasons, err := q.GetLoaders().SeasonLoader.GetMany(ctx, seasonIDs)
+	seasons, err := l.SeasonLoader.GetMany(ctx, seasonIDs)
 	if err != nil {
 		return nil, merry.Wrap(err)
 	}
@@ -192,10 +198,7 @@ func exportSeasons(ctx context.Context, q serviceProvider, liteQueries *sqlexpor
 	return seasonIDs, err
 }
 
-func exportEpisodes(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries, seasonIDs []int) ([]int, error) {
-	filteredLoaders := q.GetFilteredLoaders(ctx)
-
-	// TODO: Refactor? common.GetManyFromLoader is refusing to fit nicely.
+func exportEpisodes(ctx context.Context, batchLoaders *loaders.BatchLoaders, filteredLoaders *loaders.LoadersWithPermissions, liteQueries *sqlexport.Queries, seasonIDs []int) ([]int, error) {
 	thunk := filteredLoaders.EpisodesLoader.LoadMany(ctx, seasonIDs)
 	episodesIDsResult, errs := thunk()
 
@@ -206,7 +209,7 @@ func exportEpisodes(ctx context.Context, q serviceProvider, liteQueries *sqlexpo
 	}
 
 	episodeIDs := lo.Map(lo.Flatten(episodesIDsResult), func(i *int, _ int) int { return *i })
-	episodes, err := q.GetLoaders().EpisodeLoader.GetMany(ctx, episodeIDs)
+	episodes, err := batchLoaders.EpisodeLoader.GetMany(ctx, episodeIDs)
 	if err != nil {
 		return nil, merry.Wrap(err)
 	}
@@ -235,8 +238,7 @@ func exportEpisodes(ctx context.Context, q serviceProvider, liteQueries *sqlexpo
 	return episodeIDs, err
 }
 
-func exportStreams(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries, episodeIDs []int) error {
-	ls := q.GetLoaders()
+func exportStreams(ctx context.Context, ls *loaders.BatchLoaders, urlSigner *signing.Signer, cdnConfig CDNConfig, liteQueries *sqlexport.Queries, episodeIDs []int) error {
 
 	episodes, err := ls.EpisodeLoader.GetMany(ctx, episodeIDs)
 	if err != nil {
@@ -279,7 +281,7 @@ func exportStreams(ctx context.Context, q serviceProvider, liteQueries *sqlexpor
 			continue
 		}
 
-		ss, err := model.StreamFrom(ctx, q.GetURLSigner(), q.GetCDNConfig(), s)
+		ss, err := model.StreamFrom(ctx, urlSigner, cdnConfig, s)
 		if err != nil {
 			log.L.Debug().Err(err).Msg("Err while singing stream url")
 		}
@@ -311,12 +313,7 @@ func exportStreams(ctx context.Context, q serviceProvider, liteQueries *sqlexpor
 	return nil
 }
 
-func exportCurrentApplication(ctx *gin.Context, liteQueries *sqlexport.Queries) error {
-	app, err := common.GetApplicationFromCtx(ctx)
-	if err != nil {
-		return err
-	}
-
+func exportCurrentApplication(ctx context.Context, liteQueries *sqlexport.Queries, app *common.Application) error {
 	return liteQueries.InsertApplication(ctx, sqlexport.InsertApplicationParams{
 		ID:            int64(app.ID),
 		Code:          app.Code,
@@ -325,9 +322,8 @@ func exportCurrentApplication(ctx *gin.Context, liteQueries *sqlexport.Queries) 
 	})
 }
 
-func exportSections(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries) ([]int, []int, error) {
-	filteredLoaders := q.GetFilteredLoaders(ctx)
-	pages, err := q.GetQueries().ListPages(ctx)
+func exportSections(ctx context.Context, q *sqlc.Queries, batchLoaders *loaders.BatchLoaders, filteredLoaders *loaders.LoadersWithPermissions, liteQueries *sqlexport.Queries) ([]int, []int, error) {
+	pages, err := q.ListPages(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -342,7 +338,7 @@ func exportSections(ctx context.Context, q serviceProvider, liteQueries *sqlexpo
 	}
 
 	sectionIDs := lo.Map(lo.Flatten(sectionIDsResult), func(i *int, _ int) int { return *i })
-	sections, err := q.GetLoaders().SectionLoader.GetMany(ctx, sectionIDs)
+	sections, err := batchLoaders.SectionLoader.GetMany(ctx, sectionIDs)
 	if err != nil {
 		return nil, nil, merry.Wrap(err)
 	}
@@ -378,8 +374,8 @@ func exportSections(ctx context.Context, q serviceProvider, liteQueries *sqlexpo
 	return lo.Keys(allowedPageIDs), lo.Keys(neededCollectionIDs), nil
 }
 
-func exportPages(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries, pageIDs []int) error {
-	pages, err := q.GetLoaders().PageLoader.GetMany(ctx, pageIDs)
+func exportPages(ctx context.Context, l *loaders.BatchLoaders, liteQueries *sqlexport.Queries, pageIDs []int) error {
+	pages, err := l.PageLoader.GetMany(ctx, pageIDs)
 	if err != nil {
 		return merry.Wrap(err)
 	}
@@ -409,9 +405,8 @@ type collectionEntry struct {
 	Type string
 }
 
-func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries, collectionIDs []int) error {
-	personalizedLoaders := q.GetPersonalizedLoaders(ctx)
-	collections, err := q.GetLoaders().CollectionLoader.GetMany(ctx, collectionIDs)
+func exportCollections(ctx context.Context, db *sql.DB, batchLoaders *loaders.BatchLoaders, personalizedLoaders *loaders.PersonalizedLoaders, liteQueries *sqlexport.Queries, collectionIDs []int) error {
+	collections, err := batchLoaders.CollectionLoader.GetMany(ctx, collectionIDs)
 	if err != nil {
 		return merry.Wrap(err)
 	}
@@ -424,8 +419,8 @@ func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqle
 
 		entries, err := collection.GetBaseCollectionEntries(
 			ctx,
-			q.GetDB(),
-			q.GetLoaders(),
+			db,
+			batchLoaders,
 			personalizedLoaders,
 			c.ID,
 			common.LanguagePreferences{ContentOnlyInPreferredLanguage: false},
@@ -458,186 +453,81 @@ func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqle
 	return nil
 }
 
-// temp
-type testinterface interface {
-	GetQueries() *sqlc.Queries
-}
-
-// func HandleExportMessage(ctx context.Context, e event.Event) (string, error) {
-func HandleExportMessage(ctx context.Context, s testinterface, e event.Event) (string, error) {
-
+func HandleExportMessage(ctx context.Context, s serviceProvider, e event.Event) error {
 	type ExportData struct {
 		ExportID string `json:"exportId"`
 	}
+
+	// TODO: Get from DB
+	langPreferences := common.LanguagePreferences{
+		ContentOnlyInPreferredLanguage: false,
+		PreferredAudioLanguages:        []string{"no"},
+		PreferredSubtitlesLanguages:    []string{},
+	}
+	// TODO: Get from DB
+	app := &common.Application{
+		ID:            0,
+		Code:          "test",
+		ClientVersion: "test",
+		DefaultPageID: null.NewInt(0, false),
+	}
+	q := s.GetQueries()
 
 	// Unmarshal event data
 	var exportData ExportData
 	if err := json.Unmarshal(e.Data(), &exportData); err != nil {
 		log.L.Error().Err(err).Msg("failed to unmarshal event data")
-		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+		return merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
 	parsedId, err := uuid.Parse(exportData.ExportID)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	// try to get an entry with the exportID
-	fetchedEntry, err := s.GetQueries().GetExportById(ctx, parsedId)
+	fetchedEntry, err := q.GetExportById(ctx, parsedId)
 	if err != nil {
-		return "", err
+		return err
+	}
+
+	url, err := doExport(
+		ctx,
+		fetchedEntry.UserGroups,
+		langPreferences,
+		app,
+		"<TEMP BUCKET NAME>",
+		q,
+		s.GetLoaders(),
+		s.GetLoadersForRoles(fetchedEntry.UserGroups),
+		s.GetPersonalizedLoaders(fetchedEntry.UserGroups, langPreferences),
+		s.GetURLSigner(),
+		s.GetCDNConfig(),
+		s.GetS3Client(),
+	)
+	if err != nil {
+		return err
 	}
 
 	// add a url
-	err = s.GetQueries().UpdateExportURL(ctx, sqlc.UpdateExportURLParams{
-		Url: "test url",
+	err = q.UpdateExportURL(ctx, sqlc.UpdateExportURLParams{
+		Url: url,
 		ID:  parsedId,
 	})
 	if err != nil {
-		return "", err
+		return err
 	}
 	// change the status to ready
-	err = s.GetQueries().UpdateExportStatus(ctx, sqlc.UpdateExportStatusParams{
+	err = q.UpdateExportStatus(ctx, sqlc.UpdateExportStatusParams{
 		Status: model.ExportStatusReady.String(),
 		ID:     parsedId,
 	})
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	spew.Dump(fetchedEntry.UserGroups)
+	return nil
 
-	return "", nil
-
-	// gctx, err := utils.GinCtx(ctx)
-	// if err != nil {
-	// 	return "", merry.Wrap(err)
-	// }
-
-	// spew.Dump(fetchedEntry)
-
-	// return parsedId.String(), nil
-
-	// db, dbPath, err := initDB()
-	// if err != nil {
-	// 	log.L.Error().Err(err).Str("exportStep", "initDB").Msg("")
-	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
-	// }
-	// defer func() {
-	// 	//_ = os.Remove(dbPath)
-	// }()
-
-	// err = migrate(db)
-	// if err != nil {
-	// 	log.L.Error().Err(err).Str("exportStep", "migrate").Msg("")
-	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
-	// }
-	// liteQueries := sqlexport.New(db)
-
-	// showIDs, err := exportShows(ctx, s, liteQueries, fetchedEntry.UserGroups)
-	// if err != nil {
-	// 	log.L.Error().Err(err).Str("exportStep", "exportShow").Msg("")
-	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
-	// }
-
-	// seasonIDs, err := exportSeasons(ctx, s, liteQueries, showIDs)
-	// if err != nil {
-	// 	log.L.Error().Err(err).Str("exportStep", "exportSeasons").Msg("")
-	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
-	// }
-
-	// episodeIDs, err := exportEpisodes(ctx, s, liteQueries, seasonIDs)
-	// if err != nil {
-	// 	log.L.Error().Err(err).Str("exportStep", "exportEpisodes").Msg("")
-	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
-	// }
-
-	// err = exportStreams(ctx, s, liteQueries, episodeIDs)
-	// if err != nil {
-	// 	log.L.Error().Err(err).Str("exportStep", "exportStreams").Msg("")
-	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
-	// }
-
-	// // Just the current app for now. We can look into expanding later
-	// err = exportCurrentApplication(gctx, liteQueries)
-	// if err != nil {
-	// 	log.L.Error().Err(err).Str("exportStep", "exportCurrentApplication").Msg("")
-	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
-	// }
-
-	// pagesToExport, collectionsToExport, err := exportSections(ctx, s, liteQueries)
-	// if err != nil {
-	// 	log.L.Error().Err(err).Str("exportStep", "exportCurrentSections").Msg("")
-	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
-	// }
-
-	// err = exportPages(ctx, s, liteQueries, pagesToExport)
-	// if err != nil {
-	// 	log.L.Error().Err(err).Str("exportStep", "exportPages").Msg("")
-	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
-	// }
-
-	// err = exportCollections(ctx, s, liteQueries, collectionsToExport)
-	// if err != nil {
-	// 	log.L.Error().Err(err).Str("exportStep", "exportCollections").Msg("")
-	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
-	// }
-
-	// err = db.Close()
-	// if err != nil {
-	// 	log.L.Error().Err(err).Str("exportStep", "exportDBClose").Msg("")
-	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
-	// }
-
-	// f, err := os.Open(dbPath)
-	// if err != nil {
-	// 	log.L.Error().Err(err).Str("exportStep", "os.Open(dbPath)").Msg("")
-	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
-	// }
-
-	// return dbPath, nil
-
-	// s3DestinationPath := aws.String(path.Join("/sqliteexport", filepath.Base(dbPath)))
-
-	// _, err = q.GetS3Client().PutObject(ctx, &s3.PutObjectInput{
-	// 	Body:         f,
-	// 	Bucket:       aws.String(bucketName),
-	// 	CacheControl: aws.String("Cache-Control: private, max-age=604800, immutable"),
-	// 	Key:          s3DestinationPath,
-	// })
-	// if err != nil {
-	// 	log.L.Error().Err(err).Str("exportStep", "s3 PutObject").Msg("")
-	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
-	// }
-
-	// presignClient := s3.NewPresignClient(q.GetS3Client(), s3.WithPresignExpires(1*time.Hour))
-
-	// res, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
-	// 	Bucket: aws.String(bucketName),
-	// 	Key:    s3DestinationPath,
-	// })
-	// if err != nil {
-	// 	log.L.Error().Err(err).Str("exportStep", "Presign Object").Msg("")
-	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
-	// }
-
-	// err = s.GetQueries().UpdateExportUrl(ctx, sqlc.UpdateExportURLParams{
-	// 	Url: res.URL,
-	// 	ID:  parsedId, // uuid.UUID
-	// })
-	// if err != nil {
-	// 	return "", err
-	// }
-
-	// err = s.GetQueries().UpdateExportStatus(ctx, sqlc.UpdateExportStatusParams{
-	// 	Status: model.ExportStatusReady.String(),
-	// 	ID:     parsedId, // uuid.UUID
-	// })
-	// if err != nil {
-	// 	return "", err
-	// }
-
-	// return res.URL, nil
 }
 
 // DoExport exports some key data into a SQLite DB and uploads that to the provided S3 bucket
@@ -645,20 +535,56 @@ func HandleExportMessage(ctx context.Context, s testinterface, e event.Event) (s
 //
 // The rest if the functions in this file are not exported because they are currently dependent on each other and
 // are basically split only on order to understand the flow better.
-func DoExport(ctx context.Context, q serviceProvider, bucketName string, userRoles []string) (string, error) {
+func DoExport(ctx context.Context, q serviceProviderAPI, bucketName string, userRoles []string) (string, error) {
 	//TODO: Caching?
 	gctx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return "", merry.Wrap(err)
 	}
 
+	langPreferences := common.GetLanguagePreferencesFromCtx(gctx)
+	app, err := common.GetApplicationFromCtx(gctx)
+	if err != nil {
+		return "", err
+	}
+
+	return doExport(
+		ctx,
+		userRoles,
+		langPreferences,
+		app,
+		bucketName,
+		q.GetQueries(),
+		q.GetLoaders(),
+		q.GetFilteredLoaders(ctx),
+		q.GetPersonalizedLoaders(ctx),
+		q.GetURLSigner(),
+		q.GetCDNConfig(),
+		q.GetS3Client(),
+	)
+}
+
+func doExport(
+	ctx context.Context,
+	userRoles []string,
+	langPreferences common.LanguagePreferences,
+	app *common.Application,
+	bucketName string,
+	q *sqlc.Queries,
+	batchLoaders *loaders.BatchLoaders,
+	roleLoaders *loaders.LoadersWithPermissions,
+	personalizedLoaders *loaders.PersonalizedLoaders,
+	urlSigner *signing.Signer,
+	cdnConfig CDNConfig,
+	s3Client *s3.Client,
+) (string, error) {
 	db, dbPath, err := initDB()
 	if err != nil {
 		log.L.Error().Err(err).Str("exportStep", "initDB").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 	defer func() {
-		//_ = os.Remove(dbPath)
+		_ = os.Remove(dbPath)
 	}()
 
 	err = migrate(db)
@@ -668,50 +594,50 @@ func DoExport(ctx context.Context, q serviceProvider, bucketName string, userRol
 	}
 	liteQueries := sqlexport.New(db)
 
-	showIDs, err := exportShows(ctx, q, liteQueries, userRoles)
+	showIDs, err := exportShows(ctx, q, batchLoaders, roleLoaders, liteQueries, userRoles)
 	if err != nil {
 		log.L.Error().Err(err).Str("exportStep", "exportShow").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
-	seasonIDs, err := exportSeasons(ctx, q, liteQueries, showIDs)
+	seasonIDs, err := exportSeasons(ctx, batchLoaders, roleLoaders, liteQueries, showIDs)
 	if err != nil {
 		log.L.Error().Err(err).Str("exportStep", "exportSeasons").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
-	episodeIDs, err := exportEpisodes(ctx, q, liteQueries, seasonIDs)
+	episodeIDs, err := exportEpisodes(ctx, batchLoaders, roleLoaders, liteQueries, seasonIDs)
 	if err != nil {
 		log.L.Error().Err(err).Str("exportStep", "exportEpisodes").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
-	err = exportStreams(ctx, q, liteQueries, episodeIDs)
+	err = exportStreams(ctx, batchLoaders, urlSigner, cdnConfig, liteQueries, episodeIDs)
 	if err != nil {
 		log.L.Error().Err(err).Str("exportStep", "exportStreams").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
 	// Just the current app for now. We can look into expanding later
-	err = exportCurrentApplication(gctx, liteQueries)
+	err = exportCurrentApplication(ctx, liteQueries, app)
 	if err != nil {
 		log.L.Error().Err(err).Str("exportStep", "exportCurrentApplication").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
-	pagesToExport, collectionsToExport, err := exportSections(ctx, q, liteQueries)
+	pagesToExport, collectionsToExport, err := exportSections(ctx, q, batchLoaders, roleLoaders, liteQueries)
 	if err != nil {
 		log.L.Error().Err(err).Str("exportStep", "exportCurrentSections").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
-	err = exportPages(ctx, q, liteQueries, pagesToExport)
+	err = exportPages(ctx, batchLoaders, liteQueries, pagesToExport)
 	if err != nil {
 		log.L.Error().Err(err).Str("exportStep", "exportPages").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
-	err = exportCollections(ctx, q, liteQueries, collectionsToExport)
+	err = exportCollections(ctx, db, batchLoaders, personalizedLoaders, liteQueries, collectionsToExport)
 	if err != nil {
 		log.L.Error().Err(err).Str("exportStep", "exportCollections").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
@@ -729,11 +655,9 @@ func DoExport(ctx context.Context, q serviceProvider, bucketName string, userRol
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
-	return dbPath, nil
-
 	s3DestinationPath := aws.String(path.Join("/sqliteexport", filepath.Base(dbPath)))
 
-	_, err = q.GetS3Client().PutObject(ctx, &s3.PutObjectInput{
+	_, err = s3Client.PutObject(ctx, &s3.PutObjectInput{
 		Body:         f,
 		Bucket:       aws.String(bucketName),
 		CacheControl: aws.String("Cache-Control: private, max-age=604800, immutable"),
@@ -744,7 +668,7 @@ func DoExport(ctx context.Context, q serviceProvider, bucketName string, userRol
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
-	presignClient := s3.NewPresignClient(q.GetS3Client(), s3.WithPresignExpires(1*time.Hour))
+	presignClient := s3.NewPresignClient(s3Client, s3.WithPresignExpires(1*time.Hour))
 
 	res, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucketName),

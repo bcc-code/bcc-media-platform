@@ -2,6 +2,10 @@ package server
 
 import (
 	"database/sql"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/export"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
+	"github.com/bcc-code/bcc-media-platform/backend/signing"
 	"github.com/bcc-code/bcc-media-platform/backend/translations"
 
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
@@ -30,6 +34,10 @@ type ExternalServices struct {
 	FileService             files.Service
 	VideoManipulatorService *videomanipulator.VideoManipulatorService
 	TranslationsService     *translations.Service
+	FilteredLoaders         loaders.LoadersWithPermissions
+	CDNConfigProvider       export.CDNConfig
+	BatchLoaders            *loaders.BatchLoaders
+	URLSigner               *signing.Signer
 }
 
 // GetDatabase as stored in the struct
@@ -81,4 +89,24 @@ func (e ExternalServices) GetVideoManipulatorService() *videomanipulator.VideoMa
 
 func (e ExternalServices) GetTranslationService() *translations.Service {
 	return e.TranslationsService
+}
+
+func (e ExternalServices) GetLoadersForRoles(roles []string) *loaders.LoadersWithPermissions {
+	return loaders.GetLoadersForRoles(e.Queries, roles)
+}
+
+func (e ExternalServices) GetLoaders() *loaders.BatchLoaders {
+	return e.BatchLoaders
+}
+
+func (e ExternalServices) GetCDNConfig() export.CDNConfig {
+	return e.CDNConfigProvider
+}
+
+func (e ExternalServices) GetPersonalizedLoaders(roles []string, langPreferences common.LanguagePreferences) *loaders.PersonalizedLoaders {
+	return loaders.GetPersonalizedLoaders(e.Queries, roles, langPreferences)
+}
+
+func (e ExternalServices) GetURLSigner() *signing.Signer {
+	return e.URLSigner
 }

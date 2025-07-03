@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,7 @@ import (
 
 // LanguagePreferencesMiddleware extracts language preferences from headers and puts them into context
 // Note that this uses the ApplicationMiddleware so it needs to be called after
-func LanguagePreferencesMiddleware(loaders *common.BatchLoaders) func(*gin.Context) {
+func LanguagePreferencesMiddleware(loaders *loaders.BatchLoaders) func(*gin.Context) {
 	return func(ctx *gin.Context) {
 		// In longer term we probably want to store this on the profile in the DB
 		preferredOnly := ctx.GetHeader("X-Only-Preferred-Languages-Content") == "true"

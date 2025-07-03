@@ -1,7 +1,6 @@
 package signing
 
 import (
-	"encoding/base64"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"net/url"
 	"regexp"
@@ -9,22 +8,17 @@ import (
 
 	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go/service/cloudfront/sign"
-	"github.com/lestrrat-go/jwx/v2/jwa"
-	"github.com/lestrrat-go/jwx/v2/jwk"
-	"github.com/lestrrat-go/jwx/v2/jwt"
 )
 
 // Signer capable of producing signed urls for various services
 type Signer struct {
 	cloudfrontSigner sign.URLSigner
-	jwkKey           jwk.Key
 }
 
 // Config for Signer
 type Config interface {
 	GetAwsSigningKeyPath() string
 	GetAwsSigningKeyID() string
-	GetAzureSigningKey() string
 }
 
 // NewSigner with all secret material configured
@@ -38,47 +32,9 @@ func NewSigner(config Config) (*Signer, error) {
 
 	urlSigner := sign.NewURLSigner(config.GetAwsSigningKeyID(), key)
 
-	keyBytes, _ := base64.StdEncoding.DecodeString(config.GetAzureSigningKey())
-	privkey, err := jwk.FromRaw(keyBytes)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Unable to load Azure simmetric key")
-		return nil, merry.Wrap(err)
-	}
-
 	return &Signer{
 		cloudfrontSigner: *urlSigner,
-		jwkKey:           privkey,
 	}, nil
-}
-
-// SignAzureURL with a token as the query param
-// The token is valid for 6 hours.
-// The URL remains unchanged otherwise
-func (s Signer) SignAzureURL(url *url.URL, encryptionKeyID string) (string, error) {
-	tok, err := jwt.NewBuilder().
-		Issuer("https://brunstad.tv").
-		IssuedAt(time.Now()).
-		Audience([]string{"urn:brunstadtv"}).
-		Expiration(time.Now().Add(time.Hour*6)).
-		Claim("urn:microsoft:azure:mediaservices:contentkeyidentifier", encryptionKeyID).
-		Build()
-
-	if err != nil {
-		return "", merry.Wrap(err)
-	}
-
-	// Sign a JWT!
-	signed, err := jwt.Sign(tok, jwt.WithKey(jwa.HS256, s.jwkKey))
-	if err != nil {
-		return "", merry.Wrap(err)
-	}
-
-	q := url.Query()
-	q.Add("token", string(signed))
-
-	url.RawQuery = q.Encode()
-
-	return url.String(), nil
 }
 
 // SignCloudfrontURL takes the path and the domain and returns a string with the following properties:

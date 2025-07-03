@@ -2,7 +2,6 @@ package achievements
 
 import (
 	"context"
-	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
@@ -57,7 +56,7 @@ func TestCheckNewAchievements(t *testing.T) {
 	taskID := testutils.CreateTask(t, ctx, q, lessonID)
 	taskID2 := testutils.CreateTask(t, ctx, q, lessonID2)
 
-	l := &common.BatchLoaders{
+	l := &loaders.BatchLoaders{
 		CompletedLessonsLoader: loaders.NewRelationLoader(ctx, q.GetCompletedLessons, loaders.WithName("completed-lessons")),
 		StudyLessonLoader:      loaders.New(ctx, q.GetLessons),
 	}

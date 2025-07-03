@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/samber/lo"
 )
 
@@ -153,7 +152,7 @@ func (row getEpisodeIDsForSeasonsRow) GetRelationID() int {
 }
 
 // GetEpisodeIDsForSeasonsWithRoles returns episodeIDs for season filtered by roles
-func (rq *RoleQueries) GetEpisodeIDsForSeasonsWithRoles(ctx context.Context, ids []int) ([]loaders.Relation[int, int], error) {
+func (rq *RoleQueries) GetEpisodeIDsForSeasonsWithRoles(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
 	rows, err := rq.queries.getEpisodeIDsForSeasonsWithRoles(ctx, getEpisodeIDsForSeasonsWithRolesParams{
 		Column1: intToInt32(ids),
 		Column2: rq.roles,
@@ -161,7 +160,7 @@ func (rq *RoleQueries) GetEpisodeIDsForSeasonsWithRoles(ctx context.Context, ids
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getEpisodeIDsForSeasonsWithRolesRow, _ int) loaders.Relation[int, int] {
+	return lo.Map(rows, func(i getEpisodeIDsForSeasonsWithRolesRow, _ int) common.Relation[int, int] {
 		return getEpisodeIDsForSeasonsRow(i)
 	}), nil
 }
@@ -231,12 +230,12 @@ func (c conversion[S, R]) GetResult() R {
 }
 
 // GetEpisodeIDsForLegacyIDs returns ids for the requested codes
-func (q *Queries) GetEpisodeIDsForLegacyIDs(ctx context.Context, ids []int) ([]loaders.Conversion[int, int], error) {
+func (q *Queries) GetEpisodeIDsForLegacyIDs(ctx context.Context, ids []int) ([]common.Conversion[int, int], error) {
 	rows, err := q.getEpisodeIDsForLegacyIDs(ctx, intToInt32(ids))
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getEpisodeIDsForLegacyIDsRow, _ int) loaders.Conversion[int, int] {
+	return lo.Map(rows, func(i getEpisodeIDsForLegacyIDsRow, _ int) common.Conversion[int, int] {
 		return conversion[int, int]{
 			source: int(i.LegacyID.ValueOrZero()),
 			result: int(i.ID),
@@ -245,12 +244,12 @@ func (q *Queries) GetEpisodeIDsForLegacyIDs(ctx context.Context, ids []int) ([]l
 }
 
 // GetEpisodeIDsForLegacyProgramIDs returns ids for the requested codes
-func (q *Queries) GetEpisodeIDsForLegacyProgramIDs(ctx context.Context, ids []int) ([]loaders.Conversion[int, int], error) {
+func (q *Queries) GetEpisodeIDsForLegacyProgramIDs(ctx context.Context, ids []int) ([]common.Conversion[int, int], error) {
 	rows, err := q.getEpisodeIDsForLegacyProgramIDs(ctx, intToInt32(ids))
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getEpisodeIDsForLegacyProgramIDsRow, _ int) loaders.Conversion[int, int] {
+	return lo.Map(rows, func(i getEpisodeIDsForLegacyProgramIDsRow, _ int) common.Conversion[int, int] {
 		return conversion[int, int]{
 			source: int(i.LegacyID.ValueOrZero()),
 			result: int(i.ID),
@@ -259,12 +258,12 @@ func (q *Queries) GetEpisodeIDsForLegacyProgramIDs(ctx context.Context, ids []in
 }
 
 // GetEpisodeIDsForUuids returns episodeIds for specified uuids
-func (q *Queries) GetEpisodeIDsForUuids(ctx context.Context, uuids []uuid.UUID) ([]loaders.Conversion[uuid.UUID, int], error) {
+func (q *Queries) GetEpisodeIDsForUuids(ctx context.Context, uuids []uuid.UUID) ([]common.Conversion[uuid.UUID, int], error) {
 	rows, err := q.getEpisodeIDsForUuids(ctx, uuids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getEpisodeIDsForUuidsRow, _ int) loaders.Conversion[uuid.UUID, int] {
+	return lo.Map(rows, func(i getEpisodeIDsForUuidsRow, _ int) common.Conversion[uuid.UUID, int] {
 		return conversion[uuid.UUID, int]{
 			source: i.Original,
 			result: int(i.Result),
@@ -273,7 +272,7 @@ func (q *Queries) GetEpisodeIDsForUuids(ctx context.Context, uuids []uuid.UUID) 
 }
 
 // GetEpisodeIDsWithTagIDs returns episodeIDs with the specified tags.
-func (pq *PersonalizedQueries) GetEpisodeIDsWithTagIDs(ctx context.Context, ids []int) ([]loaders.Relation[int, int], error) {
+func (pq *PersonalizedQueries) GetEpisodeIDsWithTagIDs(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
 	rows, err := pq.queries.getEpisodeIDsWithTagIDs(ctx, getEpisodeIDsWithTagIDsParams{
 		Roles:                      pq.roles,
 		TagIds:                     intToInt32(ids),
@@ -284,7 +283,7 @@ func (pq *PersonalizedQueries) GetEpisodeIDsWithTagIDs(ctx context.Context, ids 
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getEpisodeIDsWithTagIDsRow, _ int) loaders.Relation[int, int] {
+	return lo.Map(rows, func(i getEpisodeIDsWithTagIDsRow, _ int) common.Relation[int, int] {
 		return relation[int, int]{
 			ID:       int(i.ID),
 			ParentID: int(i.ParentID),

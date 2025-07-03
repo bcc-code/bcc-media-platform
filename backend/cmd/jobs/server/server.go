@@ -156,12 +156,9 @@ func (s Server) ProcessMessage(c *gin.Context) {
 				}
 			}
 			return nil
-			// return crowdin.HandleEvent(ctx, s.services, e)
 		})
 	case events.TypeExportStart:
-		//err = temp(ctx, e)
-		//_, err = export.HandleExportMessage(ctx, s.services, e)
-		_, err = export.HandleExportMessage(ctx, s.services, e)
+		err = export.HandleExportMessage(ctx, s.services, e)
 	default:
 		err = merry.Wrap(errUndefinedHandler)
 	}

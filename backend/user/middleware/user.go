@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"strconv"
 	"strings"
 	"sync"
@@ -82,7 +83,7 @@ func getFeatureFlagRolesFromContext(ctx *gin.Context) []string {
 
 // NewUserMiddleware returns a gin middleware that ingests a populated User struct
 // into the gin context
-func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, ls *common.BatchLoaders, auth0Client *auth0.Client) func(*gin.Context) {
+func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, ls *loaders.BatchLoaders, auth0Client *auth0.Client) func(*gin.Context) {
 	return func(ctx *gin.Context) {
 		reqCtx, span := otel.Tracer("user/middleware").Start(ctx.Request.Context(), "run")
 		defer span.End()

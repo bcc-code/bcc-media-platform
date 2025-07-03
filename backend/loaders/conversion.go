@@ -2,27 +2,9 @@ package loaders
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/graph-gophers/dataloader/v7"
 )
-
-// Conversion is a generic interface that defines a conversion from one type to another.
-// It's used by NewConversionLoader to convert between an original value (O) and a result value (R).
-//
-// Example:
-//
-//	type UUIDToStringConversion struct {
-//		original uuid.UUID
-//		result   string
-//	}
-//
-//	func (c UUIDToStringConversion) GetOriginal() uuid.UUID { return c.original }
-//	func (c UUIDToStringConversion) GetResult() string     { return c.result }
-type Conversion[O comparable, R any] interface {
-	// GetOriginal returns the original key used for the conversion
-	GetOriginal() O
-	// GetResult returns the converted result
-	GetResult() R
-}
 
 // NewConversionLoader creates a new batch loader that converts between two types.
 // It's particularly useful for when the query returns data of a different type than the object we want out.
@@ -52,7 +34,7 @@ type Conversion[O comparable, R any] interface {
 //	)
 func NewConversionLoader[o comparable, rt any](
 	ctx context.Context,
-	converter func(ctx context.Context, ids []o) ([]Conversion[o, rt], error),
+	converter func(ctx context.Context, ids []o) ([]common.Conversion[o, rt], error),
 	opts ...Option,
 ) *Loader[o, *rt] {
 	batchLoadLists := func(ctx context.Context, keys []o) []*dataloader.Result[*rt] {

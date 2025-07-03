@@ -11,6 +11,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/cmd/jobs/server"
 	"github.com/bcc-code/bcc-media-platform/backend/events"
 	"github.com/bcc-code/bcc-media-platform/backend/files"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/bcc-code/bcc-media-platform/backend/notifications"
@@ -18,6 +19,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
 	"github.com/bcc-code/bcc-media-platform/backend/scheduler"
 	"github.com/bcc-code/bcc-media-platform/backend/search"
+	"github.com/bcc-code/bcc-media-platform/backend/signing"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/statistics"
 	"github.com/bcc-code/bcc-media-platform/backend/translations"
@@ -141,6 +143,11 @@ func main() {
 		return
 	}
 
+	urlSigner, err := signing.NewSigner(config.CDNConfig)
+	if err != nil {
+		log.L.Error().Err(err).Send()
+	}
+
 	services := server.ExternalServices{
 		Database:                db,
 		S3Client:                s3Client,
@@ -154,6 +161,9 @@ func main() {
 		FileService:             fileService,
 		VideoManipulatorService: videomanipulatorService,
 		TranslationsService:     translationsClient,
+		CDNConfigProvider:       config.CDNConfig,
+		BatchLoaders:            loaders.InitBatchLoaders(queries, nil),
+		URLSigner:               urlSigner,
 	}
 
 	handlers := server.NewServer(services, serverConfig)

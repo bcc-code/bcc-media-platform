@@ -3,7 +3,6 @@ package sqlc
 import (
 	"context"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
@@ -47,34 +46,34 @@ func (q *Queries) GetUserCollectionEntries(ctx context.Context, ids []uuid.UUID)
 }
 
 // GetUserCollectionIDsForProfileIDs returns collection ids for profiles
-func (q *Queries) GetUserCollectionIDsForProfileIDs(ctx context.Context, profileIDs []uuid.UUID) ([]loaders.Relation[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetUserCollectionIDsForProfileIDs(ctx context.Context, profileIDs []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getUserCollectionIDsForProfileIDs(ctx, profileIDs)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getUserCollectionIDsForProfileIDsRow, _ int) loaders.Relation[uuid.UUID, uuid.UUID] {
+	return lo.Map(rows, func(i getUserCollectionIDsForProfileIDsRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
 		return relation[uuid.UUID, uuid.UUID](i)
 	}), nil
 }
 
 // GetUserCollectionEntryIDsForUserCollectionIDs returns entry ids for collection ids
-func (q *Queries) GetUserCollectionEntryIDsForUserCollectionIDs(ctx context.Context, collectionIDs []uuid.UUID) ([]loaders.Relation[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetUserCollectionEntryIDsForUserCollectionIDs(ctx context.Context, collectionIDs []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getUserCollectionEntryIDsForUserCollectionIDs(ctx, collectionIDs)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getUserCollectionEntryIDsForUserCollectionIDsRow, _ int) loaders.Relation[uuid.UUID, uuid.UUID] {
+	return lo.Map(rows, func(i getUserCollectionEntryIDsForUserCollectionIDsRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
 		return relation[uuid.UUID, uuid.UUID](i)
 	}), nil
 }
 
 // GetMyListCollectionForProfileIDs returns the id for the profile my list collection
-func (q *Queries) GetMyListCollectionForProfileIDs(ctx context.Context, profileIDs []uuid.UUID) ([]loaders.Conversion[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetMyListCollectionForProfileIDs(ctx context.Context, profileIDs []uuid.UUID) ([]common.Conversion[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getMyListCollectionForProfileIDs(ctx, profileIDs)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getMyListCollectionForProfileIDsRow, _ int) loaders.Conversion[uuid.UUID, uuid.UUID] {
+	return lo.Map(rows, func(i getMyListCollectionForProfileIDsRow, _ int) common.Conversion[uuid.UUID, uuid.UUID] {
 		return conversion[uuid.UUID, uuid.UUID]{
 			source: i.ParentID,
 			result: i.ID,

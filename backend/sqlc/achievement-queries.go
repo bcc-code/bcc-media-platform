@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
@@ -54,7 +53,7 @@ func (q *Queries) Collection(collection string) CollectionQueries {
 }
 
 // GetAchievementsForActions retrieves achievementIDs for actions
-func (cq *CollectionQueries) GetAchievementsForActions(ctx context.Context, actions []string) ([]loaders.Relation[uuid.UUID, string], error) {
+func (cq *CollectionQueries) GetAchievementsForActions(ctx context.Context, actions []string) ([]common.Relation[uuid.UUID, string], error) {
 	rows, err := cq.getAchievementsForActions(ctx, getAchievementsForActionsParams{
 		Column1: cq.collection,
 		Column2: actions,
@@ -62,18 +61,18 @@ func (cq *CollectionQueries) GetAchievementsForActions(ctx context.Context, acti
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getAchievementsForActionsRow, _ int) loaders.Relation[uuid.UUID, string] {
+	return lo.Map(rows, func(i getAchievementsForActionsRow, _ int) common.Relation[uuid.UUID, string] {
 		return relation[uuid.UUID, string](i)
 	}), nil
 }
 
 // GetAchievementsForGroups retrieves achievementIDs for actions
-func (q *Queries) GetAchievementsForGroups(ctx context.Context, groupIDs []uuid.UUID) ([]loaders.Relation[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetAchievementsForGroups(ctx context.Context, groupIDs []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getAchievementsForGroups(ctx, groupIDs)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getAchievementsForGroupsRow, _ int) loaders.Relation[uuid.UUID, uuid.UUID] {
+	return lo.Map(rows, func(i getAchievementsForGroupsRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
 		return relation[uuid.UUID, uuid.UUID](i)
 	}), nil
 }
@@ -93,23 +92,23 @@ func (q *Queries) GetAchievementGroups(ctx context.Context, ids []uuid.UUID) ([]
 }
 
 // GetAchievementsForProfiles returns achievements achieved for profiles
-func (q *Queries) GetAchievementsForProfiles(ctx context.Context, ids []uuid.UUID) ([]loaders.Relation[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetAchievementsForProfiles(ctx context.Context, ids []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getAchievedAchievementsForProfiles(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getAchievedAchievementsForProfilesRow, _ int) loaders.Relation[uuid.UUID, uuid.UUID] {
+	return lo.Map(rows, func(i getAchievedAchievementsForProfilesRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
 		return relation[uuid.UUID, uuid.UUID](i)
 	}), nil
 }
 
 // GetUnconfirmedAchievementsForProfiles returns achievements achieved for profiles
-func (q *Queries) GetUnconfirmedAchievementsForProfiles(ctx context.Context, ids []uuid.UUID) ([]loaders.Relation[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetUnconfirmedAchievementsForProfiles(ctx context.Context, ids []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getUnconfirmedAchievedAchievementsForProfiles(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getUnconfirmedAchievedAchievementsForProfilesRow, _ int) loaders.Relation[uuid.UUID, uuid.UUID] {
+	return lo.Map(rows, func(i getUnconfirmedAchievedAchievementsForProfilesRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
 		return relation[uuid.UUID, uuid.UUID](i)
 	}), nil
 }

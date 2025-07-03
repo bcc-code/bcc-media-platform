@@ -104,7 +104,7 @@ func (r *queryRootResolver) Languages(ctx context.Context) ([]string, error) {
 }
 
 // Export is the resolver for the export field.
-func (r *queryRootResolver) Export(ctx context.Context, groups []string) (*model.Export, error) {
+func (r *queryRootResolver) Export(ctx context.Context, roles []string) (*model.Export, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err

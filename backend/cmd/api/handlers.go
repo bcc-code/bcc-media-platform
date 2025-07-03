@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
@@ -11,7 +12,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/bcc-media-platform/backend/analytics"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
-	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/email"
 	graphadmin "github.com/bcc-code/bcc-media-platform/backend/graph/admin"
 	graphadmingenerated "github.com/bcc-code/bcc-media-platform/backend/graph/admin/generated"
@@ -36,7 +36,7 @@ import (
 func graphqlHandler(
 	db *sql.DB,
 	queries *sqlc.Queries,
-	loaders *common.BatchLoaders,
+	loaders *loaders.BatchLoaders,
 	searchService *search.Service,
 	emailService *email.Service,
 	urlSigner *signing.Signer,
@@ -54,7 +54,7 @@ func graphqlHandler(
 		DB:                    db,
 		Queries:               queries,
 		Loaders:               loaders,
-		FilteredLoaders:       filteredLoaderFactory(db, queries, loaders.CollectionLoader),
+		FilteredLoaders:       filteredLoaderFactory(queries),
 		ProfileLoaders:        profileLoaderFactory(queries),
 		PersonalizedLoaders:   personalizedLoaderFactory(queries),
 		SearchService:         searchService,
@@ -117,7 +117,7 @@ func graphqlHandler(
 	}
 }
 
-func publicGraphqlHandler(loaders *common.BatchLoaders) gin.HandlerFunc {
+func publicGraphqlHandler(loaders *loaders.BatchLoaders) gin.HandlerFunc {
 	resolver := graphpublic.Resolver{
 		Loaders: &graphpublic.Loaders{
 			EpisodeLoader: loaders.EpisodeLoader,
@@ -138,7 +138,7 @@ func publicGraphqlHandler(loaders *common.BatchLoaders) gin.HandlerFunc {
 	}
 }
 
-func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *common.BatchLoaders) gin.HandlerFunc {
+func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *loaders.BatchLoaders) gin.HandlerFunc {
 	resolver := graphadmin.Resolver{
 		DB:      db,
 		Queries: queries,

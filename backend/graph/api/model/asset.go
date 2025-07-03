@@ -12,13 +12,11 @@ import (
 )
 
 type signatureProvider interface {
-	SignAzureURL(*url.URL, string) (string, error)
 	SignCloudfrontURL(string, string, time.Duration) (string, error)
 	SignWithPolicy(string, *sign.Policy) (string, error)
 }
 
 type cdnConfig interface {
-	GetLegacyVODDomain() string
 	GetVOD2Domain() string
 }
 
@@ -59,30 +57,7 @@ const streamUrlExpiresAfter = 6 * time.Hour
 
 // StreamFrom converts AssetFile rows to the GQL equivalents
 func StreamFrom(_ context.Context, signer signatureProvider, cdn cdnConfig, stream *common.Stream) (*Stream, error) {
-	signedURL := ""
-	var err error
-
-	if stream.Service == common.StreamServiceAzureMedia {
-		streamURL, err := url.Parse(stream.Url)
-		if err != nil {
-			return nil, err
-		}
-
-		streamURL.Host = cdn.GetLegacyVODDomain()
-		streamURL.Scheme = "https"
-
-		// This is intentionally hardcoded for now
-		manifestURL, _ := url.Parse("https://proxy.brunstad.tv/api/vod/toplevelmanifest")
-
-		q := manifestURL.Query()
-		q.Add("playbackUrl", streamURL.String())
-		manifestURL.RawQuery = q.Encode()
-
-		signedURL, err = signer.SignAzureURL(manifestURL, stream.EncryptionKeyID.ValueOrZero())
-	} else {
-		signedURL, err = signer.SignCloudfrontURL(stream.Path, cdn.GetVOD2Domain(), streamUrlExpiresAfter)
-	}
-
+	signedURL, err := signer.SignCloudfrontURL(stream.Path, cdn.GetVOD2Domain(), streamUrlExpiresAfter)
 	if err != nil {
 		return nil, err
 	}

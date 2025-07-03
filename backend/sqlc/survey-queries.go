@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
@@ -72,12 +71,12 @@ func (q *Queries) GetSurveyQuestions(ctx context.Context, ids []uuid.UUID) ([]co
 }
 
 // GetSurveyQuestionIDsForSurveyIDs returns relation structs for the questions
-func (rq *RoleQueries) GetSurveyQuestionIDsForSurveyIDs(ctx context.Context, ids []uuid.UUID) ([]loaders.Relation[uuid.UUID, uuid.UUID], error) {
+func (rq *RoleQueries) GetSurveyQuestionIDsForSurveyIDs(ctx context.Context, ids []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
 	rows, err := rq.queries.getQuestionIDsForSurveyIDs(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getQuestionIDsForSurveyIDsRow, _ int) loaders.Relation[uuid.UUID, uuid.UUID] {
+	return lo.Map(rows, func(i getQuestionIDsForSurveyIDsRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
 		return relation[uuid.UUID, uuid.UUID](i)
 	}), nil
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/google/uuid"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -121,12 +120,12 @@ func (q *Queries) GetPermissionsForShows(ctx context.Context, ids []int) ([]comm
 }
 
 // GetShowIDsForUuids returns episodeIds for specified uuids
-func (q *Queries) GetShowIDsForUuids(ctx context.Context, uuids []uuid.UUID) ([]loaders.Conversion[uuid.UUID, int], error) {
+func (q *Queries) GetShowIDsForUuids(ctx context.Context, uuids []uuid.UUID) ([]common.Conversion[uuid.UUID, int], error) {
 	rows, err := q.getShowIDsForUuids(ctx, uuids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getShowIDsForUuidsRow, _ int) loaders.Conversion[uuid.UUID, int] {
+	return lo.Map(rows, func(i getShowIDsForUuidsRow, _ int) common.Conversion[uuid.UUID, int] {
 		return conversion[uuid.UUID, int]{
 			source: i.Original,
 			result: int(i.Result),

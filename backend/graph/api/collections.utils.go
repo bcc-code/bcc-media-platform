@@ -8,6 +8,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/items/collection"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
@@ -18,7 +19,7 @@ import (
 	"time"
 )
 
-func preloadEntryLoaders(ctx context.Context, loaders *common.BatchLoaders, entries []collection.Entry) {
+func preloadEntryLoaders(ctx context.Context, loaders *loaders.BatchLoaders, entries []collection.Entry) {
 	for _, e := range entries {
 		switch e.Collection {
 		case common.CollectionShows:
@@ -43,7 +44,7 @@ func preloadEntryLoaders(ctx context.Context, loaders *common.BatchLoaders, entr
 	}
 }
 
-func collectionEntriesToModels(ctx context.Context, ls *common.BatchLoaders, entries []collection.Entry) ([]model.CollectionItem, error) {
+func collectionEntriesToModels(ctx context.Context, ls *loaders.BatchLoaders, entries []collection.Entry) ([]model.CollectionItem, error) {
 	preloadEntryLoaders(ctx, ls, entries)
 
 	var items []model.CollectionItem

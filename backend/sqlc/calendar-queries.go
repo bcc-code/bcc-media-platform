@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
 )
@@ -47,12 +46,12 @@ func (q *Queries) ListEvents(ctx context.Context) ([]common.Event, error) {
 }
 
 // GetEntryIDsForEventIDs returns the calendar entry ids for the specified event ids
-func (q *Queries) GetEntryIDsForEventIDs(ctx context.Context, ids []int) ([]loaders.Relation[int, int], error) {
+func (q *Queries) GetEntryIDsForEventIDs(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
 	rows, err := q.getCalendarEntryIDsForEvents(ctx, intToInt32(ids))
 	if err != nil {
 		return nil, nil
 	}
-	return lo.Map(rows, func(r getCalendarEntryIDsForEventsRow, _ int) loaders.Relation[int, int] {
+	return lo.Map(rows, func(r getCalendarEntryIDsForEventsRow, _ int) common.Relation[int, int] {
 		return relation[int, int]{
 			ID:       int(r.ID),
 			ParentID: int(r.ParentID.Int64),

@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
@@ -46,12 +45,12 @@ func (q *Queries) GetShorts(ctx context.Context, ids []uuid.UUID) ([]common.Shor
 }
 
 // GetMediaIDsForShortIDs returns media ids for the requested shortIds
-func (q *Queries) GetMediaIDsForShortIDs(ctx context.Context, ids []uuid.UUID) ([]loaders.Conversion[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetMediaIDsForShortIDs(ctx context.Context, ids []uuid.UUID) ([]common.Conversion[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getMediaIDForShorts(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getMediaIDForShortsRow, _ int) loaders.Conversion[uuid.UUID, uuid.UUID] {
+	return lo.Map(rows, func(i getMediaIDForShortsRow, _ int) common.Conversion[uuid.UUID, uuid.UUID] {
 		return conversion[uuid.UUID, uuid.UUID]{
 			source: i.ID,
 			result: i.MediaitemID.UUID,

@@ -38,6 +38,24 @@ type videomanipulatorConfig struct {
 	apiKey  string
 }
 
+type cdnConfig struct {
+	VOD2Domain        string
+	AWSSigningKeyPath string
+	AWSSigningKeyID   string
+}
+
+func (c cdnConfig) GetVOD2Domain() string {
+	return c.VOD2Domain
+}
+
+func (c cdnConfig) GetAwsSigningKeyPath() string {
+	return c.AWSSigningKeyPath
+}
+
+func (c cdnConfig) GetAwsSigningKeyID() string {
+	return c.AWSSigningKeyID
+}
+
 type envConfig struct {
 	AWS               awsConfig
 	AzureStorage      files.AzureConfig
@@ -56,6 +74,7 @@ type envConfig struct {
 	BigQuery          statistics.BigQueryConfig
 	VideoManipulator  videomanipulatorConfig
 	Phrase            phrase.Config
+	CDNConfig         cdnConfig
 }
 
 func getEnvConfig() envConfig {
@@ -150,6 +169,11 @@ func getEnvConfig() envConfig {
 			ProjectUID:  os.Getenv("PHRASE_PROJECT_UID"),
 			CallbackURL: os.Getenv("PHRASE_CALLBACK_URL"),
 			Debug:       os.Getenv("PHRASE_DEBUG") == "true",
+		},
+		CDNConfig: cdnConfig{
+			VOD2Domain:        os.Getenv("VOD2_CDN_DOMAIN"),
+			AWSSigningKeyID:   os.Getenv("CF_SIGNING_KEY_ID"),
+			AWSSigningKeyPath: os.Getenv("CF_SIGNING_KEY_PATH"),
 		},
 	}
 }

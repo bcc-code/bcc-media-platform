@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/sqlc-dev/pqtype"
@@ -39,13 +38,13 @@ func (pq *ProfileQueries) GetProgressForEpisodes(ctx context.Context, episodeIDs
 }
 
 // GetEpisodeIDsWithProgress returns episodeIDs ordered by date progressed.
-func (q *Queries) GetEpisodeIDsWithProgress(ctx context.Context, profileIDs []uuid.UUID) ([]loaders.Relation[int, uuid.UUID], error) {
+func (q *Queries) GetEpisodeIDsWithProgress(ctx context.Context, profileIDs []uuid.UUID) ([]common.Relation[int, uuid.UUID], error) {
 	rows, err := q.getEpisodeIDsWithProgress(ctx, profileIDs)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getEpisodeIDsWithProgressRow, _ int) loaders.Relation[int, uuid.UUID] {
-		return loaders.RelationItem[int, uuid.UUID]{
+	return lo.Map(rows, func(i getEpisodeIDsWithProgressRow, _ int) common.Relation[int, uuid.UUID] {
+		return common.RelationItem[int, uuid.UUID]{
 			Key:        int(i.EpisodeID),
 			RelationID: i.ProfileID,
 		}
@@ -79,7 +78,7 @@ func (pq *ProfileQueries) ClearProgress(ctx context.Context, episodeID int) erro
 }
 
 // DefaultEpisodeIDForSeasonIDs returns the default episodeIDs for the specified keys
-func (pq *ProfileQueries) DefaultEpisodeIDForSeasonIDs(ctx context.Context, seasonIDs []int) ([]loaders.Conversion[int, int], error) {
+func (pq *ProfileQueries) DefaultEpisodeIDForSeasonIDs(ctx context.Context, seasonIDs []int) ([]common.Conversion[int, int], error) {
 	rows, err := pq.queries.getDefaultEpisodeIDForSeasonIDs(ctx, getDefaultEpisodeIDForSeasonIDsParams{
 		ProfileID: pq.profileID,
 		SeasonIds: intToInt32(seasonIDs),
@@ -87,7 +86,7 @@ func (pq *ProfileQueries) DefaultEpisodeIDForSeasonIDs(ctx context.Context, seas
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(row getDefaultEpisodeIDForSeasonIDsRow, _ int) loaders.Conversion[int, int] {
+	return lo.Map(rows, func(row getDefaultEpisodeIDForSeasonIDsRow, _ int) common.Conversion[int, int] {
 		return conversion[int, int]{
 			source: int(row.ParentID),
 			result: int(row.ID),
@@ -96,7 +95,7 @@ func (pq *ProfileQueries) DefaultEpisodeIDForSeasonIDs(ctx context.Context, seas
 }
 
 // DefaultEpisodeIDForShowIDs returns the default episodeIDs for the specified keys
-func (pq *ProfileQueries) DefaultEpisodeIDForShowIDs(ctx context.Context, seasonIDs []int) ([]loaders.Conversion[int, int], error) {
+func (pq *ProfileQueries) DefaultEpisodeIDForShowIDs(ctx context.Context, seasonIDs []int) ([]common.Conversion[int, int], error) {
 	rows, err := pq.queries.getDefaultEpisodeIDForShowIDs(ctx, getDefaultEpisodeIDForShowIDsParams{
 		ProfileID: pq.profileID,
 		ShowIds:   intToInt32(seasonIDs),
@@ -104,7 +103,7 @@ func (pq *ProfileQueries) DefaultEpisodeIDForShowIDs(ctx context.Context, season
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(row getDefaultEpisodeIDForShowIDsRow, _ int) loaders.Conversion[int, int] {
+	return lo.Map(rows, func(row getDefaultEpisodeIDForShowIDsRow, _ int) common.Conversion[int, int] {
 		return conversion[int, int]{
 			source: int(row.ParentID),
 			result: int(row.ID),

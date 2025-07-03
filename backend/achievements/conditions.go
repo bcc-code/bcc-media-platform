@@ -2,7 +2,7 @@ package achievements
 
 import (
 	"context"
-	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
@@ -75,7 +75,7 @@ func completedTopicIDsToAchievedResult(ctx context.Context, queries *sqlc.Querie
 }
 
 // CheckNewAchievements achieved since last check
-func CheckNewAchievements(ctx context.Context, queries *sqlc.Queries, loaders *common.BatchLoaders, action Action) error {
+func CheckNewAchievements(ctx context.Context, queries *sqlc.Queries, loaders *loaders.BatchLoaders, action Action) error {
 	ginCtx, _ := utils.GinCtx(ctx)
 	p := user.GetProfileFromCtx(ginCtx)
 	if p == nil {
@@ -121,7 +121,7 @@ func CheckNewAchievements(ctx context.Context, queries *sqlc.Queries, loaders *c
 	return nil
 }
 
-func CheckCompletedLessonAchivements(ctx context.Context, queries *sqlc.Queries, loaders *common.BatchLoaders, profileID uuid.UUID) ([]achievedResult, error) {
+func CheckCompletedLessonAchivements(ctx context.Context, queries *sqlc.Queries, loaders *loaders.BatchLoaders, profileID uuid.UUID) ([]achievedResult, error) {
 	lessons, err := loaders.CompletedLessonsLoader.Get(ctx, profileID)
 
 	if err != nil {
@@ -189,7 +189,7 @@ func CheckCompletedLessonAchivements(ctx context.Context, queries *sqlc.Queries,
 }
 
 // CheckAllAchievements checks if any achievement has been achieved
-func CheckAllAchievements(ctx context.Context, queries *sqlc.Queries, loaders *common.BatchLoaders) error {
+func CheckAllAchievements(ctx context.Context, queries *sqlc.Queries, loaders *loaders.BatchLoaders) error {
 	actions := []Action{
 		{
 			Collection: CollectionTopics,

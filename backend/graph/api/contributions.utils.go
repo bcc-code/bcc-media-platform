@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"strconv"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -10,7 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func resolveContribution(ctx context.Context, i *common.Contribution, loaders *common.BatchLoaders) (*model.Contribution, error) {
+func resolveContribution(ctx context.Context, i *common.Contribution, loaders *loaders.BatchLoaders) (*model.Contribution, error) {
 	var item model.ContributionItem
 
 	switch i.ItemType {

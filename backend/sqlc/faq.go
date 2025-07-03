@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
@@ -75,7 +74,7 @@ func (row getQuestionIDsForCategoriesWithRolesRow) GetRelationID() uuid.UUID {
 }
 
 // GetQuestionIDsForCategories returns a list of episodes specified by seasons
-func (rq *RoleQueries) GetQuestionIDsForCategories(ctx context.Context, ids []uuid.UUID) ([]loaders.Relation[uuid.UUID, uuid.UUID], error) {
+func (rq *RoleQueries) GetQuestionIDsForCategories(ctx context.Context, ids []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
 	rows, err := rq.queries.getQuestionIDsForCategoriesWithRoles(ctx, getQuestionIDsForCategoriesWithRolesParams{
 		Roles:       rq.roles,
 		CategoryIds: ids,
@@ -83,7 +82,7 @@ func (rq *RoleQueries) GetQuestionIDsForCategories(ctx context.Context, ids []uu
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getQuestionIDsForCategoriesWithRolesRow, _ int) loaders.Relation[uuid.UUID, uuid.UUID] {
+	return lo.Map(rows, func(i getQuestionIDsForCategoriesWithRolesRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
 		return i
 	}), nil
 }

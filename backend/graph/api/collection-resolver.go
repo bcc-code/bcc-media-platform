@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"github.com/bcc-code/bcc-media-platform/backend/cursors"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"strconv"
 	"strings"
 
@@ -71,7 +72,7 @@ func filterWithUuids(col *common.Collection, c common.ItemCollection, entries []
 	return newEntries
 }
 
-func resolveContinueWatchingCollection(ctx context.Context, ls *common.BatchLoaders) ([]*int, error) {
+func resolveContinueWatchingCollection(ctx context.Context, ls *loaders.BatchLoaders) ([]*int, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -87,7 +88,7 @@ func resolveContinueWatchingCollection(ctx context.Context, ls *common.BatchLoad
 	return ids, nil
 }
 
-func resolveMyListCollection(ctx context.Context, ls *common.BatchLoaders) ([]*int, error) {
+func resolveMyListCollection(ctx context.Context, ls *loaders.BatchLoaders) ([]*int, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -140,7 +141,7 @@ func (r *Resolver) resolveShortsCollection(ctx context.Context) ([]uuid.UUID, er
 	return res, nil
 }
 
-func mapCollectionEntriesToSectionItems(ctx context.Context, ls *common.BatchLoaders, entries []collection.Entry, imageStyle string, numberInTitle bool) ([]*model.SectionItem, error) {
+func mapCollectionEntriesToSectionItems(ctx context.Context, ls *loaders.BatchLoaders, entries []collection.Entry, imageStyle string, numberInTitle bool) ([]*model.SectionItem, error) {
 	var items []*model.SectionItem
 	for _, e := range entries {
 		var item *model.SectionItem

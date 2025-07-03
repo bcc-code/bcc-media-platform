@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"database/sql"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"net/http"
 	"os"
 	"time"
@@ -17,7 +17,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/bmm"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/email"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	commonMiddleware "github.com/bcc-code/bcc-media-platform/backend/middleware"
@@ -50,15 +49,15 @@ const personalizedLoadersCtxKey = "personalized-loaders"
 
 func personalizedLoaderFactory(
 	queries *sqlc.Queries,
-) func(ctx context.Context) *common.PersonalizedLoaders {
-	return func(ctx context.Context) *common.PersonalizedLoaders {
+) func(ctx context.Context) *loaders.PersonalizedLoaders {
+	return func(ctx context.Context) *loaders.PersonalizedLoaders {
 		ginCtx, err := utils.GinCtx(ctx)
 		if err != nil {
 			return nil
 		}
 
 		if ls := ginCtx.Value(personalizedLoadersCtxKey); ls != nil {
-			return ls.(*common.PersonalizedLoaders)
+			return ls.(*loaders.PersonalizedLoaders)
 		}
 
 		var roles []string
@@ -71,7 +70,7 @@ func personalizedLoaderFactory(
 
 		langPreferences := common.GetLanguagePreferencesFromCtx(ginCtx)
 
-		ls := getPersonalizedLoaders(
+		ls := loaders.GetPersonalizedLoaders(
 			queries,
 			roles,
 			langPreferences,
@@ -82,8 +81,8 @@ func personalizedLoaderFactory(
 	}
 }
 
-func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *loaders.Loader[int, *common.Collection]) func(ctx context.Context) *common.LoadersWithPermissions {
-	return func(ctx context.Context) *common.LoadersWithPermissions {
+func filteredLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *loaders.LoadersWithPermissions {
+	return func(ctx context.Context) *loaders.LoadersWithPermissions {
 		ginCtx, err := utils.GinCtx(ctx)
 		var roles []string
 		if err != nil {
@@ -93,16 +92,16 @@ func filteredLoaderFactory(db *sql.DB, queries *sqlc.Queries, collectionLoader *
 			roles = user.GetRolesFromCtx(ginCtx)
 		}
 		if ls := ginCtx.Value(filteredLoadersCtxKey); ls != nil {
-			return ls.(*common.LoadersWithPermissions)
+			return ls.(*loaders.LoadersWithPermissions)
 		}
-		ls := getLoadersForRoles(queries, roles)
+		ls := loaders.GetLoadersForRoles(queries, roles)
 		ginCtx.Set(filteredLoadersCtxKey, ls)
 		return ls
 	}
 }
 
-func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *common.ProfileLoaders {
-	return func(ctx context.Context) *common.ProfileLoaders {
+func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *loaders.ProfileLoaders {
+	return func(ctx context.Context) *loaders.ProfileLoaders {
 		ginCtx, err := utils.GinCtx(ctx)
 		if err != nil {
 			return nil
@@ -112,7 +111,7 @@ func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *comm
 			return nil
 		}
 		if ls := ginCtx.Value(profileLoadersCtxKey); ls != nil {
-			return ls.(*common.ProfileLoaders)
+			return ls.(*loaders.ProfileLoaders)
 		}
 		ls := getLoadersForProfile(queries, p)
 		ginCtx.Set(profileLoadersCtxKey, ls)
@@ -189,7 +188,7 @@ func main() {
 	})
 	membersClient := members.New(config.Members, authClient, cb)
 
-	ls := initBatchLoaders(queries, membersClient)
+	ls := loaders.InitBatchLoaders(queries, membersClient)
 	searchService := search.New(queries, config.Search)
 	emailService := email.New(config.Email)
 

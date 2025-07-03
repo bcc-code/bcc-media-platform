@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
@@ -41,12 +40,12 @@ func (row getRedirectIDsForCodesRow) GetResult() uuid.UUID {
 }
 
 // GetRedirectIDsForCodes returns ids for the requested codes
-func (q *Queries) GetRedirectIDsForCodes(ctx context.Context, codes []string) ([]loaders.Conversion[string, uuid.UUID], error) {
+func (q *Queries) GetRedirectIDsForCodes(ctx context.Context, codes []string) ([]common.Conversion[string, uuid.UUID], error) {
 	rows, err := q.getRedirectIDsForCodes(ctx, codes)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getRedirectIDsForCodesRow, _ int) loaders.Conversion[string, uuid.UUID] {
+	return lo.Map(rows, func(i getRedirectIDsForCodesRow, _ int) common.Conversion[string, uuid.UUID] {
 		return i
 	}), nil
 }

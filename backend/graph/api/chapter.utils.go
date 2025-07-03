@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"strconv"
 	"strings"
 
@@ -13,7 +14,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func resolveChapters(ctx context.Context, loaders *common.BatchLoaders, episodeID string) ([]*model.Chapter, error) {
+func resolveChapters(ctx context.Context, loaders *loaders.BatchLoaders, episodeID string) ([]*model.Chapter, error) {
 	episodeIDInt, err := strconv.Atoi(episodeID)
 	if err != nil {
 		return nil, err
@@ -91,7 +92,7 @@ func resolveChapters(ctx context.Context, loaders *common.BatchLoaders, episodeI
 	return chapters, nil
 }
 
-func resolveChapter(ctx context.Context, loaders *common.BatchLoaders, episodeID string, id uuid.UUID) (*model.Chapter, error) {
+func resolveChapter(ctx context.Context, loaders *loaders.BatchLoaders, episodeID string, id uuid.UUID) (*model.Chapter, error) {
 	tm, err := loaders.TimedMetadataLoader.Get(ctx, id)
 	if err != nil || tm == nil {
 		return nil, err

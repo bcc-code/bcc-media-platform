@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
 )
@@ -74,7 +73,7 @@ func (row getSeasonIDsForShowsRow) GetRelationID() int {
 }
 
 // GetSeasonIDsForShowsWithRoles returns episodeIDs for season filtered by roles
-func (rq *RoleQueries) GetSeasonIDsForShowsWithRoles(ctx context.Context, ids []int) ([]loaders.Relation[int, int], error) {
+func (rq *RoleQueries) GetSeasonIDsForShowsWithRoles(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
 	rows, err := rq.queries.getSeasonIDsForShowsWithRoles(ctx, getSeasonIDsForShowsWithRolesParams{
 		Column1: intToInt32(ids),
 		Column2: rq.roles,
@@ -82,7 +81,7 @@ func (rq *RoleQueries) GetSeasonIDsForShowsWithRoles(ctx context.Context, ids []
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getSeasonIDsForShowsWithRolesRow, _ int) loaders.Relation[int, int] {
+	return lo.Map(rows, func(i getSeasonIDsForShowsWithRolesRow, _ int) common.Relation[int, int] {
 		return getSeasonIDsForShowsRow(i)
 	}), nil
 }

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
@@ -25,8 +26,8 @@ type Entry struct {
 func GetBaseCollectionEntries(
 	ctx context.Context,
 	db *sql.DB,
-	loaders *common.BatchLoaders,
-	personalizedLoaders *common.PersonalizedLoaders,
+	loaders *loaders.BatchLoaders,
+	personalizedLoaders *loaders.PersonalizedLoaders,
 	collectionId int,
 	langPreferences common.LanguagePreferences,
 	randomSeed null.Int,

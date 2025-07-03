@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"database/sql"
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"gopkg.in/guregu/null.v4"
 
@@ -20,7 +21,7 @@ import (
 type Resolver struct {
 	DB      *sql.DB
 	Queries *sqlc.Queries
-	Loaders *common.BatchLoaders
+	Loaders *loaders.BatchLoaders
 }
 
 func (r *previewResolver) getItemsForFilter(ctx context.Context, filter common.Filter) ([]*model.CollectionItem, error) {
