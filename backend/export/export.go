@@ -158,8 +158,6 @@ func exportShows(ctx context.Context, q *sqlc.Queries, l *loaders.BatchLoaders, 
 }
 
 func exportSeasons(ctx context.Context, l *loaders.BatchLoaders, filteredLoaders *loaders.LoadersWithPermissions, liteQueries *sqlexport.Queries, showIDs []int) ([]int, error) {
-
-	// TODO: Refactor? common.GetManyFromLoader is refusing to fit nicely.
 	thunk := filteredLoaders.SeasonsLoader.LoadMany(ctx, showIDs)
 	seasonIDsResult, errs := thunk()
 
@@ -439,8 +437,7 @@ func exportCollections(ctx context.Context, db *sql.DB, batchLoaders *loaders.Ba
 		liteEntriesJSON, _ := json.Marshal(liteEntries)
 
 		err = liteQueries.InsertCollection(ctx, sqlexport.InsertCollectionParams{
-			ID: int64(c.ID),
-			// TODO: maybe remove name?
+			ID:              int64(c.ID),
 			Name:            c.Title.Get([]string{"no"}),
 			CollectionItems: string(liteEntriesJSON),
 		})
@@ -536,7 +533,6 @@ func HandleExportMessage(ctx context.Context, s serviceProvider, e event.Event) 
 // The rest if the functions in this file are not exported because they are currently dependent on each other and
 // are basically split only on order to understand the flow better.
 func DoExport(ctx context.Context, q serviceProviderAPI, bucketName string, userRoles []string) (string, error) {
-	//TODO: Caching?
 	gctx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return "", merry.Wrap(err)
