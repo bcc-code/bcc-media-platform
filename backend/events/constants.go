@@ -4,6 +4,7 @@ package events
 const (
 	SourceMediaBanken    = "mediabanken"
 	SourceCloudScheduler = "cloudscheduler"
+	SourceApi            = "api"
 )
 
 // Collection of possible event types
@@ -16,4 +17,5 @@ const (
 	TypeTranslationsSync            = "translations.sync"
 	TypeExportAnswersToBQ           = "statistics.exportanswers"
 	TypeImportShortsScores          = "statistics.importshortsscores"
+	TypeExportStart                 = "export.start"
 )

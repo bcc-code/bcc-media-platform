@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bcc-code/bcc-media-platform/backend/export"
 	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	sns "github.com/robbiet480/go.sns"
@@ -77,7 +78,7 @@ func (s Server) runIfNotLocked(ctx context.Context, lockID string, task func() e
 	return task()
 }
 
-// ProcessMessage processes the message for ingesting a VOD asset
+// ProcessMessage processes the message
 func (s Server) ProcessMessage(c *gin.Context) {
 	ctx := c.Request.Context()
 	ctx, span := otel.Tracer("jobs/core").Start(ctx, "ProcessMessage")
@@ -157,6 +158,10 @@ func (s Server) ProcessMessage(c *gin.Context) {
 			return nil
 			// return crowdin.HandleEvent(ctx, s.services, e)
 		})
+	case events.TypeExportStart:
+		//err = temp(ctx, e)
+		//_, err = export.HandleExportMessage(ctx, s.services, e)
+		_, err = export.HandleExportMessage(ctx, s.services, e)
 	default:
 		err = merry.Wrap(errUndefinedHandler)
 	}
@@ -171,6 +176,11 @@ func (s Server) ProcessMessage(c *gin.Context) {
 		return
 	}
 }
+
+// func temp(ctx context.Context, event cloudevents.Event) error {
+// 	spew.Dump(event)
+// 	return nil
+// }
 
 // IngestEventMeta ingests the event meta
 func (s Server) IngestEventMeta(c *gin.Context) {

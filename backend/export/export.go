@@ -6,19 +6,22 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	"gopkg.in/guregu/null.v4"
 	"os"
 	"path"
 	"path/filepath"
 	"time"
 
+	"gopkg.in/guregu/null.v4"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
+
+	"github.com/cloudevents/sdk-go/v2/event"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/signing"
-	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/google/uuid"
 
@@ -101,9 +104,8 @@ func migrate(db *sql.DB) error {
 	return merry.Wrap(err)
 }
 
-func exportShows(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries) ([]int, error) {
-	gctx, _ := utils.GinCtx(ctx)
-	showIDs, err := q.GetQueries().ListAllPermittedShowIDs(ctx, user.GetRolesFromCtx(gctx))
+func exportShows(ctx context.Context, q serviceProvider, liteQueries *sqlexport.Queries, userRoles []string) ([]int, error) {
+	showIDs, err := q.GetQueries().ListAllPermittedShowIDs(ctx, userRoles)
 	if err != nil {
 		err = merry.Wrap(err)
 		return nil, err
@@ -456,12 +458,194 @@ func exportCollections(ctx context.Context, q serviceProvider, liteQueries *sqle
 	return nil
 }
 
+// temp
+type testinterface interface {
+	GetQueries() *sqlc.Queries
+}
+
+// func HandleExportMessage(ctx context.Context, e event.Event) (string, error) {
+func HandleExportMessage(ctx context.Context, s testinterface, e event.Event) (string, error) {
+
+	type ExportData struct {
+		ExportID string `json:"exportId"`
+	}
+
+	// Unmarshal event data
+	var exportData ExportData
+	if err := json.Unmarshal(e.Data(), &exportData); err != nil {
+		log.L.Error().Err(err).Msg("failed to unmarshal event data")
+		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+	}
+
+	parsedId, err := uuid.Parse(exportData.ExportID)
+	if err != nil {
+		return "", err
+	}
+
+	// try to get an entry with the exportID
+	fetchedEntry, err := s.GetQueries().GetExportById(ctx, parsedId)
+	if err != nil {
+		return "", err
+	}
+
+	// add a url
+	err = s.GetQueries().UpdateExportURL(ctx, sqlc.UpdateExportURLParams{
+		Url: "test url",
+		ID:  parsedId,
+	})
+	if err != nil {
+		return "", err
+	}
+	// change the status to ready
+	err = s.GetQueries().UpdateExportStatus(ctx, sqlc.UpdateExportStatusParams{
+		Status: model.ExportStatusReady.String(),
+		ID:     parsedId,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	spew.Dump(fetchedEntry.UserGroups)
+
+	return "", nil
+
+	// gctx, err := utils.GinCtx(ctx)
+	// if err != nil {
+	// 	return "", merry.Wrap(err)
+	// }
+
+	// spew.Dump(fetchedEntry)
+
+	// return parsedId.String(), nil
+
+	// db, dbPath, err := initDB()
+	// if err != nil {
+	// 	log.L.Error().Err(err).Str("exportStep", "initDB").Msg("")
+	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+	// }
+	// defer func() {
+	// 	//_ = os.Remove(dbPath)
+	// }()
+
+	// err = migrate(db)
+	// if err != nil {
+	// 	log.L.Error().Err(err).Str("exportStep", "migrate").Msg("")
+	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+	// }
+	// liteQueries := sqlexport.New(db)
+
+	// showIDs, err := exportShows(ctx, s, liteQueries, fetchedEntry.UserGroups)
+	// if err != nil {
+	// 	log.L.Error().Err(err).Str("exportStep", "exportShow").Msg("")
+	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+	// }
+
+	// seasonIDs, err := exportSeasons(ctx, s, liteQueries, showIDs)
+	// if err != nil {
+	// 	log.L.Error().Err(err).Str("exportStep", "exportSeasons").Msg("")
+	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+	// }
+
+	// episodeIDs, err := exportEpisodes(ctx, s, liteQueries, seasonIDs)
+	// if err != nil {
+	// 	log.L.Error().Err(err).Str("exportStep", "exportEpisodes").Msg("")
+	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+	// }
+
+	// err = exportStreams(ctx, s, liteQueries, episodeIDs)
+	// if err != nil {
+	// 	log.L.Error().Err(err).Str("exportStep", "exportStreams").Msg("")
+	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+	// }
+
+	// // Just the current app for now. We can look into expanding later
+	// err = exportCurrentApplication(gctx, liteQueries)
+	// if err != nil {
+	// 	log.L.Error().Err(err).Str("exportStep", "exportCurrentApplication").Msg("")
+	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+	// }
+
+	// pagesToExport, collectionsToExport, err := exportSections(ctx, s, liteQueries)
+	// if err != nil {
+	// 	log.L.Error().Err(err).Str("exportStep", "exportCurrentSections").Msg("")
+	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+	// }
+
+	// err = exportPages(ctx, s, liteQueries, pagesToExport)
+	// if err != nil {
+	// 	log.L.Error().Err(err).Str("exportStep", "exportPages").Msg("")
+	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+	// }
+
+	// err = exportCollections(ctx, s, liteQueries, collectionsToExport)
+	// if err != nil {
+	// 	log.L.Error().Err(err).Str("exportStep", "exportCollections").Msg("")
+	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+	// }
+
+	// err = db.Close()
+	// if err != nil {
+	// 	log.L.Error().Err(err).Str("exportStep", "exportDBClose").Msg("")
+	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+	// }
+
+	// f, err := os.Open(dbPath)
+	// if err != nil {
+	// 	log.L.Error().Err(err).Str("exportStep", "os.Open(dbPath)").Msg("")
+	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+	// }
+
+	// return dbPath, nil
+
+	// s3DestinationPath := aws.String(path.Join("/sqliteexport", filepath.Base(dbPath)))
+
+	// _, err = q.GetS3Client().PutObject(ctx, &s3.PutObjectInput{
+	// 	Body:         f,
+	// 	Bucket:       aws.String(bucketName),
+	// 	CacheControl: aws.String("Cache-Control: private, max-age=604800, immutable"),
+	// 	Key:          s3DestinationPath,
+	// })
+	// if err != nil {
+	// 	log.L.Error().Err(err).Str("exportStep", "s3 PutObject").Msg("")
+	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+	// }
+
+	// presignClient := s3.NewPresignClient(q.GetS3Client(), s3.WithPresignExpires(1*time.Hour))
+
+	// res, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
+	// 	Bucket: aws.String(bucketName),
+	// 	Key:    s3DestinationPath,
+	// })
+	// if err != nil {
+	// 	log.L.Error().Err(err).Str("exportStep", "Presign Object").Msg("")
+	// 	return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
+	// }
+
+	// err = s.GetQueries().UpdateExportUrl(ctx, sqlc.UpdateExportURLParams{
+	// 	Url: res.URL,
+	// 	ID:  parsedId, // uuid.UUID
+	// })
+	// if err != nil {
+	// 	return "", err
+	// }
+
+	// err = s.GetQueries().UpdateExportStatus(ctx, sqlc.UpdateExportStatusParams{
+	// 	Status: model.ExportStatusReady.String(),
+	// 	ID:     parsedId, // uuid.UUID
+	// })
+	// if err != nil {
+	// 	return "", err
+	// }
+
+	// return res.URL, nil
+}
+
 // DoExport exports some key data into a SQLite DB and uploads that to the provided S3 bucket
 // It then returns a pre-signed link to the file that remains valid for 1 hour
 //
 // The rest if the functions in this file are not exported because they are currently dependent on each other and
 // are basically split only on order to understand the flow better.
-func DoExport(ctx context.Context, q serviceProvider, bucketName string) (string, error) {
+func DoExport(ctx context.Context, q serviceProvider, bucketName string, userRoles []string) (string, error) {
 	//TODO: Caching?
 	gctx, err := utils.GinCtx(ctx)
 	if err != nil {
@@ -474,7 +658,7 @@ func DoExport(ctx context.Context, q serviceProvider, bucketName string) (string
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 	defer func() {
-		_ = os.Remove(dbPath)
+		//_ = os.Remove(dbPath)
 	}()
 
 	err = migrate(db)
@@ -484,7 +668,7 @@ func DoExport(ctx context.Context, q serviceProvider, bucketName string) (string
 	}
 	liteQueries := sqlexport.New(db)
 
-	showIDs, err := exportShows(ctx, q, liteQueries)
+	showIDs, err := exportShows(ctx, q, liteQueries, userRoles)
 	if err != nil {
 		log.L.Error().Err(err).Str("exportStep", "exportShow").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
@@ -544,6 +728,8 @@ func DoExport(ctx context.Context, q serviceProvider, bucketName string) (string
 		log.L.Error().Err(err).Str("exportStep", "os.Open(dbPath)").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
+
+	return dbPath, nil
 
 	s3DestinationPath := aws.String(path.Join("/sqliteexport", filepath.Base(dbPath)))
 

@@ -12,7 +12,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
@@ -39,7 +38,7 @@ func create(projectID, topicID string) {
 	t, err := client.CreateSubscription(ctx, "bgjobs", pubsub.SubscriptionConfig{
 		Topic: topic,
 		PushConfig: pubsub.PushConfig{
-			Endpoint: "http://192.168.0.181:8077/api/message",
+			Endpoint: "http://10.12.129.45:8077/api/message",
 		},
 	})
 	if err != nil {
@@ -234,8 +233,8 @@ func main() {
 	task := flag.String("task", "", "")
 	host := flag.String("host", "", "")
 	flag.Parse()
-	projectId := "btv-platform-prod-2"
-	topicId := "background_worker"
+	projectId := "btv-pubsub"
+	topicId := "export"
 
 	err := godotenv.Load("backend/cmd/pubsub-helper/.env")
 	if err == nil {
@@ -276,6 +275,6 @@ func main() {
 		refreshView(projectId, topicId)
 	}
 
-	time.Sleep(1 * time.Second)
-	del(projectId, topicId)
+	//time.Sleep(1 * time.Second)
+	//del(projectId, topicId)
 }

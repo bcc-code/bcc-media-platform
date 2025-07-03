@@ -646,6 +646,19 @@ type Export struct {
 	URL       string `json:"url"`
 }
 
+type ExportAsync struct {
+	Status   ExportStatus  `json:"status"`
+	ExportID string        `json:"exportId"`
+	Result   *ExportResult `json:"result,omitempty"`
+}
+
+type ExportResult struct {
+	DbVersion string `json:"dbVersion"`
+	URL       string `json:"url"`
+	Created   string `json:"created"`
+	Expires   string `json:"expires"`
+}
+
 type Faq struct {
 	Categories *FAQCategoryPagination `json:"categories,omitempty"`
 	Category   *FAQCategory           `json:"category"`
@@ -1824,6 +1837,67 @@ func (e *EpisodeType) UnmarshalJSON(b []byte) error {
 }
 
 func (e EpisodeType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type ExportStatus string
+
+const (
+	ExportStatusNew        ExportStatus = "new"
+	ExportStatusProcessing ExportStatus = "processing"
+	ExportStatusReady      ExportStatus = "ready"
+	ExportStatusError      ExportStatus = "error"
+	ExportStatusExpired    ExportStatus = "expired"
+)
+
+var AllExportStatus = []ExportStatus{
+	ExportStatusNew,
+	ExportStatusProcessing,
+	ExportStatusReady,
+	ExportStatusError,
+	ExportStatusExpired,
+}
+
+func (e ExportStatus) IsValid() bool {
+	switch e {
+	case ExportStatusNew, ExportStatusProcessing, ExportStatusReady, ExportStatusError, ExportStatusExpired:
+		return true
+	}
+	return false
+}
+
+func (e ExportStatus) String() string {
+	return string(e)
+}
+
+func (e *ExportStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ExportStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ExportStatus", str)
+	}
+	return nil
+}
+
+func (e ExportStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ExportStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ExportStatus) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

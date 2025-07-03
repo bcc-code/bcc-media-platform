@@ -19,3 +19,7 @@ type RefreshView struct {
 	ViewName string `json:"viewName"`
 	Force    bool   `json:"force"`
 }
+
+type StartExport struct {
+	ExportID string `json:"exportId"`
+}

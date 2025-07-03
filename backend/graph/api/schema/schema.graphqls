@@ -90,6 +90,13 @@ type QueryRoot {
         groups: [String!]
     ): Export!
 
+    exportAsync(
+        # Only export for this groups. The groups will be filtered by the groups the users has access to.
+        # NOT IMPLEMENTED YET!
+        groups: [String!]
+        exportId: String
+    ): ExportAsync!
+    
     redirect(id: String!): RedirectLink!
 
     page(id: ID, code: String): Page!

@@ -5,9 +5,12 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/bcc-code/bcc-media-platform/backend/bmm"
 	"os"
 	"strings"
+
+	"github.com/bcc-code/bcc-media-platform/backend/pubsub"
+
+	"github.com/bcc-code/bcc-media-platform/backend/bmm"
 
 	"github.com/bcc-code/bcc-media-platform/backend/analytics"
 
@@ -72,6 +75,7 @@ type envConfig struct {
 	Redirect      *redirectConfig
 	Analytics     analytics.Config
 	BMM           bmm.Config
+	PubSub        pubsub.Config
 }
 
 type cdnConfig struct {
@@ -263,6 +267,10 @@ func getEnvConfig() envConfig {
 			Audience:     os.Getenv("BMM_AUDIENCE"),
 			BaseURL:      os.Getenv("BMM_BASE_URL"),
 			Debug:        os.Getenv("BMM_DEBUG") == "true",
+		},
+		PubSub: pubsub.Config{
+			PubSubProjectID: os.Getenv("PUBSUB_PROJECT_ID"),
+			PubSubTopicID:   os.Getenv("PUBSUB_TOPIC_ID"),
 		},
 	}
 }

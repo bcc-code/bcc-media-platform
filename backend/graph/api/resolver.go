@@ -5,10 +5,12 @@ import (
 	"crypto/rsa"
 	"database/sql"
 	"fmt"
-	"github.com/samber/lo"
 	"strconv"
 	"sync"
 	"time"
+
+	"cloud.google.com/go/pubsub"
+	"github.com/samber/lo"
 
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
 	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
@@ -61,24 +63,25 @@ type bmmClient interface {
 // Resolver is the main struct for the GQL implementation
 // It contains references to all external services and config
 type Resolver struct {
-	DB                  *sql.DB
-	Queries             *sqlc.Queries
-	Loaders             *common.BatchLoaders
-	FilteredLoaders     func(ctx context.Context) *common.LoadersWithPermissions
-	ProfileLoaders      func(ctx context.Context) *common.ProfileLoaders
-	PersonalizedLoaders func(ctx context.Context) *common.PersonalizedLoaders
-	SearchService       searchProvider
-	EmailService        *email.Service
-	URLSigner           *signing.Signer
-	S3Client            *s3.Client
-	APIConfig           apiConfig
-	AWSConfig           awsConfig
-	AnalyticsIDFactory  func(ctx context.Context) string
-	RedirectConfig      redirectConfig
-	AuthClient          *auth0.Client
-	RemoteCache         *remotecache.Client
-	AnalyticsClient     analyticsService
-	BMMClient           bmmClient
+	DB                    *sql.DB
+	Queries               *sqlc.Queries
+	Loaders               *common.BatchLoaders
+	FilteredLoaders       func(ctx context.Context) *common.LoadersWithPermissions
+	ProfileLoaders        func(ctx context.Context) *common.ProfileLoaders
+	PersonalizedLoaders   func(ctx context.Context) *common.PersonalizedLoaders
+	SearchService         searchProvider
+	EmailService          *email.Service
+	URLSigner             *signing.Signer
+	S3Client              *s3.Client
+	APIConfig             apiConfig
+	AWSConfig             awsConfig
+	AnalyticsIDFactory    func(ctx context.Context) string
+	RedirectConfig        redirectConfig
+	AuthClient            *auth0.Client
+	RemoteCache           *remotecache.Client
+	AnalyticsClient       analyticsService
+	BMMClient             bmmClient
+	BackgroundWorkerTopic *pubsub.Topic
 }
 
 func (r *Resolver) GetQueries() *sqlc.Queries {

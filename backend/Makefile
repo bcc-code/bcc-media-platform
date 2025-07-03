@@ -8,7 +8,7 @@ else
 	YELLOW       := ""
 endif
 
-.PHONY: sqlc gql
+.PHONY: sql gql
 
 generate: sqlc/.generated gql
 
@@ -18,7 +18,11 @@ dist/api dist/jobs dist/pubsub-helper: ./**/*.go sqlc/.generated
 	CGO_ENABLED=0 go build -v -o $@ ./cmd/$(@F)
 
 sqlc/.generated: ../migrations/*.sql
-	@go tool sqlc generate || (printf "${YELLOW}Are you missing sqlc? Install it, e.g. with brew install sqlc.${RESET}\n" && false)
+	go tool github.com/sqlc-dev/sqlc/cmd/sqlc generate
+	touch .generated
+
+sql: 
+	go tool github.com/sqlc-dev/sqlc/cmd/sqlc generate
 	touch .generated
 
 run:

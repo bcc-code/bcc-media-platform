@@ -6,26 +6,32 @@ package graph
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/Code-Hex/go-generics-cache"
+	cache "github.com/Code-Hex/go-generics-cache"
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/cursors"
+	"github.com/bcc-code/bcc-media-platform/backend/events"
 	"github.com/bcc-code/bcc-media-platform/backend/export"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
+
+	gpubsub "cloud.google.com/go/pubsub"
+
 	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
+	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/google/uuid"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwt"
@@ -112,7 +118,7 @@ func (r *queryRootResolver) Export(ctx context.Context, groups []string) (*model
 		)
 	}
 
-	url, err := export.DoExport(ctx, r, r.AWSConfig.GetTempStorageBucket())
+	url, err := export.DoExport(ctx, r, r.AWSConfig.GetTempStorageBucket(), user.GetRolesFromCtx(ginCtx))
 	if err != nil {
 		return nil, err
 	}
@@ -120,6 +126,116 @@ func (r *queryRootResolver) Export(ctx context.Context, groups []string) (*model
 	return &model.Export{
 		URL:       url,
 		DbVersion: export.SQLiteExportDBVersion,
+	}, nil
+}
+
+// ExportAsync is the resolver for the exportAsync field.
+func (r *queryRootResolver) ExportAsync(ctx context.Context, groups []string, exportID *string) (*model.ExportAsync, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	profile := user.GetProfileFromCtx(ginCtx)
+	if profile == nil {
+		return nil, merry.New(
+			"Not authorized",
+			merry.WithUserMessage("you are not authorized for this query"),
+		)
+	}
+
+	if exportID == nil {
+		// start new export process
+		instertParams := sqlc.InsertExportParams{
+			ProfileID:  profile.ID,
+			UserGroups: groups,
+		}
+		exportEntry, err := r.Queries.InsertExport(ctx, instertParams)
+		if err != nil {
+			return nil, err
+		}
+
+		//
+
+		e := cloudevents.NewEvent()
+		//e.SetSource(events.SourceMediaBanken)
+		e.SetSource(events.SourceApi)
+		e.SetType(events.TypeExportStart)
+		e.SetData(cloudevents.ApplicationJSON, &events.StartExport{
+			ExportID: exportEntry.ID.String(),
+		})
+
+		data, err := json.Marshal(e)
+		if r.BackgroundWorkerTopic != nil {
+			msg := r.BackgroundWorkerTopic.Publish(ctx, &gpubsub.Message{
+				Data: data,
+			})
+			_, err = msg.Get(ctx)
+			if err != nil {
+				log.L.Warn().Err(err).Str("exportId", exportEntry.ID.String()).Msg("Failed to publish")
+				return nil, err
+			}
+
+		} else {
+			log.L.Warn().Err(err).Msg("Falied to publish exportId because there is no topic")
+			return nil, err
+		}
+
+		return &model.ExportAsync{
+			Status:   model.ExportStatusNew,
+			ExportID: exportEntry.ID.String(),
+		}, nil
+	}
+
+	//
+
+	parsedId, err := uuid.Parse(*exportID)
+	if err != nil {
+		return nil, err
+	}
+	// try to get an entry with the exportID
+	fetchedEntry, err := r.Queries.GetExportById(ctx, parsedId)
+	if err != nil {
+		return nil, err
+	}
+	// if the status == ready return the fetched entry with ExportResult
+	if model.ExportStatus(fetchedEntry.Status) == model.ExportStatusReady {
+		result := &model.ExportResult{
+			DbVersion: export.SQLiteExportDBVersion,
+			URL:       fetchedEntry.Url,
+			Created:   fetchedEntry.CreatedDate.String(),
+			Expires:   fetchedEntry.ExpiryDate.Time.String(),
+		}
+
+		return &model.ExportAsync{
+			Status:   model.ExportStatus(fetchedEntry.Status),
+			ExportID: fetchedEntry.ID.String(),
+			Result:   result,
+		}, nil
+	}
+	// just return ExportAsync without the ExportResult
+	return &model.ExportAsync{
+		Status:   model.ExportStatus(fetchedEntry.Status),
+		ExportID: fetchedEntry.ID.String(),
+		Result:   nil,
+	}, nil
+}
+
+// Start the export process
+func (r *queryRootResolver) startExportProcess(ctx context.Context) (*model.ExportResult, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	url, err := export.DoExport(ctx, r, r.AWSConfig.GetTempStorageBucket(), user.GetRolesFromCtx(ginCtx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.ExportResult{
+		DbVersion: export.SQLiteExportDBVersion,
+		URL:       url,
+		Expires:   "expiry date",
 	}, nil
 }
 

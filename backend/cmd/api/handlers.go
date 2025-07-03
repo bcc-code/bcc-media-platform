@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"database/sql"
+
+	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/ansel1/merry/v2"
@@ -45,25 +47,28 @@ func graphqlHandler(
 	remoteCache *remotecache.Client,
 	analyticsClient *analytics.Service,
 	bmmClient *bmm.APIClient,
+	//pubSubClient *pubsub.Client,
+	jobPubSubTopic *pubsub.Topic,
 ) gin.HandlerFunc {
 	resolver := graphapi.Resolver{
-		DB:                  db,
-		Queries:             queries,
-		Loaders:             loaders,
-		FilteredLoaders:     filteredLoaderFactory(db, queries, loaders.CollectionLoader),
-		ProfileLoaders:      profileLoaderFactory(queries),
-		PersonalizedLoaders: personalizedLoaderFactory(queries),
-		SearchService:       searchService,
-		EmailService:        emailService,
-		URLSigner:           urlSigner,
-		S3Client:            s3client,
-		APIConfig:           config.CDNConfig,
-		AWSConfig:           config.AWS,
-		RedirectConfig:      config.Redirect,
-		AuthClient:          authClient,
-		RemoteCache:         remoteCache,
-		AnalyticsClient:     analyticsClient,
-		BMMClient:           bmmClient,
+		DB:                    db,
+		Queries:               queries,
+		Loaders:               loaders,
+		FilteredLoaders:       filteredLoaderFactory(db, queries, loaders.CollectionLoader),
+		ProfileLoaders:        profileLoaderFactory(queries),
+		PersonalizedLoaders:   personalizedLoaderFactory(queries),
+		SearchService:         searchService,
+		EmailService:          emailService,
+		URLSigner:             urlSigner,
+		S3Client:              s3client,
+		APIConfig:             config.CDNConfig,
+		AWSConfig:             config.AWS,
+		RedirectConfig:        config.Redirect,
+		AuthClient:            authClient,
+		RemoteCache:           remoteCache,
+		AnalyticsClient:       analyticsClient,
+		BMMClient:             bmmClient,
+		BackgroundWorkerTopic: jobPubSubTopic,
 		AnalyticsIDFactory: func(ctx context.Context) string {
 			ginCtx, err := utils.GinCtx(ctx)
 			p := user.GetProfileFromCtx(ginCtx)

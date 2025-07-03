@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/bcc-code/bcc-media-platform/backend/translations/phrase"
-	"github.com/joho/godotenv"
 	"os"
 	"strconv"
+
+	"github.com/bcc-code/bcc-media-platform/backend/translations/phrase"
+	"github.com/joho/godotenv"
 
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
 	"github.com/bcc-code/bcc-media-platform/backend/files"
@@ -59,6 +60,11 @@ type envConfig struct {
 
 func getEnvConfig() envConfig {
 	err := godotenv.Load("backend/cmd/jobs/.env")
+	if err == nil {
+		log.L.Warn().Msg("Loaded .env file")
+	}
+
+	err = godotenv.Load(".env")
 	if err == nil {
 		log.L.Warn().Msg("Loaded .env file")
 	}

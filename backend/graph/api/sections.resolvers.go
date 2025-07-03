@@ -53,6 +53,14 @@ func (r *iconSectionResolver) Items(ctx context.Context, obj *model.IconSection,
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
 }
 
+// Page is the resolver for the page field.
+func (r *itemSectionMetadataResolver) Page(ctx context.Context, obj *model.ItemSectionMetadata) (*model.Page, error) {
+	if obj.Page == nil {
+		return nil, nil
+	}
+	return r.QueryRoot().Page(ctx, &obj.Page.ID, &obj.Page.Code)
+}
+
 // Items is the resolver for the items field.
 func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
@@ -61,14 +69,6 @@ func (r *labelSectionResolver) Items(ctx context.Context, obj *model.LabelSectio
 // Items is the resolver for the items field.
 func (r *listSectionResolver) Items(ctx context.Context, obj *model.ListSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
-}
-
-// Page is the resolver for the page field.
-func (r *itemSectionMetadataResolver) Page(ctx context.Context, obj *model.ItemSectionMetadata) (*model.Page, error) {
-	if obj.Page == nil {
-		return nil, nil
-	}
-	return r.QueryRoot().Page(ctx, &obj.Page.ID, &obj.Page.Code)
 }
 
 // Messages is the resolver for the messages field.

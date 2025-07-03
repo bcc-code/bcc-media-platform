@@ -418,6 +418,19 @@ type ComplexityRoot struct {
 		URL       func(childComplexity int) int
 	}
 
+	ExportAsync struct {
+		ExportID func(childComplexity int) int
+		Result   func(childComplexity int) int
+		Status   func(childComplexity int) int
+	}
+
+	ExportResult struct {
+		Created   func(childComplexity int) int
+		DbVersion func(childComplexity int) int
+		Expires   func(childComplexity int) int
+		URL       func(childComplexity int) int
+	}
+
 	FAQ struct {
 		Categories func(childComplexity int, first *int, offset *int, cursor *string) int
 		Category   func(childComplexity int, id string) int
@@ -722,6 +735,7 @@ type ComplexityRoot struct {
 		Episodes            func(childComplexity int, ids []string) int
 		Event               func(childComplexity int, id string) int
 		Export              func(childComplexity int, groups []string) int
+		ExportAsync         func(childComplexity int, groups []string, exportID *string) int
 		Faq                 func(childComplexity int) int
 		Game                func(childComplexity int, id string) int
 		Languages           func(childComplexity int) int
@@ -1310,6 +1324,7 @@ type QueryRootResolver interface {
 	Application(ctx context.Context, timestamp *string) (*model.Application, error)
 	Languages(ctx context.Context) ([]string, error)
 	Export(ctx context.Context, groups []string) (*model.Export, error)
+	ExportAsync(ctx context.Context, groups []string, exportID *string) (*model.ExportAsync, error)
 	Redirect(ctx context.Context, id string) (*model.RedirectLink, error)
 	Page(ctx context.Context, id *string, code *string) (*model.Page, error)
 	Section(ctx context.Context, id string, timestamp *string) (model.Section, error)
@@ -2964,6 +2979,55 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Export.URL(childComplexity), true
+
+	case "ExportAsync.exportId":
+		if e.complexity.ExportAsync.ExportID == nil {
+			break
+		}
+
+		return e.complexity.ExportAsync.ExportID(childComplexity), true
+
+	case "ExportAsync.result":
+		if e.complexity.ExportAsync.Result == nil {
+			break
+		}
+
+		return e.complexity.ExportAsync.Result(childComplexity), true
+
+	case "ExportAsync.status":
+		if e.complexity.ExportAsync.Status == nil {
+			break
+		}
+
+		return e.complexity.ExportAsync.Status(childComplexity), true
+
+	case "ExportResult.created":
+		if e.complexity.ExportResult.Created == nil {
+			break
+		}
+
+		return e.complexity.ExportResult.Created(childComplexity), true
+
+	case "ExportResult.dbVersion":
+		if e.complexity.ExportResult.DbVersion == nil {
+			break
+		}
+
+		return e.complexity.ExportResult.DbVersion(childComplexity), true
+
+	case "ExportResult.expires":
+		if e.complexity.ExportResult.Expires == nil {
+			break
+		}
+
+		return e.complexity.ExportResult.Expires(childComplexity), true
+
+	case "ExportResult.url":
+		if e.complexity.ExportResult.URL == nil {
+			break
+		}
+
+		return e.complexity.ExportResult.URL(childComplexity), true
 
 	case "FAQ.categories":
 		if e.complexity.FAQ.Categories == nil {
@@ -4652,6 +4716,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.QueryRoot.Export(childComplexity, args["groups"].([]string)), true
+
+	case "QueryRoot.exportAsync":
+		if e.complexity.QueryRoot.ExportAsync == nil {
+			break
+		}
+
+		args, err := ec.field_QueryRoot_exportAsync_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.QueryRoot.ExportAsync(childComplexity, args["groups"].([]string), args["exportId"].(*string)), true
 
 	case "QueryRoot.faq":
 		if e.complexity.QueryRoot.Faq == nil {
@@ -7013,7 +7089,27 @@ type Stream {
   dbVersion: String!
   url: String!
 }
-`, BuiltIn: false},
+
+type ExportResult {
+  dbVersion: String!
+  url: String!
+  created: Date!
+  expires: Date!
+}
+
+type ExportAsync {
+  status: ExportStatus!
+  exportId: String!
+  result: ExportResult
+}
+
+enum ExportStatus {
+    new
+    processing
+    ready
+    error
+    expired
+}`, BuiltIn: false},
 	{Name: "../schema/faq.graphqls", Input: `type Question {
     id: ID!
     category: FAQCategory! @goField(forceResolver: true)
@@ -7405,6 +7501,13 @@ type QueryRoot {
         groups: [String!]
     ): Export!
 
+    exportAsync(
+        # Only export for this groups. The groups will be filtered by the groups the users has access to.
+        # NOT IMPLEMENTED YET!
+        groups: [String!]
+        exportId: String
+    ): ExportAsync!
+    
     redirect(id: String!): RedirectLink!
 
     page(id: ID, code: String): Page!
@@ -11794,6 +11897,57 @@ func (ec *executionContext) field_QueryRoot_event_argsID(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_QueryRoot_exportAsync_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_QueryRoot_exportAsync_argsGroups(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["groups"] = arg0
+	arg1, err := ec.field_QueryRoot_exportAsync_argsExportID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["exportId"] = arg1
+	return args, nil
+}
+func (ec *executionContext) field_QueryRoot_exportAsync_argsGroups(
+	ctx context.Context,
+	rawArgs map[string]any,
+) ([]string, error) {
+	if _, ok := rawArgs["groups"]; !ok {
+		var zeroVal []string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("groups"))
+	if tmp, ok := rawArgs["groups"]; ok {
+		return ec.unmarshalOString2ᚕstringᚄ(ctx, tmp)
+	}
+
+	var zeroVal []string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_QueryRoot_exportAsync_argsExportID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["exportId"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("exportId"))
+	if tmp, ok := rawArgs["exportId"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -23108,6 +23262,321 @@ func (ec *executionContext) fieldContext_Export_url(_ context.Context, field gra
 	return fc, nil
 }
 
+func (ec *executionContext) _ExportAsync_status(ctx context.Context, field graphql.CollectedField, obj *model.ExportAsync) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExportAsync_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.ExportStatus)
+	fc.Result = res
+	return ec.marshalNExportStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐExportStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExportAsync_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExportAsync",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ExportStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExportAsync_exportId(ctx context.Context, field graphql.CollectedField, obj *model.ExportAsync) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExportAsync_exportId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExportID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExportAsync_exportId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExportAsync",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExportAsync_result(ctx context.Context, field graphql.CollectedField, obj *model.ExportAsync) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExportAsync_result(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Result, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.ExportResult)
+	fc.Result = res
+	return ec.marshalOExportResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐExportResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExportAsync_result(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExportAsync",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "dbVersion":
+				return ec.fieldContext_ExportResult_dbVersion(ctx, field)
+			case "url":
+				return ec.fieldContext_ExportResult_url(ctx, field)
+			case "created":
+				return ec.fieldContext_ExportResult_created(ctx, field)
+			case "expires":
+				return ec.fieldContext_ExportResult_expires(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ExportResult", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExportResult_dbVersion(ctx context.Context, field graphql.CollectedField, obj *model.ExportResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExportResult_dbVersion(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DbVersion, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExportResult_dbVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExportResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExportResult_url(ctx context.Context, field graphql.CollectedField, obj *model.ExportResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExportResult_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExportResult_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExportResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExportResult_created(ctx context.Context, field graphql.CollectedField, obj *model.ExportResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExportResult_created(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Created, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNDate2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExportResult_created(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExportResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Date does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExportResult_expires(ctx context.Context, field graphql.CollectedField, obj *model.ExportResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExportResult_expires(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Expires, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNDate2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExportResult_expires(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExportResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Date does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _FAQ_categories(ctx context.Context, field graphql.CollectedField, obj *model.Faq) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_FAQ_categories(ctx, field)
 	if err != nil {
@@ -33009,6 +33478,69 @@ func (ec *executionContext) fieldContext_QueryRoot_export(ctx context.Context, f
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_QueryRoot_export_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QueryRoot_exportAsync(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_exportAsync(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().ExportAsync(rctx, fc.Args["groups"].([]string), fc.Args["exportId"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ExportAsync)
+	fc.Result = res
+	return ec.marshalNExportAsync2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐExportAsync(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_exportAsync(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "status":
+				return ec.fieldContext_ExportAsync_status(ctx, field)
+			case "exportId":
+				return ec.fieldContext_ExportAsync_exportId(ctx, field)
+			case "result":
+				return ec.fieldContext_ExportAsync_result(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ExportAsync", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_QueryRoot_exportAsync_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -53134,6 +53666,106 @@ func (ec *executionContext) _Export(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
+var exportAsyncImplementors = []string{"ExportAsync"}
+
+func (ec *executionContext) _ExportAsync(ctx context.Context, sel ast.SelectionSet, obj *model.ExportAsync) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, exportAsyncImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ExportAsync")
+		case "status":
+			out.Values[i] = ec._ExportAsync_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "exportId":
+			out.Values[i] = ec._ExportAsync_exportId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "result":
+			out.Values[i] = ec._ExportAsync_result(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var exportResultImplementors = []string{"ExportResult"}
+
+func (ec *executionContext) _ExportResult(ctx context.Context, sel ast.SelectionSet, obj *model.ExportResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, exportResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ExportResult")
+		case "dbVersion":
+			out.Values[i] = ec._ExportResult_dbVersion(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "url":
+			out.Values[i] = ec._ExportResult_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "created":
+			out.Values[i] = ec._ExportResult_created(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "expires":
+			out.Values[i] = ec._ExportResult_expires(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var fAQImplementors = []string{"FAQ"}
 
 func (ec *executionContext) _FAQ(ctx context.Context, sel ast.SelectionSet, obj *model.Faq) graphql.Marshaler {
@@ -56376,6 +57008,28 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._QueryRoot_export(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "exportAsync":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_exportAsync(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -61959,6 +62613,30 @@ func (ec *executionContext) marshalNExport2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑ
 	return ec._Export(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNExportAsync2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐExportAsync(ctx context.Context, sel ast.SelectionSet, v model.ExportAsync) graphql.Marshaler {
+	return ec._ExportAsync(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNExportAsync2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐExportAsync(ctx context.Context, sel ast.SelectionSet, v *model.ExportAsync) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ExportAsync(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNExportStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐExportStatus(ctx context.Context, v any) (model.ExportStatus, error) {
+	var res model.ExportStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNExportStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐExportStatus(ctx context.Context, sel ast.SelectionSet, v model.ExportStatus) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNFAQ2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐFaq(ctx context.Context, sel ast.SelectionSet, v model.Faq) graphql.Marshaler {
 	return ec._FAQ(ctx, sel, &v)
 }
@@ -64095,6 +64773,13 @@ func (ec *executionContext) marshalOEvent2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑm
 		return graphql.Null
 	}
 	return ec._Event(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOExportResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐExportResult(ctx context.Context, sel ast.SelectionSet, v *model.ExportResult) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ExportResult(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOFAQCategoryPagination2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐFAQCategoryPagination(ctx context.Context, sel ast.SelectionSet, v *model.FAQCategoryPagination) graphql.Marshaler {

@@ -1934,6 +1934,16 @@ type UsersDevice struct {
 	AppBuildNumber     int32          `db:"app_build_number" json:"appBuildNumber"`
 }
 
+type UsersExport struct {
+	ID          uuid.UUID    `db:"id" json:"id"`
+	ProfileID   uuid.UUID    `db:"profile_id" json:"profileId"`
+	UserGroups  []string     `db:"user_groups" json:"userGroups"`
+	Status      string       `db:"status" json:"status"`
+	CreatedDate time.Time    `db:"created_date" json:"createdDate"`
+	ExpiryDate  null_v4.Time `db:"expiry_date" json:"expiryDate"`
+	Url         string       `db:"url" json:"url"`
+}
+
 type UsersMediaProgress struct {
 	ProfileID uuid.UUID             `db:"profile_id" json:"profileId"`
 	ItemID    uuid.UUID             `db:"item_id" json:"itemId"`

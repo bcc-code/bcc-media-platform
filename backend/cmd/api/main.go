@@ -1,9 +1,14 @@
 package main
 
 import (
-	"cloud.google.com/go/profiler"
 	"context"
 	"database/sql"
+	"net/http"
+	"os"
+	"time"
+
+	"cloud.google.com/go/profiler"
+	gpubsub "cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql/playground"
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -37,9 +42,6 @@ import (
 	"github.com/sony/gobreaker"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
-	"net/http"
-	"os"
-	"time"
 )
 
 const filteredLoadersCtxKey = "filtered-loaders"
@@ -201,6 +203,14 @@ func main() {
 
 	s3Client := s3.NewFromConfig(awsConfig)
 
+	var jobPubSubTopic *gpubsub.Topic
+	pubSubClient, err := gpubsub.NewClient(ctx, config.PubSub.PubSubProjectID)
+	if err != nil {
+		log.L.Warn().Err(err).Msg("Failed to create pubSubClient. Jobs will not run")
+	} else {
+		jobPubSubTopic = pubSubClient.Topic(config.PubSub.PubSubTopicID)
+	}
+
 	bmmClient, err := bmm.New(config.BMM)
 	if err != nil {
 		log.L.Panic().Err(err).Msg("Failed to create BMM client")
@@ -259,6 +269,7 @@ func main() {
 		remoteCache,
 		analyticsService,
 		bmmClient,
+		jobPubSubTopic,
 	))
 	r.GET("/", playgroundHandler())
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, ls))

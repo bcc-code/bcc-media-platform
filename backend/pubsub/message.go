@@ -42,6 +42,11 @@ func MessageFromCtx(ctx *gin.Context) (*Message, error) {
 	return msg, nil
 }
 
+type Config struct {
+	PubSubProjectID string
+	PubSubTopicID   string
+}
+
 // Message represents the body of the message we get from PubSub
 type Message struct {
 	Message      Msg    `json:"message"`
