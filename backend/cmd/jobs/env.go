@@ -23,6 +23,7 @@ type awsConfig struct {
 	MediapackageSourceARN string
 	IngestBucket          string
 	StorageBucket         string
+	TempBucket            string
 }
 
 type firebase struct {
@@ -103,6 +104,7 @@ func getEnvConfig() envConfig {
 			MediapackageSourceARN: os.Getenv("AWS_MEDIAPACKAGE_SOURCE"),
 			IngestBucket:          os.Getenv("AWS_INGEST_BUCKET"),
 			StorageBucket:         os.Getenv("AWS_STORAGE_BUCKET"),
+			TempBucket:            os.Getenv("AWS_TEMP_BUCKET"),
 		},
 		AzureStorage: files.AzureConfig{
 			AccountName: os.Getenv("AZURE_STORAGE_ACCOUNT_NAME"),

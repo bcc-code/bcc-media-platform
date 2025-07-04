@@ -15,7 +15,6 @@ import (
 
 	"gopkg.in/guregu/null.v4"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/signing"
@@ -24,6 +23,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/ansel1/merry/v2"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/export/sqlexport"
 	"github.com/bcc-code/bcc-media-platform/backend/items/collection"
@@ -460,7 +460,7 @@ func exportCollections(
 	return nil
 }
 
-func HandleExportMessage(ctx context.Context, s serviceProvider, e event.Event) error {
+func HandleExportMessage(ctx context.Context, s serviceProvider, tempBucketNeme *string, e event.Event) error {
 	type ExportData struct {
 		ExportID string `json:"exportId"`
 	}
@@ -501,9 +501,8 @@ func HandleExportMessage(ctx context.Context, s serviceProvider, e event.Event) 
 	url, err := doExport(
 		ctx,
 		fetchedEntry.UserGroups,
-		langPreferences,
 		app,
-		"<TEMP BUCKET NAME>",
+		tempBucketNeme,
 		q,
 		s.GetLoaders(),
 		s.GetLoadersForRoles(fetchedEntry.UserGroups),
@@ -511,6 +510,7 @@ func HandleExportMessage(ctx context.Context, s serviceProvider, e event.Event) 
 		s.GetURLSigner(),
 		s.GetCDNConfig(),
 		s.GetS3Client(),
+		s.GetDatabase(),
 	)
 	if err != nil {
 		return err
@@ -524,6 +524,18 @@ func HandleExportMessage(ctx context.Context, s serviceProvider, e event.Event) 
 	if err != nil {
 		return err
 	}
+
+	expiresAt := time.Now().Add(1 * time.Hour)
+	nullExpiresAt := null.TimeFrom(expiresAt)
+
+	err = q.UPdateExpiryDate(ctx, sqlc.UPdateExpiryDateParams{
+		ExpiryDate: nullExpiresAt,
+		ID:         parsedId,
+	})
+	if err != nil {
+		return err
+	}
+
 	// change the status to ready
 	err = q.UpdateExportStatus(ctx, sqlc.UpdateExportStatusParams{
 		Status: model.ExportStatusReady.String(),
@@ -548,7 +560,6 @@ func DoExport(ctx context.Context, q serviceProviderAPI, bucketName string, user
 		return "", merry.Wrap(err)
 	}
 
-	langPreferences := common.GetLanguagePreferencesFromCtx(gctx)
 	app, err := common.GetApplicationFromCtx(gctx)
 	if err != nil {
 		return "", err
@@ -557,9 +568,8 @@ func DoExport(ctx context.Context, q serviceProviderAPI, bucketName string, user
 	return doExport(
 		ctx,
 		userRoles,
-		langPreferences,
 		app,
-		bucketName,
+		&bucketName,
 		q.GetQueries(),
 		q.GetLoaders(),
 		q.GetFilteredLoaders(ctx),
@@ -567,15 +577,15 @@ func DoExport(ctx context.Context, q serviceProviderAPI, bucketName string, user
 		q.GetURLSigner(),
 		q.GetCDNConfig(),
 		q.GetS3Client(),
+		q.GetDatabase(),
 	)
 }
 
 func doExport(
 	ctx context.Context,
 	userRoles []string,
-	langPreferences common.LanguagePreferences,
 	app *common.Application,
-	bucketName string,
+	bucketName *string,
 	q *sqlc.Queries,
 	batchLoaders *loaders.BatchLoaders,
 	roleLoaders *loaders.LoadersWithPermissions,
@@ -583,6 +593,7 @@ func doExport(
 	urlSigner *signing.Signer,
 	cdnConfig CDNConfig,
 	s3Client *s3.Client,
+	pgSql *sql.DB,
 ) (string, error) {
 	db, dbPath, err := initDB()
 	if err != nil {
@@ -643,7 +654,7 @@ func doExport(
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
-	err = exportCollections(ctx, db, batchLoaders, personalizedLoaders, userRoles, liteQueries, collectionsToExport)
+	err = exportCollections(ctx, pgSql, batchLoaders, personalizedLoaders, userRoles, liteQueries, collectionsToExport)
 	if err != nil {
 		log.L.Error().Err(err).Str("exportStep", "exportCollections").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
@@ -665,7 +676,7 @@ func doExport(
 
 	_, err = s3Client.PutObject(ctx, &s3.PutObjectInput{
 		Body:         f,
-		Bucket:       aws.String(bucketName),
+		Bucket:       bucketName,
 		CacheControl: aws.String("Cache-Control: private, max-age=604800, immutable"),
 		Key:          s3DestinationPath,
 	})
@@ -677,12 +688,15 @@ func doExport(
 	presignClient := s3.NewPresignClient(s3Client, s3.WithPresignExpires(1*time.Hour))
 
 	res, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
-		Bucket: aws.String(bucketName),
+		Bucket: bucketName,
 		Key:    s3DestinationPath,
+	}, func(opts *s3.PresignOptions) {
+		opts.Expires = 1 * time.Hour
 	})
 	if err != nil {
 		log.L.Error().Err(err).Str("exportStep", "Presign Object").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 	return res.URL, nil
+
 }

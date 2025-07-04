@@ -44,3 +44,8 @@ WHERE id = @id::uuid;
 UPDATE users.exports
 SET status = @status
 WHERE id = @id::uuid;
+
+-- name: UPdateExpiryDate :exec
+UPDATE users.exports
+SET expiry_date = @expiry_date
+WHERE id = @id::uuid;

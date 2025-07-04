@@ -24,7 +24,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
-	"github.com/davecgh/go-spew/spew"
 
 	gpubsub "cloud.google.com/go/pubsub"
 
@@ -185,7 +184,6 @@ func (r *queryRootResolver) ExportAsync(ctx context.Context, groups []string, ex
 			})
 			_, err = msg.Get(ctx)
 			if err != nil {
-				spew.Dump(r.BackgroundWorkerTopic)
 				log.L.Warn().Err(err).Str("exportId", exportEntry.ID.String()).Msg("Failed to publish")
 				return nil, err
 			}

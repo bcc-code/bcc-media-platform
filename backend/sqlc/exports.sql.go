@@ -118,6 +118,22 @@ func (q *Queries) InsertExport(ctx context.Context, arg InsertExportParams) (Use
 	return i, err
 }
 
+const uPdateExpiryDate = `-- name: UPdateExpiryDate :exec
+UPDATE users.exports
+SET expiry_date = $1
+WHERE id = $2::uuid
+`
+
+type UPdateExpiryDateParams struct {
+	ExpiryDate null_v4.Time `db:"expiry_date" json:"expiryDate"`
+	ID         uuid.UUID    `db:"id" json:"id"`
+}
+
+func (q *Queries) UPdateExpiryDate(ctx context.Context, arg UPdateExpiryDateParams) error {
+	_, err := q.db.ExecContext(ctx, uPdateExpiryDate, arg.ExpiryDate, arg.ID)
+	return err
+}
+
 const updateExportStatus = `-- name: UpdateExportStatus :exec
 UPDATE users.exports
 SET status = $1

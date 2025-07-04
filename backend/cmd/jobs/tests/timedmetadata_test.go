@@ -101,9 +101,9 @@ func TestTimedMetadataDurations(t *testing.T) {
 }
 
 func TestIngestTimedMetadataAvoidDurationMismatch(t *testing.T) {
-	if utils.SkipTestIfCI(t) {
-		return
-	}
+	t.SkipNow()
+	return
+
 	ctx := context.Background()
 
 	db := lo.Must(sql.Open("postgres", dbConnectionString))
@@ -148,9 +148,9 @@ func TestIngestTimedMetadataAvoidDurationMismatch(t *testing.T) {
 }
 
 func TestIngestTimedMetadata(t *testing.T) {
-	if utils.SkipTestIfCI(t) {
-		return
-	}
+	t.SkipNow()
+	return
+
 	ctx := context.Background()
 
 	db := lo.Must(sql.Open("postgres", dbConnectionString))

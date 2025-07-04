@@ -5,17 +5,18 @@ import (
 	"context"
 	"embed"
 	"encoding/json"
+	"html/template"
+	"math"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/gin-gonic/gin"
-	"html/template"
-	"math"
-	"strconv"
-	"strings"
-	"time"
 )
 
 //go:embed templates/*.json.tmpl
@@ -258,7 +259,6 @@ func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, que
 		indexName = typeToIndexMap[*query.Type]
 	}
 
-	//spew.Dump(jsonQuery)
 	qResult, err := client.Search().Index(indexName).Raw(jsonQuery).Do(ctx)
 	if err != nil {
 		log.L.Error().Err(err).Send()

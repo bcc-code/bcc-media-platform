@@ -6,6 +6,7 @@ import "github.com/aws/aws-sdk-go-v2/aws"
 type ConfigData struct {
 	IngestBucket          string
 	StorageBucket         string
+	TempBucket            string
 	PackagingGroupID      string
 	MediapackageRole      string
 	MediapackageSource    string
@@ -22,6 +23,9 @@ func (c ConfigData) GetIngestBucket() *string {
 // GetStorageBucket where the assets are stored for consumption by Mediapackage
 func (c ConfigData) GetStorageBucket() *string {
 	return aws.String(c.StorageBucket)
+}
+func (c ConfigData) GetTempBucketName() *string {
+	return aws.String(c.TempBucket)
 }
 
 // GetPackagingGroup that the assets should be ingested into

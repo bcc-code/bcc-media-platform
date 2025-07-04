@@ -158,7 +158,7 @@ func (s Server) ProcessMessage(c *gin.Context) {
 			return nil
 		})
 	case events.TypeExportStart:
-		err = export.HandleExportMessage(ctx, s.services, e)
+		err = export.HandleExportMessage(ctx, s.services, s.config.GetTempBucketName(), e)
 	default:
 		err = merry.Wrap(errUndefinedHandler)
 	}
@@ -173,11 +173,6 @@ func (s Server) ProcessMessage(c *gin.Context) {
 		return
 	}
 }
-
-// func temp(ctx context.Context, event cloudevents.Event) error {
-// 	spew.Dump(event)
-// 	return nil
-// }
 
 // IngestEventMeta ingests the event meta
 func (s Server) IngestEventMeta(c *gin.Context) {

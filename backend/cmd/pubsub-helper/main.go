@@ -230,13 +230,18 @@ func directusFromFile(projectID string, topicID string) {
 }
 
 func main() {
+	err := godotenv.Load(".env")
+	if err == nil {
+		fmt.Println("Env file loaded")
+	}
+
 	task := flag.String("task", "", "")
 	host := flag.String("host", "", "")
 	flag.Parse()
 	projectId := "btv-pubsub"
 	topicId := "export"
 
-	err := godotenv.Load("backend/cmd/pubsub-helper/.env")
+	err = godotenv.Load("backend/cmd/pubsub-helper/.env")
 	if err == nil {
 		log.Println("Loaded .env file")
 	}
