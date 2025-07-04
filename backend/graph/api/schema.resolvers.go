@@ -169,7 +169,6 @@ func (r *queryRootResolver) ExportAsync(ctx context.Context, groups []string, ex
 			return nil, err
 		}
 
-		// create event
 		e := cloudevents.NewEvent()
 		e.SetSource(events.SourceApi)
 		e.SetType(events.TypeExportStart)
@@ -198,8 +197,6 @@ func (r *queryRootResolver) ExportAsync(ctx context.Context, groups []string, ex
 			ExportID: exportEntry.ID.String(),
 		}, nil
 	}
-
-	//
 
 	parsedId, err := uuid.Parse(*exportID)
 	if err != nil {
@@ -230,25 +227,6 @@ func (r *queryRootResolver) ExportAsync(ctx context.Context, groups []string, ex
 		Status:   model.ExportStatus(fetchedEntry.Status),
 		ExportID: fetchedEntry.ID.String(),
 		Result:   nil,
-	}, nil
-}
-
-// Start the export process
-func (r *queryRootResolver) startExportProcess(ctx context.Context) (*model.ExportResult, error) {
-	ginCtx, err := utils.GinCtx(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	url, err := export.DoExport(ctx, r, r.AWSConfig.GetTempStorageBucket(), user.GetRolesFromCtx(ginCtx))
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.ExportResult{
-		DbVersion: export.SQLiteExportDBVersion,
-		URL:       url,
-		Expires:   "expiry date",
 	}, nil
 }
 
