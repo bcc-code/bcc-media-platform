@@ -163,6 +163,8 @@ func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int, c
 		}
 	}
 
+	roles := user.GetRolesFromCtx(ginCtx)
+
 	entries, err := collection.GetBaseCollectionEntries(
 		ctx,
 		r.DB,
@@ -170,6 +172,7 @@ func (r *Resolver) GetCollectionEntries(ctx context.Context, collectionId int, c
 		personalizedLoaders,
 		collectionId,
 		languagePreferences,
+		roles,
 		null.IntFromPtr(cursor.Seed),
 	)
 	if err != nil {

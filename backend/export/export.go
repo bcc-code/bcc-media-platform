@@ -403,7 +403,15 @@ type collectionEntry struct {
 	Type string
 }
 
-func exportCollections(ctx context.Context, db *sql.DB, batchLoaders *loaders.BatchLoaders, personalizedLoaders *loaders.PersonalizedLoaders, liteQueries *sqlexport.Queries, collectionIDs []int) error {
+func exportCollections(
+	ctx context.Context,
+	db *sql.DB,
+	batchLoaders *loaders.BatchLoaders,
+	personalizedLoaders *loaders.PersonalizedLoaders,
+	roles []string,
+	liteQueries *sqlexport.Queries,
+	collectionIDs []int,
+) error {
 	collections, err := batchLoaders.CollectionLoader.GetMany(ctx, collectionIDs)
 	if err != nil {
 		return merry.Wrap(err)
@@ -422,6 +430,7 @@ func exportCollections(ctx context.Context, db *sql.DB, batchLoaders *loaders.Ba
 			personalizedLoaders,
 			c.ID,
 			common.LanguagePreferences{ContentOnlyInPreferredLanguage: false},
+			roles,
 			null.NewInt(0, false),
 		)
 		if err != nil {
@@ -633,7 +642,7 @@ func doExport(
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
-	err = exportCollections(ctx, db, batchLoaders, personalizedLoaders, liteQueries, collectionsToExport)
+	err = exportCollections(ctx, db, batchLoaders, personalizedLoaders, userRoles, liteQueries, collectionsToExport)
 	if err != nil {
 		log.L.Error().Err(err).Str("exportStep", "exportCollections").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
