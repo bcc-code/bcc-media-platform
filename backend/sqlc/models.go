@@ -1935,13 +1935,20 @@ type UsersDevice struct {
 }
 
 type UsersExport struct {
-	ID          uuid.UUID    `db:"id" json:"id"`
-	ProfileID   uuid.UUID    `db:"profile_id" json:"profileId"`
-	UserGroups  []string     `db:"user_groups" json:"userGroups"`
-	Status      string       `db:"status" json:"status"`
-	CreatedDate time.Time    `db:"created_date" json:"createdDate"`
-	ExpiryDate  null_v4.Time `db:"expiry_date" json:"expiryDate"`
-	Url         string       `db:"url" json:"url"`
+	ID                             uuid.UUID    `db:"id" json:"id"`
+	ProfileID                      uuid.UUID    `db:"profile_id" json:"profileId"`
+	UserGroups                     []string     `db:"user_groups" json:"userGroups"`
+	Status                         string       `db:"status" json:"status"`
+	CreatedDate                    time.Time    `db:"created_date" json:"createdDate"`
+	ExpiryDate                     null_v4.Time `db:"expiry_date" json:"expiryDate"`
+	Url                            string       `db:"url" json:"url"`
+	Contentonlyinpreferredlanguage bool         `db:"contentonlyinpreferredlanguage" json:"contentonlyinpreferredlanguage"`
+	Preferredaudiolanguages        []string     `db:"preferredaudiolanguages" json:"preferredaudiolanguages"`
+	Preferredsubtitleslanguages    []string     `db:"preferredsubtitleslanguages" json:"preferredsubtitleslanguages"`
+	ApplicationID                  int32        `db:"application_id" json:"applicationId"`
+	ApplicationCode                string       `db:"application_code" json:"applicationCode"`
+	ApplicationClientversion       string       `db:"application_clientversion" json:"applicationClientversion"`
+	ApplicationDefaultPageID       null_v4.Int  `db:"application_default_page_id" json:"applicationDefaultPageId"`
 }
 
 type UsersMediaProgress struct {

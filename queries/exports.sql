@@ -6,15 +6,29 @@ INSERT INTO users.exports (
     status,
     created_date,
     expiry_date,
-    url
+    url,
+    ContentOnlyInPreferredLanguage,
+    PreferredAudioLanguages,
+    PreferredSubtitlesLanguages,
+    application_id,
+    application_code,
+    application_clientVersion,
+    application_default_page_id
 ) VALUES (
-    DEFAULT,
+    DEFAULT,    
     @profile_id,
     @user_groups,
     DEFAULT,
     DEFAULT,
-    NULL,
-    DEFAULT
+    DEFAULT,
+    DEFAULT,
+    @content_only_in_preferred_language,
+    @preferred_audio_languages,
+    @preferred_subtitles_languages,
+    @application_id,
+    @application_code,
+    @application_client_version,
+    @application_default_page_id
 )
 RETURNING *;
 

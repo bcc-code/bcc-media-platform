@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 
 	"cloud.google.com/go/pubsub"
@@ -47,7 +48,6 @@ func graphqlHandler(
 	remoteCache *remotecache.Client,
 	analyticsClient *analytics.Service,
 	bmmClient *bmm.APIClient,
-	//pubSubClient *pubsub.Client,
 	jobPubSubTopic *pubsub.Topic,
 ) gin.HandlerFunc {
 	resolver := graphapi.Resolver{

@@ -9,6 +9,15 @@ CREATE TABLE IF NOT EXISTS users.exports
     created_date timestamp with time zone NOT NULL DEFAULT now(),
     expiry_date timestamp with time zone,
     url text NOT NULL DEFAULT '',
+    ContentOnlyInPreferredLanguage boolean NOT NULL DEFAULT false,
+    PreferredAudioLanguages text[] NOT NULL DEFAULT '{}'::text[],
+    PreferredSubtitlesLanguages text[] NOT NULL DEFAULT '{}'::text[],
+
+    application_id integer NOT NULL DEFAULT 0,
+    application_code text NOT NULL DEFAULT '',
+    application_clientVersion text NOT NULL DEFAULT '',
+    application_default_page_id integer,
+
     PRIMARY KEY (id),
     CONSTRAINT fk_profile FOREIGN KEY (profile_id)
         REFERENCES users.profiles (id) MATCH SIMPLE

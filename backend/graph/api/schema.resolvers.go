@@ -24,6 +24,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
+	"github.com/davecgh/go-spew/spew"
 
 	gpubsub "cloud.google.com/go/pubsub"
 
@@ -143,21 +144,34 @@ func (r *queryRootResolver) ExportAsync(ctx context.Context, groups []string, ex
 		)
 	}
 
+	app, err := common.GetApplicationFromCtx(ginCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	languages := common.GetLanguagePreferencesFromCtx(ginCtx)
+
 	if exportID == nil {
 		// start new export process
 		instertParams := sqlc.InsertExportParams{
-			ProfileID:  profile.ID,
-			UserGroups: groups,
+			ProfileID:                      profile.ID,
+			UserGroups:                     groups,
+			ContentOnlyInPreferredLanguage: languages.ContentOnlyInPreferredLanguage,
+			PreferredAudioLanguages:        languages.PreferredAudioLanguages,
+			PreferredSubtitlesLanguages:    languages.PreferredSubtitlesLanguages,
+
+			ApplicationID:            int32(app.ID),
+			ApplicationCode:          app.Code,
+			ApplicationClientVersion: app.ClientVersion,
+			ApplicationDefaultPageID: app.DefaultPageID,
 		}
 		exportEntry, err := r.Queries.InsertExport(ctx, instertParams)
 		if err != nil {
 			return nil, err
 		}
 
-		//
-
+		// create event
 		e := cloudevents.NewEvent()
-		//e.SetSource(events.SourceMediaBanken)
 		e.SetSource(events.SourceApi)
 		e.SetType(events.TypeExportStart)
 		e.SetData(cloudevents.ApplicationJSON, &events.StartExport{
@@ -171,6 +185,7 @@ func (r *queryRootResolver) ExportAsync(ctx context.Context, groups []string, ex
 			})
 			_, err = msg.Get(ctx)
 			if err != nil {
+				spew.Dump(r.BackgroundWorkerTopic)
 				log.L.Warn().Err(err).Str("exportId", exportEntry.ID.String()).Msg("Failed to publish")
 				return nil, err
 			}

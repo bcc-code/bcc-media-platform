@@ -10,10 +10,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const getExportById = `-- name: GetExportById :one
-SELECT id, profile_id, user_groups, status, created_date, expiry_date, url FROM users.exports WHERE id = $1::uuid
+SELECT id, profile_id, user_groups, status, created_date, expiry_date, url, contentonlyinpreferredlanguage, preferredaudiolanguages, preferredsubtitleslanguages, application_id, application_code, application_clientversion, application_default_page_id FROM users.exports WHERE id = $1::uuid
 `
 
 func (q *Queries) GetExportById(ctx context.Context, id uuid.UUID) (UsersExport, error) {
@@ -27,6 +28,13 @@ func (q *Queries) GetExportById(ctx context.Context, id uuid.UUID) (UsersExport,
 		&i.CreatedDate,
 		&i.ExpiryDate,
 		&i.Url,
+		&i.Contentonlyinpreferredlanguage,
+		pq.Array(&i.Preferredaudiolanguages),
+		pq.Array(&i.Preferredsubtitleslanguages),
+		&i.ApplicationID,
+		&i.ApplicationCode,
+		&i.ApplicationClientversion,
+		&i.ApplicationDefaultPageID,
 	)
 	return i, err
 }
@@ -39,26 +47,57 @@ INSERT INTO users.exports (
     status,
     created_date,
     expiry_date,
-    url
+    url,
+    ContentOnlyInPreferredLanguage,
+    PreferredAudioLanguages,
+    PreferredSubtitlesLanguages,
+    application_id,
+    application_code,
+    application_clientVersion,
+    application_default_page_id
 ) VALUES (
-    DEFAULT,
+    DEFAULT,    
     $1,
     $2,
     DEFAULT,
     DEFAULT,
-    NULL,
-    DEFAULT
+    DEFAULT,
+    DEFAULT,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9
 )
-RETURNING id, profile_id, user_groups, status, created_date, expiry_date, url
+RETURNING id, profile_id, user_groups, status, created_date, expiry_date, url, contentonlyinpreferredlanguage, preferredaudiolanguages, preferredsubtitleslanguages, application_id, application_code, application_clientversion, application_default_page_id
 `
 
 type InsertExportParams struct {
-	ProfileID  uuid.UUID `db:"profile_id" json:"profileId"`
-	UserGroups []string  `db:"user_groups" json:"userGroups"`
+	ProfileID                      uuid.UUID   `db:"profile_id" json:"profileId"`
+	UserGroups                     []string    `db:"user_groups" json:"userGroups"`
+	ContentOnlyInPreferredLanguage bool        `db:"content_only_in_preferred_language" json:"contentOnlyInPreferredLanguage"`
+	PreferredAudioLanguages        []string    `db:"preferred_audio_languages" json:"preferredAudioLanguages"`
+	PreferredSubtitlesLanguages    []string    `db:"preferred_subtitles_languages" json:"preferredSubtitlesLanguages"`
+	ApplicationID                  int32       `db:"application_id" json:"applicationId"`
+	ApplicationCode                string      `db:"application_code" json:"applicationCode"`
+	ApplicationClientVersion       string      `db:"application_client_version" json:"applicationClientVersion"`
+	ApplicationDefaultPageID       null_v4.Int `db:"application_default_page_id" json:"applicationDefaultPageId"`
 }
 
 func (q *Queries) InsertExport(ctx context.Context, arg InsertExportParams) (UsersExport, error) {
-	row := q.db.QueryRowContext(ctx, insertExport, arg.ProfileID, pq.Array(arg.UserGroups))
+	row := q.db.QueryRowContext(ctx, insertExport,
+		arg.ProfileID,
+		pq.Array(arg.UserGroups),
+		arg.ContentOnlyInPreferredLanguage,
+		pq.Array(arg.PreferredAudioLanguages),
+		pq.Array(arg.PreferredSubtitlesLanguages),
+		arg.ApplicationID,
+		arg.ApplicationCode,
+		arg.ApplicationClientVersion,
+		arg.ApplicationDefaultPageID,
+	)
 	var i UsersExport
 	err := row.Scan(
 		&i.ID,
@@ -68,6 +107,13 @@ func (q *Queries) InsertExport(ctx context.Context, arg InsertExportParams) (Use
 		&i.CreatedDate,
 		&i.ExpiryDate,
 		&i.Url,
+		&i.Contentonlyinpreferredlanguage,
+		pq.Array(&i.Preferredaudiolanguages),
+		pq.Array(&i.Preferredsubtitleslanguages),
+		&i.ApplicationID,
+		&i.ApplicationCode,
+		&i.ApplicationClientversion,
+		&i.ApplicationDefaultPageID,
 	)
 	return i, err
 }

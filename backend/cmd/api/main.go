@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 
 	"cloud.google.com/go/profiler"
 	gpubsub "cloud.google.com/go/pubsub"

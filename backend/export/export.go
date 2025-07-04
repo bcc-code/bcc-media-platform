@@ -6,11 +6,12 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"os"
 	"path"
 	"path/filepath"
 	"time"
+
+	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 
 	"gopkg.in/guregu/null.v4"
 
@@ -455,19 +456,6 @@ func HandleExportMessage(ctx context.Context, s serviceProvider, e event.Event) 
 		ExportID string `json:"exportId"`
 	}
 
-	// TODO: Get from DB
-	langPreferences := common.LanguagePreferences{
-		ContentOnlyInPreferredLanguage: false,
-		PreferredAudioLanguages:        []string{"no"},
-		PreferredSubtitlesLanguages:    []string{},
-	}
-	// TODO: Get from DB
-	app := &common.Application{
-		ID:            0,
-		Code:          "test",
-		ClientVersion: "test",
-		DefaultPageID: null.NewInt(0, false),
-	}
 	q := s.GetQueries()
 
 	// Unmarshal event data
@@ -486,6 +474,19 @@ func HandleExportMessage(ctx context.Context, s serviceProvider, e event.Event) 
 	fetchedEntry, err := q.GetExportById(ctx, parsedId)
 	if err != nil {
 		return err
+	}
+
+	langPreferences := common.LanguagePreferences{
+		ContentOnlyInPreferredLanguage: fetchedEntry.Contentonlyinpreferredlanguage,
+		PreferredAudioLanguages:        fetchedEntry.Preferredaudiolanguages,
+		PreferredSubtitlesLanguages:    fetchedEntry.Preferredsubtitleslanguages,
+	}
+
+	app := &common.Application{
+		ID:            int(fetchedEntry.ApplicationID),
+		Code:          fetchedEntry.ApplicationCode,
+		ClientVersion: fetchedEntry.ApplicationClientversion,
+		DefaultPageID: fetchedEntry.ApplicationDefaultPageID,
 	}
 
 	url, err := doExport(
