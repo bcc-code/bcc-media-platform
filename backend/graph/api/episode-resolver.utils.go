@@ -60,6 +60,7 @@ func (r *episodeResolver) getEpisodeQueue(ctx context.Context, episodeID string)
 			return nil, err
 		}
 		languagePreferences := common.GetLanguagePreferencesFromCtx(ginCtx)
+		roles := user.GetRolesFromCtx(ginCtx)
 
 		items, err := collection.GetBaseCollectionEntries(
 			ctx,
@@ -68,6 +69,7 @@ func (r *episodeResolver) getEpisodeQueue(ctx context.Context, episodeID string)
 			r.GetPersonalizedLoaders(ctx),
 			int(episodeContext.CollectionID.Int64),
 			languagePreferences,
+			roles,
 			null.Int{},
 		)
 		if err != nil {
@@ -260,6 +262,7 @@ func (r *episodeResolver) getNextEpisodeIDsFromShowCollection(ctx context.Contex
 		return nil, err
 	}
 	languagePreferences := common.GetLanguagePreferencesFromCtx(ginCtx)
+	roles := user.GetRolesFromCtx(ginCtx)
 
 	entries, err := collection.GetBaseCollectionEntries(
 		ctx,
@@ -268,6 +271,7 @@ func (r *episodeResolver) getNextEpisodeIDsFromShowCollection(ctx context.Contex
 		r.GetPersonalizedLoaders(ctx),
 		int(show.RelatedCollectionID.Int64),
 		languagePreferences,
+		roles,
 		null.Int{},
 	)
 	if err != nil {

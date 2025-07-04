@@ -7,8 +7,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
-	"github.com/bcc-code/bcc-media-platform/backend/user"
-	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
 )
@@ -30,6 +28,7 @@ func GetBaseCollectionEntries(
 	personalizedLoaders *loaders.PersonalizedLoaders,
 	collectionId int,
 	langPreferences common.LanguagePreferences,
+	roles []string,
 	randomSeed null.Int,
 
 ) ([]Entry, error) {
@@ -54,19 +53,16 @@ func GetBaseCollectionEntries(
 	case "randomized_query":
 		fallthrough
 	case "query":
-		return processQuery(ctx, db, col, langPreferences, randomSeed)
+		return processQuery(db, col, langPreferences, roles, randomSeed)
 	}
 	return nil, nil
 }
 
-func processQuery(ctx context.Context, db *sql.DB, col *common.Collection, langPrefs common.LanguagePreferences, randomSeed null.Int) ([]Entry, error) {
+func processQuery(db *sql.DB, col *common.Collection, langPrefs common.LanguagePreferences, roles []string, randomSeed null.Int) ([]Entry, error) {
 
 	if col.Filter == nil {
 		return nil, fmt.Errorf("no filter provided")
 	}
-
-	ginCtx, _ := utils.GinCtx(ctx)
-	roles := user.GetRolesFromCtx(ginCtx)
 
 	query := GetSQLForFilter(FilterParams{
 		Roles:               roles,
