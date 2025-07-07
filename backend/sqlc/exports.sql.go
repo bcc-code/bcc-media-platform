@@ -14,7 +14,7 @@ import (
 )
 
 const getExportById = `-- name: GetExportById :one
-SELECT id, profile_id, user_groups, status, created_date, expiry_date, url, contentonlyinpreferredlanguage, preferredaudiolanguages, preferredsubtitleslanguages, application_id, application_code, application_clientversion, application_default_page_id FROM users.exports WHERE id = $1::uuid
+SELECT id, profile_id, user_groups, status, created_date, expiry_date, url, content_only_in_preferred_language, preferred_audio_languages, preferred_subtitles_languages, application_id, application_code, application_clientversion, application_default_page_id FROM users.exports WHERE id = $1::uuid
 `
 
 func (q *Queries) GetExportById(ctx context.Context, id uuid.UUID) (UsersExport, error) {
@@ -28,9 +28,9 @@ func (q *Queries) GetExportById(ctx context.Context, id uuid.UUID) (UsersExport,
 		&i.CreatedDate,
 		&i.ExpiryDate,
 		&i.Url,
-		&i.Contentonlyinpreferredlanguage,
-		pq.Array(&i.Preferredaudiolanguages),
-		pq.Array(&i.Preferredsubtitleslanguages),
+		&i.ContentOnlyInPreferredLanguage,
+		pq.Array(&i.PreferredAudioLanguages),
+		pq.Array(&i.PreferredSubtitlesLanguages),
 		&i.ApplicationID,
 		&i.ApplicationCode,
 		&i.ApplicationClientversion,
@@ -48,9 +48,9 @@ INSERT INTO users.exports (
     created_date,
     expiry_date,
     url,
-    ContentOnlyInPreferredLanguage,
-    PreferredAudioLanguages,
-    PreferredSubtitlesLanguages,
+    content_only_in_preferred_language,
+    preferred_audio_languages,
+    preferred_subtitles_languages,
     application_id,
     application_code,
     application_clientVersion,
@@ -71,7 +71,7 @@ INSERT INTO users.exports (
     $8,
     $9
 )
-RETURNING id, profile_id, user_groups, status, created_date, expiry_date, url, contentonlyinpreferredlanguage, preferredaudiolanguages, preferredsubtitleslanguages, application_id, application_code, application_clientversion, application_default_page_id
+RETURNING id, profile_id, user_groups, status, created_date, expiry_date, url, content_only_in_preferred_language, preferred_audio_languages, preferred_subtitles_languages, application_id, application_code, application_clientversion, application_default_page_id
 `
 
 type InsertExportParams struct {
@@ -107,9 +107,9 @@ func (q *Queries) InsertExport(ctx context.Context, arg InsertExportParams) (Use
 		&i.CreatedDate,
 		&i.ExpiryDate,
 		&i.Url,
-		&i.Contentonlyinpreferredlanguage,
-		pq.Array(&i.Preferredaudiolanguages),
-		pq.Array(&i.Preferredsubtitleslanguages),
+		&i.ContentOnlyInPreferredLanguage,
+		pq.Array(&i.PreferredAudioLanguages),
+		pq.Array(&i.PreferredSubtitlesLanguages),
 		&i.ApplicationID,
 		&i.ApplicationCode,
 		&i.ApplicationClientversion,
@@ -118,19 +118,19 @@ func (q *Queries) InsertExport(ctx context.Context, arg InsertExportParams) (Use
 	return i, err
 }
 
-const uPdateExpiryDate = `-- name: UPdateExpiryDate :exec
+const updateExpiryDate = `-- name: UpdateExpiryDate :exec
 UPDATE users.exports
 SET expiry_date = $1
 WHERE id = $2::uuid
 `
 
-type UPdateExpiryDateParams struct {
+type UpdateExpiryDateParams struct {
 	ExpiryDate null_v4.Time `db:"expiry_date" json:"expiryDate"`
 	ID         uuid.UUID    `db:"id" json:"id"`
 }
 
-func (q *Queries) UPdateExpiryDate(ctx context.Context, arg UPdateExpiryDateParams) error {
-	_, err := q.db.ExecContext(ctx, uPdateExpiryDate, arg.ExpiryDate, arg.ID)
+func (q *Queries) UpdateExpiryDate(ctx context.Context, arg UpdateExpiryDateParams) error {
+	_, err := q.db.ExecContext(ctx, updateExpiryDate, arg.ExpiryDate, arg.ID)
 	return err
 }
 

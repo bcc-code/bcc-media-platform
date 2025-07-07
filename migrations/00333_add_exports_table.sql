@@ -9,9 +9,10 @@ CREATE TABLE IF NOT EXISTS users.exports
     created_date timestamp with time zone NOT NULL DEFAULT now(),
     expiry_date timestamp with time zone,
     url text NOT NULL DEFAULT '',
-    ContentOnlyInPreferredLanguage boolean NOT NULL DEFAULT false,
-    PreferredAudioLanguages text[] NOT NULL DEFAULT '{}'::text[],
-    PreferredSubtitlesLanguages text[] NOT NULL DEFAULT '{}'::text[],
+
+    content_only_in_preferred_language boolean NOT NULL DEFAULT false,
+    preferred_audio_languages text[] NOT NULL DEFAULT '{}'::text[],
+    preferred_subtitles_languages text[] NOT NULL DEFAULT '{}'::text[],
 
     application_id integer NOT NULL DEFAULT 0,
     application_code text NOT NULL DEFAULT '',
@@ -22,7 +23,7 @@ CREATE TABLE IF NOT EXISTS users.exports
     CONSTRAINT fk_profile FOREIGN KEY (profile_id)
         REFERENCES users.profiles (id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE NO ACTION
+        ON DELETE CASCADE
         NOT VALID
 );
 

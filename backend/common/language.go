@@ -2,9 +2,10 @@ package common
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
-	"strings"
 )
 
 const (

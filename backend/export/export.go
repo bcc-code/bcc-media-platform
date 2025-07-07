@@ -486,9 +486,9 @@ func HandleExportMessage(ctx context.Context, s serviceProvider, tempBucketNeme 
 	}
 
 	langPreferences := common.LanguagePreferences{
-		ContentOnlyInPreferredLanguage: fetchedEntry.Contentonlyinpreferredlanguage,
-		PreferredAudioLanguages:        fetchedEntry.Preferredaudiolanguages,
-		PreferredSubtitlesLanguages:    fetchedEntry.Preferredsubtitleslanguages,
+		ContentOnlyInPreferredLanguage: fetchedEntry.ContentOnlyInPreferredLanguage,
+		PreferredAudioLanguages:        fetchedEntry.PreferredAudioLanguages,
+		PreferredSubtitlesLanguages:    fetchedEntry.PreferredSubtitlesLanguages,
 	}
 
 	app := &common.Application{
@@ -528,7 +528,7 @@ func HandleExportMessage(ctx context.Context, s serviceProvider, tempBucketNeme 
 	expiresAt := time.Now().Add(1 * time.Hour)
 	nullExpiresAt := null.TimeFrom(expiresAt)
 
-	err = q.UPdateExpiryDate(ctx, sqlc.UPdateExpiryDateParams{
+	err = q.UpdateExpiryDate(ctx, sqlc.UpdateExpiryDateParams{
 		ExpiryDate: nullExpiresAt,
 		ID:         parsedId,
 	})

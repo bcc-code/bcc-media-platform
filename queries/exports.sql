@@ -7,9 +7,9 @@ INSERT INTO users.exports (
     created_date,
     expiry_date,
     url,
-    ContentOnlyInPreferredLanguage,
-    PreferredAudioLanguages,
-    PreferredSubtitlesLanguages,
+    content_only_in_preferred_language,
+    preferred_audio_languages,
+    preferred_subtitles_languages,
     application_id,
     application_code,
     application_clientVersion,
@@ -45,7 +45,7 @@ UPDATE users.exports
 SET status = @status
 WHERE id = @id::uuid;
 
--- name: UPdateExpiryDate :exec
+-- name: UpdateExpiryDate :exec
 UPDATE users.exports
 SET expiry_date = @expiry_date
 WHERE id = @id::uuid;

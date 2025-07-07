@@ -1942,9 +1942,9 @@ type UsersExport struct {
 	CreatedDate                    time.Time    `db:"created_date" json:"createdDate"`
 	ExpiryDate                     null_v4.Time `db:"expiry_date" json:"expiryDate"`
 	Url                            string       `db:"url" json:"url"`
-	Contentonlyinpreferredlanguage bool         `db:"contentonlyinpreferredlanguage" json:"contentonlyinpreferredlanguage"`
-	Preferredaudiolanguages        []string     `db:"preferredaudiolanguages" json:"preferredaudiolanguages"`
-	Preferredsubtitleslanguages    []string     `db:"preferredsubtitleslanguages" json:"preferredsubtitleslanguages"`
+	ContentOnlyInPreferredLanguage bool         `db:"content_only_in_preferred_language" json:"contentOnlyInPreferredLanguage"`
+	PreferredAudioLanguages        []string     `db:"preferred_audio_languages" json:"preferredAudioLanguages"`
+	PreferredSubtitlesLanguages    []string     `db:"preferred_subtitles_languages" json:"preferredSubtitlesLanguages"`
 	ApplicationID                  int32        `db:"application_id" json:"applicationId"`
 	ApplicationCode                string       `db:"application_code" json:"applicationCode"`
 	ApplicationClientversion       string       `db:"application_clientversion" json:"applicationClientversion"`

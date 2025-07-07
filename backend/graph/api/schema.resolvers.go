@@ -13,7 +13,8 @@ import (
 	"strings"
 	"time"
 
-	cache "github.com/Code-Hex/go-generics-cache"
+	gpubsub "cloud.google.com/go/pubsub"
+	"github.com/Code-Hex/go-generics-cache"
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -24,9 +25,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
-
-	gpubsub "cloud.google.com/go/pubsub"
-
 	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
@@ -104,7 +102,7 @@ func (r *queryRootResolver) Languages(ctx context.Context) ([]string, error) {
 }
 
 // Export is the resolver for the export field.
-func (r *queryRootResolver) Export(ctx context.Context, roles []string) (*model.Export, error) {
+func (r *queryRootResolver) Export(ctx context.Context, groups []string) (*model.Export, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
