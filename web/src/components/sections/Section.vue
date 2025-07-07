@@ -14,6 +14,7 @@ import PosterSection from './item/PosterSection.vue'
 import MessageSection from './MessageSection.vue'
 import { Section } from './types'
 import WebSection from './WebSection.vue'
+import PageDetailsSection from './item/PageDetailsSection.vue'
 
 defineProps<{
     section: Section
@@ -128,4 +129,8 @@ const isLargeScreen = computed(() => width.value > 768)
         :item="section"
         @click-item="(i) => $emit('clickItem', i)"
     ></CardSection>
+    <PageDetailsSection
+        v-else-if="section.__typename === 'PageDetailsSection'"
+        :item="section"
+    />
 </template>
