@@ -99,17 +99,6 @@ type BatchLoaders struct {
 	ContributionsLoader             *Loader[int32, *common.Contribution]
 }
 
-// PersonalizedLoaders contains loaders that are personalized to the user
-//
-// This includes things like permissions, settings, langauges, etc
-type PersonalizedLoaders struct {
-	Key string
-
-	CollectionItemsLoader        *Loader[int, []*common.CollectionItem]
-	ContributionsForPersonLoader *Loader[uuid.UUID, []*common.Contribution]
-	TagEpisodesLoader            *Loader[int, []*int]
-}
-
 // ProfileLoaders contains loaders per profile
 type ProfileLoaders struct {
 	ProgressLoader                     *Loader[int, *common.Progress]
