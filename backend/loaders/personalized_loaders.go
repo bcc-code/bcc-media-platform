@@ -3,12 +3,24 @@ package loaders
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/google/uuid"
-	"strings"
-	"time"
 )
+
+// PersonalizedLoaders contains loaders that are personalized to the user
+//
+// This includes things like permissions, settings, langauges, etc
+type PersonalizedLoaders struct {
+	Key string
+
+	CollectionItemsLoader        *Loader[int, []*common.CollectionItem]
+	ContributionsForPersonLoader *Loader[uuid.UUID, []*common.Contribution]
+	TagEpisodesLoader            *Loader[int, []*int]
+}
 
 var personalizedLoaders = NewCollection[string, *PersonalizedLoaders](time.Minute)
 
