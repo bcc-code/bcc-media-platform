@@ -266,7 +266,10 @@ func (r *Resolver) sectionCollectionEntryResolver(
 ) (*utils.PaginationResult[*model.SectionItem], error) {
 	ls := r.GetLoaders()
 	if !section.CollectionID.Valid {
-		return &utils.PaginationResult[*model.SectionItem]{}, nil
+		return &utils.PaginationResult[*model.SectionItem]{
+			Cursor:     &cursors.OffsetCursor{},
+			NextCursor: &cursors.OffsetCursor{},
+		}, nil
 	}
 
 	collectionId := int(section.CollectionID.ValueOrZero())

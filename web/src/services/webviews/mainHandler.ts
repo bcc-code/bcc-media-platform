@@ -31,7 +31,7 @@ class MainWebViewHandler {
         return !promise?.then ? null : promise
     }
 
-    push(path: string): Promise<any> {
+    push(path: string): Promise<any> | null {
         const promise = this.webView.communication.callHandler(
             this.handlerName,
             'push',

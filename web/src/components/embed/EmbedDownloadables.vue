@@ -195,9 +195,7 @@ const downloadFile = () => {
                     :class="{ 'text-gray': !fileId }"
                 >
                     <option value="" disabled selected hidden>
-                        <span class="text-opacity-50">{{
-                            t('download.resolution')
-                        }}</span>
+                        {{ t('download.resolution') }}
                     </option>
                     <option v-for="f in files" :key="f.id" :value="f.id">
                         {{ f.resolution }}

@@ -5,8 +5,6 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { webViewMain } from '@/services/webviews/mainHandler'
 
-var selectedIndex = ref<number>()
-
 const { t } = useI18n()
 
 const { executeMutation: completeTask } = useCompleteTaskMutation()
@@ -30,7 +28,7 @@ const openLink = async () => {
         var promise = webViewMain.push(
             `/embed/${task.value.episode.id}?hide_bottom_section=true&autoplay=true`
         )
-        if (promise.then != null) {
+        if (promise?.then != null) {
             await promise
         }
     } else {

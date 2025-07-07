@@ -11,6 +11,7 @@ query getPage($code: String!, $first: Int, $offset: Int, $sectionFirst: Int, $se
                 __typename
                 id
                 title
+                description
                 ...ItemSection
                 ... on WebSection {
                     title
@@ -96,6 +97,7 @@ fragment ItemSection on ItemSection {
         }
     }
 }
+
 fragment StudyTopicSectionItem on StudyTopic {
     id
     title
@@ -121,6 +123,7 @@ query getSectionsForPage($code: String!, $first: Int, $offset: Int, $sectionFirs
                 __typename
                 id
                 title
+                description
                 ...ItemSection
                 ... on WebSection {
                     title
