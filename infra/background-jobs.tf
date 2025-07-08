@@ -235,6 +235,7 @@ resource "google_cloud_run_service" "background_worker" {
     ignore_changes = [
       metadata[0].annotations,
       metadata[0].labels,
+      metadata[0].terraform_labels,
       template[0].metadata[0].annotations,
       template[0].metadata[0].labels,
       template[0].spec[0].containers[0].image, // The image is managed by the deploy, we just need an initial one

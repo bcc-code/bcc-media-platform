@@ -56,7 +56,7 @@ resource "aws_iam_policy" "tempstorage-bucket-access-rw" {
 
 resource "aws_iam_policy_attachment" "btv-tempstorage-bucket-rw" {
   name       = "btv-tempstorage-policy-attachment-${var.env}"
-  users      = [aws_iam_user.api.name]
+  users      = [aws_iam_user.api.name, aws_iam_user.backgroundjobs.name]
   roles      = []
   groups     = []
   policy_arn = aws_iam_policy.tempstorage-bucket-access-rw.arn
