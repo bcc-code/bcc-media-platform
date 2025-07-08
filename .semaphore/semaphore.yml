@@ -17,7 +17,6 @@ blocks:
         - name: build
           commands:
             - corepack enable
-            - corepack prepare pnpm@latest-8 --activate
             - checkout
             - cd cms
             - cache restore node-$(checksum pnpm-lock.yaml)
@@ -31,7 +30,7 @@ blocks:
             - artifact push workflow cms.txt
       prologue:
         commands:
-          - sem-version node 18
+          - sem-version node 22
           - gcloud auth activate-service-account --key-file=/home/semaphore/secrets/google.key.json
           - gcloud auth configure-docker -q europe-west4-docker.pkg.dev
       secrets:
