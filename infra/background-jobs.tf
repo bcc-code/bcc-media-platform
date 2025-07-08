@@ -166,6 +166,11 @@ resource "google_cloud_run_service" "background_worker" {
         }
 
         env {
+          name  = "AWS_TEMP_BUCKET"
+          value = aws_s3_bucket.btv-tempstorage.bucket
+        }
+
+        env {
           name  = "DIRECTUS_URL"
           value = "${google_cloud_run_service.directus.status[0].url}/"
         }
