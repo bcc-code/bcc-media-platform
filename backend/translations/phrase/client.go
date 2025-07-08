@@ -568,6 +568,10 @@ func (c *Client) NotifyAssignedJobs(projectUID string, jobUIDs []string, emailTe
 		return err
 	}
 
+	if len(jobUIDs) == 0 {
+		return nil
+	}
+
 	jobs := lo.Map(jobUIDs, func(uid string, _ int) JobOnlyUID { return JobOnlyUID{UID: uid} })
 	var emailTemplate *struct {
 		ID string `json:"id"`
