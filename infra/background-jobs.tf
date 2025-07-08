@@ -210,8 +210,8 @@ data "google_iam_policy" "background_worker_topic" {
   binding {
     role = google_project_iam_custom_role.pubsub_publish_read.id
     members = [
-      "serviceAccount:${google_service_account.nodered.email}",
       "serviceAccount:${google_service_account.directus.email}",
+      "serviceAccount:${google_service_account.api.email}",
     ]
   }
 }
