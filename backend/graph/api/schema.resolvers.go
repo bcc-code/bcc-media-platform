@@ -150,7 +150,7 @@ func (r *queryRootResolver) ExportAsync(ctx context.Context, groups []string, ex
 
 	userRoles := user.GetRolesFromCtx(ginCtx)
 
-	exportGroups := []string{}
+	exportGroups := userRoles
 	if len(groups) > 0 {
 		exportGroups = lo.Intersect(userRoles, groups)
 	}
