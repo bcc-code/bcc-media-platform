@@ -119,6 +119,18 @@ module "api_secret_files" {
   secret_accessors = ["serviceAccount:${google_service_account.api.email}"]
 }
 
+module "background_worker_secret_files" {
+  source  = "./gcp-secrets"
+  project = google_project.brunstadtv.project_id
+  secrets = {
+    for k, v in var.background_worker_secret_files : k => {
+      name = v.mount_point
+      data = file("${var.basepath}/${v.local_path}")
+    }
+  }
+  secret_accessors = ["serviceAccount:${google_service_account.background_worker.email}"]
+}
+
 module "web_deploy_secrets" {
   source  = "./gcp-secrets"
   project = google_project.brunstadtv.project_id

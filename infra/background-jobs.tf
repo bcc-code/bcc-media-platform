@@ -1,6 +1,7 @@
 locals {
   service_name = "background-worker-${var.env}"
   image_name   = "eu.gcr.io/${google_project.brunstadtv.project_id}/background-worker/background-jobs"
+  cf_signing_key_path_background_worker = "/secrets/aws_key.pem"
 }
 
 data "google_iam_policy" "bgjobs-actas" {
@@ -104,7 +105,7 @@ resource "google_cloud_run_service" "background_worker" {
 
         env {
           name  = "CF_SIGNING_KEY_PATH"
-          value = local.cf_signing_key_path
+          value = local.cf_signing_key_path_background_worker
         }
 
         dynamic "env" {
@@ -127,6 +128,20 @@ resource "google_cloud_run_service" "background_worker" {
           content {
             name  = v.key
             value = v.value
+          }
+        }
+
+        dynamic "env" {
+          for_each = module.background_worker_secret_files.data
+          iterator = v
+          content {
+            name = v.value.name
+            value_from {
+              secret_key_ref {
+                key  = v.value.secret_version
+                name = v.value.secret_name
+              }
+            }
           }
         }
 
@@ -174,6 +189,30 @@ resource "google_cloud_run_service" "background_worker" {
           limits = {
             cpu    = "1000m"
             memory = "1Gi"
+          }
+        }
+
+        dynamic "volume_mounts" {
+          for_each = module.background_worker_secret_files.data
+          iterator = v
+          content {
+            mount_path = dirname(v.value.name)
+            name       = v.value.secret_name
+          }
+        }
+      }
+
+      dynamic "volumes" {
+        for_each = module.background_worker_secret_files.data
+        iterator = v
+        content {
+          name = v.value.secret_name
+          secret {
+            secret_name = v.value.secret_name
+            items {
+              key  = "latest"
+              path = basename(v.value.name)
+            }
           }
         }
       }

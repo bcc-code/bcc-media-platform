@@ -38,6 +38,10 @@ variable "background_worker_secrets" {
   type = map(any)
 }
 
+variable "background_worker_secret_files" {
+  type = map(any)
+}
+
 variable "background_worker_env" {
   type = map(any)
 }

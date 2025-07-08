@@ -49,6 +49,7 @@ func main() {
 	serverConfig := server.ConfigData{
 		IngestBucket:          config.AWS.IngestBucket,
 		StorageBucket:         config.AWS.StorageBucket,
+		TempBucket:            config.AWS.TempBucket,
 		PackagingGroupID:      config.AWS.PackagingGroupARN,
 		MediapackageRole:      config.AWS.MediapackageRoleARN,
 		MediapackageSource:    config.AWS.MediapackageSourceARN,
