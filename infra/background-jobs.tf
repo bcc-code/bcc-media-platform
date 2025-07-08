@@ -102,6 +102,11 @@ resource "google_cloud_run_service" "background_worker" {
           value = module.videomanipulator.api_key
         }
 
+        env {
+          name  = "CF_SIGNING_KEY_PATH"
+          value = local.cf_signing_key_path
+        }
+
         dynamic "env" {
           for_each = module.background_worker_secrets.data
           iterator = v
