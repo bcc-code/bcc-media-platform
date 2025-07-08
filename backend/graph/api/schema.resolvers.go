@@ -148,11 +148,17 @@ func (r *queryRootResolver) ExportAsync(ctx context.Context, groups []string, ex
 
 	languages := common.GetLanguagePreferencesFromCtx(ginCtx)
 
+	userRoles := user.GetRolesFromCtx(ginCtx)
+
+	exportGroups := []string{}
+	if len(groups) > 0 {
+		exportGroups = lo.Intersect(userRoles, groups)
+	}
+
 	if exportID == nil {
-		// start new export process
-		instertParams := sqlc.InsertExportParams{
+		insertParams := sqlc.InsertExportParams{
 			ProfileID:                      profile.ID,
-			UserGroups:                     groups,
+			UserGroups:                     exportGroups,
 			ContentOnlyInPreferredLanguage: languages.ContentOnlyInPreferredLanguage,
 			PreferredAudioLanguages:        languages.PreferredAudioLanguages,
 			PreferredSubtitlesLanguages:    languages.PreferredSubtitlesLanguages,
@@ -162,7 +168,7 @@ func (r *queryRootResolver) ExportAsync(ctx context.Context, groups []string, ex
 			ApplicationClientVersion: app.ClientVersion,
 			ApplicationDefaultPageID: app.DefaultPageID,
 		}
-		exportEntry, err := r.Queries.InsertExport(ctx, instertParams)
+		exportEntry, err := r.Queries.InsertExport(ctx, insertParams)
 		if err != nil {
 			return nil, err
 		}
@@ -170,9 +176,13 @@ func (r *queryRootResolver) ExportAsync(ctx context.Context, groups []string, ex
 		e := cloudevents.NewEvent()
 		e.SetSource(events.SourceApi)
 		e.SetType(events.TypeExportStart)
-		e.SetData(cloudevents.ApplicationJSON, &events.StartExport{
+		err = e.SetData(cloudevents.ApplicationJSON, &events.StartExport{
 			ExportID: exportEntry.ID.String(),
 		})
+
+		if err != nil {
+			return nil, err
+		}
 
 		data, err := json.Marshal(e)
 		if r.BackgroundWorkerTopic != nil {
@@ -186,7 +196,7 @@ func (r *queryRootResolver) ExportAsync(ctx context.Context, groups []string, ex
 			}
 
 		} else {
-			log.L.Warn().Err(err).Msg("Falied to publish exportId because there is no topic")
+			log.L.Warn().Err(err).Msg("Failed to publish exportId because there is no topic")
 			return nil, err
 		}
 
