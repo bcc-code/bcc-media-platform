@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
+	"github.com/pkg/errors"
 
 	"cloud.google.com/go/profiler"
 	gpubsub "cloud.google.com/go/pubsub"
@@ -142,6 +143,18 @@ func jwksHandler(config *redirectConfig) gin.HandlerFunc {
 	}
 }
 
+func panicHandler(c *gin.Context, err interface{}) {
+	stackerr := errors.Errorf("panic recovered: %v", err)
+	log.L.Error().
+		Stack().
+		Err(stackerr).
+		Msg("A panic occurred during HTTP request")
+
+	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+		"error": "Internal Server Error",
+	})
+}
+
 func main() {
 	ctx := context.Background()
 	start := time.Now()
@@ -222,7 +235,10 @@ func main() {
 	if environment.Production() {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	r := gin.Default()
+	r := gin.New()
+
+	r.Use(gin.Logger())
+	r.Use(gin.CustomRecovery(panicHandler))
 
 	r.Use(utils.GinContextToContextMiddleware())
 	r.Use(cors.New(cors.Config{
