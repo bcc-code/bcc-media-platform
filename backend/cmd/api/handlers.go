@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
+	"github.com/pkg/errors"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
@@ -91,6 +92,17 @@ func graphqlHandler(
 	// Resolver is in the resolver.go file
 	h := handler.NewDefaultServer(graphapigenerated.NewExecutableSchema(graphapigenerated.Config{Resolvers: &resolver}))
 	h.Use(tracer)
+
+	h.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
+		stackerr := errors.Errorf("panic recovered: %v", err)
+		log.L.Error().
+			Stack().
+			Err(stackerr).
+			Msg("A panic occurred during GraphQL resolve")
+
+		return errors.New("Internal Server Error")
+	})
+
 	h.SetErrorPresenter(func(ctx context.Context, err error) *gqlerror.Error {
 		gqlError := graphql.DefaultErrorPresenter(ctx, err)
 		if code := merry.Value(err, "code"); code != nil {
