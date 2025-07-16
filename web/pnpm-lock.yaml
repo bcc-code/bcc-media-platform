@@ -75,8 +75,8 @@ importers:
         specifier: ^3.5.17
         version: 3.5.17(typescript@5.8.3)
       vue-i18n:
-        specifier: ^10.0.5
-        version: 10.0.5(vue@3.5.17(typescript@5.8.3))
+        specifier: ^10.0.8
+        version: 10.0.8(vue@3.5.17(typescript@5.8.3))
       vue-router:
         specifier: ^4.5.1
         version: 4.5.1(vue@3.5.17(typescript@5.8.3))
@@ -101,7 +101,7 @@ importers:
         version: 3.2.1(graphql-tag@2.12.6(graphql@16.11.0))(graphql@16.11.0)
       '@intlify/unplugin-vue-i18n':
         specifier: ^4.0.0
-        version: 4.0.0(rollup@4.44.1)(vue-i18n@10.0.5(vue@3.5.17(typescript@5.8.3)))
+        version: 4.0.0(rollup@4.44.1)(vue-i18n@10.0.8(vue@3.5.17(typescript@5.8.3)))
       '@tailwindcss/typography':
         specifier: ^0.5.16
         version: 0.5.16(tailwindcss@3.4.16(ts-node@10.9.2(@types/node@20.17.10)(typescript@5.8.3)))
@@ -159,8 +159,8 @@ importers:
 
 packages:
 
-  '@0no-co/graphql.web@1.0.12':
-    resolution: {integrity: sha512-BTDjjsV/zSPy5fqItwm+KWUfh9CSe9tTtR6rCB72ddtkAxdcHbi4Ir4r/L1Et4lyxmL+i7Rb3m9sjLLi9tYrzA==}
+  '@0no-co/graphql.web@1.1.2':
+    resolution: {integrity: sha512-N2NGsU5FLBhT8NZ+3l2YrzZSHITjNXNuDhC4iDiikv0IujaJ0Xc6xIxQZ/Ek3Cb+rgPjnLHYyJm11tInuJn+cw==}
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
     peerDependenciesMeta:
@@ -1007,20 +1007,20 @@ packages:
       vue-i18n:
         optional: true
 
-  '@intlify/core-base@10.0.5':
-    resolution: {integrity: sha512-F3snDTQs0MdvnnyzTDTVkOYVAZOE/MHwRvF7mn7Jw1yuih4NrFYLNYIymGlLmq4HU2iIdzYsZ7f47bOcwY73XQ==}
+  '@intlify/core-base@10.0.8':
+    resolution: {integrity: sha512-FoHslNWSoHjdUBLy35bpm9PV/0LVI/DSv9L6Km6J2ad8r/mm0VaGg06C40FqlE8u2ADcGUM60lyoU7Myo4WNZQ==}
     engines: {node: '>= 16'}
 
-  '@intlify/message-compiler@10.0.5':
-    resolution: {integrity: sha512-6GT1BJ852gZ0gItNZN2krX5QAmea+cmdjMvsWohArAZ3GmHdnNANEcF9JjPXAMRtQ6Ux5E269ymamg/+WU6tQA==}
+  '@intlify/message-compiler@10.0.8':
+    resolution: {integrity: sha512-DV+sYXIkHVd5yVb2mL7br/NEUwzUoLBsMkV3H0InefWgmYa34NLZUvMCGi5oWX+Hqr2Y2qUxnVrnOWF4aBlgWg==}
     engines: {node: '>= 16'}
 
   '@intlify/message-compiler@9.14.2':
     resolution: {integrity: sha512-YsKKuV4Qv4wrLNsvgWbTf0E40uRv+Qiw1BeLQ0LAxifQuhiMe+hfTIzOMdWj/ZpnTDj4RSZtkXjJM7JDiiB5LQ==}
     engines: {node: '>= 16'}
 
-  '@intlify/shared@10.0.5':
-    resolution: {integrity: sha512-bmsP4L2HqBF6i6uaMqJMcFBONVjKt+siGluRq4Ca4C0q7W2eMaVZr8iCgF9dKbcVXutftkC7D6z2SaSMmLiDyA==}
+  '@intlify/shared@10.0.8':
+    resolution: {integrity: sha512-BcmHpb5bQyeVNrptC3UhzpBZB/YHHDoEREOUERrmF2BRxsyOEuRrq+Z96C/D4+2KJb8kuHiouzAei7BXlG0YYw==}
     engines: {node: '>= 16'}
 
   '@intlify/shared@9.14.2':
@@ -1893,6 +1893,15 @@ packages:
 
   debug@4.4.0:
     resolution: {integrity: sha512-6WTZ/IxCY/T6BALoZHaE4ctp9xm+Z5kY/pzYaCHRFeyVhojxlrm+46y68HA6hr0TcwEssoxNiDEUJQjfPZ/RYA==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+
+  debug@4.4.1:
+    resolution: {integrity: sha512-KcKCqiftBJcZr++7ykoDIEwSa3XWowTfNPo92BYxjXiyYEVrUQh2aLyhxBCwww+heortUFxEJYcRzosstTEBYQ==}
     engines: {node: '>=6.0'}
     peerDependencies:
       supports-color: '*'
@@ -3167,6 +3176,11 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  semver@7.7.2:
+    resolution: {integrity: sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   sentence-case@3.0.4:
     resolution: {integrity: sha512-8LS0JInaQMCRoQ7YUytAo/xUu5W2XnQxV2HI/6uM6U7CITS1RqPElr30V6uIqyMKM9lJGRVFy5/4CuzcixNYSg==}
 
@@ -3567,8 +3581,8 @@ packages:
     peerDependencies:
       eslint: '>=6.0.0'
 
-  vue-i18n@10.0.5:
-    resolution: {integrity: sha512-9/gmDlCblz3i8ypu/afiIc/SUIfTTE1mr0mZhb9pk70xo2csHAM9mp2gdQ3KD2O0AM3Hz/5ypb+FycTj/lHlPQ==}
+  vue-i18n@10.0.8:
+    resolution: {integrity: sha512-mIjy4utxMz9lMMo6G9vYePv7gUFt4ztOMhY9/4czDJxZ26xPeJ49MAGa9wBAE3XuXbYCrtVPmPxNjej7JJJkZQ==}
     engines: {node: '>= 16'}
     peerDependencies:
       vue: ^3.0.0
@@ -3601,8 +3615,8 @@ packages:
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
 
-  webcomponents.js@https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e:
-    resolution: {tarball: https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e}
+  webcomponents.js@git+https://git@github.com:webcomponents/webcomponentsjs.git#8a2e40557b177e2cca0def2553f84c8269c8f93e:
+    resolution: {commit: 8a2e40557b177e2cca0def2553f84c8269c8f93e, repo: git@github.com:webcomponents/webcomponentsjs.git, type: git}
     version: 0.7.24
 
   webidl-conversions@3.0.1:
@@ -3624,6 +3638,9 @@ packages:
 
   wonka@6.3.4:
     resolution: {integrity: sha512-CjpbqNtBGNAeyNS/9W6q3kSkKE52+FjIj7AkFlLr11s/VWGUu6a2CdYSdGxocIhIVjaW/zchesBQUKPVU69Cqg==}
+
+  wonka@6.3.5:
+    resolution: {integrity: sha512-SSil+ecw6B4/Dm7Pf2sAshKQ5hWFvfyGlfPbEd6A14dOH6VDjrmbY86u6nZvy9omGwwIPFR8V41+of1EezgoUw==}
 
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
@@ -3720,7 +3737,7 @@ packages:
 
 snapshots:
 
-  '@0no-co/graphql.web@1.0.12(graphql@16.11.0)':
+  '@0no-co/graphql.web@1.1.2(graphql@16.11.0)':
     optionalDependencies:
       graphql: 16.11.0
 
@@ -4786,7 +4803,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@intlify/bundle-utils@8.0.0(vue-i18n@10.0.5(vue@3.5.17(typescript@5.8.3)))':
+  '@intlify/bundle-utils@8.0.0(vue-i18n@10.0.8(vue@3.5.17(typescript@5.8.3)))':
     dependencies:
       '@intlify/message-compiler': 9.14.2
       '@intlify/shared': 9.14.2
@@ -4798,16 +4815,16 @@ snapshots:
       source-map-js: 1.2.1
       yaml-eslint-parser: 1.2.3
     optionalDependencies:
-      vue-i18n: 10.0.5(vue@3.5.17(typescript@5.8.3))
+      vue-i18n: 10.0.8(vue@3.5.17(typescript@5.8.3))
 
-  '@intlify/core-base@10.0.5':
+  '@intlify/core-base@10.0.8':
     dependencies:
-      '@intlify/message-compiler': 10.0.5
-      '@intlify/shared': 10.0.5
+      '@intlify/message-compiler': 10.0.8
+      '@intlify/shared': 10.0.8
 
-  '@intlify/message-compiler@10.0.5':
+  '@intlify/message-compiler@10.0.8':
     dependencies:
-      '@intlify/shared': 10.0.5
+      '@intlify/shared': 10.0.8
       source-map-js: 1.2.1
 
   '@intlify/message-compiler@9.14.2':
@@ -4815,13 +4832,13 @@ snapshots:
       '@intlify/shared': 9.14.2
       source-map-js: 1.2.1
 
-  '@intlify/shared@10.0.5': {}
+  '@intlify/shared@10.0.8': {}
 
   '@intlify/shared@9.14.2': {}
 
-  '@intlify/unplugin-vue-i18n@4.0.0(rollup@4.44.1)(vue-i18n@10.0.5(vue@3.5.17(typescript@5.8.3)))':
+  '@intlify/unplugin-vue-i18n@4.0.0(rollup@4.44.1)(vue-i18n@10.0.8(vue@3.5.17(typescript@5.8.3)))':
     dependencies:
-      '@intlify/bundle-utils': 8.0.0(vue-i18n@10.0.5(vue@3.5.17(typescript@5.8.3)))
+      '@intlify/bundle-utils': 8.0.0(vue-i18n@10.0.8(vue@3.5.17(typescript@5.8.3)))
       '@intlify/shared': 9.14.2
       '@rollup/pluginutils': 5.1.3(rollup@4.44.1)
       '@vue/compiler-sfc': 3.5.13
@@ -4834,7 +4851,7 @@ snapshots:
       source-map-js: 1.2.1
       unplugin: 1.16.0
     optionalDependencies:
-      vue-i18n: 10.0.5(vue@3.5.17(typescript@5.8.3))
+      vue-i18n: 10.0.8(vue@3.5.17(typescript@5.8.3))
     transitivePeerDependencies:
       - rollup
       - supports-color
@@ -5072,7 +5089,7 @@ snapshots:
   '@silvermine/videojs-chromecast@1.5.0(video.js@8.21.0)':
     dependencies:
       video.js: 8.21.0
-      webcomponents.js: https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e
+      webcomponents.js: git+https://git@github.com:webcomponents/webcomponentsjs.git#8a2e40557b177e2cca0def2553f84c8269c8f93e
 
   '@sindresorhus/merge-streams@2.3.0':
     optional: true
@@ -5231,8 +5248,8 @@ snapshots:
 
   '@urql/core@5.1.0(graphql@16.11.0)':
     dependencies:
-      '@0no-co/graphql.web': 1.0.12(graphql@16.11.0)
-      wonka: 6.3.4
+      '@0no-co/graphql.web': 1.1.2(graphql@16.11.0)
+      wonka: 6.3.5
     transitivePeerDependencies:
       - graphql
 
@@ -5876,6 +5893,10 @@ snapshots:
   debounce@1.2.1: {}
 
   debug@4.4.0:
+    dependencies:
+      ms: 2.1.3
+
+  debug@4.4.1:
     dependencies:
       ms: 2.1.3
 
@@ -7177,6 +7198,8 @@ snapshots:
 
   semver@7.6.3: {}
 
+  semver@7.7.2: {}
+
   sentence-case@3.0.4:
     dependencies:
       no-case: 3.0.4
@@ -7610,21 +7633,21 @@ snapshots:
 
   vue-eslint-parser@9.4.3(eslint@9.30.1(jiti@2.4.1)):
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.1
       eslint: 9.30.1(jiti@2.4.1)
       eslint-scope: 7.2.2
       eslint-visitor-keys: 3.4.3
       espree: 9.6.1
       esquery: 1.6.0
       lodash: 4.17.21
-      semver: 7.6.3
+      semver: 7.7.2
     transitivePeerDependencies:
       - supports-color
 
-  vue-i18n@10.0.5(vue@3.5.17(typescript@5.8.3)):
+  vue-i18n@10.0.8(vue@3.5.17(typescript@5.8.3)):
     dependencies:
-      '@intlify/core-base': 10.0.5
-      '@intlify/shared': 10.0.5
+      '@intlify/core-base': 10.0.8
+      '@intlify/shared': 10.0.8
       '@vue/devtools-api': 6.6.4
       vue: 3.5.17(typescript@5.8.3)
 
@@ -7660,7 +7683,7 @@ snapshots:
     dependencies:
       defaults: 1.0.4
 
-  webcomponents.js@https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e: {}
+  webcomponents.js@git+https://git@github.com:webcomponents/webcomponentsjs.git#8a2e40557b177e2cca0def2553f84c8269c8f93e: {}
 
   webidl-conversions@3.0.1: {}
 
@@ -7678,6 +7701,8 @@ snapshots:
       isexe: 2.0.0
 
   wonka@6.3.4: {}
+
+  wonka@6.3.5: {}
 
   word-wrap@1.2.5: {}
 
