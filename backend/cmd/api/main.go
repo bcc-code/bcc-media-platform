@@ -63,12 +63,7 @@ func personalizedLoaderFactory(
 		}
 
 		var roles []string
-		if err != nil {
-			log.L.Error().Err(err).Msg("failed to get gin ctx from context")
-			roles = []string{"unknown"}
-		} else {
-			roles = user.GetRolesFromCtx(ginCtx)
-		}
+		roles = user.GetRolesFromCtx(ginCtx)
 
 		langPreferences := common.GetLanguagePreferencesFromCtx(ginCtx)
 
@@ -143,7 +138,7 @@ func jwksHandler(config *redirectConfig) gin.HandlerFunc {
 	}
 }
 
-func panicHandler(c *gin.Context, err interface{}) {
+func panicHandler(c *gin.Context, err any) {
 	stackerr := errors.Errorf("panic recovered: %v", err)
 	log.L.Error().
 		Stack().

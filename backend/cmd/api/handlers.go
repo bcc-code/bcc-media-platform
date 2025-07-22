@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
-	"github.com/pkg/errors"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
@@ -94,13 +94,13 @@ func graphqlHandler(
 	h.Use(tracer)
 
 	h.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
-		stackerr := errors.Errorf("panic recovered: %v", err)
+		stackerr := fmt.Errorf("panic recovered: %v", err)
 		log.L.Error().
 			Stack().
 			Err(stackerr).
 			Msg("A panic occurred during GraphQL resolve")
 
-		return errors.New("Internal Server Error")
+		return fmt.Errorf("Internal Server Error")
 	})
 
 	h.SetErrorPresenter(func(ctx context.Context, err error) *gqlerror.Error {
@@ -166,7 +166,6 @@ func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, lo
 		log.L.Debug().Msg("No secret for Directus found in environment. Disabling endpoint")
 		return func(c *gin.Context) {
 			c.AbortWithStatus(404)
-			return
 		}
 	}
 
