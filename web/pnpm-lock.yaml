@@ -51,8 +51,8 @@ importers:
         specifier: ^2.2.6
         version: 2.2.6(rollup@4.44.1)(vue@3.5.17(typescript@5.8.3))
       bccm-video-player:
-        specifier: 1.5.7
-        version: 1.5.7
+        specifier: 1.6.0
+        version: 1.6.0
       graphql:
         specifier: ^16.11.0
         version: 16.11.0
@@ -1676,8 +1676,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  bccm-video-player@1.5.7:
-    resolution: {integrity: sha512-2wXggO6kxsF0URMexT2q/5Ig44LvhAfWErONQEF9i59LbbaHrR9zfoSG95I7GT4wkqt1gHQCQTrLQoeKiNuA1w==}
+  bccm-video-player@1.6.0:
+    resolution: {integrity: sha512-eyeEldOwXCD9lMEXm5q2o/TebZCQBAJXMj5NlxwDHdh3Dye7wmdFkOyGeaNe4HLM3Y8gZBTegOLwX7u9L08xAQ==}
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
@@ -2305,6 +2305,9 @@ packages:
   hey-listen@1.0.8:
     resolution: {integrity: sha512-COpmrF2NOg4TBWUJ5UVyaCU2A88wEMkUPK4hNqyCkqHbxT92BbvfjoSozkAIIm6XhicGlJHhFdullInrdhwU8Q==}
 
+  hls-parser@0.10.6:
+    resolution: {integrity: sha512-t9bKB1fDDVajh5CY/qeZanNMnCm4hAWMroDlflnuboOskYR26z29bEyOYwQRP1MxP2Y83UC2J93DQCC1AMhBCA==}
+
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
 
@@ -2501,6 +2504,9 @@ packages:
   jsonc-eslint-parser@2.4.0:
     resolution: {integrity: sha512-WYDyuc/uFcGp6YtM2H0uKmUwieOuzeE/5YocFJLnLfclZ4inf3mRn8ZVy1s7Hxji7Jxm6Ss8gqpexD/GlKoGgg==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  jsstore@4.9.0:
+    resolution: {integrity: sha512-5eApM5QO8LQu1L2of8cIyFRKMZ6Dch6NBFbqDHkBUFjXSEoj/rZtfZw9tTgKQ5Lcp6+8jyGmfKuuAsqbBGOKow==}
 
   keycode@2.2.1:
     resolution: {integrity: sha512-Rdgz9Hl9Iv4QKi8b0OlCRQEzp4AgVxyCtz5S/+VIHezDmrDhkp2N2TqBWOLz0/gbeREXOOiI9/4b8BY9uw2vFg==}
@@ -2815,6 +2821,14 @@ packages:
   normalize-range@0.1.2:
     resolution: {integrity: sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==}
     engines: {node: '>=0.10.0'}
+
+  npaw-plugin-adapters@7.3.14:
+    resolution: {integrity: sha512-JZozqetkpTJiMq8M+WCD6gjFM2YBtihaAKcCUlC/rWo0kFUzctbK1EIsO+6bIKzRHLGdCpJhSmlgBUdxXiyigw==}
+    engines: {node: '>= 10.13'}
+
+  npaw-plugin-nwf@7.3.14:
+    resolution: {integrity: sha512-Q5mzw7DMcPloyfGzHyQOlpVbFUA1pAmODkercaNdHntX9yZ9f76wFeEUfPt9Yg3XrOKwxcShp/WOqInXrcCMAw==}
+    engines: {node: '>= 10.13'}
 
   npm-run-path@5.3.0:
     resolution: {integrity: sha512-ppwTtiJZq0O/ai0z7yfudtBpWIoxM8yE6nHi1X47eFR2EWORqfbu6CnPlNsjeN683eT0qG6H/Pyf9fCcvjnnnQ==}
@@ -3708,15 +3722,6 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
-
-  youbora-adapter-freewheel@6.8.5:
-    resolution: {integrity: sha512-knHzY9lYuXx/UiK5fhjj/WLFf1WkXLcU35aK7Rhh7qDHl9Q2XNx3JjJHJe/UjwJx8IsNTzgkdnGcIt7e56gOUw==}
-
-  youbora-adapter-videojs@6.8.21:
-    resolution: {integrity: sha512-9FEVfPfQEi+MrpkXBljDcZ4EcSIh98vWtp8EaG1ZaDnHygnmi3BWDOlASuOp6xbIBwUXol+AEShHZ+5zrqH2bQ==}
-
-  youboralib@6.8.59:
-    resolution: {integrity: sha512-t4Xse1cj2CdqkdwWIjUvkLsLQhhZpBTBrcl7cm31lzT3Mew4wVEAfXHhqMPuLy9g7NyY0JMAAM8EIxi3UIT4QA==}
 
 snapshots:
 
@@ -5618,18 +5623,18 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  bccm-video-player@1.5.7:
+  bccm-video-player@1.6.0:
     dependencies:
       '@silvermine/videojs-chromecast': 1.5.0(video.js@8.21.0)
       graphql: 16.11.0
       graphql-request: 7.1.2(graphql@16.11.0)
+      npaw-plugin-adapters: 7.3.14
+      npaw-plugin-nwf: 7.3.14
       ua-parser-js: 1.0.39
       video.js: 8.21.0
       videojs-contrib-quality-levels: 4.1.0(video.js@8.21.0)
       videojs-event-tracking: 1.0.3
       videojs-mux: 4.20.3
-      youbora-adapter-videojs: 6.8.21
-      youboralib: 6.8.59
 
   binary-extensions@2.3.0: {}
 
@@ -6351,6 +6356,8 @@ snapshots:
 
   hey-listen@1.0.8: {}
 
+  hls-parser@0.10.6: {}
+
   hookable@5.5.3:
     optional: true
 
@@ -6530,6 +6537,8 @@ snapshots:
       eslint-visitor-keys: 3.4.3
       espree: 9.6.1
       semver: 7.6.3
+
+  jsstore@4.9.0: {}
 
   keycode@2.2.1: {}
 
@@ -6817,6 +6826,15 @@ snapshots:
   normalize-path@3.0.0: {}
 
   normalize-range@0.1.2: {}
+
+  npaw-plugin-adapters@7.3.14: {}
+
+  npaw-plugin-nwf@7.3.14:
+    dependencies:
+      hls-parser: 0.10.6
+      jsstore: 4.9.0
+      mpd-parser: 1.3.1
+      uuid: 9.0.1
 
   npm-run-path@5.3.0:
     dependencies:
@@ -7758,14 +7776,3 @@ snapshots:
   yn@3.1.1: {}
 
   yocto-queue@0.1.0: {}
-
-  youbora-adapter-freewheel@6.8.5:
-    dependencies:
-      youboralib: 6.8.59
-
-  youbora-adapter-videojs@6.8.21:
-    dependencies:
-      youbora-adapter-freewheel: 6.8.5
-      youboralib: 6.8.59
-
-  youboralib@6.8.59: {}
