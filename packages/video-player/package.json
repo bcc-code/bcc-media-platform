@@ -24,13 +24,13 @@
         "@silvermine/videojs-chromecast": "^1.5.0",
         "graphql": "^16.9.0",
         "graphql-request": "^7.1.2",
+        "npaw-plugin-nwf": "^7.3.14",
+        "npaw-plugin-adapters": "^7.3.14",
         "ua-parser-js": "^1.0.39",
         "video.js": "^8.20.0",
         "videojs-contrib-quality-levels": "^4.1.0",
         "videojs-event-tracking": "^1.0.3",
-        "videojs-mux": "^4.20.3",
-        "youbora-adapter-videojs": "^6.8.21",
-        "youboralib": "^6.8.59"
+        "videojs-mux": "^4.20.3"
     },
     "devDependencies": {
         "@types/node": "^18.18.4",

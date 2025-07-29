@@ -17,6 +17,12 @@ importers:
       graphql-request:
         specifier: ^7.1.2
         version: 7.1.2(graphql@16.9.0)
+      npaw-plugin-adapters:
+        specifier: ^7.3.14
+        version: 7.3.14
+      npaw-plugin-nwf:
+        specifier: ^7.3.14
+        version: 7.3.14
       ua-parser-js:
         specifier: ^1.0.39
         version: 1.0.39
@@ -32,12 +38,6 @@ importers:
       videojs-mux:
         specifier: ^4.20.3
         version: 4.20.3
-      youbora-adapter-videojs:
-        specifier: ^6.8.21
-        version: 6.8.21
-      youboralib:
-        specifier: ^6.8.59
-        version: 6.8.59
     devDependencies:
       '@types/node':
         specifier: ^18.18.4
@@ -590,6 +590,9 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
+  hls-parser@0.10.6:
+    resolution: {integrity: sha512-t9bKB1fDDVajh5CY/qeZanNMnCm4hAWMroDlflnuboOskYR26z29bEyOYwQRP1MxP2Y83UC2J93DQCC1AMhBCA==}
+
   immutable@5.0.2:
     resolution: {integrity: sha512-1NU7hWZDkV7hJ4PJ9dur9gTNQ4ePNPN4k9/0YhwjzykTi/+3Q5pF93YU5QoVj8BuOnhLgaY8gs0U2pj4kSYVcw==}
 
@@ -607,6 +610,9 @@ packages:
   is-number@7.0.0:
     resolution: {integrity: sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==}
     engines: {node: '>=0.12.0'}
+
+  jsstore@4.9.0:
+    resolution: {integrity: sha512-5eApM5QO8LQu1L2of8cIyFRKMZ6Dch6NBFbqDHkBUFjXSEoj/rZtfZw9tTgKQ5Lcp6+8jyGmfKuuAsqbBGOKow==}
 
   m3u8-parser@7.2.0:
     resolution: {integrity: sha512-CRatFqpjVtMiMaKXxNvuI3I++vUumIXVVT/JpCpdU/FynV/ceVw1qpPyyBNindL+JlPMSesx+WX1QJaZEJSaMQ==}
@@ -647,6 +653,14 @@ packages:
 
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
+
+  npaw-plugin-adapters@7.3.14:
+    resolution: {integrity: sha512-JZozqetkpTJiMq8M+WCD6gjFM2YBtihaAKcCUlC/rWo0kFUzctbK1EIsO+6bIKzRHLGdCpJhSmlgBUdxXiyigw==}
+    engines: {node: '>= 10.13'}
+
+  npaw-plugin-nwf@7.3.14:
+    resolution: {integrity: sha512-Q5mzw7DMcPloyfGzHyQOlpVbFUA1pAmODkercaNdHntX9yZ9f76wFeEUfPt9Yg3XrOKwxcShp/WOqInXrcCMAw==}
+    engines: {node: '>= 10.13'}
 
   path-browserify@1.0.1:
     resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
@@ -716,6 +730,10 @@ packages:
 
   undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
+
+  uuid@9.0.1:
+    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    hasBin: true
 
   video.js@8.20.0:
     resolution: {integrity: sha512-VyXY/DbtfaI22gpWJdo8bmTcpPRfKg0SeQJBusRdIJF1RMI+er1BHpRreg67s5Qfd9ZeSbfKShUOwaxRft/tBw==}
@@ -798,15 +816,6 @@ packages:
   webcomponents.js@https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e:
     resolution: {tarball: https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e}
     version: 0.7.24
-
-  youbora-adapter-freewheel@6.8.5:
-    resolution: {integrity: sha512-knHzY9lYuXx/UiK5fhjj/WLFf1WkXLcU35aK7Rhh7qDHl9Q2XNx3JjJHJe/UjwJx8IsNTzgkdnGcIt7e56gOUw==}
-
-  youbora-adapter-videojs@6.8.21:
-    resolution: {integrity: sha512-9FEVfPfQEi+MrpkXBljDcZ4EcSIh98vWtp8EaG1ZaDnHygnmi3BWDOlASuOp6xbIBwUXol+AEShHZ+5zrqH2bQ==}
-
-  youboralib@6.8.59:
-    resolution: {integrity: sha512-t4Xse1cj2CdqkdwWIjUvkLsLQhhZpBTBrcl7cm31lzT3Mew4wVEAfXHhqMPuLy9g7NyY0JMAAM8EIxi3UIT4QA==}
 
 snapshots:
 
@@ -1249,6 +1258,8 @@ snapshots:
 
   he@1.2.0: {}
 
+  hls-parser@0.10.6: {}
+
   immutable@5.0.2: {}
 
   is-extglob@2.1.1:
@@ -1263,6 +1274,8 @@ snapshots:
 
   is-number@7.0.0:
     optional: true
+
+  jsstore@4.9.0: {}
 
   m3u8-parser@7.2.0:
     dependencies:
@@ -1308,6 +1321,15 @@ snapshots:
 
   node-addon-api@7.1.1:
     optional: true
+
+  npaw-plugin-adapters@7.3.14: {}
+
+  npaw-plugin-nwf@7.3.14:
+    dependencies:
+      hls-parser: 0.10.6
+      jsstore: 4.9.0
+      mpd-parser: 1.3.1
+      uuid: 9.0.1
 
   path-browserify@1.0.1: {}
 
@@ -1381,6 +1403,8 @@ snapshots:
 
   undici-types@5.26.5: {}
 
+  uuid@9.0.1: {}
+
   video.js@8.20.0:
     dependencies:
       '@babel/runtime': 7.26.0
@@ -1445,14 +1469,3 @@ snapshots:
       typescript: 5.7.2
 
   webcomponents.js@https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e: {}
-
-  youbora-adapter-freewheel@6.8.5:
-    dependencies:
-      youboralib: 6.8.59
-
-  youbora-adapter-videojs@6.8.21:
-    dependencies:
-      youbora-adapter-freewheel: 6.8.5
-      youboralib: 6.8.59
-
-  youboralib@6.8.59: {}

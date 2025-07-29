@@ -1,5 +1,5 @@
-import lib from "youboralib"
-import Adapter from "youbora-adapter-videojs"
+import NpawPlugin from "npaw-plugin-nwf"
+import NpawAdapters from "npaw-plugin-adapters"
 import type { Player } from "./index"
 
 export interface NPAWOptions {
@@ -54,12 +54,11 @@ export function enableNPAW(player: Player, options: NPAWOptions) {
         )
         return
     }
-    const npaw = new lib.Plugin({ accountCode: options.accountCode })
-
+    const npaw = new NpawPlugin(options.accountCode)
     const defaults = toConfig(options)
 
-    npaw.setOptions(defaults)
-    npaw.setAdapter(new Adapter(player)) // Attach adapter
+    npaw.setAnalyticsOptions(defaults)
+    npaw.registerAdapterFromClass(player, NpawAdapters.video.Videojs)
 
     ;(player as any)._npaw = npaw
 }
