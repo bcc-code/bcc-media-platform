@@ -23,6 +23,7 @@ import { generateUUID } from '@/utils/uuid'
 import { BMM } from '@/services/bmm'
 import { getOperatingSystem } from '@/utils/userAgent'
 import { ProcessWatchedCommandEvent } from '@bcc-code/bmm-sdk-fetch'
+import { useEventListener } from '@vueuse/core'
 
 const { isAuthenticated } = useAuth0()
 
@@ -77,22 +78,6 @@ const updateEpisodeProgress = async (episode: {
 
 let lastProgress = props.episode.progress
 const loaded = ref(false)
-
-const onSpaceBar = (event: KeyboardEvent) => {
-    if (event.type === 'keydown') {
-        if (event.key === ' ') {
-            event.preventDefault()
-
-            if (!player.value) return
-
-            if (player.value.paused()) {
-                player.value.play()
-            } else {
-                player.value.pause()
-            }
-        }
-    }
-}
 
 const load = async () => {
     const episodeId = props.episode.uuid
@@ -290,14 +275,55 @@ onUpdated(load)
 
 onMounted(() => {
     load()
-    window.addEventListener('keydown', onSpaceBar)
 })
 
 onUnmounted(async () => {
     await checkProgress(true)
     player.value?.dispose()
-    window.removeEventListener('keydown', onSpaceBar)
 })
+
+const doTogglePlay = () => {
+    if (!player.value) return
+    if (player.value.paused()) {
+        player.value.play()
+    } else {
+        player.value.pause()
+    }
+}
+const doPlayerSkip = (seconds: number) => {
+    const currentTime = player.value?.currentTime()
+    if (!player.value || !currentTime) return
+    player.value.currentTime(currentTime + seconds)
+}
+const onKeyDown = (event: KeyboardEvent) => {
+    if (!player.value) return
+    if (event.type === 'keydown') {
+        switch (event.key) {
+            case ' ':
+            case 'k':
+                event.preventDefault()
+                doTogglePlay()
+                break
+            case 'ArrowLeft':
+                event.preventDefault()
+                doPlayerSkip(-5)
+                break
+            case 'ArrowRight':
+                event.preventDefault()
+                doPlayerSkip(5)
+                break
+            case 'j':
+                event.preventDefault()
+                doPlayerSkip(-10)
+                break
+            case 'l':
+                event.preventDefault()
+                doPlayerSkip(10)
+                break
+        }
+    }
+}
+useEventListener('keydown', onKeyDown)
 
 defineExpose({
     player,
