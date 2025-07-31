@@ -32,6 +32,7 @@ import (
 	"github.com/bcc-code/bmm-sdk-golang"
 	"github.com/gin-gonic/gin"
 	"github.com/vektah/gqlparser/v2/gqlerror"
+	"strconv"
 )
 
 // Defining the Graphql handler
@@ -177,5 +178,34 @@ func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, lo
 		}
 
 		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+// topbarSearchHandler handles topbar search requests
+func topbarSearchHandler(searchService *search.Service) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		term := c.Param("term")
+		if term == "" {
+			c.JSON(400, gin.H{"error": "Search term is required"})
+			return
+		}
+
+		sizeStr := c.DefaultQuery("size", "20")
+		size := 20
+		if s, err := strconv.Atoi(sizeStr); err == nil && s > 0 {
+			size = s
+			if size > 50 {
+				size = 50
+			}
+		}
+
+		results, err := searchService.TopbarSearch(c, term, size)
+		if err != nil {
+			log.L.Error().Err(err).Str("term", term).Msg("Topbar search failed")
+			c.JSON(500, gin.H{"error": "Search failed"})
+			return
+		}
+
+		c.JSON(200, results)
 	}
 }

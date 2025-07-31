@@ -9,6 +9,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"github.com/samber/lo"
@@ -160,4 +161,60 @@ func New(queries *sqlc.Queries, config Config) *Service {
 	}
 
 	return &service
+}
+
+// TopbarSearch performs a search optimized for the topbar dropdown
+func (service *Service) TopbarSearch(ctx *gin.Context, term string, size int) ([]common.TopbarSearchResult, error) {
+	if size > 50 {
+		size = 50
+	}
+	if size <= 0 {
+		size = 20
+	}
+
+	query := common.SearchQuery{
+		Query:  term,
+		Limit:  &size,
+		Offset: lo.ToPtr(0),
+	}
+
+	searchResult, err := service.SearchElastic(ctx, query, "")
+	if err != nil {
+		return nil, err
+	}
+
+	results := make([]common.TopbarSearchResult, 0, len(searchResult.Result))
+	for _, item := range searchResult.Result {
+		subtitle := ""
+		if item.Show != nil && item.Season != nil {
+			subtitle = *item.Show + " • " + *item.Season
+		} else if item.Show != nil {
+			subtitle = *item.Show
+		} else if item.Season != nil {
+			subtitle = *item.Season
+		}
+
+		imageURL := ""
+		if item.Image != nil {
+			imageURL = *item.Image
+		}
+
+		url := item.Url
+		if url == "" {
+			// Generate URL from collection and ID if not already set
+			url = getUrl(item.Collection, item.ID)
+		}
+		if url != "" {
+			url += "?utm_source=topbarsearch"
+		}
+
+		results = append(results, common.TopbarSearchResult{
+			Title:    item.Title,
+			Subtitle: subtitle,
+			Image:    imageURL,
+			URL:      url,
+		})
+	}
+
+	return results, nil
 }
