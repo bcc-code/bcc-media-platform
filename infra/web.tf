@@ -189,10 +189,11 @@ resource "google_compute_target_http_proxy" "website-redirect" {
 }
 
 resource "google_compute_global_forwarding_rule" "website-redirect" {
-  name       = "website-redirect"
-  project    = google_project.brunstadtv.project_id
-  target     = google_compute_target_http_proxy.website-redirect.self_link
-  ip_address = google_compute_global_address.website.address
-  port_range = "80"
+  name                  = "website-redirect"
+  project               = google_project.brunstadtv.project_id
+  target                = google_compute_target_http_proxy.website-redirect.self_link
+  ip_address            = google_compute_global_address.website.address
+  port_range            = "80"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
 }
 
