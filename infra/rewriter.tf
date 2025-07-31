@@ -126,9 +126,10 @@ resource "google_compute_region_network_endpoint_group" "rewriter_neg" {
 }
 
 resource "google_compute_backend_service" "rewriter" {
-  name       = "rewriter"
-  project    = google_project.brunstadtv.project_id
-  enable_cdn = true
+  name                  = "rewriter"
+  project               = google_project.brunstadtv.project_id
+  enable_cdn            = true
+  load_balancing_scheme = "EXTERNAL_MANAGED"
 
   backend {
     group = google_compute_region_network_endpoint_group.rewriter_neg.id
