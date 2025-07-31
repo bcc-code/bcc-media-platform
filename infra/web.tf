@@ -125,10 +125,10 @@ resource "google_compute_url_map" "website" {
 }
 
 resource "google_compute_target_https_proxy" "website" {
-  provider         = google
-  project          = google_project.brunstadtv.project_id
-  name             = "website-target-proxy"
-  url_map          = google_compute_url_map.website.self_link
+  provider = google
+  project  = google_project.brunstadtv.project_id
+  name     = "website-target-proxy"
+  url_map  = google_compute_url_map.website.self_link
   ssl_certificates = flatten([
     var.additional_key_path != "" ? [google_compute_ssl_certificate.additional_cert[0].self_link] : [],
     google_compute_managed_ssl_certificate.website.self_link,
@@ -142,7 +142,7 @@ resource "google_compute_global_forwarding_rule" "default" {
   provider              = google
   project               = google_project.brunstadtv.project_id
   name                  = "website-forwarding-rule"
-  load_balancing_scheme = "EXTERNAL"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
   ip_address            = google_compute_global_address.website.address
   ip_protocol           = "TCP"
   port_range            = "443"
@@ -189,10 +189,11 @@ resource "google_compute_target_http_proxy" "website-redirect" {
 }
 
 resource "google_compute_global_forwarding_rule" "website-redirect" {
-  name       = "website-redirect"
-  project    = google_project.brunstadtv.project_id
-  target     = google_compute_target_http_proxy.website-redirect.self_link
-  ip_address = google_compute_global_address.website.address
-  port_range = "80"
+  name                  = "website-redirect"
+  project               = google_project.brunstadtv.project_id
+  target                = google_compute_target_http_proxy.website-redirect.self_link
+  ip_address            = google_compute_global_address.website.address
+  port_range            = "80"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
 }
 
