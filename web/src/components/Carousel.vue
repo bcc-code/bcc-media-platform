@@ -1,7 +1,7 @@
 <script lang="ts" setup generic="TSliderItem extends { id: string }">
 import { SectionSize } from '@/graph/generated'
 import TSwiper from 'swiper'
-import { Navigation, Pagination } from 'swiper/modules'
+import { Navigation, Pagination, Mousewheel, FreeMode } from 'swiper/modules'
 import type { SwiperOptions } from 'swiper/types'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { computed, ref } from 'vue'
@@ -36,7 +36,7 @@ const effectiveBreakpoints = computed(() => {
     return props.breakpoints ?? Breakpoints(props.size)
 })
 
-const modules = [Navigation, Pagination]
+const modules = [Navigation, Pagination, Mousewheel, FreeMode]
 
 const onswipe = (swiper: TSwiper) => {
     swiper.on('progress', () => {
@@ -71,10 +71,15 @@ const onswipe = (swiper: TSwiper) => {
             :breakpoints="effectiveBreakpoints"
             :modules="modules"
             :lazy="true"
+            :free-mode="true"
             :navigation="{
                 enabled: true,
                 prevEl: prev,
                 nextEl: next,
+            }"
+            :mousewheel="{
+                enabled: true,
+                forceToAxis: true,
             }"
             @swiper="onswipe"
         >
