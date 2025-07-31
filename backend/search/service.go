@@ -200,13 +200,12 @@ func (service *Service) TopbarSearch(ctx *gin.Context, term string, size int) ([
 		}
 
 		url := item.Url
+
 		if url == "" {
-			// Generate URL from collection and ID if not already set
-			url = getUrl(item.Collection, item.ID)
+			continue
 		}
-		if url != "" {
-			url += "?utm_source=topbarsearch"
-		}
+
+		url += "?src=topbarsearch"
 
 		results = append(results, common.TopbarSearchResult{
 			Title:    item.Title,
