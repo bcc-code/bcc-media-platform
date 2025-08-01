@@ -183,6 +183,14 @@ func (service *Service) TopbarSearch(ctx *gin.Context, term string, size int) ([
 		return nil, err
 	}
 
+	// Get application from context
+	app, err := common.GetApplicationFromCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	urlPrefix := app.WebPrefix.String
+
 	results := make([]common.TopbarSearchResult, 0, len(searchResult.Result))
 	for _, item := range searchResult.Result {
 		subtitle := ""
@@ -199,7 +207,7 @@ func (service *Service) TopbarSearch(ctx *gin.Context, term string, size int) ([
 			imageURL = *item.Image
 		}
 
-		url := item.Url
+		url := urlPrefix + item.Url
 
 		if url == "" {
 			continue

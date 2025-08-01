@@ -35,6 +35,7 @@ func mapToApplications(applications []getApplicationsRow) []common.Application {
 			GamesPageID:         p.GamesPageID,
 			RelatedCollectionID: p.StandaloneRelatedCollectionID,
 			SupportEmail:        p.SupportEmail,
+			WebPrefix:           p.WebPrefix,
 			Roles:               p.Roles,
 			LivestreamRoles:     p.LivestreamRoles,
 		}
@@ -69,8 +70,9 @@ func (q *Queries) GetApplicationGroups(ctx context.Context, ids []uuid.UUID) ([]
 	}
 	return lo.Map(rows, func(i getApplicationGroupsRow, _ int) common.ApplicationGroup {
 		return common.ApplicationGroup{
-			ID:    i.ID,
-			Roles: i.Roles,
+			ID:        i.ID,
+			WebPrefix: i.WebPrefix,
+			Roles:     i.Roles,
 
 			DefaultLanguagePreferences: common.LanguagePreferences{
 				ContentOnlyInPreferredLanguage: i.OnlyContentInPreferredLanguages,

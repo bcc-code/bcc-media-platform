@@ -449,6 +449,7 @@ type Application struct {
 	GamesPageID         null.Int
 	RelatedCollectionID null.Int
 	SupportEmail        null.String
+	WebPrefix           null.String
 	Roles               []string
 	LivestreamRoles     []string
 }
@@ -460,8 +461,9 @@ func (i Application) GetKey() int {
 
 // ApplicationGroup contains data for
 type ApplicationGroup struct {
-	ID    uuid.UUID
-	Roles []string
+	ID        uuid.UUID
+	WebPrefix null.String
+	Roles     []string
 
 	DefaultLanguagePreferences LanguagePreferences
 }

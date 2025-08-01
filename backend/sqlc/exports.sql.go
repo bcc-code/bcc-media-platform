@@ -56,7 +56,7 @@ INSERT INTO users.exports (
     application_clientVersion,
     application_default_page_id
 ) VALUES (
-    DEFAULT,    
+    DEFAULT,
     $1,
     $2,
     DEFAULT,
