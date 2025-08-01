@@ -45,6 +45,7 @@ WITH roles AS (SELECT r.applicationgroups_id,
                FROM applicationgroups_usergroups r
                GROUP BY r.applicationgroups_id)
 SELECT g.id,
+       g.web_prefix,
        COALESCE(r.roles, '{}')::varchar[] AS roles,
        array_remove(array_agg(DISTINCT al.languages_code), NULL)::text[]  AS default_preferred_audio_languages,
        array_remove(array_agg(DISTINCT pas.languages_code), NULL)::text[] AS default_preferred_subtitle_languages,
@@ -54,15 +55,16 @@ FROM applicationgroups g
          LEFT JOIN applicationgroups_languages al ON al.applicationgroups_id = g.id
          LEFT JOIN applicationgroups_languages_subs pas ON pas.applicationgroups_id = g.id
 WHERE g.id = ANY ($1::uuid[])
-GROUP BY g.id, r.roles
+GROUP BY g.id, g.web_prefix, r.roles
 `
 
 type getApplicationGroupsRow struct {
-	ID                                uuid.UUID `db:"id" json:"id"`
-	Roles                             []string  `db:"roles" json:"roles"`
-	DefaultPreferredAudioLanguages    []string  `db:"default_preferred_audio_languages" json:"defaultPreferredAudioLanguages"`
-	DefaultPreferredSubtitleLanguages []string  `db:"default_preferred_subtitle_languages" json:"defaultPreferredSubtitleLanguages"`
-	OnlyContentInPreferredLanguages   bool      `db:"only_content_in_preferred_languages" json:"onlyContentInPreferredLanguages"`
+	ID                                uuid.UUID      `db:"id" json:"id"`
+	WebPrefix                         null_v4.String `db:"web_prefix" json:"webPrefix"`
+	Roles                             []string       `db:"roles" json:"roles"`
+	DefaultPreferredAudioLanguages    []string       `db:"default_preferred_audio_languages" json:"defaultPreferredAudioLanguages"`
+	DefaultPreferredSubtitleLanguages []string       `db:"default_preferred_subtitle_languages" json:"defaultPreferredSubtitleLanguages"`
+	OnlyContentInPreferredLanguages   bool           `db:"only_content_in_preferred_languages" json:"onlyContentInPreferredLanguages"`
 }
 
 func (q *Queries) getApplicationGroups(ctx context.Context, id []uuid.UUID) ([]getApplicationGroupsRow, error) {
@@ -76,6 +78,7 @@ func (q *Queries) getApplicationGroups(ctx context.Context, id []uuid.UUID) ([]g
 		var i getApplicationGroupsRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.WebPrefix,
 			pq.Array(&i.Roles),
 			pq.Array(&i.DefaultPreferredAudioLanguages),
 			pq.Array(&i.DefaultPreferredSubtitleLanguages),
@@ -141,6 +144,7 @@ SELECT a.id::int                                 AS id,
        a.games_page_id                           AS games_page_id,
        a.standalone_related_collection_id        AS standalone_related_collection_id,
        g.support_email                           AS support_email,
+       g.web_prefix                              AS web_prefix,
        COALESCE(r.roles, '{}')::varchar[]        AS roles,
        COALESCE(ls_roles.roles, '{}')::varchar[] AS livestream_roles
 FROM applications a
@@ -168,6 +172,7 @@ type getApplicationsRow struct {
 	GamesPageID                   null_v4.Int    `db:"games_page_id" json:"gamesPageId"`
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionId"`
 	SupportEmail                  null_v4.String `db:"support_email" json:"supportEmail"`
+	WebPrefix                     null_v4.String `db:"web_prefix" json:"webPrefix"`
 	Roles                         []string       `db:"roles" json:"roles"`
 	LivestreamRoles               []string       `db:"livestream_roles" json:"livestreamRoles"`
 }
@@ -194,6 +199,7 @@ func (q *Queries) getApplications(ctx context.Context, dollar_1 []int32) ([]getA
 			&i.GamesPageID,
 			&i.StandaloneRelatedCollectionID,
 			&i.SupportEmail,
+			&i.WebPrefix,
 			pq.Array(&i.Roles),
 			pq.Array(&i.LivestreamRoles),
 		); err != nil {
@@ -223,6 +229,7 @@ SELECT a.id::int                                 AS id,
        a.games_page_id                           AS games_page_id,
        a.standalone_related_collection_id        AS standalone_related_collection_id,
        g.support_email                           AS support_email,
+       g.web_prefix                              AS web_prefix,
        COALESCE(r.roles, '{}')::varchar[]        AS roles,
        COALESCE(ls_roles.roles, '{}')::varchar[] AS livestream_roles
 FROM applications a
@@ -249,6 +256,7 @@ type listApplicationsRow struct {
 	GamesPageID                   null_v4.Int    `db:"games_page_id" json:"gamesPageId"`
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionId"`
 	SupportEmail                  null_v4.String `db:"support_email" json:"supportEmail"`
+	WebPrefix                     null_v4.String `db:"web_prefix" json:"webPrefix"`
 	Roles                         []string       `db:"roles" json:"roles"`
 	LivestreamRoles               []string       `db:"livestream_roles" json:"livestreamRoles"`
 }
@@ -275,6 +283,7 @@ func (q *Queries) listApplications(ctx context.Context) ([]listApplicationsRow, 
 			&i.GamesPageID,
 			&i.StandaloneRelatedCollectionID,
 			&i.SupportEmail,
+			&i.WebPrefix,
 			pq.Array(&i.Roles),
 			pq.Array(&i.LivestreamRoles),
 		); err != nil {

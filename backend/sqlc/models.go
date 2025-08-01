@@ -125,6 +125,7 @@ type Applicationgroup struct {
 	SupportEmail                    null_v4.String `db:"support_email" json:"supportEmail"`
 	FirebaseProjectID               null_v4.String `db:"firebase_project_id" json:"firebaseProjectId"`
 	OnlyContentInPreferredLanguages bool           `db:"only_content_in_preferred_languages" json:"onlyContentInPreferredLanguages"`
+	WebPrefix                       null_v4.String `db:"web_prefix" json:"webPrefix"`
 }
 
 type ApplicationgroupsLanguage struct {

@@ -15,7 +15,7 @@ INSERT INTO users.exports (
     application_clientVersion,
     application_default_page_id
 ) VALUES (
-    DEFAULT,    
+    DEFAULT,
     @profile_id,
     @user_groups,
     DEFAULT,
