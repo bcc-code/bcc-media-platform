@@ -181,7 +181,6 @@ func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, lo
 	}
 }
 
-// topbarSearchHandler handles topbar search requests
 func topbarSearchHandler(searchService *search.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		term := c.Param("term")
