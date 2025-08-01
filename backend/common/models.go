@@ -169,3 +169,11 @@ type ShortIDWithMeta struct {
 	ParentEpisodeID null.Int
 	FinalScore      float64
 }
+
+// TopbarSearchResult for exposing search results in the topbar dropdown
+type TopbarSearchResult struct {
+	Title    string `json:"title"`
+	Subtitle string `json:"subtitle"`
+	Image    string `json:"image"`
+	URL      string `json:"url"`
+}

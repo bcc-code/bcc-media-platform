@@ -285,6 +285,7 @@ func main() {
 	r.GET("/", playgroundHandler())
 	r.POST("/admin", adminGraphqlHandler(config, db, queries, ls))
 	r.POST("/public", publicGraphqlHandler(ls))
+	r.GET("/topbarsearch/:term", topbarSearchHandler(searchService))
 	r.GET("/versionz", version.GinHandler)
 
 	if os.Getenv("PPROF") == "TRUE" {
