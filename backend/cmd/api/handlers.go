@@ -31,6 +31,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/bmm-sdk-golang"
 	"github.com/gin-gonic/gin"
+	pkgerrors "github.com/pkg/errors"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	"strconv"
 )
@@ -95,7 +96,8 @@ func graphqlHandler(
 	h.Use(tracer)
 
 	h.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
-		stackerr := fmt.Errorf("panic recovered: %v", err)
+		// Wrap the panic error with a stack trace using pkg/errors
+		stackerr := pkgerrors.Errorf("panic recovered: %v", err)
 		log.L.Error().
 			Stack().
 			Err(stackerr).

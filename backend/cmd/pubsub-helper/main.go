@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
@@ -172,6 +173,8 @@ func directusHook(projectID string, topicID string, event string, collection str
 		Data: data,
 	})
 
+	spew.Dump(projectID, topicID, event, collection, id)
+
 	_, err = msg.Get(ctx)
 	fmt.Printf("Sent: %v\n", err)
 }
@@ -240,6 +243,11 @@ func main() {
 	flag.Parse()
 	projectId := "btv-pubsub"
 	topicId := "export"
+
+	for i := 0; i < 2970; i++ {
+		directusHook(projectId, topicId, "items.update", "episode", strconv.Itoa(i))
+	}
+	return
 
 	err = godotenv.Load("backend/cmd/pubsub-helper/.env")
 	if err == nil {
