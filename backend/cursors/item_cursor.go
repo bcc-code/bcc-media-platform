@@ -22,7 +22,7 @@ func ParseItemCursor[K comparable](cursorString string) (*ItemCursor[K], error) 
 		return nil, err
 	}
 	if cursor.Keys == nil {
-		return nil, err
+		cursor.Keys = make([]K, 0)
 	}
 	return cursor, nil
 }
