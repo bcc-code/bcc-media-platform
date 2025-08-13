@@ -139,8 +139,7 @@ func TestParseItemCursor_Invalid(t *testing.T) {
 				require.NoError(t, err, "unexpected error for cursor: %s", tt.cursor)
 			}
 
-			// Check if we expect a nil result (for invalid cursors that don't return an error)
-			if tt.expectNil {
+			if tt.expectError {
 				assert.Nil(t, result, "expected nil result for cursor: %s", tt.cursor)
 			} else {
 				assert.NotNil(t, result, "expected non-nil result for cursor: %s", tt.cursor)
