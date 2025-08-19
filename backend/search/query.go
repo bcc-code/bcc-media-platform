@@ -225,6 +225,8 @@ func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, que
 		roles = []string{"guest"}
 	}
 
+	query.Query = strings.Replace(query.Query, "'", "", -1)
+
 	templateParams := &elasticQueryParams{
 		Roles:        roles,
 		QueryString:  template.HTML(template.JSEscapeString(query.Query)),
