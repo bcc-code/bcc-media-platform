@@ -244,11 +244,6 @@ func main() {
 	projectId := "btv-pubsub"
 	topicId := "export"
 
-	for i := 0; i < 2970; i++ {
-		directusHook(projectId, topicId, "items.update", "episode", strconv.Itoa(i))
-	}
-	return
-
 	err = godotenv.Load("backend/cmd/pubsub-helper/.env")
 	if err == nil {
 		log.Println("Loaded .env file")
