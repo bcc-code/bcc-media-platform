@@ -31,6 +31,7 @@ SELECT
     s.user_created,
     s.user_updated,
     s.configuration_id,
+    a.primary_media_type,
     COALESCE(
                     array_agg(DISTINCT al.languages_code ORDER BY al.languages_code)
                     FILTER (WHERE al.languages_code IS NOT NULL),
@@ -50,7 +51,7 @@ FROM episodes e
 WHERE e.id = ANY ($1::int[])
 GROUP BY e.id, s.id, s.asset_id, s.date_created, s.date_updated, s.encryption_key_id,
          s.extra_metadata::text, s.legacy_videourl_id, s.path, s.service, s.status,
-         s.type, s.url, s.user_created, s.user_updated, s.configuration_id;
+         s.type, s.url, s.user_created, s.user_updated, s.configuration_id, a.primary_media_type;
 
 -- name: getStreamsForAssets :many
 SELECT
@@ -70,6 +71,7 @@ SELECT
     s.user_created,
     s.user_updated,
     s.configuration_id,
+    a.primary_media_type,
     COALESCE(
                     array_agg(DISTINCT al.languages_code ORDER BY al.languages_code)
                     FILTER (WHERE al.languages_code IS NOT NULL),
@@ -87,7 +89,7 @@ FROM assets a
 WHERE a.id = ANY ($1::int[])
 GROUP BY s.id, s.asset_id, s.date_created, s.date_updated, s.encryption_key_id,
          s.extra_metadata::text, s.legacy_videourl_id, s.path, s.service, s.status,
-         s.type, s.url, s.user_created, s.user_updated, s.configuration_id;
+         s.type, s.url, s.user_created, s.user_updated, s.configuration_id, a.primary_media_type;
 
 -- name: ListAssets :many
 SELECT *

@@ -1447,14 +1447,15 @@ func (this SimpleCalendarEntry) GetStart() string       { return this.Start }
 func (this SimpleCalendarEntry) GetEnd() string         { return this.End }
 
 type Stream struct {
-	ID                string     `json:"id"`
-	URL               string     `json:"url"`
-	ExpiresAt         string     `json:"expiresAt"`
-	VideoLanguage     *string    `json:"videoLanguage,omitempty"`
-	AudioLanguages    []string   `json:"audioLanguages"`
-	SubtitleLanguages []string   `json:"subtitleLanguages"`
-	Type              StreamType `json:"type"`
-	Downloadable      bool       `json:"downloadable"`
+	ID                string           `json:"id"`
+	URL               string           `json:"url"`
+	ExpiresAt         string           `json:"expiresAt"`
+	VideoLanguage     *string          `json:"videoLanguage,omitempty"`
+	AudioLanguages    []string         `json:"audioLanguages"`
+	SubtitleLanguages []string         `json:"subtitleLanguages"`
+	Type              StreamType       `json:"type"`
+	Downloadable      bool             `json:"downloadable"`
+	PrimaryMediaType  PrimaryMediaType `json:"primaryMediaType"`
 }
 
 type StudyTopic struct {
@@ -2185,6 +2186,61 @@ func (e *Os) UnmarshalJSON(b []byte) error {
 }
 
 func (e Os) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type PrimaryMediaType string
+
+const (
+	PrimaryMediaTypeVideo PrimaryMediaType = "video"
+	PrimaryMediaTypeAudio PrimaryMediaType = "audio"
+)
+
+var AllPrimaryMediaType = []PrimaryMediaType{
+	PrimaryMediaTypeVideo,
+	PrimaryMediaTypeAudio,
+}
+
+func (e PrimaryMediaType) IsValid() bool {
+	switch e {
+	case PrimaryMediaTypeVideo, PrimaryMediaTypeAudio:
+		return true
+	}
+	return false
+}
+
+func (e PrimaryMediaType) String() string {
+	return string(e)
+}
+
+func (e *PrimaryMediaType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PrimaryMediaType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PrimaryMediaType", str)
+	}
+	return nil
+}
+
+func (e PrimaryMediaType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *PrimaryMediaType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e PrimaryMediaType) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

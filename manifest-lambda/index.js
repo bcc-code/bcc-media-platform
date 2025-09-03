@@ -107,7 +107,7 @@ exports.handler = (event, context, callback) => {
                                 }
                             }
                         });
-                        body.push(defaultAudioUri || '');
+                        body.push(signed(dir, defaultAudioUri || '', request));
                     }
                     return;
                 }
