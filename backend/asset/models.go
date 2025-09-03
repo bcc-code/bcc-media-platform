@@ -27,11 +27,12 @@ type IngestJSONMeta struct {
 	Duration    string `json:"duration"`
 	DurationInS int64
 
-	Title        string           `json:"title"`
-	ID           string           `json:"id"`
-	SmilFile     string           `json:"smil_file"`
-	ChaptersFile string           `json:"chapters_file"`
-	Files        []IngestFileMeta `json:"files"`
-	BasePath     string           `json:"base_path"`
-	Source       string           `json:"source"`
+	Title            string           `json:"title"`
+	ID               string           `json:"id"`
+	SmilFile         string           `json:"smil_file"`
+	ChaptersFile     string           `json:"chapters_file"`
+	Files            []IngestFileMeta `json:"files"`
+	BasePath         string           `json:"base_path"`
+	Source           string           `json:"source"`
+	PrimaryMediaType string           `json:"primary_media_type"`
 }
