@@ -960,6 +960,7 @@ type ComplexityRoot struct {
 		Downloadable      func(childComplexity int) int
 		ExpiresAt         func(childComplexity int) int
 		ID                func(childComplexity int) int
+		PrimaryMediaType  func(childComplexity int) int
 		SubtitleLanguages func(childComplexity int) int
 		Type              func(childComplexity int) int
 		URL               func(childComplexity int) int
@@ -5982,6 +5983,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Stream.ID(childComplexity), true
 
+	case "Stream.primaryMediaType":
+		if e.complexity.Stream.PrimaryMediaType == nil {
+			break
+		}
+
+		return e.complexity.Stream.PrimaryMediaType(childComplexity), true
+
 	case "Stream.subtitleLanguages":
 		if e.complexity.Stream.SubtitleLanguages == nil {
 			break
@@ -7074,6 +7082,11 @@ enum StreamType {
     dash
 }
 
+enum PrimaryMediaType {
+    video
+    audio
+}
+
 type Stream {
     id: ID!
     url: String!
@@ -7083,6 +7096,7 @@ type Stream {
     subtitleLanguages: [Language!]!
     type: StreamType!
     downloadable: Boolean!
+    primaryMediaType: PrimaryMediaType!
 }
 `, BuiltIn: false},
 	{Name: "../schema/export.graphqls", Input: `type Export {
@@ -20151,6 +20165,8 @@ func (ec *executionContext) fieldContext_Episode_streams(_ context.Context, fiel
 				return ec.fieldContext_Stream_type(ctx, field)
 			case "downloadable":
 				return ec.fieldContext_Stream_downloadable(ctx, field)
+			case "primaryMediaType":
+				return ec.fieldContext_Stream_primaryMediaType(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Stream", field.Name)
 		},
@@ -40199,6 +40215,8 @@ func (ec *executionContext) fieldContext_Short_streams(_ context.Context, field 
 				return ec.fieldContext_Stream_type(ctx, field)
 			case "downloadable":
 				return ec.fieldContext_Stream_downloadable(ctx, field)
+			case "primaryMediaType":
+				return ec.fieldContext_Stream_primaryMediaType(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Stream", field.Name)
 		},
@@ -42622,6 +42640,50 @@ func (ec *executionContext) fieldContext_Stream_downloadable(_ context.Context, 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Stream_primaryMediaType(ctx context.Context, field graphql.CollectedField, obj *model.Stream) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Stream_primaryMediaType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PrimaryMediaType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.PrimaryMediaType)
+	fc.Result = res
+	return ec.marshalNPrimaryMediaType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPrimaryMediaType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Stream_primaryMediaType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Stream",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type PrimaryMediaType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -59978,6 +60040,11 @@ func (ec *executionContext) _Stream(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "primaryMediaType":
+			out.Values[i] = ec._Stream_primaryMediaType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -63314,6 +63381,16 @@ func (ec *executionContext) marshalNPlaylistItemPagination2ᚖgithubᚗcomᚋbcc
 		return graphql.Null
 	}
 	return ec._PlaylistItemPagination(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNPrimaryMediaType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPrimaryMediaType(ctx context.Context, v any) (model.PrimaryMediaType, error) {
+	var res model.PrimaryMediaType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPrimaryMediaType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPrimaryMediaType(ctx context.Context, sel ast.SelectionSet, v model.PrimaryMediaType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNProfile2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐProfile(ctx context.Context, sel ast.SelectionSet, v model.Profile) graphql.Marshaler {

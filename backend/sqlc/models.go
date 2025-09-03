@@ -155,20 +155,21 @@ type ApplicationgroupsUsergroupsL struct {
 }
 
 type Asset struct {
-	DateCreated     time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated     time.Time      `db:"date_updated" json:"dateUpdated"`
-	Duration        int32          `db:"duration" json:"duration"`
-	EncodingVersion null_v4.String `db:"encoding_version" json:"encodingVersion"`
-	ID              int32          `db:"id" json:"id"`
-	LegacyID        null_v4.Int    `db:"legacy_id" json:"legacyId"`
-	MainStoragePath null_v4.String `db:"main_storage_path" json:"mainStoragePath"`
-	MediabankenID   null_v4.String `db:"mediabanken_id" json:"mediabankenId"`
-	Name            string         `db:"name" json:"name"`
-	Status          null_v4.String `db:"status" json:"status"`
-	UserCreated     uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated     uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-	AwsArn          null_v4.String `db:"aws_arn" json:"awsArn"`
-	Source          null_v4.String `db:"source" json:"source"`
+	DateCreated      time.Time      `db:"date_created" json:"dateCreated"`
+	DateUpdated      time.Time      `db:"date_updated" json:"dateUpdated"`
+	Duration         int32          `db:"duration" json:"duration"`
+	EncodingVersion  null_v4.String `db:"encoding_version" json:"encodingVersion"`
+	ID               int32          `db:"id" json:"id"`
+	LegacyID         null_v4.Int    `db:"legacy_id" json:"legacyId"`
+	MainStoragePath  null_v4.String `db:"main_storage_path" json:"mainStoragePath"`
+	MediabankenID    null_v4.String `db:"mediabanken_id" json:"mediabankenId"`
+	Name             string         `db:"name" json:"name"`
+	Status           null_v4.String `db:"status" json:"status"`
+	UserCreated      uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	UserUpdated      uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	AwsArn           null_v4.String `db:"aws_arn" json:"awsArn"`
+	Source           null_v4.String `db:"source" json:"source"`
+	PrimaryMediaType null_v4.String `db:"primary_media_type" json:"primaryMediaType"`
 }
 
 type Assetfile struct {
@@ -187,6 +188,24 @@ type Assetfile struct {
 	UserUpdated        uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 	Resolution         null_v4.String        `db:"resolution" json:"resolution"`
 	Size               int64                 `db:"size" json:"size"`
+}
+
+type AssetsDeletedArchive struct {
+	ID              int64          `db:"id" json:"id"`
+	AssetID         int32          `db:"asset_id" json:"assetId"`
+	Name            null_v4.String `db:"name" json:"name"`
+	Duration        null_v4.Int    `db:"duration" json:"duration"`
+	EncodingVersion null_v4.String `db:"encoding_version" json:"encodingVersion"`
+	MainStoragePath null_v4.String `db:"main_storage_path" json:"mainStoragePath"`
+	MediabankenID   null_v4.String `db:"mediabanken_id" json:"mediabankenId"`
+	Status          null_v4.String `db:"status" json:"status"`
+	Source          null_v4.String `db:"source" json:"source"`
+	DateCreated     null_v4.Time   `db:"date_created" json:"dateCreated"`
+	DateUpdated     null_v4.Time   `db:"date_updated" json:"dateUpdated"`
+	UserCreated     uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	UserUpdated     uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
+	AwsArn          null_v4.String `db:"aws_arn" json:"awsArn"`
+	DeletedAt       time.Time      `db:"deleted_at" json:"deletedAt"`
 }
 
 type Assetstream struct {

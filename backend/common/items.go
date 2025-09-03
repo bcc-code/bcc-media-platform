@@ -203,6 +203,7 @@ type Stream struct {
 	Url               string      `json:"url"`
 	EncryptionKeyID   null.String `json:"encryptionKeyId"`
 	ConfigurationId   null.String `json:"configurationId"`
+	PrimaryMediaType  string      `json:"primaryMediaType"`
 }
 
 type ContentType enum.Member[string]

@@ -240,7 +240,7 @@ func (q *Queries) InsertAssetStreamSubtitleLanguage(ctx context.Context, arg Ins
 }
 
 const listAssets = `-- name: ListAssets :many
-SELECT date_created, date_updated, duration, encoding_version, id, legacy_id, main_storage_path, mediabanken_id, name, status, user_created, user_updated, aws_arn, source
+SELECT date_created, date_updated, duration, encoding_version, id, legacy_id, main_storage_path, mediabanken_id, name, status, user_created, user_updated, aws_arn, source, primary_media_type
 FROM assets
 `
 
@@ -268,6 +268,7 @@ func (q *Queries) ListAssets(ctx context.Context) ([]Asset, error) {
 			&i.UserUpdated,
 			&i.AwsArn,
 			&i.Source,
+			&i.PrimaryMediaType,
 		); err != nil {
 			return nil, err
 		}
@@ -283,7 +284,7 @@ func (q *Queries) ListAssets(ctx context.Context) ([]Asset, error) {
 }
 
 const newestPreviousAssetByMediabankenID = `-- name: NewestPreviousAssetByMediabankenID :one
-SELECT date_created, date_updated, duration, encoding_version, id, legacy_id, main_storage_path, mediabanken_id, name, status, user_created, user_updated, aws_arn, source
+SELECT date_created, date_updated, duration, encoding_version, id, legacy_id, main_storage_path, mediabanken_id, name, status, user_created, user_updated, aws_arn, source, primary_media_type
 FROM assets
 WHERE mediabanken_id = $1::varchar
 ORDER BY date_created DESC
@@ -308,6 +309,7 @@ func (q *Queries) NewestPreviousAssetByMediabankenID(ctx context.Context, mediab
 		&i.UserUpdated,
 		&i.AwsArn,
 		&i.Source,
+		&i.PrimaryMediaType,
 	)
 	return i, err
 }
@@ -496,6 +498,7 @@ SELECT
     s.user_created,
     s.user_updated,
     s.configuration_id,
+    a.primary_media_type,
     COALESCE(
                     array_agg(DISTINCT al.languages_code ORDER BY al.languages_code)
                     FILTER (WHERE al.languages_code IS NOT NULL),
@@ -513,7 +516,7 @@ FROM assets a
 WHERE a.id = ANY ($1::int[])
 GROUP BY s.id, s.asset_id, s.date_created, s.date_updated, s.encryption_key_id,
          s.extra_metadata::text, s.legacy_videourl_id, s.path, s.service, s.status,
-         s.type, s.url, s.user_created, s.user_updated, s.configuration_id
+         s.type, s.url, s.user_created, s.user_updated, s.configuration_id, a.primary_media_type
 `
 
 type getStreamsForAssetsRow struct {
@@ -533,6 +536,7 @@ type getStreamsForAssetsRow struct {
 	UserCreated       uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated       uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 	ConfigurationID   null_v4.String        `db:"configuration_id" json:"configurationId"`
+	PrimaryMediaType  null_v4.String        `db:"primary_media_type" json:"primaryMediaType"`
 	AudioLanguages    []string              `db:"audio_languages" json:"audioLanguages"`
 	SubtitleLanguages []string              `db:"subtitle_languages" json:"subtitleLanguages"`
 }
@@ -563,6 +567,7 @@ func (q *Queries) getStreamsForAssets(ctx context.Context, dollar_1 []int32) ([]
 			&i.UserCreated,
 			&i.UserUpdated,
 			&i.ConfigurationID,
+			&i.PrimaryMediaType,
 			pq.Array(&i.AudioLanguages),
 			pq.Array(&i.SubtitleLanguages),
 		); err != nil {
@@ -597,6 +602,7 @@ SELECT
     s.user_created,
     s.user_updated,
     s.configuration_id,
+    a.primary_media_type,
     COALESCE(
                     array_agg(DISTINCT al.languages_code ORDER BY al.languages_code)
                     FILTER (WHERE al.languages_code IS NOT NULL),
@@ -616,7 +622,7 @@ FROM episodes e
 WHERE e.id = ANY ($1::int[])
 GROUP BY e.id, s.id, s.asset_id, s.date_created, s.date_updated, s.encryption_key_id,
          s.extra_metadata::text, s.legacy_videourl_id, s.path, s.service, s.status,
-         s.type, s.url, s.user_created, s.user_updated, s.configuration_id
+         s.type, s.url, s.user_created, s.user_updated, s.configuration_id, a.primary_media_type
 `
 
 type getStreamsForEpisodesRow struct {
@@ -636,6 +642,7 @@ type getStreamsForEpisodesRow struct {
 	UserCreated       uuid.NullUUID         `db:"user_created" json:"userCreated"`
 	UserUpdated       uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
 	ConfigurationID   null_v4.String        `db:"configuration_id" json:"configurationId"`
+	PrimaryMediaType  null_v4.String        `db:"primary_media_type" json:"primaryMediaType"`
 	AudioLanguages    []string              `db:"audio_languages" json:"audioLanguages"`
 	SubtitleLanguages []string              `db:"subtitle_languages" json:"subtitleLanguages"`
 }
@@ -666,6 +673,7 @@ func (q *Queries) getStreamsForEpisodes(ctx context.Context, dollar_1 []int32) (
 			&i.UserCreated,
 			&i.UserUpdated,
 			&i.ConfigurationID,
+			&i.PrimaryMediaType,
 			pq.Array(&i.AudioLanguages),
 			pq.Array(&i.SubtitleLanguages),
 		); err != nil {

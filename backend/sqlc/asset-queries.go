@@ -47,6 +47,10 @@ func (q *Queries) GetFilesForEpisodes(ctx context.Context, ids []int) ([]common.
 
 func toStreams(items []getStreamsForAssetsRow) []common.Stream {
 	return lo.Map(items, func(s getStreamsForAssetsRow, _ int) common.Stream {
+		primaryMediaType := "video"
+		if s.PrimaryMediaType.Valid {
+			primaryMediaType = s.PrimaryMediaType.String
+		}
 		return common.Stream{
 			ID:                int(s.ID),
 			Type:              s.Type,
@@ -59,6 +63,7 @@ func toStreams(items []getStreamsForAssetsRow) []common.Stream {
 			Url:               s.Url,
 			EncryptionKeyID:   s.EncryptionKeyID,
 			ConfigurationId:   s.ConfigurationID,
+			PrimaryMediaType:  primaryMediaType,
 		}
 	})
 }

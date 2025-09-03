@@ -72,5 +72,6 @@ func StreamFrom(_ context.Context, signer signatureProvider, cdn cdnConfig, stre
 		SubtitleLanguages: stream.SubtitleLanguages,
 		Type:              StreamType(stream.Type),
 		Downloadable:      stream.Service == "mediapackage",
+		PrimaryMediaType:  PrimaryMediaType(stream.PrimaryMediaType),
 	}, nil
 }
