@@ -96,7 +96,7 @@ exports.handler = (event, context, callback) => {
 
                     // Add a single audio-only stream (only for the first video stream encountered)
                     if (!body.some(line => line.includes('CODECS="mp4a.40.2"') && !line.includes('avc1'))) {
-                        body.push('#EXT-X-STREAM-INF:BANDWIDTH=128000,CODECS="mp4a.40.2"');
+                        body.push('#EXT-X-STREAM-INF:BANDWIDTH=128000,CODECS="mp4a.40.2",AUDIO="audio_0"');
                         // Find the default audio track URI from EXT-X-MEDIA entries
                         let defaultAudioUri = '';
                         data.split("\n").forEach(line => {
@@ -220,4 +220,3 @@ function signed(dir, file, request) {
         return file + '&' + policy
     }
 }
-
