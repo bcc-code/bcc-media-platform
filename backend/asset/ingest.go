@@ -162,11 +162,6 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 	}
 	assetMeta.CalculateDuration()
 
-	//oldAsset, err := queries.NewestPreviousAssetByMediabankenID(ctx, assetMeta.ID)
-	//if err != nil && !errors.Is(err, sql.ErrNoRows) {
-	//	return err
-	//}
-
 	log.L.Debug().Msg("Start processing JSON")
 	// Calculate the base path on the ingest S3 bucket
 	assetMeta.BasePath = path.Dir(msg.JSONMetaPath)
@@ -212,6 +207,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 		MainStoragePath: null.StringFrom(storagePrefix),
 		Status:          null.StringFrom(string(common.StatusDraft)),
 		Source:          null.StringFrom(assetMeta.Source),
+		PrimaryMediaType: null.StringFrom(assetMeta.PrimaryMediaType),
 	})
 	if err != nil {
 		return merry.Wrap(err)

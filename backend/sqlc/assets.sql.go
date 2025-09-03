@@ -91,23 +91,24 @@ func (q *Queries) GetAssetStoragePath(ctx context.Context, id int32) (null_v4.St
 
 const insertAsset = `-- name: InsertAsset :one
 INSERT INTO assets (duration, encoding_version, legacy_id, main_storage_path,
-                    mediabanken_id, name, status, aws_arn, source, date_updated, date_created)
+                    mediabanken_id, name, status, aws_arn, source, primary_media_type, date_updated, date_created)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8,
-        $9, NOW(),
+        $9, $10, NOW(),
         NOW())
 RETURNING id
 `
 
 type InsertAssetParams struct {
-	Duration        int32          `db:"duration" json:"duration"`
-	EncodingVersion null_v4.String `db:"encoding_version" json:"encodingVersion"`
-	LegacyID        null_v4.Int    `db:"legacy_id" json:"legacyId"`
-	MainStoragePath null_v4.String `db:"main_storage_path" json:"mainStoragePath"`
-	MediabankenID   null_v4.String `db:"mediabanken_id" json:"mediabankenId"`
-	Name            string         `db:"name" json:"name"`
-	Status          null_v4.String `db:"status" json:"status"`
-	AwsArn          null_v4.String `db:"aws_arn" json:"awsArn"`
-	Source          null_v4.String `db:"source" json:"source"`
+	Duration         int32          `db:"duration" json:"duration"`
+	EncodingVersion  null_v4.String `db:"encoding_version" json:"encodingVersion"`
+	LegacyID         null_v4.Int    `db:"legacy_id" json:"legacyId"`
+	MainStoragePath  null_v4.String `db:"main_storage_path" json:"mainStoragePath"`
+	MediabankenID    null_v4.String `db:"mediabanken_id" json:"mediabankenId"`
+	Name             string         `db:"name" json:"name"`
+	Status           null_v4.String `db:"status" json:"status"`
+	AwsArn           null_v4.String `db:"aws_arn" json:"awsArn"`
+	Source           null_v4.String `db:"source" json:"source"`
+	PrimaryMediaType null_v4.String `db:"primary_media_type" json:"primaryMediaType"`
 }
 
 func (q *Queries) InsertAsset(ctx context.Context, arg InsertAssetParams) (int32, error) {
@@ -121,6 +122,7 @@ func (q *Queries) InsertAsset(ctx context.Context, arg InsertAssetParams) (int32
 		arg.Status,
 		arg.AwsArn,
 		arg.Source,
+		arg.PrimaryMediaType,
 	)
 	var id int32
 	err := row.Scan(&id)

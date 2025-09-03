@@ -114,9 +114,9 @@ ORDER BY date_created DESC;
 
 -- name: InsertAsset :one
 INSERT INTO assets (duration, encoding_version, legacy_id, main_storage_path,
-                    mediabanken_id, name, status, aws_arn, source, date_updated, date_created)
+                    mediabanken_id, name, status, aws_arn, source, primary_media_type, date_updated, date_created)
 VALUES (@duration, @encoding_version, @legacy_id, @main_storage_path, @mediabanken_id, @name, @status, @aws_arn,
-        @source, NOW(),
+        @source, @primary_media_type, NOW(),
         NOW())
 RETURNING id;
 
