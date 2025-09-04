@@ -14,6 +14,7 @@ const { t } = useI18n()
             <div class="flex gap-4">
                 <a
                     class="text-tint-1 hover:underline cursor-pointer"
+                    href="#"
                     @click="accepted = false"
                     >{{ t('footer.cookies') }}</a
                 >

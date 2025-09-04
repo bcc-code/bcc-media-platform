@@ -49,16 +49,16 @@ const details = computed(() => {
 })
 </script>
 <template>
-    <section class="flex flex-col gap-4">
+    <section class="flex flex-col gap-4 p-2">
         <div v-for="d in details" :key="d.title" class="flex flex-col gap-1">
-            <h1 class="text-lg font-semibold">{{ d.title }}</h1>
-            <p>{{ d.value }}</p>
+            <h3 class="text-style-title-3 text-label-1">{{ d.title }}</h3>
+            <p class="text-label-4">{{ d.value }}</p>
         </div>
         <div class="flex flex-col gap-1">
-            <h1 class="text-lg font-semibold">{{ t('episode.ageRating') }}</h1>
-            <p class="flex">
-                <AgeRating :episode="episode" />
-            </p>
+            <h3 class="text-style-title-3 text-label-1">
+                {{ t('episode.ageRating') }}
+            </h3>
+            <AgeRating :episode="episode" show-a />
         </div>
     </section>
 </template>

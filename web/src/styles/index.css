@@ -17,7 +17,9 @@ img {
     user-select: none;
 }
 
-*:focus-visible {
+*:focus-visible,
+*::after:focus-visible,
+*::before:focus-visible {
     outline: 1px solid var(--color-tint-1) !important;
 }
 

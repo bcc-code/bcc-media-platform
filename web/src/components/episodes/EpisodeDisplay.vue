@@ -222,25 +222,28 @@ const onChapterClick = (chapter: ChapterListChapterFragment) => {
                     </div>
                 </div>
                 <div class="flex pt-2">
-                    <h1 class="my-auto flex gap-1">
+                    <p class="my-auto flex gap-1">
                         <AgeRating
                             :episode="episode"
                             :show-a="true"
                             class="mr-1 text-style-caption-2 lg:text-style-caption-1 mt-0.5"
                         />
-                        <span
-                            v-if="episode.season"
-                            class="text-primary text-style-caption-1 lg:text-style-body-2"
-                            >{{ episode.season.show.title }}</span
+                        <RouterLink
+                            v-if="episode.season?.show"
+                            :to="`/show/${episode.season.show.id}`"
+                            class="text-primary hover:underline text-style-caption-1 lg:text-style-body-2"
                         >
+                            {{ episode.season.show.title }}
+                        </RouterLink>
                         <span
                             v-if="episode.productionDateInTitle"
                             class="text-label-4 text-style-caption-2 lg:text-style-caption-1 ml-1 mt-0.5"
-                            >{{
-                                new Date(episode.productionDate).toDateString()
-                            }}</span
                         >
-                    </h1>
+                            {{
+                                new Date(episode.productionDate).toDateString()
+                            }}
+                        </span>
+                    </p>
                 </div>
                 <div
                     class="text-label-3 mt-4 cursor-text text-style-body-2 lg:text-style-body-2 [&_a]:text-tint-1 [&_a]:underline"

@@ -42,20 +42,25 @@ const isActive = (chapter: ChapterListChapterFragment): boolean => {
         <li
             v-for="chapter in chapters"
             :key="chapter.id"
-            class="bg-background-2 hover:brightness-150 p-3 cursor-pointer text-style-body-2 grid gap-4 grid-cols-subgrid col-span-2"
-            role="button"
-            :class="{
-                '': !isActive(chapter),
-                'brightness-150': isActive(chapter),
-            }"
-            @click="$emit('chapterClick', chapter)"
+            class="grid grid-cols-subgrid col-span-full"
         >
-            <div class="col-span-1 text-label-3">
-                {{ formatSeconds(chapter.start) }}
-            </div>
-            <div class="col-span-1">
-                {{ chapter.title }}
-            </div>
+            <button
+                :class="[
+                    'bg-background-2 hover:brightness-150 p-3 cursor-pointer text-style-body-2 grid gap-4 grid-cols-subgrid col-span-2 text-left focus-visible:brightness-200',
+                    {
+                        '': !isActive(chapter),
+                        'brightness-150': isActive(chapter),
+                    },
+                ]"
+                @click="$emit('chapterClick', chapter)"
+            >
+                <div class="col-span-1 text-label-3">
+                    {{ formatSeconds(chapter.start) }}
+                </div>
+                <div class="col-span-1">
+                    {{ chapter.title }}
+                </div>
+            </button>
         </li>
     </ul>
 </template>

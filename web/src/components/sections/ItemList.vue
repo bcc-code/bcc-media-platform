@@ -24,10 +24,10 @@ const { t } = useI18n()
 <template>
     <section>
         <div class="w-full">
-            <div
+            <button
                 v-for="i in items.filter((i) => i.type === 'Episode')"
                 :key="i.id"
-                class="flex p-2 gap-2 cursor-pointer border-l-4 border-red hover:bg-red hover:bg-opacity-10 hover:border-opacity-100 transition duration-200"
+                class="flex text-left w-full p-2 gap-2 cursor-pointer border-l-4 border-red hover:bg-red hover:bg-opacity-10 hover:border-opacity-100 transition duration-200"
                 :class="[
                     i.id === currentId
                         ? 'bg-red bg-opacity-20 hover:bg-opacity-20'
@@ -85,7 +85,7 @@ const { t } = useI18n()
                         ></div>
                     </div>
                 </div>
-            </div>
+            </button>
         </div>
     </section>
 </template>
