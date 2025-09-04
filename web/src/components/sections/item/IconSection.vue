@@ -16,7 +16,7 @@ const emit = defineEmits<{
     (event: 'clickItem', index: number): void
 }>()
 
-const sectionItem = ref(null as HTMLDivElement[] | null)
+const sectionItem = ref<HTMLDivElement[] | null>(null)
 
 const imageSize = ref(0)
 
@@ -45,7 +45,7 @@ onMounted(() => {
                 @click="click(index)"
             >
                 <div
-                    class="bg-slate-800 relative rounded-2xl border-2 border-slate-700 cursor-pointer overflow-hidden"
+                    class="bg-slate-800 relative rounded-2xl border-2 border-slate-700 cursor-pointer overflow-hidden aspect-square"
                 >
                     <div
                         v-if="clicked === index"
@@ -57,6 +57,7 @@ onMounted(() => {
                         ></Loader>
                     </div>
                     <Image
+                        v-if="i.image"
                         class="rounded-lg m-2"
                         :class="{
                             'opacity-50': clicked === index,

@@ -23,7 +23,7 @@ const { t } = useI18n()
 <template>
     <div v-if="!accepted" class="flex bg-slate-800">
         <div class="flex flex-col gap-4 max-w-2xl mx-auto p-4 my-4 lg:my-10">
-            <h1 class="text-xl">{{ t('cookies.title') }}</h1>
+            <h3 class="text-xl">{{ t('cookies.title') }}</h3>
             <p class="opacity-80" v-html="t('cookies.description')"></p>
             <SwitchGroup>
                 <div class="flex flex-col lg:flex-row gap-4">

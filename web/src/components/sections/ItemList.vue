@@ -68,11 +68,11 @@ const { t } = useI18n()
                     class="w-2/3 ml-4 mt-2"
                     :class="episodeComingSoon(i) ? 'opacity-50' : ''"
                 >
-                    <h1 class="text-style-title-3 line-clamp-2">
+                    <p class="text-style-title-3 line-clamp-2">
                         <span v-if="viewEpisodeNumber && i.number"
                             >{{ i.number }}. </span
                         >{{ i.title }}
-                    </h1>
+                    </p>
                     <AgeRating :episode="i" />
                     <div
                         class="hidden lg:flex mt-1.5 text-style-body-2 opacity-70"

@@ -329,6 +329,7 @@ defineExpose({
     player,
 })
 </script>
+
 <template>
     <div
         id="video-player"
@@ -336,3 +337,9 @@ defineExpose({
         :class="[loaded ? 'opacity-100' : 'opacity-0']"
     ></div>
 </template>
+
+<style>
+#video-player img {
+    object-fit: cover;
+}
+</style>
