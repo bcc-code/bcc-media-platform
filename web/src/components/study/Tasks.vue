@@ -109,6 +109,7 @@ const isCurrentTaskAnswerSelectionConfirmed = ref(false)
 function confirmAnswer() {
     isCurrentTaskAnswerSelectionConfirmed.value = true
     isCurrentTaskAnswered.value = true
+    if (!currentTask.value) return
     currentTask.value.completed = true
 
     const answer = alternativeAnswers.value[currentTask.value.id]
@@ -137,6 +138,8 @@ function confirmAnswer() {
 watch(
     currentTask,
     () => {
+        if (!currentTask.value) return
+
         if (currentTask.value.__typename != 'AlternativesTask') return
 
         if (currentTask.value.completed) {
@@ -161,15 +164,15 @@ const alternativeAnswers = ref<{
 const { locale } = useI18n()
 const savingTaskProgress = ref(false)
 async function nextTask() {
-    const skipSave = currentTask.value.__typename == 'AlternativesTask'
+    const skipSave = currentTask.value?.__typename == 'AlternativesTask'
     if (!isLastTask.value) {
         // intentionally not awaiting
-        if (!skipSave) await completeTask({ taskId: currentTask.value.id })
-        currentTask.value.completed = true
+        if (!skipSave) await completeTask({ taskId: currentTask.value!.id })
+        currentTask.value!.completed = true
         currentTaskIndex.value += 1
         isCurrentTaskAnswered.value = false
         if (
-            currentTask.value.__typename == 'AlternativesTask' &&
+            currentTask.value?.__typename == 'AlternativesTask' &&
             lockData?.value?.lockLessonAnswers
         ) {
             isCurrentTaskAnswered.value = true
@@ -178,9 +181,9 @@ async function nextTask() {
         // done with the tasks
         // awaiting to avoid race condition with achievements
         savingTaskProgress.value = true
-        if (!skipSave) await completeTask({ taskId: currentTask.value.id })
+        if (!skipSave) await completeTask({ taskId: currentTask.value!.id })
         await new Promise((r) => setTimeout(r, 100))
-        currentTask.value.completed = true
+        currentTask.value!.completed = true
         savingTaskProgress.value = false
         if (!allCompletedBeforeStarting) {
             const completedTasks: WebViewStudyHandlerCompletedTask[] = []
@@ -235,13 +238,15 @@ const lockAnswers = async () => {
         const answers = alternativeAnswers.value
         let promises: Promise<any>[] = []
         for (var taskId in answers) {
-            const alternativeId = answers[taskId].alternativeId
-            promises.push(
-                completeTask({
-                    taskId,
-                    selectedAlternatives: [alternativeId],
-                })
-            )
+            const alternativeId = answers[taskId]?.alternativeId
+            if (alternativeId) {
+                promises.push(
+                    completeTask({
+                        taskId,
+                        selectedAlternatives: [alternativeId],
+                    })
+                )
+            }
         }
         await Promise.all(promises)
         await new Promise((r) => setTimeout(r, 200))
@@ -340,8 +345,8 @@ const anyPreviousStep = computed(() => currentTaskIndex.value > 0)
                 <VButton
                     v-if="
                         !isCurrentTaskAnswerSelectionConfirmed &&
-                        currentTask.__typename == 'AlternativesTask' &&
-                        currentTask.lockAnswer
+                        currentTask?.__typename == 'AlternativesTask' &&
+                        currentTask?.lockAnswer
                     "
                     class="w-full"
                     size="large"

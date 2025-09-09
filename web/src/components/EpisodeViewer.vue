@@ -99,7 +99,7 @@ const load = async () => {
                 playbackRates: [0.75, 1, 1.5, 1.75, 2],
                 aspectRatio: '16:9',
             },
-            onProgress(currentTime, duration, player) {
+            onProgress(currentTime: number, duration: number, player: any) {
                 onVideoProgress(currentTime, duration, player)
             },
             npaw: {

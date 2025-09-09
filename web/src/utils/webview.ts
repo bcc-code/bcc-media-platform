@@ -65,7 +65,6 @@ function waitForWebview(): Promise<WebView> {
                     // @ts-expect-error ignore
                     window.flutterResponses[id] = result;
                 },
-                // @ts-expect-error ignore
                 respondError: (id, error) => {
                     // @ts-expect-error ignore
                     window.flutterResponses[id] = new Error(error);
