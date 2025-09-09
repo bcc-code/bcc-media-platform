@@ -23,6 +23,7 @@
     },
     "dependencies": {
         "@auth0/auth0-vue": "^2.4.0",
+        "@bcc-code/bmm-sdk-fetch": "8.8.8",
         "@headlessui/vue": "^1.7.23",
         "@heroicons/vue": "^2.2.0",
         "@sentry/browser": "^8.44.0",
@@ -38,6 +39,7 @@
         "bccm-video-player": "1.6.0",
         "graphql": "^16.11.0",
         "graphql-tag": "^2.12.6",
+        "hls.js": "^1.6.11",
         "rudder-sdk-js": "^2.51.4",
         "showdown": "^2.1.0",
         "swiper": "^11.2.10",
@@ -45,8 +47,7 @@
         "vue": "^3.5.17",
         "vue-i18n": "^10.0.8",
         "vue-router": "^4.5.1",
-        "vue3-lottie": "^3.3.1",
-        "@bcc-code/bmm-sdk-fetch": "8.8.8"
+        "vue3-lottie": "^3.3.1"
     },
     "devDependencies": {
         "@eslint/js": "^9.30.1",

@@ -48,6 +48,8 @@ fragment Stream on Stream {
     url
     videoLanguage
     type
+    primaryMediaType
+    audioLanguages
 }
 fragment ChapterListChapter on Chapter {
     id

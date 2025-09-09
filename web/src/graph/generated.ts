@@ -491,6 +491,27 @@ export type Export = {
   url: Scalars['String']['output'];
 };
 
+export type ExportAsync = {
+  exportId: Scalars['String']['output'];
+  result?: Maybe<ExportResult>;
+  status: ExportStatus;
+};
+
+export type ExportResult = {
+  created: Scalars['Date']['output'];
+  dbVersion: Scalars['String']['output'];
+  expires: Scalars['Date']['output'];
+  url: Scalars['String']['output'];
+};
+
+export enum ExportStatus {
+  Error = 'error',
+  Expired = 'expired',
+  New = 'new',
+  Processing = 'processing',
+  Ready = 'ready'
+}
+
 export type Faq = {
   categories?: Maybe<FaqCategoryPagination>;
   category: FaqCategory;
@@ -1172,6 +1193,11 @@ export type PosterTask = Task & {
   title: Scalars['String']['output'];
 };
 
+export enum PrimaryMediaType {
+  Audio = 'audio',
+  Video = 'video'
+}
+
 export type Profile = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -1196,6 +1222,7 @@ export type QueryRoot = {
   episodes: Array<Episode>;
   event?: Maybe<Event>;
   export: Export;
+  exportAsync: ExportAsync;
   faq: Faq;
   game: Game;
   languages: Array<Scalars['Language']['output']>;
@@ -1262,6 +1289,12 @@ export type QueryRootEventArgs = {
 
 
 export type QueryRootExportArgs = {
+  groups?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+
+export type QueryRootExportAsyncArgs = {
+  exportId?: InputMaybe<Scalars['String']['input']>;
   groups?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
@@ -1639,6 +1672,7 @@ export type Stream = {
   downloadable: Scalars['Boolean']['output'];
   expiresAt: Scalars['Date']['output'];
   id: Scalars['ID']['output'];
+  primaryMediaType: PrimaryMediaType;
   subtitleLanguages: Array<Scalars['Language']['output']>;
   type: StreamType;
   url: Scalars['String']['output'];
@@ -1884,7 +1918,7 @@ export type LessonProgressOverviewFragment = { id: string, progress: { total: nu
 
 export type LessonProgressOverviewFragmentVariables = Exact<{ [key: string]: never; }>;
 
-export type StreamFragment = { url: string, videoLanguage?: any | null, type: StreamType };
+export type StreamFragment = { url: string, videoLanguage?: any | null, type: StreamType, primaryMediaType: PrimaryMediaType, audioLanguages: Array<any> };
 
 
 export type StreamFragmentVariables = Exact<{ [key: string]: never; }>;
@@ -1900,7 +1934,7 @@ export type GetEpisodeQueryVariables = Exact<{
 }>;
 
 
-export type GetEpisodeQuery = { episode: { description: string, number?: number | null, progress?: number | null, locked: boolean, originalTitle: string, ageRating: string, productionDate: any, productionDateInTitle: boolean, availableFrom: any, availableTo: any, shareRestriction: ShareRestriction, id: string, uuid: string, title: string, image?: string | null, publishDate: any, duration: number, chapters: Array<{ id: string, title: string, start: number }>, streams: Array<{ url: string, videoLanguage?: any | null, type: StreamType }>, files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, size: number, resolution?: string | null }>, next: Array<{ id: string }>, lessons: { items: Array<{ id: string, progress: { total: number, completed: number, alternativesTasksTotal: number, alternativesTasksCompleted: number, alternativesTasksCorrect: number } }> }, context?: { __typename: 'ContextCollection', id: string, slug?: string | null, items?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, id: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Game', id: string } | { __typename: 'Link', id: string, url: string } | { __typename: 'Page', id: string, code: string } | { __typename: 'Person' } | { __typename: 'Playlist', id: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Short', id: string } | { __typename: 'Show', episodeCount: number, seasonCount: number, id: string, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null } | { __typename: 'Season', id: string } | null, relatedItems?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, id: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Game', id: string } | { __typename: 'Link', id: string, url: string } | { __typename: 'Page', id: string, code: string } | { __typename: 'Person' } | { __typename: 'Playlist', id: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Short', id: string } | { __typename: 'Show', episodeCount: number, seasonCount: number, id: string, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null, season?: { id: string, title: string, number: number, description: string, show: { id: string, title: string, type: ShowType, description: string, seasons: { items: Array<{ id: string, title: string, number: number }> } } } | null } };
+export type GetEpisodeQuery = { episode: { description: string, number?: number | null, progress?: number | null, locked: boolean, originalTitle: string, ageRating: string, productionDate: any, productionDateInTitle: boolean, availableFrom: any, availableTo: any, shareRestriction: ShareRestriction, id: string, uuid: string, title: string, image?: string | null, publishDate: any, duration: number, chapters: Array<{ id: string, title: string, start: number }>, streams: Array<{ url: string, videoLanguage?: any | null, type: StreamType, primaryMediaType: PrimaryMediaType, audioLanguages: Array<any> }>, files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, size: number, resolution?: string | null }>, next: Array<{ id: string }>, lessons: { items: Array<{ id: string, progress: { total: number, completed: number, alternativesTasksTotal: number, alternativesTasksCompleted: number, alternativesTasksCorrect: number } }> }, context?: { __typename: 'ContextCollection', id: string, slug?: string | null, items?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, id: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Game', id: string } | { __typename: 'Link', id: string, url: string } | { __typename: 'Page', id: string, code: string } | { __typename: 'Person' } | { __typename: 'Playlist', id: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Short', id: string } | { __typename: 'Show', episodeCount: number, seasonCount: number, id: string, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null } | { __typename: 'Season', id: string } | null, relatedItems?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, id: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Game', id: string } | { __typename: 'Link', id: string, url: string } | { __typename: 'Page', id: string, code: string } | { __typename: 'Person' } | { __typename: 'Playlist', id: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Short', id: string } | { __typename: 'Show', episodeCount: number, seasonCount: number, id: string, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null, season?: { id: string, title: string, number: number, description: string, show: { id: string, title: string, type: ShowType, description: string, seasons: { items: Array<{ id: string, title: string, number: number }> } } } | null } };
 
 export type UpdateEpisodeProgressMutationVariables = Exact<{
   episodeId: Scalars['ID']['input'];
@@ -2240,6 +2274,8 @@ export const StreamFragmentDoc = gql`
   url
   videoLanguage
   type
+  primaryMediaType
+  audioLanguages
 }
     `;
 export const ChapterListChapterFragmentDoc = gql`
