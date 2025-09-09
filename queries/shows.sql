@@ -98,8 +98,8 @@ WHERE sh.uuid = ANY ($1::uuid[])
 SELECT sh.id,
        sh.status = 'unlisted'             AS unlisted,
        access.published::boolean          AS published,
-       access.available_from::timestamp   AS available_from,
-       access.available_to::timestamp     AS available_to,
+       COALESCE(access.available_from, '1970-01-01')::timestamp without time zone                       AS available_from,
+       COALESCE(access.available_to, '9999-12-31')::timestamp without time zone                         AS available_to,
        roles.roles::varchar[]             AS usergroups,
        roles.roles_download::varchar[]    AS usergroups_downloads,
        roles.roles_earlyaccess::varchar[] AS usergroups_earlyaccess
