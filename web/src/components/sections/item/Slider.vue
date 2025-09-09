@@ -3,7 +3,7 @@ import Carousel from '@/components/Carousel.vue'
 import { SectionSize } from '@/graph/generated'
 import type { SwiperOptions } from 'swiper/types'
 import { computed } from 'vue'
-import { Section } from '../types'
+import type { Section } from '../types'
 
 const props = defineProps<{
     section: Section & {

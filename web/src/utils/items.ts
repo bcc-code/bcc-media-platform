@@ -1,18 +1,18 @@
 import client from '@/graph/client'
 import {
-    CollectionItemThumbnailFragment,
+    type CollectionItemThumbnailFragment,
     GetDefaultEpisodeForTopicDocument,
-    GetDefaultEpisodeForTopicQuery,
-    GetDefaultEpisodeForTopicQueryVariables,
+    type GetDefaultEpisodeForTopicQuery,
+    type GetDefaultEpisodeForTopicQueryVariables,
     GetPlaylistEpisodeDocument,
-    GetPlaylistEpisodeQuery,
-    GetPlaylistEpisodeQueryVariables,
-    GetSectionQuery,
-    Link,
-    SectionItemFragment,
+    type GetPlaylistEpisodeQuery,
+    type GetPlaylistEpisodeQueryVariables,
+    type GetSectionQuery,
+    type Link,
+    type SectionItemFragment,
 } from '@/graph/generated'
 import router from '@/router'
-import { analytics, Page } from '@/services/analytics'
+import { analytics, type Page } from '@/services/analytics'
 
 export const goToEpisode = (
     episodeId: string,

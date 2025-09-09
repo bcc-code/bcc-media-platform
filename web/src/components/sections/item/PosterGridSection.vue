@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Section } from '../types'
+import type { Section } from '../types'
 
 import { isCollectionItem } from '@/utils/items'
 import CollectionItemThumbnail from './CollectionItemThumbnail.vue'

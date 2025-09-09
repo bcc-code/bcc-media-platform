@@ -7,17 +7,17 @@ import AlternativesTask from './tasks/AlternativesTask.vue'
 import PosterTask from './tasks/PosterTask.vue'
 import {
     webViewStudy,
-    WebViewStudyHandlerCompletedTask,
+    type WebViewStudyHandlerCompletedTask,
 } from '@/services/webviews/studyHandler'
 import {
-    GetStudyLessonQuery,
+    type GetStudyLessonQuery,
     useCompleteTaskMutation,
     useGetTaskAlternativesForStudyLessonQuery,
     useLockAnswersMutation,
 } from '@/graph/generated'
 import TextTask from './tasks/TextTask.vue'
 import { VButton } from '..'
-import { Page } from './Lesson.vue'
+import type { Page } from './Lesson.vue'
 import VideoTask from './tasks/VideoTask.vue'
 import LinkTask from './tasks/LinkTask.vue'
 import Loader from '../Loader.vue'

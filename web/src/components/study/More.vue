@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { GetStudyLessonQuery } from '@/graph/generated'
+import type { GetStudyLessonQuery } from '@/graph/generated'
 import { useI18n } from 'vue-i18n'
 import LinkListItem from './LinkListItem.vue'
 import TaskButton from './TaskButton.vue'
-import { Page } from './Lesson.vue'
+import type { Page } from './Lesson.vue'
 import { VButton } from '..'
 import { computed, ref } from 'vue'
 import { webViewMain } from '@/services/webviews/mainHandler'

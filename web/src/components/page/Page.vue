@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {
-    GetPageQuery,
-    GetSectionQuery,
+    type GetPageQuery,
+    type GetSectionQuery,
     useGetPageQuery,
     useGetSectionQuery,
     useGetSectionsForPageQuery,
@@ -161,6 +161,8 @@ const clickItem = (sectionIndex: number, itemIndex: number) => {
     for (let i = 0; i < page.value.sections.items.length; i++) {
         if (sectionIndex === i) {
             const section = page.value.sections.items[i]
+            if (!section) return
+
             switch (section.__typename) {
                 case 'DefaultGridSection':
                 case 'DefaultSection':
@@ -176,11 +178,13 @@ const clickItem = (sectionIndex: number, itemIndex: number) => {
                     for (let i = 0; i < section.items.items.length; i++) {
                         if (i === itemIndex) {
                             // TODO: refactor to pass the item. This can cause bugs when the section filters out certain types, like CardSection does
-                            if (!page.value) return
+                            const item = section.items.items[i]
+                            if (!page.value || !item) return
+
                             goToSectionItem(
                                 {
                                     index: i,
-                                    item: section.items.items[i],
+                                    item: item,
                                 },
                                 {
                                     ...section,

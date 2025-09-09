@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { GetEpisodeQuery } from '@/graph/generated'
+import type { GetEpisodeQuery } from '@/graph/generated'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AgeRating from './AgeRating.vue'

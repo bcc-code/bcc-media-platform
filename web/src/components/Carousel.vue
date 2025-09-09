@@ -51,7 +51,7 @@ const onswipe = (swiper: TSwiper) => {
         }
         // Check when the slide should be updated with new items.
         const pg =
-            1 - (((bp.slidesPerView as any) ?? 1) + 1) / props.items.length
+            1 - (((bp?.slidesPerView as any) ?? 1) + 1) / props.items.length
         if (swiper.progress > pg) {
             emit('loadMore')
         }

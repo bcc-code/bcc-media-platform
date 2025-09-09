@@ -1,5 +1,5 @@
-import { GetPageQuery, SectionItemFragment } from '@/graph/generated'
-import { apiObject } from 'rudder-sdk-js'
+import type { GetPageQuery, SectionItemFragment } from '@/graph/generated'
+import type { apiObject } from 'rudder-sdk-js'
 
 type StringWithAutocomplete<T> = T | (string & {})
 

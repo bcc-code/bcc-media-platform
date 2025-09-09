@@ -12,7 +12,7 @@ import ListSection from './item/ListSection.vue'
 import PosterGridSection from './item/PosterGridSection.vue'
 import PosterSection from './item/PosterSection.vue'
 import MessageSection from './MessageSection.vue'
-import { Section } from './types'
+import type { Section } from './types'
 import WebSection from './WebSection.vue'
 import PageDetailsSection from './item/PageDetailsSection.vue'
 

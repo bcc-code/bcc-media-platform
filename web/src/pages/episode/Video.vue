@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { GetEpisodeQuery } from '@/graph/generated'
+import type { GetEpisodeQuery } from '@/graph/generated'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { setTitle } from '@/utils/title'

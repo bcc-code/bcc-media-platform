@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import {
-    ChapterListChapterFragment,
-    EpisodeContext,
-    GetEpisodeQuery,
-    GetSeasonOnEpisodePageQuery,
+    type ChapterListChapterFragment,
+    type EpisodeContext,
+    type GetEpisodeQuery,
+    type GetSeasonOnEpisodePageQuery,
     useGetEpisodeQuery,
     useGetSeasonOnEpisodePageQuery,
 } from '@/graph/generated'

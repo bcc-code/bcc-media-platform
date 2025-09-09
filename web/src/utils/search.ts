@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { RouteLocationRaw } from 'vue-router'
+import type { RouteLocationRaw } from 'vue-router'
 import { useSessionId } from '@/composables/useSessionId'
 import { generateUUID } from './uuid'
 

@@ -1,6 +1,6 @@
 import config from '@/config'
 import { cacheExchange, createClient, fetchExchange } from '@urql/vue'
-import { AuthConfig, authExchange, AuthUtilities } from '@urql/exchange-auth'
+import { type AuthConfig, authExchange, type AuthUtilities } from '@urql/exchange-auth'
 import { Auth } from '../services/auth'
 import { current } from '@/services/language'
 import { currentApp as currentApp } from '@/services/app'

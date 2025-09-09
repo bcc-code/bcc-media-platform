@@ -196,6 +196,7 @@ const trackSubscribeClick = () => {
 
 <template>
     <div
+        v-if="comic"
         class="inline-flex flex-col items-center justify-start w-full h-full relative"
     >
         <h2

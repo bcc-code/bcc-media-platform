@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { StudyTopicSectionItemFragment } from '@/graph/generated'
+import type { StudyTopicSectionItemFragment } from '@/graph/generated'
 import { computed } from 'vue'
 import Image from '@/components/Image.vue'
 import { VButton } from '@/components'

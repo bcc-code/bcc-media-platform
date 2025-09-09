@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { TaskFragment } from '@/graph/generated'
+import type { TaskFragment } from '@/graph/generated'
 import { computed, watch } from 'vue'
 import Alternative from './Alternative.vue'
 import { analytics } from '@/services/analytics'
@@ -44,7 +44,8 @@ const isDone = computed({
     },
 })
 
-const getLetter = (index: number) => ['A', 'B', 'C', 'D', 'E', 'F', 'G'][index]
+const getLetter = (index: number) =>
+    ['A', 'B', 'C', 'D', 'E', 'F', 'G'][index] ?? ''
 
 watch(
     selectedIndex,

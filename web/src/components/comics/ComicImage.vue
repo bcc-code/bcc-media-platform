@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import Loader from '../Loader.vue'
-import { useTimestamp } from '@vueuse/core'
 
 defineProps<{
     url: string
@@ -12,11 +11,6 @@ function imageUrl(image: string) {
 }
 
 const loaded = ref(false)
-const time = useTimestamp({ interval: 100 })
-const started = time.value
-const loadingForALongTime = computed(() => {
-    return !loaded.value && time.value - started > 1000
-})
 
 function onLoad() {
     loaded.value = true

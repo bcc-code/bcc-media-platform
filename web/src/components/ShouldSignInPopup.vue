@@ -8,7 +8,7 @@ const { t } = useI18n()
 <template>
     <div v-if="shouldSignIn()">
         <div
-            class="fixed inset-0 flex text-2xl w-full h-full bg-black bg-opacity-50 z-50 bg-blur backdrop-blur-sm fixed"
+            class="inset-0 flex text-2xl w-full h-full bg-black bg-opacity-50 z-50 bg-blur backdrop-blur-sm fixed"
         >
             <div
                 class="mx-auto my-auto flex flex-col bg-background p-4 rounded-lg gap-4"

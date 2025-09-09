@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { LessonProgressOverviewFragment } from '@/graph/generated'
+import type { LessonProgressOverviewFragment } from '@/graph/generated'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Check from '../icons/Check.vue'

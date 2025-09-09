@@ -1,6 +1,6 @@
 import { ready, load, track, identify, page as rpage } from 'rudder-sdk-js'
 import { ref } from 'vue'
-import { AgeGroup, Events, IdentifyData, Page } from './events'
+import type { AgeGroup, Events, IdentifyData, Page } from './events'
 export * from './events'
 
 import { useAuth } from '../auth'

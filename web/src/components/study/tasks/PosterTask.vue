@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { VButton } from '@/components'
 import {
-    TaskFragment,
+    type TaskFragment,
     useCompleteTaskMutation,
     useSendTaskMessageMutation,
 } from '@/graph/generated'

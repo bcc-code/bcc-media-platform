@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import Lesson, { Page } from '@/components/study/Lesson.vue'
+import Lesson, { type Page } from '@/components/study/Lesson.vue'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 defineProps<{

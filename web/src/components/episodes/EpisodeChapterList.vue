@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ChapterListChapterFragment } from '@/graph/generated'
+import type { ChapterListChapterFragment } from '@/graph/generated'
 import { computed } from 'vue'
 
 const props = defineProps<{

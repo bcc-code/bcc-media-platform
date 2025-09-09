@@ -1,4 +1,4 @@
-import {
+import type {
     GetSeasonOnEpisodePageQuery,
     SectionItemFragment,
 } from '@/graph/generated'

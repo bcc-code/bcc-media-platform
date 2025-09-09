@@ -28,7 +28,7 @@ export const getMonth = (initial: Date) => {
 
     const index = sundays.length - 1
 
-    const nextDay = new Date(sundays[index])
+    const nextDay = new Date(sundays[index]!)
     nextDay.setDate(nextDay.getDate() + 1)
 
     if (nextDay.getMonth() === initial.getMonth()) {

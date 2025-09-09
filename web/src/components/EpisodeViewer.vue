@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { onMounted, onUnmounted, onUpdated, ref } from 'vue'
-import { Options, Player } from 'bccm-video-player'
+import type { Options, Player } from 'bccm-video-player'
 import playerFactory from '@/services/player'
 import {
-    EpisodeContext,
+    type EpisodeContext,
     useGetMeQuery,
     useUpdateEpisodeProgressMutation,
-    StreamFragment,
+    type StreamFragment,
     StreamType,
 } from '@/graph/generated'
 import { useAuth0 } from '@auth0/auth0-vue'
@@ -22,7 +22,7 @@ import { languageTo3letter } from '@/utils/languages'
 import { generateUUID } from '@/utils/uuid'
 import { BMM } from '@/services/bmm'
 import { getOperatingSystem } from '@/utils/userAgent'
-import { ProcessWatchedCommandEvent } from '@bcc-code/bmm-sdk-fetch'
+import type { ProcessWatchedCommandEvent } from '@bcc-code/bmm-sdk-fetch'
 import { useEventListener } from '@vueuse/core'
 
 const { isAuthenticated } = useAuth0()
@@ -193,7 +193,7 @@ const setupVideoLanguageMenu = (player: Player) => {
             return {
                 label: languages.value.filter(
                     (l) => l.code === s.videoLanguage
-                )[0].localizedName,
+                )[0]?.localizedName,
                 value: s.videoLanguage,
                 selected: route.query.videoLang === s.videoLanguage,
             } as MenuItem

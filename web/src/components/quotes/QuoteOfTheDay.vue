@@ -31,6 +31,8 @@ const today = new Date()
 let quote = quotes[Math.floor(Math.random() * Object.keys(quotes).length)]
 for (const key in quotes) {
     const val = quotes[key]
+    if (!val) continue
+
     //published_at: 07/03/2024 for example, but that's day/month/year
     const publishedAt = new Date(
         val.published_at.split('/').reverse().join('/')
@@ -51,11 +53,12 @@ let localizedQuotesPromise =
     localized[`../../utils/quotes/localized/${locale.value}.json`]?.()
 
 const { state: localizedQuotes } = useAsyncState(
-    localizedQuotesPromise,
+    localizedQuotesPromise ?? Promise.resolve(undefined),
     undefined
 )
 
 const quoteText = computed(() => {
+    if (!quote) return ''
     return localizedQuotes.value?.default[quote.id] ?? quote.quote
 })
 
@@ -72,15 +75,17 @@ const setRead = (val: boolean) => {
     } else {
         readDaysArray.value = [...readDaysArray.value, todayString]
     }
-    analytics.track('interaction', {
-        contextElementId: quote.id,
-        contextElementType: 'Quote',
-        interaction: 'quote_read',
-        meta: {
-            quoteId: quote.id,
-            pageCode: 'qotd',
-        },
-    })
+    if (quote) {
+        analytics.track('interaction', {
+            contextElementId: quote.id,
+            contextElementType: 'Quote',
+            interaction: 'quote_read',
+            meta: {
+                quoteId: quote.id,
+                pageCode: 'qotd',
+            },
+        })
+    }
 }
 const hasReadToday = computed(() => readDaysArray.value.includes(todayString))
 const { t } = useI18n()
@@ -89,6 +94,7 @@ const shareSupported =
     (navigator.share && typeof navigator.share === 'function') ||
     (webViewMain?.supportedFeatures?.get('share') ?? false)
 const share = () => {
+    if (!quote) return
     analytics.track('content_shared', {
         elementId: quote.id,
         elementType: 'Quote',
@@ -109,13 +115,15 @@ const share = () => {
 }
 
 onMounted(async () => {
-    analytics.page({
-        id: 'qotd',
-        title: 'Quote of the day',
-        meta: {
-            quoteId: quote.id,
-        },
-    })
+    if (quote) {
+        analytics.page({
+            id: 'qotd',
+            title: 'Quote of the day',
+            meta: {
+                quoteId: quote.id,
+            },
+        })
+    }
 })
 </script>
 
@@ -126,6 +134,7 @@ onMounted(async () => {
         @dblclick="setRead(false)"
     >
         <Quote
+            v-if="quote"
             :quote="quoteText"
             :author="quote.author"
             :source="quote.source"

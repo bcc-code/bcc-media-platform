@@ -18,4 +18,4 @@ export declare type WebView = {
     communication: WebViewCommunication
 }
 
-export {}
+export { }

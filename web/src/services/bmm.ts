@@ -2,7 +2,7 @@ import {
 	DefaultConfig,
 	Configuration,
 	StatisticsApi,
-	ProcessWatchedCommandEvent,
+	type ProcessWatchedCommandEvent,
 } from '@bcc-code/bmm-sdk-fetch'
 import Auth from './auth'
 import i18n from '@/i18n'

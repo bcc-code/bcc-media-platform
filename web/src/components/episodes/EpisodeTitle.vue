@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { CollectionItemThumbnailFragment } from '@/graph/generated'
+import type { CollectionItemThumbnailFragment } from '@/graph/generated'
 
 defineProps<{
     title: string

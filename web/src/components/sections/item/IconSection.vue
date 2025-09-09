@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Section } from '../types'
+import type { Section } from '../types'
 
 import SectionTitle from './SectionTitle.vue'
 import { onMounted, ref } from 'vue'

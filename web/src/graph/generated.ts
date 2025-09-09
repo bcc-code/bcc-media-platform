@@ -491,6 +491,27 @@ export type Export = {
   url: Scalars['String']['output'];
 };
 
+export type ExportAsync = {
+  exportId: Scalars['String']['output'];
+  result?: Maybe<ExportResult>;
+  status: ExportStatus;
+};
+
+export type ExportResult = {
+  created: Scalars['Date']['output'];
+  dbVersion: Scalars['String']['output'];
+  expires: Scalars['Date']['output'];
+  url: Scalars['String']['output'];
+};
+
+export enum ExportStatus {
+  Error = 'error',
+  Expired = 'expired',
+  New = 'new',
+  Processing = 'processing',
+  Ready = 'ready'
+}
+
 export type Faq = {
   categories?: Maybe<FaqCategoryPagination>;
   category: FaqCategory;
@@ -1172,6 +1193,11 @@ export type PosterTask = Task & {
   title: Scalars['String']['output'];
 };
 
+export enum PrimaryMediaType {
+  Audio = 'audio',
+  Video = 'video'
+}
+
 export type Profile = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -1196,6 +1222,7 @@ export type QueryRoot = {
   episodes: Array<Episode>;
   event?: Maybe<Event>;
   export: Export;
+  exportAsync: ExportAsync;
   faq: Faq;
   game: Game;
   languages: Array<Scalars['Language']['output']>;
@@ -1262,6 +1289,12 @@ export type QueryRootEventArgs = {
 
 
 export type QueryRootExportArgs = {
+  groups?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+
+export type QueryRootExportAsyncArgs = {
+  exportId?: InputMaybe<Scalars['String']['input']>;
   groups?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
@@ -1639,6 +1672,7 @@ export type Stream = {
   downloadable: Scalars['Boolean']['output'];
   expiresAt: Scalars['Date']['output'];
   id: Scalars['ID']['output'];
+  primaryMediaType: PrimaryMediaType;
   subtitleLanguages: Array<Scalars['Language']['output']>;
   type: StreamType;
   url: Scalars['String']['output'];

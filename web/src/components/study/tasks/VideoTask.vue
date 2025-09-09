@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { VButton } from '@/components'
-import { TaskFragment, useCompleteTaskMutation } from '@/graph/generated'
-import { computed, onMounted, ref } from 'vue'
+import { type TaskFragment, useCompleteTaskMutation } from '@/graph/generated'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { webViewMain } from '@/services/webviews/mainHandler'
 
@@ -53,7 +53,7 @@ onMounted(async () => {
         <div class="mx-12">
             <div
                 v-if="task.episode.image"
-                class="cursor-pointer mt-4 relative z-10 relative"
+                class="cursor-pointer mt-4 z-10 relative"
             >
                 <div
                     class="absolute top-0 w-full h-full rounded-xl border-[1.5px] border-white opacity-10 z-40"

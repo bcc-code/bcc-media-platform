@@ -1,4 +1,4 @@
-import { SwiperOptions } from 'swiper/types'
+import type { SwiperOptions } from 'swiper/types'
 
 const spaceBetween = 20
 

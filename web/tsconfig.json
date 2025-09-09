@@ -1,9 +1,10 @@
 {
+    "extends": "@vue/tsconfig/tsconfig.dom.json",
     "compilerOptions": {
         "target": "ESNext",
         "useDefineForClassFields": true,
         "module": "ESNext",
-        "moduleResolution": "Node",
+        "moduleResolution": "bundler",
         "strict": true,
         "jsx": "preserve",
         "outDir": "build",
@@ -11,14 +12,14 @@
         "resolveJsonModule": true,
         "isolatedModules": true,
         "esModuleInterop": true,
-        "lib": ["ESNext", "DOM"],
+        "lib": ["ESNext", "DOM", "DOM.Iterable"],
         "skipLibCheck": true,
         "baseUrl": ".",
         "paths": {
             "@/*": ["src/*"]
         }
     },
-    "include": ["**/*.ts", "**/*.d.ts", "**/*.tsx", "**/*.vue"],
+    "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
     "exclude": ["vite.config.ts"],
     "references": [{ "path": "./tsconfig.node.json" }]
 }

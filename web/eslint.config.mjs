@@ -3,6 +3,7 @@ import ts from 'typescript-eslint'
 import vuePlugin from 'eslint-plugin-vue'
 import eslintConfigPrettier from 'eslint-config-prettier'
 import unusedImports from 'eslint-plugin-unused-imports'
+import globals from 'globals'
 
 export default ts.config(
     js.configs.recommended,
@@ -15,6 +16,10 @@ export default ts.config(
     {
         files: ['**/*.ts', '**/*.vue'],
         languageOptions: {
+            globals: {
+                ...globals.browser,
+                ...globals.node,
+            },
             parserOptions: {
                 parser: '@typescript-eslint/parser',
             },
@@ -41,6 +46,7 @@ export default ts.config(
                     ],
                 },
             ],
+            'vue/multi-word-component-names': 'off',
         },
     },
     {

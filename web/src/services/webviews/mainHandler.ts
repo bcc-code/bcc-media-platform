@@ -1,5 +1,5 @@
 import { currentWebView } from '@/utils/webview'
-import { WebView } from '@/webview'
+import type { WebView } from '@/webview'
 import settings from '@/services/settings'
 
 type HapticFeedbackType =

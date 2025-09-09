@@ -1,5 +1,5 @@
 import { analytics } from '@/services/analytics'
-import { WebView, WebViewCommunication, WebViewType } from '@/webview'
+import type { WebView, WebViewCommunication, WebViewType } from '@/webview'
 
 class DelayedWebViewCommunication implements WebViewCommunication {
     webviewPromise: Promise<WebViewCommunication>

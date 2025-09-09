@@ -1,5 +1,5 @@
 import { Player } from 'bccm-video-player'
-import { MaybeRef, onScopeDispose, ref, unref, watch } from 'vue'
+import { type MaybeRef, onScopeDispose, ref, unref, watch } from 'vue'
 
 export function usePlayerTime(player: MaybeRef<Player | null | undefined>) {
     const currentTime = ref(0)

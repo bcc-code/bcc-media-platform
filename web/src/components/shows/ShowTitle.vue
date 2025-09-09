@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { CollectionItemThumbnailFragment } from '@/graph/generated'
+import type { CollectionItemThumbnailFragment } from '@/graph/generated'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()

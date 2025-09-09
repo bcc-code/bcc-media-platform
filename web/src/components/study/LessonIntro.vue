@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { GetStudyLessonQuery } from '@/graph/generated'
-import { Page } from './Lesson.vue'
+import type { GetStudyLessonQuery } from '@/graph/generated'
+import type { Page } from './Lesson.vue'
 import { useI18n } from 'vue-i18n'
 import { computed, onBeforeMount } from 'vue'
 import VButton from '../VButton.vue'

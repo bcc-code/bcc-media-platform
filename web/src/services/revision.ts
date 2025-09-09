@@ -12,10 +12,10 @@ export const getRevision = async () => {
         const token = await getToken()
         const headers = token
             ? {
-                  headers: {
-                      Authorization: 'Bearer ' + token,
-                  },
-              }
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+            }
             : {}
         const result = await fetch(api.url + '/versionz', headers)
 
@@ -24,6 +24,6 @@ export const getRevision = async () => {
         if (rev['build_sha']) {
             return (revision = rev)
         }
-    } catch {}
+    } catch { }
     return (revision = 'unknown | debug')
 }

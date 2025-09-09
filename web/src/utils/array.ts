@@ -12,7 +12,9 @@ export function findLastIndex<T>(
 ): number {
     let l = array.length
     while (l--) {
-        if (predicate(array[l], l, array)) return l
+        const arrl = array[l]
+        if (!arrl) continue
+        if (predicate(arrl, l, array)) return l
     }
     return -1
 }

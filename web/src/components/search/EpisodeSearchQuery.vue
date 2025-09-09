@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { SearchQuery } from '@/graph/generated'
+import type { SearchQuery } from '@/graph/generated'
 import { useI18n } from 'vue-i18n'
 import VButton from '../VButton.vue'
 

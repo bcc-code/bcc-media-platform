@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { GetShowQuery } from '@/graph/generated'
+import type { GetShowQuery } from '@/graph/generated'
 import SectionTitle from '@/components/sections/item/SectionTitle.vue'
 import Carousel from '@/components/Carousel.vue'
 import CollectionItemThumbnail from '../sections/item/CollectionItemThumbnail.vue'

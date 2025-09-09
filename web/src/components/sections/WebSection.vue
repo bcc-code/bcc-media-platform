@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Section } from './types'
+import type { Section } from './types'
 import SectionTitle from './item/SectionTitle.vue'
 import { ref } from 'vue'
 import Loader from '../Loader.vue'

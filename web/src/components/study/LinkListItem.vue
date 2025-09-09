@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { LessonLinkFragment } from '@/graph/generated'
+import type { LessonLinkFragment } from '@/graph/generated'
 import { webViewMain, openInBrowser } from '@/services/webviews/mainHandler'
 
 const props = defineProps<{ link: LessonLinkFragment }>()

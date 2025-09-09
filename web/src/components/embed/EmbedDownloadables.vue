@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { GetEpisodeEmbedQuery } from '@/graph/generated'
-import { Language, getLanguage } from '@/services/language'
+import type { GetEpisodeEmbedQuery } from '@/graph/generated'
+import { type Language, getLanguage } from '@/services/language'
 import { computed, ref } from 'vue'
 import { DocumentArrowDownIcon } from '@heroicons/vue/24/outline'
 import { analytics } from '@/services/analytics'

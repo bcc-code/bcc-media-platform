@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import EpisodeDisplay from '@/components/episodes/EpisodeDisplay.vue'
-import { GetEpisodeQuery } from '@/graph/generated'
+import type { GetEpisodeQuery } from '@/graph/generated'
 import { computed, ref, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { setTitle } from '@/utils/title'

@@ -3,8 +3,8 @@ import Loader from '@/components/Loader.vue'
 import ShowSeason from '@/components/shows/ShowSeason.vue'
 import {
     type GetSeasonEpisodesQuery,
+    type ShowSeasonFragment,
     GetSeasonEpisodesDocument,
-    ShowSeasonFragment,
     useGetShowQuery,
 } from '@/graph/generated'
 import { isNewEpisode } from '@/utils/items'

@@ -1,11 +1,4 @@
-<script lang="ts">
-// use normal <script> to declare options
-export default {
-    inheritAttrs: false,
-}
-</script>
 <script lang="ts" setup>
-import { useI18n } from 'vue-i18n'
 import {
     Dialog,
     DialogPanel,
@@ -13,11 +6,14 @@ import {
     TransitionChild,
 } from '@headlessui/vue'
 
-const { t } = useI18n()
+defineOptions({
+    inheritAttrs: false,
+})
 
-const props = defineProps<{
+defineProps<{
     visible: boolean
 }>()
+
 const emit = defineEmits<{
     (event: 'update:visible', val: boolean): void
 }>()

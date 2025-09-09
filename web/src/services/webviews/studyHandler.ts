@@ -1,5 +1,5 @@
 import { currentWebView } from '@/utils/webview'
-import { WebView } from '@/webview'
+import type { WebView } from '@/webview'
 import { analytics } from '../analytics'
 
 export type WebViewStudyHandlerCompletedTask = {

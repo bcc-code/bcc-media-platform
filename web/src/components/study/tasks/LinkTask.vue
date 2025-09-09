@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { VButton } from '@/components'
 import {
-    TaskFragment,
+    type TaskFragment,
     useCompleteTaskMutation,
     useGetRedirectUrlQuery,
 } from '@/graph/generated'
@@ -46,7 +46,7 @@ let redirectCode: string | null = null
     }
     const url = new URL(task.value.link.url) // https://something.com/r/something/blabla
     const pathSegments = url.pathname.split('/') // ["", "r", "something", "blabla"]
-    redirectCode = pathSegments[2] // "something"
+    redirectCode = pathSegments[2] ?? null // "something"
 })()
 
 const redirectQuery = useGetRedirectUrlQuery({

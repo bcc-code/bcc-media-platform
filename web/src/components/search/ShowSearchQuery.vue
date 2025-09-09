@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import Image from '@/components/Image.vue'
 import breakpoints from '@/components/sections/item/breakpoints'
-import { SearchQuery } from '@/graph/generated'
+import type { SearchQuery } from '@/graph/generated'
 import { analytics } from '@/services/analytics'
 import { goToShow } from '@/utils/items'
 import { Navigation } from 'swiper/modules'
