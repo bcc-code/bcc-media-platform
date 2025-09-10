@@ -1,0 +1,8 @@
+query getMe {
+    me {
+        analytics {
+            anonymousId
+        }
+        bccMember
+    }
+}

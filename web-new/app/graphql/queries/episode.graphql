@@ -1,0 +1,166 @@
+fragment SimpleEpisode on Episode {
+    id
+    uuid
+    title
+    image
+    publishDate
+    duration
+}
+
+query getSeasonOnEpisodePage($seasonId: ID!, $firstEpisodes: Int, $offsetEpisodes: Int) {
+    season(id: $seasonId) {
+        id
+        title
+        image(style: default)
+        number
+        episodes(first: $firstEpisodes, offset: $offsetEpisodes) {
+            total
+            items {
+                ...SimpleEpisode
+                number
+                progress
+                description
+                ageRating
+            }
+        }
+        show {
+            id
+            title
+            description
+            type
+            image(style: default)
+        }
+    }
+}
+
+fragment LessonProgressOverview on Lesson {
+    id
+    progress {
+        total
+        completed
+        alternativesTasksTotal
+        alternativesTasksCompleted
+        alternativesTasksCorrect
+    }
+}
+
+fragment Stream on Stream {
+    url
+    videoLanguage
+    type
+    primaryMediaType
+    audioLanguages
+}
+fragment ChapterListChapter on Chapter {
+    id
+    title
+    start
+}
+
+query getEpisode($episodeId: ID!, $context: EpisodeContext) {
+    episode(id: $episodeId, context: $context) {
+        ...SimpleEpisode
+        description
+        number
+        progress
+        locked
+        originalTitle
+        ageRating
+        productionDate
+        productionDateInTitle
+        availableFrom
+        availableTo
+        shareRestriction
+        chapters {
+            ...ChapterListChapter
+        }
+        streams {
+            ...Stream
+        }
+        files {
+            id
+            url
+            fileName
+            audioLanguage
+            subtitleLanguage
+            size
+            resolution
+        }
+        next {
+            id
+        }
+        lessons {
+            items {
+                ...LessonProgressOverview
+            }
+        }
+        context {
+            __typename
+            ... on Season {
+                id
+            }
+            ... on ContextCollection {
+                id
+                slug
+                items {
+                    items {
+                        ...SectionItem
+                    }
+                }
+            }
+        }
+        relatedItems {
+            items {
+                ...SectionItem
+            }
+        }
+        season {
+            id
+            title
+            number
+            description
+            show {
+                id
+                title
+                type
+                description
+                seasons {
+                    items {
+                        id
+                        title
+                        number
+                    }
+                }
+            }
+        }
+    }
+}
+
+mutation updateEpisodeProgress($episodeId: ID!, $progress: Int, $duration: Int, $context: EpisodeContext!) {
+    setEpisodeProgress(id: $episodeId, progress: $progress, duration: $duration, context: $context) {
+        progress
+    }
+}
+
+query getDefaultEpisodeForShow($id: ID!) {
+    show(id: $id) {
+        defaultEpisode {
+            id
+        }
+    }
+}
+
+query getEpisodeEmbed($id: ID!) {
+    episode(id: $id) {
+        id
+        files {
+            id
+            url
+            fileName
+            audioLanguage
+            subtitleLanguage
+            size
+            resolution
+        }
+    }
+}

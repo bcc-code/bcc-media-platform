@@ -1,0 +1,36 @@
+fragment ShowSeason on Season {
+    id
+    title
+    number
+    show {
+        id
+        title
+    }
+    episodes(dir: $dir) {
+        items {
+            ...CollectionItemThumbnail
+            title
+            image
+        }
+    }
+}
+
+query getShow($id: ID!, $dir: String) {
+    show(id: $id) {
+        id
+        title
+        description
+        image
+        seasons(dir: "desc") {
+            items {
+                ...ShowSeason
+            }
+        }
+    }
+}
+
+query getSeasonEpisodes($id: ID!, $dir: String) {
+    season(id: $id) {
+        ...ShowSeason
+    }
+}

@@ -1,0 +1,22 @@
+{
+  "tailwindCSS.experimental.classRegex": [
+    "class[:]\\s*['\"`]([^'\"`]*)['\"`]",
+    "className[:]\\s*['\"`]([^'\"`]*)['\"`]"
+  ],
+  "tailwindCSS.includeLanguages": {
+    "html": "html",
+    "javascript": "javascript",
+    "css": "css"
+  },
+  "tailwindCSS.classAttributes": [
+    "class",
+    "className",
+    "ngClass"
+  ],
+  "tailwindCSS.files.exclude": [
+    "**/.git/**",
+    "**/node_modules/**",
+    "**/.hg/**",
+    "**/.svn/**"
+  ]
+}

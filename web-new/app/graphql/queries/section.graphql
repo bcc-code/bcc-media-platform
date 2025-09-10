@@ -1,0 +1,48 @@
+fragment SectionItem on SectionItem {
+    id
+    image
+    title
+    sort
+    item {
+        __typename
+        ...CollectionItemThumbnail
+        ... on Page {
+            id
+            code
+        }
+        ... on StudyTopic {
+            id
+        }
+        ... on Playlist {
+            id
+        }
+        ... on Link {
+            id
+            url
+        }
+    }
+}
+
+query getSection($id: ID!, $first: Int!, $offset: Int!) {
+    section(id: $id) {
+        __typename
+        id
+        ... on ItemSection {
+            metadata {
+                collectionId
+                continueWatching
+                useContext
+                prependLiveElement
+                secondaryTitles
+            }
+            items(first: $first, offset: $offset) {
+                total
+                first
+                offset
+                items {
+                    ...SectionItem
+                }
+            }
+        }
+    }
+}

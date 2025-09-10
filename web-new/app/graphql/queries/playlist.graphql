@@ -1,0 +1,12 @@
+query getPlaylistEpisode($id: ID!) {
+    playlist(id: $id) {
+        items {
+            items {
+                __typename
+                ... on Episode {
+                    id
+                }
+            }
+        }
+    }
+}

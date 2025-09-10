@@ -1,0 +1,160 @@
+fragment Task on Task {
+    __typename
+    id
+    title
+    completed
+    ... on AlternativesTask {
+        locked
+        lockAnswer
+        showAnswer
+        alternatives {
+            id
+            title
+            isCorrect
+            selected
+        }
+    }
+    ... on PosterTask {
+        image
+    }
+    ... on QuoteTask {
+        image
+    }
+    ... on LinkTask {
+        secondaryTitle
+        description
+        link {
+            type
+            title
+            url
+            image
+            description
+        }
+    }
+    ... on VideoTask {
+        secondaryTitle
+        episode {
+            id
+            image
+            title
+            description
+        }
+    }
+}
+
+fragment LessonLink on Link {
+    image
+    title
+    description
+    url
+}
+
+query getStudyLesson($lessonId: ID!, $episodeId: ID!) {
+    studyLesson(id: $lessonId) {
+        id
+        title
+        introScreenCode
+        showDiscoverPage
+        progress {
+            total
+            completed
+            alternativesTasksTotal
+            alternativesTasksCompleted
+            alternativesTasksCorrect
+        }
+        tasks {
+            items {
+                ...Task
+            }
+        }
+        links {
+            items {
+                ...LessonLink
+            }
+        }
+    }
+    episode(id: $episodeId) {
+        id
+        title
+        image
+    }
+}
+
+query GetStudyTopicLessonStatuses($id: ID!, $first: Int!) {
+    studyTopic(id: $id) {
+        lessons(first: $first) {
+            items {
+                id
+                completed
+                episodes(first: 1) {
+                    items {
+                        id
+                        locked
+                    }
+                }
+            }
+        }
+    }
+}
+
+query getDefaultEpisodeForTopic($id: ID!) {
+    studyTopic(id: $id) {
+        defaultLesson {
+            defaultEpisode {
+                id
+            }
+        }
+    }
+}
+
+query getFirstSOTMLessonForConsent {
+    studyLesson(id: "5677226a-990b-4c24-b057-a5b0beab63f1") {
+        tasks {
+            items {
+                __typename
+                ... on AlternativesTask {
+                    alternatives {
+                        id
+                        selected
+                    }
+                }
+            }
+        }
+    }
+}
+
+query getTaskAlternativesForStudyLesson($lessonId: ID!) {
+    studyLesson(id: $lessonId) {
+        id
+        tasks {
+            items {
+                __typename
+                id
+                completed
+                ... on AlternativesTask {
+                    alternatives {
+                        id
+                        isCorrect
+                        selected
+                    }
+                }
+            }
+        }
+    }
+}
+
+mutation setStudyConsentTrue {
+    completeTask(id: "9ca12a44-93b3-4c83-8fd6-a1334f0d877e", selectedAlternatives: ["fe8c23c2-0aab-4853-a75f-f148400d005a"])
+}
+
+mutation completeTask($taskId: ID!, $selectedAlternatives: [String!]) {
+    completeTask(id: $taskId, selectedAlternatives: $selectedAlternatives)
+}
+
+mutation sendTaskMessage($taskId: ID!, $message: String!) {
+    sendTaskMessage(taskId: $taskId, message: $message)
+}
+
+mutation lockAnswers($lessonId: ID!) {
+    lockLessonAnswers(id: $lessonId)
+}

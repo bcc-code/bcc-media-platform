@@ -1,0 +1,7 @@
+query getShortDetails($id: UUID!) {
+    short(id: $id) {
+        image
+        title
+        description
+    }
+}

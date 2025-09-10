@@ -1,0 +1,150 @@
+query getPage($code: String!, $first: Int, $offset: Int, $sectionFirst: Int, $sectionOffset: Int) {
+    page(code: $code) {
+        id
+        title
+        code
+        sections(first: $first, offset: $offset) {
+            total
+            offset
+            first
+            items {
+                __typename
+                id
+                title
+                description
+                ...ItemSection
+                ... on WebSection {
+                    title
+                    url
+                    height
+                    aspectRatio
+                    authentication
+                }
+                ... on MessageSection {
+                    title
+                    messages {
+                        title
+                        content
+                        style {
+                            text
+                            background
+                            border
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fragment ItemSection on ItemSection {
+    metadata {
+        collectionId
+        continueWatching
+        useContext
+        prependLiveElement
+        secondaryTitles
+    }
+
+    items(first: $sectionFirst, offset: $sectionOffset) {
+        total
+        first
+        offset
+        items {
+            ...SectionItem
+        }
+    }
+    ... on DefaultSection {
+        size
+        items(first: $sectionFirst, offset: $sectionOffset) {
+            items {
+                description
+            }
+        }
+    }
+    ... on FeaturedSection {
+        size
+        items(first: $sectionFirst, offset: $sectionOffset) {
+            items {
+                description
+            }
+        }
+    }
+    ... on GridSection {
+        gridSize: size
+    }
+    ... on PosterSection {
+        size
+    }
+    ... on CardSection {
+        cardSize: size
+        items(first: $sectionFirst, offset: $sectionOffset) {
+            items {
+                item {
+                    ... on StudyTopic {
+                        ...StudyTopicSectionItem
+                    }
+                }
+            }
+        }
+    }
+    ... on ListSection {
+        metadata {
+            limit
+            page {
+                code
+            }
+        }
+    }
+}
+
+fragment StudyTopicSectionItem on StudyTopic {
+    id
+    title
+    description
+    images {
+        style
+        url
+    }
+    lessonsProgress: progress {
+        completed
+        total
+    }
+}
+
+query getSectionsForPage($code: String!, $first: Int, $offset: Int, $sectionFirst: Int, $sectionOffset: Int) {
+    page(code: $code) {
+        id
+        sections(first: $first, offset: $offset) {
+            total
+            offset
+            first
+            items {
+                __typename
+                id
+                title
+                description
+                ...ItemSection
+                ... on WebSection {
+                    title
+                    url
+                    height
+                    aspectRatio
+                    authentication
+                }
+                ... on MessageSection {
+                    title
+                    messages {
+                        title
+                        content
+                        style {
+                            text
+                            background
+                            border
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
