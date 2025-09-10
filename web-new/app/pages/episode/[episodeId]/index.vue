@@ -14,14 +14,14 @@ const { data, status } = useAsyncGql({
     v-if="status === 'success'"
     class="max-w-screen-lg mx-auto w-full px-2 md:px-20"
   >
-    <EpisodePlayer />
+    <EpisodePlayer :episode="data.episode" />
     <div class="p-6 bg-primary-light">
       <h1 class="text-style-title-2 lg:text-style-headline-2 text-label-1">
         {{ data.episode.title }}
       </h1>
-      <div class="flex gap-2 items-center my-2">
+      <div class="flex flex-wrap-reverse gap-2 items-center my-2">
         <span
-          class="border rounded-full leading-none px-2 py-0.5 text-xs text-label-4"
+          class="border rounded-full leading-none px-2 py-0.25 text-sm text-label-4 -mt-0.25"
         >
           {{ data.episode.ageRating }}
         </span>

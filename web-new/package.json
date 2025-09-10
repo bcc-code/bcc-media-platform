@@ -12,10 +12,14 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "bccm-video-player": "^1.6.0",
+    "@auth0/auth0-vue": "^2.4.0",
+    "@vueuse/core": "^13.9.0",
+    "@vueuse/nuxt": "13.9.0",
+    "bccm-video-player": "^1.6.2",
     "nuxt": "^4.1.1",
     "nuxt-graphql-client": "0.2.46",
     "unplugin-vue-router": "^0.15.0",
+    "video.js": "^8.23.4",
     "vue": "^3.5.21",
     "vue-router": "^4.5.1"
   },
@@ -24,7 +28,6 @@
     "@nuxt/test-utils": "3.19.2",
     "@tailwindcss/vite": "^4.1.13",
     "eslint": "^9.0.0",
-    "tailwindcss": "^4.1.13",
-    "typescript": "^5.9.2"
+    "tailwindcss": "^4.1.13"
   }
 }

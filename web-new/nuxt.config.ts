@@ -3,7 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-  modules: ["@nuxt/eslint", "@nuxt/test-utils", "nuxt-graphql-client"],
+  modules: ["@nuxt/eslint", "@nuxt/test-utils", "nuxt-graphql-client", "@vueuse/nuxt"],
   css: [
     "~/assets/css/barlow.css",
     "~/assets/css/design-system.css",
@@ -31,7 +31,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      GQL_HOST: "https://api.brunstad.tv/query",
+      apiUrl: "https://api.brunstad.tv",
       auth0: {
         domain: "login.bcc.no",
         clientId: "iaDsfutxWw4eoRHHVryW65JHd49kXaP0",
@@ -45,6 +45,7 @@ export default defineNuxtConfig({
         clientKey:
           "*:development.03da0cc96d92d3c3dc35efc801a4b27dfc2b175d00460c43e71d6fa2",
       },
+      GQL_HOST: "https://api.brunstad.tv/query",
     },
   },
 
