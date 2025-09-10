@@ -4,6 +4,7 @@ import {
     EpisodeContext,
     GetEpisodeQuery,
     GetSeasonOnEpisodePageQuery,
+    PrimaryMediaType,
     useGetEpisodeQuery,
     useGetSeasonOnEpisodePageQuery,
 } from '@/graph/generated'
@@ -27,6 +28,7 @@ import { mdToHTML } from '@/services/converter'
 import { usePlayerTime } from '@/composables/usePlayerTime'
 import { useI18n } from 'vue-i18n'
 import { Player } from 'bccm-video-player'
+import AudioPlayer from '../audio/AudioPlayer.vue'
 
 const props = defineProps<{
     initialEpisodeId: string
@@ -193,14 +195,22 @@ const onChapterClick = (chapter: ChapterListChapterFragment) => {
         top: 0,
     })
 }
+
+const audioOnly = computed(() => {
+    return episode.value?.streams.every(
+        (s) => s.primaryMediaType == PrimaryMediaType.Audio
+    )
+})
 </script>
 <template>
     <section v-if="episode" class="max-w-screen-lg mx-auto rounded-2xl">
-        <div class="relative aspect-video w-full">
+        <AudioPlayer v-if="audioOnly" :episode="episode" />
+        <div v-else class="relative aspect-video w-full">
             <div
                 class="h-full w-full bg-secondary rounded-xl opacity-10 absolute"
             ></div>
             <EpisodeViewer
+                v-if="!audioOnly"
                 ref="viewerRef"
                 :context="context"
                 :auto-play="true"
