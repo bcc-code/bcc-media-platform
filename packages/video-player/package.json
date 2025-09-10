@@ -1,6 +1,6 @@
 {
     "name": "bccm-video-player",
-    "version": "1.6.1",
+    "version": "1.6.2",
     "type": "commonjs",
     "types": "build/types/index.d.ts",
     "files": [
@@ -8,6 +8,7 @@
     ],
     "exports": {
         ".": {
+            "types": "./build/types/index.d.ts",
             "import": "./build/bccm-video-player.mjs",
             "require": "./build/bccm-video-player.umd.js"
         },
