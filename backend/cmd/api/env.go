@@ -251,7 +251,7 @@ func getEnvConfig() envConfig {
 			Provider:         os.Getenv("EMAIL_PROVIDER"),
 			SendGridAPIKey:   os.Getenv("SENDGRID_API_KEY"),
 			ResendAPIKey:     os.Getenv("RESEND_API_KEY"),
-			ResendFromEmail:  os.Getenv("RESEND_FROM_EMAIL"),
+			FromEmail:        os.Getenv("EMAIL_FROM"),
 		},
 		Redirect: &redirectConfig{
 			JWTPrivateKeyRaw: os.Getenv("REDIRECT_JWT_KEY"),

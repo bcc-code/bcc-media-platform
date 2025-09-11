@@ -13,13 +13,20 @@ import (
 
 // SendGridProvider implements the EmailProvider interface for SendGrid
 type SendGridProvider struct {
-	client *sendgrid.Client
+	client    *sendgrid.Client
+	fromEmail string
 }
 
 // NewSendGridProvider creates a new SendGrid email provider
-func NewSendGridProvider(apiKey string) *SendGridProvider {
+func NewSendGridProvider(apiKey, fromEmail string) *SendGridProvider {
+	// Use default if fromEmail is empty
+	if fromEmail == "" {
+		fromEmail = "app@brunstad.tv"
+	}
+
 	return &SendGridProvider{
-		client: sendgrid.NewSendClient(apiKey),
+		client:    sendgrid.NewSendClient(apiKey),
+		fromEmail: fromEmail,
 	}
 }
 
@@ -35,7 +42,7 @@ func (p *SendGridProvider) SendEmail(ctx context.Context, options SendOptions) e
 	sanitizer := bluemonday.UGCPolicy()
 	html := sanitizer.Sanitize(options.HTMLContent)
 
-	message := mail.NewSingleEmail(mail.NewEmail("App", "app@brunstad.tv"), options.Title, to, options.Content, html)
+	message := mail.NewSingleEmail(mail.NewEmail("App", p.fromEmail), options.Title, to, options.Content, html)
 	message.ReplyTo = from
 
 	// Log the email attempt
