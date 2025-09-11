@@ -34,6 +34,9 @@ exports.handler = (event, context, callback) => {
     const request = event.Records[0].cf.request;
     const manifestDomain = config.MANIFEST_DOMAIN;
 
+    let parsedQs = qsParser.parse(request.querystring);
+    let isAudioOnly = parsedQs["audio-only"] === "true";
+
     //find dir for the m3u8
     let dir = path.dirname(request.uri);
 
@@ -70,11 +73,45 @@ exports.handler = (event, context, callback) => {
 
             let bodyReadTime = Date.now() - bodyReadStart
             let bodyModificationStart = Date.now()
+
+            // Check if this is a main manifest (contains #EXT-X-STREAM-INF)
+            let isMainManifest = data.includes("#EXT-X-STREAM-INF");
+            let skipNextLine = false;
+
             data.split("\n").forEach((elem) => {
+                if (skipNextLine) {
+                    skipNextLine = false;
+                    return;
+                }
+
                 if (elem.startsWith("#EXT-X-I-FRAME-STREAM-INF")) {
                     // Debug. Remove I-Frame playlists
                     return;
                 }
+
+                // Audio-only filtering for main manifest only
+                if (isAudioOnly && isMainManifest && elem.startsWith("#EXT-X-STREAM-INF")) {
+                    // Skip all video streams and replace with a single audio-only stream
+                    skipNextLine = true;
+
+                    // Add a single audio-only stream (only for the first video stream encountered)
+                    if (!body.some(line => line.includes('CODECS="mp4a.40.2"') && !line.includes('avc1'))) {
+                        body.push('#EXT-X-STREAM-INF:BANDWIDTH=128000,CODECS="mp4a.40.2",AUDIO="audio_0"');
+                        // Find the default audio track URI from EXT-X-MEDIA entries
+                        let defaultAudioUri = '';
+                        data.split("\n").forEach(line => {
+                            if (line.includes('#EXT-X-MEDIA:TYPE=AUDIO') && line.includes('DEFAULT=YES')) {
+                                let uriMatch = line.match(/URI="([^"]+)"/);
+                                if (uriMatch) {
+                                    defaultAudioUri = uriMatch[1];
+                                }
+                            }
+                        });
+                        body.push(signed(dir, defaultAudioUri || '', request));
+                    }
+                    return;
+                }
+
                 if (elem.startsWith("#")) {
                     if (elem.indexOf("URI") != -1) { //URI component inline
                         var uriComponents = elem.substring(elem.indexOf("URI")).split("\"");
@@ -152,7 +189,6 @@ exports.handler = (event, context, callback) => {
     });
 
 }
-
 
 function signed(dir, file, request) {
     let fileWithoutQuery = file
