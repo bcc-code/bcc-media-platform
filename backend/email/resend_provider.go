@@ -51,11 +51,12 @@ func extractDomain(email string) string {
 
 // ResendProvider implements the EmailProvider interface for Resend
 type ResendProvider struct {
-	client *resend.Client
+	client    *resend.Client
+	fromEmail string
 }
 
 // NewResendProvider creates a new Resend email provider
-func NewResendProvider(apiKey string) *ResendProvider {
+func NewResendProvider(apiKey, fromEmail string) *ResendProvider {
 	// Log API key status (without exposing the actual key)
 	keyLength := len(apiKey)
 	keyPrefix := ""
@@ -63,14 +64,21 @@ func NewResendProvider(apiKey string) *ResendProvider {
 		keyPrefix = apiKey[:8] + "..."
 	}
 
+	// Use default if fromEmail is empty
+	if fromEmail == "" {
+		fromEmail = "api@mailer.bcc.media"
+	}
+
 	log.L.Info().
 		Int("key_length", keyLength).
 		Str("key_prefix", keyPrefix).
 		Bool("key_empty", apiKey == "").
+		Str("from_email", fromEmail).
 		Msg("Initializing Resend provider")
 
 	return &ResendProvider{
-		client: resend.NewClient(apiKey),
+		client:    resend.NewClient(apiKey),
+		fromEmail: fromEmail,
 	}
 }
 
@@ -93,8 +101,8 @@ func (p *ResendProvider) SendEmail(ctx context.Context, options SendOptions) err
 		Str("title", options.Title).
 		Msg("Attempting to send email")
 
-	// Build the sender - always use verified Resend domain for from address
-	fromEmail := "api@mailer.bcc.media"
+	// Build the sender - use configured from address
+	fromEmail := p.fromEmail
 
 	params := &resend.SendEmailRequest{
 		From:    fromEmail,

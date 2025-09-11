@@ -33,7 +33,7 @@ func TestNewResendProvider(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			provider := NewResendProvider(tt.apiKey)
+			provider := NewResendProvider(tt.apiKey, "test@mailer.bcc.media")
 			tt.expect(t, provider)
 		})
 	}
@@ -46,7 +46,7 @@ func TestResendProvider_SendEmail_TestAddresses(t *testing.T) {
 		t.Skip("No RESEND_TEST_API_KEY provided, skipping integration test")
 	}
 
-	provider := NewResendProvider(apiKey)
+	provider := NewResendProvider(apiKey, "test@example.com")
 	ctx := context.Background()
 
 	tests := []struct {
@@ -90,7 +90,7 @@ func TestResendProvider_SendEmail_TestAddresses(t *testing.T) {
 
 func TestResendProvider_SendEmail_ErrorScenarios(t *testing.T) {
 	// These tests use invalid API keys to test error handling
-	provider := NewResendProvider("invalid_api_key")
+	provider := NewResendProvider("invalid_api_key", "test@mailer.bcc.media")
 	ctx := context.Background()
 
 	tests := []struct {
@@ -124,7 +124,7 @@ func TestResendProvider_SendEmail_ErrorScenarios(t *testing.T) {
 			err := provider.SendEmail(ctx, tt.options)
 			if tt.expectError {
 				assert.Error(t, err, tt.description)
-				assert.Contains(t, err.Error(), "resend API error", "Error should indicate Resend API error")
+				assert.Contains(t, err.Error(), "Resend API error", "Error should indicate Resend API error")
 			} else {
 				assert.NoError(t, err, tt.description)
 			}
@@ -139,7 +139,7 @@ func TestResendProvider_SendEmail_HTMLSanitization(t *testing.T) {
 		t.Skip("No RESEND_TEST_API_KEY provided, skipping HTML sanitization test")
 	}
 
-	provider := NewResendProvider(apiKey)
+	provider := NewResendProvider(apiKey, "test@example.com")
 	ctx := context.Background()
 
 	options := SendOptions{
@@ -171,7 +171,7 @@ func TestResendProvider_SendEmail_ReplyToHandling(t *testing.T) {
 		t.Skip("No RESEND_TEST_API_KEY provided, skipping reply-to test")
 	}
 
-	provider := NewResendProvider(apiKey)
+	provider := NewResendProvider(apiKey, "test@example.com")
 	ctx := context.Background()
 
 	tests := []struct {

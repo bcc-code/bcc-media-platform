@@ -10,6 +10,7 @@ type Config struct {
 	Provider         string // "sendgrid" or "resend"
 	SendGridAPIKey   string // SendGrid API key
 	ResendAPIKey     string // Resend API key
+	ResendFromEmail  string // Resend from email address
 }
 
 // Service contains methods for sending emails
@@ -40,7 +41,7 @@ func New(options Config) (*Service, error) {
 		if apiKey == "" {
 			return nil, fmt.Errorf("Resend API key is required")
 		}
-		provider = NewResendProvider(apiKey)
+		provider = NewResendProvider(apiKey, options.ResendFromEmail)
 	default:
 		return nil, fmt.Errorf("unsupported email provider: %s (supported: sendgrid, resend)", providerType)
 	}

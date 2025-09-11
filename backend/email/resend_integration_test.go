@@ -19,7 +19,7 @@ func TestResendProvider_TestEmailAddresses_Integration(t *testing.T) {
 		t.Skip("RESEND_TEST_API_KEY environment variable not set, skipping integration tests")
 	}
 
-	provider := NewResendProvider(apiKey)
+	provider := NewResendProvider(apiKey, "test@mailer.bcc.media")
 	ctx := context.Background()
 
 	tests := []struct {
@@ -124,7 +124,7 @@ func TestResendProvider_RealWorldScenarios_Integration(t *testing.T) {
 		t.Skip("RESEND_TEST_API_KEY environment variable not set, skipping integration tests")
 	}
 
-	provider := NewResendProvider(apiKey)
+	provider := NewResendProvider(apiKey, "test@mailer.bcc.media")
 	ctx := context.Background()
 
 	t.Run("email with various content types", func(t *testing.T) {
@@ -239,7 +239,7 @@ func TestResendProvider_RealWorldScenarios_Integration(t *testing.T) {
 
 func TestResendProvider_ErrorHandling_Integration(t *testing.T) {
 	// Test with invalid API key
-	provider := NewResendProvider("invalid_api_key_12345")
+	provider := NewResendProvider("invalid_api_key_12345", "test@mailer.bcc.media")
 	ctx := context.Background()
 
 	options := SendOptions{
@@ -255,7 +255,7 @@ func TestResendProvider_ErrorHandling_Integration(t *testing.T) {
 
 	err := provider.SendEmail(ctx, options)
 	assert.Error(t, err, "Should fail with invalid API key")
-	assert.Contains(t, err.Error(), "resend API error", "Error should indicate it's a Resend API error")
+	assert.Contains(t, err.Error(), "Resend API error", "Error should indicate it's a Resend API error")
 
 	t.Logf("Error message: %v", err)
 }
