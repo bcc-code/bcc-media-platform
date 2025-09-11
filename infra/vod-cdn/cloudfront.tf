@@ -117,6 +117,7 @@ resource "aws_cloudfront_distribution" "vod_distribution" {
 
   tags = {
     Environment = var.env
+    Name        = "BCC Platform VOD"
   }
 
   aliases = [

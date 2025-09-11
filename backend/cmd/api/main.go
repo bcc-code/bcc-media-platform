@@ -199,7 +199,10 @@ func main() {
 
 	ls := loaders.InitBatchLoaders(queries, membersClient)
 	searchService := search.New(queries, config.Search)
-	emailService := email.New(config.Email)
+	emailService, err := email.New(config.Email)
+	if err != nil {
+		log.L.Panic().Err(err).Msg("Failed to initialize email service")
+	}
 
 	awsConfig, err := awsSDKConfig.LoadDefaultConfig(ctx)
 	if err != nil {

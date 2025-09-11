@@ -248,7 +248,10 @@ func getEnvConfig() envConfig {
 			TracePrettyPrint:  os.Getenv("TRACE_PRETTY"),
 		},
 		Email: email.Config{
-			ApiKey: os.Getenv("SENDGRID_API_KEY"),
+			Provider:         os.Getenv("EMAIL_PROVIDER"),
+			SendGridAPIKey:   os.Getenv("SENDGRID_API_KEY"),
+			ResendAPIKey:     os.Getenv("RESEND_API_KEY"),
+			FromEmail:        os.Getenv("EMAIL_FROM"),
 		},
 		Redirect: &redirectConfig{
 			JWTPrivateKeyRaw: os.Getenv("REDIRECT_JWT_KEY"),
