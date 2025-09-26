@@ -131,7 +131,7 @@ resource "google_compute_target_https_proxy" "website" {
   url_map  = google_compute_url_map.website.self_link
   ssl_certificates = flatten([
     var.additional_key_path != "" ? [google_compute_ssl_certificate.additional_cert[0].self_link] : [],
-    google_compute_managed_ssl_certificate.website.self_link,
+    google_compute_managed_ssl_certificate.website2.self_link,
     google_project.brunstadtv.project_id == "btv-platform-prod-2" ? [
       "https://www.googleapis.com/compute/v1/projects/btv-platform-prod-2/global/sslCertificates/app-biblekids-io"
     ] : []
@@ -149,10 +149,10 @@ resource "google_compute_global_forwarding_rule" "default" {
   target                = google_compute_target_https_proxy.website.self_link
 }
 
-resource "google_compute_managed_ssl_certificate" "website" {
+resource "google_compute_managed_ssl_certificate" "website2" {
   provider = google-beta
   project  = google_project.brunstadtv.project_id
-  name     = "website-cert"
+  name     = "website-cert-2"
   managed {
     domains = var.web_domains
   }
