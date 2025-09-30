@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "@directus/sdk": "^9.12.2"
+        "@directus/sdk": "^20.1.0"
     },
     "devDependencies": {
         "@faker-js/faker": "^7.2.0",
