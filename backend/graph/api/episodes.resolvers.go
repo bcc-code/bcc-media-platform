@@ -43,10 +43,7 @@ func (r *episodeResolver) Locked(ctx context.Context, obj *model.Episode) (bool,
 	}
 	ginCtx, _ := utils.GinCtx(ctx)
 	roles := user.GetRolesFromCtx(ginCtx)
-	if e.PublishDate.After(time.Now()) && len(lo.Intersect(perms.Roles.EarlyAccess, roles)) == 0 {
-		return true, nil
-	}
-	return false, nil
+	return e.PublishDate.After(time.Now()) && len(lo.Intersect(perms.Roles.EarlyAccess, roles)) == 0, nil
 }
 
 // AvailableFrom is the resolver for the availableFrom field.
