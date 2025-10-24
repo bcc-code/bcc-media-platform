@@ -10,7 +10,52 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	null_v4 "gopkg.in/guregu/null.v4"
 )
+
+const getContributionsForEpisode = `-- name: GetContributionsForEpisode :many
+SELECT DISTINCT c.person_id, c.type
+FROM public.contributions c
+INNER JOIN public.mediaitems m ON c.mediaitem_id = m.id
+WHERE m.primary_episode_id = $1
+
+UNION
+
+SELECT DISTINCT c.person_id, c.type
+FROM public.contributions c
+INNER JOIN public.timedmetadata tm ON c.timedmetadata_id = tm.id
+INNER JOIN public.mediaitems m ON (m.timedmetadata_from_asset AND tm.asset_id = m.asset_id)
+                                 OR (NOT m.timedmetadata_from_asset AND tm.mediaitem_id = m.id)
+WHERE m.primary_episode_id = $1
+`
+
+type GetContributionsForEpisodeRow struct {
+	PersonID uuid.UUID `db:"person_id" json:"personId"`
+	Type     string    `db:"type" json:"type"`
+}
+
+func (q *Queries) GetContributionsForEpisode(ctx context.Context, episodeID null_v4.Int) ([]GetContributionsForEpisodeRow, error) {
+	rows, err := q.db.QueryContext(ctx, getContributionsForEpisode, episodeID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetContributionsForEpisodeRow
+	for rows.Next() {
+		var i GetContributionsForEpisodeRow
+		if err := rows.Scan(&i.PersonID, &i.Type); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const getContributionsForPerson = `-- name: GetContributionsForPerson :many
 SELECT id, user_created, date_created, user_updated, date_updated, person_id, type, mediaitem_id, timedmetadata_id FROM "public"."contributions" WHERE person_id = $1::uuid

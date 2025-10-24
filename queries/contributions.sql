@@ -66,3 +66,18 @@ VALUES (@person_id::uuid, @type, sqlc.narg('mediaitem_id')::uuid, sqlc.narg('tim
 
 -- name: GetContributionsForPerson :many
 SELECT * FROM "public"."contributions" WHERE person_id = @person_id::uuid;
+
+-- name: GetContributionsForEpisode :many
+SELECT DISTINCT c.person_id, c.type
+FROM public.contributions c
+INNER JOIN public.mediaitems m ON c.mediaitem_id = m.id
+WHERE m.primary_episode_id = @episode_id
+
+UNION
+
+SELECT DISTINCT c.person_id, c.type
+FROM public.contributions c
+INNER JOIN public.timedmetadata tm ON c.timedmetadata_id = tm.id
+INNER JOIN public.mediaitems m ON (m.timedmetadata_from_asset AND tm.asset_id = m.asset_id)
+                                 OR (NOT m.timedmetadata_from_asset AND tm.mediaitem_id = m.id)
+WHERE m.primary_episode_id = @episode_id;

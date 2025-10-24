@@ -296,6 +296,11 @@ type ComplexityRoot struct {
 		Total       func(childComplexity int) int
 	}
 
+	Contributor struct {
+		ContributionTypes func(childComplexity int) int
+		Person            func(childComplexity int) int
+	}
+
 	DefaultGridSection struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
@@ -327,6 +332,7 @@ type ComplexityRoot struct {
 		AvailableTo           func(childComplexity int) int
 		Chapters              func(childComplexity int) int
 		Context               func(childComplexity int) int
+		Contributors          func(childComplexity int) int
 		Cursor                func(childComplexity int) int
 		Description           func(childComplexity int) int
 		Duration              func(childComplexity int) int
@@ -1201,6 +1207,7 @@ type EpisodeResolver interface {
 	Lessons(ctx context.Context, obj *model.Episode, first *int, offset *int, cursor *string) (*model.LessonPagination, error)
 	ShareRestriction(ctx context.Context, obj *model.Episode) (model.ShareRestriction, error)
 	InMyList(ctx context.Context, obj *model.Episode) (bool, error)
+	Contributors(ctx context.Context, obj *model.Episode) ([]*model.Contributor, error)
 	Next(ctx context.Context, obj *model.Episode, limit *int) ([]*model.Episode, error)
 	Cursor(ctx context.Context, obj *model.Episode) (string, error)
 }
@@ -2281,6 +2288,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.ContributionsPagination.Total(childComplexity), true
 
+	case "Contributor.contributionTypes":
+		if e.complexity.Contributor.ContributionTypes == nil {
+			break
+		}
+
+		return e.complexity.Contributor.ContributionTypes(childComplexity), true
+
+	case "Contributor.person":
+		if e.complexity.Contributor.Person == nil {
+			break
+		}
+
+		return e.complexity.Contributor.Person(childComplexity), true
+
 	case "DefaultGridSection.description":
 		if e.complexity.DefaultGridSection.Description == nil {
 			break
@@ -2437,6 +2458,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Episode.Context(childComplexity), true
+
+	case "Episode.contributors":
+		if e.complexity.Episode.Contributors == nil {
+			break
+		}
+
+		return e.complexity.Episode.Contributors(childComplexity), true
 
 	case "Episode.cursor":
 		if e.complexity.Episode.Cursor == nil {
@@ -7034,6 +7062,7 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     lessons(first: Int, offset: Int, cursor: Cursor): LessonPagination! @goField(forceResolver: true)
     shareRestriction: ShareRestriction! @goField(forceResolver: true)
     inMyList: Boolean! @goField(forceResolver: true)
+    contributors: [Contributor!]! @goField(forceResolver: true)
 
     """
     Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
@@ -7326,7 +7355,15 @@ type ContextCollection {
     ): SectionItemPagination @goField(forceResolver: true)
 }
 `, BuiltIn: false},
-	{Name: "../schema/persons.graphqls", Input: `type ContributionType {
+	{Name: "../schema/persons.graphqls", Input: `enum ContributionTypeCode {
+    LYRICIST
+    ARRANGER
+    SINGER
+    SPEAKER
+    OTHER
+}
+
+type ContributionType {
     code: String!
     title: String! @goField(forceResolver: true)
 }
@@ -7372,6 +7409,11 @@ type Contribution {
     type: ContributionType!
     contentType: ContentType!
     item: ContributionItem!
+}
+
+type Contributor {
+    person: Person!
+    contributionTypes: [ContributionTypeCode!]!
 }
 `, BuiltIn: false},
 	{Name: "../schema/playlists.graphqls", Input: `type Playlist implements CollectionItem {
@@ -17394,6 +17436,8 @@ func (ec *executionContext) fieldContext_Chapter_episode(_ context.Context, fiel
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "contributors":
+				return ec.fieldContext_Episode_contributors(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			case "cursor":
@@ -18578,6 +18622,108 @@ func (ec *executionContext) fieldContext_ContributionsPagination_items(_ context
 				return ec.fieldContext_Contribution_item(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Contribution", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Contributor_person(ctx context.Context, field graphql.CollectedField, obj *model.Contributor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Contributor_person(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Person, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Person)
+	fc.Result = res
+	return ec.marshalNPerson2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPerson(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Contributor_person(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Contributor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Person_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Person_name(ctx, field)
+			case "image":
+				return ec.fieldContext_Person_image(ctx, field)
+			case "contributionTypes":
+				return ec.fieldContext_Person_contributionTypes(ctx, field)
+			case "contributionContentTypes":
+				return ec.fieldContext_Person_contributionContentTypes(ctx, field)
+			case "contributions":
+				return ec.fieldContext_Person_contributions(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Person", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Contributor_contributionTypes(ctx context.Context, field graphql.CollectedField, obj *model.Contributor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Contributor_contributionTypes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ContributionTypes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]model.ContributionTypeCode)
+	fc.Result = res
+	return ec.marshalNContributionTypeCode2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionTypeCodeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Contributor_contributionTypes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Contributor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ContributionTypeCode does not have child fields")
 		},
 	}
 	return fc, nil
@@ -21063,6 +21209,56 @@ func (ec *executionContext) fieldContext_Episode_inMyList(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_contributors(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_contributors(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Episode().Contributors(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Contributor)
+	fc.Result = res
+	return ec.marshalNContributor2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributorᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_contributors(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "person":
+				return ec.fieldContext_Contributor_person(ctx, field)
+			case "contributionTypes":
+				return ec.fieldContext_Contributor_contributionTypes(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Contributor", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_next(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_next(ctx, field)
 	if err != nil {
@@ -21176,6 +21372,8 @@ func (ec *executionContext) fieldContext_Episode_next(ctx context.Context, field
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "contributors":
+				return ec.fieldContext_Episode_contributors(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			case "cursor":
@@ -21671,6 +21869,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(_ context.
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "contributors":
+				return ec.fieldContext_Episode_contributors(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			case "cursor":
@@ -22103,6 +22303,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(_ context.Conte
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "contributors":
+				return ec.fieldContext_Episode_contributors(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			case "cursor":
@@ -27137,6 +27339,8 @@ func (ec *executionContext) fieldContext_Lesson_defaultEpisode(_ context.Context
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "contributors":
+				return ec.fieldContext_Episode_contributors(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			case "cursor":
@@ -29947,6 +30151,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "contributors":
+				return ec.fieldContext_Episode_contributors(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			case "cursor":
@@ -34098,6 +34304,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "contributors":
+				return ec.fieldContext_Episode_contributors(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			case "cursor":
@@ -34233,6 +34441,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episodes(ctx context.Context,
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "contributors":
+				return ec.fieldContext_Episode_contributors(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			case "cursor":
@@ -37519,6 +37729,8 @@ func (ec *executionContext) fieldContext_Season_defaultEpisode(_ context.Context
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "contributors":
+				return ec.fieldContext_Episode_contributors(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			case "cursor":
@@ -41213,6 +41425,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(_ context.Context, 
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "contributors":
+				return ec.fieldContext_Episode_contributors(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			case "cursor":
@@ -46667,6 +46881,8 @@ func (ec *executionContext) fieldContext_VideoTask_episode(_ context.Context, fi
 				return ec.fieldContext_Episode_shareRestriction(ctx, field)
 			case "inMyList":
 				return ec.fieldContext_Episode_inMyList(ctx, field)
+			case "contributors":
+				return ec.fieldContext_Episode_contributors(ctx, field)
 			case "next":
 				return ec.fieldContext_Episode_next(ctx, field)
 			case "cursor":
@@ -52169,6 +52385,50 @@ func (ec *executionContext) _ContributionsPagination(ctx context.Context, sel as
 	return out
 }
 
+var contributorImplementors = []string{"Contributor"}
+
+func (ec *executionContext) _Contributor(ctx context.Context, sel ast.SelectionSet, obj *model.Contributor) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, contributorImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Contributor")
+		case "person":
+			out.Values[i] = ec._Contributor_person(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "contributionTypes":
+			out.Values[i] = ec._Contributor_contributionTypes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var defaultGridSectionImplementors = []string{"DefaultGridSection", "Section", "ItemSection", "GridSection"}
 
 func (ec *executionContext) _DefaultGridSection(ctx context.Context, sel ast.SelectionSet, obj *model.DefaultGridSection) graphql.Marshaler {
@@ -53052,6 +53312,42 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 					}
 				}()
 				res = ec._Episode_inMyList(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "contributors":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_contributors(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -62400,6 +62696,75 @@ func (ec *executionContext) marshalNContributionType2ᚖgithubᚗcomᚋbccᚑcod
 	return ec._ContributionType(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNContributionTypeCode2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionTypeCode(ctx context.Context, v any) (model.ContributionTypeCode, error) {
+	var res model.ContributionTypeCode
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNContributionTypeCode2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionTypeCode(ctx context.Context, sel ast.SelectionSet, v model.ContributionTypeCode) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNContributionTypeCode2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionTypeCodeᚄ(ctx context.Context, v any) ([]model.ContributionTypeCode, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]model.ContributionTypeCode, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNContributionTypeCode2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionTypeCode(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNContributionTypeCode2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionTypeCodeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.ContributionTypeCode) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNContributionTypeCode2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionTypeCode(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNContributionTypeCount2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributionTypeCountᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ContributionTypeCount) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -62466,6 +62831,60 @@ func (ec *executionContext) marshalNContributionsPagination2ᚖgithubᚗcomᚋbc
 		return graphql.Null
 	}
 	return ec._ContributionsPagination(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNContributor2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributorᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Contributor) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNContributor2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributor(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNContributor2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐContributor(ctx context.Context, sel ast.SelectionSet, v *model.Contributor) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Contributor(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNCursor2string(ctx context.Context, v any) (string, error) {

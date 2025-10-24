@@ -1,3 +1,11 @@
+enum ContributionTypeCode {
+    LYRICIST
+    ARRANGER
+    SINGER
+    SPEAKER
+    OTHER
+}
+
 type ContributionType {
     code: String!
     title: String! @goField(forceResolver: true)
@@ -44,4 +52,9 @@ type Contribution {
     type: ContributionType!
     contentType: ContentType!
     item: ContributionItem!
+}
+
+type Contributor {
+    person: Person!
+    contributionTypes: [ContributionTypeCode!]!
 }
