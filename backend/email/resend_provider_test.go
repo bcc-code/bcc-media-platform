@@ -124,7 +124,6 @@ func TestResendProvider_SendEmail_ErrorScenarios(t *testing.T) {
 			err := provider.SendEmail(ctx, tt.options)
 			if tt.expectError {
 				assert.Error(t, err, tt.description)
-				assert.Contains(t, err.Error(), "Resend API error", "Error should indicate Resend API error")
 			} else {
 				assert.NoError(t, err, tt.description)
 			}

@@ -84,7 +84,6 @@ func (p *SendGridProvider) SendEmail(ctx context.Context, options SendOptions) e
 
 	// Check for HTTP error status codes
 	if response != nil && response.StatusCode >= 400 {
-		errorMsg := fmt.Sprintf("API error: %d - %s", response.StatusCode, response.Body)
 		log.L.Error().
 			Str("provider", "sendgrid").
 			Int("status_code", response.StatusCode).
@@ -93,7 +92,7 @@ func (p *SendGridProvider) SendEmail(ctx context.Context, options SendOptions) e
 			Str("to_email", options.To.Email).
 			Str("title", options.Title).
 			Msg("API returned error status")
-		return fmt.Errorf(errorMsg)
+		return fmt.Errorf("API error: %d - %s", response.StatusCode, response.Body)
 	}
 
 	// Log successful sends

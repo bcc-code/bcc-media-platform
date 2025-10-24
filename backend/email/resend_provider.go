@@ -151,7 +151,7 @@ func (p *ResendProvider) SendEmail(ctx context.Context, options SendOptions) err
 			Str("error_message", err.Error()).
 			Str("analyzed_error", analyzedError).
 			Msg("Client error")
-		return fmt.Errorf(analyzedError)
+		return err
 	}
 
 	// Log successful sends
