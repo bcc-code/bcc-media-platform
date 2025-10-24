@@ -18,6 +18,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 	null "gopkg.in/guregu/null.v4"
@@ -204,7 +205,7 @@ func (r *episodeResolver) Chapters(ctx context.Context, obj *model.Episode) ([]*
 // SkipToChapter is the resolver for the skipToChapter field.
 func (r *episodeResolver) SkipToChapter(ctx context.Context, obj *model.Episode) (*model.Chapter, error) {
 	chapters, err := r.getChapters(ctx, obj.ID)
-	if err != nil || obj == nil {
+	if err != nil {
 		return nil, err
 	}
 	if len(chapters) == 0 {
@@ -392,6 +393,76 @@ func (r *episodeResolver) ShareRestriction(ctx context.Context, obj *model.Episo
 // InMyList is the resolver for the inMyList field.
 func (r *episodeResolver) InMyList(ctx context.Context, obj *model.Episode) (bool, error) {
 	return r.isInMyList(ctx, utils.AsUuid(obj.UUID))
+}
+
+// Contributors is the resolver for the contributors field.
+func (r *episodeResolver) Contributors(ctx context.Context, obj *model.Episode) ([]*model.Contributor, error) {
+	episodeID := utils.AsInt(obj.ID)
+
+	// Get all contributions for this episode
+	contributions, err := r.Queries.GetContributionsForEpisode(ctx, null.IntFrom(int64(episodeID)))
+	if err != nil {
+		return nil, err
+	}
+
+	// Group by person and collect contribution types
+	type personContributions struct {
+		personID uuid.UUID
+		types    map[string]bool
+	}
+	contributorMap := make(map[string]*personContributions)
+
+	for _, c := range contributions {
+		key := c.PersonID.String()
+		if contributorMap[key] == nil {
+			contributorMap[key] = &personContributions{
+				personID: c.PersonID,
+				types:    make(map[string]bool),
+			}
+		}
+		contributorMap[key].types[c.Type] = true
+	}
+
+	// Collect all person IDs for batch loading
+	personIDs := make([]uuid.UUID, 0, len(contributorMap))
+	for _, pc := range contributorMap {
+		personIDs = append(personIDs, pc.personID)
+	}
+
+	// Load all persons in a single batch
+	persons, err := r.Loaders.PersonLoader.GetMany(ctx, personIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	// Build a map of person ID to person for easy lookup
+	personMap := make(map[uuid.UUID]*common.Person, len(persons))
+	for i, person := range persons {
+		if person != nil {
+			personMap[personIDs[i]] = person
+		}
+	}
+
+	// Convert to model.Contributor
+	var contributors []*model.Contributor
+	for _, pc := range contributorMap {
+		person, exists := personMap[pc.personID]
+		if !exists || person == nil {
+			continue
+		}
+
+		var contributionTypes []model.ContributionTypeCode
+		for t := range pc.types {
+			contributionTypes = append(contributionTypes, stringToContributionTypeCode(t))
+		}
+
+		contributors = append(contributors, &model.Contributor{
+			Person:            model.PersonFrom(ctx, person),
+			ContributionTypes: contributionTypes,
+		})
+	}
+
+	return contributors, nil
 }
 
 // Next is the resolver for the next field.

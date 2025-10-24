@@ -415,6 +415,11 @@ func (this ContributionsPagination) GetHasNext() bool      { return this.HasNext
 func (this ContributionsPagination) GetHasPrevious() bool  { return this.HasPrevious }
 func (this ContributionsPagination) GetNextCursor() string { return this.NextCursor }
 
+type Contributor struct {
+	Person            *Person                `json:"person"`
+	ContributionTypes []ContributionTypeCode `json:"contributionTypes"`
+}
+
 type DefaultGridSection struct {
 	ID          string                 `json:"id"`
 	Metadata    *ItemSectionMetadata   `json:"metadata,omitempty"`
@@ -507,6 +512,7 @@ type Episode struct {
 	Lessons               *LessonPagination      `json:"lessons"`
 	ShareRestriction      ShareRestriction       `json:"shareRestriction"`
 	InMyList              bool                   `json:"inMyList"`
+	Contributors          []*Contributor         `json:"contributors"`
 	// Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
 	Next   []*Episode `json:"next"`
 	Cursor string     `json:"cursor"`
@@ -1783,6 +1789,67 @@ func (e *CardSectionSize) UnmarshalJSON(b []byte) error {
 }
 
 func (e CardSectionSize) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type ContributionTypeCode string
+
+const (
+	ContributionTypeCodeLyricist ContributionTypeCode = "LYRICIST"
+	ContributionTypeCodeArranger ContributionTypeCode = "ARRANGER"
+	ContributionTypeCodeSinger   ContributionTypeCode = "SINGER"
+	ContributionTypeCodeSpeaker  ContributionTypeCode = "SPEAKER"
+	ContributionTypeCodeOther    ContributionTypeCode = "OTHER"
+)
+
+var AllContributionTypeCode = []ContributionTypeCode{
+	ContributionTypeCodeLyricist,
+	ContributionTypeCodeArranger,
+	ContributionTypeCodeSinger,
+	ContributionTypeCodeSpeaker,
+	ContributionTypeCodeOther,
+}
+
+func (e ContributionTypeCode) IsValid() bool {
+	switch e {
+	case ContributionTypeCodeLyricist, ContributionTypeCodeArranger, ContributionTypeCodeSinger, ContributionTypeCodeSpeaker, ContributionTypeCodeOther:
+		return true
+	}
+	return false
+}
+
+func (e ContributionTypeCode) String() string {
+	return string(e)
+}
+
+func (e *ContributionTypeCode) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ContributionTypeCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ContributionTypeCode", str)
+	}
+	return nil
+}
+
+func (e ContributionTypeCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ContributionTypeCode) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ContributionTypeCode) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

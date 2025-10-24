@@ -51,6 +51,7 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     lessons(first: Int, offset: Int, cursor: Cursor): LessonPagination! @goField(forceResolver: true)
     shareRestriction: ShareRestriction! @goField(forceResolver: true)
     inMyList: Boolean! @goField(forceResolver: true)
+    contributors: [Contributor!]! @goField(forceResolver: true)
 
     """
     Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)

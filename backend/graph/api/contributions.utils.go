@@ -11,6 +11,21 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+func stringToContributionTypeCode(s string) model.ContributionTypeCode {
+	switch s {
+	case "lyricist":
+		return model.ContributionTypeCodeLyricist
+	case "arranger":
+		return model.ContributionTypeCodeArranger
+	case "singer":
+		return model.ContributionTypeCodeSinger
+	case "speaker":
+		return model.ContributionTypeCodeSpeaker
+	default:
+		return model.ContributionTypeCodeOther
+	}
+}
+
 func resolveContribution(ctx context.Context, i *common.Contribution, loaders *loaders.BatchLoaders) (*model.Contribution, error) {
 	var item model.ContributionItem
 
