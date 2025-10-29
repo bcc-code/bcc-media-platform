@@ -5,7 +5,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
-	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"strconv"
@@ -161,30 +160,14 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 		return nil, err
 	}
 
-	flags := utils.GetFeatureFlags(ginCtx)
-	var searchResult common.SearchResult
-
-	searchProvider := "unknown"
-	if value, ok := flags.GetVariant(unleash.ElasticSearchFlag); ok && value == unleash.ElasticSearchEnabledVariant {
-		utils.ReportFlagActivation(ginCtx, unleash.ElasticSearchFlag, unleash.ElasticSearchEnabledVariant)
-		searchResult, err = r.SearchService.SearchElastic(ginCtx, common.SearchQuery{
-			Query:    queryString,
-			Limit:    first,
-			Offset:   offset,
-			Type:     typeArg,
-			MinScore: minScore,
-		}, r.AnalyticsIDFactory(ctx))
-		searchProvider = "elastic"
-	} else {
-		searchResult, err = r.SearchService.Search(ginCtx, common.SearchQuery{
-			Query:    queryString,
-			Limit:    first,
-			Offset:   offset,
-			Type:     typeArg,
-			MinScore: minScore,
-		}, r.AnalyticsIDFactory(ctx))
-		searchProvider = "algolia"
-	}
+	searchProvider := "elastic"
+	searchResult, err := r.SearchService.SearchElastic(ginCtx, common.SearchQuery{
+		Query:    queryString,
+		Limit:    first,
+		Offset:   offset,
+		Type:     typeArg,
+		MinScore: minScore,
+	}, r.AnalyticsIDFactory(ctx))
 
 	if err != nil {
 		return nil, err

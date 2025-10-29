@@ -48,7 +48,6 @@ const timestampContextKey = "GqlTimestamp"
 const episodeContextKey = "EpisodeContext"
 
 type searchProvider interface {
-	Search(ctx *gin.Context, query common.SearchQuery, userToken string) (searchResult common.SearchResult, err error)
 	SearchElastic(ctx *gin.Context, query common.SearchQuery, userToken string) (searchResult common.SearchResult, err error)
 }
 

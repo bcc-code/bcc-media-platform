@@ -117,10 +117,6 @@ func getEnvConfig() envConfig {
 			MaxIdleConnections: utils.AsIntOrNil(os.Getenv("DB_MAX_IDLE_CONS")),
 		},
 		Search: search.Config{
-			Algolia: search.AlgoliaConfig{
-				AppID:  os.Getenv("ALGOLIA_APP_ID"),
-				APIKey: os.Getenv("ALGOLIA_API_KEY"),
-			},
 			Elastic: search.ElasticConfig{
 				CloudID: os.Getenv("ELASTIC_CLOUDID"),
 				ApiKey:  os.Getenv("ELASTIC_APIKEY"),
