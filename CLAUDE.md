@@ -1,0 +1,2 @@
+- The SQL queries always need to be written into the .sql files and the go files generated using sqlc.
+- To test the GQL interface locally, you can use curl to the address http://localhost:8080/query.
