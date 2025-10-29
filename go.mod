@@ -14,7 +14,6 @@ require (
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.20.0
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/XSAM/otelsql v0.26.0
-	github.com/algolia/algoliasearch-client-go/v3 v3.31.0
 	github.com/ansel1/merry/v2 v2.2.1
 	github.com/auth0/go-jwt-middleware/v2 v2.1.0
 	github.com/aws/aws-sdk-go v1.53.11

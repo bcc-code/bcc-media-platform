@@ -3,7 +3,6 @@ package search
 import (
 	"context"
 
-	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
@@ -47,12 +46,6 @@ type batchLoaders struct {
 	PlaylistPermissionLoader *loaders.Loader[uuid.UUID, *common.Permissions[uuid.UUID]]
 }
 
-// AlgoliaConfig contains configuration options for the service
-type AlgoliaConfig struct {
-	AppID  string
-	APIKey string
-}
-
 // ElasticConfig contains configuration options for the service
 // If CloudID is defined it takes precedence above URL
 type ElasticConfig struct {
@@ -66,15 +59,12 @@ type ElasticConfig struct {
 
 // Config contains configuration options for the service
 type Config struct {
-	Algolia AlgoliaConfig
 	Elastic ElasticConfig
 }
 
 // Service is the type for the service itself
 type Service struct {
-	algoliaClient *search.Client
 	elasticClient *elasticsearch.TypedClient
-	index         *search.Index
 	queries       *sqlc.Queries
 	loaders       batchLoaders
 }
@@ -119,10 +109,8 @@ func New(queries *sqlc.Queries, config Config) *Service {
 	elasticClient := newElasticClient(ctx, config.Elastic)
 
 	service := Service{
-		algoliaClient: search.NewClient(config.Algolia.AppID, config.Algolia.APIKey),
 		elasticClient: elasticClient,
 	}
-	service.index = service.algoliaClient.InitIndex(indexName)
 	service.queries = queries
 
 	service.loaders = batchLoaders{

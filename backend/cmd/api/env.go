@@ -211,10 +211,6 @@ func getEnvConfig() envConfig {
 		},
 		Port: os.Getenv("PORT"),
 		Search: search.Config{
-			Algolia: search.AlgoliaConfig{
-				AppID:  os.Getenv("ALGOLIA_APP_ID"),
-				APIKey: os.Getenv("ALGOLIA_API_KEY"),
-			},
 			Elastic: search.ElasticConfig{
 				CloudID: os.Getenv("ELASTIC_CLOUDID"),
 				ApiKey:  os.Getenv("ELASTIC_APIKEY"),
