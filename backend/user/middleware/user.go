@@ -253,14 +253,12 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				u.Email = "<MISSING>"
 			}
 
-			if u.EmailVerified {
-				userRoles, err := GetRolesForEmail(reqCtx, queries, u.Email)
-				if err != nil {
-					err = merry.Wrap(err)
-					log.L.Warn().Err(err).Str("email", u.Email).Msg("Unable to get roles")
-				} else {
-					roles = append(roles, userRoles...)
-				}
+			userRoles, err := GetRolesForEmail(reqCtx, queries, u.Email)
+			if err != nil {
+				err = merry.Wrap(err)
+				log.L.Warn().Err(err).Str("email", u.Email).Msg("Unable to get roles")
+			} else {
+				roles = append(roles, userRoles...)
 			}
 
 			ageGroupMin := 0
@@ -277,7 +275,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 
 			u.Roles = roles
 
-			err := saveUser()
+			err = saveUser()
 
 			if err != nil {
 				log.L.Error().Err(err).Send()
