@@ -135,7 +135,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 			if ctx.GetBool(auth0.CtxIsBCCMember) {
 				roles = append(roles, user.RoleBCCMember)
 			} else {
-				roles = append(roles, user.RoleNonBCCMember, user.RolePublic)
+				roles = append(roles, user.RoleNonBCCMember)
 			}
 
 			if pid == "" || pid == "0" {
@@ -201,6 +201,23 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 					return u, nil
 				}
 				u.FirstName = member.FirstName
+
+				// Update ActiveBCC based on actual affiliations from Members API
+				u.ActiveBCC = members.HasActiveAffiliation(member.Affiliations)
+
+				// Update roles if ActiveBCC status changed from initial Auth0 claim
+				if u.ActiveBCC && !lo.Contains(roles, user.RoleBCCMember) {
+					roles = append(roles, user.RoleBCCMember)
+					roles = lo.Filter(roles, func(r string, _ int) bool {
+						return r != user.RoleNonBCCMember && r != user.RolePublic
+					})
+				} else if !u.ActiveBCC && lo.Contains(roles, user.RoleBCCMember) {
+					roles = lo.Filter(roles, func(r string, _ int) bool {
+						return r != user.RoleBCCMember
+					})
+					roles = append(roles, user.RoleNonBCCMember)
+				}
+
 				switch member.Gender {
 				case "Male":
 					u.Gender = "male"
