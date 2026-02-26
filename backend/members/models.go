@@ -23,13 +23,13 @@ type Member struct {
 
 // Affiliation is an affiliation to an entity
 type Affiliation struct {
-	Active    bool
-	OrgUid    uuid.UUID
-	PersonUid uuid.UUID
-	Uid       uuid.UUID
-	Type      string
-	ValidFrom *time.Time
-	ValidTo   *time.Time
+	Active    bool       `json:"isActive"`
+	OrgUid    uuid.UUID  `json:"orgUid"`
+	PersonUid uuid.UUID  `json:"personUid"`
+	Uid       uuid.UUID  `json:"uid"`
+	Type      string     `json:"type"`
+	ValidFrom *time.Time `json:"validFrom"`
+	ValidTo   *time.Time `json:"validTo"`
 }
 
 // IsActive returns true if the affiliation is currently active
