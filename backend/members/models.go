@@ -32,6 +32,31 @@ type Affiliation struct {
 	ValidTo   *time.Time
 }
 
+// IsActive returns true if the affiliation is currently active
+func (a Affiliation) IsActive() bool {
+	if !a.Active {
+		return false
+	}
+	now := time.Now()
+	if a.ValidFrom != nil && now.Before(*a.ValidFrom) {
+		return false
+	}
+	if a.ValidTo != nil && !now.Before(*a.ValidTo) {
+		return false
+	}
+	return true
+}
+
+// HasActiveAffiliation returns true if any affiliation in the slice is active
+func HasActiveAffiliation(affiliations []Affiliation) bool {
+	for _, a := range affiliations {
+		if a.IsActive() {
+			return true
+		}
+	}
+	return false
+}
+
 // Organization contains organizational data
 type Organization struct {
 	OrgID int
