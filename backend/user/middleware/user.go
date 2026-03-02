@@ -278,6 +278,20 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				roles = append(roles, userRoles...)
 			}
 
+			// Override ActiveBCC to true if user's email is in the bcc-members usergroup.
+			// This allows database entries to override Members API results.
+			if !u.ActiveBCC && lo.Contains(userRoles, user.RoleBCCMember) {
+				u.ActiveBCC = true
+				// Ensure bcc-members role is present
+				if !lo.Contains(roles, user.RoleBCCMember) {
+					roles = append(roles, user.RoleBCCMember)
+				}
+				// Remove non-bcc-members role
+				roles = lo.Filter(roles, func(r string, _ int) bool {
+					return r != user.RoleNonBCCMember
+				})
+			}
+
 			ageGroupMin := 0
 			for minAge, group := range user.AgeGroups {
 				// Note: Maps are not iterated in a sorted order, so we have to find the lowest applicable range
