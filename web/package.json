@@ -16,8 +16,6 @@
         "preview": "vite preview",
         "prettier": "prettier --write .",
         "generate": "graphql-codegen --config codegen.yml",
-        "crowdin:download": "CROWDIN_TOKEN=`cat .crowdin_token` && export CROWDIN_TOKEN && crowdin download",
-        "crowdin:upload": "CROWDIN_TOKEN=`cat .crowdin_token` && export CROWDIN_TOKEN && crowdin upload",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix"
     },
