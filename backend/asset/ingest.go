@@ -313,7 +313,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 		fileSizeInBytes := int64(-1)
 		if err == nil {
-			fileSizeInBytes = result.ContentLength
+			fileSizeInBytes = aws.ToInt64(result.ContentLength)
 		} else {
 			fileSizeErrors = append(fileSizeErrors, merry.Wrap(err))
 		}

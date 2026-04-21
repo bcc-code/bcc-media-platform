@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ansel1/merry/v2"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
@@ -37,7 +38,7 @@ func getSignedAudiolessVideoURLForAssetID(context context.Context, services exte
 		if !strings.HasSuffix(*object.Key, ".mp4") {
 			continue
 		}
-		if biggestObject == nil || object.Size > biggestObject.Size {
+		if biggestObject == nil || aws.ToInt64(object.Size) > aws.ToInt64(biggestObject.Size) {
 			x := object
 			biggestObject = &x
 		}
