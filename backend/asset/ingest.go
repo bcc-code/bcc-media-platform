@@ -200,13 +200,13 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 	// Create BASE asset
 	assetID, err := queries.InsertAsset(ctx, sqlc.InsertAssetParams{
-		Name:            assetMeta.Title,
-		MediabankenID:   null.StringFrom(assetMeta.ID),
-		Duration:        int32(assetMeta.DurationInS),
-		EncodingVersion: null.StringFrom("btv"),
-		MainStoragePath: null.StringFrom(storagePrefix),
-		Status:          null.StringFrom(string(common.StatusDraft)),
-		Source:          null.StringFrom(assetMeta.Source),
+		Name:             assetMeta.Title,
+		MediabankenID:    null.StringFrom(assetMeta.ID),
+		Duration:         int32(assetMeta.DurationInS),
+		EncodingVersion:  null.StringFrom("btv"),
+		MainStoragePath:  null.StringFrom(storagePrefix),
+		Status:           null.StringFrom(string(common.StatusDraft)),
+		Source:           null.StringFrom(assetMeta.Source),
 		PrimaryMediaType: null.StringFrom(assetMeta.PrimaryMediaType),
 	})
 	if err != nil {
@@ -313,7 +313,7 @@ func Ingest(ctx context.Context, services externalServices, config config, event
 
 		fileSizeInBytes := int64(-1)
 		if err == nil {
-			fileSizeInBytes = aws.ToInt64(result.ContentLength)
+			fileSizeInBytes = result.ContentLength
 		} else {
 			fileSizeErrors = append(fileSizeErrors, merry.Wrap(err))
 		}

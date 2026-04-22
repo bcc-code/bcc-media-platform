@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/ansel1/merry/v2"
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
@@ -32,7 +31,7 @@ func getFileSize(ctx context.Context, svc s3.Client, bucketName, objectKey *stri
 		return 0, err
 	}
 
-	return aws.ToInt64(result.ContentLength), nil
+	return result.ContentLength, nil
 }
 
 func copyObjects(
@@ -158,7 +157,7 @@ func multiPartCopy(ctx context.Context, svc s3.Client, sourceBucket *string, cop
 			CopySource:      copyInput.CopySource,
 			CopySourceRange: &copyRange,
 			Key:             copyInput.Key,
-			PartNumber:      aws.Int32(partNumber),
+			PartNumber:      partNumber,
 			UploadId:        &uploadId,
 		}
 
@@ -181,7 +180,7 @@ func multiPartCopy(ctx context.Context, svc s3.Client, sourceBucket *string, cop
 			etag := strings.Trim(*partResp.CopyPartResult.ETag, "\"")
 			cPart := types.CompletedPart{
 				ETag:       &etag,
-				PartNumber: aws.Int32(partNumber),
+				PartNumber: partNumber,
 			}
 			parts = append(parts, cPart)
 			log.Debug().Msgf("Successfully upload part %d of %s", partNumber, uploadId)
