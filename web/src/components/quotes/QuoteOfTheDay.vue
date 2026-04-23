@@ -28,7 +28,8 @@ const localized = import.meta.glob<LocalizedModule>(
 
 const today = new Date()
 
-let quote = quotes[Math.floor(Math.random() * Object.keys(quotes).length)]
+const quoteKeys = Object.keys(quotes)
+let quote = quotes[quoteKeys[Math.floor(Math.random() * quoteKeys.length)]]
 for (const key in quotes) {
     const val = quotes[key]
     //published_at: 07/03/2024 for example, but that's day/month/year
