@@ -38,7 +38,7 @@
         "@types/ua-parser-js": "^0.7.39",
         "@types/video.js": "^7.3.58",
         "@vitejs/plugin-vue": "^5.2.1",
-        "postcss": "^8.4.49",
+        "postcss": "^8.5.10",
         "prettier": "^3.4.2",
         "sass": "^1.82.0",
         "typescript": "^5.7.2",
