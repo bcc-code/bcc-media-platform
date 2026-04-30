@@ -52,8 +52,8 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1(vite@6.0.2(@types/node@18.19.64)(sass@1.82.0))(vue@3.5.13(typescript@5.7.2))
       postcss:
-        specifier: ^8.4.49
-        version: 8.4.49
+        specifier: ^8.5.10
+        version: 8.5.10
       prettier:
         specifier: ^3.4.2
         version: 3.4.2
@@ -518,6 +518,7 @@ packages:
   '@xmldom/xmldom@0.8.10':
     resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
     engines: {node: '>=10.0.0'}
+    deprecated: this version has critical issues, please update to the latest version
 
   aes-decrypter@4.0.2:
     resolution: {integrity: sha512-lc+/9s6iJvuaRe5qDlMTpCFjnwpkeOXp8qP3oiZ5jsj1MRg+SBVUmmICrhxHvc8OELSmc+fEyyxAuppY6hrWzw==}
@@ -646,8 +647,8 @@ packages:
     engines: {node: '>=8', npm: '>=5'}
     hasBin: true
 
-  nanoid@3.3.7:
-    resolution: {integrity: sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==}
+  nanoid@3.3.11:
+    resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
@@ -676,8 +677,8 @@ packages:
     resolution: {integrity: sha512-afRERtHn54AlwaF2/+LFszyAANTCggGilmcmILUzEjvs3XgFZT+xE6+QWQcAGmu4xajy+Xtj7acLOPdx5/eXWQ==}
     hasBin: true
 
-  postcss@8.4.49:
-    resolution: {integrity: sha512-OCVPnIObs4N29kxTjzLfUryOkvZEq+pf8jTF0lg8E7uETuWHA+v7j3c/xJmiqpX450191LlmZfUKkXxkTry7nA==}
+  postcss@8.5.10:
+    resolution: {integrity: sha512-pMMHxBOZKFU6HgAZ4eyGnwXF/EvPGGqUr0MnZ5+99485wwW41kW91A4LOGxSHhgugZmSChL5AlElNdwlNgcnLQ==}
     engines: {node: ^10 || ^12 || >=14}
 
   prettier@3.4.2:
@@ -733,6 +734,7 @@ packages:
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   video.js@8.20.0:
@@ -813,8 +815,8 @@ packages:
       typescript:
         optional: true
 
-  webcomponents.js@https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e:
-    resolution: {tarball: https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e}
+  webcomponents.js@git+https://git@github.com:webcomponents/webcomponentsjs.git#8a2e40557b177e2cca0def2553f84c8269c8f93e:
+    resolution: {commit: 8a2e40557b177e2cca0def2553f84c8269c8f93e, repo: git@github.com:webcomponents/webcomponentsjs.git, type: git}
     version: 0.7.24
 
 snapshots:
@@ -1032,7 +1034,7 @@ snapshots:
   '@silvermine/videojs-chromecast@1.5.0(video.js@8.20.0)':
     dependencies:
       video.js: 8.20.0
-      webcomponents.js: https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e
+      webcomponents.js: git+https://git@github.com:webcomponents/webcomponentsjs.git#8a2e40557b177e2cca0def2553f84c8269c8f93e
 
   '@types/estree@1.0.6': {}
 
@@ -1118,7 +1120,7 @@ snapshots:
       '@vue/shared': 3.5.13
       estree-walker: 2.0.2
       magic-string: 0.30.12
-      postcss: 8.4.49
+      postcss: 8.5.10
       source-map-js: 1.2.1
 
   '@vue/compiler-ssr@3.5.13':
@@ -1317,7 +1319,7 @@ snapshots:
       '@babel/runtime': 7.26.0
       global: 4.4.0
 
-  nanoid@3.3.7: {}
+  nanoid@3.3.11: {}
 
   node-addon-api@7.1.1:
     optional: true
@@ -1342,9 +1344,9 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.26.0
 
-  postcss@8.4.49:
+  postcss@8.5.10:
     dependencies:
-      nanoid: 3.3.7
+      nanoid: 3.3.11
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
@@ -1442,7 +1444,7 @@ snapshots:
   vite@6.0.2(@types/node@18.19.64)(sass@1.82.0):
     dependencies:
       esbuild: 0.24.0
-      postcss: 8.4.49
+      postcss: 8.5.10
       rollup: 4.28.0
     optionalDependencies:
       '@types/node': 18.19.64
@@ -1468,4 +1470,4 @@ snapshots:
     optionalDependencies:
       typescript: 5.7.2
 
-  webcomponents.js@https://codeload.github.com/webcomponents/webcomponentsjs/tar.gz/8a2e40557b177e2cca0def2553f84c8269c8f93e: {}
+  webcomponents.js@git+https://git@github.com:webcomponents/webcomponentsjs.git#8a2e40557b177e2cca0def2553f84c8269c8f93e: {}
