@@ -27,6 +27,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/search"
 	"github.com/bcc-code/bcc-media-platform/backend/signing"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	userMiddleware "github.com/bcc-code/bcc-media-platform/backend/user/middleware"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
@@ -179,7 +180,15 @@ func main() {
 		return handler
 	})
 
-	urlSigner, err := signing.NewSigner(config.CDNConfig)
+	fileSigner, err := signing.NewCloudFrontSigner(config.CDNConfig)
+	if err != nil {
+		if environment.Production() {
+			log.L.Panic().Err(err).Send()
+		} else {
+			log.L.Error().Err(err).Send()
+		}
+	}
+	streamSigner, err := streamtoken.NewSigner(config.StreamProxy)
 	if err != nil {
 		if environment.Production() {
 			log.L.Panic().Err(err).Send()
@@ -275,7 +284,8 @@ func main() {
 		ls,
 		searchService,
 		emailService,
-		urlSigner,
+		fileSigner,
+		streamSigner,
 		config,
 		s3Client,
 		config.AnalyticsSalt,
@@ -310,7 +320,7 @@ func main() {
 
 	span.End()
 
-	log.L.Info().Float64("seconds", time.Now().Sub(start).Seconds()).Msg("Time to start")
+	log.L.Info().Float64("seconds", time.Since(start).Seconds()).Msg("Time to start")
 
 	err = r.Run(":" + config.Port)
 	if err != nil {

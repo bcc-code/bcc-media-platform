@@ -148,6 +148,8 @@ github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuP
 github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
 github.com/bcc-code/bmm-sdk-golang v0.1.7 h1:+mFeoKsS3j+uBpyEWkbsHllphZozPjTZ4R4lGTedRdc=
 github.com/bcc-code/bmm-sdk-golang v0.1.7/go.mod h1:mNuvBiAAoR+J8Bli1IqzJvEx5mbN2cpItZLBj9AC8NY=
+github.com/bcc-code/ioriver-url-signer-golang v0.0.0-20260504110944-385e16a180f2 h1:D2XAvMbGxwQVYGTwgx3B1suPhAp99Q1b7/tTyFGxELE=
+github.com/bcc-code/ioriver-url-signer-golang v0.0.0-20260504110944-385e16a180f2/go.mod h1:7L+SOzhcFrmgD+Rin9Gz0jsFzn4yf8U8Ag7zt2q+rSs=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/bsm/ginkgo/v2 v2.12.0 h1:Ny8MWAHyOepLGlLKYmXG4IEkioBysk6GpaRTLC8zwWs=
 github.com/bsm/ginkgo/v2 v2.12.0/go.mod h1:SwYbGRRDovPVboqFv0tPTcG1sN61LM1Z4ARdbAV9g4c=

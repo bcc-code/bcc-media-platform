@@ -66,8 +66,8 @@ func getEnvConfig() envConfig {
 		CacheTTL:  parseDurationOr(os.Getenv("STREAM_PROXY_CACHE_TTL"), 10*time.Minute),
 		SignTTL:   parseDurationOr(os.Getenv("STREAM_PROXY_SIGN_TTL"), 6*time.Hour),
 
-		JWTSecret: os.Getenv("JWT_SECRET"),
-		JWTIssuer: os.Getenv("JWT_ISSUER"),
+		JWTSecret: os.Getenv("STREAM_JWT_SECRET"),
+		JWTIssuer: os.Getenv("STREAM_JWT_ISSUER"),
 
 		Signing: signingConfig{
 			AWSSigningKeyPath:   os.Getenv("CF_SIGNING_KEY_PATH"),

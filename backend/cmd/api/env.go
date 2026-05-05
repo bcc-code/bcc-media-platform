@@ -66,6 +66,7 @@ type envConfig struct {
 	Port          string
 	Auth0         auth0.Config
 	CDNConfig     cdnConfig
+	StreamProxy   streamProxyConfig
 	Secrets       serviceSecrets
 	Redis         utils.RedisConfig
 	AWS           awsConfig
@@ -87,6 +88,16 @@ type cdnConfig struct {
 	AWSSigningKeyID   string
 	AzureSigningKey   string
 }
+
+type streamProxyConfig struct {
+	JWTSecret string
+	JWTIssuer string
+	Domain    string
+}
+
+func (c streamProxyConfig) GetStreamJWTSecret() string   { return c.JWTSecret }
+func (c streamProxyConfig) GetStreamJWTIssuer() string   { return c.JWTIssuer }
+func (c streamProxyConfig) GetStreamProxyDomain() string { return c.Domain }
 
 type awsConfig struct {
 	TempBucket string // Things put here are automatically removed
@@ -228,6 +239,11 @@ func getEnvConfig() envConfig {
 			AWSSigningKeyPath: os.Getenv("CF_SIGNING_KEY_PATH"),
 			AzureSigningKey:   os.Getenv("AZ_SIGNING_KEY"),
 			LegacyVODDomain:   os.Getenv("LEGACY_CDN_DOMAIN"),
+		},
+		StreamProxy: streamProxyConfig{
+			JWTSecret: os.Getenv("STREAM_JWT_SECRET"),
+			JWTIssuer: os.Getenv("STREAM_JWT_ISSUER"),
+			Domain:    os.Getenv("STREAM_PROXY_DOMAIN"),
 		},
 		Secrets: serviceSecrets{
 			Directus: os.Getenv("SERVICE_SECRET_DIRECTUS"),

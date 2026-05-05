@@ -69,7 +69,7 @@ func (r *shortResolver) Streams(ctx context.Context, obj *model.Short) ([]*model
 		}
 		// For now we are testing out different stream configs manually by overriding the path
 		s.Path = strings.Replace(s.Path, "ab9e7540a3e34bee86ec6af8c7cdc342/1467e3c2761c4947ae7dc7a6c162747f", "942b3eed46ad4ec48e539fa12f81b50e/7cae744530a849bf8b2f61295c802b48", 1)
-		stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s)
+		stream, err := model.StreamFrom(ctx, r.StreamURLSigner, s)
 		if err != nil {
 			return nil, err
 		}
@@ -98,7 +98,7 @@ func (r *shortResolver) Files(ctx context.Context, obj *model.Short) ([]*model.F
 
 	var out []*model.File
 	for _, f := range files {
-		out = append(out, model.FileFrom(ctx, r.URLSigner, r.Resolver.APIConfig.GetFilesCDNDomain(), f))
+		out = append(out, model.FileFrom(ctx, r.FileSigner, r.Resolver.APIConfig.GetFilesCDNDomain(), f))
 	}
 	return out, nil
 }

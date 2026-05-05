@@ -27,6 +27,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/search"
 	"github.com/bcc-code/bcc-media-platform/backend/signing"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/bmm-sdk-golang"
@@ -43,7 +44,8 @@ func graphqlHandler(
 	loaders *loaders.BatchLoaders,
 	searchService *search.Service,
 	emailService *email.Service,
-	urlSigner *signing.Signer,
+	fileSigner *signing.CloudFrontSigner,
+	streamSigner *streamtoken.Signer,
 	config envConfig,
 	s3client *s3.Client,
 	analyticsSalt string,
@@ -62,7 +64,8 @@ func graphqlHandler(
 		PersonalizedLoaders:   personalizedLoaderFactory(queries),
 		SearchService:         searchService,
 		EmailService:          emailService,
-		URLSigner:             urlSigner,
+		FileSigner:            fileSigner,
+		StreamURLSigner:       streamSigner,
 		S3Client:              s3client,
 		APIConfig:             config.CDNConfig,
 		AWSConfig:             config.AWS,

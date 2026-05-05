@@ -21,6 +21,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/search"
 	"github.com/bcc-code/bcc-media-platform/backend/signing"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 	"github.com/bcc-code/bcc-media-platform/backend/statistics"
 	"github.com/bcc-code/bcc-media-platform/backend/translations"
 	"github.com/bcc-code/bcc-media-platform/backend/translations/phrase"
@@ -144,7 +145,11 @@ func main() {
 		return
 	}
 
-	urlSigner, err := signing.NewSigner(config.CDNConfig)
+	fileSigner, err := signing.NewCloudFrontSigner(config.CDNConfig)
+	if err != nil {
+		log.L.Error().Err(err).Send()
+	}
+	streamSigner, err := streamtoken.NewSigner(config.StreamProxy)
 	if err != nil {
 		log.L.Error().Err(err).Send()
 	}
@@ -164,7 +169,8 @@ func main() {
 		TranslationsService:     translationsClient,
 		CDNConfigProvider:       config.CDNConfig,
 		BatchLoaders:            loaders.InitBatchLoaders(queries, nil),
-		URLSigner:               urlSigner,
+		FileSigner:              fileSigner,
+		StreamURLSigner:         streamSigner,
 	}
 
 	handlers := server.NewServer(services, serverConfig)

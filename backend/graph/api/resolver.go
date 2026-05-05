@@ -35,6 +35,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/signing"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
@@ -70,7 +71,8 @@ type Resolver struct {
 	PersonalizedLoaders   func(ctx context.Context) *loaders.PersonalizedLoaders
 	SearchService         searchProvider
 	EmailService          *email.Service
-	URLSigner             *signing.Signer
+	FileSigner            *signing.CloudFrontSigner
+	StreamURLSigner       *streamtoken.Signer
 	S3Client              *s3.Client
 	APIConfig             apiConfig
 	AWSConfig             awsConfig
@@ -107,8 +109,12 @@ func (r *Resolver) GetS3Client() *s3.Client {
 	return r.S3Client
 }
 
-func (r *Resolver) GetURLSigner() *signing.Signer {
-	return r.URLSigner
+func (r *Resolver) GetFileSigner() *signing.CloudFrontSigner {
+	return r.FileSigner
+}
+
+func (r *Resolver) GetStreamURLSigner() *streamtoken.Signer {
+	return r.StreamURLSigner
 }
 
 func (r *Resolver) GetCDNConfig() export.CDNConfig {
