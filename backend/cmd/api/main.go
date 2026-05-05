@@ -188,6 +188,7 @@ func main() {
 			log.L.Error().Err(err).Send()
 		}
 	}
+	legacyStreamSigner := signing.NewCloudFrontStreamSigner(fileSigner, config.CDNConfig.GetVOD2Domain())
 	streamSigner, err := streamtoken.NewSigner(config.StreamProxy)
 	if err != nil {
 		if environment.Production() {
@@ -286,6 +287,7 @@ func main() {
 		emailService,
 		fileSigner,
 		streamSigner,
+		legacyStreamSigner,
 		config,
 		s3Client,
 		config.AnalyticsSalt,

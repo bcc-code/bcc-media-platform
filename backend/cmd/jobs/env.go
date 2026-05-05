@@ -57,16 +57,6 @@ func (c cdnConfig) GetAwsSigningKeyID() string {
 	return c.AWSSigningKeyID
 }
 
-type streamProxyConfig struct {
-	JWTSecret string
-	JWTIssuer string
-	Domain    string
-}
-
-func (c streamProxyConfig) GetStreamJWTSecret() string   { return c.JWTSecret }
-func (c streamProxyConfig) GetStreamJWTIssuer() string   { return c.JWTIssuer }
-func (c streamProxyConfig) GetStreamProxyDomain() string { return c.Domain }
-
 type envConfig struct {
 	AWS               awsConfig
 	AzureStorage      files.AzureConfig
@@ -86,7 +76,6 @@ type envConfig struct {
 	VideoManipulator  videomanipulatorConfig
 	Phrase            phrase.Config
 	CDNConfig         cdnConfig
-	StreamProxy       streamProxyConfig
 }
 
 func getEnvConfig() envConfig {
@@ -183,11 +172,6 @@ func getEnvConfig() envConfig {
 			VOD2Domain:        os.Getenv("VOD2_CDN_DOMAIN"),
 			AWSSigningKeyID:   os.Getenv("CF_SIGNING_KEY_ID"),
 			AWSSigningKeyPath: os.Getenv("CF_SIGNING_KEY_PATH"),
-		},
-		StreamProxy: streamProxyConfig{
-			JWTSecret: os.Getenv("STREAM_JWT_SECRET"),
-			JWTIssuer: os.Getenv("STREAM_JWT_ISSUER"),
-			Domain:    os.Getenv("STREAM_PROXY_DOMAIN"),
 		},
 	}
 }

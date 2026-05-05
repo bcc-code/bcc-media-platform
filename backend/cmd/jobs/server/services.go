@@ -6,7 +6,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/export"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/signing"
-	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 	"github.com/bcc-code/bcc-media-platform/backend/translations"
 
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
@@ -39,7 +38,7 @@ type ExternalServices struct {
 	CDNConfigProvider       export.CDNConfig
 	BatchLoaders            *loaders.BatchLoaders
 	FileSigner              *signing.CloudFrontSigner
-	StreamURLSigner         *streamtoken.Signer
+	LegacyStreamSigner      *signing.CloudFrontStreamSigner
 }
 
 // GetDatabase as stored in the struct
@@ -113,6 +112,6 @@ func (e ExternalServices) GetFileSigner() *signing.CloudFrontSigner {
 	return e.FileSigner
 }
 
-func (e ExternalServices) GetStreamURLSigner() *streamtoken.Signer {
-	return e.StreamURLSigner
+func (e ExternalServices) GetLegacyStreamSigner() *signing.CloudFrontStreamSigner {
+	return e.LegacyStreamSigner
 }
