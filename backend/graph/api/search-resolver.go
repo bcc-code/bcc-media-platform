@@ -2,13 +2,14 @@ package graph
 
 import (
 	"context"
+	"strconv"
+	"time"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
-	"strconv"
-	"time"
 )
 
 func gqlShowFromSearchResultItem(i common.SearchResultItem) model.ShowSearchItem {
@@ -173,7 +174,7 @@ func searchResolver(r *queryRootResolver, ctx context.Context, queryString strin
 		return nil, err
 	}
 
-	duration := time.Now().Sub(start)
+	duration := time.Since(start)
 
 	r.AnalyticsClient.SearchEvent(
 		ginCtx,

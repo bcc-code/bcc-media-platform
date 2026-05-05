@@ -40,10 +40,7 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 		legacyProgramID = &strID
 	}
 
-	var image *string
-	if image == nil {
-		image = e.Images.GetDefault(languages, common.ImageStyleDefault)
-	}
+	image := e.Images.GetDefault(languages, common.ImageStyleDefault)
 
 	var images []*Image
 	for style, img := range e.Images.GetForLanguages(languages) {
