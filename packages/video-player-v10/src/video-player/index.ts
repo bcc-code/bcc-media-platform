@@ -1,9 +1,12 @@
-// Side-effect imports register the v10 custom elements and load the default skin.
-import "@videojs/html/video/player"
-import "@videojs/html/video/skin"
-import "@videojs/html/video/skin.css"
+// Side-effect imports register the v10 custom elements; we ship our own
+// ejected skin (see ./skin) instead of @videojs/html/video/skin.
+import "@videojs/html/video/ui"
 import "@videojs/html/media/hls-video"
+import "./components/subtitle-picker"
+import "./components/audio-picker"
+import "./skin/skin.css"
 
+import { buildSkin } from "./skin/skin"
 import { enableNPAW, type NPAWOptions, setOptions } from "./npaw"
 
 export interface Options {
@@ -58,7 +61,6 @@ export async function createPlayer(
     container.querySelector("video-player")?.remove()
 
     const player = document.createElement("video-player")
-    const skin = document.createElement("video-skin")
     const media = document.createElement("hls-video") as HTMLElement & {
         src: string
     }
@@ -74,14 +76,7 @@ export async function createPlayer(
     }
     media.setAttribute("playsinline", "")
 
-    skin.appendChild(media)
-    if (options.videojs.poster) {
-        const poster = document.createElement("img")
-        poster.slot = "poster"
-        poster.src = options.videojs.poster
-        poster.alt = ""
-        skin.appendChild(poster)
-    }
+    const skin = buildSkin(media, { poster: options.videojs.poster })
     player.appendChild(skin)
     container.insertAdjacentElement("afterbegin", player)
 

@@ -1,54 +1,19 @@
 <template>
     <div id="vod-player" />
-    <div v-if="vod" class="track-controls">
-        <label>
-            Audio:
-            <select v-model="audioLang" @change="onAudioChange">
-                <option v-for="opt in audioOptions" :key="opt.language" :value="opt.language">
-                    {{ opt.label || opt.language || "default" }}
-                </option>
-            </select>
-        </label>
-        <label>
-            Subtitles:
-            <select v-model="subLang" @change="onSubChange">
-                <option value="">Off</option>
-                <option v-for="opt in subOptions" :key="opt.language" :value="opt.language">
-                    {{ opt.label || opt.language }}
-                </option>
-            </select>
-        </label>
-    </div>
     <div id="live-player" />
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from "vue"
-import { PlayerFactory, createPlayer, type Player, type TrackOption } from "../src"
+import { onMounted } from "vue"
+import { PlayerFactory, createPlayer } from "../src"
 
 const factory = new PlayerFactory({
     tokenFactory: null,
     endpoint: "https://api.brunstad.tv/query",
 })
 
-const vod = ref<Player | null>(null)
-const audioOptions = ref<TrackOption[]>([])
-const subOptions = ref<TrackOption[]>([])
-const audioLang = ref("")
-const subLang = ref("")
-
-const refreshTracks = () => {
-    if (!vod.value) return
-    audioOptions.value = vod.value.getAudioLanguages()
-    subOptions.value = vod.value.getSubtitleLanguages()
-}
-
-const onAudioChange = () => vod.value?.setAudioTrackToLanguage(audioLang.value)
-const onSubChange = () =>
-    vod.value?.setSubtitleTrackToLanguage(subLang.value || undefined)
-
 onMounted(async () => {
-    const player = await factory.create("vod-player", {
+    await factory.create("vod-player", {
         episodeId: "865",
         overrides: {
             languagePreferenceDefaults: {
@@ -57,15 +22,6 @@ onMounted(async () => {
             },
         },
     })
-    vod.value = player
-    if (player) {
-        // Tracks become available after metadata + manifest parsing.
-        player.mediaEl.addEventListener("loadedmetadata", refreshTracks)
-        // hls.js promotes its subtitle tracks to native textTracks asynchronously.
-        player.mediaEl.textTracks.addEventListener("addtrack", refreshTracks)
-        // Poll once after a delay for hls.js audio tracks — no DOM event for those.
-        setTimeout(refreshTracks, 1000)
-    }
 
     await createPlayer("live-player", {
         src: {
@@ -99,16 +55,4 @@ body {
     margin-inline: auto;
 }
 
-.track-controls {
-    display: flex;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-    font-family: system-ui, sans-serif;
-}
-
-.track-controls label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
 </style>

@@ -1,0 +1,1173 @@
+/* -------------------------------------------------------------------------- */
+/* Base                                                                       */
+/* -------------------------------------------------------------------------- */
+
+video-player {
+    display: contents;
+}
+
+video-player video,
+video-player [slot="poster"] {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+video-player video::-webkit-media-text-track-container {
+    transition: translate var(--media-caption-track-duration, 0) ease-out;
+    transition-delay: var(--media-caption-track-delay, 0);
+    translate: 0 var(--media-caption-track-y, 0);
+    scale: 0.98;
+    z-index: 1;
+    font-family: inherit;
+}
+
+media-tooltip-group {
+    display: contents;
+}
+
+:host {
+    display: grid;
+    width: 100%;
+}
+
+.media-popover--volume:has(media-volume-slider[data-availability="unsupported"]) {
+    display: none;
+}
+
+/* ==========================================================================
+   Reset
+   ========================================================================== */
+
+.media-default-skin *,
+.media-default-skin *::before,
+.media-default-skin *::after {
+    box-sizing: border-box;
+}
+.media-default-skin img,
+.media-default-skin video,
+.media-default-skin svg {
+    display: block;
+    max-width: 100%;
+}
+.media-default-skin button {
+    font: inherit;
+}
+@media (prefers-reduced-motion: no-preference) {
+    .media-default-skin {
+        interpolate-size: allow-keywords;
+    }
+}
+
+/* ==========================================================================
+   Root Container
+   ========================================================================== */
+
+.media-default-skin {
+    container: media-root / inline-size;
+    position: relative;
+    isolation: isolate;
+    display: block;
+    height: 100%;
+    width: 100%;
+    border-radius: var(--media-border-radius, 2rem);
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    font-family:
+        Inter Variable, Inter, ui-sans-serif, system-ui, sans-serif;
+    line-height: 1.5;
+    letter-spacing: normal;
+    -webkit-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto;
+}
+.media-default-skin:focus-visible {
+    outline-color: currentColor;
+}
+.media-default-skin > * {
+    font-size: 0.75rem;
+}
+@container media-root (width > 48rem) {
+    .media-default-skin > * {
+        font-size: 0.875rem;
+    }
+}
+
+/* ==========================================================================
+   Surface
+   ========================================================================== */
+
+.media-default-skin .media-surface {
+    background-color: var(--media-surface-background-color);
+    backdrop-filter: var(--media-surface-backdrop-filter);
+    box-shadow:
+        0 0 0 1px var(--media-surface-outer-border-color),
+        0 1px 3px 0 var(--media-surface-shadow-color),
+        0 1px 2px -1px var(--media-surface-shadow-color);
+}
+.media-default-skin .media-surface::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px var(--media-surface-inner-border-color);
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   Media Element
+   ========================================================================== */
+
+.media-default-skin ::slotted(video),
+.media-default-skin video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: var(--media-object-fit, contain);
+    object-position: var(--media-object-position, center);
+}
+.media-default-skin ::slotted(video) {
+    border-radius: var(--media-video-border-radius);
+}
+.media-default-skin video {
+    border-radius: inherit;
+}
+.media-default-skin:fullscreen ::slotted(video),
+.media-default-skin:fullscreen video {
+    object-fit: contain;
+}
+
+/* ==========================================================================
+   Overlay / Scrim
+   ========================================================================== */
+
+.media-default-skin .media-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-image: linear-gradient(
+        to top,
+        oklch(0 0 0 / 0.5),
+        oklch(0 0 0 / 0.3),
+        oklch(0 0 0 / 0)
+    );
+    backdrop-filter: blur(0) saturate(1);
+    opacity: 0;
+    pointer-events: none;
+    transition-property: opacity, backdrop-filter;
+    transition-duration: var(--media-controls-transition-duration);
+    transition-timing-function: ease-out;
+}
+.media-default-skin .media-error ~ .media-overlay {
+    transition-duration: var(--media-error-dialog-transition-duration);
+    transition-delay: var(--media-error-dialog-transition-delay);
+}
+.media-default-skin .media-controls[data-visible] ~ .media-overlay,
+.media-default-skin .media-error[data-open] ~ .media-overlay {
+    opacity: 1;
+}
+.media-default-skin .media-error[data-open] ~ .media-overlay {
+    backdrop-filter: blur(16px) saturate(1.5);
+}
+
+/* ==========================================================================
+   Buffering Indicator
+   ========================================================================== */
+
+.media-default-skin .media-buffering-indicator {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: oklch(1 0 0);
+    pointer-events: none;
+}
+.media-default-skin .media-buffering-indicator[data-visible] {
+    display: flex;
+}
+.media-default-skin .media-buffering-indicator .media-surface {
+    padding: 0.25rem;
+    border-radius: 100%;
+}
+
+/* ==========================================================================
+   Error Dialog
+   ========================================================================== */
+
+.media-default-skin .media-error {
+    outline: none;
+}
+.media-default-skin .media-error:not([data-open]) {
+    display: none;
+}
+.media-default-skin .media-error__title {
+    font-weight: 600;
+    line-height: 1.25;
+}
+.media-default-skin .media-error__description {
+    opacity: 0.7;
+    overflow-wrap: anywhere;
+}
+.media-default-skin .media-error__actions {
+    display: flex;
+    gap: 0.5rem;
+}
+.media-default-skin .media-error__actions > * {
+    flex: 1;
+}
+.media-default-skin .media-error[data-open] ~ .media-controls * {
+    visibility: hidden;
+}
+
+/* ==========================================================================
+   Controls
+   ========================================================================== */
+
+.media-default-skin .media-controls {
+    container: media-controls / inline-size;
+    display: flex;
+    align-items: center;
+    column-gap: 0.075rem;
+    padding: 0.375rem;
+    border-radius: 1.5rem;
+    --media-controls-current-shadow-color: oklch(
+        from currentColor 0 0 0 / clamp(0, calc((l - 0.5) * 0.5), 0.15)
+    );
+    --media-controls-current-shadow-color-subtle: oklch(
+        from var(--media-controls-current-shadow-color) l c h /
+        calc(alpha * 0.4)
+    );
+    text-shadow: 0 1px 0 var(--media-controls-current-shadow-color);
+}
+
+/* ==========================================================================
+   Time Display
+   ========================================================================== */
+
+.media-default-skin .media-time-controls {
+    container: media-time-controls / inline-size;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 0.75rem;
+    padding-inline: 0.5rem;
+}
+.media-default-skin .media-time {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.media-default-skin .media-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: calc(infinity * 1px);
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    transition-property: background-color, outline-offset, scale;
+    will-change: scale;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+    cursor: pointer;
+    user-select: none;
+    text-align: center;
+    touch-action: manipulation;
+}
+.media-default-skin .media-button:focus-visible {
+    outline-color: currentColor;
+    outline-offset: 2px;
+}
+.media-default-skin .media-button:active {
+    scale: 0.98;
+}
+.media-default-skin .media-button[disabled] {
+    opacity: 0.5;
+    filter: grayscale(1);
+    cursor: not-allowed;
+}
+.media-default-skin .media-button[data-availability="unavailable"],
+.media-default-skin .media-button[data-availability="unsupported"] {
+    display: none;
+}
+
+.media-default-skin .media-button--primary {
+    background: oklch(1 0 0);
+    color: oklch(0 0 0);
+    font-weight: 500;
+    text-shadow: none;
+}
+
+.media-default-skin .media-button--subtle {
+    background: transparent;
+    color: inherit;
+    text-shadow: inherit;
+}
+.media-default-skin .media-button--subtle:hover,
+.media-default-skin .media-button--subtle:focus-visible,
+.media-default-skin .media-button--subtle[aria-expanded="true"] {
+    background-color: oklch(from currentColor l c h / 0.1);
+    text-decoration: none;
+}
+
+.media-default-skin .media-button--icon {
+    display: grid;
+    width: 2.25rem;
+    padding: 0;
+    aspect-ratio: 1;
+}
+.media-default-skin .media-button--icon:active {
+    scale: 0.9;
+}
+.media-default-skin .media-button--icon .media-icon {
+    filter: drop-shadow(
+        0 1px 0
+            var(--media-controls-current-shadow-color, oklch(0 0 0 / 0.25))
+    );
+}
+
+.media-default-skin .media-button--seek .media-icon__label {
+    position: absolute;
+    right: -1px;
+    bottom: -3px;
+    font-size: 10px;
+    font-weight: 480;
+    font-variant-numeric: tabular-nums;
+}
+.media-default-skin
+    .media-button--seek:has(.media-icon--flipped)
+    .media-icon__label {
+    right: unset;
+    left: -1px;
+}
+
+.media-default-skin .media-button--playback-rate {
+    padding: 0;
+}
+.media-default-skin .media-button--playback-rate::after {
+    content: attr(data-rate) "\00D7";
+    width: 4ch;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Button Groups
+   ========================================================================== */
+
+.media-default-skin .media-button-group {
+    display: flex;
+    align-items: center;
+    gap: 0.075rem;
+}
+@container media-root (width > 42rem) {
+    .media-default-skin .media-button-group {
+        gap: 0.125rem;
+    }
+}
+
+/* ==========================================================================
+   Icons
+   ========================================================================== */
+
+.media-default-skin .media-icon__container {
+    position: relative;
+}
+.media-default-skin .media-icon {
+    display: block;
+    flex-shrink: 0;
+    grid-area: 1 / 1;
+    width: 18px;
+    height: 18px;
+    transition-behavior: allow-discrete;
+    transition-property: display, opacity;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+}
+.media-default-skin .media-icon--flipped {
+    scale: -1 1;
+}
+
+/* ==========================================================================
+   Poster
+   ========================================================================== */
+
+.media-default-skin media-poster,
+.media-default-skin > img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.25s;
+    pointer-events: none;
+}
+.media-default-skin media-poster:not([data-visible]),
+.media-default-skin > img:not([data-visible]) {
+    opacity: 0;
+}
+.media-default-skin media-poster ::slotted(img),
+.media-default-skin media-poster img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: var(--media-object-fit, contain);
+    object-position: var(--media-object-position, center);
+    border-radius: var(--media-video-border-radius);
+}
+.media-default-skin > img {
+    object-fit: var(--media-object-fit, contain);
+    object-position: var(--media-object-position, center);
+    border-radius: inherit;
+}
+.media-default-skin:fullscreen media-poster ::slotted(img),
+.media-default-skin:fullscreen media-poster img,
+.media-default-skin:fullscreen > img {
+    object-fit: contain;
+}
+
+/* ==========================================================================
+   Slider preview
+   ========================================================================== */
+
+.media-default-skin .media-preview {
+    background-color: oklch(0 0 0 / 0.9);
+    border-radius: 0.75rem;
+    pointer-events: none;
+}
+.media-default-skin .media-preview .media-preview__thumbnail {
+    display: block;
+    position: relative;
+    border-radius: inherit;
+    overflow: clip;
+}
+.media-default-skin .media-preview .media-preview__thumbnail::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-image: linear-gradient(
+        to top,
+        oklch(0 0 0 / 0.8),
+        oklch(0 0 0 / 0.3),
+        oklch(0 0 0 / 0)
+    );
+}
+.media-default-skin .media-preview .media-preview__time {
+    position: absolute;
+    bottom: 0.5rem;
+    inset-inline: 0;
+    text-align: center;
+}
+.media-default-skin .media-preview .media-overlay {
+    opacity: 1;
+}
+.media-default-skin .media-preview .media-preview__spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    opacity: 0;
+}
+.media-default-skin .media-preview .media-preview__thumbnail,
+.media-default-skin .media-preview .media-preview__spinner {
+    transition: opacity 150ms ease-out;
+}
+.media-default-skin
+    .media-preview:has(.media-preview__thumbnail[data-loading])
+    .media-preview__thumbnail {
+    opacity: 0;
+}
+.media-default-skin
+    .media-preview:has(.media-preview__thumbnail[data-loading])
+    .media-preview__spinner {
+    opacity: 1;
+}
+
+/* ==========================================================================
+   Slider
+   ========================================================================== */
+
+.media-default-skin .media-slider {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    border-radius: calc(infinity * 1px);
+    outline: none;
+    cursor: pointer;
+}
+.media-default-skin .media-slider[data-orientation="horizontal"] {
+    min-width: 5rem;
+    width: 100%;
+    height: 2rem;
+}
+.media-default-skin .media-slider[data-orientation="vertical"] {
+    width: 2rem;
+    height: 5rem;
+}
+
+.media-default-skin .media-slider__track {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: inherit;
+    user-select: none;
+}
+.media-default-skin .media-slider__track[data-orientation="horizontal"] {
+    width: 100%;
+    height: 0.25rem;
+}
+.media-default-skin .media-slider__track[data-orientation="vertical"] {
+    width: 0.25rem;
+    height: 100%;
+}
+
+.media-default-skin .media-slider__thumb {
+    z-index: 10;
+    position: absolute;
+    translate: -50% -50%;
+    width: 0.625rem;
+    height: 0.625rem;
+    background-color: currentColor;
+    border-radius: calc(infinity * 1px);
+    box-shadow:
+        0 0 0 1px
+            var(--media-controls-current-shadow-color-subtle, oklch(0 0 0 / 0.1)),
+        0 1px 3px 0 oklch(0 0 0 / 0.15),
+        0 1px 2px -1px oklch(0 0 0 / 0.15);
+    opacity: 0;
+    transition-property: opacity, height, width, outline-offset;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+    user-select: none;
+    outline: 4px solid transparent;
+    outline-offset: -4px;
+}
+.media-default-skin .media-slider__thumb[data-orientation="horizontal"] {
+    top: 50%;
+    left: var(--media-slider-fill);
+}
+.media-default-skin .media-slider__thumb[data-orientation="vertical"] {
+    left: 50%;
+    top: calc(100% - var(--media-slider-fill));
+}
+.media-default-skin .media-slider__thumb:hover,
+.media-default-skin .media-slider__thumb:focus {
+    outline-color: oklch(from currentColor l c h / 0.25);
+    outline-offset: 0;
+}
+.media-default-skin .media-slider__thumb::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    box-shadow: 0 0 0 2px oklch(1 0 0);
+    transition-property: opacity, scale;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+}
+.media-default-skin .media-slider__thumb:not(:focus-visible)::after {
+    scale: 0.5;
+    opacity: 0;
+}
+.media-default-skin .media-slider:active .media-slider__thumb,
+.media-default-skin .media-slider__thumb--persistent {
+    width: 0.75rem;
+    height: 0.75rem;
+}
+.media-default-skin .media-slider:hover .media-slider__thumb,
+.media-default-skin .media-slider__thumb:focus-visible,
+.media-default-skin .media-slider__thumb--persistent {
+    opacity: 1;
+}
+
+.media-default-skin .media-slider__buffer,
+.media-default-skin .media-slider__fill {
+    position: absolute;
+    border-radius: inherit;
+    pointer-events: none;
+}
+.media-default-skin .media-slider__buffer[data-orientation="horizontal"],
+.media-default-skin .media-slider__fill[data-orientation="horizontal"] {
+    inset-block: 0;
+    left: 0;
+}
+.media-default-skin .media-slider__buffer[data-orientation="vertical"],
+.media-default-skin .media-slider__fill[data-orientation="vertical"] {
+    inset-inline: 0;
+    bottom: 0;
+}
+.media-default-skin .media-slider__buffer {
+    background-color: oklch(from currentColor l c h / 0.2);
+    transition-duration: 0.25s;
+    transition-timing-function: ease-out;
+}
+.media-default-skin .media-slider__buffer[data-orientation="horizontal"] {
+    width: var(--media-slider-buffer);
+    transition-property: width;
+}
+.media-default-skin .media-slider__buffer[data-orientation="vertical"] {
+    height: var(--media-slider-buffer);
+    transition-property: height;
+}
+.media-default-skin .media-slider__fill {
+    background-color: currentColor;
+}
+.media-default-skin .media-slider__fill[data-orientation="horizontal"] {
+    width: var(--media-slider-fill);
+}
+.media-default-skin .media-slider__fill[data-orientation="vertical"] {
+    height: var(--media-slider-fill);
+}
+.media-default-skin
+    .media-slider[data-dragging]
+    .media-slider__thumb[data-orientation="horizontal"] {
+    left: var(--media-slider-pointer);
+}
+.media-default-skin
+    .media-slider[data-dragging]
+    .media-slider__thumb[data-orientation="vertical"] {
+    top: calc(100% - var(--media-slider-pointer));
+}
+.media-default-skin
+    .media-slider[data-dragging]
+    .media-slider__fill[data-orientation="horizontal"] {
+    width: var(--media-slider-pointer);
+}
+.media-default-skin
+    .media-slider[data-dragging]
+    .media-slider__fill[data-orientation="vertical"] {
+    height: var(--media-slider-pointer);
+}
+
+/* ==========================================================================
+   Popups & Tooltips
+   ========================================================================== */
+
+.media-default-skin .media-popover,
+.media-default-skin .media-tooltip {
+    margin: 0;
+    border: 0;
+    color: inherit;
+    overflow: visible;
+    transition-property: scale, opacity, filter;
+    transition-duration: var(--media-popup-transition-duration);
+    transition-timing-function: var(--media-popup-transition-timing-function);
+}
+.media-default-skin .media-popover[data-starting-style],
+.media-default-skin .media-popover[data-ending-style],
+.media-default-skin .media-tooltip[data-starting-style],
+.media-default-skin .media-tooltip[data-ending-style] {
+    opacity: 0;
+    scale: 0.5;
+    filter: blur(8px);
+}
+.media-default-skin .media-popover[data-instant],
+.media-default-skin .media-tooltip[data-instant] {
+    transition-duration: 0ms;
+}
+.media-default-skin .media-popover[data-side="top"],
+.media-default-skin .media-tooltip[data-side="top"] {
+    transform-origin: bottom;
+}
+.media-default-skin .media-popover[data-side="bottom"],
+.media-default-skin .media-tooltip[data-side="bottom"] {
+    transform-origin: top;
+}
+.media-default-skin .media-popover[data-side="left"],
+.media-default-skin .media-tooltip[data-side="left"] {
+    transform-origin: right;
+}
+.media-default-skin .media-popover[data-side="right"],
+.media-default-skin .media-tooltip[data-side="right"] {
+    transform-origin: left;
+}
+.media-default-skin .media-popover::before,
+.media-default-skin .media-tooltip::before {
+    content: "";
+    position: absolute;
+    pointer-events: inherit;
+}
+.media-default-skin .media-popover[data-side="top"]::before,
+.media-default-skin .media-popover[data-side="bottom"]::before,
+.media-default-skin .media-tooltip[data-side="top"]::before,
+.media-default-skin .media-tooltip[data-side="bottom"]::before {
+    width: 100%;
+    inset-inline: 0;
+}
+.media-default-skin .media-popover[data-side="top"]::before,
+.media-default-skin .media-tooltip[data-side="top"]::before {
+    top: 100%;
+}
+.media-default-skin .media-popover[data-side="bottom"]::before,
+.media-default-skin .media-tooltip[data-side="bottom"]::before {
+    bottom: 100%;
+}
+.media-default-skin .media-popover[data-side="left"]::before,
+.media-default-skin .media-popover[data-side="right"]::before,
+.media-default-skin .media-tooltip[data-side="left"]::before,
+.media-default-skin .media-tooltip[data-side="right"]::before {
+    height: 100%;
+    inset-block: 0;
+}
+.media-default-skin .media-popover[data-side="left"]::before,
+.media-default-skin .media-tooltip[data-side="left"]::before {
+    left: 100%;
+}
+.media-default-skin .media-popover[data-side="right"]::before,
+.media-default-skin .media-tooltip[data-side="right"]::before {
+    right: 100%;
+}
+.media-default-skin .media-popover[data-side="top"]::before,
+.media-default-skin .media-popover[data-side="bottom"]::before {
+    height: var(--media-popover-side-offset);
+}
+.media-default-skin .media-popover[data-side="left"]::before,
+.media-default-skin .media-popover[data-side="right"]::before {
+    width: var(--media-popover-side-offset);
+}
+.media-default-skin .media-popover--volume {
+    padding: 0.75rem 0;
+    border-radius: calc(infinity * 1px);
+}
+.media-default-skin
+    .media-popover--volume:has(media-volume-slider[data-availability="unsupported"]) {
+    display: none;
+}
+.media-default-skin .media-tooltip {
+    padding: 0.25rem 0.625rem;
+    border-radius: calc(infinity * 1px);
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+.media-default-skin .media-tooltip[data-side="top"]::before,
+.media-default-skin .media-tooltip[data-side="bottom"]::before {
+    height: var(--media-tooltip-side-offset);
+}
+.media-default-skin .media-tooltip[data-side="left"]::before,
+.media-default-skin .media-tooltip[data-side="right"]::before {
+    width: var(--media-tooltip-side-offset);
+}
+
+/* ==========================================================================
+   Native caption track
+   ========================================================================== */
+
+.media-default-skin {
+    --media-caption-track-duration: var(--media-controls-transition-duration);
+    --media-caption-track-delay: 25ms;
+    --media-caption-track-y: -0.5rem;
+}
+.media-default-skin:has(.media-controls[data-visible]) {
+    --media-caption-track-y: -5.5rem;
+}
+@container media-root (width > 42rem) {
+    .media-default-skin:has(.media-controls[data-visible]) > * {
+        --media-caption-track-y: -3.5rem;
+    }
+}
+.media-default-skin video::-webkit-media-text-track-container {
+    transition: translate var(--media-caption-track-duration) ease-out;
+    transition-delay: var(--media-caption-track-delay);
+    translate: 0 var(--media-caption-track-y);
+    scale: 0.98;
+    z-index: 1;
+    font-family: inherit;
+}
+
+/* ==========================================================================
+   Icon visibility
+   ========================================================================== */
+
+.media-button--play .media-icon--restart,
+.media-button--play .media-icon--play,
+.media-button--play .media-icon--pause,
+.media-button--mute .media-icon--volume-off,
+.media-button--mute .media-icon--volume-low,
+.media-button--mute .media-icon--volume-high,
+.media-button--fullscreen .media-icon--fullscreen-enter,
+.media-button--fullscreen .media-icon--fullscreen-exit,
+.media-button--pip .media-icon--pip-enter,
+.media-button--pip .media-icon--pip-exit,
+.media-button--cast .media-icon--cast-enter,
+.media-button--cast .media-icon--cast-exit,
+.media-button--captions .media-icon--captions-off,
+.media-button--captions .media-icon--captions-on {
+    display: none;
+    opacity: 0;
+}
+.media-button--play[data-ended] .media-icon--restart,
+.media-button--play:not([data-ended])[data-paused] .media-icon--play,
+.media-button--play:not([data-paused]):not([data-ended]) .media-icon--pause,
+.media-button--mute[data-muted] .media-icon--volume-off,
+.media-button--mute:not([data-muted])[data-volume-level="low"]
+    .media-icon--volume-low,
+.media-button--mute:not([data-muted]):not([data-volume-level="low"])
+    .media-icon--volume-high,
+.media-button--fullscreen:not([data-fullscreen]) .media-icon--fullscreen-enter,
+.media-button--fullscreen[data-fullscreen] .media-icon--fullscreen-exit,
+.media-button--pip:not([data-pip]) .media-icon--pip-enter,
+.media-button--pip[data-pip] .media-icon--pip-exit,
+.media-button--cast:not([data-cast-state="connected"])
+    .media-icon--cast-enter,
+.media-button--cast[data-cast-state="connected"] .media-icon--cast-exit,
+.media-button--captions:not([data-active]) .media-icon--captions-off,
+.media-button--captions[data-active] .media-icon--captions-on {
+    display: block;
+    opacity: 1;
+}
+
+/* ==========================================================================
+   Root variant
+   ========================================================================== */
+
+.media-default-skin--video {
+    background: oklch(0 0 0);
+    --media-spring-transition: linear(
+        0,
+        0.034 1.5%,
+        0.763 9.7%,
+        1.066 13.9%,
+        1.198 19.9%,
+        1.184 21.8%,
+        0.963 37.5%,
+        0.997 50.9%,
+        1
+    );
+    --media-border-color: oklch(0 0 0 / 0.1);
+    --media-surface-background-color: oklch(1 0 0 / 0.1);
+    --media-surface-inner-border-color: oklch(1 0 0 / 0.05);
+    --media-surface-outer-border-color: oklch(0 0 0 / 0.1);
+    --media-surface-shadow-color: oklch(0 0 0 / 0.15);
+    --media-surface-backdrop-filter: blur(16px) saturate(1.5);
+    --media-video-border-radius: var(--media-border-radius, 2rem);
+    --media-controls-transition-duration: 100ms;
+    --media-controls-transition-timing-function: ease-out;
+    --media-error-dialog-transition-duration: 350ms;
+    --media-error-dialog-transition-delay: 100ms;
+    --media-error-dialog-transition-timing-function: var(
+        --media-spring-transition
+    );
+    --media-popup-transition-duration: 100ms;
+    --media-popup-transition-timing-function: ease-out;
+    --media-tooltip-side-offset: 0.75rem;
+    --media-popover-side-offset: 0.5rem;
+}
+@media (prefers-reduced-motion: reduce) {
+    .media-default-skin--video {
+        --media-error-dialog-transition-duration: 50ms;
+        --media-error-dialog-transition-delay: 0ms;
+        --media-error-dialog-transition-timing-function: ease-out;
+        --media-popup-transition-duration: 0ms;
+    }
+}
+@media (prefers-color-scheme: dark) {
+    .media-default-skin--video {
+        --media-border-color: oklch(1 0 0 / 0.15);
+    }
+}
+@media (prefers-reduced-transparency: reduce) or (prefers-contrast: more) {
+    .media-default-skin--video {
+        --media-surface-background-color: oklch(0 0 0);
+        --media-surface-inner-border-color: oklch(1 0 0 / 0.25);
+        --media-surface-outer-border-color: transparent;
+    }
+}
+.media-default-skin--video:has(.media-controls:not([data-visible])) {
+    @media (pointer: fine) {
+        --media-controls-transition-duration: 300ms;
+    }
+    @media (pointer: coarse) {
+        --media-controls-transition-duration: 150ms;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        --media-controls-transition-duration: 50ms;
+    }
+}
+.media-default-skin--video::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px var(--media-border-color);
+    pointer-events: none;
+}
+.media-default-skin--video:fullscreen {
+    --media-border-radius: 0;
+}
+
+/* ==========================================================================
+   Error dialog (video)
+   ========================================================================== */
+
+.media-default-skin--video .media-error {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.media-default-skin--video .media-error__dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 18rem;
+    padding: 0.75rem;
+    border-radius: 1.75rem;
+    color: oklch(1 0 0);
+    text-shadow: 0 1px 0 oklch(0 0 0 / 0.25);
+    transition-property: opacity, scale;
+    transition-duration: var(--media-error-dialog-transition-duration);
+    transition-delay: var(--media-error-dialog-transition-delay);
+    transition-timing-function: var(--media-error-dialog-transition-timing-function);
+}
+.media-default-skin--video
+    .media-error[data-starting-style]
+    .media-error__dialog,
+.media-default-skin--video
+    .media-error[data-ending-style]
+    .media-error__dialog {
+    opacity: 0;
+    scale: 0.5;
+}
+.media-default-skin--video
+    .media-error[data-ending-style]
+    .media-error__dialog {
+    transition-delay: 0ms;
+}
+.media-default-skin--video .media-error__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem 0.5rem 0.375rem;
+    text-shadow: inherit;
+}
+.media-default-skin--video .media-error__title {
+    font-size: 1rem;
+}
+
+/* ==========================================================================
+   Controls (hide/show behavior)
+   ========================================================================== */
+
+.media-default-skin--video .media-controls {
+    flex-wrap: wrap;
+    position: absolute;
+    bottom: 0.5rem;
+    inset-inline: 0.5rem;
+    z-index: 10;
+    color: var(--media-color-primary, oklch(1 0 0));
+    transition-duration: var(--media-controls-transition-duration);
+    transition-timing-function: var(--media-controls-transition-timing-function);
+    transform-origin: bottom;
+}
+@media (pointer: fine) {
+    .media-default-skin--video .media-controls {
+        will-change: scale, filter, opacity;
+        transition-property: scale, filter, opacity;
+    }
+}
+@media (pointer: coarse) {
+    .media-default-skin--video .media-controls {
+        will-change: scale, opacity;
+        transition-property: scale, opacity;
+    }
+}
+.media-default-skin--video .media-controls:not([data-visible]) {
+    opacity: 0;
+    pointer-events: none;
+    scale: 0.9;
+}
+@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .media-default-skin--video .media-controls:not([data-visible]) {
+        filter: blur(8px);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .media-default-skin--video .media-controls:not([data-visible]) {
+        scale: 1;
+    }
+}
+.media-default-skin--video .media-controls .media-time-controls {
+    order: -1;
+    flex: 0 0 100%;
+    padding-inline: 0.625rem;
+}
+.media-default-skin--video .media-controls .media-button-group:first-child {
+    flex: 1;
+    text-align: left;
+}
+.media-default-skin--video .media-controls .media-button-group:last-child {
+    flex: 1;
+    justify-content: end;
+}
+@container media-root (width > 42rem) {
+    .media-default-skin--video .media-controls {
+        bottom: 0.75rem;
+        inset-inline: 0.75rem;
+        flex-wrap: nowrap;
+        column-gap: 0.125rem;
+        padding: 0.25rem;
+    }
+    .media-default-skin--video .media-controls .media-time-controls {
+        order: unset;
+        flex: 1;
+    }
+    .media-default-skin--video .media-controls .media-button-group:first-child,
+    .media-default-skin--video .media-controls .media-button-group:last-child {
+        flex: 0 0 auto;
+    }
+}
+
+.media-default-skin--video .media-error[data-open] ~ .media-controls {
+    display: none;
+}
+.media-default-skin--video:has(.media-controls:not([data-visible])) {
+    cursor: none;
+}
+
+/* ==========================================================================
+   Sliders (video)
+   ========================================================================== */
+
+.media-default-skin--video .media-slider__track {
+    background-color: oklch(1 0 0 / 0.2);
+    box-shadow: 0 0 0 1px oklch(0 0 0 / 0.05);
+}
+
+.media-default-skin--video .media-slider__preview {
+    --media-preview-max-width: 11rem;
+    --media-preview-padding: -1.125rem;
+    --media-preview-inset: calc((100cqi - 100%) / 2);
+
+    position: absolute;
+    left: clamp(
+        calc(
+            var(--media-preview-max-width) / 2 + var(--media-preview-padding) -
+                var(--media-preview-inset)
+        ),
+        var(--media-slider-pointer),
+        calc(
+            100% - var(--media-preview-max-width) / 2 -
+                var(--media-preview-padding) + var(--media-preview-inset)
+        )
+    );
+    bottom: calc(100% + 1.2rem);
+    translate: -50%;
+    opacity: 0;
+    scale: 0.8;
+    filter: blur(8px);
+    transition-property: scale, opacity, filter;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+    transform-origin: bottom;
+    pointer-events: none;
+}
+.media-default-skin--video .media-slider__preview .media-preview__thumbnail {
+    max-width: var(--media-preview-max-width);
+}
+.media-default-skin--video
+    .media-slider__preview:has(.media-preview__thumbnail[data-loading]) {
+    max-height: 6rem;
+}
+.media-default-skin--video
+    .media-slider[data-pointing]
+    .media-slider__preview:has([role="img"]:not([data-hidden])) {
+    opacity: 1;
+    scale: 1;
+    filter: blur(0);
+}
+
+/* ==========================================================================
+   BCCM picker styling (subtitle/audio language pickers)
+
+   The button lives inside the control bar and inherits .media-button styling.
+   The menu uses the native popover API so it renders in the top layer — that
+   way backdrop-filter actually sees the video underneath instead of being
+   clipped by the controls' own surface stacking context. Because top-layer
+   elements are pulled out of normal flow, menu rules can't be scoped under
+   .media-default-skin and must target the element directly.
+   ========================================================================== */
+
+bccm-audio-picker,
+bccm-subtitle-picker {
+    position: relative;
+    display: inline-flex;
+}
+bccm-audio-picker[data-empty] {
+    display: none;
+}
+.bccm-picker-button {
+    line-height: 1;
+}
+
+.bccm-picker-menu {
+    /* UA stylesheet renders [popover] with display: none until open. */
+    /* The outer + inner border rings are baked into a single box-shadow
+       (instead of using .media-surface's ::after pseudo-element), so they
+       paint relative to the popover's box and don't scroll with content. */
+    margin: 0;
+    border: 0;
+    padding: 0.25rem;
+    min-width: 11rem;
+    max-height: 16rem;
+    overflow-y: auto;
+    color: var(--media-color-primary, oklch(1 0 0));
+    background-color: var(
+        --media-surface-background-color,
+        oklch(0 0 0 / 0.7)
+    );
+    backdrop-filter: var(
+        --media-surface-backdrop-filter,
+        blur(16px) saturate(1.5)
+    );
+    box-shadow:
+        inset 0 0 0 1px
+            var(--media-surface-inner-border-color, oklch(1 0 0 / 0.05)),
+        0 0 0 1px var(--media-surface-outer-border-color, transparent),
+        0 1px 3px 0 var(--media-surface-shadow-color, oklch(0 0 0 / 0.15)),
+        0 1px 2px -1px var(--media-surface-shadow-color, oklch(0 0 0 / 0.15));
+    border-radius: 0.75rem;
+    font-family: inherit;
+    text-shadow: 0 1px 0 oklch(0 0 0 / 0.25);
+}
+.bccm-picker-menu:popover-open {
+    display: flex;
+    flex-direction: column;
+}
+.bccm-picker-item {
+    background: transparent;
+    color: inherit;
+    border: 0;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    font: inherit;
+    text-shadow: inherit;
+    white-space: nowrap;
+}
+.bccm-picker-item:hover,
+.bccm-picker-item:focus-visible {
+    background-color: oklch(from currentColor l c h / 0.15);
+    outline: none;
+}
+.bccm-picker-item::before {
+    content: "✓";
+    display: inline-block;
+    width: 1em;
+    margin-inline-end: 0.5rem;
+    visibility: hidden;
+}
+.bccm-picker-item[aria-checked="true"]::before {
+    visibility: visible;
+}
