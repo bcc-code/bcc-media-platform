@@ -1,5 +1,5 @@
 @use "../../../external-projects/videojs-hls-quality-selector/src/plugin.scss";
-@import "@silvermine/videojs-chromecast/src/scss/videojs-chromecast.scss";
+@use "@silvermine/videojs-chromecast/src/scss/videojs-chromecast.scss";
 //@import "~@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css";
 
 $icon-chromecast--default: "./chromecast.svg";

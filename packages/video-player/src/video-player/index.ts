@@ -6,7 +6,7 @@ import "videojs-mux"
 import { enableNPAW, type NPAWOptions, setOptions } from "./npaw"
 
 // External plugins
-import hlsQualitySelector from "@/../external-projects/videojs-hls-quality-selector/src/plugin"
+import hlsQualitySelector from "../../external-projects/videojs-hls-quality-selector/src/plugin"
 import registerChromecastPlugin from "@silvermine/videojs-chromecast"
 import { CastLoader } from "./utils"
 
