@@ -1,0 +1,12 @@
+.gitignore
+.gitmodules
+src
+node_modules
+.prettierignore
+.prettierrc
+index.html
+postcss.config.js
+vite.config.ts
+demo
+pnpm-lock.yaml
+external-projects

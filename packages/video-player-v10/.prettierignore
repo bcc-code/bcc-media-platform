@@ -1,0 +1,6 @@
+node_modules
+dist
+.vscode
+demo
+external-projects
+pnpm-lock.yaml
