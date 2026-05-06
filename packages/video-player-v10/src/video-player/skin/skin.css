@@ -31,7 +31,9 @@ media-tooltip-group {
     width: 100%;
 }
 
-.media-popover--volume:has(media-volume-slider[data-availability="unsupported"]) {
+.media-popover--volume:has(
+    media-volume-slider[data-availability="unsupported"]
+) {
     display: none;
 }
 
@@ -74,7 +76,11 @@ media-tooltip-group {
     outline: 2px solid transparent;
     outline-offset: 2px;
     font-family:
-        Inter Variable, Inter, ui-sans-serif, system-ui, sans-serif;
+        Inter Variable,
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
     line-height: 1.5;
     letter-spacing: normal;
     -webkit-font-smoothing: auto;
@@ -236,7 +242,7 @@ media-tooltip-group {
     );
     --media-controls-current-shadow-color-subtle: oklch(
         from var(--media-controls-current-shadow-color) l c h /
-        calc(alpha * 0.4)
+            calc(alpha * 0.4)
     );
     text-shadow: 0 1px 0 var(--media-controls-current-shadow-color);
 }
@@ -327,8 +333,7 @@ media-tooltip-group {
 }
 .media-default-skin .media-button--icon .media-icon {
     filter: drop-shadow(
-        0 1px 0
-            var(--media-controls-current-shadow-color, oklch(0 0 0 / 0.25))
+        0 1px 0 var(--media-controls-current-shadow-color, oklch(0 0 0 / 0.25))
     );
 }
 
@@ -539,7 +544,10 @@ media-tooltip-group {
     border-radius: calc(infinity * 1px);
     box-shadow:
         0 0 0 1px
-            var(--media-controls-current-shadow-color-subtle, oklch(0 0 0 / 0.1)),
+            var(
+                --media-controls-current-shadow-color-subtle,
+                oklch(0 0 0 / 0.1)
+            ),
         0 1px 3px 0 oklch(0 0 0 / 0.15),
         0 1px 2px -1px oklch(0 0 0 / 0.15);
     opacity: 0;
@@ -738,7 +746,9 @@ media-tooltip-group {
     border-radius: calc(infinity * 1px);
 }
 .media-default-skin
-    .media-popover--volume:has(media-volume-slider[data-availability="unsupported"]) {
+    .media-popover--volume:has(
+        media-volume-slider[data-availability="unsupported"]
+    ) {
     display: none;
 }
 .media-default-skin .media-tooltip {
@@ -815,8 +825,7 @@ media-tooltip-group {
 .media-button--fullscreen[data-fullscreen] .media-icon--fullscreen-exit,
 .media-button--pip:not([data-pip]) .media-icon--pip-enter,
 .media-button--pip[data-pip] .media-icon--pip-exit,
-.media-button--cast:not([data-cast-state="connected"])
-    .media-icon--cast-enter,
+.media-button--cast:not([data-cast-state="connected"]) .media-icon--cast-enter,
 .media-button--cast[data-cast-state="connected"] .media-icon--cast-exit,
 .media-button--captions:not([data-active]) .media-icon--captions-off,
 .media-button--captions[data-active] .media-icon--captions-on {
@@ -928,7 +937,9 @@ media-tooltip-group {
     transition-property: opacity, scale;
     transition-duration: var(--media-error-dialog-transition-duration);
     transition-delay: var(--media-error-dialog-transition-delay);
-    transition-timing-function: var(--media-error-dialog-transition-timing-function);
+    transition-timing-function: var(
+        --media-error-dialog-transition-timing-function
+    );
 }
 .media-default-skin--video
     .media-error[data-starting-style]
@@ -967,7 +978,9 @@ media-tooltip-group {
     z-index: 10;
     color: var(--media-color-primary, oklch(1 0 0));
     transition-duration: var(--media-controls-transition-duration);
-    transition-timing-function: var(--media-controls-transition-timing-function);
+    transition-timing-function: var(
+        --media-controls-transition-timing-function
+    );
     transform-origin: bottom;
 }
 @media (pointer: fine) {
@@ -1095,16 +1108,33 @@ media-tooltip-group {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.125rem 0.25rem;
+    padding: 0.4rem 0.75rem;
+    border: 0;
+    border-radius: calc(infinity * 1px);
+    background: transparent;
     color: inherit;
+    font: inherit;
     font-weight: 600;
     letter-spacing: 0.05em;
     font-variant-numeric: tabular-nums;
+    text-shadow: inherit;
+    cursor: pointer;
+    transition: background-color 150ms ease-out;
+}
+.media-default-skin .bccm-live-badge:hover,
+.media-default-skin .bccm-live-badge:focus-visible {
+    background-color: oklch(from currentColor l c h / 0.1);
+    outline: none;
 }
 .media-default-skin .bccm-live-badge__dot {
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 100%;
+    /* Dim dot when behind the live edge — clicking jumps forward. */
+    background-color: oklch(from currentColor l c h / 0.4);
+    transition: background-color 150ms ease-out;
+}
+.media-default-skin .bccm-live-badge[data-at-live] .bccm-live-badge__dot {
     background-color: oklch(0.6 0.18 25);
 }
 
@@ -1155,10 +1185,7 @@ bccm-quality-picker[data-empty] {
     max-height: 16rem;
     overflow-y: auto;
     color: var(--media-color-primary, oklch(1 0 0));
-    background-color: var(
-        --media-surface-background-color,
-        oklch(0 0 0 / 0.7)
-    );
+    background-color: var(--media-surface-background-color, oklch(0 0 0 / 0.7));
     backdrop-filter: var(
         --media-surface-backdrop-filter,
         blur(16px) saturate(1.5)

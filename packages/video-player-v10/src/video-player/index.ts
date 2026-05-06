@@ -6,6 +6,7 @@ import "./components/subtitle-picker"
 import "./components/audio-picker"
 import "./components/quality-picker"
 import "./components/playback-rate-picker"
+import "./components/live-button"
 import "./skin/skin.css"
 
 import { buildSkin } from "./skin/skin"
@@ -191,7 +192,10 @@ function getAudioLanguages(media: HTMLElement): TrackOption[] {
     const out: TrackOption[] = []
     for (let i = 0; i < native.length; i++) {
         const t = native[i]
-        out.push({ language: t.language ?? "", label: t.label ?? t.language ?? "" })
+        out.push({
+            language: t.language ?? "",
+            label: t.label ?? t.language ?? "",
+        })
     }
     return out
 }
@@ -223,7 +227,11 @@ function getSubtitleLanguages(media: HTMLVideoElement): TrackOption[] {
 }
 
 function setVideoQuality(media: HTMLElement, height: number): void {
-    const engine = (media as { engine?: { levels: { height?: number }[]; currentLevel: number } }).engine
+    const engine = (
+        media as {
+            engine?: { levels: { height?: number }[]; currentLevel: number }
+        }
+    ).engine
     if (!engine?.levels?.length) return
     if (!height || height < 0) {
         engine.currentLevel = -1 // re-enable ABR (Auto)
@@ -233,7 +241,10 @@ function setVideoQuality(media: HTMLElement, height: number): void {
     if (idx >= 0) engine.currentLevel = idx
 }
 
-function setSubtitleTrackToLanguage(media: HTMLVideoElement, language?: string) {
+function setSubtitleTrackToLanguage(
+    media: HTMLVideoElement,
+    language?: string
+) {
     const tracks = Array.from(media.textTracks).filter(
         (t) => t.kind === "captions" || t.kind === "subtitles"
     )

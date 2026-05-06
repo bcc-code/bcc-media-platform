@@ -140,7 +140,9 @@ export class QualityPickerElement extends MediaElement {
         this.#menu.appendChild(auto)
 
         for (const { level, idx } of sorted) {
-            const label = level.height ? `${level.height}p` : level.name || `Level ${idx}`
+            const label = level.height
+                ? `${level.height}p`
+                : level.name || `Level ${idx}`
             const item = this.#item(label, () => {
                 engine.currentLevel = idx
                 this.#menu.hidePopover()

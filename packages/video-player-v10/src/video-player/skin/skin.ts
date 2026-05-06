@@ -81,7 +81,7 @@ export function buildSkin(
             <media-tooltip id="${ID_SEEK_FWD}" side="top" class="media-surface media-tooltip">Seek forward ${SEEK_TIME} seconds</media-tooltip>`
 
     const timeControls = live
-        ? `<span class="bccm-live-badge" aria-label="Live"><span class="bccm-live-badge__dot"></span>LIVE</span>`
+        ? `<bccm-live-button></bccm-live-button>`
         : `<media-time type="current" class="media-time"></media-time>
             <media-time-slider class="media-slider">
               <media-slider-track class="media-slider__track">

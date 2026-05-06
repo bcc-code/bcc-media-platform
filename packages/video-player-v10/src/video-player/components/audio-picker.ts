@@ -116,7 +116,8 @@ export class AudioPickerElement extends MediaElement {
             item.className = "bccm-picker-item"
             item.setAttribute("role", "menuitemradio")
             item.textContent = t.name || t.lang || `Track ${t.id}`
-            if (t.id === engine.audioTrack) item.setAttribute("aria-checked", "true")
+            if (t.id === engine.audioTrack)
+                item.setAttribute("aria-checked", "true")
             item.addEventListener("click", () => {
                 engine.audioTrack = t.id
                 this.#menu.hidePopover()
