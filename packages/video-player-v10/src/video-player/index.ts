@@ -20,6 +20,9 @@ export interface Options {
     }
     npaw?: NPAWOptions
     autoplay: boolean
+    /** Switches the player to a live-aware skin (LIVE badge, no time
+     *  displays / seek buttons / thumbnail preview). Defaults to false. */
+    live?: boolean
     subtitles: any[]
     videojs: {
         poster?: string
@@ -76,7 +79,10 @@ export async function createPlayer(
     }
     media.setAttribute("playsinline", "")
 
-    const skin = buildSkin(media, { poster: options.videojs.poster })
+    const skin = buildSkin(media, {
+        poster: options.videojs.poster,
+        live: options.live,
+    })
     player.appendChild(skin)
     container.insertAdjacentElement("afterbegin", player)
 

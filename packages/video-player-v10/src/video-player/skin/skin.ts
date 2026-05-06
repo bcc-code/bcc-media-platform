@@ -4,6 +4,7 @@
 // or reaching into shadow DOM. Icons are inlined SVG copied from the docs.
 
 const SEEK_TIME = 10
+let skinIdSeq = 0
 
 const ICON_RESTART = `<svg class="media-icon media-icon--restart" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" aria-hidden="true" viewBox="0 0 18 18"><path fill="currentColor" d="M9 17a8 8 0 0 1-8-8h2a6 6 0 1 0 1.287-3.713l1.286 1.286A.25.25 0 0 1 5.396 7H1.25A.25.25 0 0 1 1 6.75V2.604a.25.25 0 0 1 .427-.177l1.438 1.438A8 8 0 1 1 9 17"/><path fill="currentColor" d="m11.61 9.639-3.331 2.07a.826.826 0 0 1-1.15-.266.86.86 0 0 1-.129-.452V6.849C7 6.38 7.374 6 7.834 6c.158 0 .312.045.445.13l3.331 2.071a.858.858 0 0 1 0 1.438"/></svg>`
 const ICON_PLAY = `<svg class="media-icon media-icon--play" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" aria-hidden="true" viewBox="0 0 18 18"><path fill="currentColor" d="m14.051 10.723-7.985 4.964a1.98 1.98 0 0 1-2.758-.638A2.06 2.06 0 0 1 3 13.964V4.036C3 2.91 3.895 2 5 2c.377 0 .747.109 1.066.313l7.985 4.964a2.057 2.057 0 0 1 .627 2.808c-.16.257-.373.475-.627.637"/></svg>`
@@ -26,6 +27,7 @@ const ICON_SPINNER_BUFFER = ICON_SPINNER
 
 export interface SkinOptions {
     poster?: string
+    live?: boolean
 }
 
 export function buildSkin(
@@ -34,6 +36,63 @@ export function buildSkin(
 ): HTMLElement {
     const container = document.createElement("media-container")
     container.className = "media-default-skin media-default-skin--video"
+
+    const live = options.live === true
+    // Each skin instance needs unique IDs for tooltip / popover targets.
+    // commandfor / popovertarget look up the first matching ID in the document,
+    // so two players on the same page would otherwise share the VOD player's
+    // volume popover and tooltips.
+    const sid = ++skinIdSeq
+    const ID_PLAY = `play-tooltip-${sid}`
+    const ID_SEEK_BACK = `seek-backward-tooltip-${sid}`
+    const ID_SEEK_FWD = `seek-forward-tooltip-${sid}`
+    const ID_VOLUME = `video-volume-popover-${sid}`
+    const ID_PIP = `pip-tooltip-${sid}`
+    const ID_FS = `fullscreen-tooltip-${sid}`
+
+    // Live skin: drop seek buttons, current/duration time displays, and the
+    // thumbnail preview (no thumbs available for live). Show a LIVE badge in
+    // the time-controls area instead of the time displays.
+    const leftButtons = live
+        ? `<media-play-button commandfor="${ID_PLAY}" class="media-button media-button--subtle media-button--icon media-button--play">
+              ${ICON_RESTART}${ICON_PLAY}${ICON_PAUSE}
+            </media-play-button>
+            <media-tooltip id="${ID_PLAY}" side="top" class="media-surface media-tooltip"></media-tooltip>`
+        : `<media-play-button commandfor="${ID_PLAY}" class="media-button media-button--subtle media-button--icon media-button--play">
+              ${ICON_RESTART}${ICON_PLAY}${ICON_PAUSE}
+            </media-play-button>
+            <media-tooltip id="${ID_PLAY}" side="top" class="media-surface media-tooltip"></media-tooltip>
+
+            <media-seek-button commandfor="${ID_SEEK_BACK}" seconds="${-SEEK_TIME}" class="media-button media-button--subtle media-button--icon media-button--seek">
+              <span class="media-icon__container">
+                ${ICON_SEEK_FLIPPED}<span class="media-icon__label">${SEEK_TIME}</span>
+              </span>
+            </media-seek-button>
+            <media-tooltip id="${ID_SEEK_BACK}" side="top" class="media-surface media-tooltip">Seek backward ${SEEK_TIME} seconds</media-tooltip>
+
+            <media-seek-button commandfor="${ID_SEEK_FWD}" seconds="${SEEK_TIME}" class="media-button media-button--subtle media-button--icon media-button--seek">
+              <span class="media-icon__container">
+                ${ICON_SEEK}<span class="media-icon__label">${SEEK_TIME}</span>
+              </span>
+            </media-seek-button>
+            <media-tooltip id="${ID_SEEK_FWD}" side="top" class="media-surface media-tooltip">Seek forward ${SEEK_TIME} seconds</media-tooltip>`
+
+    const timeControls = live
+        ? `<span class="bccm-live-badge" aria-label="Live"><span class="bccm-live-badge__dot"></span>LIVE</span>`
+        : `<media-time type="current" class="media-time"></media-time>
+            <media-time-slider class="media-slider">
+              <media-slider-track class="media-slider__track">
+                <media-slider-fill class="media-slider__fill"></media-slider-fill>
+                <media-slider-buffer class="media-slider__buffer"></media-slider-buffer>
+              </media-slider-track>
+              <media-slider-thumb class="media-slider__thumb"></media-slider-thumb>
+              <div class="media-surface media-preview media-slider__preview">
+                <media-slider-thumbnail class="media-preview__thumbnail"></media-slider-thumbnail>
+                <media-slider-value type="pointer" class="media-time media-preview__time"></media-slider-value>
+                ${ICON_SPINNER_PREVIEW}
+              </div>
+            </media-time-slider>
+            <media-time type="duration" class="media-time"></media-time>`
 
     container.innerHTML = `
       <media-poster></media-poster>
@@ -57,49 +116,19 @@ export function buildSkin(
       <media-controls class="media-surface media-controls">
         <media-tooltip-group>
           <div class="media-button-group">
-            <media-play-button commandfor="play-tooltip" class="media-button media-button--subtle media-button--icon media-button--play">
-              ${ICON_RESTART}${ICON_PLAY}${ICON_PAUSE}
-            </media-play-button>
-            <media-tooltip id="play-tooltip" side="top" class="media-surface media-tooltip"></media-tooltip>
-
-            <media-seek-button commandfor="seek-backward-tooltip" seconds="${-SEEK_TIME}" class="media-button media-button--subtle media-button--icon media-button--seek">
-              <span class="media-icon__container">
-                ${ICON_SEEK_FLIPPED}<span class="media-icon__label">${SEEK_TIME}</span>
-              </span>
-            </media-seek-button>
-            <media-tooltip id="seek-backward-tooltip" side="top" class="media-surface media-tooltip">Seek backward ${SEEK_TIME} seconds</media-tooltip>
-
-            <media-seek-button commandfor="seek-forward-tooltip" seconds="${SEEK_TIME}" class="media-button media-button--subtle media-button--icon media-button--seek">
-              <span class="media-icon__container">
-                ${ICON_SEEK}<span class="media-icon__label">${SEEK_TIME}</span>
-              </span>
-            </media-seek-button>
-            <media-tooltip id="seek-forward-tooltip" side="top" class="media-surface media-tooltip">Seek forward ${SEEK_TIME} seconds</media-tooltip>
+            ${leftButtons}
           </div>
 
           <div class="media-time-controls">
-            <media-time type="current" class="media-time"></media-time>
-            <media-time-slider class="media-slider">
-              <media-slider-track class="media-slider__track">
-                <media-slider-fill class="media-slider__fill"></media-slider-fill>
-                <media-slider-buffer class="media-slider__buffer"></media-slider-buffer>
-              </media-slider-track>
-              <media-slider-thumb class="media-slider__thumb"></media-slider-thumb>
-              <div class="media-surface media-preview media-slider__preview">
-                <media-slider-thumbnail class="media-preview__thumbnail"></media-slider-thumbnail>
-                <media-slider-value type="pointer" class="media-time media-preview__time"></media-slider-value>
-                ${ICON_SPINNER_PREVIEW}
-              </div>
-            </media-time-slider>
-            <media-time type="duration" class="media-time"></media-time>
+            ${timeControls}
           </div>
 
           <div class="media-button-group" data-bccm-right-group>
-            <media-mute-button commandfor="video-volume-popover" class="media-button media-button--subtle media-button--icon media-button--mute">
+            <media-mute-button commandfor="${ID_VOLUME}" class="media-button media-button--subtle media-button--icon media-button--mute">
               ${ICON_VOLUME_OFF}${ICON_VOLUME_LOW}${ICON_VOLUME_HIGH}
             </media-mute-button>
 
-            <media-popover id="video-volume-popover" open-on-hover delay="200" close-delay="100" side="top" class="media-surface media-popover media-popover--volume">
+            <media-popover id="${ID_VOLUME}" open-on-hover delay="200" close-delay="100" side="top" class="media-surface media-popover media-popover--volume">
               <media-volume-slider class="media-slider" orientation="vertical" thumb-alignment="edge">
                 <media-slider-track class="media-slider__track">
                   <media-slider-fill class="media-slider__fill"></media-slider-fill>
@@ -111,15 +140,15 @@ export function buildSkin(
             <bccm-audio-picker></bccm-audio-picker>
             <bccm-subtitle-picker></bccm-subtitle-picker>
 
-            <media-pip-button commandfor="pip-tooltip" class="media-button media-button--subtle media-button--icon media-button--pip">
+            <media-pip-button commandfor="${ID_PIP}" class="media-button media-button--subtle media-button--icon media-button--pip">
               ${ICON_PIP_ENTER}${ICON_PIP_EXIT}
             </media-pip-button>
-            <media-tooltip id="pip-tooltip" side="top" class="media-surface media-tooltip"></media-tooltip>
+            <media-tooltip id="${ID_PIP}" side="top" class="media-surface media-tooltip"></media-tooltip>
 
-            <media-fullscreen-button commandfor="fullscreen-tooltip" class="media-button media-button--subtle media-button--icon media-button--fullscreen">
+            <media-fullscreen-button commandfor="${ID_FS}" class="media-button media-button--subtle media-button--icon media-button--fullscreen">
               ${ICON_FS_ENTER}${ICON_FS_EXIT}
             </media-fullscreen-button>
-            <media-tooltip id="fullscreen-tooltip" side="top" class="media-surface media-tooltip"></media-tooltip>
+            <media-tooltip id="${ID_FS}" side="top" class="media-surface media-tooltip"></media-tooltip>
           </div>
         </media-tooltip-group>
       </media-controls>
@@ -132,21 +161,29 @@ export function buildSkin(
       <media-hotkey keys="f" action="toggleFullscreen"></media-hotkey>
       <media-hotkey keys="c" action="toggleSubtitles"></media-hotkey>
       <media-hotkey keys="i" action="togglePictureInPicture"></media-hotkey>
-      <media-hotkey keys="ArrowRight" action="seekStep" value="5"></media-hotkey>
+      <media-hotkey keys="ArrowUp" action="volumeStep" value="0.05"></media-hotkey>
+      <media-hotkey keys="ArrowDown" action="volumeStep" value="-0.05"></media-hotkey>
+      ${
+          live
+              ? ""
+              : `<media-hotkey keys="ArrowRight" action="seekStep" value="5"></media-hotkey>
       <media-hotkey keys="ArrowLeft" action="seekStep" value="-5"></media-hotkey>
       <media-hotkey keys="l" action="seekStep" value="10"></media-hotkey>
       <media-hotkey keys="j" action="seekStep" value="-10"></media-hotkey>
-      <media-hotkey keys="ArrowUp" action="volumeStep" value="0.05"></media-hotkey>
-      <media-hotkey keys="ArrowDown" action="volumeStep" value="-0.05"></media-hotkey>
       <media-hotkey keys="0-9" action="seekToPercent"></media-hotkey>
       <media-hotkey keys="Home" action="seekToPercent" value="0"></media-hotkey>
-      <media-hotkey keys="End" action="seekToPercent" value="100"></media-hotkey>
+      <media-hotkey keys="End" action="seekToPercent" value="100"></media-hotkey>`
+      }
 
       <media-gesture type="tap" action="togglePaused" pointer="mouse" region="center"></media-gesture>
       <media-gesture type="tap" action="toggleControls" pointer="touch"></media-gesture>
-      <media-gesture type="doubletap" action="seekStep" value="-10" region="left"></media-gesture>
       <media-gesture type="doubletap" action="toggleFullscreen" region="center"></media-gesture>
-      <media-gesture type="doubletap" action="seekStep" value="10" region="right"></media-gesture>
+      ${
+          live
+              ? ""
+              : `<media-gesture type="doubletap" action="seekStep" value="-10" region="left"></media-gesture>
+      <media-gesture type="doubletap" action="seekStep" value="10" region="right"></media-gesture>`
+      }
     `
 
     // Insert the media element first so the buffering indicator / poster

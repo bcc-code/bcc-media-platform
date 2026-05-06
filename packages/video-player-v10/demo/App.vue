@@ -31,6 +31,7 @@ onMounted(async () => {
             audio: "eng",
             subtitles: "eng",
         },
+        live: true,
     })
 })
 </script>

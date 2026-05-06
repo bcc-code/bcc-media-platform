@@ -1088,6 +1088,27 @@ media-tooltip-group {
 }
 
 /* ==========================================================================
+   BCCM live badge
+   ========================================================================== */
+
+.media-default-skin .bccm-live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.125rem 0.25rem;
+    color: inherit;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums;
+}
+.media-default-skin .bccm-live-badge__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 100%;
+    background-color: oklch(0.6 0.18 25);
+}
+
+/* ==========================================================================
    BCCM picker styling (subtitle/audio language pickers)
 
    The button lives inside the control bar and inherits .media-button styling.
