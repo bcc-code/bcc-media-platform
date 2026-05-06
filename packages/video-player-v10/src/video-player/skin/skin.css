@@ -1120,15 +1120,27 @@ media-tooltip-group {
    ========================================================================== */
 
 bccm-audio-picker,
-bccm-subtitle-picker {
+bccm-subtitle-picker,
+bccm-quality-picker,
+bccm-playback-rate-picker {
     position: relative;
     display: inline-flex;
 }
-bccm-audio-picker[data-empty] {
+bccm-audio-picker[data-empty],
+bccm-quality-picker[data-empty] {
     display: none;
 }
 .bccm-picker-button {
     line-height: 1;
+}
+/* Rate picker uses a numeric label instead of an icon, so override the
+   square aspect-ratio that .media-button--icon enforces. */
+.bccm-rate-button {
+    width: auto;
+    aspect-ratio: auto;
+    padding: 0 0.5rem;
+    min-width: 2.25rem;
+    font-variant-numeric: tabular-nums;
 }
 
 .bccm-picker-menu {

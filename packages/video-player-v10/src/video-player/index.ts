@@ -4,6 +4,8 @@ import "@videojs/html/video/ui"
 import "@videojs/html/media/hls-video"
 import "./components/subtitle-picker"
 import "./components/audio-picker"
+import "./components/quality-picker"
+import "./components/playback-rate-picker"
 import "./skin/skin.css"
 
 import { buildSkin } from "./skin/skin"
@@ -124,9 +126,8 @@ export async function createPlayer(
         setSubtitleTrackToLanguage(language) {
             setSubtitleTrackToLanguage(mediaEl, language)
         },
-        setVideoQuality(_height) {
-            // TODO(v10): wire to core quality-levels feature once selector lands.
-            // See V10_MIGRATION.md row #5 / #8.
+        setVideoQuality(height) {
+            setVideoQuality(media, height)
         },
         dispose() {
             player.remove()
@@ -219,6 +220,17 @@ function getSubtitleLanguages(media: HTMLVideoElement): TrackOption[] {
             language: t.language ?? "",
             label: t.label ?? t.language ?? "",
         }))
+}
+
+function setVideoQuality(media: HTMLElement, height: number): void {
+    const engine = (media as { engine?: { levels: { height?: number }[]; currentLevel: number } }).engine
+    if (!engine?.levels?.length) return
+    if (!height || height < 0) {
+        engine.currentLevel = -1 // re-enable ABR (Auto)
+        return
+    }
+    const idx = engine.levels.findIndex((l) => l.height === height)
+    if (idx >= 0) engine.currentLevel = idx
 }
 
 function setSubtitleTrackToLanguage(media: HTMLVideoElement, language?: string) {

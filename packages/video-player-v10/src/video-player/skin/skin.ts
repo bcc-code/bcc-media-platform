@@ -3,7 +3,7 @@
 // custom controls into the bottom button group without subclassing the skin
 // or reaching into shadow DOM. Icons are inlined SVG copied from the docs.
 
-const SEEK_TIME = 10
+const SEEK_TIME = 15
 let skinIdSeq = 0
 
 const ICON_RESTART = `<svg class="media-icon media-icon--restart" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" aria-hidden="true" viewBox="0 0 18 18"><path fill="currentColor" d="M9 17a8 8 0 0 1-8-8h2a6 6 0 1 0 1.287-3.713l1.286 1.286A.25.25 0 0 1 5.396 7H1.25A.25.25 0 0 1 1 6.75V2.604a.25.25 0 0 1 .427-.177l1.438 1.438A8 8 0 1 1 9 17"/><path fill="currentColor" d="m11.61 9.639-3.331 2.07a.826.826 0 0 1-1.15-.266.86.86 0 0 1-.129-.452V6.849C7 6.38 7.374 6 7.834 6c.158 0 .312.045.445.13l3.331 2.071a.858.858 0 0 1 0 1.438"/></svg>`
@@ -18,6 +18,8 @@ const ICON_PIP_ENTER = `<svg class="media-icon media-icon--pip-enter" xmlns="htt
 const ICON_PIP_EXIT = `<svg class="media-icon media-icon--pip-exit" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" aria-hidden="true" viewBox="0 0 18 18"><path fill="currentColor" d="M13 2a4 4 0 0 1 4 4v2.036A3.5 3.5 0 0 0 16.5 8H15V6.273C15 5.018 13.96 4 12.679 4H4.32C3.04 4 2 5.018 2 6.273v5.454C2 12.982 3.04 14 4.321 14H6v1.5q0 .255.036.5H4a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><rect width="10" height="7" x="8" y="10" fill="currentColor" rx="2"/><path fill="currentColor" d="M4.871 10.454a.6.6 0 0 0 .656-.131l2.796-2.796A.6.6 0 0 0 7.898 6.5H5.102a.603.603 0 0 0-.602.602v2.795a.6.6 0 0 0 .371.556"/></svg>`
 const ICON_FS_ENTER = `<svg class="media-icon media-icon--fullscreen-enter" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" aria-hidden="true" viewBox="0 0 18 18"><path fill="currentColor" d="M9.57 3.617A1 1 0 0 0 8.646 3H4c-.552 0-1 .449-1 1v4.646a.996.996 0 0 0 1.001 1 1 1 0 0 0 .706-.293l4.647-4.647a1 1 0 0 0 .216-1.089m4.812 4.812a1 1 0 0 0-1.089.217l-4.647 4.647a.998.998 0 0 0 .708 1.706H14c.552 0 1-.449 1-1V9.353a1 1 0 0 0-.618-.924"/></svg>`
 const ICON_FS_EXIT = `<svg class="media-icon media-icon--fullscreen-exit" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" aria-hidden="true" viewBox="0 0 18 18"><path fill="currentColor" d="M7.883 1.93a.99.99 0 0 0-1.09.217L2.146 6.793A.998.998 0 0 0 2.853 8.5H7.5c.551 0 1-.449 1-1V2.854a1 1 0 0 0-.617-.924m7.263 7.57H10.5c-.551 0-1 .449-1 1v4.646a.996.996 0 0 0 1.001 1.001 1 1 0 0 0 .706-.293l4.646-4.646a.998.998 0 0 0-.707-1.707z"/></svg>`
+const ICON_CAST_ENTER = `<svg class="media-icon media-icon--cast-enter" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" aria-hidden="true" viewBox="0 0 18 18"><path fill="currentColor" d="M.75 13.25c1.38 0 2.5 1.085 2.5 2.5V16H.5v-2.75z"/><path fill="currentColor" d="M.75 10.25c3.04 0 5.5 2.46 5.5 5.5V16h-2v-.25c0-1.96-1.567-3.5-3.5-3.5H.5v-2z"/><path fill="currentColor" d="M.75 7.25a8.5 8.5 0 0 1 8.5 8.5V16h-2v-.25c0-3.611-2.91-6.5-6.5-6.5H.5v-2z"/><path fill="currentColor" d="M17.5 14.25c0 .963-.787 1.75-1.75 1.75h-5.5v-2h5.25V4h-13v2.25h-2v-2.5C.5 2.787 1.287 2 2.25 2h13.5c.963 0 1.75.787 1.75 1.75z"/></svg>`
+const ICON_CAST_EXIT = `<svg class="media-icon media-icon--cast-exit" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" aria-hidden="true" viewBox="0 0 18 18"><path fill="currentColor" d="M.75 13.25c1.38 0 2.5 1.085 2.5 2.5V16H.5v-2.75z"/><path fill="currentColor" d="M.75 10.25c3.04 0 5.5 2.46 5.5 5.5V16h-2v-.25c0-1.96-1.567-3.5-3.5-3.5H.5v-2z"/><path fill="currentColor" d="M.75 7.25a8.5 8.5 0 0 1 8.5 8.5V16h-2v-.25c0-3.611-2.91-6.5-6.5-6.5H.5v-2z"/><path fill="currentColor" d="M17.5 14.25c0 .963-.787 1.75-1.75 1.75h-5.5v-2h5.25V4h-13v2.25h-2v-2.5C.5 2.787 1.287 2 2.25 2h13.5c.963 0 1.75.787 1.75 1.75z"/><path fill="currentColor" d="M4 5.5v1.164c2.143-.021 5.979 3.836 5.979 5.979H14V5.5z"/></svg>`
 const ICON_SPINNER = `<svg class="media-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" aria-hidden="true" viewBox="0 0 18 18"><rect width="2" height="5" x="8" y=".5" opacity=".5" rx="1"><animate attributeName="opacity" begin="0s" calcMode="linear" dur="1s" repeatCount="indefinite" values="1;0"/></rect><rect width="2" height="5" x="12.243" y="2.257" opacity=".45" rx="1" transform="rotate(45 13.243 4.757)"><animate attributeName="opacity" begin="0.125s" calcMode="linear" dur="1s" repeatCount="indefinite" values="1;0"/></rect><rect width="5" height="2" x="12.5" y="8" opacity=".4" rx="1"><animate attributeName="opacity" begin="0.25s" calcMode="linear" dur="1s" repeatCount="indefinite" values="1;0"/></rect><rect width="5" height="2" x="10.743" y="12.243" opacity=".35" rx="1" transform="rotate(45 13.243 13.243)"><animate attributeName="opacity" begin="0.375s" calcMode="linear" dur="1s" repeatCount="indefinite" values="1;0"/></rect><rect width="2" height="5" x="8" y="12.5" opacity=".3" rx="1"><animate attributeName="opacity" begin="0.5s" calcMode="linear" dur="1s" repeatCount="indefinite" values="1;0"/></rect><rect width="2" height="5" x="3.757" y="10.743" opacity=".25" rx="1" transform="rotate(45 4.757 13.243)"><animate attributeName="opacity" begin="0.625s" calcMode="linear" dur="1s" repeatCount="indefinite" values="1;0"/></rect><rect width="5" height="2" x=".5" y="8" opacity=".15" rx="1"><animate attributeName="opacity" begin="0.75s" calcMode="linear" dur="1s" repeatCount="indefinite" values="1;0"/></rect><rect width="5" height="2" x="2.257" y="3.757" opacity=".1" rx="1" transform="rotate(45 4.757 4.757)"><animate attributeName="opacity" begin="0.875s" calcMode="linear" dur="1s" repeatCount="indefinite" values="1;0"/></rect></svg>`
 const ICON_SPINNER_PREVIEW = ICON_SPINNER.replace(
     'class="media-icon"',
@@ -49,6 +51,7 @@ export function buildSkin(
     const ID_VOLUME = `video-volume-popover-${sid}`
     const ID_PIP = `pip-tooltip-${sid}`
     const ID_FS = `fullscreen-tooltip-${sid}`
+    const ID_CAST = `cast-tooltip-${sid}`
 
     // Live skin: drop seek buttons, current/duration time displays, and the
     // thumbnail preview (no thumbs available for live). Show a LIVE badge in
@@ -124,6 +127,8 @@ export function buildSkin(
           </div>
 
           <div class="media-button-group" data-bccm-right-group>
+            ${live ? "" : `<bccm-playback-rate-picker></bccm-playback-rate-picker>`}
+
             <media-mute-button commandfor="${ID_VOLUME}" class="media-button media-button--subtle media-button--icon media-button--mute">
               ${ICON_VOLUME_OFF}${ICON_VOLUME_LOW}${ICON_VOLUME_HIGH}
             </media-mute-button>
@@ -139,6 +144,12 @@ export function buildSkin(
 
             <bccm-audio-picker></bccm-audio-picker>
             <bccm-subtitle-picker></bccm-subtitle-picker>
+            <bccm-quality-picker></bccm-quality-picker>
+
+            <media-cast-button commandfor="${ID_CAST}" class="media-button media-button--subtle media-button--icon media-button--cast">
+              ${ICON_CAST_ENTER}${ICON_CAST_EXIT}
+            </media-cast-button>
+            <media-tooltip id="${ID_CAST}" side="top" class="media-surface media-tooltip"></media-tooltip>
 
             <media-pip-button commandfor="${ID_PIP}" class="media-button media-button--subtle media-button--icon media-button--pip">
               ${ICON_PIP_ENTER}${ICON_PIP_EXIT}
