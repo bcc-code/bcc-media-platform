@@ -56,17 +56,7 @@ resource "google_cloud_run_service" "stream_proxy" {
       service_account_name  = google_service_account.stream_proxy.email
 
       containers {
-        image = "${local.image_name_stream_proxy}:${var.branch}"
-
-        ports {
-          name           = "http1"
-          container_port = 8081
-        }
-
-        env {
-          name  = "PORT"
-          value = "8081"
-        }
+        image = "us-docker.pkg.dev/cloudrun/container/hello" // "${local.image_name_stream_proxy}:${var.branch}"
 
         env {
           name  = "ENVIRONMENT"
@@ -151,7 +141,6 @@ resource "google_cloud_run_service" "stream_proxy" {
     ignore_changes = [
       metadata[0].annotations,
       metadata[0].labels,
-      metadata[0].terraform_labels,
       template[0].metadata[0].annotations,
       template[0].metadata[0].labels,
       template[0].spec[0].containers[0].image,

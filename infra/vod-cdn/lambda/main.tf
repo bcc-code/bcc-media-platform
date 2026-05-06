@@ -6,7 +6,7 @@
  * Lambdas are uploaded to via zip files, so we create a zip out of a given directory.
  * In the future, we may want to source our code from an s3 bucket instead of a local zip.
  */
-//terragrunt apply --target module.vod_cdn.module.manifest_lambda.aws_s3_bucket_object.artifact
+//terragrunt apply --target module.vod_cdn.module.manifest_lambda.aws_s3_object.artifact
 data "archive_file" "zip_file_for_lambda" {
   type        = "zip"
   output_path = "${var.local_file_dir}/${var.name}.zip"
@@ -41,7 +41,7 @@ data "archive_file" "zip_file_for_lambda" {
  * Doing this makes the plans more resiliant, where it won't always
  * appear that the function needs to be updated
  */
-resource "aws_s3_bucket_object" "artifact" {
+resource "aws_s3_object" "artifact" {
   bucket = var.s3_artifact_bucket
   key    = "${var.name}.zip"
   source = data.archive_file.zip_file_for_lambda.output_path
@@ -58,8 +58,8 @@ resource "aws_lambda_function" "lambda" {
 
   # Find the file from S3
   s3_bucket         = var.s3_artifact_bucket
-  s3_key            = aws_s3_bucket_object.artifact.id
-  s3_object_version = aws_s3_bucket_object.artifact.version_id
+  s3_key            = aws_s3_object.artifact.key
+  s3_object_version = aws_s3_object.artifact.version_id
   source_code_hash  = filebase64sha256(data.archive_file.zip_file_for_lambda.output_path)
 
   publish = true
@@ -68,12 +68,6 @@ resource "aws_lambda_function" "lambda" {
   role    = aws_iam_role.lambda_at_edge.arn
   tags    = var.tags
   timeout = var.timeout
-
-  lifecycle {
-    ignore_changes = [
-      last_modified,
-    ]
-  }
 
   depends_on = [data.archive_file.zip_file_for_lambda]
 }
