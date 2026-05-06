@@ -116,7 +116,30 @@ module "api_secret_files" {
       data = file("${var.basepath}/${v.local_path}")
     }
   }
-  secret_accessors = ["serviceAccount:${google_service_account.api.email}"]
+  secret_accessors = [
+    "serviceAccount:${google_service_account.api.email}",
+    "serviceAccount:${google_service_account.stream_proxy.email}",
+  ]
+}
+
+module "stream_proxy_secrets" {
+  source  = "./gcp-secrets"
+  project = google_project.brunstadtv.project_id
+  secrets = merge(
+    {
+      for k, v in var.stream_proxy_secrets : k => v if try(v.data, "") != ""
+    },
+    {
+      stream_jwt_secret = {
+        name = "STREAM_JWT_SECRET"
+        data = random_password.stream_jwt_secret.result
+      }
+    },
+  )
+  secret_accessors = [
+    "serviceAccount:${google_service_account.stream_proxy.email}",
+    "serviceAccount:${google_service_account.api.email}",
+  ]
 }
 
 module "background_worker_secret_files" {

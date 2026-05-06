@@ -52,3 +52,8 @@ resource "random_password" "analytics_id_salt" {
   length  = 64
   special = true
 }
+
+resource "random_password" "stream_jwt_secret" {
+  length  = 64
+  special = false
+}

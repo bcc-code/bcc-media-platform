@@ -4,7 +4,7 @@ CB="run-deploy.yaml"
 ROUTE="run-route.yaml"
 M="migrations.yaml"
 
-services=("API api.txt" "JOBS jobs.txt" "REWRITER rewriter.txt" "VIDEOMANIPULATOR videomanipulator.txt" "CMS cms.txt")
+services=("API api.txt" "JOBS jobs.txt" "REWRITER rewriter.txt" "VIDEOMANIPULATOR videomanipulator.txt" "CMS cms.txt" "STREAM_PROXY stream-proxy.txt")
 
 function deploy {
 	echo "- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'" >> $CB

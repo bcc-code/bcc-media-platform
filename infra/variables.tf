@@ -74,6 +74,14 @@ variable "rewriter_env" {
   type = map(any)
 }
 
+variable "stream_proxy_secrets" {
+  type = map(any)
+}
+
+variable "stream_proxy_env" {
+  type = map(any)
+}
+
 variable "db" {
   type = map(any)
 }
