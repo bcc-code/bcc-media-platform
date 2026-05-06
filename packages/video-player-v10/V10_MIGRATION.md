@@ -46,7 +46,7 @@ The sandbox at `packages/video-player-v10/` boots, plays HLS, and surfaces the p
 | 4 | `@silvermine/videojs-chromecast` | **Done** | `<media-cast-button>` (Remote Playback API) in the right group. Auto-hides via `[data-availability="unsupported"]` on browsers without RP. |
 | 5 | `videojs-contrib-quality-levels` | **Done** | Replaced by `bccm-quality-picker` reaching into `engine.levels`. `Player.setVideoQuality(height)` wired to `engine.currentLevel`. |
 | 6 | `videojs-event-tracking` | **Dropped** | Audited — zero consumers across `bcc-media-platform`. Sole maintainer confirms BCC uses NPAW exclusively for video analytics. The plugin's events (`tracking:firstplay`, `tracking:pause`, `tracking:seek`, `tracking:buffered`, `tracking:performance`, `tracking:*-quarter`) are derivable from standard media events on `Player.mediaEl` if anyone ever needs them. |
-| 7 | `npaw-plugin-nwf` + `npaw-plugin-adapters` | **Stubbed** | `npaw.ts` is a no-op. Vendor has no v10 adapter. Plan: hand-roll an adapter against v10 store + media events when the v10 cutover gets closer. Not a hard blocker. |
+| 7 | `npaw-plugin-nwf` + `npaw-plugin-adapters` | **Done (pending dashboard verification)** | NPAW already ships `HlsjsAdapter` for hls.js. v10's `<hls-video>` exposes `.engine` (the hls.js instance), so we register the prebuilt adapter against it directly — no custom adapter needed. `enableNPAW()` waits for `media.engine` to materialize, then calls `npaw.registerAdapterFromClass(engine, HlsjsAdapter)`. Costs +800 KB bundle (NPAW SDK weight, same as v8). Verify events arrive in the NPAW dashboard before declaring fully done. |
 | 8 | Forked `videojs-hls-quality-selector` | **Done** | Deleted. Replaced by `bccm-quality-picker`. |
 | 9 | `seek-buttons.ts` (15s seek) | **Done** | `<media-seek-button seconds="-15"/+15">` in the ejected skin. |
 | 10 | `smart-tv.ts` (`DismissControlBarButton`) | **Done** | New `bccm-dismiss-controls-button` extends `MediaElement`, subscribes to `selectControls`, calls `toggleControls()` on click when controls are visible. Only rendered when `isSmartTV()` returns true. Replaced `ua-parser-js` with a regex-based UA test in the same change — net bundle savings (~30 KB). |
@@ -83,7 +83,7 @@ All v8-era entry points work in the v10 sandbox. The `Player` interface gained a
 
 In rough priority order:
 
-1. **NPAW adapter** — hand-roll against v10 store events + media events when cutover gets closer. The only analytics integration that matters for BCC.
+1. **Verify NPAW dashboard receives events** — implementation done (uses NPAW's prebuilt `HlsjsAdapter` against the hls.js engine). Needs an end-to-end check against a real NPAW account.
 2. **Optional: switch to `liveVideoFeatures` + custom `<bccm-live-video-player>`** — would let `bccm-live-button` use `selectLive` / `liveEdgeStart` from the store instead of poking the engine. Cleaner but adds a custom factory.
 
 ### Cleanup wins (independent of v10)
@@ -102,7 +102,7 @@ In rough priority order:
 
 ## Recommended sequence to ship
 
-1. **Hand-roll NPAW adapter** against v10 store + media events.
+1. **Verify NPAW dashboard** — confirm playback / pause / seek / buffer / error / quality events arrive correctly with a test account.
 2. **Switch consumers behind a `2.0.0`** package version. Don't replace `bccm-video-player@1.x` in place — let consumers opt in.
 3. **Hold cutover until v10 ships GA** (or at minimum a beta with no `**breaking**` notes for several weeks). API is still flagged moveable.
 

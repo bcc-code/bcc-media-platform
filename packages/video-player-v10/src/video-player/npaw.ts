@@ -1,3 +1,5 @@
+import NpawPlugin from "npaw-plugin-nwf"
+import * as NpawAdapters from "npaw-plugin-adapters"
 import type { Player } from "./index"
 
 export interface NPAWOptions {
@@ -22,11 +24,78 @@ export interface NPAWOptions {
     }
 }
 
-// NPAW v10 adapter does not exist as of @videojs/core@10.0.0-beta.23.
-// Keeping the public type and function shape so consumers compile;
-// analytics will be wired once vendor (or hand-rolled) v10 adapter lands.
-// See V10_MIGRATION.md, blocker #1.
+function toConfig(options: NPAWOptions): Record<string, unknown> {
+    const md = options.tracking.metadata
+    return {
+        "content.isLive": options.tracking.isLive === true,
+        "content.id": md.contentId, // prefixed by E or P. Episode 385 = E385. Program 52 = P52
+        "content.title": md.title,
+        "content.program": md.showTitle ?? md.title,
+        "content.tvShow": md.showId,
+        "content.season": md.seasonId
+            ? `${md.seasonId} - ${md.seasonTitle}`
+            : undefined,
+        "content.episodeTitle": md.episodeTitle,
+        obfuscateIp: true,
+        "user.name": options.tracking.userId,
+        "app.name": options.appName,
+        "app.releaseVersion": "",
+        "parse.manifest": true,
+        "extraparam.1": options.tracking.sessionId,
+        "extraparam.2": options.tracking.ageGroup,
+        ...md.overrides,
+    }
+}
 
-export function enableNPAW(_player: Player, _options: NPAWOptions): void {}
+// NPAW ships an HlsjsAdapter that consumes the hls.js engine instance
+// directly — no custom adapter needed. v10's <hls-video> exposes `.engine`
+// once the manifest starts loading; we wait for it before registering.
+export function enableNPAW(player: Player, options: NPAWOptions): void {
+    if (!options.accountCode) {
+        console.warn(
+            "NPAW was not enabled because options.npaw.accountCode is invalid."
+        )
+        return
+    }
 
-export function setOptions(_player: Player, _options: NPAWOptions): void {}
+    const npaw = new NpawPlugin(options.accountCode)
+    npaw.setAnalyticsOptions(toConfig(options))
+    ;(player as Player & { _npaw?: NpawPlugin })._npaw = npaw
+
+    waitForEngine(player.mediaEl, (engine) => {
+        npaw.registerAdapterFromClass(
+            engine,
+            (NpawAdapters as { HlsjsAdapter: unknown }).HlsjsAdapter
+        )
+    })
+}
+
+export function setOptions(player: Player, options: NPAWOptions): void {
+    const npaw = (player as Player & { _npaw?: NpawPlugin })._npaw
+    if (!npaw) return
+    npaw.setAnalyticsOptions(toConfig(options))
+}
+
+// hls.js engine becomes available asynchronously after src is set. Poll
+// until present, then invoke. Returns a teardown so callers can cancel
+// (currently unused — registration is fire-and-forget for the player's
+// lifetime; NPAW handles its own cleanup when the engine is destroyed).
+function waitForEngine(
+    mediaEl: HTMLElement,
+    cb: (engine: unknown) => void
+): void {
+    const get = () =>
+        (mediaEl as { engine?: unknown | null }).engine ?? null
+    const initial = get()
+    if (initial) {
+        cb(initial)
+        return
+    }
+    const id = setInterval(() => {
+        const engine = get()
+        if (engine) {
+            clearInterval(id)
+            cb(engine)
+        }
+    }, 250)
+}

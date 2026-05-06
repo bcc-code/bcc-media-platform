@@ -26,7 +26,9 @@
         "@videojs/element": "10.0.0-beta.23",
         "@videojs/html": "10.0.0-beta.23",
         "graphql": "^16.13.2",
-        "graphql-request": "^7.4.0"
+        "graphql-request": "^7.4.0",
+        "npaw-plugin-adapters": "^7.3.29",
+        "npaw-plugin-nwf": "^7.3.29"
     },
     "devDependencies": {
         "@types/node": "^25.6.0",
