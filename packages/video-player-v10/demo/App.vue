@@ -47,13 +47,15 @@ html,
 body {
     height: 100%;
     margin: 0;
+    padding: 0.5rem;
 }
 
 #vod-player,
 #live-player {
-    max-width: 1920px;
+    max-width: 920px;
     width: 100%;
     margin-inline: auto;
+    margin-block-end: 1rem;
 }
 
 </style>
