@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no tests\" && exit 1",
-    "start": "echo \"Use the makefile scripts instead\" && exit 1",
-    "dev": "echo \"Use the makefile scripts instead\" && exit 1",
-    "run": "echo \"Use the makefile scripts instead\" && exit 1"
+    "start": "echo 'Run \"make run\" from cms/ instead (after \"make init\"). First-time setup: ../scripts/init.sh' && exit 1",
+    "dev": "echo 'Run \"make run\" from cms/ instead (after \"make init\"). First-time setup: ../scripts/init.sh' && exit 1",
+    "run": "echo 'Run \"make run\" from cms/ instead (after \"make init\"). First-time setup: ../scripts/init.sh' && exit 1"
   },
   "keywords": [],
   "author": "",

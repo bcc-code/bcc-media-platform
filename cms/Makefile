@@ -11,22 +11,27 @@ RUN_IN_DIRS = \
 		fi \
 	done
 
+# nvm setup must run in the SAME shell as the command that uses it; each make
+# recipe line is a separate shell, so chain with ';\' below.
+NVM_LOAD = [ -s "$$NVM_DIR/nvm.sh" ] && . "$$NVM_DIR/nvm.sh" && nvm use || echo "WARNING: nvm not found, not switching Node version"
+
 run:
-	[ -s "$$NVM_DIR/nvm.sh" ] && . "$$NVM_DIR/nvm.sh" && nvm use || echo "WARNING: nvm not found, not switching Node version"
+	$(NVM_LOAD); \
 	npx directus start
 
 install:
-	pnpm i
-	@$(call RUN_IN_DIRS, pnpm i)
+	$(NVM_LOAD); \
+	pnpm i; \
+	$(call RUN_IN_DIRS, pnpm i)
 
 update:
-	[ -s "$$NVM_DIR/nvm.sh" ] && . "$$NVM_DIR/nvm.sh" && nvm use || echo "WARNING: nvm not found, not switching Node version"
-	pnpm update --latest
-	@$(call RUN_IN_DIRS, pnpm update --latest)
+	$(NVM_LOAD); \
+	pnpm update --latest; \
+	$(call RUN_IN_DIRS, pnpm update --latest)
 
 build:
-	[ -s "$$NVM_DIR/nvm.sh" ] && . "$$NVM_DIR/nvm.sh" && nvm use || echo "WARNING: nvm not found, not switching Node version"
-	@$(call RUN_IN_DIRS, pnpm build)
+	$(NVM_LOAD); \
+	$(call RUN_IN_DIRS, pnpm build)
 
 init:
 	make install

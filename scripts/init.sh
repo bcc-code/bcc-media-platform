@@ -11,11 +11,29 @@ set -euf -o pipefail
 SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 REPO_ROOT="$( cd "$SCRIPTPATH/.." >/dev/null 2>&1 ; pwd -P )"
 
-ENVPATHS="${SCRIPTPATH}/../cms ${SCRIPTPATH}/../backend/cmd/api ${SCRIPTPATH}/.."
-COMMANDS="cp realpath go gum docker docker-compose pg-diff goose psql node npm"
+ENVPATHS="${SCRIPTPATH}/../cms ${SCRIPTPATH}/../backend/cmd/api ${SCRIPTPATH}/../web ${SCRIPTPATH}/.."
+COMMANDS="cp realpath go gum docker docker-compose pg-diff goose psql node npm pnpm"
 OPTIONAL_COMMANDS="op"
 SECRETS_FILE="${REPO_ROOT}/local-secrets.env"
 SECRETS_OP_ITEM="hojv2qkqucqw2yf5g5wfbg2p3u"
+
+## Source nvm if available so node/npm/pnpm checks below find the version
+## pinned by cms/.nvmrc, not just whatever's on system PATH.
+NVM_SH="${NVM_DIR:-$HOME/.nvm}/nvm.sh"
+NVM_AVAILABLE=false
+if [ -s "$NVM_SH" ]; then
+	NVM_AVAILABLE=true
+	# nvm.sh references unset vars and uses globbing internally — disable
+	# nounset and noglob while sourcing/using nvm.
+	set +uf
+	# shellcheck disable=SC1090
+	. "$NVM_SH"
+	if [ -f "$REPO_ROOT/cms/.nvmrc" ]; then
+		REQUIRED_NVMRC=$(tr -d 'v \n' < "$REPO_ROOT/cms/.nvmrc" | cut -d. -f1)
+		nvm use "$REQUIRED_NVMRC" >/dev/null 2>&1 || true
+	fi
+	set -uf
+fi
 
 ## Check if all required commands are installed
 echo "Checking commands..."
@@ -42,14 +60,32 @@ for command in $OPTIONAL_COMMANDS; do
 	fi
 done
 
+## When nvm is available, missing Node-based tools are deferred to the cms
+## environment section below (which can install Node + Corepack-managed pnpm).
+## When nvm is NOT available, all missing commands are hard failures.
+NODE_BASED_TOOLS=" node npm pnpm pg-diff "
+DEFERRED=()
+HARD_MISSING=()
 if [ ${#MISSING[@]} -gt 0 ]; then
+	for cmd in "${MISSING[@]}"; do
+		if $NVM_AVAILABLE && [[ "$NODE_BASED_TOOLS" == *" $cmd "* ]]; then
+			DEFERRED+=("$cmd")
+		else
+			HARD_MISSING+=("$cmd")
+		fi
+	done
+fi
+
+if [ ${#HARD_MISSING[@]} -gt 0 ]; then
 	echo
 	echo "The following commands are missing. Install them with:"
-	for cmd in "${MISSING[@]}"; do
+	for cmd in "${HARD_MISSING[@]}"; do
 		case "$cmd" in
 			go) hint="install from https://golang.org/dl/ or via your package manager" ;;
 			gum) hint="go install github.com/charmbracelet/gum@latest (or see https://github.com/charmbracelet/gum#installation)" ;;
-			pg-diff) hint="npm install -g pg-diff-cli" ;;
+			pg-diff) hint="npm install -g pg-diff-cli (after installing Node)" ;;
+			node|npm) hint="install nvm (https://github.com/nvm-sh/nvm) then run 'nvm install' in cms/" ;;
+			pnpm) hint="install Node first (via nvm), then enable Corepack: 'corepack enable'" ;;
 			goose) hint="go install github.com/pressly/goose/v3/cmd/goose@latest" ;;
 			psql)
 				if command -v brew &> /dev/null; then
@@ -63,6 +99,10 @@ if [ ${#MISSING[@]} -gt 0 ]; then
 		echo "  - $cmd: $hint"
 	done
 	exit 1
+fi
+
+if [ ${#DEFERRED[@]} -gt 0 ]; then
+	echo "  Node-based tools missing (${DEFERRED[*]}) — will offer to set them up via nvm below."
 fi
 echo
 
@@ -200,7 +240,7 @@ for path in $ENVPATHS; do
 	if [ ! -f "$path/.env" ]; then
 		# Look for a sample file under several known names
 		sample=""
-		for candidate in env.sample .env.sample .env.example .template.env env.example; do
+		for candidate in env.sample .env.sample .env.example .env.local.example .template.env env.example; do
 			if [ -f "$path/$candidate" ]; then
 				sample="$path/$candidate"
 				break
@@ -220,6 +260,80 @@ for path in $ENVPATHS; do
 	fi
 done
 ensure_redirect_jwt_key
+echo
+
+gum style --bold "Checking cms environment..."
+NVMRC_FILE="$REPO_ROOT/cms/.nvmrc"
+
+NODE_OK=false
+NODE_VERSION_CHANGED=false
+REQUIRED_MAJOR=""
+CURRENT_MAJOR=""
+if [ -f "$NVMRC_FILE" ]; then
+	REQUIRED_MAJOR=$(tr -d 'v \n' < "$NVMRC_FILE" | cut -d. -f1)
+	if command -v node &> /dev/null; then
+		CURRENT_MAJOR=$(node --version | sed 's/^v//' | cut -d. -f1)
+	fi
+
+	if [ -n "$CURRENT_MAJOR" ] && [ "$CURRENT_MAJOR" = "$REQUIRED_MAJOR" ]; then
+		echo ":heavy_check_mark:  node v${CURRENT_MAJOR} matches cms/.nvmrc" | gum format -t emoji
+		NODE_OK=true
+	else
+		echo ":warning:  Active node is v${CURRENT_MAJOR:-<none>}, but cms/.nvmrc requires v${REQUIRED_MAJOR}." | gum format -t emoji
+		if $NVM_AVAILABLE; then
+			if gum confirm "Install Node v${REQUIRED_MAJOR} via nvm now?"; then
+				set +uf
+				(cd "$REPO_ROOT/cms" && nvm install)
+				nvm use "$REQUIRED_MAJOR"
+				set -uf
+				NODE_VERSION_CHANGED=true
+				CURRENT_MAJOR=""
+				if command -v node &> /dev/null; then
+					CURRENT_MAJOR=$(node --version | sed 's/^v//' | cut -d. -f1)
+				fi
+				if [ "$CURRENT_MAJOR" = "$REQUIRED_MAJOR" ]; then
+					echo ":heavy_check_mark:  Now using node v${CURRENT_MAJOR}" | gum format -t emoji
+					NODE_OK=true
+				fi
+			fi
+		else
+			echo "       nvm not detected. Install Node v${REQUIRED_MAJOR} (recommended: nvm — https://github.com/nvm-sh/nvm)."
+		fi
+		if ! $NODE_OK; then
+			echo "       Skipping cms install. Switch Node versions and rerun this script."
+		fi
+	fi
+fi
+
+if $NODE_OK; then
+	if ! command -v pnpm &> /dev/null; then
+		echo ":warning:  pnpm not found for the active Node version." | gum format -t emoji
+		if gum confirm "Run 'corepack enable' to auto-manage pnpm (per cms/package.json)?"; then
+			corepack enable || echo ":warning:  corepack enable failed — run 'npm install -g pnpm' manually." | gum format -t emoji
+		fi
+	fi
+
+	if ! command -v pg-diff &> /dev/null; then
+		echo ":warning:  pg-diff not found (used by scripts/db_diff.sh)." | gum format -t emoji
+		if command -v npm &> /dev/null && gum confirm "Install pg-diff-cli globally via npm now?"; then
+			npm install -g pg-diff-cli || echo ":warning:  pg-diff-cli install failed — run 'npm install -g pg-diff-cli' manually." | gum format -t emoji
+		fi
+	fi
+
+	if [ ! -d "$REPO_ROOT/cms/node_modules" ]; then
+		echo ":warning:  cms/node_modules missing." | gum format -t emoji
+		if gum confirm "Run 'make init' in cms/ now (installs deps + builds extensions)?"; then
+			(cd "$REPO_ROOT/cms" && make init)
+		fi
+	else
+		echo ":heavy_check_mark:  cms/node_modules present" | gum format -t emoji
+		if $NODE_VERSION_CHANGED; then
+			if gum confirm "Node version just changed — rerun 'make install' in cms/ to rebuild native modules?"; then
+				(cd "$REPO_ROOT/cms" && make install)
+			fi
+		fi
+	fi
+fi
 echo
 
 gum confirm "Set up and validate the database?" && DB_SETUP=true || DB_SETUP=false
