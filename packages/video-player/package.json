@@ -23,28 +23,28 @@
     },
     "dependencies": {
         "@silvermine/videojs-chromecast": "^1.5.0",
-        "graphql": "^16.9.0",
-        "graphql-request": "^7.1.2",
-        "npaw-plugin-nwf": "^7.3.14",
-        "npaw-plugin-adapters": "^7.3.14",
-        "ua-parser-js": "^1.0.39",
-        "video.js": "^8.20.0",
+        "graphql": "^16.13.2",
+        "graphql-request": "^7.4.0",
+        "npaw-plugin-adapters": "^7.3.29",
+        "npaw-plugin-nwf": "^7.3.29",
+        "ua-parser-js": "^1.0.41",
+        "video.js": "^8.23.7",
         "videojs-contrib-quality-levels": "^4.1.0",
         "videojs-event-tracking": "^1.0.3",
-        "videojs-mux": "^4.20.3"
+        "videojs-mux": "^4.21.28"
     },
     "devDependencies": {
-        "@types/node": "^18.18.4",
+        "@types/node": "^18.19.130",
         "@types/ua-parser-js": "^0.7.39",
         "@types/video.js": "^7.3.58",
-        "@vitejs/plugin-vue": "^5.2.1",
-        "postcss": "^8.4.49",
-        "prettier": "^3.4.2",
-        "sass": "^1.82.0",
-        "typescript": "^5.7.2",
-        "vite": "^6.0.2",
-        "vue": "^3.5.13",
-        "vue-tsc": "^2.1.10"
+        "@vitejs/plugin-vue": "^5.2.4",
+        "postcss": "^8.5.14",
+        "prettier": "^3.8.3",
+        "sass": "^1.99.0",
+        "typescript": "^5.9.3",
+        "vite": "^6.4.2",
+        "vue": "^3.5.33",
+        "vue-tsc": "^2.2.12"
     },
     "packageManager": "pnpm@9.14.4"
 }
