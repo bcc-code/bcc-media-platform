@@ -1,5 +1,3 @@
-import NpawPlugin from "npaw-plugin-nwf"
-import NpawAdapters from "npaw-plugin-adapters"
 import type { Player } from "./index"
 
 export interface NPAWOptions {
@@ -24,50 +22,11 @@ export interface NPAWOptions {
     }
 }
 
-function toConfig(options: NPAWOptions) {
-    const md = options.tracking.metadata
-    return {
-        "content.isLive": options.tracking.isLive === true,
-        "content.id": md.contentId, // prefixed by E or P. Episode 385 = E385. Program 52 = P52
-        "content.title": md.title,
-        "content.program": md.showTitle ?? md.title,
-        "content.tvShow": md.showId,
-        "content.season": md.seasonId
-            ? `${md.seasonId} - ${md.seasonTitle}`
-            : undefined,
-        "content.episodeTitle": md.episodeTitle,
-        obfuscateIp: true,
-        "user.name": options.tracking.userId,
-        "app.name": options.appName,
-        "app.releaseVersion": "", //RELEASE_VERSION,
-        "parse.manifest": true,
-        "extraparam.1": options.tracking.sessionId,
-        "extraparam.2": options.tracking.ageGroup,
-        ...md.overrides,
-    }
-}
+// NPAW v10 adapter does not exist as of @videojs/core@10.0.0-beta.23.
+// Keeping the public type and function shape so consumers compile;
+// analytics will be wired once vendor (or hand-rolled) v10 adapter lands.
+// See V10_MIGRATION.md, blocker #1.
 
-export function enableNPAW(player: Player, options: NPAWOptions) {
-    if (!options.accountCode) {
-        console.warn(
-            "NPAW was not enabled because options.npaw.accountCode is invalid."
-        )
-        return
-    }
-    const npaw = new NpawPlugin(options.accountCode)
-    const defaults = toConfig(options)
+export function enableNPAW(_player: Player, _options: NPAWOptions): void {}
 
-    npaw.setAnalyticsOptions(defaults)
-    npaw.registerAdapterFromClass(player, NpawAdapters.video.Videojs)
-
-    ;(player as any)._npaw = npaw
-}
-
-export function setOptions(player: Player, options: NPAWOptions) {
-    const npaw = (player as any)._npaw
-    if (!npaw) {
-        return
-    }
-
-    Object.assign(npaw.options, toConfig(options))
-}
+export function setOptions(_player: Player, _options: NPAWOptions): void {}

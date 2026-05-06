@@ -1,20 +1,54 @@
 <template>
     <div id="vod-player" />
+    <div v-if="vod" class="track-controls">
+        <label>
+            Audio:
+            <select v-model="audioLang" @change="onAudioChange">
+                <option v-for="opt in audioOptions" :key="opt.language" :value="opt.language">
+                    {{ opt.label || opt.language || "default" }}
+                </option>
+            </select>
+        </label>
+        <label>
+            Subtitles:
+            <select v-model="subLang" @change="onSubChange">
+                <option value="">Off</option>
+                <option v-for="opt in subOptions" :key="opt.language" :value="opt.language">
+                    {{ opt.label || opt.language }}
+                </option>
+            </select>
+        </label>
+    </div>
     <div id="live-player" />
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from "vue"
-import { PlayerFactory, createPlayer } from "../src"
+import { onMounted, ref } from "vue"
+import { PlayerFactory, createPlayer, type Player, type TrackOption } from "../src"
 
 const factory = new PlayerFactory({
     tokenFactory: null,
     endpoint: "https://api.brunstad.tv/query",
 })
 
+const vod = ref<Player | null>(null)
+const audioOptions = ref<TrackOption[]>([])
+const subOptions = ref<TrackOption[]>([])
+const audioLang = ref("")
+const subLang = ref("")
+
+const refreshTracks = () => {
+    if (!vod.value) return
+    audioOptions.value = vod.value.getAudioLanguages()
+    subOptions.value = vod.value.getSubtitleLanguages()
+}
+
+const onAudioChange = () => vod.value?.setAudioTrackToLanguage(audioLang.value)
+const onSubChange = () =>
+    vod.value?.setSubtitleTrackToLanguage(subLang.value || undefined)
+
 onMounted(async () => {
-    // VOD player
-    await factory.create("vod-player", {
+    const player = await factory.create("vod-player", {
         episodeId: "865",
         overrides: {
             languagePreferenceDefaults: {
@@ -23,11 +57,19 @@ onMounted(async () => {
             },
         },
     })
+    vod.value = player
+    if (player) {
+        // Tracks become available after metadata + manifest parsing.
+        player.mediaEl.addEventListener("loadedmetadata", refreshTracks)
+        // hls.js promotes its subtitle tracks to native textTracks asynchronously.
+        player.mediaEl.textTracks.addEventListener("addtrack", refreshTracks)
+        // Poll once after a delay for hls.js audio tracks — no DOM event for those.
+        setTimeout(refreshTracks, 1000)
+    }
 
-    // Live player
     await createPlayer("live-player", {
         src: {
-            src: "",
+            src: "https://liveoht.brunstad.tv/out/v1/oslofjord-streaming/live/cloudfront/index.m3u8?EncodedPolicy=Policy%3DeyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9saXZlb2h0LmJydW5zdGFkLnR2L291dC92MS9vc2xvZmpvcmQtc3RyZWFtaW5nL2xpdmUvY2xvdWRmcm9udC8qIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzc4MDc4NDc1fX19XX0_%26Signature%3DCPwzybbSOmz1yKrH5ympEyLQI0nXfSOaJoocccqGdkufyfvJ7SYq278oX~Iw5TqVDHWkpz~XWAf8NOyIV2MGf8HkFNc698~rj37Rdr3blbHK8bBhCSGt98RbQLm2I9UzN-WGb3Eg4JoktZzzCNs0M1KQXchxXPhRmHDiVDD3fvsSddVoeXHFbWxJOPZwNGZU7ajxclrtF4sDP8vmcQs91NdXR2b8ZUCvS7fJzH9layRHphPLjxFGYsd2lwsitOPwxkrW1Qm5wRBep4cuGQQ~6PysE7SSu3-Fkt-Qwz7XqQlK~xI-NZtqqkKM7bmta1e6MbyOLGvHKEGUU5Ixe3gGzg__%26Key-Pair-Id%3DK1GSYT1GS8OW1X",
         },
         languagePreferenceDefaults: {
             audio: "eng",
@@ -55,5 +97,18 @@ body {
     max-width: 1920px;
     width: 100%;
     margin-inline: auto;
+}
+
+.track-controls {
+    display: flex;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    font-family: system-ui, sans-serif;
+}
+
+.track-controls label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 </style>

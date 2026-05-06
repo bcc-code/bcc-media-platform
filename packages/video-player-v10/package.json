@@ -16,22 +16,18 @@
     },
     "scripts": {
         "dev": "vite",
-        "types": "tsc --emitDeclarationOnly && mv build/src build/types && rm -r build/external-projects",
+        "types": "tsc --emitDeclarationOnly",
         "build": "tsc --noEmit && vite build && pnpm types",
         "preview": "vite preview",
         "prettier": "prettier --write ."
     },
     "dependencies": {
-        "@silvermine/videojs-chromecast": "^1.5.0",
+        "@videojs/core": "10.0.0-beta.23",
+        "@videojs/element": "10.0.0-beta.23",
+        "@videojs/html": "10.0.0-beta.23",
         "graphql": "^16.13.2",
         "graphql-request": "^7.4.0",
-        "npaw-plugin-adapters": "^7.3.29",
-        "npaw-plugin-nwf": "^7.3.29",
-        "ua-parser-js": "^2.0.9",
-        "video.js": "^8.23.7",
-        "videojs-contrib-quality-levels": "^4.1.0",
-        "videojs-event-tracking": "^1.0.3",
-        "videojs-mux": "^4.21.28"
+        "ua-parser-js": "^2.0.9"
     },
     "devDependencies": {
         "@types/node": "^25.6.0",
