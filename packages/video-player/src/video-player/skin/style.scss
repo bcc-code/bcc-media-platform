@@ -227,7 +227,7 @@
             pointer-events: none;
             margin-left: variables.$side-padding * -1;
         }
-        &:before &.vjs-has-started.vjs-user-inactive.vjs-playing {
+        &.vjs-has-started.vjs-user-inactive.vjs-playing:before {
             display: none;
         }
 
