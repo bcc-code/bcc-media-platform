@@ -78,26 +78,130 @@ fi
 
 if [ ${#HARD_MISSING[@]} -gt 0 ]; then
 	echo
-	echo "The following commands are missing. Install them with:"
-	for cmd in "${HARD_MISSING[@]}"; do
+	echo "The following commands are missing:"
+
+	# For each missing tool, compute a human-readable hint and (when possible)
+	# an executable install command. install_cmd is left empty when the tool
+	# can't be installed by a single shell command, or when its installer
+	# depends on another tool that's also missing.
+	resolve_install() {
+		local cmd="$1"
+		install_cmd=""
+		install_hint=""
 		case "$cmd" in
-			go) hint="install from https://golang.org/dl/ or via your package manager" ;;
-			gum) hint="go install github.com/charmbracelet/gum@latest (or see https://github.com/charmbracelet/gum#installation)" ;;
-			pg-diff) hint="npm install -g pg-diff-cli (after installing Node)" ;;
-			node|npm) hint="install nvm (https://github.com/nvm-sh/nvm) then run 'nvm install' in cms/" ;;
-			pnpm) hint="install Node first (via nvm), then enable Corepack: 'corepack enable'" ;;
-			goose) hint="go install github.com/pressly/goose/v3/cmd/goose@latest" ;;
-			psql)
-				if command -v brew &> /dev/null; then
-					hint="brew install libpq"
-				else
-					hint="install via your package manager"
+			go)
+				install_hint="install from https://golang.org/dl/ or via your package manager"
+				;;
+			gum)
+				install_hint="go install github.com/charmbracelet/gum@latest (or see https://github.com/charmbracelet/gum#installation)"
+				if command -v go &> /dev/null; then
+					install_cmd="go install github.com/charmbracelet/gum@latest"
 				fi
 				;;
-			*) hint="install via your package manager" ;;
+			goose)
+				install_hint="go install github.com/pressly/goose/v3/cmd/goose@latest"
+				if command -v go &> /dev/null; then
+					install_cmd="go install github.com/pressly/goose/v3/cmd/goose@latest"
+				fi
+				;;
+			pg-diff)
+				install_hint="npm install -g pg-diff-cli (after installing Node)"
+				if command -v npm &> /dev/null; then
+					install_cmd="npm install -g pg-diff-cli"
+				fi
+				;;
+			node|npm)
+				install_hint="install nvm (https://github.com/nvm-sh/nvm) then run 'nvm install' in cms/"
+				;;
+			pnpm)
+				install_hint="install Node first (via nvm), then enable Corepack: 'corepack enable'"
+				if command -v corepack &> /dev/null; then
+					install_cmd="corepack enable"
+				fi
+				;;
+			psql)
+				if command -v brew &> /dev/null; then
+					install_hint="brew install libpq"
+					install_cmd="brew install libpq"
+				else
+					install_hint="install via your package manager"
+				fi
+				;;
+			*)
+				install_hint="install via your package manager"
+				;;
 		esac
-		echo "  - $cmd: $hint"
+	}
+
+	INSTALLABLE_CMDS=()
+	INSTALLABLE_LABELS=()
+	MANUAL_TOOLS=()
+	MANUAL_HINTS=()
+	for cmd in "${HARD_MISSING[@]}"; do
+		resolve_install "$cmd"
+		if [ -n "$install_cmd" ]; then
+			INSTALLABLE_CMDS+=("$install_cmd")
+			INSTALLABLE_LABELS+=("$cmd")
+		else
+			MANUAL_TOOLS+=("$cmd")
+			MANUAL_HINTS+=("$install_hint")
+		fi
 	done
+
+	if [ ${#MANUAL_TOOLS[@]} -gt 0 ]; then
+		echo
+		echo "Install these manually first:"
+		for i in "${!MANUAL_TOOLS[@]}"; do
+			echo "  - ${MANUAL_TOOLS[$i]}: ${MANUAL_HINTS[$i]}"
+		done
+	fi
+
+	if [ ${#INSTALLABLE_CMDS[@]} -gt 0 ]; then
+		echo
+		echo "Proposed install commands:"
+		for i in "${!INSTALLABLE_CMDS[@]}"; do
+			echo "  ${INSTALLABLE_LABELS[$i]}: ${INSTALLABLE_CMDS[$i]}"
+		done
+		echo
+
+		run_installs=false
+		if command -v gum &> /dev/null; then
+			if gum confirm "Run these install commands now?"; then
+				run_installs=true
+			fi
+		else
+			read -r -p "Run these install commands now? [y/N] " reply
+			case "$reply" in
+				[yY]|[yY][eE][sS]) run_installs=true ;;
+			esac
+		fi
+
+		if $run_installs; then
+			for i in "${!INSTALLABLE_CMDS[@]}"; do
+				echo "==> ${INSTALLABLE_CMDS[$i]}"
+				if ! bash -c "${INSTALLABLE_CMDS[$i]}"; then
+					echo
+					echo "Install failed for ${INSTALLABLE_LABELS[$i]}. Remaining commands to run manually:"
+					echo
+					for ((j=i; j<${#INSTALLABLE_CMDS[@]}; j++)); do
+						echo "${INSTALLABLE_CMDS[$j]}"
+					done
+					exit 1
+				fi
+			done
+			echo
+			echo "Installed. Re-run scripts/init.sh to continue."
+			exit 0
+		else
+			echo
+			echo "# Run manually:"
+			for i in "${!INSTALLABLE_CMDS[@]}"; do
+				echo "${INSTALLABLE_CMDS[$i]}"
+			done
+			exit 1
+		fi
+	fi
+
 	exit 1
 fi
 
