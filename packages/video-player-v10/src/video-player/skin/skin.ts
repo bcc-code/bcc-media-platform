@@ -3,6 +3,8 @@
 // custom controls into the bottom button group without subclassing the skin
 // or reaching into shadow DOM. Icons are inlined SVG copied from the docs.
 
+import { isSmartTV } from "../utils/userAgent"
+
 const SEEK_TIME = 15
 let skinIdSeq = 0
 
@@ -160,6 +162,8 @@ export function buildSkin(
               ${ICON_FS_ENTER}${ICON_FS_EXIT}
             </media-fullscreen-button>
             <media-tooltip id="${ID_FS}" side="top" class="media-surface media-tooltip"></media-tooltip>
+
+            ${isSmartTV() ? `<bccm-dismiss-controls-button></bccm-dismiss-controls-button>` : ""}
           </div>
         </media-tooltip-group>
       </media-controls>

@@ -7,6 +7,7 @@ import "./components/audio-picker"
 import "./components/quality-picker"
 import "./components/playback-rate-picker"
 import "./components/live-button"
+import "./components/dismiss-controls-button"
 import "./skin/skin.css"
 
 import { buildSkin } from "./skin/skin"
@@ -69,6 +70,22 @@ export async function createPlayer(
     const player = document.createElement("video-player")
     const media = document.createElement("hls-video") as HTMLElement & {
         src: string
+        config: Record<string, unknown>
+    }
+
+    // hls.js config — set before `src` so the engine picks it up on init.
+    // capLevelToPlayerSize is the v10 equivalent of v8's
+    // limitRenditionByPlayerDimensions (don't pull a 1080p rendition into a
+    // 320x240 viewport). preferPlayback="mse" — v8's overrideNative — is
+    // already the default in @videojs/html, so no need to set it explicitly.
+    // abrEwmaDefaultEstimate seeds the ABR algorithm with the bandwidth we
+    // measured last session — replicates v8's `useBandwidthFromLocalStorage`.
+    const savedBandwidth = readSavedBandwidth()
+    media.config = {
+        capLevelToPlayerSize: true,
+        ...(savedBandwidth != null
+            ? { abrEwmaDefaultEstimate: savedBandwidth }
+            : {}),
     }
 
     if (options.src.src) {
@@ -88,6 +105,10 @@ export async function createPlayer(
     })
     player.appendChild(skin)
     container.insertAdjacentElement("afterbegin", player)
+
+    const teardown = new AbortController()
+    setupErrorHandling(media, skin, teardown.signal)
+    setupBandwidthPersistence(media, teardown.signal)
 
     // Subtitles passed in as `<track>` descriptors get appended to the media
     // element. v10 picks them up via the standard text-track API.
@@ -131,6 +152,7 @@ export async function createPlayer(
             setVideoQuality(media, height)
         },
         dispose() {
+            teardown.abort()
             player.remove()
         },
     }
@@ -224,6 +246,125 @@ function getSubtitleLanguages(media: HTMLVideoElement): TrackOption[] {
             language: t.language ?? "",
             label: t.label ?? t.language ?? "",
         }))
+}
+
+// Persist the current ABR bandwidth estimate to localStorage so the next
+// session starts with a sensible bitrate guess instead of hls.js's 500 kbps
+// default. Replicates v8's `useBandwidthFromLocalStorage`. Reads happen in
+// createPlayer() (before `src` is set so hls.js seeds the EWMA on init);
+// writes are throttled to once every 10s so we don't hammer localStorage.
+const BW_STORAGE_KEY = "bccm-video-player.bandwidth-estimate"
+const BW_WRITE_THROTTLE_MS = 10_000
+
+function readSavedBandwidth(): number | null {
+    try {
+        const raw = localStorage.getItem(BW_STORAGE_KEY)
+        if (!raw) return null
+        const value = Number(raw)
+        return Number.isFinite(value) && value > 0 ? value : null
+    } catch {
+        // localStorage unavailable (private mode, blocked, SSR).
+        return null
+    }
+}
+
+function writeSavedBandwidth(value: number): void {
+    if (!Number.isFinite(value) || value <= 0) return
+    try {
+        localStorage.setItem(BW_STORAGE_KEY, String(Math.round(value)))
+    } catch {
+        // ignore — best-effort persistence
+    }
+}
+
+type BandwidthEngine = {
+    bandwidthEstimate: number
+    on(event: string, cb: () => void): void
+    off(event: string, cb: () => void): void
+}
+
+function setupBandwidthPersistence(
+    media: HTMLElement,
+    signal: AbortSignal
+): void {
+    let lastWritten = 0
+    let pollHandle: ReturnType<typeof setInterval> | null = null
+    let attached: BandwidthEngine | null = null
+
+    const onFragLoaded = () => {
+        const now = Date.now()
+        if (now - lastWritten < BW_WRITE_THROTTLE_MS) return
+        if (!attached) return
+        writeSavedBandwidth(attached.bandwidthEstimate)
+        lastWritten = now
+    }
+
+    const tryAttach = () => {
+        const engine = (media as { engine?: BandwidthEngine | null }).engine
+        if (!engine) return false
+        attached = engine
+        engine.on("hlsFragLoaded", onFragLoaded)
+        if (pollHandle) clearInterval(pollHandle)
+        pollHandle = null
+        return true
+    }
+
+    if (!tryAttach()) {
+        pollHandle = setInterval(tryAttach, 250)
+    }
+
+    signal.addEventListener("abort", () => {
+        if (pollHandle) clearInterval(pollHandle)
+        pollHandle = null
+        if (attached) {
+            // Final flush so the most recent estimate is persisted.
+            writeSavedBandwidth(attached.bandwidthEstimate)
+            attached.off("hlsFragLoaded", onFragLoaded)
+            attached = null
+        }
+    })
+}
+
+// Listen for fatal HLS errors dispatched by v10's HlsJsMediaErrorsMixin and
+// populate the error dialog text. v10's <media-error-dialog> auto-opens when
+// the store error state is non-null, but the title / description elements
+// don't write their own text — we own the contents. For 401/403 responses
+// (BTV's auth tokens expiring during playback) surface a session-expired
+// message that points the user at reloading.
+function setupErrorHandling(
+    media: HTMLElement,
+    skin: HTMLElement,
+    signal: AbortSignal
+): void {
+    media.addEventListener(
+        "error",
+        (e) => {
+            const error = (e as ErrorEvent).error as
+                | {
+                      message?: string
+                      data?: { response?: { code?: number } }
+                  }
+                | undefined
+            const code = error?.data?.response?.code
+            const titleEl = skin.querySelector<HTMLElement>(
+                "media-alert-dialog-title"
+            )
+            const descEl = skin.querySelector<HTMLElement>(
+                "media-alert-dialog-description"
+            )
+            if (!titleEl || !descEl) return
+
+            if (code === 401 || code === 403) {
+                titleEl.textContent = "Session expired"
+                descEl.textContent =
+                    "Try reloading the page to continue watching."
+            } else {
+                titleEl.textContent = "Something went wrong."
+                descEl.textContent = error?.message ?? ""
+            }
+        },
+        { signal }
+    )
 }
 
 function setVideoQuality(media: HTMLElement, height: number): void {
