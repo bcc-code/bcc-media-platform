@@ -176,7 +176,7 @@ export async function createPlayer(
     }
 
     if (options.npaw?.enabled === true) {
-        enableNPAW(api, options.npaw)
+        enableNPAW(api, options.npaw, teardown.signal)
     }
 
     return api

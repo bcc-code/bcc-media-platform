@@ -50,7 +50,11 @@ function toConfig(options: NPAWOptions): Record<string, unknown> {
 // NPAW ships an HlsjsAdapter that consumes the hls.js engine instance
 // directly — no custom adapter needed. v10's <hls-video> exposes `.engine`
 // once the manifest starts loading; we wait for it before registering.
-export function enableNPAW(player: Player, options: NPAWOptions): void {
+export function enableNPAW(
+    player: Player,
+    options: NPAWOptions,
+    signal?: AbortSignal
+): void {
     if (!options.accountCode) {
         console.warn(
             "NPAW was not enabled because options.npaw.accountCode is invalid."
@@ -67,6 +71,10 @@ export function enableNPAW(player: Player, options: NPAWOptions): void {
             engine,
             (NpawAdapters as { HlsjsAdapter: unknown }).HlsjsAdapter
         )
+        // VideoJsAdapter (used in v8) reported text-track changes natively.
+        // HlsjsAdapter doesn't, so wire equivalent custom events to keep
+        // BTV's audio/subtitle engagement metrics intact post-cutover.
+        wireTrackChangeEvents(player.mediaEl, engine, npaw, signal)
     })
 }
 
@@ -74,6 +82,61 @@ export function setOptions(player: Player, options: NPAWOptions): void {
     const npaw = (player as Player & { _npaw?: NpawPlugin })._npaw
     if (!npaw) return
     npaw.setAnalyticsOptions(toConfig(options))
+}
+
+type HlsAudioTrack = { lang?: string; name?: string }
+type HlsEngine = {
+    audioTracks?: HlsAudioTrack[]
+    audioTrack: number
+    on(event: string, cb: () => void): void
+    off(event: string, cb: () => void): void
+}
+
+function wireTrackChangeEvents(
+    mediaEl: HTMLElement,
+    engine: unknown,
+    npaw: NpawPlugin,
+    signal: AbortSignal | undefined
+): void {
+    const adapter = npaw.getAdapter() as
+        | { fireEvent(name: string, dimensions?: object): void }
+        | undefined
+    if (!adapter?.fireEvent) return
+
+    // Subtitles: v10's hls.js promotes subtitle tracks onto media.textTracks,
+    // so DOM events cover both native HLS and MSE paths.
+    const tracks = (mediaEl as HTMLVideoElement).textTracks
+    const onSubChange = () => {
+        const active = Array.from(tracks).find(
+            (t) =>
+                t.mode === "showing" &&
+                (t.kind === "subtitles" || t.kind === "captions")
+        )
+        adapter.fireEvent("subtitleChange", {
+            language: active?.language ?? "off",
+            label: active?.label ?? "off",
+        })
+    }
+    tracks.addEventListener("change", onSubChange)
+    signal?.addEventListener("abort", () =>
+        tracks.removeEventListener("change", onSubChange)
+    )
+
+    // Audio tracks: hls.js owns the list; subscribe to its switch events.
+    const eng = engine as HlsEngine
+    if (typeof eng.on === "function") {
+        const onAudioChange = () => {
+            const active = eng.audioTracks?.[eng.audioTrack]
+            adapter.fireEvent("audioChange", {
+                language: active?.lang ?? "",
+                label: active?.name ?? "",
+            })
+        }
+        eng.on("hlsAudioTrackSwitched", onAudioChange)
+        signal?.addEventListener("abort", () =>
+            eng.off("hlsAudioTrackSwitched", onAudioChange)
+        )
+    }
 }
 
 // hls.js engine becomes available asynchronously after src is set. Poll
