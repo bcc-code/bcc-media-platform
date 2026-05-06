@@ -1,6 +1,12 @@
 import NpawPlugin from "npaw-plugin-nwf"
 import * as NpawAdapters from "npaw-plugin-adapters"
+import Hls from "hls.js"
 import type { Player } from "./index"
+
+// NPAW's HlsjsAdapter uses bare `Hls.Events.X` references and expects `Hls`
+// to be a runtime global (legacy <script>-tag assumption). Ensure it's
+// reachable before any adapter registration.
+;(globalThis as { Hls?: unknown }).Hls = Hls
 
 export interface NPAWOptions {
     enabled?: boolean
@@ -36,13 +42,13 @@ function toConfig(options: NPAWOptions): Record<string, unknown> {
             ? `${md.seasonId} - ${md.seasonTitle}`
             : undefined,
         "content.episodeTitle": md.episodeTitle,
-        obfuscateIp: true,
+        "user.obfuscateIp": true,
         "user.name": options.tracking.userId,
         "app.name": options.appName,
         "app.releaseVersion": "",
         "parse.manifest": true,
-        "extraparam.1": options.tracking.sessionId,
-        "extraparam.2": options.tracking.ageGroup,
+        "content.customDimension.1": options.tracking.sessionId,
+        "content.customDimension.2": options.tracking.ageGroup,
         ...md.overrides,
     }
 }
@@ -71,6 +77,19 @@ export function enableNPAW(
             engine,
             (NpawAdapters as { HlsjsAdapter: unknown }).HlsjsAdapter
         )
+
+        // NPAW's adapter calls `checkExistsPlayer()` on every fire and walks
+        // parentNode from `engine.media` to verify it's connected to document.
+        // v10's <hls-video> nests the inner video inside a shadow DOM, so the
+        // walk hits the shadow boundary instead of document and returns false
+        // — NPAW then refuses to fire any events ("Cannot fire start event
+        // because player not exists on the document"). The element IS on the
+        // page (via the shadow host), so override the check.
+        const adapter = npaw.getAdapter() as
+            | { checkExistsPlayer?: () => boolean }
+            | undefined
+        if (adapter) adapter.checkExistsPlayer = () => true
+
         // VideoJsAdapter (used in v8) reported text-track changes natively.
         // HlsjsAdapter doesn't, so wire equivalent custom events to keep
         // BTV's audio/subtitle engagement metrics intact post-cutover.
@@ -147,8 +166,7 @@ function waitForEngine(
     mediaEl: HTMLElement,
     cb: (engine: unknown) => void
 ): void {
-    const get = () =>
-        (mediaEl as { engine?: unknown | null }).engine ?? null
+    const get = () => (mediaEl as { engine?: unknown | null }).engine ?? null
     const initial = get()
     if (initial) {
         cb(initial)

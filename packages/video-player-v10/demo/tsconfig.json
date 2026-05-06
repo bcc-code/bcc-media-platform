@@ -1,0 +1,17 @@
+{
+    "extends": "@vue/tsconfig/tsconfig.dom.json",
+    "compilerOptions": {
+        "noEmit": true,
+        "moduleResolution": "Bundler",
+        "allowJs": true,
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "jsx": "preserve",
+        // Match the main tsconfig's tolerance — the demo isn't where we want
+        // to enforce stricter rules on src/ code (some pre-existing
+        // verbatimModuleSyntax / noImplicitAny issues there).
+        "verbatimModuleSyntax": false,
+        "noImplicitAny": false
+    },
+    "include": ["**/*.ts", "**/*.vue", "../src/vite-env.d.ts"]
+}
