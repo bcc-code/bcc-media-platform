@@ -120,6 +120,8 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 
 	r.GetLoaders().AssetStreamsLoader.LoadMany(ctx, lo.Values(e.Assets))
 
+	streamSigner := r.pickStreamSigner(ctx)
+
 	if e.AssetID.Valid {
 		r.GetLoaders().AssetStreamsLoader.Load(ctx, int(e.AssetID.Int64))
 
@@ -129,7 +131,7 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 		}
 
 		for _, s := range streams {
-			stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s)
+			stream, err := model.StreamFrom(ctx, streamSigner, s)
 			if err != nil {
 				return nil, err
 			}
@@ -146,7 +148,7 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 		}
 
 		for _, s := range streams {
-			stream, err := model.StreamFrom(ctx, r.URLSigner, r.Resolver.APIConfig, s)
+			stream, err := model.StreamFrom(ctx, streamSigner, s)
 			if err != nil {
 				return nil, err
 			}
@@ -192,7 +194,7 @@ func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode, audioLa
 				continue
 			}
 		}
-		out = append(out, model.FileFrom(ctx, r.URLSigner, r.Resolver.APIConfig.GetFilesCDNDomain(), f))
+		out = append(out, model.FileFrom(ctx, r.FileSigner, r.Resolver.APIConfig.GetFilesCDNDomain(), f))
 	}
 	return out, nil
 }

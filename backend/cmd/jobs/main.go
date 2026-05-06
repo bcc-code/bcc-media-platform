@@ -144,10 +144,11 @@ func main() {
 		return
 	}
 
-	urlSigner, err := signing.NewSigner(config.CDNConfig)
+	fileSigner, err := signing.NewCloudFrontSigner(config.CDNConfig)
 	if err != nil {
 		log.L.Error().Err(err).Send()
 	}
+	legacyStreamSigner := signing.NewCloudFrontStreamSigner(fileSigner, config.CDNConfig.GetVOD2Domain())
 
 	services := server.ExternalServices{
 		Database:                db,
@@ -164,7 +165,8 @@ func main() {
 		TranslationsService:     translationsClient,
 		CDNConfigProvider:       config.CDNConfig,
 		BatchLoaders:            loaders.InitBatchLoaders(queries, nil),
-		URLSigner:               urlSigner,
+		FileSigner:              fileSigner,
+		LegacyStreamSigner:      legacyStreamSigner,
 	}
 
 	handlers := server.NewServer(services, serverConfig)

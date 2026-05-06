@@ -67,7 +67,7 @@ type serviceProvider interface {
 	GetLoadersForRoles(roles []string) *loaders.LoadersWithPermissions
 	GetPersonalizedLoaders(roles []string, langPreferences common.LanguagePreferences) *loaders.PersonalizedLoaders
 	GetS3Client() *s3.Client
-	GetURLSigner() *signing.Signer
+	GetLegacyStreamSigner() *signing.CloudFrontStreamSigner
 	GetCDNConfig() CDNConfig
 }
 
@@ -78,7 +78,7 @@ type serviceProviderAPI interface {
 	GetFilteredLoaders(ctx context.Context) *loaders.LoadersWithPermissions
 	GetPersonalizedLoaders(ctx context.Context) *loaders.PersonalizedLoaders
 	GetQueries() *sqlc.Queries
-	GetURLSigner() *signing.Signer
+	GetLegacyStreamSigner() *signing.CloudFrontStreamSigner
 	GetS3Client() *s3.Client
 }
 
@@ -237,7 +237,11 @@ func exportEpisodes(ctx context.Context, batchLoaders *loaders.BatchLoaders, fil
 	return episodeIDs, err
 }
 
-func exportStreams(ctx context.Context, ls *loaders.BatchLoaders, urlSigner *signing.Signer, cdnConfig CDNConfig, liteQueries *sqlexport.Queries, episodeIDs []int) error {
+// exportStreams writes per-episode stream URLs into the offline-export
+// SQLite db. Exports always use the legacy CloudFront-signed URL form because
+// jobs run without a request context to evaluate the per-user feature flag
+// that switches between the proxy and legacy paths.
+func exportStreams(ctx context.Context, ls *loaders.BatchLoaders, streamSigner *signing.CloudFrontStreamSigner, liteQueries *sqlexport.Queries, episodeIDs []int) error {
 
 	episodes, err := ls.EpisodeLoader.GetMany(ctx, episodeIDs)
 	if err != nil {
@@ -280,7 +284,7 @@ func exportStreams(ctx context.Context, ls *loaders.BatchLoaders, urlSigner *sig
 			continue
 		}
 
-		ss, err := model.StreamFrom(ctx, urlSigner, cdnConfig, s)
+		ss, err := model.StreamFrom(ctx, streamSigner, s)
 		if err != nil {
 			log.L.Debug().Err(err).Msg("Err while singing stream url")
 		}
@@ -507,8 +511,7 @@ func HandleExportMessage(ctx context.Context, s serviceProvider, tempBucketNeme 
 		s.GetLoaders(),
 		s.GetLoadersForRoles(fetchedEntry.UserGroups),
 		s.GetPersonalizedLoaders(fetchedEntry.UserGroups, langPreferences),
-		s.GetURLSigner(),
-		s.GetCDNConfig(),
+		s.GetLegacyStreamSigner(),
 		s.GetS3Client(),
 		s.GetDatabase(),
 	)
@@ -574,8 +577,7 @@ func DoExport(ctx context.Context, q serviceProviderAPI, bucketName string, user
 		q.GetLoaders(),
 		q.GetFilteredLoaders(ctx),
 		q.GetPersonalizedLoaders(ctx),
-		q.GetURLSigner(),
-		q.GetCDNConfig(),
+		q.GetLegacyStreamSigner(),
 		q.GetS3Client(),
 		q.GetDatabase(),
 	)
@@ -590,8 +592,7 @@ func doExport(
 	batchLoaders *loaders.BatchLoaders,
 	roleLoaders *loaders.LoadersWithPermissions,
 	personalizedLoaders *loaders.PersonalizedLoaders,
-	urlSigner *signing.Signer,
-	cdnConfig CDNConfig,
+	streamSigner *signing.CloudFrontStreamSigner,
 	s3Client *s3.Client,
 	pgSql *sql.DB,
 ) (string, error) {
@@ -629,7 +630,7 @@ func doExport(
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))
 	}
 
-	err = exportStreams(ctx, batchLoaders, urlSigner, cdnConfig, liteQueries, episodeIDs)
+	err = exportStreams(ctx, batchLoaders, streamSigner, liteQueries, episodeIDs)
 	if err != nil {
 		log.L.Error().Err(err).Str("exportStep", "exportStreams").Msg("")
 		return "", merry.Wrap(err, merry.WithUserMessage("Unable to generate export file"))

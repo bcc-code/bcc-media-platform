@@ -35,6 +35,8 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/signing"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
+	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
@@ -70,7 +72,9 @@ type Resolver struct {
 	PersonalizedLoaders   func(ctx context.Context) *loaders.PersonalizedLoaders
 	SearchService         searchProvider
 	EmailService          *email.Service
-	URLSigner             *signing.Signer
+	FileSigner            *signing.CloudFrontSigner
+	StreamURLSigner       *streamtoken.Signer
+	LegacyStreamSigner    *signing.CloudFrontStreamSigner
 	S3Client              *s3.Client
 	APIConfig             apiConfig
 	AWSConfig             awsConfig
@@ -107,8 +111,34 @@ func (r *Resolver) GetS3Client() *s3.Client {
 	return r.S3Client
 }
 
-func (r *Resolver) GetURLSigner() *signing.Signer {
-	return r.URLSigner
+func (r *Resolver) GetFileSigner() *signing.CloudFrontSigner {
+	return r.FileSigner
+}
+
+func (r *Resolver) GetLegacyStreamSigner() *signing.CloudFrontStreamSigner {
+	return r.LegacyStreamSigner
+}
+
+// streamSigner is the per-request signer interface satisfied by both
+// streamtoken.Signer (new stream-proxy + JWT path) and
+// signing.CloudFrontStreamSigner (legacy CloudFront EncodedPolicy path).
+type streamSigner interface {
+	SignURL(streamPath string, ttl time.Duration) (string, time.Time, error)
+}
+
+// pickStreamSigner returns the legacy CloudFront signer by default; switches
+// to the new stream-proxy signer when the request carries
+// `x-feature-flags: stream-proxy:enabled`.
+func (r *Resolver) pickStreamSigner(ctx context.Context) streamSigner {
+	ginCtx, _ := utils.GinCtx(ctx)
+	if ginCtx != nil {
+		flags := utils.GetFeatureFlags(ginCtx)
+		if v, ok := flags.GetVariant(unleash.StreamProxyFlag); ok && v == unleash.StreamProxyEnabledVariant {
+			utils.ReportFlagActivation(ginCtx, unleash.StreamProxyFlag, unleash.StreamProxyEnabledVariant)
+			return r.StreamURLSigner
+		}
+	}
+	return r.LegacyStreamSigner
 }
 
 func (r *Resolver) GetCDNConfig() export.CDNConfig {

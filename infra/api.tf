@@ -158,6 +158,20 @@ resource "google_cloud_run_service" "api" {
           }
         }
 
+        dynamic "env" {
+          for_each = [for v in module.stream_proxy_secrets.data : v if v.name == "STREAM_JWT_SECRET"]
+          iterator = v
+          content {
+            name = v.value.name
+            value_from {
+              secret_key_ref {
+                key  = v.value.secret_version
+                name = v.value.secret_name
+              }
+            }
+          }
+        }
+
         resources {
           limits = {
             cpu    = "1000m"
@@ -204,7 +218,6 @@ resource "google_cloud_run_service" "api" {
   lifecycle {
     ignore_changes = [
       metadata[0].labels,
-      metadata[0].terraform_labels,
       metadata[0].annotations,
       template[0].metadata[0].annotations,
       template[0].metadata[0].labels,

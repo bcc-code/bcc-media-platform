@@ -1,6 +1,6 @@
 module github.com/bcc-code/bcc-media-platform
 
-go 1.25.0
+go 1.26.1
 
 require (
 	cloud.google.com/go/bigquery v1.69.0
@@ -22,6 +22,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/mediapackagevod v1.24.2
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.40.2
 	github.com/bcc-code/bmm-sdk-golang v0.1.7
+	github.com/bcc-media/ioriver-url-signer-golang v0.0.0-00010101000000-000000000000
 	github.com/bsm/redislock v0.9.4
 	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
@@ -276,3 +277,5 @@ tool (
 	github.com/sqlc-dev/sqlc
 	github.com/sqlc-dev/sqlc/cmd/sqlc
 )
+
+replace github.com/bcc-media/ioriver-url-signer-golang => github.com/bcc-code/ioriver-url-signer-golang v0.0.0-20260504110944-385e16a180f2

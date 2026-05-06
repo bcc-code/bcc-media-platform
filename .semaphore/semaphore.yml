@@ -42,7 +42,7 @@ blocks:
     task:
       prologue:
         commands:
-          - sem-version go 1.22
+          - sem-version go 1.26
           - export GOPATH=~/go
           - "export PATH=/home/semaphore/go/bin:$PATH"
           - checkout
@@ -87,6 +87,14 @@ blocks:
             - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/videomanipulator:${SEMAPHORE_GIT_BRANCH//\\//_}"
             - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/videomanipulator:${SEMAPHORE_GIT_SHA:0:7}" > videomanipulator.txt'
             - artifact push workflow videomanipulator.txt
+            - cd ..
+            - CGO_ENABLED=0 go build -v -o ./backend/bin ./backend/cmd/stream-proxy
+            - cd ./backend
+            - 'docker build -t "europe-west4-docker.pkg.dev/utils-332514/btv-platform/stream-proxy:${SEMAPHORE_GIT_SHA:0:7}" -t europe-west4-docker.pkg.dev/utils-332514/btv-platform/stream-proxy:${SEMAPHORE_GIT_BRANCH//\//_} .'
+            - 'docker push "europe-west4-docker.pkg.dev/utils-332514/btv-platform/stream-proxy:${SEMAPHORE_GIT_SHA:0:7}"'
+            - "docker push europe-west4-docker.pkg.dev/utils-332514/btv-platform/stream-proxy:${SEMAPHORE_GIT_BRANCH//\\//_}"
+            - 'echo "europe-west4-docker.pkg.dev/utils-332514/btv-platform/stream-proxy:${SEMAPHORE_GIT_SHA:0:7}" > stream-proxy.txt'
+            - artifact push workflow stream-proxy.txt
       secrets:
         - name: GoogleSemaphoreServiceAccount
     dependencies: []

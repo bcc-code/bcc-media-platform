@@ -37,7 +37,8 @@ type ExternalServices struct {
 	FilteredLoaders         loaders.LoadersWithPermissions
 	CDNConfigProvider       export.CDNConfig
 	BatchLoaders            *loaders.BatchLoaders
-	URLSigner               *signing.Signer
+	FileSigner              *signing.CloudFrontSigner
+	LegacyStreamSigner      *signing.CloudFrontStreamSigner
 }
 
 // GetDatabase as stored in the struct
@@ -107,6 +108,10 @@ func (e ExternalServices) GetPersonalizedLoaders(roles []string, langPreferences
 	return loaders.GetPersonalizedLoaders(e.Queries, roles, langPreferences)
 }
 
-func (e ExternalServices) GetURLSigner() *signing.Signer {
-	return e.URLSigner
+func (e ExternalServices) GetFileSigner() *signing.CloudFrontSigner {
+	return e.FileSigner
+}
+
+func (e ExternalServices) GetLegacyStreamSigner() *signing.CloudFrontStreamSigner {
+	return e.LegacyStreamSigner
 }

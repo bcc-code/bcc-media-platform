@@ -16,9 +16,9 @@ STA_PASS=$(gcloud --project=btv-platform-sta-2 secrets versions access latest --
 PROD_PASS=$(gcloud --project=btv-platform-prod-2 secrets versions access latest --secret="postgres_builder_password")
 
 # Add for dev:
-# -instances btv-platform-dev-2:europe-west4:main-instance=tcp:localhost:$DEV 
+# "btv-platform-dev-2:europe-west4:main-instance?port=$DEV" (add as another positional arg)
 
-cloud_sql_proxy -verbose -instances btv-platform-sta-2:europe-west4:main-instance=tcp:localhost:$STA -instances btv-platform-prod-2:europe-west4:main-instance=tcp:localhost:$PROD &
+cloud-sql-proxy --debug-logs "btv-platform-sta-2:europe-west4:main-instance?port=$STA" "btv-platform-prod-2:europe-west4:main-instance?port=$PROD" &
 PROXY_PID=$!
 
 # Wait for the proxy to connect

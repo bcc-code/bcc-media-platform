@@ -12,3 +12,10 @@ const ShortsWithScoresEnabledVariant = "enabled"
 // Added: 07.10.2024
 const ElasticSearchFlag = "elastic-search"
 const ElasticSearchEnabledVariant = "enabled"
+
+// StreamProxyFlag routes stream URLs through the new stream-proxy + HS256 JWT
+// path. Default (flag off) keeps the legacy CloudFront-signed URL form.
+//
+// Added: 05.05.2026
+const StreamProxyFlag = "stream-proxy"
+const StreamProxyEnabledVariant = "enabled"
