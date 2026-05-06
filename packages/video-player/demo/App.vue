@@ -13,18 +13,20 @@ const factory = new PlayerFactory({
 })
 
 onMounted(async () => {
-    // VOD player
-    await factory.create("vod-player", {
-        episodeId: "865",
-        overrides: {
-            languagePreferenceDefaults: {
-                audio: "eng",
-                subtitles: "eng",
+    try {
+        await factory.create("vod-player", {
+            episodeId: "865",
+            overrides: {
+                languagePreferenceDefaults: {
+                    audio: "eng",
+                    subtitles: "eng",
+                },
             },
-        },
-    })
+        })
+    } catch (err) {
+        console.error("VOD player failed to mount:", err)
+    }
 
-    // Live player
     await createPlayer("live-player", {
         src: {
             src: "",
@@ -33,6 +35,7 @@ onMounted(async () => {
             audio: "eng",
             subtitles: "eng",
         },
+        live: true,
     })
 })
 </script>
@@ -48,12 +51,15 @@ html,
 body {
     height: 100%;
     margin: 0;
+    padding: 0.5rem;
 }
 
 #vod-player,
 #live-player {
-    max-width: 1920px;
+    max-width: 920px;
     width: 100%;
     margin-inline: auto;
+    margin-block-end: 1rem;
 }
+
 </style>

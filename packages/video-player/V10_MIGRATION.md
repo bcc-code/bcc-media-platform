@@ -1,13 +1,15 @@
-# Video.js v10 migration audit
+# Video.js v10 migration — status & plan
 
-Status snapshot for `packages/video-player` against Video.js v10. Last reviewed 2026-05-06.
+Working sandbox at **`packages/video-player-v10/`** on branch **`feature/videojs-v10`**.
+Pinned to **`@videojs/core@10.0.0-beta.23`** (latest published as of 2026-04-27).
+
+Last reviewed: 2026-05-06.
 
 ## v10 status
 
-- v10 ships under new scoped packages: `@videojs/core`, `@videojs/html`, `@videojs/react`, `@videojs/element`, `@videojs/skins`, `@videojs/icons`, `@videojs/spf`, `@videojs/cli`. The legacy `video.js` package on npm has no v10 release.
-- Latest published: `@videojs/core@10.0.0-beta.23` (2026-04-27).
+- v10 ships under new scoped packages: `@videojs/core`, `@videojs/html`, `@videojs/element`, `@videojs/icons`, `@videojs/spf`, `@videojs/cli`. The legacy `video.js` package on npm has no v10 release.
 - Roadmap: GA mid-2026. API still flagged as moveable until GA. Recent betas (18, 20, 23) carry `**breaking**` entries.
-- Per the v10 roadmap: *"No plugin migrations yet, without plugin author contribution"* at beta. Plugin ecosystem migration "begins in earnest" at GA.
+- Per the v10 roadmap: *"No plugin migrations yet, without plugin author contribution"* at beta. Plugin ecosystem migration begins "in earnest" at GA.
 
 ## Why this is a rewrite, not an upgrade
 
@@ -19,59 +21,89 @@ v10 is a full architectural rebuild, not an incremental release.
 - The `videojs.registerPlugin(...)` API does not exist. "Plugins" become custom elements, components, or store features.
 - HLS is handled by Hls.js, native HLS, or `@videojs/spf` (their MSE engine). Mux is a first-class media element. Chromecast is built into core via the Remote Playback API.
 
-The implication: nothing in `src/video-player/index.ts:184-276` (the `setupVideoJs` wiring) carries over verbatim. The classes in `src/video-player/plugins/*.ts` need to be rewritten as custom elements / store consumers. The skin in `src/video-player/skin/` needs to be redesigned against v10's eject output.
+## What's been implemented
+
+The sandbox at `packages/video-player-v10/` boots, plays HLS, and surfaces the public API. Concrete deliverables:
+
+- **`createPlayer(containerId, opts)` wrapper** — thin facade over the v10 element tree. Public API surface preserved (see below).
+- **Ejected default skin** — `src/video-player/skin/skin.ts` (DOM builder) + `skin.css` (verbatim ejected styles, ~700 lines). Light-DOM composition so we can insert custom controls into the bottom button group without subclassing or shadow-DOM hacks.
+- **Live mode (`live: true`)** — drops seek buttons, time displays, slider, thumbnail preview, seek hotkeys/gestures. Adds a clickable LIVE badge that seeks to live edge.
+- **Custom in-bar controls (`src/video-player/components/`):**
+  - `bccm-audio-picker` — engine-based audio language picker (subscribes to `engine.audioTracks`).
+  - `bccm-subtitle-picker` — store-based, uses `selectTextTrack` + DOM `textTracks` for selection.
+  - `bccm-quality-picker` — engine-based, lists Auto + each rendition by height.
+  - `bccm-playback-rate-picker` — store-based via `selectPlaybackRate`. Hardcodes a sane rate list (`[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]`); v10 core's default `[0.2, 0.5, 0.7, 1, 1.2, 1.5, 1.7, 2]` is intentionally overridden.
+  - `bccm-live-button` — clickable LIVE badge; seeks to `engine.liveSyncPosition` (or `seekable.end` fallback). Indicates at-live vs behind-live via `[data-at-live]`.
+- **Native HTML popover API** for picker menus — top-layer rendering so `backdrop-filter` actually sees the video underneath.
 
 ## Migration matrix
 
-| # | Current piece | Location | LoC | Status | Notes |
-|---|---|---|---|---|---|
-| 1 | `videojs` core import + `setupVideoJs` | `src/video-player/index.ts` | ~277 | **Rewrite** | Replace `videojs(el, opts)` with `createPlayer(...)` from `@videojs/html`. The v8 options surface (`html5.vhs`, `liveui`, `inactivityTimeout`, `techOrder`, `userActions.hotkeys`) does not map 1:1 — most of it is per-feature config now. |
-| 2 | v8 default skin (`video-js.css`) + custom skin | `video-js/dist/video-js.css`, `src/video-player/skin/style.scss` (283 lines) + `_small-screen-ui.scss` (67) + `_plugins.scss` (32) | ~382 | **Rewrite** | Eject a v10 skin preset (HTML or React). Reapply the BTV brand styling against the new class names. Background-gradient hack at `style.scss:215-232` becomes a CSS custom property in v10's theme system. |
-| 3 | `videojs-mux` analytics | `package.json`, `index.ts:5` | side-effect import | **Drop-in via core** | v10 ships a built-in Mux video element (beta.12, #1036). Mux Data init is in core (`Fix Mux data initialization`, beta.12). Confirm v10 mux-video matches our `videojs-mux@4.21.28` config surface — needs a small spike. |
-| 4 | `@silvermine/videojs-chromecast` | `package.json`, `index.ts:10,28-31`, `_plugins.scss:2` | ~third-party | **Drop-in via core** | v10 has chromecast via Remote Playback API (beta.22, #1348). Replace `CastLoader.load()` + `registerChromecastPlugin(videojs)` with the v10 cast feature. Local SVG icons (`chromecast.svg`, `chromecast-filled.svg`) and SCSS overrides in `_plugins.scss:5-32` likely become CSS custom properties. |
-| 5 | `videojs-contrib-quality-levels` | `package.json`, `index.ts:3` | side-effect | **Likely drop-in via core** | v10 core handles HLS rendition tracking and (per `liveEdgeStart`/`targetLiveWindow`, beta.23) live-window primitives. Need to confirm the public API for enumerating quality levels and that it covers our `setVideoQuality(height)` use case. |
-| 6 | `videojs-event-tracking` | `package.json`, `index.ts:4` | side-effect | **Verify** | This package is a thin event taxonomy. v10's media element fires standard media events. May be replaceable with direct event listeners on the new media element. Need to inventory which events are actually consumed downstream of this player. |
-| 7 | `npaw-plugin-nwf` + `npaw-plugin-adapters` | `package.json`, `src/video-player/npaw.ts` (73 lines), `index.ts:6,58-60` | ~73 | **BLOCKER** | Vendor-controlled. Current adapter is `NpawAdapters.video.Videojs` — explicitly v8. No v10 adapter exists. **Action: contact NPAW for v10 plans before committing to a migration date.** Workaround: hand-roll an adapter against v10 store events (non-trivial). |
-| 8 | Forked `videojs-hls-quality-selector` | `external-projects/videojs-hls-quality-selector/src/plugin.js` (257 lines) + `plugin.scss` (9), wired in `index.ts:9,21-24,211,258-273` | ~266 | **Rewrite (small)** | Throw away the fork. v10 ships slider-based UI primitives (`<media-time-slider>`, `<media-volume-slider>`, etc.). Build a `<media-quality-popover>` against the v10 quality-levels API. The `setVideoQuality(height)` public method on the player must be preserved. |
-| 9 | `seek-buttons.ts` (15s seek fwd/back) | `src/video-player/plugins/seek-buttons.ts` | 29 | **Drop-in via core** | v10 has a built-in `SeekButton` component (alpha.1, #526) and seek hotkeys (beta.16). Replace both classes with `<media-seek-button seconds="-15">` / `<media-seek-button seconds="15">`. |
-| 10 | `smart-tv.ts` (`DismissControlBarButton`) | `src/video-player/plugins/smart-tv.ts` | 19 | **Rewrite (trivial)** | A single button that calls `userActive(false)`. Reimplement as a small custom element that toggles `controls` feature. v10 has `toggleControls` (beta.16, #1280). |
-| 11 | `smooth-seek.ts` (monkey-patches `SeekBar.prototype`) | `src/video-player/plugins/smooth-seek.ts` | 38 | **Investigate** | Patches `getPercent` and `handleMouseMove` on v8's SeekBar to allow scrubbing past the buffered range. v10's `<media-time-slider>` already has "optimistic current time on seek" (alpha.10, #799) and pointer capture (alpha.5, #762) — verify if the smooth-scrub behavior we need is already default. If so, **delete**. |
-| 12 | `videojs-smallscreen.ts` (touch + width-based UI swap) | `src/video-player/plugins/videojs-smallscreen.ts` | 40 | **Rewrite (trivial)** | Pure DOM/class toggling on `playerresize` + touch detection. Reimplement as a custom element observer or replace with CSS container queries against v10's player root. |
-| 13 | Hotkeys (`userActions.hotkeys: true`) | `index.ts:129-131` | 1 line | **Drop-in via core** | v10 ships a hotkey system with coordinator, ARIA, action bindings (beta.16, #1238/#1239). Wire it via `<media-hotkey>` or core `hotkeys` config. |
-| 14 | Live UI (`liveui: true`, `liveTracker.trackingThreshold`) | `index.ts:122-125` | a few lines | **Drop-in via core** | v10 has `liveEdgeStart` and `targetLiveWindow` primitives (beta.23, #1445) and live-video presets (beta.23, #1399). Reapply the 15s threshold via the new config surface. |
-| 15 | VHS fine-tuning (`experimentalBufferBasedABR`, `useBandwidthFromLocalStorage`, `overrideNative`, `cacheEncryptionKeys`, ...) | `index.ts:108-120` | ~13 lines of options | **Rewrite (config)** | These options are VHS-specific. v10 routes HLS through Hls.js, native HLS, or `@videojs/spf`. Each switch needs a v10 equivalent (or a decision to drop). The `cacheEncryptionKeys` and bandwidth-from-localStorage flags in particular need verification — they may not have direct equivalents. |
-| 16 | Audio-track / subtitle-track language helpers | `index.ts:150-182` | ~33 | **Rewrite** | Use v10's text-track store (alpha.5, #643) and subtitles handling (alpha.9, #692). The `tracks_` field-poking and `// @ts-ignore Types are outdated` comments go away. |
-| 17 | 401/403 segment-loader error → "session expired" | `index.ts:213-228` | ~16 | **Rewrite** | Reaches into `player.tech().vhs.masterPlaylistController_.mainSegmentLoader_` — internal VHS state that does not exist in v10. Replace with v10's error feature (alpha.8, #713) and HLS error handling (beta.14, beta.12 #1164). |
-| 18 | `btv-player` wrapper layer | `src/btv-player/index.ts` | 69 | **Likely drop-in** | This is the consumer-facing wrapper. As long as the public API (`createPlayer`, `setNPAWOptions`, `setVideoQuality`, `setAudioTrackToLanguage`, `setSubtitleTrackToLanguage`, `onProgress`) is preserved by the new internal implementation, this layer barely changes. |
-| 19 | `vjs-brunstadtv-skin` class hook + `vjs-show-startup-spinner` | `index.ts:140-148` | a few lines | **Rewrite** | The class names are tied to v8's DOM. New skin will use v10's data attributes (e.g. `data-availability`, `data-state`). |
-| 20 | Demo (`demo/App.vue`, `demo/main.ts`, `index.html`) | `demo/` | small | **Rewrite (trivial)** | Update to import the new player. Keep Vue if useful — v10 doesn't ship Vue bindings, but a Vue host is fine since v10's HTML elements are framework-agnostic custom elements. |
+| # | Piece | Status | Notes |
+|---|---|---|---|
+| 1 | `videojs(el, opts)` core wiring | **Done** | Replaced with `createPlayer(...)` + a `<video-player>` / `<media-container>` tree. v8 options accepted but ignored when not applicable; new `live` option added. |
+| 2 | v8 default skin + custom BTV skin | **Done (default ejected)** | Default v10 skin ejected; BTV brand styling not yet reapplied. |
+| 3 | `videojs-mux` analytics | **Not needed** | The v8 import was a side-effect only — never configured (`player.mux(...)` is not called anywhere in source or git history). Plugin was loaded but never initialized. Safe to drop entirely. |
+| 4 | `@silvermine/videojs-chromecast` | **Done** | `<media-cast-button>` (Remote Playback API) in the right group. Auto-hides via `[data-availability="unsupported"]` on browsers without RP. |
+| 5 | `videojs-contrib-quality-levels` | **Done** | Replaced by `bccm-quality-picker` reaching into `engine.levels`. `Player.setVideoQuality(height)` wired to `engine.currentLevel`. |
+| 6 | `videojs-event-tracking` | **Dropped** | Audited — zero consumers across `bcc-media-platform`. Sole maintainer confirms BCC uses NPAW exclusively for video analytics. The plugin's events (`tracking:firstplay`, `tracking:pause`, `tracking:seek`, `tracking:buffered`, `tracking:performance`, `tracking:*-quarter`) are derivable from standard media events on `Player.mediaEl` if anyone ever needs them. |
+| 7 | `npaw-plugin-nwf` + `npaw-plugin-adapters` | **Done (pending dashboard verification)** | NPAW already ships `HlsjsAdapter` for hls.js. v10's `<hls-video>` exposes `.engine` (the hls.js instance), so we register the prebuilt adapter against it directly — no custom adapter needed. `enableNPAW()` waits for `media.engine` to materialize, then calls `npaw.registerAdapterFromClass(engine, HlsjsAdapter)`. Track changes (which `HlsjsAdapter` doesn't report natively but `VideoJsAdapter` did) are wired manually via `adapter.fireEvent("subtitleChange", ...)` / `fireEvent("audioChange", ...)` on `media.textTracks` "change" events and hls.js `hlsAudioTrackSwitched` events. Costs +800 KB bundle (NPAW SDK weight, same as v8). Verify events arrive in the NPAW dashboard before declaring fully done. |
+| 8 | Forked `videojs-hls-quality-selector` | **Done** | Deleted. Replaced by `bccm-quality-picker`. |
+| 9 | `seek-buttons.ts` (15s seek) | **Done** | `<media-seek-button seconds="-15"/+15">` in the ejected skin. |
+| 10 | `smart-tv.ts` (`DismissControlBarButton`) | **Done** | New `bccm-dismiss-controls-button` extends `MediaElement`, subscribes to `selectControls`, calls `toggleControls()` on click when controls are visible. Only rendered when `isSmartTV()` returns true. Replaced `ua-parser-js` with a regex-based UA test in the same change — net bundle savings (~30 KB). |
+| 11 | `smooth-seek.ts` | **Redundant** | Confirmed — v10's `<media-time-slider>` covers it via optimistic seek (alpha.10, #799) and pointer capture (alpha.5, #762). No port needed. The v8 monkey-patch can be deleted from `bccm-video-player@1.x` as a cleanup. |
+| 12 | `videojs-smallscreen.ts` | **Probably unneeded** | v10 is responsive by default; gestures cover touch tap-to-toggle. May still need verification on mobile breakpoints. |
+| 13 | Hotkeys | **Done** | `<media-hotkey>` elements in skin (Space/k/m/f/c/i/Arrow keys). Seek hotkeys omitted in live mode. |
+| 14 | Live UI (`liveui`, `liveTracker.trackingThreshold`) | **Done (engine path)** | Live skin variant + `bccm-live-button`. Currently uses `engine.liveSyncPosition`; could switch to `selectLive` + `liveVideoFeatures` for store-based detection. |
+| 15 | VHS fine-tuning options | **Done** | `overrideNative` is v10's default (`preferPlayback="mse"`). `limitRenditionByPlayerDimensions` mapped to `capLevelToPlayerSize: true` on `<hls-video>`. `useBandwidthFromLocalStorage` replicated via `setupBandwidthPersistence()` — reads on init to seed `abrEwmaDefaultEstimate`, writes throttled to 10s on `hlsFragLoaded`. The rest dropped: `cacheEncryptionKeys` is hls.js default, `experimentalBufferBasedABR` doesn't apply (hls.js has its own ABR), `allowSeeksWithinUnsafeLiveWindow` / `useDevicePixelRatio` / `nativeAudio,VideoTracks` have no equivalent (accepted losses). |
+| 16 | Audio/subtitle language helpers | **Done** | `setAudioTrackToLanguage` / `setSubtitleTrackToLanguage` ported. New `getAudioLanguages()` / `getSubtitleLanguages()` enumerators added. |
+| 17 | 401/403 segment-loader → "session expired" | **Done** | v10's `HlsJsMediaErrorsMixin` dispatches `ErrorEvent` on `<hls-video>` for fatal hls.js errors with `event.error.data.response.code`. `setupErrorHandling()` in `index.ts` listens, populates `<media-alert-dialog-title>` and `<media-alert-dialog-description>` — "Session expired" + reload instruction for 401/403, generic for everything else. v10's error dialog auto-opens on the underlying error state. |
+| 18 | `btv-player` wrapper layer | **Done** | Updated to drop `videojs.mergeOptions` (replaced with object spread). Public API unchanged. |
+| 19 | `vjs-brunstadtv-skin` class hook | **Open** | Currently uses v10's `media-default-skin` classes. BTV brand customization not yet applied. |
+| 20 | Demo (`demo/App.vue`) | **Done** | Mounts both VOD + live players; `live: true` option used. |
 
-## Public API surface that must be preserved
+## Public API surface (preserved)
 
-These are the entry points the rest of the codebase consumes; the v10 implementation must keep them working.
+All v8-era entry points work in the v10 sandbox. The `Player` interface gained a few additions but is backwards-compatible.
 
-- `createPlayer(containerId, opts: Partial<Options>): Promise<Player>` (`src/video-player/index.ts:36`)
-- `setNPAWOptions(player, opts)` (`index.ts:136`)
-- `Player.setAudioTrackToLanguage(language)` (`index.ts:252`)
-- `Player.setSubtitleTrackToLanguage(language)` (`index.ts:255`)
-- `Player.setVideoQuality(height)` (`index.ts:258`)
-- `onProgress(currentTime, duration, player)` callback (`index.ts:242-248`)
-- The `Options` interface (`index.ts:65-79`) — including the `npaw`, `subtitles`, `videojs`, `languagePreferenceDefaults`, `src` shape
+| Method / property | v8 | v10 sandbox |
+|---|---|---|
+| `createPlayer(containerId, opts): Promise<Player>` | ✓ | ✓ |
+| `setNPAWOptions(player, opts)` | ✓ | ✓ (no-op stub) |
+| `Player.setAudioTrackToLanguage(language)` | ✓ | ✓ (hls.js engine + native fallback) |
+| `Player.setSubtitleTrackToLanguage(language)` | ✓ | ✓ (DOM textTracks) |
+| `Player.setVideoQuality(height)` | ✓ | ✓ (hls.js `engine.currentLevel`) |
+| `onProgress(currentTime, duration, player)` | ✓ | ✓ (`timeupdate` listener) |
+| `Options.npaw / subtitles / videojs / languagePreferenceDefaults / src / autoplay` | ✓ | ✓ |
+| `Options.live: boolean` | — | new |
+| `Player.dispose()` | — | new |
+| `Player.element` / `Player.mediaEl` | — | new (escape hatch) |
+| `Player.getAudioLanguages() / getSubtitleLanguages()` | — | new |
 
-## Open questions / blockers
+## Open work
 
-1. **NPAW v10 support.** Single biggest unknown. Without a v10-compatible NPAW adapter, analytics breaks on cutover. Reach out to NPAW or evaluate whether direct adapter code against v10 store events is acceptable.
-2. **Mux integration parity.** Does v10's built-in `<media-mux-video>` cover everything `videojs-mux@4.21.28` does for our metadata? Spike needed.
-3. **VHS option parity.** Several `html5.vhs.*` flags (`cacheEncryptionKeys`, `useBandwidthFromLocalStorage`, `experimentalBufferBasedABR`, `useDevicePixelRatio`) need explicit mapping or accepted-loss decisions.
-4. **`videojs-event-tracking` consumers.** Need to find who downstream listens to which tracked events before deciding whether v10's standard media events suffice.
-5. **Smart TV / smallscreen UX.** v10's gesture and hotkey systems should cover smart-TV navigation, but needs a hands-on test on actual TV browsers.
-6. **HLS engine choice.** Hls.js vs native vs `@videojs/spf` is a live decision. Current player uses `overrideNative: true` (forces VHS). v10's equivalent default behavior needs to be confirmed.
-7. **Bundle size.** Current bundle is 1.99 MB unminified. v10's modular elements + tree-shaking should help — but Hls.js, Mux, chromecast, NPAW, and skin assets all add up. Worth measuring on a prototype.
+In rough priority order:
 
-## Recommended sequence
+1. **Verify NPAW dashboard receives events** — implementation done (uses NPAW's prebuilt `HlsjsAdapter` against the hls.js engine). Needs an end-to-end check against a real NPAW account.
+2. **Optional: switch to `liveVideoFeatures` + custom `<bccm-live-video-player>`** — would let `bccm-live-button` use `selectLive` / `liveEdgeStart` from the store instead of poking the engine. Cleaner but adds a custom factory.
 
-1. **Wait for GA or near-GA beta.** API is still moving (breaking changes in beta.18/20/23). Starting now means rework on every beta drop.
-2. **Resolve NPAW (#7) before committing to a date.** This is the only true external blocker — the rest is in our control.
-3. **Spike a parallel `packages/video-player-v10/`** with `@videojs/core` beta + Mux + HLS. Goal: prove the public API surface (above) can be reimplemented. Budget: ~1 week.
-4. **Replicate the migration matrix** as Linear/issue tickets so the work is parallelizable across the team.
-5. **Cut over consumers behind a build-flag or new package version.** Don't replace `bccm-video-player` in place; ship a `@2.0.0` that consumers opt into.
+### Cleanup wins (independent of v10)
+
+- **Drop `videojs-mux` from `bccm-video-player@1.x`** — the side-effect import is dead code. Pure bundle-size win, no behavior change.
+- **Drop `videojs-event-tracking` from `bccm-video-player@1.x`** — zero consumers across BCC apps; NPAW is the only analytics path used.
+- **Delete `smooth-seek.ts` from `bccm-video-player@1.x`** — the monkey-patch is redundant with modern video.js seekbar behavior; v10 confirms this concept is no longer needed.
+
+## Decisions made along the way
+
+- **Engine reach-around vs. v10 store** — for features the default `videoFeatures` bundle doesn't expose (audio tracks, quality levels, live edge), we read directly from `media.engine` (hls.js). The store path would require building a custom player factory with a custom feature bundle. We'll switch when those features land in core or when the engine path becomes painful.
+- **Native popover API over CSS show/hide** — picker menus use `popover="auto"` so they render in the top layer. This is the only way `backdrop-filter` produces the frosted-glass look — inside `.media-controls`'s own surface, the filter has nothing to blur.
+- **Hardcoded playback rates** — v10 core's defaults include 0.2/0.7/1.2/1.7. We override with `[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]` in the picker.
+- **Custom skin via light-DOM composition** — the docs recommend ejecting the skin for "rearrange / remove controls". Full template lives in `src/video-player/skin/skin.ts`, so we own it. Keeps custom controls (pickers, live button) inline with the v10 button-group structure.
+- **Unique tooltip / popover IDs per skin** — multiple players on one page (the demo has two) would collide on `commandfor` references otherwise. Each `buildSkin` call gets a `${seq}` suffix on every ID it emits.
+
+## Recommended sequence to ship
+
+1. **Verify NPAW dashboard** — confirm playback / pause / seek / buffer / error / quality events arrive correctly with a test account.
+2. **Switch consumers behind a `2.0.0`** package version. Don't replace `bccm-video-player@1.x` in place — let consumers opt in.
+3. **Hold cutover until v10 ships GA** (or at minimum a beta with no `**breaking**` notes for several weeks). API is still flagged moveable.
+
+BTV brand styling deferred — the default v10 skin is acceptable for now.
