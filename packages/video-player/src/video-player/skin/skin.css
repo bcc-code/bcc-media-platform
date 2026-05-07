@@ -66,6 +66,10 @@ media-tooltip-group {
    ========================================================================== */
 
 .media-default-skin {
+    /* Public theming knobs (BCC-prefixed). Consumers set these on the player
+       container; v10's internal --media-* vars are not part of our API. */
+    --media-color-primary: var(--bccm-color-primary, oklch(1 0 0));
+
     container: media-root / inline-size;
     position: relative;
     isolation: isolate;
