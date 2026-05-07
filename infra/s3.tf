@@ -16,7 +16,7 @@ resource "aws_s3_bucket_acl" "vod-asset-ingest-bucket-acl" {
 
 resource "aws_s3_bucket_lifecycle_configuration" "expire-ingest" {
   bucket                                 = aws_s3_bucket.vod-asset-ingest-bucket.id
-  transition_default_minimum_object_size = "all_storage_classes_128K"
+  transition_default_minimum_object_size = "varies_by_storage_class"
 
   rule {
     id     = "Expire objects after 14 days"
