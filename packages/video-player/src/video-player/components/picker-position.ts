@@ -1,6 +1,8 @@
 // Anchors a popover menu's bottom-right to the trigger button's top-right with
 // a small gap, then clamps it to the viewport so it never overflows on small
-// or narrow screens. Repositions on viewport resize while the menu is open.
+// or narrow screens. Repositions on viewport resize and on scroll (any
+// ancestor) while the menu is open, since position:fixed keeps the menu still
+// while the trigger moves with the page.
 
 const MARGIN = 8
 
@@ -54,9 +56,15 @@ export function wirePickerPositioning(
 
             reposition(button, menu)
             openCtrl = new AbortController()
-            const onResize = () => reposition(button, menu)
-            window.addEventListener("resize", onResize, {
+            const onChange = () => reposition(button, menu)
+            window.addEventListener("resize", onChange, {
                 signal: openCtrl.signal,
+            })
+            // Capture phase + passive so scroll on any ancestor reaches us.
+            window.addEventListener("scroll", onChange, {
+                signal: openCtrl.signal,
+                capture: true,
+                passive: true,
             })
         },
         { signal }
