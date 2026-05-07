@@ -54,6 +54,12 @@ export function buildSkin(
     const ID_PIP = `pip-tooltip-${sid}`
     const ID_FS = `fullscreen-tooltip-${sid}`
     const ID_CAST = `cast-tooltip-${sid}`
+    const ID_RATE = `rate-tooltip-${sid}`
+    const ID_AUDIO = `audio-tooltip-${sid}`
+    const ID_SUBS = `subtitles-tooltip-${sid}`
+    const ID_QUALITY = `quality-tooltip-${sid}`
+    const ID_LIVE = `live-tooltip-${sid}`
+    const ID_DISMISS = `dismiss-tooltip-${sid}`
 
     // Live skin: drop seek buttons, current/duration time displays, and the
     // thumbnail preview (no thumbs available for live). Show a LIVE badge in
@@ -83,7 +89,8 @@ export function buildSkin(
             <media-tooltip id="${ID_SEEK_FWD}" side="top" class="media-surface media-tooltip">Seek forward ${SEEK_TIME} seconds</media-tooltip>`
 
     const timeControls = live
-        ? `<bccm-live-button></bccm-live-button>`
+        ? `<bccm-live-button commandfor="${ID_LIVE}"></bccm-live-button>
+            <media-tooltip id="${ID_LIVE}" side="top" class="media-surface media-tooltip">Go to live</media-tooltip>`
         : `<media-time type="current" class="media-time"></media-time>
             <media-time-slider class="media-slider">
               <media-slider-track class="media-slider__track">
@@ -129,7 +136,12 @@ export function buildSkin(
           </div>
 
           <div class="media-button-group" data-bccm-right-group>
-            ${live ? "" : `<bccm-playback-rate-picker></bccm-playback-rate-picker>`}
+            ${
+                live
+                    ? ""
+                    : `<bccm-playback-rate-picker commandfor="${ID_RATE}"></bccm-playback-rate-picker>
+            <media-tooltip id="${ID_RATE}" side="top" class="media-surface media-tooltip">Playback speed</media-tooltip>`
+            }
 
             <media-mute-button commandfor="${ID_VOLUME}" class="media-button media-button--subtle media-button--icon media-button--mute">
               ${ICON_VOLUME_OFF}${ICON_VOLUME_LOW}${ICON_VOLUME_HIGH}
@@ -144,9 +156,14 @@ export function buildSkin(
               </media-volume-slider>
             </media-popover>
 
-            <bccm-audio-picker></bccm-audio-picker>
-            <bccm-subtitle-picker></bccm-subtitle-picker>
-            <bccm-quality-picker></bccm-quality-picker>
+            <bccm-audio-picker commandfor="${ID_AUDIO}"></bccm-audio-picker>
+            <media-tooltip id="${ID_AUDIO}" side="top" class="media-surface media-tooltip">Audio</media-tooltip>
+
+            <bccm-subtitle-picker commandfor="${ID_SUBS}"></bccm-subtitle-picker>
+            <media-tooltip id="${ID_SUBS}" side="top" class="media-surface media-tooltip">Subtitles</media-tooltip>
+
+            <bccm-quality-picker commandfor="${ID_QUALITY}"></bccm-quality-picker>
+            <media-tooltip id="${ID_QUALITY}" side="top" class="media-surface media-tooltip">Quality</media-tooltip>
 
             <media-cast-button commandfor="${ID_CAST}" class="media-button media-button--subtle media-button--icon media-button--cast">
               ${ICON_CAST_ENTER}${ICON_CAST_EXIT}
@@ -163,7 +180,12 @@ export function buildSkin(
             </media-fullscreen-button>
             <media-tooltip id="${ID_FS}" side="top" class="media-surface media-tooltip"></media-tooltip>
 
-            ${isSmartTV() ? `<bccm-dismiss-controls-button></bccm-dismiss-controls-button>` : ""}
+            ${
+                isSmartTV()
+                    ? `<bccm-dismiss-controls-button commandfor="${ID_DISMISS}"></bccm-dismiss-controls-button>
+            <media-tooltip id="${ID_DISMISS}" side="top" class="media-surface media-tooltip">Hide controls</media-tooltip>`
+                    : ""
+            }
           </div>
         </media-tooltip-group>
       </media-controls>

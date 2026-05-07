@@ -1,6 +1,6 @@
 {
-    "name": "bccm-video-player-v10",
-    "version": "0.0.0-dev",
+    "name": "bccm-video-player",
+    "version": "3.0.0",
     "type": "commonjs",
     "types": "build/types/index.d.ts",
     "files": [
