@@ -6,6 +6,7 @@ import {
 } from "@videojs/html"
 import { selectPlaybackRate } from "@videojs/core/dom"
 import { wirePickerKeyboard } from "./picker-keyboard"
+import { wirePickerPositioning } from "./picker-position"
 
 const TAG = "bccm-playback-rate-picker"
 let popoverIdSeq = 0
@@ -46,14 +47,7 @@ export class PlaybackRatePickerElement extends MediaElement {
         this.#button.setAttribute("aria-label", "Playback speed")
         this.#button.textContent = "1\u00d7"
 
-        this.#menu.addEventListener(
-            "toggle",
-            (e) => {
-                if ((e as ToggleEvent).newState === "open") this.#position()
-            },
-            { signal }
-        )
-
+        wirePickerPositioning(this.#button, this.#menu, signal)
         wirePickerKeyboard(this.#button, this.#menu, signal)
 
         this.replaceChildren(this.#button, this.#menu)
@@ -95,14 +89,6 @@ export class PlaybackRatePickerElement extends MediaElement {
         }
     }
 
-    #position(): void {
-        const rect = this.#button.getBoundingClientRect()
-        this.#menu.style.position = "fixed"
-        this.#menu.style.top = "auto"
-        this.#menu.style.left = "auto"
-        this.#menu.style.bottom = `${window.innerHeight - rect.top + 8}px`
-        this.#menu.style.right = `${window.innerWidth - rect.right}px`
-    }
 }
 
 function formatRate(rate: number): string {

@@ -1201,6 +1201,9 @@ bccm-subtitle-picker[data-empty] {
     /* The outer + inner border rings are baked into a single box-shadow
        (instead of using .media-surface's ::after pseudo-element), so they
        paint relative to the popover's box and don't scroll with content. */
+    /* Hidden until JS has positioned us — avoids a one-frame flash at the
+       UA-default popover location before the toggle handler runs. */
+    visibility: hidden;
     margin: 0;
     border: 0;
     padding: 0.25rem;

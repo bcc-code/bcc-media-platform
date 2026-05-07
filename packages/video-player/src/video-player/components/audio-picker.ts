@@ -1,5 +1,6 @@
 import { MediaElement } from "@videojs/html"
 import { wirePickerKeyboard } from "./picker-keyboard"
+import { wirePickerPositioning } from "./picker-position"
 
 const TAG = "bccm-audio-picker"
 let popoverIdSeq = 0
@@ -49,14 +50,7 @@ export class AudioPickerElement extends MediaElement {
         this.#button.setAttribute("aria-label", "Audio language")
         this.#button.innerHTML = ICON_LANGUAGE
 
-        this.#menu.addEventListener(
-            "toggle",
-            (e) => {
-                if ((e as ToggleEvent).newState === "open") this.#position()
-            },
-            { signal }
-        )
-
+        wirePickerPositioning(this.#button, this.#menu, signal)
         wirePickerKeyboard(this.#button, this.#menu, signal)
 
         this.replaceChildren(this.#button, this.#menu)
@@ -135,14 +129,6 @@ export class AudioPickerElement extends MediaElement {
         return (player?.querySelector("hls-video") as EngineHost | null) ?? null
     }
 
-    #position(): void {
-        const rect = this.#button.getBoundingClientRect()
-        this.#menu.style.position = "fixed"
-        this.#menu.style.top = "auto"
-        this.#menu.style.left = "auto"
-        this.#menu.style.bottom = `${window.innerHeight - rect.top + 8}px`
-        this.#menu.style.right = `${window.innerWidth - rect.right}px`
-    }
 }
 
 if (!customElements.get(TAG)) customElements.define(TAG, AudioPickerElement)

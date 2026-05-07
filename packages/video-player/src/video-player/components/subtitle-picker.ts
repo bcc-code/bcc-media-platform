@@ -6,6 +6,7 @@ import {
 } from "@videojs/html"
 import { selectTextTrack } from "@videojs/core/dom"
 import { wirePickerKeyboard } from "./picker-keyboard"
+import { wirePickerPositioning } from "./picker-position"
 
 const TAG = "bccm-subtitle-picker"
 let popoverIdSeq = 0
@@ -42,14 +43,7 @@ export class SubtitlePickerElement extends MediaElement {
 
         // Native popover handles open/close + outside-click dismiss. Position
         // each time it opens so the menu sits above the trigger button.
-        this.#menu.addEventListener(
-            "toggle",
-            (e) => {
-                if ((e as ToggleEvent).newState === "open") this.#position()
-            },
-            { signal }
-        )
-
+        wirePickerPositioning(this.#button, this.#menu, signal)
         wirePickerKeyboard(this.#button, this.#menu, signal)
 
         this.replaceChildren(this.#button, this.#menu)
@@ -141,16 +135,6 @@ export class SubtitlePickerElement extends MediaElement {
         )
     }
 
-    #position(): void {
-        const rect = this.#button.getBoundingClientRect()
-        // Anchor the menu's bottom-right to the button's top-right with a
-        // small gap. Native popovers render in viewport coords, so position:fixed.
-        this.#menu.style.position = "fixed"
-        this.#menu.style.top = "auto"
-        this.#menu.style.left = "auto"
-        this.#menu.style.bottom = `${window.innerHeight - rect.top + 8}px`
-        this.#menu.style.right = `${window.innerWidth - rect.right}px`
-    }
 }
 
 if (!customElements.get(TAG)) customElements.define(TAG, SubtitlePickerElement)
