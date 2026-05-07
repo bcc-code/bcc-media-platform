@@ -2,56 +2,14 @@ import NpawPlugin from "npaw-plugin-nwf"
 import * as NpawAdapters from "npaw-plugin-adapters"
 import Hls from "hls.js"
 import type { Player } from "./index"
+import { toConfig, type NPAWOptions } from "./utils/npaw"
+
+export type { NPAWOptions } from "./utils/npaw"
 
 // NPAW's HlsjsAdapter uses bare `Hls.Events.X` references and expects `Hls`
 // to be a runtime global (legacy <script>-tag assumption). Ensure it's
 // reachable before any adapter registration.
 ;(globalThis as { Hls?: unknown }).Hls = Hls
-
-export interface NPAWOptions {
-    enabled?: boolean
-    accountCode?: string
-    appName: string
-    tracking: {
-        isLive?: boolean
-        userId?: string
-        sessionId?: string
-        ageGroup?: string
-        metadata: {
-            contentId?: string
-            title?: string
-            episodeTitle?: string
-            seasonId?: string
-            seasonTitle?: string
-            showTitle?: string
-            showId?: string
-            overrides?: { [key: string]: string }
-        }
-    }
-}
-
-function toConfig(options: NPAWOptions): Record<string, unknown> {
-    const md = options.tracking.metadata
-    return {
-        "content.isLive": options.tracking.isLive === true,
-        "content.id": md.contentId, // prefixed by E or P. Episode 385 = E385. Program 52 = P52
-        "content.title": md.title,
-        "content.program": md.showTitle ?? md.title,
-        "content.tvShow": md.showId,
-        "content.season": md.seasonId
-            ? `${md.seasonId} - ${md.seasonTitle}`
-            : undefined,
-        "content.episodeTitle": md.episodeTitle,
-        "user.obfuscateIp": true,
-        "user.name": options.tracking.userId,
-        "app.name": options.appName,
-        "app.releaseVersion": "",
-        "parse.manifest": true,
-        "content.customDimension.1": options.tracking.sessionId,
-        "content.customDimension.2": options.tracking.ageGroup,
-        ...md.overrides,
-    }
-}
 
 // NPAW ships an HlsjsAdapter that consumes the hls.js engine instance
 // directly — no custom adapter needed. v10's <hls-video> exposes `.engine`

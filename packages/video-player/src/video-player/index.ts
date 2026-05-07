@@ -12,6 +12,12 @@ import "./skin/skin.css"
 
 import { buildSkin } from "./skin/skin"
 import { enableNPAW, type NPAWOptions, setOptions } from "./npaw"
+import { getDefaults, mergeOptions } from "./utils/options"
+import {
+    BW_WRITE_THROTTLE_MS,
+    readSavedBandwidth,
+    writeSavedBandwidth,
+} from "./utils/bandwidth"
 
 export interface Options {
     src: {
@@ -253,29 +259,6 @@ function getSubtitleLanguages(media: HTMLVideoElement): TrackOption[] {
 // default. Replicates v8's `useBandwidthFromLocalStorage`. Reads happen in
 // createPlayer() (before `src` is set so hls.js seeds the EWMA on init);
 // writes are throttled to once every 10s so we don't hammer localStorage.
-const BW_STORAGE_KEY = "bccm-video-player.bandwidth-estimate"
-const BW_WRITE_THROTTLE_MS = 10_000
-
-function readSavedBandwidth(): number | null {
-    try {
-        const raw = localStorage.getItem(BW_STORAGE_KEY)
-        if (!raw) return null
-        const value = Number(raw)
-        return Number.isFinite(value) && value > 0 ? value : null
-    } catch {
-        // localStorage unavailable (private mode, blocked, SSR).
-        return null
-    }
-}
-
-function writeSavedBandwidth(value: number): void {
-    if (!Number.isFinite(value) || value <= 0) return
-    try {
-        localStorage.setItem(BW_STORAGE_KEY, String(Math.round(value)))
-    } catch {
-        // ignore — best-effort persistence
-    }
-}
 
 type BandwidthEngine = {
     bandwidthEstimate: number
@@ -397,27 +380,3 @@ function setSubtitleTrackToLanguage(
     }
 }
 
-function getDefaults(): Options {
-    return {
-        src: { type: "application/x-mpegURL" },
-        autoplay: false,
-        languagePreferenceDefaults: {},
-        subtitles: [],
-        videojs: {
-            crossOrigin: "anonymous",
-        },
-    }
-}
-
-function mergeOptions(base: Options, override: Partial<Options>): Options {
-    return {
-        ...base,
-        ...override,
-        src: { ...base.src, ...(override.src ?? {}) },
-        languagePreferenceDefaults: {
-            ...base.languagePreferenceDefaults,
-            ...(override.languagePreferenceDefaults ?? {}),
-        },
-        videojs: { ...base.videojs, ...(override.videojs ?? {}) },
-    }
-}
