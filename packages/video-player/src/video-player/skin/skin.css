@@ -1145,6 +1145,9 @@ media-tooltip-group {
 .media-default-skin .bccm-live-badge[data-at-live] .bccm-live-badge__dot {
     background-color: oklch(0.6 0.18 25);
 }
+.media-default-skin .bccm-live-badge__text {
+    margin-top: -1px;
+}
 
 /* ==========================================================================
    BCCM picker styling (subtitle/audio language pickers)

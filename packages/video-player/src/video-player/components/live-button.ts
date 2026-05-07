@@ -3,6 +3,7 @@ import { MediaElement } from "@videojs/html"
 const TAG = "bccm-live-button"
 
 const ICON_DOT = `<span class="bccm-live-badge__dot" aria-hidden="true"></span>`
+const BADGE_TEXT = `<span class="bccm-live-badge__text">LIVE</span>`
 
 type EngineHost = HTMLElement & {
     engine?: { liveSyncPosition?: number | null } | null
@@ -27,7 +28,7 @@ export class LiveButtonElement extends MediaElement {
         this.#button.type = "button"
         this.#button.className = "bccm-live-badge"
         this.#button.setAttribute("aria-label", "Go to live")
-        this.#button.innerHTML = `${ICON_DOT}LIVE`
+        this.#button.innerHTML = `${ICON_DOT}${BADGE_TEXT}`
         this.#button.addEventListener("click", () => this.#seekToLive(), {
             signal,
         })
