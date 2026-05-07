@@ -30,13 +30,22 @@ describe("toConfig", () => {
 
     it("coerces isLive (only `true` survives — undefined / false / truthy non-bool become false)", () => {
         expect(
-            toConfig({ ...minimal, tracking: { ...minimal.tracking, isLive: true } })["content.isLive"]
+            toConfig({
+                ...minimal,
+                tracking: { ...minimal.tracking, isLive: true },
+            })["content.isLive"]
         ).toBe(true)
         expect(
-            toConfig({ ...minimal, tracking: { ...minimal.tracking, isLive: false } })["content.isLive"]
+            toConfig({
+                ...minimal,
+                tracking: { ...minimal.tracking, isLive: false },
+            })["content.isLive"]
         ).toBe(false)
         expect(
-            toConfig({ ...minimal, tracking: { ...minimal.tracking, isLive: undefined } })["content.isLive"]
+            toConfig({
+                ...minimal,
+                tracking: { ...minimal.tracking, isLive: undefined },
+            })["content.isLive"]
         ).toBe(false)
         // Non-strict-true falsy / truthy non-bool values coerce to false.
         // The `=== true` guard is intentional — protects against accidental
@@ -44,7 +53,10 @@ describe("toConfig", () => {
         expect(
             toConfig({
                 ...minimal,
-                tracking: { ...minimal.tracking, isLive: 1 as unknown as boolean },
+                tracking: {
+                    ...minimal.tracking,
+                    isLive: 1 as unknown as boolean,
+                },
             })["content.isLive"]
         ).toBe(false)
     })

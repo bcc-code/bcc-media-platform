@@ -379,4 +379,3 @@ function setSubtitleTrackToLanguage(
         t.mode = target && target.id === t.id ? "showing" : "disabled"
     }
 }
-
