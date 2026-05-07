@@ -13,8 +13,6 @@ function reposition(button: HTMLElement, menu: HTMLElement): void {
     menu.style.left = "auto"
     menu.style.right = "auto"
     menu.style.bottom = "auto"
-    menu.style.maxWidth = `calc(100vw - ${MARGIN * 2}px)`
-    menu.style.maxHeight = `calc(100vh - ${MARGIN * 2}px)`
 
     const m = menu.getBoundingClientRect()
 

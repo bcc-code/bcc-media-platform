@@ -1220,7 +1220,6 @@ bccm-subtitle-picker[data-empty] {
     border: 0;
     padding: 0.25rem;
     min-width: 11rem;
-    max-height: 16rem;
     overflow-y: auto;
     color: var(--media-color-primary, oklch(1 0 0));
     background-color: var(--media-surface-background-color, oklch(0 0 0 / 0.7));
@@ -1241,6 +1240,11 @@ bccm-subtitle-picker[data-empty] {
 .bccm-picker-menu:popover-open {
     display: flex;
     flex-direction: column;
+    /* Override UA [popover] { height: fit-content } so max-height clamps the
+       flex container (otherwise tall menus overflow the viewport). */
+    height: auto;
+    max-width: calc(100vw - 1rem);
+    max-height: min(16rem, calc(100vh - 1rem));
 }
 .bccm-picker-item {
     background: transparent;
