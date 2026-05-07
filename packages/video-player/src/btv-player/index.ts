@@ -1,7 +1,6 @@
 import { getEpisodeStreams } from "./api"
 import { ApiClient, ApiClientOptions } from "./api/client"
 import { createPlayer, Options } from "../video-player"
-import videojs from "video.js"
 export * from "./api"
 
 export class PlayerFactory {
@@ -47,20 +46,12 @@ export class PlayerFactory {
                 stream = streams.find((s) => s.type === "hls_cmaf")
             }
             if (stream) {
-                return await createPlayer(
-                    elementId,
-                    videojs.mergeOptions(
-                        {
-                            src: {
-                                src: stream.url,
-                            },
-                            videojs: {
-                                poster: episode.image,
-                            },
-                        } as Partial<Options>,
-                        options.overrides
-                    )
-                )
+                const merged: Partial<Options> = {
+                    src: { src: stream.url },
+                    videojs: { poster: episode.image },
+                    ...options.overrides,
+                }
+                return await createPlayer(elementId, merged)
             }
         }
 

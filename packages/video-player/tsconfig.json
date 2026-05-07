@@ -8,7 +8,8 @@
         "moduleResolution": "Bundler",
         "strict": true,
         "jsx": "preserve",
-        "outDir": "build",
+        "rootDir": "src",
+        "outDir": "build/types",
         "sourceMap": true,
         "resolveJsonModule": true,
         "isolatedModules": true,
@@ -16,7 +17,12 @@
         "lib": ["ESNext", "DOM"],
         "skipLibCheck": true,
         "declaration": true,
+        "stripInternal": true
     },
     "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
-    "references": [{ "path": "./tsconfig.node.json" }],
+    "references": [
+        {
+            "path": "./tsconfig.node.json"
+        }
+    ]
 }

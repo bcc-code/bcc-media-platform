@@ -1,6 +1,6 @@
 {
     "name": "bccm-video-player",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "type": "commonjs",
     "types": "build/types/index.d.ts",
     "files": [
@@ -16,33 +16,35 @@
     },
     "scripts": {
         "dev": "vite",
-        "types": "tsc --emitDeclarationOnly && mv build/src build/types && rm -r build/external-projects",
+        "types": "tsc --emitDeclarationOnly",
         "build": "tsc --noEmit && vite build && pnpm types",
         "preview": "vite preview",
-        "prettier": "prettier --write ."
+        "prettier": "prettier --write .",
+        "test": "vitest run",
+        "test:watch": "vitest"
     },
     "dependencies": {
-        "@silvermine/videojs-chromecast": "^1.5.0",
+        "@videojs/core": "10.0.0-beta.23",
+        "@videojs/element": "10.0.0-beta.23",
+        "@videojs/html": "10.0.0-beta.23",
         "graphql": "^16.13.2",
         "graphql-request": "^7.4.0",
+        "hls.js": "^1.6.16",
         "npaw-plugin-adapters": "^7.3.29",
-        "npaw-plugin-nwf": "^7.3.29",
-        "ua-parser-js": "^2.0.9",
-        "video.js": "^8.23.7",
-        "videojs-contrib-quality-levels": "^4.1.0",
-        "videojs-event-tracking": "^1.0.3",
-        "videojs-mux": "^4.21.28"
+        "npaw-plugin-nwf": "^7.3.29"
     },
     "devDependencies": {
         "@types/node": "^25.6.0",
-        "@types/ua-parser-js": "^0.7.39",
         "@vitejs/plugin-vue": "^6.0.6",
+        "@vue/tsconfig": "^0.9.1",
         "postcss": "^8.5.14",
         "prettier": "^3.8.3",
         "sass": "^1.99.0",
         "typescript": "^6.0.3",
         "vite": "^8.0.10",
-        "vue": "^3.5.33"
+        "vitest": "^4.1.5",
+        "vue": "^3.5.33",
+        "vue-tsc": "^3.2.8"
     },
     "packageManager": "pnpm@9.14.4"
 }
