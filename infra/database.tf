@@ -1,6 +1,6 @@
 resource "google_sql_database_instance" "main" {
   name             = "main-instance"
-  database_version = "POSTGRES_16"
+  database_version = "POSTGRES_18"
   project          = google_project.brunstadtv.project_id
 
   settings {
@@ -39,26 +39,26 @@ resource "google_sql_database_instance" "main" {
 }
 
 resource "google_sql_database" "directus" {
-  name     = "directus"
+  name            = "directus"
   deletion_policy = "ABANDON"
-  project  = google_project.brunstadtv.project_id
-  instance = google_sql_database_instance.main.name
+  project         = google_project.brunstadtv.project_id
+  instance        = google_sql_database_instance.main.name
 }
 
 resource "google_sql_database" "unleash" {
-  name     = "unleash"
+  name            = "unleash"
   deletion_policy = "ABANDON"
-  project  = google_project.brunstadtv.project_id
-  instance = google_sql_database_instance.main.name
+  project         = google_project.brunstadtv.project_id
+  instance        = google_sql_database_instance.main.name
 }
 
 resource "google_sql_user" "directus" {
-  name     = "directus"
+  name            = "directus"
   deletion_policy = "ABANDON"
-  project  = google_project.brunstadtv.project_id
-  instance = google_sql_database_instance.main.name
-  password = random_password.postgres_directus_password.result
-  type     = "BUILT_IN"
+  project         = google_project.brunstadtv.project_id
+  instance        = google_sql_database_instance.main.name
+  password        = random_password.postgres_directus_password.result
+  type            = "BUILT_IN"
 }
 
 resource "google_sql_user" "api" {

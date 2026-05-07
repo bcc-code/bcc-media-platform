@@ -18,7 +18,8 @@ data "google_iam_policy" "stream-proxy-actas" {
     role = "roles/iam.serviceAccountUser"
 
     members = [
-      "serviceAccount:${google_project_service_identity.cloudbuils_sa.email}"
+      "serviceAccount:${google_project_service_identity.cloudbuils_sa.email}",
+      "serviceAccount:${google_project.brunstadtv.number}@cloudbuild.gserviceaccount.com",
     ]
   }
 }
