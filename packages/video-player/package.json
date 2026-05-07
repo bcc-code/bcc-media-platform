@@ -19,7 +19,9 @@
         "types": "tsc --emitDeclarationOnly",
         "build": "tsc --noEmit && vite build && pnpm types",
         "preview": "vite preview",
-        "prettier": "prettier --write ."
+        "prettier": "prettier --write .",
+        "test": "vitest run",
+        "test:watch": "vitest"
     },
     "dependencies": {
         "@videojs/core": "10.0.0-beta.23",
@@ -40,6 +42,7 @@
         "sass": "^1.99.0",
         "typescript": "^6.0.3",
         "vite": "^8.0.10",
+        "vitest": "^4.1.5",
         "vue": "^3.5.33",
         "vue-tsc": "^3.2.8"
     },
