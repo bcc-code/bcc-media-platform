@@ -304,8 +304,15 @@ media-tooltip-group {
 }
 
 .media-default-skin .media-button--primary {
-    background: oklch(1 0 0);
-    color: oklch(0 0 0);
+    /* `--bccm-color-accent` is the BCC theming hook for primary-action
+       buttons (OK on the error dialog, etc.). Foreground auto-flips
+       black/white based on the accent's OKLCH lightness so brand colors
+       stay readable without a second variable. */
+    background: var(--bccm-color-accent, oklch(1 0 0));
+    color: oklch(
+        from var(--bccm-color-accent, oklch(1 0 0)) clamp(0, (0.6 - l) * 1000, 1)
+            0 0
+    );
     font-weight: 500;
     text-shadow: none;
 }
