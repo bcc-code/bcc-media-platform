@@ -1021,6 +1021,18 @@ media-tooltip-group {
         scale: 1;
     }
 }
+/* Pin the control bar visible while a picker popover is open, otherwise
+   the bar fades on mouseleave and leaves the menu floating untethered. */
+.media-default-skin--video:has(.bccm-picker-menu:popover-open)
+    .media-controls {
+    opacity: 1;
+    pointer-events: auto;
+    scale: 1;
+    filter: none;
+}
+.media-default-skin--video:has(.bccm-picker-menu:popover-open) {
+    cursor: auto;
+}
 .media-default-skin--video .media-controls .media-time-controls {
     order: -1;
     flex: 0 0 100%;
