@@ -7,7 +7,6 @@ import {
     useGetMeQuery,
     useUpdateEpisodeProgressMutation,
     StreamFragment,
-    StreamType,
 } from '@/graph/generated'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { setProgress } from '@/utils/episodes'
@@ -15,15 +14,12 @@ import { current as currentLanguage } from '@/services/language'
 import { getSessionId } from 'rudder-sdk-js'
 import { analytics } from '@/services/analytics'
 import { useRoute } from 'vue-router'
-import { createVjsMenuButton, type MenuItem } from '@/components/videojs/Menu'
-import { languages } from '@/services/language'
 import { currentApp } from '@/services/app'
 import { languageTo3letter } from '@/utils/languages'
 import { generateUUID } from '@/utils/uuid'
 import { BMM } from '@/services/bmm'
 import { getOperatingSystem } from '@/utils/userAgent'
 import { ProcessWatchedCommandEvent } from '@bcc-code/bmm-sdk-fetch'
-import { useEventListener } from '@vueuse/core'
 
 const { isAuthenticated } = useAuth0()
 
@@ -90,14 +86,10 @@ const load = async () => {
         }
 
         const options: Partial<Options> = {
+            autoplay: !!props.autoPlay,
             languagePreferenceDefaults: {
                 audio: languageTo3letter(currentLanguage.value.code),
                 subtitles: languageTo3letter(currentLanguage.value.code),
-            },
-            videojs: {
-                autoplay: props.autoPlay,
-                playbackRates: [0.75, 1, 1.5, 1.75, 2],
-                aspectRatio: '16:9',
             },
             onProgress(currentTime, duration, player) {
                 onVideoProgress(currentTime, duration, player)
@@ -142,7 +134,6 @@ const load = async () => {
         if (player.value == null) {
             return
         }
-        setupVideoLanguageMenu(player.value as Player)
 
         // create a event when player is created
         const vodPlayer = new CustomEvent('vodPlayer', {
@@ -153,20 +144,31 @@ const load = async () => {
         })
         window.dispatchEvent(vodPlayer)
 
+        const mediaEl = player.value.mediaEl
+
         lastProgress = props.episode.progress
         const queryTime = parseInt(route.query.t as string, 10)
         const seekTo = queryTime ?? lastProgress
         if (seekTo && !isNaN(seekTo)) {
-            player.value.currentTime(seekTo)
+            const applySeek = () => {
+                mediaEl.currentTime = seekTo
+            }
+            if (mediaEl.readyState >= 1) {
+                applySeek()
+            } else {
+                mediaEl.addEventListener('loadedmetadata', applySeek, {
+                    once: true,
+                })
+            }
         }
 
         if (isAuthenticated.value) {
-            player.value.on('timeupdate', checkProgress)
+            mediaEl.addEventListener('timeupdate', () => checkProgress())
         }
-        player.value.on('ended', () => {
+        mediaEl.addEventListener('ended', () => {
             emit('next')
         })
-        player.value.on('play', () => {
+        mediaEl.addEventListener('play', () => {
             analytics.track('video_played', {
                 videoId: props.episode.id,
                 referenceId: referenceId,
@@ -179,50 +181,12 @@ const load = async () => {
     }
 }
 
-const setupVideoLanguageMenu = (player: Player) => {
-    const videoLanguages = props.episode.streams
-        .filter((s) => s.type === StreamType.HlsCmaf)
-        .map((s) => {
-            if (s.videoLanguage === null) {
-                return {
-                    label: 'Original',
-                    value: null,
-                    selected: route.query.videoLang == null,
-                }
-            }
-            return {
-                label: languages.value.filter(
-                    (l) => l.code === s.videoLanguage
-                )[0].localizedName,
-                value: s.videoLanguage,
-                selected: route.query.videoLang === s.videoLanguage,
-            } as MenuItem
-        })
-
-    function setVideoLanguage(lang: string | undefined) {
-        let url = `?t=${player.currentTime()}`
-        if (lang) {
-            url += `&videoLang=${lang}`
-        }
-        window.location.href = url
-    }
-
-    createVjsMenuButton(player, {
-        items: videoLanguages,
-        icon: 'vjs-icon-subtitles',
-        title: 'Video Language',
-        id: 'videolanguage',
-        placement: 10,
-        onClick: (i) => setVideoLanguage(i.value),
-    })
-}
-
 const checkProgress = async (force?: boolean) => {
     if (!player.value) {
         return
     }
     const episodeId = props.episode.id
-    const progress = Math.floor(player.value.currentTime() ?? 0)
+    const progress = Math.floor(player.value.mediaEl.currentTime ?? 0)
     if (
         force === true ||
         (progress &&
@@ -262,7 +226,7 @@ function onVideoProgress(
             language: currentLanguage.value.code,
             lastPosition: Math.floor(currentTime * 1000),
             timestampStart: new Date(),
-            adjustedPlaybackSpeed: player.playbackRate(),
+            adjustedPlaybackSpeed: player.mediaEl.playbackRate,
             playbackOrigin: 'bccm-web',
         }
 
@@ -282,49 +246,6 @@ onUnmounted(async () => {
     player.value?.dispose()
 })
 
-const doTogglePlay = () => {
-    if (!player.value) return
-    if (player.value.paused()) {
-        player.value.play()
-    } else {
-        player.value.pause()
-    }
-}
-const doPlayerSkip = (seconds: number) => {
-    const currentTime = player.value?.currentTime()
-    if (!player.value || !currentTime) return
-    player.value.currentTime(currentTime + seconds)
-}
-const onKeyDown = (event: KeyboardEvent) => {
-    if (!player.value) return
-    if (event.type === 'keydown') {
-        switch (event.key) {
-            case ' ':
-            case 'k':
-                event.preventDefault()
-                doTogglePlay()
-                break
-            case 'ArrowLeft':
-                event.preventDefault()
-                doPlayerSkip(-5)
-                break
-            case 'ArrowRight':
-                event.preventDefault()
-                doPlayerSkip(5)
-                break
-            case 'j':
-                event.preventDefault()
-                doPlayerSkip(-10)
-                break
-            case 'l':
-                event.preventDefault()
-                doPlayerSkip(10)
-                break
-        }
-    }
-}
-useEventListener('keydown', onKeyDown)
-
 defineExpose({
     player,
 })
@@ -333,7 +254,7 @@ defineExpose({
 <template>
     <div
         id="video-player"
-        class="transition bg-slate-800"
+        class="transition bg-slate-800 h-full w-full"
         :class="[loaded ? 'opacity-100' : 'opacity-0']"
     ></div>
 </template>
