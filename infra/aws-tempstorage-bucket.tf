@@ -9,7 +9,8 @@ resource "aws_s3_bucket" "btv-tempstorage" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "btv-tempstorage-lifecycle" {
-  bucket = aws_s3_bucket.btv-tempstorage.bucket
+  bucket                                 = aws_s3_bucket.btv-tempstorage.bucket
+  transition_default_minimum_object_size = "all_storage_classes_128K"
 
   rule {
     id     = "btv-tempstorage-${var.env}-expire-dbexport"
