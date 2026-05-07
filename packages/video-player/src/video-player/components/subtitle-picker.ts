@@ -5,6 +5,7 @@ import {
     type PropertyValues,
 } from "@videojs/html"
 import { selectTextTrack } from "@videojs/core/dom"
+import { wirePickerKeyboard } from "./picker-keyboard"
 
 const TAG = "bccm-subtitle-picker"
 let popoverIdSeq = 0
@@ -48,6 +49,8 @@ export class SubtitlePickerElement extends MediaElement {
             },
             { signal }
         )
+
+        wirePickerKeyboard(this.#button, this.#menu, signal)
 
         this.replaceChildren(this.#button, this.#menu)
     }
@@ -105,6 +108,7 @@ export class SubtitlePickerElement extends MediaElement {
     #item(label: string, onActivate: () => void): HTMLButtonElement {
         const b = document.createElement("button")
         b.type = "button"
+        b.setAttribute("tabindex", "-1")
         b.className = "bccm-picker-item"
         b.setAttribute("role", "menuitemradio")
         b.textContent = label

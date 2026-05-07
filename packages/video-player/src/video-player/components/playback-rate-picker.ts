@@ -5,6 +5,7 @@ import {
     type PropertyValues,
 } from "@videojs/html"
 import { selectPlaybackRate } from "@videojs/core/dom"
+import { wirePickerKeyboard } from "./picker-keyboard"
 
 const TAG = "bccm-playback-rate-picker"
 let popoverIdSeq = 0
@@ -53,6 +54,8 @@ export class PlaybackRatePickerElement extends MediaElement {
             { signal }
         )
 
+        wirePickerKeyboard(this.#button, this.#menu, signal)
+
         this.replaceChildren(this.#button, this.#menu)
     }
 
@@ -77,6 +80,7 @@ export class PlaybackRatePickerElement extends MediaElement {
         for (const rate of RATES) {
             const item = document.createElement("button")
             item.type = "button"
+            item.setAttribute("tabindex", "-1")
             item.className = "bccm-picker-item"
             item.setAttribute("role", "menuitemradio")
             item.textContent = `${formatRate(rate)}\u00d7`

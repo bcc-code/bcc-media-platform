@@ -1,4 +1,5 @@
 import { MediaElement } from "@videojs/html"
+import { wirePickerKeyboard } from "./picker-keyboard"
 
 const TAG = "bccm-quality-picker"
 let popoverIdSeq = 0
@@ -60,6 +61,8 @@ export class QualityPickerElement extends MediaElement {
             },
             { signal }
         )
+
+        wirePickerKeyboard(this.#button, this.#menu, signal)
 
         this.replaceChildren(this.#button, this.#menu)
 
@@ -157,6 +160,7 @@ export class QualityPickerElement extends MediaElement {
     #item(label: string, onActivate: () => void): HTMLButtonElement {
         const b = document.createElement("button")
         b.type = "button"
+        b.setAttribute("tabindex", "-1")
         b.className = "bccm-picker-item"
         b.setAttribute("role", "menuitemradio")
         b.textContent = label

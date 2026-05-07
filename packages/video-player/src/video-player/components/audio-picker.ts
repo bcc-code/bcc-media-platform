@@ -1,4 +1,5 @@
 import { MediaElement } from "@videojs/html"
+import { wirePickerKeyboard } from "./picker-keyboard"
 
 const TAG = "bccm-audio-picker"
 let popoverIdSeq = 0
@@ -55,6 +56,8 @@ export class AudioPickerElement extends MediaElement {
             },
             { signal }
         )
+
+        wirePickerKeyboard(this.#button, this.#menu, signal)
 
         this.replaceChildren(this.#button, this.#menu)
 
@@ -113,6 +116,7 @@ export class AudioPickerElement extends MediaElement {
         for (const t of tracks) {
             const item = document.createElement("button")
             item.type = "button"
+            item.setAttribute("tabindex", "-1")
             item.className = "bccm-picker-item"
             item.setAttribute("role", "menuitemradio")
             item.textContent = t.name || t.lang || `Track ${t.id}`
