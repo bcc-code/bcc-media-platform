@@ -1179,7 +1179,8 @@ bccm-playback-rate-picker {
     display: inline-flex;
 }
 bccm-audio-picker[data-empty],
-bccm-quality-picker[data-empty] {
+bccm-quality-picker[data-empty],
+bccm-subtitle-picker[data-empty] {
     display: none;
 }
 .bccm-picker-button {
