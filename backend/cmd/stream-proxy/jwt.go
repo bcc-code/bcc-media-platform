@@ -35,6 +35,7 @@ func (v *jwtValidator) validate(token string) (base string, provider streamtoken
 		jwt.WithValidate(true),
 		jwt.WithAcceptableSkew(time.Minute),
 	}
+
 	if v.issuer != "" {
 		opts = append(opts, jwt.WithIssuer(v.issuer))
 	}

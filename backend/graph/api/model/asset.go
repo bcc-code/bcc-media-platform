@@ -58,8 +58,8 @@ const streamUrlExpiresAfter = 6 * time.Hour
 // StreamFrom converts AssetFile rows to the GQL equivalents. The signer mints
 // a stream-proxy URL with an HS256 JWT; the proxy validates the JWT and signs
 // the upstream CDN request itself.
-func StreamFrom(_ context.Context, signer streamURLSigner, stream *common.Stream) (*Stream, error) {
-	signedURL, expiresAt, err := signer.SignURL(stream.Path, streamUrlExpiresAfter, streamtoken.ProviderUnspecified)
+func StreamFrom(_ context.Context, signer streamURLSigner, stream *common.Stream, provider streamtoken.Provider) (*Stream, error) {
+	signedURL, expiresAt, err := signer.SignURL(stream.Path, streamUrlExpiresAfter, provider)
 	if err != nil {
 		return nil, err
 	}

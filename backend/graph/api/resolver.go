@@ -139,20 +139,29 @@ type streamSigner interface {
 //     streamtoken.ProviderIoriver) routes through the stream-proxy +
 //     HS256 JWT signer. Every other value — `cloudfront`, unset, or
 //     anything unrecognised — falls through to the legacy CloudFront EncodedPolicy signer.
-func (r *Resolver) pickStreamSigner(ctx context.Context) streamSigner {
+func (r *Resolver) pickStreamSigner(ctx context.Context) (streamSigner, streamtoken.Provider) {
 	ginCtx, _ := utils.GinCtx(ctx)
 	if ginCtx != nil {
 		flags := utils.GetFeatureFlags(ginCtx)
-		if v, ok := flags.GetVariant(unleash.StreamCDNProviderFlag); ok && v == unleash.StreamCDNCloudfrontDirect {
+		if v, ok := flags.GetVariant(unleash.StreamCDNProviderFlag); ok {
 			utils.ReportFlagActivation(ginCtx, unleash.StreamCDNProviderFlag, unleash.StreamCDNCloudfrontDirect)
-			return r.LegacyStreamSigner
+
+			switch v {
+			case unleash.StreamCDNProxyIORiver:
+				return r.StreamURLSigner, streamtoken.ProviderIoriver
+			case unleash.StreamCDNProxyCF:
+				return r.StreamURLSigner, streamtoken.ProviderCloudFront
+			default:
+				return r.LegacyStreamSigner, streamtoken.DefaultPrimaryProvider
+			}
 		}
 	}
+
 	if r.PrimaryStreamProvider != streamtoken.ProviderIoriver {
-		return r.LegacyStreamSigner
+		return r.LegacyStreamSigner, streamtoken.DefaultPrimaryProvider
 	}
 
-	return r.StreamURLSigner
+	return r.StreamURLSigner, streamtoken.DefaultPrimaryProvider
 }
 
 func (r *Resolver) GetCDNConfig() export.CDNConfig {

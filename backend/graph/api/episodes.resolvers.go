@@ -120,7 +120,7 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 
 	r.GetLoaders().AssetStreamsLoader.LoadMany(ctx, lo.Values(e.Assets))
 
-	streamSigner := r.pickStreamSigner(ctx)
+	streamSigner, selectedCdn := r.pickStreamSigner(ctx)
 
 	if e.AssetID.Valid {
 		r.GetLoaders().AssetStreamsLoader.Load(ctx, int(e.AssetID.Int64))
@@ -131,7 +131,7 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 		}
 
 		for _, s := range streams {
-			stream, err := model.StreamFrom(ctx, streamSigner, s)
+			stream, err := model.StreamFrom(ctx, streamSigner, s, selectedCdn)
 			if err != nil {
 				return nil, err
 			}
@@ -148,7 +148,7 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 		}
 
 		for _, s := range streams {
-			stream, err := model.StreamFrom(ctx, streamSigner, s)
+			stream, err := model.StreamFrom(ctx, streamSigner, s, selectedCdn)
 			if err != nil {
 				return nil, err
 			}

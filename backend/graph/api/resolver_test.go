@@ -40,32 +40,32 @@ func TestPickStreamSigner(t *testing.T) {
 
 	t.Run("env=streamproxy routes through stream-proxy", func(t *testing.T) {
 		r := makeResolver(streamtoken.ProviderIoriver)
-		got := r.pickStreamSigner(ctxWithFeatureFlagsHeader(t, ""))
+		got, _ := r.pickStreamSigner(ctxWithFeatureFlagsHeader(t, ""))
 		assert.Same(t, streamSigner(streamProxySigner), got)
 	})
 
 	t.Run("env=cloudfront returns CloudFront-direct signer", func(t *testing.T) {
 		r := makeResolver(streamtoken.ProviderCloudFront)
-		got := r.pickStreamSigner(ctxWithFeatureFlagsHeader(t, ""))
+		got, _ := r.pickStreamSigner(ctxWithFeatureFlagsHeader(t, ""))
 		assert.Same(t, streamSigner(cfSigner), got)
 	})
 
 	t.Run("env empty (unspecified) returns CloudFront-direct signer", func(t *testing.T) {
 		r := makeResolver(streamtoken.ProviderUnspecified)
-		got := r.pickStreamSigner(ctxWithFeatureFlagsHeader(t, ""))
+		got, _ := r.pickStreamSigner(ctxWithFeatureFlagsHeader(t, ""))
 		assert.Same(t, streamSigner(cfSigner), got)
 	})
 
 	t.Run("legacy unleash flag forces CloudFront-direct even when env=streamproxy", func(t *testing.T) {
 		r := makeResolver(streamtoken.ProviderIoriver)
 		header := unleash.StreamCDNProviderFlag + ":" + unleash.StreamCDNCloudfrontDirect
-		got := r.pickStreamSigner(ctxWithFeatureFlagsHeader(t, header))
+		got, _ := r.pickStreamSigner(ctxWithFeatureFlagsHeader(t, header))
 		assert.Same(t, streamSigner(cfSigner), got)
 	})
 
 	t.Run("nil gin context falls back to env routing", func(t *testing.T) {
 		r := makeResolver(streamtoken.ProviderIoriver)
-		got := r.pickStreamSigner(context.Background())
+		got, _ := r.pickStreamSigner(context.Background())
 		assert.Same(t, streamSigner(streamProxySigner), got)
 	})
 

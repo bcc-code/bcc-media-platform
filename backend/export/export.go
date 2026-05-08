@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 
 	"gopkg.in/guregu/null.v4"
 
@@ -284,7 +285,7 @@ func exportStreams(ctx context.Context, ls *loaders.BatchLoaders, streamSigner *
 			continue
 		}
 
-		ss, err := model.StreamFrom(ctx, streamSigner, s)
+		ss, err := model.StreamFrom(ctx, streamSigner, s, streamtoken.ProviderUnspecified)
 		if err != nil {
 			log.L.Debug().Err(err).Msg("Err while singing stream url")
 		}
