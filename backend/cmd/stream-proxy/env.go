@@ -96,7 +96,7 @@ func getEnvConfig() envConfig {
 
 		CloudFrontSigning: cloudfrontSigningConfig{
 			KeyPath: os.Getenv("CF_SIGNING_KEY_PATH"),
-			KeyID:   os.Getenv("CLOUDFRONT_DIRECT_SIGNING_KEY_ID"),
+			KeyID:   os.Getenv("CF_SIGNING_KEY_ID"),
 		},
 
 		IoriverSigning: ioriverSigningConfig{
