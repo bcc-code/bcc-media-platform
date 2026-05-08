@@ -2,8 +2,11 @@ locals {
   service_name_stream_proxy = "stream-proxy-${var.env}"
   image_name_stream_proxy   = "europe-west4-docker.pkg.dev/utils-332514/btv-platform/stream-proxy"
 
-  stream_proxy_cf_key_files = [
+  stream_proxy_cloudfront_direct_key_files = [
     for v in module.api_secret_files.data : v if v.name == local.cf_signing_key_path
+  ]
+  stream_proxy_ioriver_key_files = [
+    for v in module.api_secret_files.data : v if v.name == local.ioriver_signing_key_path
   ]
 }
 
@@ -74,6 +77,11 @@ resource "google_cloud_run_service" "stream_proxy" {
           value = local.cf_signing_key_path
         }
 
+        env {
+          name  = "IORIVER_SIGNING_KEY_PATH"
+          value = local.ioriver_signing_key_path
+        }
+
         dynamic "env" {
           for_each = module.stream_proxy_secrets.data
           iterator = v
@@ -105,7 +113,16 @@ resource "google_cloud_run_service" "stream_proxy" {
         }
 
         dynamic "volume_mounts" {
-          for_each = local.stream_proxy_cf_key_files
+          for_each = local.stream_proxy_cloudfront_direct_key_files
+          iterator = v
+          content {
+            mount_path = dirname(v.value.name)
+            name       = v.value.secret_name
+          }
+        }
+
+        dynamic "volume_mounts" {
+          for_each = local.stream_proxy_ioriver_key_files
           iterator = v
           content {
             mount_path = dirname(v.value.name)
@@ -115,7 +132,22 @@ resource "google_cloud_run_service" "stream_proxy" {
       }
 
       dynamic "volumes" {
-        for_each = local.stream_proxy_cf_key_files
+        for_each = local.stream_proxy_cloudfront_direct_key_files
+        iterator = v
+        content {
+          name = v.value.secret_name
+          secret {
+            secret_name = v.value.secret_name
+            items {
+              key  = "latest"
+              path = basename(v.value.name)
+            }
+          }
+        }
+      }
+
+      dynamic "volumes" {
+        for_each = local.stream_proxy_ioriver_key_files
         iterator = v
         content {
           name = v.value.secret_name

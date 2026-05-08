@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+
 	awsSDKConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -146,7 +147,7 @@ func main() {
 
 	fileSigner, err := signing.NewCloudFrontSigner(config.CDNConfig)
 	if err != nil {
-		log.L.Error().Err(err).Send()
+		log.L.Fatal().Err(err).Msg("failed to init cloudfront file signer")
 	}
 	legacyStreamSigner := signing.NewCloudFrontStreamSigner(fileSigner, config.CDNConfig.GetVOD2Domain())
 

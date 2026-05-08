@@ -75,6 +75,7 @@ type Resolver struct {
 	FileSigner            *signing.CloudFrontSigner
 	StreamURLSigner       *streamtoken.Signer
 	LegacyStreamSigner    *signing.CloudFrontStreamSigner
+	PrimaryStreamProvider streamtoken.Provider
 	S3Client              *s3.Client
 	APIConfig             apiConfig
 	AWSConfig             awsConfig
@@ -123,22 +124,35 @@ func (r *Resolver) GetLegacyStreamSigner() *signing.CloudFrontStreamSigner {
 // streamtoken.Signer (new stream-proxy + JWT path) and
 // signing.CloudFrontStreamSigner (legacy CloudFront EncodedPolicy path).
 type streamSigner interface {
-	SignURL(streamPath string, ttl time.Duration) (string, time.Time, error)
+	SignURL(streamPath string, ttl time.Duration, provider streamtoken.Provider) (string, time.Time, error)
 }
 
-// pickStreamSigner returns the legacy CloudFront signer by default; switches
-// to the new stream-proxy signer when the request carries
-// `x-feature-flags: stream-proxy:enabled`.
+// pickStreamSigner picks the per-request stream URL signer.
+//
+// Routing rules:
+//   - The Unleash `cdn-provider` flag's `cloudfront-direct` variant, when
+//     present on a request, forces the legacy CloudFront-direct signer
+//     regardless of env. Kept as an emergency rollback during the
+//     stream-proxy rollout.
+//   - Otherwise the configured PrimaryStreamProvider decides: only
+//     STREAM_PRIMARY_PROVIDER=streamproxy (parsed to
+//     streamtoken.ProviderIoriver) routes through the stream-proxy +
+//     HS256 JWT signer. Every other value — `cloudfront`, unset, or
+//     anything unrecognised — falls through to the legacy CloudFront EncodedPolicy signer.
 func (r *Resolver) pickStreamSigner(ctx context.Context) streamSigner {
 	ginCtx, _ := utils.GinCtx(ctx)
 	if ginCtx != nil {
 		flags := utils.GetFeatureFlags(ginCtx)
-		if v, ok := flags.GetVariant(unleash.StreamProxyFlag); ok && v == unleash.StreamProxyEnabledVariant {
-			utils.ReportFlagActivation(ginCtx, unleash.StreamProxyFlag, unleash.StreamProxyEnabledVariant)
-			return r.StreamURLSigner
+		if v, ok := flags.GetVariant(unleash.StreamCDNProviderFlag); ok && v == unleash.StreamCDNCloudfrontDirect {
+			utils.ReportFlagActivation(ginCtx, unleash.StreamCDNProviderFlag, unleash.StreamCDNCloudfrontDirect)
+			return r.LegacyStreamSigner
 		}
 	}
-	return r.LegacyStreamSigner
+	if r.PrimaryStreamProvider != streamtoken.ProviderIoriver {
+		return r.LegacyStreamSigner
+	}
+
+	return r.StreamURLSigner
 }
 
 func (r *Resolver) GetCDNConfig() export.CDNConfig {

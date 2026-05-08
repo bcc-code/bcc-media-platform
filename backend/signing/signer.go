@@ -33,10 +33,20 @@ func NewSigner(config Config) (*Signer, error) {
 		return nil, merry.Wrap(err)
 	}
 
+	cfKeyID := config.GetAwsSigningKeyID()
+	fsKeyID := config.GetFastlySigningKeyID()
+	akKeyID := config.GetAkamaiSigningKeyID()
+	// The underlying ioriver signer skips each provider when its KeyID is empty
+	// and returns "" with no error if all three are empty — silently producing
+	// unsigned URLs that the CDN rejects with 403. Reject this at construction.
+	if cfKeyID == "" && fsKeyID == "" && akKeyID == "" {
+		return nil, merry.New("signing: at least one of CloudFront, Fastly, or Akamai key id must be set")
+	}
+
 	iov, err := urlsigner.NewSigner(pemBytes, config.GetAkamaiEncryptionKey(), urlsigner.KeyInfo{
-		CloudFrontKeyID: config.GetAwsSigningKeyID(),
-		FastlyKeyID:     config.GetFastlySigningKeyID(),
-		AkamaiKeyID:     config.GetAkamaiSigningKeyID(),
+		CloudFrontKeyID: cfKeyID,
+		FastlyKeyID:     fsKeyID,
+		AkamaiKeyID:     akKeyID,
 	})
 	if err != nil {
 		return nil, merry.Wrap(err)

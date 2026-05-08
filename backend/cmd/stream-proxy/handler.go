@@ -15,33 +15,58 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
 	"github.com/bcc-code/bcc-media-platform/backend/signing"
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 	"github.com/gin-gonic/gin"
 )
 
 const indexFilename = "index.m3u8"
 
 type proxyHandler struct {
-	validator *jwtValidator
-	signer    *signing.Signer
-	httpc     *http.Client
-	cdnDomain string
-	cacheTTL  time.Duration
-	signTTL   time.Duration
+	validator       *jwtValidator
+	cfSigner        *signing.Signer
+	ioriverSigner   *signing.Signer
+	httpc           *http.Client
+	cfDomain        string
+	ioriverDomain   string
+	defaultProvider streamtoken.Provider
+	cacheTTL        time.Duration
+	signTTL         time.Duration
 }
 
 func newProxyHandler(
 	validator *jwtValidator,
-	signer *signing.Signer,
+	cfSigner *signing.Signer,
+	ioriverSigner *signing.Signer,
 	httpc *http.Client,
 	cfg envConfig,
 ) *proxyHandler {
 	return &proxyHandler{
-		validator: validator,
-		signer:    signer,
-		httpc:     httpc,
-		cdnDomain: cfg.CDNDomain,
-		cacheTTL:  cfg.CacheTTL,
-		signTTL:   cfg.SignTTL,
+		validator:       validator,
+		cfSigner:        cfSigner,
+		ioriverSigner:   ioriverSigner,
+		httpc:           httpc,
+		cfDomain:        cfg.CDNDomainCloudFront,
+		ioriverDomain:   cfg.CDNDomainIoriver,
+		defaultProvider: cfg.DefaultProvider,
+		cacheTTL:        cfg.CacheTTL,
+		signTTL:         cfg.SignTTL,
+	}
+}
+
+// resolveProvider picks the (signer, host) pair the request must use. The JWT
+// `provider` claim wins; if absent, fall back to the configured default.
+func (h *proxyHandler) resolveProvider(claimProvider streamtoken.Provider) (*signing.Signer, string, error) {
+	provider := claimProvider
+	if provider == streamtoken.ProviderUnspecified {
+		provider = h.defaultProvider
+	}
+	switch provider {
+	case streamtoken.ProviderCloudFront:
+		return h.cfSigner, h.cfDomain, nil
+	case streamtoken.ProviderIoriver:
+		return h.ioriverSigner, h.ioriverDomain, nil
+	default:
+		return nil, "", fmt.Errorf("unknown provider %q", provider)
 	}
 }
 
@@ -52,10 +77,17 @@ func (h *proxyHandler) handle(c *gin.Context) {
 		return
 	}
 
-	base, err := h.validator.validate(token)
+	base, claimProvider, err := h.validator.validate(token)
 	if err != nil {
 		log.L.Debug().Err(err).Msg("jwt validation failed")
 		c.String(http.StatusUnauthorized, "invalid jwt")
+		return
+	}
+
+	signer, host, err := h.resolveProvider(claimProvider)
+	if err != nil {
+		log.L.Warn().Err(err).Str("provider_claim", string(claimProvider)).Msg("provider resolution failed")
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -65,14 +97,14 @@ func (h *proxyHandler) handle(c *gin.Context) {
 		return
 	}
 
-	cleaned, err := h.fetchAndClean(c.Request.Context(), reqPath)
+	cleaned, upstreamURL, err := h.fetchAndClean(c.Request.Context(), signer, host, reqPath)
 	if err != nil {
-		log.L.Warn().Err(err).Str("path", reqPath).Msg("failed to fetch playlist from cdn")
+		log.L.Warn().Err(err).Str("path", reqPath).Str("url", upstreamURL).Msg("failed to fetch playlist from cdn")
 		c.String(http.StatusBadGateway, "upstream fetch failed")
 		return
 	}
 
-	auth, err := h.authStringFor(reqPath, token)
+	auth, err := h.authStringFor(signer, host, reqPath, token)
 	if err != nil {
 		log.L.Error().Err(err).Str("path", reqPath).Msg("failed to compute auth replacement")
 		c.String(http.StatusInternalServerError, "internal error")
@@ -90,7 +122,7 @@ func (h *proxyHandler) handle(c *gin.Context) {
 		if !strings.HasSuffix(dir, "/") {
 			dir += "/"
 		}
-		body = absolutizeURIs(body, "https://"+h.cdnDomain+dir)
+		body = absolutizeURIs(body, "https://"+host+dir)
 	}
 
 	c.Data(http.StatusOK, "application/vnd.apple.mpegurl", body)
@@ -112,14 +144,22 @@ func pathUnderBase(reqPath, base string) bool {
 	return strings.HasPrefix(reqPath, base)
 }
 
-func (h *proxyHandler) fetchAndClean(ctx context.Context, reqPath string) ([]byte, error) {
-	return memorycache.GetOrSet(ctx, "stream-proxy:"+reqPath, func(ctx context.Context) ([]byte, error) {
-		exactURL := "https://" + h.cdnDomain + reqPath
-		query, err := h.signer.SignRawQuery(exactURL, h.signTTL)
+func (h *proxyHandler) fetchAndClean(ctx context.Context, signer *signing.Signer, host, reqPath string) ([]byte, string, error) {
+	// Cache key includes the host so a path served by both providers does not
+	// collide between the two upstreams.
+	cacheKey := "stream-proxy:" + host + ":" + reqPath
+	// attemptedURL is set only on cache miss (the closure runs only then), which
+	// is also the only path that can produce a non-nil error — so cache-hit
+	// callers get "" and never log it.
+	var attemptedURL string
+	body, err := memorycache.GetOrSet(ctx, cacheKey, func(ctx context.Context) ([]byte, error) {
+		exactURL := "https://" + host + reqPath
+		query, err := signer.SignRawQuery(exactURL, h.signTTL)
 		if err != nil {
 			return nil, fmt.Errorf("sign upstream url: %w", err)
 		}
 		cdnURL := exactURL + "?" + query
+		attemptedURL = cdnURL
 
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, cdnURL, nil)
 		if err != nil {
@@ -141,9 +181,10 @@ func (h *proxyHandler) fetchAndClean(ctx context.Context, reqPath string) ([]byt
 		}
 		return cleanPlaylist(raw), nil
 	}, cache.WithExpiration(h.cacheTTL))
+	return body, attemptedURL, err
 }
 
-func (h *proxyHandler) authStringFor(reqPath, token string) (string, error) {
+func (h *proxyHandler) authStringFor(signer *signing.Signer, host, reqPath, token string) (string, error) {
 	if path.Base(reqPath) == indexFilename {
 		// Master playlist: keep variant requests routed through this proxy
 		// with the same JWT.
@@ -157,9 +198,9 @@ func (h *proxyHandler) authStringFor(reqPath, token string) (string, error) {
 	if !strings.HasSuffix(dir, "/") {
 		dir += "/"
 	}
-	resource := "https://" + h.cdnDomain + dir + "*"
+	resource := "https://" + host + dir + "*"
 
-	q, err := h.signer.SignRawQuery(resource, h.signTTL)
+	q, err := signer.SignRawQuery(resource, h.signTTL)
 	if err != nil {
 		return "", err
 	}

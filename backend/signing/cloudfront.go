@@ -7,7 +7,7 @@ import (
 
 	"github.com/ansel1/merry/v2"
 	"github.com/aws/aws-sdk-go/service/cloudfront/sign"
-	"github.com/bcc-code/bcc-media-platform/backend/log"
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 )
 
 // CloudFrontConfig supplies the CloudFront signing key path and key ID.
@@ -24,10 +24,16 @@ type CloudFrontSigner struct {
 
 // NewCloudFrontSigner loads the PEM key and constructs a CloudFront signer.
 func NewCloudFrontSigner(cfg CloudFrontConfig) (*CloudFrontSigner, error) {
-	key, err := sign.LoadPEMPrivKeyFile(cfg.GetAwsSigningKeyPath())
+	keyPath := cfg.GetAwsSigningKeyPath()
+	if keyPath == "" {
+		return nil, merry.New("CloudFront signing key path is empty (set CF_SIGNING_KEY_PATH)")
+	}
+	if cfg.GetAwsSigningKeyID() == "" {
+		return nil, merry.New("CloudFront signing key id is empty (set CF_SIGNING_KEY_ID)")
+	}
+	key, err := sign.LoadPEMPrivKeyFile(keyPath)
 	if err != nil {
-		log.L.Error().Err(err).Msg("Unable to load PEM file")
-		return nil, merry.Wrap(err)
+		return nil, merry.Wrap(err, merry.WithMessagef("load CloudFront signing key from %q", keyPath))
 	}
 	return &CloudFrontSigner{inner: *sign.NewURLSigner(cfg.GetAwsSigningKeyID(), key)}, nil
 }
@@ -63,8 +69,9 @@ func NewCloudFrontStreamSigner(cf *CloudFrontSigner, cdnDomain string) *CloudFro
 // SignURL signs the directory containing the manifest with a `<dir>/*` canned
 // policy and returns the original URL with the signature embedded in
 // `EncodedPolicy`. Matches the streamURLSigner interface used by
-// model.StreamFrom and streamtoken.Signer.
-func (s *CloudFrontStreamSigner) SignURL(streamPath string, ttl time.Duration) (string, time.Time, error) {
+// model.StreamFrom and streamtoken.Signer. The provider argument is unused
+// here — the legacy CloudFront signer has a single CDN identity.
+func (s *CloudFrontStreamSigner) SignURL(streamPath string, ttl time.Duration, _ streamtoken.Provider) (string, time.Time, error) {
 	pathToSign := streamBasePathRegex.FindString(streamPath)
 	if pathToSign == "" {
 		return "", time.Time{}, merry.New("path does not match expected stream layout: " + streamPath)

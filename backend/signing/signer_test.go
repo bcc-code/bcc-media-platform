@@ -73,6 +73,21 @@ func TestSignRawQueryWrapsAllProviders(t *testing.T) {
 	assert.True(t, hasAkamai, "Akamai params expected")
 }
 
+func TestNewSigner_AllKeyIDsEmpty_Errors(t *testing.T) {
+	keyPath := writeTempPEM(t)
+
+	cfg := &mocks.Config{}
+	cfg.On("GetAwsSigningKeyPath").Return(keyPath)
+	cfg.On("GetAwsSigningKeyID").Return("")
+	cfg.On("GetFastlySigningKeyID").Return("")
+	cfg.On("GetAkamaiSigningKeyID").Return("")
+	cfg.On("GetAkamaiEncryptionKey").Return("")
+
+	_, err := NewSigner(cfg)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "at least one")
+}
+
 func TestSignRawQueryCloudFrontOnly(t *testing.T) {
 	keyPath := writeTempPEM(t)
 

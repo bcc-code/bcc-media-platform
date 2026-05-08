@@ -49,7 +49,7 @@ func TestCloudFrontStreamSignerSignURL(t *testing.T) {
 	signer := NewCloudFrontStreamSigner(cf, "vod2.example.com")
 
 	streamPath := "/out/v1/aaaaaaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbbbbbb/ccccccccccccccccccc/ddddd/index.m3u8"
-	signedURL, expiresAt, err := signer.SignURL(streamPath, time.Hour)
+	signedURL, expiresAt, err := signer.SignURL(streamPath, time.Hour, "" /* provider unused */)
 	require.NoError(t, err)
 
 	assert.WithinDuration(t, time.Now().Add(time.Hour), expiresAt, 5*time.Second)
@@ -82,7 +82,7 @@ func TestCloudFrontStreamSignerRejectsBadPath(t *testing.T) {
 
 	signer := NewCloudFrontStreamSigner(cf, "vod2.example.com")
 
-	_, _, err = signer.SignURL("/some/non-stream/path.m3u8", time.Hour)
+	_, _, err = signer.SignURL("/some/non-stream/path.m3u8", time.Hour, "" /* provider unused */)
 	require.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "expected stream layout"))
 }

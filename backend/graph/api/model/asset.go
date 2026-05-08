@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/cloudfront/sign"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 )
 
 type fileSigner interface {
@@ -16,7 +17,7 @@ type fileSigner interface {
 }
 
 type streamURLSigner interface {
-	SignURL(streamPath string, ttl time.Duration) (string, time.Time, error)
+	SignURL(streamPath string, ttl time.Duration, provider streamtoken.Provider) (string, time.Time, error)
 }
 
 // FileFrom converts AssetFile rows to the GQL equivalents
@@ -58,7 +59,7 @@ const streamUrlExpiresAfter = 6 * time.Hour
 // a stream-proxy URL with an HS256 JWT; the proxy validates the JWT and signs
 // the upstream CDN request itself.
 func StreamFrom(_ context.Context, signer streamURLSigner, stream *common.Stream) (*Stream, error) {
-	signedURL, expiresAt, err := signer.SignURL(stream.Path, streamUrlExpiresAfter)
+	signedURL, expiresAt, err := signer.SignURL(stream.Path, streamUrlExpiresAfter, streamtoken.ProviderUnspecified)
 	if err != nil {
 		return nil, err
 	}

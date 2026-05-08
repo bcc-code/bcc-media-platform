@@ -24,6 +24,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/search"
 
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 	"github.com/joho/godotenv"
 	"github.com/samber/lo"
 )
@@ -86,18 +87,39 @@ type cdnConfig struct {
 	FilesDomain       string
 	AWSSigningKeyPath string
 	AWSSigningKeyID   string
-	AzureSigningKey   string
 }
 
 type streamProxyConfig struct {
-	JWTSecret string
-	JWTIssuer string
-	Domain    string
+	JWTSecret       string
+	JWTIssuer       string
+	Domain          string
+	PrimaryProvider streamtoken.Provider
 }
 
-func (c streamProxyConfig) GetStreamJWTSecret() string   { return c.JWTSecret }
-func (c streamProxyConfig) GetStreamJWTIssuer() string   { return c.JWTIssuer }
-func (c streamProxyConfig) GetStreamProxyDomain() string { return c.Domain }
+func (c streamProxyConfig) GetStreamJWTSecret() string                     { return c.JWTSecret }
+func (c streamProxyConfig) GetStreamJWTIssuer() string                     { return c.JWTIssuer }
+func (c streamProxyConfig) GetStreamProxyDomain() string                   { return c.Domain }
+func (c streamProxyConfig) GetStreamPrimaryProvider() streamtoken.Provider { return c.PrimaryProvider }
+
+// parsePrimaryProvider maps the user-facing STREAM_PRIMARY_PROVIDER values
+// ("cloudfront", "streamproxy") to the streamtoken.Provider used as the JWT
+// `provider` claim. The claim values are different ("cloudfront", "ioriver")
+// because they are the stream-proxy's internal vocabulary; the API exposes
+// the same routing decision under a name that abstracts away the
+// underlying signer technology. Empty raw → ProviderUnspecified (signer
+// substitutes its own default). Unknown raw passes through so the signer's
+// validity check rejects it with a clear error.
+func parsePrimaryProvider(raw string) streamtoken.Provider {
+	switch raw {
+	case "":
+		return streamtoken.ProviderUnspecified
+	case "cloudfront":
+		return streamtoken.ProviderCloudFront
+	case "streamproxy":
+		return streamtoken.ProviderIoriver
+	}
+	return streamtoken.Provider(raw)
+}
 
 type awsConfig struct {
 	TempBucket string // Things put here are automatically removed
@@ -174,9 +196,6 @@ func (c cdnConfig) GetAwsSigningKeyID() string {
 }
 
 // GetAzureSigningKey returns the Azure signing key
-func (c cdnConfig) GetAzureSigningKey() string {
-	return c.AzureSigningKey
-}
 
 // GetTempStorageBucket returns the temporary storage bucket
 func (a awsConfig) GetTempStorageBucket() string {
@@ -237,13 +256,13 @@ func getEnvConfig() envConfig {
 			FilesDomain:       os.Getenv("FILES_CDN_DOMAIN"),
 			AWSSigningKeyID:   os.Getenv("CF_SIGNING_KEY_ID"),
 			AWSSigningKeyPath: os.Getenv("CF_SIGNING_KEY_PATH"),
-			AzureSigningKey:   os.Getenv("AZ_SIGNING_KEY"),
 			LegacyVODDomain:   os.Getenv("LEGACY_CDN_DOMAIN"),
 		},
 		StreamProxy: streamProxyConfig{
-			JWTSecret: os.Getenv("STREAM_JWT_SECRET"),
-			JWTIssuer: os.Getenv("STREAM_JWT_ISSUER"),
-			Domain:    os.Getenv("STREAM_PROXY_DOMAIN"),
+			JWTSecret:       os.Getenv("STREAM_JWT_SECRET"),
+			JWTIssuer:       os.Getenv("STREAM_JWT_ISSUER"),
+			Domain:          os.Getenv("STREAM_PROXY_DOMAIN"),
+			PrimaryProvider: parsePrimaryProvider(os.Getenv("STREAM_PRIMARY_PROVIDER")),
 		},
 		Secrets: serviceSecrets{
 			Directus: os.Getenv("SERVICE_SECRET_DIRECTUS"),
@@ -260,10 +279,10 @@ func getEnvConfig() envConfig {
 			TracePrettyPrint:  os.Getenv("TRACE_PRETTY"),
 		},
 		Email: email.Config{
-			Provider:         os.Getenv("EMAIL_PROVIDER"),
-			SendGridAPIKey:   os.Getenv("SENDGRID_API_KEY"),
-			ResendAPIKey:     os.Getenv("RESEND_API_KEY"),
-			FromEmail:        os.Getenv("EMAIL_FROM"),
+			Provider:       os.Getenv("EMAIL_PROVIDER"),
+			SendGridAPIKey: os.Getenv("SENDGRID_API_KEY"),
+			ResendAPIKey:   os.Getenv("RESEND_API_KEY"),
+			FromEmail:      os.Getenv("EMAIL_FROM"),
 		},
 		Redirect: &redirectConfig{
 			JWTPrivateKeyRaw: os.Getenv("REDIRECT_JWT_KEY"),

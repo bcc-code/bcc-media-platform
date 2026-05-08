@@ -182,20 +182,12 @@ func main() {
 
 	fileSigner, err := signing.NewCloudFrontSigner(config.CDNConfig)
 	if err != nil {
-		if environment.Production() {
-			log.L.Panic().Err(err).Send()
-		} else {
-			log.L.Error().Err(err).Send()
-		}
+		log.L.Panic().Err(err).Msg("failed to init cloudfront file signer")
 	}
 	legacyStreamSigner := signing.NewCloudFrontStreamSigner(fileSigner, config.CDNConfig.GetVOD2Domain())
 	streamSigner, err := streamtoken.NewSigner(config.StreamProxy)
 	if err != nil {
-		if environment.Production() {
-			log.L.Panic().Err(err).Send()
-		} else {
-			log.L.Error().Err(err).Send()
-		}
+		log.L.Panic().Err(err).Msg("failed to init stream-proxy signer")
 	}
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)

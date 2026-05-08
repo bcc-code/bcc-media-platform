@@ -68,6 +68,7 @@ func graphqlHandler(
 		FileSigner:            fileSigner,
 		StreamURLSigner:       streamSigner,
 		LegacyStreamSigner:    legacyStreamSigner,
+		PrimaryStreamProvider: config.StreamProxy.PrimaryProvider,
 		S3Client:              s3client,
 		APIConfig:             config.CDNConfig,
 		AWSConfig:             config.AWS,

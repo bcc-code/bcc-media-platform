@@ -13,9 +13,13 @@ const ShortsWithScoresEnabledVariant = "enabled"
 const ElasticSearchFlag = "elastic-search"
 const ElasticSearchEnabledVariant = "enabled"
 
-// StreamProxyFlag routes stream URLs through the new stream-proxy + HS256 JWT
-// path. Default (flag off) keeps the legacy CloudFront-signed URL form.
+// StreamProxyFlag toggles the URL signing path for stream manifests. The
+// default is the stream-proxy + HS256 JWT path; the `legacy` variant opts a
+// request back to the legacy CloudFront EncodedPolicy URLs (kept temporarily
+// as an emergency rollback lever).
 //
 // Added: 05.05.2026
-const StreamProxyFlag = "stream-proxy"
-const StreamProxyEnabledVariant = "enabled"
+const StreamCDNProviderFlag = "cdn-provider"
+const StreamCDNCloudfrontDirect = "cloudfront-direct"
+const StreamCDNProxyCF = "cloudfront"
+const StreamCDNProxyIORiver = "ioriver"

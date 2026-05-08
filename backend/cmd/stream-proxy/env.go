@@ -4,6 +4,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 	"github.com/joho/godotenv"
 )
 
@@ -11,31 +12,52 @@ type envConfig struct {
 	Port        string
 	Environment string
 
-	CDNDomain string
-	CacheTTL  time.Duration
-	SignTTL   time.Duration
+	CDNDomainCloudFront string
+	CDNDomainIoriver    string
+	DefaultProvider     streamtoken.Provider
+
+	CacheTTL time.Duration
+	SignTTL  time.Duration
 
 	JWTSecret string
 	JWTIssuer string
 
-	Signing signingConfig
+	CloudFrontSigning cloudfrontSigningConfig
+	IoriverSigning    ioriverSigningConfig
 
 	Tracing tracingConfig
 }
 
-type signingConfig struct {
-	AWSSigningKeyPath   string
-	AWSSigningKeyID     string
-	FastlySigningKeyID  string
-	AkamaiSigningKeyID  string
+// cloudfrontSigningConfig holds the direct-CloudFront key + key id. Fastly and
+// Akamai fields are intentionally empty so the ioriver signer library only
+// emits CloudFront query params for this signer.
+type cloudfrontSigningConfig struct {
+	KeyPath string
+	KeyID   string
+}
+
+func (c cloudfrontSigningConfig) GetAwsSigningKeyPath() string   { return c.KeyPath }
+func (c cloudfrontSigningConfig) GetAwsSigningKeyID() string     { return c.KeyID }
+func (c cloudfrontSigningConfig) GetFastlySigningKeyID() string  { return "" }
+func (c cloudfrontSigningConfig) GetAkamaiSigningKeyID() string  { return "" }
+func (c cloudfrontSigningConfig) GetAkamaiEncryptionKey() string { return "" }
+
+// ioriverSigningConfig holds the ioriver-issued key plus the per-sub-provider
+// key ids. ioriver fans the same RSA key out into CloudFront, Fastly, and
+// Akamai signature formats so any sub-provider it routes to can validate.
+type ioriverSigningConfig struct {
+	KeyPath             string
+	CloudFrontKeyID     string
+	FastlyKeyID         string
+	AkamaiKeyID         string
 	AkamaiEncryptionKey string
 }
 
-func (c signingConfig) GetAwsSigningKeyPath() string   { return c.AWSSigningKeyPath }
-func (c signingConfig) GetAwsSigningKeyID() string     { return c.AWSSigningKeyID }
-func (c signingConfig) GetFastlySigningKeyID() string  { return c.FastlySigningKeyID }
-func (c signingConfig) GetAkamaiSigningKeyID() string  { return c.AkamaiSigningKeyID }
-func (c signingConfig) GetAkamaiEncryptionKey() string { return c.AkamaiEncryptionKey }
+func (c ioriverSigningConfig) GetAwsSigningKeyPath() string   { return c.KeyPath }
+func (c ioriverSigningConfig) GetAwsSigningKeyID() string     { return c.CloudFrontKeyID }
+func (c ioriverSigningConfig) GetFastlySigningKeyID() string  { return c.FastlyKeyID }
+func (c ioriverSigningConfig) GetAkamaiSigningKeyID() string  { return c.AkamaiKeyID }
+func (c ioriverSigningConfig) GetAkamaiEncryptionKey() string { return c.AkamaiEncryptionKey }
 
 type tracingConfig struct {
 	UptraceDSN        string
@@ -62,19 +84,27 @@ func getEnvConfig() envConfig {
 		Port:        os.Getenv("PORT"),
 		Environment: os.Getenv("ENVIRONMENT"),
 
-		CDNDomain: os.Getenv("STREAM_PROXY_CDN_DOMAIN"),
-		CacheTTL:  parseDurationOr(os.Getenv("STREAM_PROXY_CACHE_TTL"), 10*time.Minute),
-		SignTTL:   parseDurationOr(os.Getenv("STREAM_PROXY_SIGN_TTL"), 6*time.Hour),
+		CDNDomainCloudFront: os.Getenv("STREAM_PROXY_CDN_DOMAIN_CLOUDFRONT"),
+		CDNDomainIoriver:    os.Getenv("STREAM_PROXY_CDN_DOMAIN_IORIVER"),
+		DefaultProvider:     streamtoken.Provider(os.Getenv("STREAM_PROXY_DEFAULT_PROVIDER")),
+
+		CacheTTL: parseDurationOr(os.Getenv("STREAM_PROXY_CACHE_TTL"), 10*time.Minute),
+		SignTTL:  parseDurationOr(os.Getenv("STREAM_PROXY_SIGN_TTL"), 6*time.Hour),
 
 		JWTSecret: os.Getenv("STREAM_JWT_SECRET"),
 		JWTIssuer: os.Getenv("STREAM_JWT_ISSUER"),
 
-		Signing: signingConfig{
-			AWSSigningKeyPath:   os.Getenv("CF_SIGNING_KEY_PATH"),
-			AWSSigningKeyID:     os.Getenv("CF_SIGNING_KEY_ID"),
-			FastlySigningKeyID:  os.Getenv("FASTLY_SIGNING_KEY_ID"),
-			AkamaiSigningKeyID:  os.Getenv("AKAMAI_SIGNING_KEY_ID"),
-			AkamaiEncryptionKey: os.Getenv("AKAMAI_ENCRYPTION_KEY"),
+		CloudFrontSigning: cloudfrontSigningConfig{
+			KeyPath: os.Getenv("CF_SIGNING_KEY_PATH"),
+			KeyID:   os.Getenv("CLOUDFRONT_DIRECT_SIGNING_KEY_ID"),
+		},
+
+		IoriverSigning: ioriverSigningConfig{
+			KeyPath:             os.Getenv("IORIVER_SIGNING_KEY_PATH"),
+			CloudFrontKeyID:     os.Getenv("IORIVER_CLOUDFRONT_KEY_ID"),
+			FastlyKeyID:         os.Getenv("IORIVER_FASTLY_KEY_ID"),
+			AkamaiKeyID:         os.Getenv("IORIVER_AKAMAI_KEY_ID"),
+			AkamaiEncryptionKey: os.Getenv("IORIVER_AKAMAI_ENCRYPTION_KEY"),
 		},
 
 		Tracing: tracingConfig{

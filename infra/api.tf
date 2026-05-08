@@ -3,6 +3,11 @@ locals {
   image_name_api      = "eu.gcr.io/${google_project.brunstadtv.project_id}/api/api"
   cf_signing_key_path = "/secrets/aws.pem"
   az_signing_key_path = "/secrets2/azure.pem"
+
+  # Stream-proxy uses two distinct signing identities — one for direct
+  # CloudFront, one for ioriver. Mounted as separate files so the keys can be
+  # rotated independently.
+  ioriver_signing_key_path = "/secrets3/ioriver.pem"
 }
 
 resource "google_service_account_iam_policy" "api-iam" {
@@ -259,4 +264,3 @@ output "redirect-jwt-pub" {
   sensitive = true
   value     = tls_private_key.redirect.public_key_pem
 }
-

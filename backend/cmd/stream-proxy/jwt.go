@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 )
@@ -25,8 +26,10 @@ func newJWTValidator(secret, issuer string) (*jwtValidator, error) {
 	}, nil
 }
 
-// validate parses and verifies the token, then returns the `base` claim.
-func (v *jwtValidator) validate(token string) (base string, err error) {
+// validate parses and verifies the token, then returns the `base` claim and
+// the optional `provider` claim. provider is ProviderUnspecified when the
+// claim is absent; callers fall back to the configured default in that case.
+func (v *jwtValidator) validate(token string) (base string, provider streamtoken.Provider, err error) {
 	opts := []jwt.ParseOption{
 		jwt.WithKey(jwa.HS256, v.secret),
 		jwt.WithValidate(true),
@@ -38,16 +41,24 @@ func (v *jwtValidator) validate(token string) (base string, err error) {
 
 	tok, err := jwt.Parse([]byte(token), opts...)
 	if err != nil {
-		return "", err
+		return "", streamtoken.ProviderUnspecified, err
 	}
 
 	raw, ok := tok.Get("base")
 	if !ok {
-		return "", fmt.Errorf("missing base claim")
+		return "", streamtoken.ProviderUnspecified, fmt.Errorf("missing base claim")
 	}
-	s, ok := raw.(string)
-	if !ok || s == "" {
-		return "", fmt.Errorf("base claim is not a non-empty string")
+	baseStr, ok := raw.(string)
+	if !ok || baseStr == "" {
+		return "", streamtoken.ProviderUnspecified, fmt.Errorf("base claim is not a non-empty string")
 	}
-	return s, nil
+
+	if rawProv, ok := tok.Get("provider"); ok {
+		s, ok := rawProv.(string)
+		if !ok {
+			return "", streamtoken.ProviderUnspecified, fmt.Errorf("provider claim is not a string")
+		}
+		provider = streamtoken.Provider(s)
+	}
+	return baseStr, provider, nil
 }
