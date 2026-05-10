@@ -40,7 +40,9 @@ const props = defineProps<{
 const viewerRef = ref<InstanceType<typeof EpisodeViewer> | null>(null)
 
 const seekTo = (seconds: number) => {
-    viewerRef.value?.player?.currentTime(seconds)
+    const player = viewerRef.value?.player
+    if (!player) return
+    player.mediaEl.currentTime = seconds
 }
 const { currentTime } = usePlayerTime(
     computed(() => viewerRef.value?.player as Player)
