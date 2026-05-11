@@ -1,5 +1,5 @@
 {
-    "name": "@bcc-code/bccm-video-player",
+    "name": "bccm-video-player",
     "version": "3.0.4",
     "type": "commonjs",
     "types": "build/types/index.d.ts",
