@@ -23,7 +23,9 @@ export const getEpisodeStreams = async (
 
     const token = await client.getToken()
 
-    const headers = {} as HeadersInit
+    const headers: Record<string, string> = {
+        ...(await client.getHeaders()),
+    }
 
     if (token) {
         headers["Authorization"] = "Bearer " + token
