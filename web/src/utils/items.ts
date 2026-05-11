@@ -14,6 +14,40 @@ import {
 import router from '@/router'
 import { analytics, Page } from '@/services/analytics'
 
+// Returns true when the user clicked with a modifier key or non-primary button
+// (cmd/ctrl/shift/alt, or middle/right click). In that case the caller should
+// let the browser handle the click natively — opening in a new tab/window,
+// showing the context menu, etc. — instead of preventing default for SPA nav.
+// Mirrors Vue Router's internal `guardEvent` in <RouterLink>.
+export const isModifiedClick = (event: MouseEvent): boolean =>
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey ||
+    event.button !== 0
+
+export const episodeHref = (
+    episodeId: string,
+    options?: {
+        useContext: boolean
+        collectionId: string
+    } | null
+): string => {
+    if (options?.useContext) {
+        return router.resolve({
+            name: 'episode-collection-page',
+            params: {
+                episodeId,
+                collection: options.collectionId,
+            },
+        }).href
+    }
+    return router.resolve({
+        name: 'episode-page',
+        params: { episodeId },
+    }).href
+}
+
 export const goToEpisode = (
     episodeId: string,
     options?: {
@@ -95,6 +129,9 @@ export const goToStudyTopic = async (id: string) => {
     })
 }
 
+export const showHref = (id: string): string =>
+    router.resolve({ name: 'show', params: { showId: id } }).href
+
 export const goToShow = async (id: string) => {
     // TODO: nothing is as permanent as a temporary solution lol
     // although things can be improved :)
@@ -143,21 +180,25 @@ export const itemHref = (
     }
 }
 
-export const goToSectionItem = async (
-    item: {
-        index: number
-        item: SectionItemFragment
-    },
-    section: {
-        __typename: GetSectionQuery['section']['__typename']
-        index: number
-        id: string
-        title?: string | null
-        options?: {
-            useContext: boolean
-            collectionId: string
-        } | null
-    },
+type SectionContext = {
+    __typename: GetSectionQuery['section']['__typename']
+    index: number
+    id: string
+    title?: string | null
+    options?: {
+        useContext: boolean
+        collectionId: string
+    } | null
+}
+
+type SectionItemContext = {
+    index: number
+    item: SectionItemFragment
+}
+
+export const trackSectionItemClick = (
+    item: SectionItemContext,
+    section: SectionContext,
     pageCode: Page
 ) => {
     analytics.track('section_clicked', {
@@ -171,6 +212,14 @@ export const goToSectionItem = async (
         elementPosition: item.index,
         pageCode,
     })
+}
+
+export const goToSectionItem = async (
+    item: SectionItemContext,
+    section: SectionContext,
+    pageCode: Page
+) => {
+    trackSectionItemClick(item, section, pageCode)
 
     switch (item.item.item?.__typename) {
         case 'Episode':

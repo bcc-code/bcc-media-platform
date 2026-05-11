@@ -8,16 +8,31 @@ import Image from '@/components/Image.vue'
 import Slider from './Slider.vue'
 import VButton from '@/components/VButton.vue'
 import { useI18n } from 'vue-i18n'
+import { isModifiedClick, itemHref } from '@/utils/items'
 
 const props = defineProps<{
     position: number
     item: Section & { __typename: 'FeaturedSection' }
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
     (event: 'loadMore'): void
-    (event: 'clickItem', index: number): void
+    (event: 'clickItem', index: number, isModified: boolean): void
 }>()
+
+const hrefFor = (index: number) =>
+    itemHref(props.item.items.items[index], {
+        useContext: props.item.metadata?.useContext === true,
+        collectionId: props.item.metadata?.collectionId ?? '',
+    })
+
+// eslint-disable-next-line no-undef
+const handleClick = (event: MouseEvent, index: number, href: string | null) => {
+    const modified = !!href && isModifiedClick(event)
+    emit('clickItem', index, modified)
+    if (modified) return
+    if (href) event.preventDefault()
+}
 
 const { t } = useI18n()
 
@@ -104,9 +119,11 @@ const options = computed(() => {
             :breakpoints="options"
             @load-more="$emit('loadMore')"
         >
-            <div
-                class="lg:hidden relative h-full cursor-pointer max-h-[60vh] overflow-hidden"
-                @click="$emit('clickItem', index)"
+            <component
+                :is="hrefFor(index) ? 'a' : 'div'"
+                :href="hrefFor(index) ?? undefined"
+                class="lg:hidden relative h-full cursor-pointer max-h-[60vh] overflow-hidden block"
+                @click="handleClick($event, index, hrefFor(index))"
             >
                 <Image
                     :src="i.image"
@@ -131,11 +148,13 @@ const options = computed(() => {
                         </p>
                     </div>
                 </div>
-            </div>
+            </component>
 
-            <div
+            <component
+                :is="hrefFor(index) ? 'a' : 'div'"
+                :href="hrefFor(index) ?? undefined"
                 class="hidden lg:block relative h-full cursor-pointer max-h-[60vh] overflow-hidden group -outline-offset-1 outline outline-2 outline-separator-on-light rounded-xl focus-visible:outline-tint-1 transition ease-out-expo duration-300"
-                @click="$emit('clickItem', index)"
+                @click="handleClick($event, index, hrefFor(index))"
             >
                 <Image
                     :src="i.image"
@@ -194,11 +213,7 @@ const options = computed(() => {
                             </p>
                         </div>
                         <div>
-                            <VButton
-                                color="secondary"
-                                size="thin"
-                                @click="$emit('clickItem', index)"
-                            >
+                            <VButton color="secondary" size="thin">
                                 <div
                                     v-if="
                                         ['Episode', 'Show', 'Season'].includes(
@@ -219,7 +234,7 @@ const options = computed(() => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </component>
         </Slider>
     </section>
 </template>

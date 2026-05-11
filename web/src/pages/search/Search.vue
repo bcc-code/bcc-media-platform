@@ -21,7 +21,7 @@ const queryString = ref(query.value)
 const showCount = ref<number>()
 const episodeCount = ref<number>()
 
-const clickEpisode = (index: number, id: string) => {
+const clickEpisode = (index: number, id: string, isModified: boolean) => {
     analytics.track('searchresult_clicked', {
         group: 'episodes',
         elementId: id,
@@ -32,7 +32,11 @@ const clickEpisode = (index: number, id: string) => {
         searchSessionId: searchSessionId.value,
     })
 
-    goToEpisode(id)
+    // The browser handles navigation for modifier/middle-click via the real <a>;
+    // only do SPA navigation for plain clicks.
+    if (!isModified) {
+        goToEpisode(id)
+    }
 }
 
 let timeout = ref<NodeJS.Timeout>()

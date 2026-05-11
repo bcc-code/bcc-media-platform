@@ -9,7 +9,7 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-    (event: 'clickItem', index: number): void
+    (event: 'clickItem', index: number, isModified: boolean): void
 }>()
 
 const filteredItems = computed(() =>
@@ -28,7 +28,7 @@ const filteredItems = computed(() =>
                     "
                     ref="sectionItem"
                     :item="i.item"
-                    @click="$emit('clickItem', index)"
+                    @click="$emit('clickItem', index, false)"
                 >
                 </StudyTopicCardLarge>
             </div>

@@ -3,7 +3,7 @@ import { GetShowQuery } from '@/graph/generated'
 import SectionTitle from '@/components/sections/item/SectionTitle.vue'
 import Carousel from '@/components/Carousel.vue'
 import CollectionItemThumbnail from '../sections/item/CollectionItemThumbnail.vue'
-import { goToEpisode } from '@/utils/items'
+import { episodeHref, goToEpisode } from '@/utils/items'
 import { analytics } from '@/services/analytics'
 
 const props = defineProps<{
@@ -13,10 +13,9 @@ const props = defineProps<{
 
 function onClick(
     episode: (typeof props.season.episodes.items)[0],
-    index: number
+    index: number,
+    isModified: boolean
 ) {
-    goToEpisode(episode.id)
-
     analytics.track('section_clicked', {
         elementId: episode.id,
         elementPosition: index,
@@ -26,6 +25,12 @@ function onClick(
         sectionId: `ShowSeason-${props.season.id}`,
         sectionPosition: props.position,
     })
+
+    // When the browser handles navigation (modifier/middle click on the <a>),
+    // skip the SPA push.
+    if (!isModified) {
+        goToEpisode(episode.id)
+    }
 }
 </script>
 
@@ -37,7 +42,8 @@ function onClick(
                 :item="item"
                 :title="item.title"
                 :image="item.image ?? ''"
-                @click="onClick(item, index)"
+                :href="episodeHref(item.id)"
+                @click="(isModified) => onClick(item, index, isModified)"
             />
         </Carousel>
     </section>

@@ -11,7 +11,7 @@ defineProps<{
 }>()
 
 defineEmits<{
-    (event: 'clickItem', index: number): void
+    (event: 'clickItem', index: number, isModified: boolean): void
 }>()
 </script>
 <template>
@@ -40,7 +40,10 @@ defineEmits<{
                         section.metadata?.secondaryTitles === true
                     "
                     type="poster"
-                    @click="$emit('clickItem', index)"
+                    @click="
+                        (isModified) =>
+                            $emit('clickItem', index, isModified)
+                    "
                 />
             </div>
         </div>

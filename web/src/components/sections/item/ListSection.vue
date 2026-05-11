@@ -14,7 +14,7 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-    (event: 'clickItem', index: number): void
+    (event: 'clickItem', index: number, isModified: boolean): void
 }>()
 
 const { t } = useI18n()
@@ -57,7 +57,10 @@ const pageCode = computed(() => {
                         section.metadata?.secondaryTitles === true
                     "
                     type="default"
-                    @click="$emit('clickItem', index)"
+                    @click="
+                        (isModified) =>
+                            $emit('clickItem', index, isModified)
+                    "
                 />
             </div>
             <VButton

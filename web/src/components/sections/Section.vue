@@ -26,7 +26,7 @@ defineProps<{
 
 defineEmits<{
     (e: 'loadMore'): void
-    (e: 'clickItem', index: number): void
+    (e: 'clickItem', index: number, isModified: boolean): void
 }>()
 
 const hasItems = (section: {
@@ -51,7 +51,7 @@ const isLargeScreen = computed(() => width.value > 768)
         "
         :item="section"
         :position="index.current"
-        @click-item="(i) => $emit('clickItem', i)"
+        @click-item="(i, isModified) => $emit('clickItem', i, isModified)"
         @load-more="$emit('loadMore')"
     ></DefaultSection>
     <ListSection
@@ -59,7 +59,7 @@ const isLargeScreen = computed(() => width.value > 768)
         :section="section"
         :paginate="index.last === index.current"
         :position="index.current"
-        @click-item="(i) => $emit('clickItem', i)"
+        @click-item="(i, isModified) => $emit('clickItem', i, isModified)"
     ></ListSection>
     <DefaultGridSection
         v-else-if="
@@ -68,13 +68,13 @@ const isLargeScreen = computed(() => width.value > 768)
         :section="section"
         :paginate="index.last === index.current"
         :position="index.current"
-        @click-item="(i) => $emit('clickItem', i)"
+        @click-item="(i, isModified) => $emit('clickItem', i, isModified)"
     ></DefaultGridSection>
     <PosterSection
         v-else-if="section.__typename === 'PosterSection' && hasItems(section)"
         :section="section"
         :position="index.current"
-        @click-item="(i) => $emit('clickItem', i)"
+        @click-item="(i, isModified) => $emit('clickItem', i, isModified)"
         @load-more="$emit('loadMore')"
     ></PosterSection>
     <PosterGridSection
@@ -83,7 +83,7 @@ const isLargeScreen = computed(() => width.value > 768)
         "
         :section="section"
         :position="index.current"
-        @click-item="(i) => $emit('clickItem', i)"
+        @click-item="(i, isModified) => $emit('clickItem', i, isModified)"
     ></PosterGridSection>
     <FeaturedSection
         v-else-if="
@@ -91,14 +91,14 @@ const isLargeScreen = computed(() => width.value > 768)
         "
         :item="section"
         :position="index.current"
-        @click-item="(i) => $emit('clickItem', i)"
+        @click-item="(i, isModified) => $emit('clickItem', i, isModified)"
         @load-more="$emit('loadMore')"
     ></FeaturedSection>
     <IconSection
         v-else-if="section.__typename === 'IconSection' && hasItems(section)"
         :item="section"
         :position="index.current"
-        @click-item="(i) => $emit('clickItem', i)"
+        @click-item="(i, isModified) => $emit('clickItem', i, isModified)"
     ></IconSection>
     <IconGridSection
         v-else-if="
@@ -106,13 +106,13 @@ const isLargeScreen = computed(() => width.value > 768)
         "
         :item="section"
         :position="index.current"
-        @click-item="(i) => $emit('clickItem', i)"
+        @click-item="(i, isModified) => $emit('clickItem', i, isModified)"
     ></IconGridSection>
     <LabelSection
         v-else-if="section.__typename === 'LabelSection' && hasItems(section)"
         :item="section"
         :position="index.current"
-        @click-item="(i) => $emit('clickItem', i)"
+        @click-item="(i, isModified) => $emit('clickItem', i, isModified)"
     ></LabelSection>
     <WebSection
         v-else-if="section.__typename === 'WebSection'"
@@ -127,7 +127,7 @@ const isLargeScreen = computed(() => width.value > 768)
             section.__typename === 'CardSection' && section.cardSize == 'large'
         "
         :item="section"
-        @click-item="(i) => $emit('clickItem', i)"
+        @click-item="(i, isModified) => $emit('clickItem', i, isModified)"
     ></CardSection>
     <PageDetailsSection
         v-else-if="section.__typename === 'PageDetailsSection'"

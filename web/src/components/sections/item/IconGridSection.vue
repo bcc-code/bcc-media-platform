@@ -3,15 +3,30 @@ import { Section } from '../types'
 
 import SectionTitle from './SectionTitle.vue'
 import Image from '@/components/Image.vue'
+import { isModifiedClick, itemHref } from '@/utils/items'
 
-defineProps<{
+const props = defineProps<{
     position: number
     item: Section & { __typename: 'IconGridSection' }
 }>()
 
-defineEmits<{
-    (event: 'clickItem', index: number): void
+const emit = defineEmits<{
+    (event: 'clickItem', index: number, isModified: boolean): void
 }>()
+
+// eslint-disable-next-line no-undef
+const handleClick = (event: MouseEvent, index: number, href: string | null) => {
+    const modified = !!href && isModifiedClick(event)
+    emit('clickItem', index, modified)
+    if (modified) return
+    if (href) event.preventDefault()
+}
+
+const hrefFor = (index: number) =>
+    itemHref(props.item.items.items[index], {
+        useContext: false,
+        collectionId: '',
+    })
 </script>
 <template>
     <section class="w-full">
@@ -19,10 +34,13 @@ defineEmits<{
         <div
             class="grid w-full grid-flow-dense grid-cols-[repeat(auto-fill,8rem)] lg:grid-cols-[repeat(auto-fill,10rem)]"
         >
-            <div
+            <component
+                :is="hrefFor(index) ? 'a' : 'div'"
                 v-for="(i, index) in item.items.items"
-                class="relative mb-5 m-2"
-                @click="$emit('clickItem', index)"
+                :key="i.id"
+                :href="hrefFor(index) ?? undefined"
+                class="relative mb-5 m-2 block"
+                @click="handleClick($event, index, hrefFor(index))"
             >
                 <div
                     class="aspect-square bg-slate-800 rounded-2xl border-2 border-slate-700 p-4 cursor-pointer"
@@ -36,7 +54,7 @@ defineEmits<{
                         {{ i.title }}
                     </p>
                 </div>
-            </div>
+            </component>
         </div>
     </section>
 </template>

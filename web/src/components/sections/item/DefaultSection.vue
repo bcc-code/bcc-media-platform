@@ -17,7 +17,7 @@ const props = defineProps<{
 
 defineEmits<{
     (event: 'loadMore'): void
-    (event: 'clickItem', index: number): void
+    (event: 'clickItem', index: number, isModified: boolean): void
 }>()
 
 const isShowMoreButtonVisible = computed(() => {
@@ -64,7 +64,10 @@ const pageCode = computed(() => {
                     "
                     :secondary-titles="item.metadata?.secondaryTitles === true"
                     type="default"
-                    @click="$emit('clickItem', index)"
+                    @click="
+                        (isModified) =>
+                            $emit('clickItem', index, isModified)
+                    "
                 />
             </template>
             <template #end>

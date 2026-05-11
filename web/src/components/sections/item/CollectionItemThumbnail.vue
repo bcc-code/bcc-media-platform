@@ -4,7 +4,7 @@ import Image from '@/components/Image.vue'
 import Loader from '@/components/Loader.vue'
 import Pill from '@/components/Pill.vue'
 import type { CollectionItemThumbnailFragment } from '@/graph/generated'
-import { comingSoon } from '@/utils/items'
+import { comingSoon, isModifiedClick } from '@/utils/items'
 import { LockClosedIcon } from '@heroicons/vue/24/solid'
 import { computed, ref } from 'vue'
 import CollectionItemThumbnailTitle from './CollectionItemThumbnailTitle.vue'
@@ -14,7 +14,10 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const emit = defineEmits<{
-    click: []
+    // `isModified` is true when the user used cmd/ctrl/shift/middle-click — in
+    // that case the browser handles the navigation via the real <a href>, so
+    // listeners should track analytics only and skip SPA navigation.
+    click: [isModified: boolean]
 }>()
 
 const props = withDefaults(
@@ -37,25 +40,20 @@ const clicked = ref(false)
 
 const click = () => {
     clicked.value = true
-    emit('click')
+    emit('click', false)
 }
 
 // On a real <a>, let modifier/middle clicks fall through so the browser opens
-// a new tab / window natively. Plain left-clicks go through the existing
-// emit-driven navigation flow.
+// a new tab / window natively. We still emit `click` so analytics fires for
+// the modifier-click case — listeners check the payload to decide whether to
+// also do SPA navigation.
 // eslint-disable-next-line no-undef
 const handleLinkClick = (event: MouseEvent) => {
-    if (
-        event.metaKey ||
-        event.ctrlKey ||
-        event.shiftKey ||
-        event.altKey ||
-        event.button !== 0
-    ) {
-        return
-    }
+    const modified = isModifiedClick(event)
+    emit('click', modified)
+    if (modified) return
     event.preventDefault()
-    click()
+    clicked.value = true
 }
 
 const ratio = computed(() => {
