@@ -43,6 +43,7 @@ const click = () => {
 // On a real <a>, let modifier/middle clicks fall through so the browser opens
 // a new tab / window natively. Plain left-clicks go through the existing
 // emit-driven navigation flow.
+// eslint-disable-next-line no-undef
 const handleLinkClick = (event: MouseEvent) => {
     if (
         event.metaKey ||

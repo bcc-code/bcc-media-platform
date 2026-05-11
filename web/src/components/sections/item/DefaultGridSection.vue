@@ -3,7 +3,7 @@ import { Section } from '../types'
 
 import SectionTitle from './SectionTitle.vue'
 import CollectionItemThumbnail from './CollectionItemThumbnail.vue'
-import { isCollectionItem } from '@/utils/items'
+import { isCollectionItem, itemHref } from '@/utils/items'
 
 defineProps<{
     section: Section & { __typename: 'DefaultGridSection' }
@@ -20,6 +20,7 @@ defineEmits<{
         <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 xl:gap-6">
             <div
                 v-for="(item, index) in section.items.items"
+                :key="item.id + item.item.__typename"
                 class="relative mb-5"
             >
                 <CollectionItemThumbnail
@@ -27,6 +28,14 @@ defineEmits<{
                     :title="item.title"
                     :image="item.image"
                     :item="item"
+                    :href="
+                        itemHref(item, {
+                            useContext:
+                                section.metadata?.useContext === true,
+                            collectionId:
+                                section.metadata?.collectionId ?? '',
+                        })
+                    "
                     :secondary-titles="
                         section.metadata?.secondaryTitles === true
                     "
