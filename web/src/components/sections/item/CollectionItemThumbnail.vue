@@ -22,12 +22,14 @@ const props = withDefaults(
         item: CollectionItemThumbnailFragment
         title: string
         image: string | null | undefined
+        href?: string | null
         secondaryTitles?: boolean
         type?: 'default' | 'poster'
     }>(),
     {
         type: 'default',
         secondaryTitles: false,
+        href: null,
     }
 )
 
@@ -36,6 +38,23 @@ const clicked = ref(false)
 const click = () => {
     clicked.value = true
     emit('click')
+}
+
+// On a real <a>, let modifier/middle clicks fall through so the browser opens
+// a new tab / window natively. Plain left-clicks go through the existing
+// emit-driven navigation flow.
+const handleLinkClick = (event: MouseEvent) => {
+    if (
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey ||
+        event.button !== 0
+    ) {
+        return
+    }
+    event.preventDefault()
+    click()
 }
 
 const ratio = computed(() => {
@@ -66,15 +85,23 @@ const aspect = computed(() => {
         >
             {{ t('episode.comingSoon') }}
         </Pill>
-        <button
+        <component
+            :is="href && !comingSoon(item) ? 'a' : 'button'"
             v-if="item"
+            :href="href && !comingSoon(item) ? href : undefined"
             class="flex text-start h-full w-full flex-col mt-2 transition ease-out-expo focus-visible:ring-4 focus-visible:ring-white/75 rounded-md"
             :class="{
                 'cursor-pointer': !comingSoon(item),
                 'pointer-events-none': comingSoon(item),
                 'opacity-50': clicked,
             }"
-            @click="!comingSoon(item) ? click() : undefined"
+            @click="
+                comingSoon(item)
+                    ? undefined
+                    : href
+                      ? handleLinkClick($event)
+                      : click()
+            "
         >
             <div
                 class="relative mb-1 rounded-md w-full overflow-hidden hover:brightness-[1.15] transition group ease-out-expo"
@@ -117,6 +144,6 @@ const aspect = computed(() => {
                 :title="title"
                 :secondary-titles="secondaryTitles"
             />
-        </button>
+        </component>
     </article>
 </template>

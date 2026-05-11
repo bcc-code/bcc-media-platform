@@ -104,6 +104,45 @@ export const goToShow = async (id: string) => {
     })
 }
 
+export const itemHref = (
+    sectionItem: SectionItemFragment,
+    options?: { useContext: boolean; collectionId: string } | null
+): string | null => {
+    if (!sectionItem.item) return null
+    switch (sectionItem.item.__typename) {
+        case 'Episode':
+            if (options?.useContext) {
+                return router.resolve({
+                    name: 'episode-collection-page',
+                    params: {
+                        episodeId: sectionItem.id,
+                        collection: options.collectionId,
+                    },
+                }).href
+            }
+            return router.resolve({
+                name: 'episode-page',
+                params: { episodeId: sectionItem.id },
+            }).href
+        case 'Show':
+            return router.resolve({
+                name: 'show',
+                params: { showId: sectionItem.item.id },
+            }).href
+        case 'Page':
+            return router.resolve({
+                name: 'page',
+                params: { pageId: sectionItem.item.code },
+            }).href
+        case 'Link':
+            return sectionItem.item.url ?? null
+        // Playlist and StudyTopic resolve their target via async GraphQL queries
+        // (see goToPlaylist / goToStudyTopic), so no href is available up front.
+        default:
+            return null
+    }
+}
+
 export const goToSectionItem = async (
     item: {
         index: number
