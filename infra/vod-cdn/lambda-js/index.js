@@ -37,6 +37,25 @@ exports.handler = (event, context, callback) => {
     let parsedQs = qsParser.parse(request.querystring);
     let isAudioOnly = parsedQs["audio-only"] === "true";
 
+    // EncodedPolicy is the wrapped CloudFront signing triple this Lambda
+    // re-emits onto every rewritten URI. If it's missing we can't produce a
+    // playable manifest, so short-circuit instead of fetching upstream just
+    // to return garbage URIs.
+    const encodedPolicy = parsedQs["EncodedPolicy"];
+    if (typeof encodedPolicy !== "string" || encodedPolicy === "") {
+        console.log("missing EncodedPolicy on request", request.uri);
+        callback(null, {
+            status: "400",
+            statusDescription: "Bad Request",
+            headers: {
+                "content-type": [{ key: "Content-Type", value: "text/plain" }],
+                "access-control-allow-origin": [{ key: "Access-Control-Allow-Origin", value: "*" }],
+            },
+            body: "missing EncodedPolicy query parameter",
+        });
+        return;
+    }
+
     //find dir for the m3u8
     let dir = path.dirname(request.uri);
 
@@ -107,7 +126,7 @@ exports.handler = (event, context, callback) => {
                                 }
                             }
                         });
-                        body.push(signed(dir, defaultAudioUri || '', request));
+                        body.push(signed(dir, defaultAudioUri || '', encodedPolicy));
                     }
                     return;
                 }
@@ -115,7 +134,7 @@ exports.handler = (event, context, callback) => {
                 if (elem.startsWith("#")) {
                     if (elem.indexOf("URI") != -1) { //URI component inline
                         var uriComponents = elem.substring(elem.indexOf("URI")).split("\"");
-                        uriComponents[1] = signed(dir, uriComponents[1], request);
+                        uriComponents[1] = signed(dir, uriComponents[1], encodedPolicy);
                         body.push(elem.substring(0, elem.indexOf("URI")) + uriComponents.join("\""));
                     }
                     else {
@@ -126,7 +145,7 @@ exports.handler = (event, context, callback) => {
                     body.push(elem);
                 }
                 else {
-                    body.push(signed(dir, elem, request));
+                    body.push(signed(dir, elem, encodedPolicy));
                 }
             });
 
@@ -190,33 +209,54 @@ exports.handler = (event, context, callback) => {
 
 }
 
-function signed(dir, file, request) {
-    let fileWithoutQuery = file
-    let originalQueryString = ''
-    //console.log(file)
-    if (file.indexOf('?') !== -1) {
-        originalQueryString = file.substring(file.indexOf("?"))
-        fileWithoutQuery = file.substring(0, file.indexOf("?"))
-    }
+// Signing parameters the various CDN signers emit. Stripped from URIs in the
+// upstream manifest before this Lambda appends its own auth — otherwise the
+// rewritten URL carries both stale and fresh signing keys, which different CDN
+// parsers resolve inconsistently and can produce 403s.
+const STRIPPABLE_SIGNATURE_KEYS = new Set([
+    "Policy", "Signature", "Key-Pair-Id",   // CloudFront
+    "EncodedPolicy",                         // wrapped CloudFront (this repo)
+    "FS-Policy", "FS-Signature", "FS-Key-Id" // Fastly
+]);
 
-    let parsedQs = qsParser.parse(request.querystring);
-    let policy = parsedQs["EncodedPolicy"];
-
-    if (fileWithoutQuery.endsWith(".m3u8")) {
-        let queryWithOnlyEncodedPolicy = request.querystring.split("&").find((elem) => {
-            return elem.startsWith("EncodedPolicy") !== -1
-        })
-
-        if (originalQueryString === '') {
-            return file + '?' + queryWithOnlyEncodedPolicy
-        } else {
-            return file + '&' + queryWithOnlyEncodedPolicy
+function stripSignatureParams(queryString) {
+    if (!queryString) return "";
+    const parsed = qsParser.parse(queryString);
+    for (const key of Object.keys(parsed)) {
+        if (STRIPPABLE_SIGNATURE_KEYS.has(key) || key.startsWith("AK-Signature")) {
+            delete parsed[key];
         }
     }
-
-    if (originalQueryString === '') {
-        return file + '?' + policy
-    } else {
-        return file + '&' + policy
-    }
+    return qsParser.stringify(parsed);
 }
+
+function signed(dir, file, encodedPolicy) {
+    let fileWithoutQuery = file;
+    let originalQuery = "";
+    const qIdx = file.indexOf("?");
+    if (qIdx !== -1) {
+        originalQuery = file.substring(qIdx + 1);
+        fileWithoutQuery = file.substring(0, qIdx);
+    }
+
+    const cleanedQuery = stripSignatureParams(originalQuery);
+
+    let authFragment;
+    if (fileWithoutQuery.endsWith(".m3u8")) {
+        // Child manifests keep the wrapped form so the next origin-request
+        // hits this Lambda again and can decode it.
+        authFragment = "EncodedPolicy=" + encodeURIComponent(encodedPolicy);
+    } else {
+        // Media URIs get the unwrapped CF triple (Policy=…&Signature=…&Key-Pair-Id=…),
+        // which is already in well-formed query-string shape inside EncodedPolicy.
+        authFragment = encodedPolicy;
+    }
+
+    const finalQuery = cleanedQuery
+        ? cleanedQuery + "&" + authFragment
+        : authFragment;
+    return fileWithoutQuery + "?" + finalQuery;
+}
+
+exports.stripSignatureParams = stripSignatureParams;
+exports.signed = signed;
