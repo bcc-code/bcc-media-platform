@@ -115,8 +115,8 @@ const load = async () => {
 </script>
 
 <template>
-    <section>
-        <div>
+    <section class="embed-root">
+        <div class="embed-player-wrapper">
             <div id="embed-video-player"></div>
         </div>
         <EmbedDownloadables
@@ -126,3 +126,30 @@ const load = async () => {
         />
     </section>
 </template>
+
+<style>
+html,
+body,
+#app {
+    height: 100%;
+    margin: 0;
+}
+
+.embed-root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.embed-player-wrapper {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+}
+
+#embed-video-player {
+    width: 100%;
+    height: 100%;
+}
+</style>
