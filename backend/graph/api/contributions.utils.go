@@ -21,6 +21,24 @@ func stringToContributionTypeCode(s string) model.ContributionTypeCode {
 		return model.ContributionTypeCodeSinger
 	case "speaker":
 		return model.ContributionTypeCodeSpeaker
+	case "composer":
+		return model.ContributionTypeCodeComposer
+	case "soloist":
+		return model.ContributionTypeCodeSoloist
+	case "performer":
+		return model.ContributionTypeCodePerformer
+	case "translator":
+		return model.ContributionTypeCodeTranslator
+	case "director":
+		return model.ContributionTypeCodeDirector
+	case "producer":
+		return model.ContributionTypeCodeProducer
+	case "scriptwriter":
+		return model.ContributionTypeCodeScriptwriter
+	case "actor":
+		return model.ContributionTypeCodeActor
+	case "voiceactor":
+		return model.ContributionTypeCodeVoiceactor
 	default:
 		return model.ContributionTypeCodeOther
 	}
