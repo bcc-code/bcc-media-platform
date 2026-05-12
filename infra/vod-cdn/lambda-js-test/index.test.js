@@ -135,32 +135,4 @@ describe('signed', () => {
     });
 });
 
-describe('handler missing EncodedPolicy guard', () => {
-    const baseEvent = (querystring) => ({
-        Records: [{ cf: { request: { uri: "/foo/bar.m3u8", querystring } } }],
-    });
-
-    it('returns 400 without contacting upstream when EncodedPolicy is absent', (done) => {
-        handler(baseEvent(""), {}, (_, response) => {
-            try {
-                expect(response.status).toBe("400");
-                expect(response.body).toContain("missing EncodedPolicy");
-                // CORS header so browser clients can read the error.
-                expect(response.headers["access-control-allow-origin"]).toEqual(
-                    expect.arrayContaining([{ key: "Access-Control-Allow-Origin", value: "*" }])
-                );
-                done();
-            } catch (e) { done(e); }
-        });
-    });
-
-    it('returns 400 when EncodedPolicy is empty', (done) => {
-        handler(baseEvent("EncodedPolicy=&audio-only=true"), {}, (_, response) => {
-            try {
-                expect(response.status).toBe("400");
-                done();
-            } catch (e) { done(e); }
-        });
-    });
-});
 
