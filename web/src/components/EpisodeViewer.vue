@@ -148,7 +148,7 @@ const load = async () => {
 
         lastProgress = props.episode.progress
         const queryTime = parseInt(route.query.t as string, 10)
-        const seekTo = queryTime ?? lastProgress
+        const seekTo = !isNaN(queryTime) ? queryTime : lastProgress
         if (seekTo && !isNaN(seekTo)) {
             const applySeek = () => {
                 mediaEl.currentTime = seekTo
