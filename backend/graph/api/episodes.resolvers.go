@@ -467,6 +467,19 @@ func (r *episodeResolver) Contributors(ctx context.Context, obj *model.Episode) 
 	return contributors, nil
 }
 
+// CopyrightHolder is the resolver for the copyrightHolder field.
+func (r *episodeResolver) CopyrightHolder(ctx context.Context, obj *model.Episode) (*model.Person, error) {
+	e, err := r.Loaders.EpisodeLoader.Get(ctx, utils.AsInt(obj.ID))
+	if err != nil || e == nil || !e.CopyrightHolderID.Valid {
+		return nil, err
+	}
+	person, err := r.Loaders.PersonLoader.Get(ctx, e.CopyrightHolderID.UUID)
+	if err != nil || person == nil {
+		return nil, err
+	}
+	return model.PersonFrom(ctx, person), nil
+}
+
 // Next is the resolver for the next field.
 func (r *episodeResolver) Next(ctx context.Context, obj *model.Episode, limit *int) ([]*model.Episode, error) {
 	next, err := r.getNextEpisodes(ctx, obj.ID, limit)

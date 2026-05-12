@@ -515,6 +515,7 @@ type Episode struct {
 	ShareRestriction      ShareRestriction       `json:"shareRestriction"`
 	InMyList              bool                   `json:"inMyList"`
 	Contributors          []*Contributor         `json:"contributors"`
+	CopyrightHolder       *Person                `json:"copyrightHolder,omitempty"`
 	// Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
 	Next   []*Episode `json:"next"`
 	Cursor string     `json:"cursor"`

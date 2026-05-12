@@ -151,8 +151,9 @@ type Episode struct {
 	ExtraDescription LocaleString `json:"extraDescription"`
 	NumberInTitle    bool         `json:"numberInTitle"`
 
-	ContentType null.String `json:"contentType"`
-	Audience    null.String `json:"audience"`
+	ContentType       null.String   `json:"contentType"`
+	Audience          null.String   `json:"audience"`
+	CopyrightHolderID uuid.NullUUID `json:"copyrightHolderId"`
 }
 
 // GetKey returns the key for this item
