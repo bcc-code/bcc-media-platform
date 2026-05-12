@@ -104,7 +104,7 @@ func (h *proxyHandler) handle(c *gin.Context) {
 		return
 	}
 
-	auth, err := h.authStringFor(signer, host, reqPath, token)
+	auth, err := h.authStringFor(signer, host, reqPath, token, base)
 	if err != nil {
 		log.L.Error().Err(err).Str("path", reqPath).Msg("failed to compute auth replacement")
 		c.String(http.StatusInternalServerError, "internal error")
@@ -184,21 +184,18 @@ func (h *proxyHandler) fetchAndClean(ctx context.Context, signer *signing.Signer
 	return body, attemptedURL, err
 }
 
-func (h *proxyHandler) authStringFor(signer *signing.Signer, host, reqPath, token string) (string, error) {
+func (h *proxyHandler) authStringFor(signer *signing.Signer, host, reqPath, token, base string) (string, error) {
 	if path.Base(reqPath) == indexFilename {
 		// Master playlist: keep variant requests routed through this proxy
 		// with the same JWT.
 		return "jwt=" + url.QueryEscape(token), nil
 	}
 
-	// Variant playlists embed segment URLs that the client fetches directly
-	// from the CDN. Sign a wildcard for the playlist's containing directory so
-	// one signature covers every segment.
-	dir := path.Dir(reqPath)
-	if !strings.HasSuffix(dir, "/") {
-		dir += "/"
-	}
-	resource := "https://" + host + dir + "*"
+	// Sign the asset-root wildcard the JWT already authorizes. MediaPackage
+	// scatters segments across sibling directories under <base>, so signing
+	// the variant playlist's own path.Dir is too narrow and produces CF 403s
+	// on segments that resolve outside that directory.
+	resource := "https://" + host + base + "*"
 
 	q, err := signer.SignRawQuery(resource, h.signTTL)
 	if err != nil {

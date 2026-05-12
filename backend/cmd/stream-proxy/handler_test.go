@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"fmt"
 	"io"
@@ -214,6 +215,74 @@ func TestHandle_InvalidJWT_401(t *testing.T) {
 	rec := runHandler(h, target)
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 	assert.Empty(t, transport.last())
+}
+
+// decodeCloudFrontPolicy reverses CloudFront's URL-safe base64 substitutions
+// (`-`→`+`, `_`→`=`, `~`→`/`) and base64-decodes the result.
+func decodeCloudFrontPolicy(t *testing.T, policy string) string {
+	t.Helper()
+	std := strings.NewReplacer("-", "+", "_", "=", "~", "/").Replace(policy)
+	raw, err := base64.StdEncoding.DecodeString(std)
+	require.NoError(t, err, "decode CF policy %q", policy)
+	return string(raw)
+}
+
+// TestHandle_VariantPlaylist_SignsJWTBaseWildcard guards the regression where
+// the proxy signed the variant playlist's own directory (`<dir>/*`). MediaPackage
+// VOD scatters segments across sibling directories under the asset root, so the
+// signature must cover the JWT `base` prefix (`/out/v1/<g1>/<g2>/*`) — that is
+// exactly the scope the JWT already authorizes.
+func TestHandle_VariantPlaylist_SignsJWTBaseWildcard(t *testing.T) {
+	h, transport := newTestHandler(t)
+
+	// A minimal variant playlist with one segment URI. Content doesn't have to
+	// resolve to a sibling directory for this test — we're asserting on what the
+	// proxy puts in the auth string, which depends only on the JWT base and the
+	// request path.
+	transport.body = []byte("#EXTM3U\n#EXT-X-VERSION:6\n#EXTINF:6,\nseg1.ts\n")
+
+	base := "/out/v1/aaaaaa/bbbbbb/"
+	tok := mintTestJWT(t, base, string(streamtoken.ProviderCloudFront))
+	// Request a variant playlist that lives several levels below the asset root,
+	// mirroring the production layout where this bug surfaced.
+	target := fmt.Sprintf(
+		"/out/v1/aaaaaa/bbbbbb/cccccc/dddddd/eeeeee/index_1.m3u8?jwt=%s",
+		url.QueryEscape(tok),
+	)
+
+	rec := runHandler(h, target)
+	require.Equal(t, http.StatusOK, rec.Code, "body=%s", rec.Body.String())
+
+	// Find the segment line and extract its query string (the auth blob the
+	// proxy appended in place of the placeholder).
+	var segQuery string
+	for line := range strings.SplitSeq(rec.Body.String(), "\n") {
+		line = strings.TrimRight(line, "\r")
+		if strings.HasPrefix(line, "#") || line == "" {
+			continue
+		}
+		idx := strings.Index(line, "?")
+		require.GreaterOrEqual(t, idx, 0, "segment line %q has no query string", line)
+		segQuery = line[idx+1:]
+		break
+	}
+	require.NotEmpty(t, segQuery, "no segment line found in body: %q", rec.Body.String())
+
+	values, err := url.ParseQuery(segQuery)
+	require.NoError(t, err)
+
+	require.Equal(t, "CF-DIRECT-ID", values.Get("Key-Pair-Id"))
+	require.NotEmpty(t, values.Get("Signature"))
+
+	policy := values.Get("Policy")
+	require.NotEmpty(t, policy, "Policy param missing in segment query %q", segQuery)
+
+	decoded := decodeCloudFrontPolicy(t, policy)
+	assert.Contains(t, decoded,
+		`"https://cf.example.com/out/v1/aaaaaa/bbbbbb/*"`,
+		"policy must authorize the JWT base wildcard")
+	assert.NotContains(t, decoded, "eeeeee/*",
+		"policy must not be scoped to the variant playlist's directory")
 }
 
 func TestHandle_DefaultProviderUnset_NoClaim_400(t *testing.T) {
