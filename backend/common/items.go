@@ -539,10 +539,19 @@ type Song struct {
 	Title LocaleString
 }
 
+// PersonType discriminates between individual people and organizations.
+type PersonType string
+
+const (
+	PersonTypePerson       PersonType = "person"
+	PersonTypeOrganization PersonType = "organization"
+)
+
 // Person contains some metadata for people
 type Person struct {
 	ID     uuid.UUID
 	Name   string
+	Type   PersonType
 	Images Images
 }
 

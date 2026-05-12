@@ -51,3 +51,6 @@ models:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
+  PersonType:
+    model:
+      - github.com/bcc-code/bcc-media-platform/backend/common.PersonType

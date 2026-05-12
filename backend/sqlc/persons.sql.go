@@ -15,7 +15,7 @@ import (
 )
 
 const getPersonIDsByNames = `-- name: GetPersonIDsByNames :many
-SELECT p.id, p.name, p.date_updated
+SELECT p.id, p.name, p.date_updated, p.type
 FROM persons p
 WHERE name = ANY ($1::varchar[])
 `
@@ -29,7 +29,12 @@ func (q *Queries) GetPersonIDsByNames(ctx context.Context, names []string) ([]Pe
 	var items []Person
 	for rows.Next() {
 		var i Person
-		if err := rows.Scan(&i.ID, &i.Name, &i.DateUpdated); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.DateUpdated,
+			&i.Type,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -44,22 +49,23 @@ func (q *Queries) GetPersonIDsByNames(ctx context.Context, names []string) ([]Pe
 }
 
 const insertPerson = `-- name: InsertPerson :exec
-INSERT INTO "public"."persons" (id, name)
-VALUES ($1, $2)
+INSERT INTO "public"."persons" (id, name, type)
+VALUES ($1, $2, $3)
 `
 
 type InsertPersonParams struct {
 	ID   uuid.UUID `db:"id" json:"id"`
 	Name string    `db:"name" json:"name"`
+	Type string    `db:"type" json:"type"`
 }
 
 func (q *Queries) InsertPerson(ctx context.Context, arg InsertPersonParams) error {
-	_, err := q.db.ExecContext(ctx, insertPerson, arg.ID, arg.Name)
+	_, err := q.db.ExecContext(ctx, insertPerson, arg.ID, arg.Name, arg.Type)
 	return err
 }
 
 const getPersons = `-- name: getPersons :many
-SELECT p.id, p.name, p.date_updated, COALESCE(images.images, '{}'::json) AS images
+SELECT p.id, p.name, p.date_updated, p.type, COALESCE(images.images, '{}'::json) AS images
 FROM persons p
 LEFT JOIN (
     SELECT
@@ -78,6 +84,7 @@ type getPersonsRow struct {
 	ID          uuid.UUID       `db:"id" json:"id"`
 	Name        string          `db:"name" json:"name"`
 	DateUpdated time.Time       `db:"date_updated" json:"dateUpdated"`
+	Type        string          `db:"type" json:"type"`
 	Images      json.RawMessage `db:"images" json:"images"`
 }
 
@@ -94,6 +101,7 @@ func (q *Queries) getPersons(ctx context.Context, ids []uuid.UUID) ([]getPersons
 			&i.ID,
 			&i.Name,
 			&i.DateUpdated,
+			&i.Type,
 			&i.Images,
 		); err != nil {
 			return nil, err

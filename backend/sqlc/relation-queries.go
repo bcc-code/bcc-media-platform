@@ -33,6 +33,7 @@ func (q *Queries) GetPersons(ctx context.Context, ids []uuid.UUID) ([]common.Per
 		return common.Person{
 			ID:     i.ID,
 			Name:   i.Name,
+			Type:   common.PersonType(i.Type),
 			Images: q.getImages(i.Images),
 		}
 	}), nil

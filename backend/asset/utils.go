@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -70,10 +71,12 @@ func getOrInsertPersonIDs(ctx context.Context, queries *sqlc.Queries, names []st
 			newPerson := sqlc.Person{
 				ID:   uuid.New(),
 				Name: name,
+				Type: string(common.PersonTypePerson),
 			}
 			err = queries.InsertPerson(ctx, sqlc.InsertPersonParams{
 				ID:   newPerson.ID,
 				Name: name,
+				Type: string(common.PersonTypePerson),
 			})
 			if err != nil {
 				return nil, err

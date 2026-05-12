@@ -1310,6 +1310,7 @@ type Person struct {
 	ID          uuid.UUID `db:"id" json:"id"`
 	Name        string    `db:"name" json:"name"`
 	DateUpdated time.Time `db:"date_updated" json:"dateUpdated"`
+	Type        string    `db:"type" json:"type"`
 }
 
 type PersonsStyledimage struct {

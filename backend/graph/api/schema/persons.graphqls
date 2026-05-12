@@ -15,6 +15,11 @@ enum ContributionTypeCode {
     OTHER
 }
 
+enum PersonType {
+    person
+    organization
+}
+
 type ContributionType {
     code: String!
     title: String! @goField(forceResolver: true)
@@ -51,6 +56,7 @@ union ContributionItem = Episode | Chapter
 type Person {
     id: ID!
     name: String!
+    type: PersonType!
     image(style: ImageStyle): String @goField(forceResolver: true)
     contributionTypes: [ContributionTypeCount!]! @goField(forceResolver: true)
     contributionContentTypes: [ContentTypeCount!]! @goField(forceResolver: true)

@@ -13,6 +13,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -679,6 +680,7 @@ type ComplexityRoot struct {
 		ID                       func(childComplexity int) int
 		Image                    func(childComplexity int, style *model.ImageStyle) int
 		Name                     func(childComplexity int) int
+		Type                     func(childComplexity int) int
 	}
 
 	Playlist struct {
@@ -4399,6 +4401,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Person.Name(childComplexity), true
 
+	case "Person.type":
+		if e.complexity.Person.Type == nil {
+			break
+		}
+
+		return e.complexity.Person.Type(childComplexity), true
+
 	case "Playlist.description":
 		if e.complexity.Playlist.Description == nil {
 			break
@@ -7372,6 +7381,11 @@ type ContextCollection {
     OTHER
 }
 
+enum PersonType {
+    person
+    organization
+}
+
 type ContributionType {
     code: String!
     title: String! @goField(forceResolver: true)
@@ -7408,6 +7422,7 @@ union ContributionItem = Episode | Chapter
 type Person {
     id: ID!
     name: String!
+    type: PersonType!
     image(style: ImageStyle): String @goField(forceResolver: true)
     contributionTypes: [ContributionTypeCount!]! @goField(forceResolver: true)
     contributionContentTypes: [ContentTypeCount!]! @goField(forceResolver: true)
@@ -18679,6 +18694,8 @@ func (ec *executionContext) fieldContext_Contributor_person(_ context.Context, f
 				return ec.fieldContext_Person_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Person_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Person_type(ctx, field)
 			case "image":
 				return ec.fieldContext_Person_image(ctx, field)
 			case "contributionTypes":
@@ -31840,6 +31857,50 @@ func (ec *executionContext) fieldContext_Person_name(_ context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _Person_type(ctx context.Context, field graphql.CollectedField, obj *model.Person) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Person_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(common.PersonType)
+	fc.Result = res
+	return ec.marshalNPersonType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋcommonᚐPersonType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Person_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Person",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type PersonType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Person_image(ctx context.Context, field graphql.CollectedField, obj *model.Person) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Person_image(ctx, field)
 	if err != nil {
@@ -34008,6 +34069,8 @@ func (ec *executionContext) fieldContext_QueryRoot_person(ctx context.Context, f
 				return ec.fieldContext_Person_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Person_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Person_type(ctx, field)
 			case "image":
 				return ec.fieldContext_Person_image(ctx, field)
 			case "contributionTypes":
@@ -56648,6 +56711,11 @@ func (ec *executionContext) _Person(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "type":
+			out.Values[i] = ec._Person_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "image":
 			field := field
 
@@ -63727,6 +63795,23 @@ func (ec *executionContext) marshalNPerson2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑ
 		return graphql.Null
 	}
 	return ec._Person(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNPersonType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋcommonᚐPersonType(ctx context.Context, v any) (common.PersonType, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := common.PersonType(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPersonType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋcommonᚐPersonType(ctx context.Context, sel ast.SelectionSet, v common.PersonType) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalNPlaylist2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐPlaylist(ctx context.Context, sel ast.SelectionSet, v model.Playlist) graphql.Marshaler {

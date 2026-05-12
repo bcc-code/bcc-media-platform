@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 )
 
 type CalendarEntry interface {
@@ -1005,6 +1007,7 @@ func (this PageDetailsSection) GetDescription() *string { return this.Descriptio
 type Person struct {
 	ID                       string                   `json:"id"`
 	Name                     string                   `json:"name"`
+	Type                     common.PersonType        `json:"type"`
 	Image                    *string                  `json:"image,omitempty"`
 	ContributionTypes        []*ContributionTypeCount `json:"contributionTypes"`
 	ContributionContentTypes []*ContentTypeCount      `json:"contributionContentTypes"`

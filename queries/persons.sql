@@ -15,10 +15,10 @@ LEFT JOIN (
 WHERE id = ANY (@ids::uuid[]);
 
 -- name: GetPersonIDsByNames :many
-SELECT p.id, p.name, p.date_updated
+SELECT p.id, p.name, p.date_updated, p.type
 FROM persons p
 WHERE name = ANY (@names::varchar[]);
 
 -- name: InsertPerson :exec
-INSERT INTO "public"."persons" (id, name)
-VALUES (@id, @name);
+INSERT INTO "public"."persons" (id, name, type)
+VALUES (@id, @name, @type);
