@@ -1797,11 +1797,20 @@ func (e CardSectionSize) MarshalJSON() ([]byte, error) {
 type ContributionTypeCode string
 
 const (
-	ContributionTypeCodeLyricist ContributionTypeCode = "LYRICIST"
-	ContributionTypeCodeArranger ContributionTypeCode = "ARRANGER"
-	ContributionTypeCodeSinger   ContributionTypeCode = "SINGER"
-	ContributionTypeCodeSpeaker  ContributionTypeCode = "SPEAKER"
-	ContributionTypeCodeOther    ContributionTypeCode = "OTHER"
+	ContributionTypeCodeLyricist     ContributionTypeCode = "LYRICIST"
+	ContributionTypeCodeArranger     ContributionTypeCode = "ARRANGER"
+	ContributionTypeCodeSinger       ContributionTypeCode = "SINGER"
+	ContributionTypeCodeSpeaker      ContributionTypeCode = "SPEAKER"
+	ContributionTypeCodeComposer     ContributionTypeCode = "COMPOSER"
+	ContributionTypeCodeSoloist      ContributionTypeCode = "SOLOIST"
+	ContributionTypeCodePerformer    ContributionTypeCode = "PERFORMER"
+	ContributionTypeCodeTranslator   ContributionTypeCode = "TRANSLATOR"
+	ContributionTypeCodeDirector     ContributionTypeCode = "DIRECTOR"
+	ContributionTypeCodeProducer     ContributionTypeCode = "PRODUCER"
+	ContributionTypeCodeScriptwriter ContributionTypeCode = "SCRIPTWRITER"
+	ContributionTypeCodeActor        ContributionTypeCode = "ACTOR"
+	ContributionTypeCodeVoiceactor   ContributionTypeCode = "VOICEACTOR"
+	ContributionTypeCodeOther        ContributionTypeCode = "OTHER"
 )
 
 var AllContributionTypeCode = []ContributionTypeCode{
@@ -1809,12 +1818,21 @@ var AllContributionTypeCode = []ContributionTypeCode{
 	ContributionTypeCodeArranger,
 	ContributionTypeCodeSinger,
 	ContributionTypeCodeSpeaker,
+	ContributionTypeCodeComposer,
+	ContributionTypeCodeSoloist,
+	ContributionTypeCodePerformer,
+	ContributionTypeCodeTranslator,
+	ContributionTypeCodeDirector,
+	ContributionTypeCodeProducer,
+	ContributionTypeCodeScriptwriter,
+	ContributionTypeCodeActor,
+	ContributionTypeCodeVoiceactor,
 	ContributionTypeCodeOther,
 }
 
 func (e ContributionTypeCode) IsValid() bool {
 	switch e {
-	case ContributionTypeCodeLyricist, ContributionTypeCodeArranger, ContributionTypeCodeSinger, ContributionTypeCodeSpeaker, ContributionTypeCodeOther:
+	case ContributionTypeCodeLyricist, ContributionTypeCodeArranger, ContributionTypeCodeSinger, ContributionTypeCodeSpeaker, ContributionTypeCodeComposer, ContributionTypeCodeSoloist, ContributionTypeCodePerformer, ContributionTypeCodeTranslator, ContributionTypeCodeDirector, ContributionTypeCodeProducer, ContributionTypeCodeScriptwriter, ContributionTypeCodeActor, ContributionTypeCodeVoiceactor, ContributionTypeCodeOther:
 		return true
 	}
 	return false

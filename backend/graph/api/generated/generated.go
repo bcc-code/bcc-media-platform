@@ -7360,6 +7360,15 @@ type ContextCollection {
     ARRANGER
     SINGER
     SPEAKER
+    COMPOSER
+    SOLOIST
+    PERFORMER
+    TRANSLATOR
+    DIRECTOR
+    PRODUCER
+    SCRIPTWRITER
+    ACTOR
+    VOICEACTOR
     OTHER
 }
 
