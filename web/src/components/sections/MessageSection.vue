@@ -13,6 +13,7 @@ defineProps<{
         <div class="flex flex-wrap w-full gap-4">
             <div
                 v-for="m in item.messages"
+                :key="`${m.title}-${m.content}`"
                 class="rounded-lg border w-full lg:max-w-2xl"
                 :style="{
                     'background-color': m.style.background,

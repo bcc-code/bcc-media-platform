@@ -20,7 +20,7 @@ const filteredItems = computed(() =>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <div class="flex gap-4">
-            <div v-for="(i, index) in filteredItems">
+            <div v-for="(i, index) in filteredItems" :key="i.id">
                 <StudyTopicCardLarge
                     v-if="
                         item.cardSize == 'large' &&
