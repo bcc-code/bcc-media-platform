@@ -9,7 +9,7 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-    (event: 'clickItem', index: number): void
+    (event: 'clickItem', index: number, isModified: boolean): void
 }>()
 
 const filteredItems = computed(() =>
@@ -20,7 +20,7 @@ const filteredItems = computed(() =>
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <div class="flex gap-4">
-            <div v-for="(i, index) in filteredItems">
+            <div v-for="(i, index) in filteredItems" :key="i.id">
                 <StudyTopicCardLarge
                     v-if="
                         item.cardSize == 'large' &&
@@ -28,7 +28,7 @@ const filteredItems = computed(() =>
                     "
                     ref="sectionItem"
                     :item="i.item"
-                    @click="$emit('clickItem', index)"
+                    @click="$emit('clickItem', index, false)"
                 >
                 </StudyTopicCardLarge>
             </div>

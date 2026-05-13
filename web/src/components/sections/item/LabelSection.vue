@@ -1,14 +1,26 @@
 <script lang="ts" setup>
 import { Section } from '../types'
+import { interceptSpaLinkClick, itemHref } from '@/utils/items'
 
-defineProps<{
+const props = defineProps<{
     position: number
     item: Section & { __typename: 'LabelSection' }
 }>()
 
-defineEmits<{
-    (event: 'clickItem', index: number): void
+const emit = defineEmits<{
+    (event: 'clickItem', index: number, isModified: boolean): void
 }>()
+
+const handleClick = (event: MouseEvent, index: number, href: string | null) =>
+    interceptSpaLinkClick(event, !!href, (modified) => {
+        emit('clickItem', index, modified)
+    })
+
+const hrefFor = (index: number) =>
+    itemHref(props.item.items.items[index], {
+        useContext: false,
+        collectionId: '',
+    })
 </script>
 <template>
     <section>
@@ -16,13 +28,16 @@ defineEmits<{
             {{ item.title }}
         </h2>
         <div class="flex gap-2">
-            <div
+            <component
+                :is="hrefFor(index) ? 'a' : 'div'"
                 v-for="(i, index) in item.items.items"
+                :key="i.id"
+                :href="hrefFor(index) ?? undefined"
                 class="bg-slate-800 px-3 py-0.5 border border-1 border-slate-700 rounded-full cursor-pointer"
-                @click="$emit('clickItem', index)"
+                @click="handleClick($event, index, hrefFor(index))"
             >
                 <p class="text-lg">{{ i.title }}</p>
-            </div>
+            </component>
         </div>
     </section>
 </template>

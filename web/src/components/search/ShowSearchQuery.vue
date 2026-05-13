@@ -3,7 +3,7 @@ import Image from '@/components/Image.vue'
 import breakpoints from '@/components/sections/item/breakpoints'
 import { SearchQuery } from '@/graph/generated'
 import { analytics } from '@/services/analytics'
-import { goToShow } from '@/utils/items'
+import { goToShow, interceptSpaLinkClick, showHref } from '@/utils/items'
 import { Navigation } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { reactive } from 'vue'
@@ -23,7 +23,7 @@ const modules = [Navigation]
 const loading = reactive<Record<string, boolean>>({})
 
 const { sessionId, searchSessionId } = useSearch()
-const onclick = async (index: number, id: string) => {
+const onclick = async (index: number, id: string, isModified: boolean) => {
     analytics.track('searchresult_clicked', {
         elementId: id,
         elementType: 'Show',
@@ -34,7 +34,9 @@ const onclick = async (index: number, id: string) => {
         searchSessionId: searchSessionId.value,
     })
 
-    goToShow(id)
+    if (!isModified) {
+        goToShow(id)
+    }
 }
 
 const adminOn = localStorage.getItem('admin') === 'true'
@@ -42,6 +44,11 @@ const adminOn = localStorage.getItem('admin') === 'true'
 const open = (id: string) => {
     window.open('https://admin.brunstad.tv/admin/content/shows/' + id)
 }
+
+const handleClick = (event: MouseEvent, index: number, id: string) =>
+    interceptSpaLinkClick(event, true, (modified) => {
+        onclick(index, id, modified)
+    })
 </script>
 
 <template>
@@ -66,10 +73,11 @@ const open = (id: string) => {
                 v-for="(item, index) in result.search.result"
                 :key="item.id"
             >
-                <div
-                    class="cursor-pointer"
+                <a
+                    class="cursor-pointer block"
                     :class="[loading[item.id] ? 'opacity-50' : '']"
-                    @click="onclick(index, item.id)"
+                    :href="showHref(item.id)"
+                    @click="handleClick($event, index, item.id)"
                 >
                     <div class="relative mb-1 rounded-lg overflow-hidden">
                         <VButton
@@ -77,7 +85,7 @@ const open = (id: string) => {
                             class="absolute top-2 right-2"
                             size="thin"
                             color="secondary"
-                            @click="open(item.id)"
+                            @click.stop="open(item.id)"
                         >
                             EDIT
                         </VButton>
@@ -89,7 +97,7 @@ const open = (id: string) => {
                         />
                     </div>
                     <p class="mt-1 text-md lg:text-xl">{{ item.title }}</p>
-                </div>
+                </a>
             </SwiperSlide>
         </Swiper>
     </div>

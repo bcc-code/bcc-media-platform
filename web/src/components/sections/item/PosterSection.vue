@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { isCollectionItem } from '@/utils/items'
+import { isCollectionItem, itemHref } from '@/utils/items'
 import { Section } from '../types'
 import CollectionItemThumbnail from './CollectionItemThumbnail.vue'
 import SectionTitle from './SectionTitle.vue'
@@ -12,7 +12,7 @@ defineProps<{
 
 defineEmits<{
     (event: 'loadMore'): void
-    (event: 'clickItem', index: number): void
+    (event: 'clickItem', index: number, isModified: boolean): void
 }>()
 </script>
 <template>
@@ -28,9 +28,15 @@ defineEmits<{
                 :item="item"
                 :title="item.title"
                 :image="item.image"
+                :href="
+                    itemHref(item, {
+                        useContext: section.metadata?.useContext === true,
+                        collectionId: section.metadata?.collectionId ?? '',
+                    })
+                "
                 :secondary-titles="section.metadata?.secondaryTitles === true"
                 type="poster"
-                @click="$emit('clickItem', index)"
+                @click="(isModified) => $emit('clickItem', index, isModified)"
             />
         </Slider>
     </section>

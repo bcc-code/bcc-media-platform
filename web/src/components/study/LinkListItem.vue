@@ -4,19 +4,24 @@ import { webViewMain, openInBrowser } from '@/services/webviews/mainHandler'
 
 const props = defineProps<{ link: LessonLinkFragment }>()
 
-const openLink = () => {
+const handleClick = (event: MouseEvent) => {
+    // Inside the native webview, hand off to the host browser instead of
+    // letting the <a target="_blank"> navigate the webview itself.
     if (webViewMain) {
+        event.preventDefault()
         openInBrowser(props.link.url)
-    } else {
-        window.open(props.link.url, '_blank')?.focus()
     }
+    // Otherwise let the browser open the link natively (target="_blank").
 }
 </script>
 
 <template>
-    <div
+    <a
+        :href="link.url"
+        target="_blank"
+        rel="noopener noreferrer"
         class="flex items-center justify-start w-full cursor-pointer py-1 border-b border-separator-on-light px-4"
-        @click="openLink"
+        @click="handleClick($event)"
     >
         <div class="flex items-center justify-start h-full pr-3">
             <svg
@@ -64,6 +69,6 @@ const openLink = () => {
                 />
             </svg>
         </div>
-    </div>
+    </a>
 </template>
 @/services/webviews/mainHandler

@@ -10,7 +10,7 @@ import Section from '@/components/sections/Section.vue'
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import NotFound from '../NotFound.vue'
 import Loader from '../Loader.vue'
-import { goToSectionItem } from '@/utils/items'
+import { goToSectionItem, trackSectionItemClick } from '@/utils/items'
 import { TransitionPresets } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 
@@ -153,7 +153,11 @@ const loadMore = async () => {
     }
 }
 
-const clickItem = (sectionIndex: number, itemIndex: number) => {
+const clickItem = (
+    sectionIndex: number,
+    itemIndex: number,
+    isModified: boolean
+) => {
     if (!page.value) {
         return
     }
@@ -177,25 +181,37 @@ const clickItem = (sectionIndex: number, itemIndex: number) => {
                         if (i === itemIndex) {
                             // TODO: refactor to pass the item. This can cause bugs when the section filters out certain types, like CardSection does
                             if (!page.value) return
-                            goToSectionItem(
-                                {
-                                    index: i,
-                                    item: section.items.items[i],
+                            const itemArg = {
+                                index: i,
+                                item: section.items.items[i],
+                            }
+                            const sectionArg = {
+                                ...section,
+                                index: sectionIndex,
+                                options: {
+                                    useContext:
+                                        section.metadata?.useContext === true,
+                                    collectionId:
+                                        section.metadata?.collectionId ?? '',
                                 },
-                                {
-                                    ...section,
-                                    index: sectionIndex,
-                                    options: {
-                                        useContext:
-                                            section.metadata?.useContext ===
-                                            true,
-                                        collectionId:
-                                            section.metadata?.collectionId ??
-                                            '',
-                                    },
-                                },
-                                page.value.code
-                            )
+                            }
+                            // When the browser handles the navigation (modifier
+                            // or middle click on a real <a>), only fire analytics.
+                            // Otherwise call the full goToSectionItem to track AND
+                            // perform the SPA navigation.
+                            if (isModified) {
+                                trackSectionItemClick(
+                                    itemArg,
+                                    sectionArg,
+                                    page.value.code
+                                )
+                            } else {
+                                goToSectionItem(
+                                    itemArg,
+                                    sectionArg,
+                                    page.value.code
+                                )
+                            }
                         }
                     }
             }
@@ -253,7 +269,9 @@ load()
                     }"
                     :delay="i < 10 ? i * 100 : 0"
                     @load-more="appendItems(section)"
-                    @click-item="(index) => clickItem(i, index)"
+                    @click-item="
+                        (index, isModified) => clickItem(i, index, isModified)
+                    "
                 >
                 </Section>
                 <div

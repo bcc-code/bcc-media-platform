@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { goToPage, isCollectionItem } from '@/utils/items'
+import { goToPage, isCollectionItem, itemHref } from '@/utils/items'
 import type { Section } from '../types'
 import CollectionItemThumbnail from './CollectionItemThumbnail.vue'
 import SectionTitle from './SectionTitle.vue'
@@ -17,7 +17,7 @@ const props = defineProps<{
 
 defineEmits<{
     (event: 'loadMore'): void
-    (event: 'clickItem', index: number): void
+    (event: 'clickItem', index: number, isModified: boolean): void
 }>()
 
 const isShowMoreButtonVisible = computed(() => {
@@ -56,9 +56,18 @@ const pageCode = computed(() => {
                     :title="i.title"
                     :image="i.image"
                     :item="i.item"
+                    :href="
+                        itemHref(i, {
+                            useContext: item.metadata?.useContext === true,
+                            collectionId: item.metadata?.collectionId ?? '',
+                        })
+                    "
                     :secondary-titles="item.metadata?.secondaryTitles === true"
                     type="default"
-                    @click="$emit('clickItem', index)"
+                    @click="
+                        (isModified) =>
+                            $emit('clickItem', index, isModified)
+                    "
                 />
             </template>
             <template #end>

@@ -2,15 +2,16 @@
 import { SearchQuery } from '@/graph/generated'
 import { useI18n } from 'vue-i18n'
 import VButton from '../VButton.vue'
+import { episodeHref, interceptSpaLinkClick } from '@/utils/items'
 
 const { t } = useI18n()
 
-defineProps<{
-    result: SearchQuery
+const emit = defineEmits<{
+    (e: 'itemClick', index: number, id: string, isModified: boolean): void
 }>()
 
-defineEmits<{
-    (e: 'itemClick', index: number, id: string): void
+defineProps<{
+    result: SearchQuery
 }>()
 
 const adminOn = localStorage.getItem('admin') === 'true'
@@ -18,6 +19,11 @@ const adminOn = localStorage.getItem('admin') === 'true'
 const open = (i: { id: string }) => {
     window.open('https://admin.brunstad.tv/admin/content/episodes/' + i.id)
 }
+
+const handleClick = (event: MouseEvent, index: number, id: string) =>
+    interceptSpaLinkClick(event, true, (modified) => {
+        emit('itemClick', index, id, modified)
+    })
 </script>
 <template>
     <div>
@@ -35,10 +41,11 @@ const open = (i: { id: string }) => {
                 :key="i.id"
                 class="flex lg:hidden"
             >
-                <div
+                <a
                     v-if="i.__typename === 'EpisodeSearchItem'"
                     class="cursor-pointer flex"
-                    @click="$emit('itemClick', index, i.id)"
+                    :href="episodeHref(i.id)"
+                    @click="handleClick($event, index, i.id)"
                 >
                     <div class="relative mb-1 w-1/2 pr-2 py-2">
                         <img
@@ -66,17 +73,18 @@ const open = (i: { id: string }) => {
                             {{ i.title }}
                         </h1>
                     </div>
-                </div>
+                </a>
             </div>
             <div
                 v-for="(i, index) in result.search.result"
                 :key="i.id"
                 class="lg:flex hidden mb-4"
             >
-                <div
+                <a
                     v-if="i.__typename === 'EpisodeSearchItem'"
                     class="cursor-pointer w-full"
-                    @click="$emit('itemClick', index, i.id)"
+                    :href="episodeHref(i.id)"
+                    @click="handleClick($event, index, i.id)"
                 >
                     <div class="relative mb-1">
                         <VButton
@@ -109,7 +117,7 @@ const open = (i: { id: string }) => {
                         </div>
                         <h1 class="text-lg">{{ i.title }}</h1>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
     </div>

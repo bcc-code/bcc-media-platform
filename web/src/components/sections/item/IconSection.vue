@@ -6,26 +6,34 @@ import { onMounted, ref } from 'vue'
 import { getImageSize } from '@/utils/images'
 import Image from '@/components/Image.vue'
 import Loader from '@/components/Loader.vue'
+import { interceptSpaLinkClick, itemHref } from '@/utils/items'
 
-defineProps<{
+const props = defineProps<{
     position: number
     item: Section & { __typename: 'IconSection' }
 }>()
 
 const emit = defineEmits<{
-    (event: 'clickItem', index: number): void
+    (event: 'clickItem', index: number, isModified: boolean): void
 }>()
 
-const sectionItem = ref<HTMLDivElement[] | null>(null)
+const sectionItem = ref<HTMLElement[] | null>(null)
 
 const imageSize = ref(0)
 
 const clicked = ref(-1)
 
-const click = (index: number) => {
-    emit('clickItem', index)
-    clicked.value = index
-}
+const handleClick = (event: MouseEvent, index: number, href: string | null) =>
+    interceptSpaLinkClick(event, !!href, (modified) => {
+        emit('clickItem', index, modified)
+        if (!modified) clicked.value = index
+    })
+
+const hrefFor = (index: number) =>
+    itemHref(props.item.items.items[index], {
+        useContext: false,
+        collectionId: '',
+    })
 
 onMounted(() => {
     const div = sectionItem.value?.[0]
@@ -37,12 +45,14 @@ onMounted(() => {
     <section>
         <SectionTitle v-if="item.title">{{ item.title }}</SectionTitle>
         <div class="flex gap-4 items-start flex-wrap">
-            <button
+            <component
+                :is="hrefFor(index) ? 'a' : 'button'"
                 v-for="(i, index) in item.items.items"
                 :key="i.id"
                 ref="sectionItem"
-                class="w-20 shrink-0 2xl:w-32 hover:opacity-90 transition focus-visible:ring-4 focus-visible:ring-white/75 rounded-2xl"
-                @click="click(index)"
+                :href="hrefFor(index) ?? undefined"
+                class="w-20 shrink-0 2xl:w-32 hover:opacity-90 transition focus-visible:ring-4 focus-visible:ring-white/75 rounded-2xl block"
+                @click="handleClick($event, index, hrefFor(index))"
             >
                 <div
                     class="bg-slate-800 relative rounded-2xl border-2 border-slate-700 cursor-pointer overflow-hidden aspect-square"
@@ -73,7 +83,7 @@ onMounted(() => {
                         {{ i.title }}
                     </p>
                 </div>
-            </button>
+            </component>
         </div>
     </section>
 </template>

@@ -3,7 +3,7 @@ import { Section } from '../types'
 
 import SectionTitle from './SectionTitle.vue'
 import CollectionItemThumbnail from './CollectionItemThumbnail.vue'
-import { goToPage, isCollectionItem } from '@/utils/items'
+import { goToPage, isCollectionItem, itemHref } from '@/utils/items'
 import { computed } from 'vue'
 import VButton from '@/components/VButton.vue'
 import { useI18n } from 'vue-i18n'
@@ -14,7 +14,7 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-    (event: 'clickItem', index: number): void
+    (event: 'clickItem', index: number, isModified: boolean): void
 }>()
 
 const { t } = useI18n()
@@ -45,11 +45,22 @@ const pageCode = computed(() => {
                     :item="item"
                     :title="item.title"
                     :image="item.image"
+                    :href="
+                        itemHref(item, {
+                            useContext:
+                                section.metadata?.useContext === true,
+                            collectionId:
+                                section.metadata?.collectionId ?? '',
+                        })
+                    "
                     :secondary-titles="
                         section.metadata?.secondaryTitles === true
                     "
                     type="default"
-                    @click="$emit('clickItem', index)"
+                    @click="
+                        (isModified) =>
+                            $emit('clickItem', index, isModified)
+                    "
                 />
             </div>
             <VButton

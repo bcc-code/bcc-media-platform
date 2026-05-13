@@ -8,6 +8,7 @@ import { VButton } from '..'
 import { computed, ref } from 'vue'
 import { webViewMain } from '@/services/webviews/mainHandler'
 import router from '@/router'
+import { episodeHref, interceptSpaLinkClick } from '@/utils/items'
 import FeedbackRatingAndForm from '../feedback/FeedbackRatingAndForm.vue'
 
 const { t } = useI18n()
@@ -53,6 +54,11 @@ const playAgain = () => {
     }
     router.push('/episode/' + episode.value.id)
 }
+
+const handlePlayAgainClick = (event: MouseEvent) =>
+    interceptSpaLinkClick(event, true, (modified) => {
+        if (!modified) playAgain()
+    })
 </script>
 
 <template>
@@ -67,9 +73,10 @@ const playAgain = () => {
                     <p class="mt-1 w-full text-style-body-2 text-label-3">
                         {{ t('lesson.watchAgain.description') }}
                     </p>
-                    <div
-                        class="cursor-pointer mt-4 rounded-xl aspect-video bg-background-2 overflow-hidden z-10 relative"
-                        @click="playAgain"
+                    <a
+                        class="cursor-pointer mt-4 rounded-xl aspect-video bg-background-2 overflow-hidden z-10 relative block"
+                        :href="episodeHref(episode.id)"
+                        @click="handlePlayAgainClick($event)"
                     >
                         <div
                             class="bg-gradient-to-b from-[#ffffff00] to-[#000000B3] flex w-full h-full"
@@ -85,11 +92,7 @@ const playAgain = () => {
                         <div
                             class="absolute top-0 flex items-center justify-center w-full h-full"
                         >
-                            <VButton
-                                size="thin"
-                                class="z-20"
-                                @click="playAgain"
-                            >
+                            <VButton size="thin" class="z-20">
                                 <svg
                                     class="inline-block mr-2 -mt-1"
                                     width="19"
@@ -115,13 +118,12 @@ const playAgain = () => {
                         </div>
                         <div
                             class="absolute top-0 items-end flex w-full h-full"
-                            @click="playAgain"
                         >
                             <div class="mb-5 ml-4 text-style-title-3">
                                 {{ episode.title }}
                             </div>
                         </div>
-                    </div>
+                    </a>
                     <div
                         v-if="
                             isProbablyAnimation &&
