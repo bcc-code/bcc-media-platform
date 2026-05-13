@@ -4,7 +4,7 @@ import Image from '@/components/Image.vue'
 import Loader from '@/components/Loader.vue'
 import Pill from '@/components/Pill.vue'
 import type { CollectionItemThumbnailFragment } from '@/graph/generated'
-import { comingSoon, isModifiedClick } from '@/utils/items'
+import { comingSoon, interceptSpaLinkClick } from '@/utils/items'
 import { LockClosedIcon } from '@heroicons/vue/24/solid'
 import { computed, ref } from 'vue'
 import CollectionItemThumbnailTitle from './CollectionItemThumbnailTitle.vue'
@@ -43,18 +43,12 @@ const click = () => {
     emit('click', false)
 }
 
-// On a real <a>, let modifier/middle clicks fall through so the browser opens
-// a new tab / window natively. We still emit `click` so analytics fires for
-// the modifier-click case — listeners check the payload to decide whether to
-// also do SPA navigation.
 // eslint-disable-next-line no-undef
-const handleLinkClick = (event: MouseEvent) => {
-    const modified = isModifiedClick(event)
-    emit('click', modified)
-    if (modified) return
-    event.preventDefault()
-    clicked.value = true
-}
+const onLinkClick = (event: MouseEvent) =>
+    interceptSpaLinkClick(event, true, (modified) => {
+        emit('click', modified)
+        if (!modified) clicked.value = true
+    })
 
 const ratio = computed(() => {
     return {
@@ -98,7 +92,7 @@ const aspect = computed(() => {
                 comingSoon(item)
                     ? undefined
                     : href
-                      ? handleLinkClick($event)
+                      ? onLinkClick($event)
                       : click()
             "
         >

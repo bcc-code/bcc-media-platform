@@ -26,6 +26,24 @@ export const isModifiedClick = (event: MouseEvent): boolean =>
     event.altKey ||
     event.button !== 0
 
+// Shared handler for clicks on real <a href> elements that also drive SPA
+// navigation. Lets modifier/middle clicks fall through so the browser opens a
+// new tab/window natively, and calls preventDefault on plain clicks so the
+// caller can SPA-route instead. `onClick` always fires (with `isModified` so
+// listeners can decide whether to also navigate — e.g. analytics-only on
+// modified clicks). Pass `hasHref=false` when the element falls back to a
+// <button> with no href; preventDefault is then skipped.
+export const interceptSpaLinkClick = (
+    event: MouseEvent,
+    hasHref: boolean,
+    onClick: (isModified: boolean) => void
+): void => {
+    const modified = hasHref && isModifiedClick(event)
+    onClick(modified)
+    if (modified) return
+    if (hasHref) event.preventDefault()
+}
+
 export const episodeHref = (
     episodeId: string,
     options?: {

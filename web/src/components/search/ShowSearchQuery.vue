@@ -3,7 +3,7 @@ import Image from '@/components/Image.vue'
 import breakpoints from '@/components/sections/item/breakpoints'
 import { SearchQuery } from '@/graph/generated'
 import { analytics } from '@/services/analytics'
-import { goToShow, isModifiedClick, showHref } from '@/utils/items'
+import { goToShow, interceptSpaLinkClick, showHref } from '@/utils/items'
 import { Navigation } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { reactive } from 'vue'
@@ -46,12 +46,10 @@ const open = (id: string) => {
 }
 
 // eslint-disable-next-line no-undef
-const handleClick = (event: MouseEvent, index: number, id: string) => {
-    const modified = isModifiedClick(event)
-    onclick(index, id, modified)
-    if (modified) return
-    event.preventDefault()
-}
+const handleClick = (event: MouseEvent, index: number, id: string) =>
+    interceptSpaLinkClick(event, true, (modified) => {
+        onclick(index, id, modified)
+    })
 </script>
 
 <template>

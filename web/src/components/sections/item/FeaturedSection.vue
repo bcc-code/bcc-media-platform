@@ -8,7 +8,7 @@ import Image from '@/components/Image.vue'
 import Slider from './Slider.vue'
 import VButton from '@/components/VButton.vue'
 import { useI18n } from 'vue-i18n'
-import { isModifiedClick, itemHref } from '@/utils/items'
+import { interceptSpaLinkClick, itemHref } from '@/utils/items'
 
 const props = defineProps<{
     position: number
@@ -27,12 +27,10 @@ const hrefFor = (index: number) =>
     })
 
 // eslint-disable-next-line no-undef
-const handleClick = (event: MouseEvent, index: number, href: string | null) => {
-    const modified = !!href && isModifiedClick(event)
-    emit('clickItem', index, modified)
-    if (modified) return
-    if (href) event.preventDefault()
-}
+const handleClick = (event: MouseEvent, index: number, href: string | null) =>
+    interceptSpaLinkClick(event, !!href, (modified) => {
+        emit('clickItem', index, modified)
+    })
 
 const { t } = useI18n()
 

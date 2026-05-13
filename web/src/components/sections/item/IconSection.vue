@@ -6,7 +6,7 @@ import { onMounted, ref } from 'vue'
 import { getImageSize } from '@/utils/images'
 import Image from '@/components/Image.vue'
 import Loader from '@/components/Loader.vue'
-import { isModifiedClick, itemHref } from '@/utils/items'
+import { interceptSpaLinkClick, itemHref } from '@/utils/items'
 
 const props = defineProps<{
     position: number
@@ -25,13 +25,11 @@ const imageSize = ref(0)
 const clicked = ref(-1)
 
 // eslint-disable-next-line no-undef
-const handleClick = (event: MouseEvent, index: number, href: string | null) => {
-    const modified = !!href && isModifiedClick(event)
-    emit('clickItem', index, modified)
-    if (modified) return
-    if (href) event.preventDefault()
-    clicked.value = index
-}
+const handleClick = (event: MouseEvent, index: number, href: string | null) =>
+    interceptSpaLinkClick(event, !!href, (modified) => {
+        emit('clickItem', index, modified)
+        if (!modified) clicked.value = index
+    })
 
 const hrefFor = (index: number) =>
     itemHref(props.item.items.items[index], {

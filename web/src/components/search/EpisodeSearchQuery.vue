@@ -2,7 +2,7 @@
 import { SearchQuery } from '@/graph/generated'
 import { useI18n } from 'vue-i18n'
 import VButton from '../VButton.vue'
-import { episodeHref, isModifiedClick } from '@/utils/items'
+import { episodeHref, interceptSpaLinkClick } from '@/utils/items'
 
 const { t } = useI18n()
 
@@ -21,12 +21,10 @@ const open = (i: { id: string }) => {
 }
 
 // eslint-disable-next-line no-undef
-const handleClick = (event: MouseEvent, index: number, id: string) => {
-    const modified = isModifiedClick(event)
-    emit('itemClick', index, id, modified)
-    if (modified) return
-    event.preventDefault()
-}
+const handleClick = (event: MouseEvent, index: number, id: string) =>
+    interceptSpaLinkClick(event, true, (modified) => {
+        emit('itemClick', index, id, modified)
+    })
 </script>
 <template>
     <div>

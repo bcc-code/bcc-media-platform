@@ -8,7 +8,7 @@ import { VButton } from '..'
 import { computed, ref } from 'vue'
 import { webViewMain } from '@/services/webviews/mainHandler'
 import router from '@/router'
-import { episodeHref, isModifiedClick } from '@/utils/items'
+import { episodeHref, interceptSpaLinkClick } from '@/utils/items'
 import FeedbackRatingAndForm from '../feedback/FeedbackRatingAndForm.vue'
 
 const { t } = useI18n()
@@ -56,11 +56,10 @@ const playAgain = () => {
 }
 
 // eslint-disable-next-line no-undef
-const handlePlayAgainClick = (event: MouseEvent) => {
-    if (isModifiedClick(event)) return
-    event.preventDefault()
-    playAgain()
-}
+const handlePlayAgainClick = (event: MouseEvent) =>
+    interceptSpaLinkClick(event, true, (modified) => {
+        if (!modified) playAgain()
+    })
 </script>
 
 <template>
