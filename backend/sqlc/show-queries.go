@@ -120,15 +120,12 @@ func (q *Queries) GetPermissionsForShows(ctx context.Context, ids []int) ([]comm
 }
 
 // GetShowIDsForUuids returns episodeIds for specified uuids
-func (q *Queries) GetShowIDsForUuids(ctx context.Context, uuids []uuid.UUID) ([]common.Conversion[uuid.UUID, int], error) {
+func (q *Queries) GetShowIDsForUuids(ctx context.Context, uuids []uuid.UUID) ([]common.Mapping[uuid.UUID, int], error) {
 	rows, err := q.getShowIDsForUuids(ctx, uuids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getShowIDsForUuidsRow, _ int) common.Conversion[uuid.UUID, int] {
-		return conversion[uuid.UUID, int]{
-			source: i.Original,
-			result: int(i.Result),
-		}
+	return lo.Map(rows, func(i getShowIDsForUuidsRow, _ int) common.Mapping[uuid.UUID, int] {
+		return common.Mapping[uuid.UUID, int]{Key: i.Original, Value: int(i.Result)}
 	}), nil
 }

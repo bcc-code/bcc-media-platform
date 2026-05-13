@@ -148,40 +148,25 @@ func (q *Queries) GetQuestionAlternatives(ctx context.Context, ids []uuid.UUID) 
 	}), nil
 }
 
-type relation[K comparable, KR comparable] struct {
-	ID       K
-	ParentID KR
-}
-
-// GetKey returns key
-func (r relation[K, KR]) GetKey() K {
-	return r.ID
-}
-
-// GetRelationID returns the related id
-func (r relation[K, KR]) GetRelationID() KR {
-	return r.ParentID
-}
-
 // GetTaskIDsForLessons retrieves related ids
-func (rq *RoleQueries) GetTaskIDsForLessons(ctx context.Context, ids []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
+func (rq *RoleQueries) GetTaskIDsForLessons(ctx context.Context, ids []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := rq.queries.getTasksForLessons(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(r getTasksForLessonsRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
-		return relation[uuid.UUID, uuid.UUID](r)
+	return lo.Map(rows, func(r getTasksForLessonsRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: r.ParentID, Value: r.ID}
 	}), nil
 }
 
 // GetLessonIDsForTopics retrieves related ids
-func (rq *RoleQueries) GetLessonIDsForTopics(ctx context.Context, ids []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
+func (rq *RoleQueries) GetLessonIDsForTopics(ctx context.Context, ids []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := rq.queries.getLessonsForTopics(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(r getLessonsForTopicsRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
-		return relation[uuid.UUID, uuid.UUID](r)
+	return lo.Map(rows, func(r getLessonsForTopicsRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: r.ParentID, Value: r.ID}
 	}), nil
 }
 
@@ -204,7 +189,7 @@ func (rq *RoleQueries) GetLessonIDsWithRoles(ctx context.Context, ids []uuid.UUI
 }
 
 // GetLessonIDsForEpisodes returns lessons for episodes
-func (rq *RoleQueries) GetLessonIDsForEpisodes(ctx context.Context, ids []int) ([]common.Relation[uuid.UUID, int], error) {
+func (rq *RoleQueries) GetLessonIDsForEpisodes(ctx context.Context, ids []int) ([]common.Mapping[int, uuid.UUID], error) {
 	rows, err := rq.queries.getLessonsForItemsInCollection(ctx, getLessonsForItemsInCollectionParams{
 		Collection: "episodes",
 		Column2: lo.Map(ids, func(i int, _ int) string {
@@ -214,17 +199,14 @@ func (rq *RoleQueries) GetLessonIDsForEpisodes(ctx context.Context, ids []int) (
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getLessonsForItemsInCollectionRow, _ int) common.Relation[uuid.UUID, int] {
+	return lo.Map(rows, func(i getLessonsForItemsInCollectionRow, _ int) common.Mapping[int, uuid.UUID] {
 		p, _ := strconv.ParseInt(i.ParentID, 10, 64)
-		return relation[uuid.UUID, int]{
-			ID:       i.ID,
-			ParentID: int(p),
-		}
+		return common.Mapping[int, uuid.UUID]{Key: int(p), Value: i.ID}
 	}), nil
 }
 
 // GetLessonIDsForLinks returns lessons for episodes
-func (rq *RoleQueries) GetLessonIDsForLinks(ctx context.Context, ids []int) ([]common.Relation[uuid.UUID, int], error) {
+func (rq *RoleQueries) GetLessonIDsForLinks(ctx context.Context, ids []int) ([]common.Mapping[int, uuid.UUID], error) {
 	rows, err := rq.queries.getLessonsForItemsInCollection(ctx, getLessonsForItemsInCollectionParams{
 		Collection: "links",
 		Column2: lo.Map(ids, func(i int, _ int) string {
@@ -234,17 +216,14 @@ func (rq *RoleQueries) GetLessonIDsForLinks(ctx context.Context, ids []int) ([]c
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getLessonsForItemsInCollectionRow, _ int) common.Relation[uuid.UUID, int] {
+	return lo.Map(rows, func(i getLessonsForItemsInCollectionRow, _ int) common.Mapping[int, uuid.UUID] {
 		p, _ := strconv.ParseInt(i.ParentID, 10, 64)
-		return relation[uuid.UUID, int]{
-			ID:       i.ID,
-			ParentID: int(p),
-		}
+		return common.Mapping[int, uuid.UUID]{Key: int(p), Value: i.ID}
 	}), nil
 }
 
 // GetEpisodeIDsForLessons returns episodes for lessons
-func (rq *RoleQueries) GetEpisodeIDsForLessons(ctx context.Context, ids []uuid.UUID) ([]common.Relation[int, uuid.UUID], error) {
+func (rq *RoleQueries) GetEpisodeIDsForLessons(ctx context.Context, ids []uuid.UUID) ([]common.Mapping[uuid.UUID, int], error) {
 	rows, err := rq.queries.getEpisodesForLessons(ctx, getEpisodesForLessonsParams{
 		Column1: ids,
 		Column2: rq.roles,
@@ -252,71 +231,65 @@ func (rq *RoleQueries) GetEpisodeIDsForLessons(ctx context.Context, ids []uuid.U
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getEpisodesForLessonsRow, _ int) common.Relation[int, uuid.UUID] {
+	return lo.Map(rows, func(i getEpisodesForLessonsRow, _ int) common.Mapping[uuid.UUID, int] {
 		p, _ := strconv.ParseInt(i.ID, 10, 64)
-		return relation[int, uuid.UUID]{
-			ID:       int(p),
-			ParentID: i.ParentID,
-		}
+		return common.Mapping[uuid.UUID, int]{Key: i.ParentID, Value: int(p)}
 	}), nil
 }
 
 // GetLinkIDsForLessons returns episodes for lessons
-func (rq *RoleQueries) GetLinkIDsForLessons(ctx context.Context, ids []uuid.UUID) ([]common.Relation[int, uuid.UUID], error) {
+func (rq *RoleQueries) GetLinkIDsForLessons(ctx context.Context, ids []uuid.UUID) ([]common.Mapping[uuid.UUID, int], error) {
 	rows, err := rq.queries.getLinksForLessons(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getLinksForLessonsRow, _ int) common.Relation[int, uuid.UUID] {
+	return lo.Map(rows, func(i getLinksForLessonsRow, _ int) common.Mapping[uuid.UUID, int] {
 		p, _ := strconv.ParseInt(i.ID, 10, 64)
-		return relation[int, uuid.UUID]{
-			ID:       int(p),
-			ParentID: i.ParentID,
-		}
+		return common.Mapping[uuid.UUID, int]{Key: i.ParentID, Value: int(p)}
 	}), nil
 }
 
 // GetCompletedTasks for profiles
-func (q *Queries) GetCompletedTasks(ctx context.Context, profileIDs []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetCompletedTasks(ctx context.Context, profileIDs []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getCompletedTasks(ctx, profileIDs)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getCompletedTasksRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
-		return relation[uuid.UUID, uuid.UUID](i)
+	return lo.Map(rows, func(i getCompletedTasksRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: i.ParentID, Value: i.ID}
 	}), nil
 }
 
 // GetCompletedAndLockedTasks for profiles
-func (q *Queries) GetCompletedAndLockedTasks(ctx context.Context, profileIDs []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetCompletedAndLockedTasks(ctx context.Context, profileIDs []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getCompletedAndLockedTasks(ctx, profileIDs)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getCompletedAndLockedTasksRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
-		return relation[uuid.UUID, uuid.UUID](i)
+	return lo.Map(rows, func(i getCompletedAndLockedTasksRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: i.ParentID, Value: i.ID}
 	}), nil
 }
 
 // GetCompletedLessons for profiles
-func (q *Queries) GetCompletedLessons(ctx context.Context, profileIDs []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetCompletedLessons(ctx context.Context, profileIDs []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getCompletedLessons(ctx, profileIDs)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getCompletedLessonsRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
-		return relation[uuid.UUID, uuid.UUID](i)
+	return lo.Map(rows, func(i getCompletedLessonsRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: i.ParentID, Value: i.ID}
 	}), nil
 }
 
 // GetCompletedTopics for profiles
-func (q *Queries) GetCompletedTopics(ctx context.Context, profileIDs []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetCompletedTopics(ctx context.Context, profileIDs []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getCompletedTopics(ctx, profileIDs)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getCompletedTopicsRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
-		return relation[uuid.UUID, uuid.UUID](i)
+	return lo.Map(rows, func(i getCompletedTopicsRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: i.ParentID, Value: i.ID}
 	}), nil
 }
 
@@ -361,7 +334,7 @@ func (pq *ProfileQueries) GetTaskAlternativesAnswersCount(ctx context.Context, i
 }
 
 // GetDefaultLessonIDForTopicIDs returns the default lessonID
-func (pq *ProfileQueries) GetDefaultLessonIDForTopicIDs(ctx context.Context, ids []uuid.UUID) ([]common.Conversion[uuid.UUID, uuid.UUID], error) {
+func (pq *ProfileQueries) GetDefaultLessonIDForTopicIDs(ctx context.Context, ids []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := pq.queries.getDefaultLessonIDForTopicIDs(ctx, getDefaultLessonIDForTopicIDsParams{
 		ProfileID: pq.profileID,
 		TopicIds:  ids,
@@ -369,10 +342,7 @@ func (pq *ProfileQueries) GetDefaultLessonIDForTopicIDs(ctx context.Context, ids
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(row getDefaultLessonIDForTopicIDsRow, _ int) common.Conversion[uuid.UUID, uuid.UUID] {
-		return conversion[uuid.UUID, uuid.UUID]{
-			source: row.Source,
-			result: row.Result,
-		}
+	return lo.Map(rows, func(row getDefaultLessonIDForTopicIDsRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: row.Source, Value: row.Result}
 	}), nil
 }

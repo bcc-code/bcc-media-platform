@@ -38,16 +38,13 @@ func (pq *ProfileQueries) GetProgressForEpisodes(ctx context.Context, episodeIDs
 }
 
 // GetEpisodeIDsWithProgress returns episodeIDs ordered by date progressed.
-func (q *Queries) GetEpisodeIDsWithProgress(ctx context.Context, profileIDs []uuid.UUID) ([]common.Relation[int, uuid.UUID], error) {
+func (q *Queries) GetEpisodeIDsWithProgress(ctx context.Context, profileIDs []uuid.UUID) ([]common.Mapping[uuid.UUID, int], error) {
 	rows, err := q.getEpisodeIDsWithProgress(ctx, profileIDs)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getEpisodeIDsWithProgressRow, _ int) common.Relation[int, uuid.UUID] {
-		return common.RelationItem[int, uuid.UUID]{
-			Key:        int(i.EpisodeID),
-			RelationID: i.ProfileID,
-		}
+	return lo.Map(rows, func(i getEpisodeIDsWithProgressRow, _ int) common.Mapping[uuid.UUID, int] {
+		return common.Mapping[uuid.UUID, int]{Key: i.ProfileID, Value: int(i.EpisodeID)}
 	}), nil
 }
 
@@ -78,7 +75,7 @@ func (pq *ProfileQueries) ClearProgress(ctx context.Context, episodeID int) erro
 }
 
 // DefaultEpisodeIDForSeasonIDs returns the default episodeIDs for the specified keys
-func (pq *ProfileQueries) DefaultEpisodeIDForSeasonIDs(ctx context.Context, seasonIDs []int) ([]common.Conversion[int, int], error) {
+func (pq *ProfileQueries) DefaultEpisodeIDForSeasonIDs(ctx context.Context, seasonIDs []int) ([]common.Mapping[int, int], error) {
 	rows, err := pq.queries.getDefaultEpisodeIDForSeasonIDs(ctx, getDefaultEpisodeIDForSeasonIDsParams{
 		ProfileID: pq.profileID,
 		SeasonIds: intToInt32(seasonIDs),
@@ -86,16 +83,13 @@ func (pq *ProfileQueries) DefaultEpisodeIDForSeasonIDs(ctx context.Context, seas
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(row getDefaultEpisodeIDForSeasonIDsRow, _ int) common.Conversion[int, int] {
-		return conversion[int, int]{
-			source: int(row.ParentID),
-			result: int(row.ID),
-		}
+	return lo.Map(rows, func(row getDefaultEpisodeIDForSeasonIDsRow, _ int) common.Mapping[int, int] {
+		return common.Mapping[int, int]{Key: int(row.ParentID), Value: int(row.ID)}
 	}), nil
 }
 
 // DefaultEpisodeIDForShowIDs returns the default episodeIDs for the specified keys
-func (pq *ProfileQueries) DefaultEpisodeIDForShowIDs(ctx context.Context, seasonIDs []int) ([]common.Conversion[int, int], error) {
+func (pq *ProfileQueries) DefaultEpisodeIDForShowIDs(ctx context.Context, seasonIDs []int) ([]common.Mapping[int, int], error) {
 	rows, err := pq.queries.getDefaultEpisodeIDForShowIDs(ctx, getDefaultEpisodeIDForShowIDsParams{
 		ProfileID: pq.profileID,
 		ShowIds:   intToInt32(seasonIDs),
@@ -103,10 +97,7 @@ func (pq *ProfileQueries) DefaultEpisodeIDForShowIDs(ctx context.Context, season
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(row getDefaultEpisodeIDForShowIDsRow, _ int) common.Conversion[int, int] {
-		return conversion[int, int]{
-			source: int(row.ParentID),
-			result: int(row.ID),
-		}
+	return lo.Map(rows, func(row getDefaultEpisodeIDForShowIDsRow, _ int) common.Mapping[int, int] {
+		return common.Mapping[int, int]{Key: int(row.ParentID), Value: int(row.ID)}
 	}), nil
 }

@@ -7,15 +7,12 @@ import (
 	"github.com/samber/lo"
 )
 
-func (rq *Queries) GetPrimaryEpisodeIDForMediaItems(ctx context.Context, ids []uuid.UUID) ([]common.Conversion[uuid.UUID, int], error) {
+func (rq *Queries) GetPrimaryEpisodeIDForMediaItems(ctx context.Context, ids []uuid.UUID) ([]common.Mapping[uuid.UUID, int], error) {
 	rows, err := rq.getPrimaryEpisodeIDForMediaItems(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(r getPrimaryEpisodeIDForMediaItemsRow, _ int) common.Conversion[uuid.UUID, int] {
-		return conversion[uuid.UUID, int]{
-			source: r.ID,
-			result: int(r.PrimaryEpisodeID.Int64),
-		}
+	return lo.Map(rows, func(r getPrimaryEpisodeIDForMediaItemsRow, _ int) common.Mapping[uuid.UUID, int] {
+		return common.Mapping[uuid.UUID, int]{Key: r.ID, Value: int(r.PrimaryEpisodeID.Int64)}
 	}), nil
 }

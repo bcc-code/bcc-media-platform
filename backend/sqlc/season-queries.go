@@ -62,18 +62,8 @@ func (q *Queries) ListSeasons(ctx context.Context) ([]common.Season, error) {
 	})), nil
 }
 
-// GetKey returns the id for this row
-func (row getSeasonIDsForShowsRow) GetKey() int {
-	return int(row.ID)
-}
-
-// GetRelationID returns the relation id for this row
-func (row getSeasonIDsForShowsRow) GetRelationID() int {
-	return int(row.ShowID)
-}
-
 // GetSeasonIDsForShowsWithRoles returns episodeIDs for season filtered by roles
-func (rq *RoleQueries) GetSeasonIDsForShowsWithRoles(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
+func (rq *RoleQueries) GetSeasonIDsForShowsWithRoles(ctx context.Context, ids []int) ([]common.Mapping[int, int], error) {
 	rows, err := rq.queries.getSeasonIDsForShowsWithRoles(ctx, getSeasonIDsForShowsWithRolesParams{
 		Column1: intToInt32(ids),
 		Column2: rq.roles,
@@ -81,8 +71,8 @@ func (rq *RoleQueries) GetSeasonIDsForShowsWithRoles(ctx context.Context, ids []
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getSeasonIDsForShowsWithRolesRow, _ int) common.Relation[int, int] {
-		return getSeasonIDsForShowsRow(i)
+	return lo.Map(rows, func(i getSeasonIDsForShowsWithRolesRow, _ int) common.Mapping[int, int] {
+		return common.Mapping[int, int]{Key: int(i.ShowID), Value: int(i.ID)}
 	}), nil
 }
 

@@ -29,23 +29,13 @@ func (q *Queries) GetRedirects(ctx context.Context, ids []uuid.UUID) ([]common.R
 	return mapToRedirects(rows), err
 }
 
-// GetOriginal returns the requested string
-func (row getRedirectIDsForCodesRow) GetOriginal() string {
-	return row.Code
-}
-
-// GetResult returns the id from the query
-func (row getRedirectIDsForCodesRow) GetResult() uuid.UUID {
-	return row.ID
-}
-
 // GetRedirectIDsForCodes returns ids for the requested codes
-func (q *Queries) GetRedirectIDsForCodes(ctx context.Context, codes []string) ([]common.Conversion[string, uuid.UUID], error) {
+func (q *Queries) GetRedirectIDsForCodes(ctx context.Context, codes []string) ([]common.Mapping[string, uuid.UUID], error) {
 	rows, err := q.getRedirectIDsForCodes(ctx, codes)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getRedirectIDsForCodesRow, _ int) common.Conversion[string, uuid.UUID] {
-		return i
+	return lo.Map(rows, func(i getRedirectIDsForCodesRow, _ int) common.Mapping[string, uuid.UUID] {
+		return common.Mapping[string, uuid.UUID]{Key: i.Code, Value: i.ID}
 	}), nil
 }

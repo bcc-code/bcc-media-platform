@@ -109,23 +109,13 @@ func (rq *RoleQueries) GetItemsForCollectionsWithRoles(ctx context.Context, ids 
 	return mapToCollectionItems(colEnts), nil
 }
 
-// GetOriginal returns the requested string
-func (row getCollectionIDsForCodesRow) GetOriginal() string {
-	return row.Slug.String
-}
-
-// GetResult returns the id from the query
-func (row getCollectionIDsForCodesRow) GetResult() int {
-	return int(row.ID)
-}
-
 // GetCollectionIDsForCodes returns ids for the requested codes
-func (q *Queries) GetCollectionIDsForCodes(ctx context.Context, codes []string) ([]common.Conversion[string, int], error) {
+func (q *Queries) GetCollectionIDsForCodes(ctx context.Context, codes []string) ([]common.Mapping[string, int], error) {
 	rows, err := q.getCollectionIDsForCodes(ctx, codes)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getCollectionIDsForCodesRow, _ int) common.Conversion[string, int] {
-		return i
+	return lo.Map(rows, func(i getCollectionIDsForCodesRow, _ int) common.Mapping[string, int] {
+		return common.Mapping[string, int]{Key: i.Slug.String, Value: int(i.ID)}
 	}), nil
 }

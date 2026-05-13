@@ -46,16 +46,13 @@ func (q *Queries) ListEvents(ctx context.Context) ([]common.Event, error) {
 }
 
 // GetEntryIDsForEventIDs returns the calendar entry ids for the specified event ids
-func (q *Queries) GetEntryIDsForEventIDs(ctx context.Context, ids []int) ([]common.Relation[int, int], error) {
+func (q *Queries) GetEntryIDsForEventIDs(ctx context.Context, ids []int) ([]common.Mapping[int, int], error) {
 	rows, err := q.getCalendarEntryIDsForEvents(ctx, intToInt32(ids))
 	if err != nil {
 		return nil, nil
 	}
-	return lo.Map(rows, func(r getCalendarEntryIDsForEventsRow, _ int) common.Relation[int, int] {
-		return relation[int, int]{
-			ID:       int(r.ID),
-			ParentID: int(r.ParentID.Int64),
-		}
+	return lo.Map(rows, func(r getCalendarEntryIDsForEventsRow, _ int) common.Mapping[int, int] {
+		return common.Mapping[int, int]{Key: int(r.ParentID.Int64), Value: int(r.ID)}
 	}), nil
 }
 

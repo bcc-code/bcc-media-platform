@@ -73,23 +73,13 @@ func (q *Queries) GetPermissionsForPages(ctx context.Context, ids []int) ([]comm
 	}), nil
 }
 
-// GetOriginal returns the requested string
-func (row getPageIDsForCodesRow) GetOriginal() string {
-	return row.Code.String
-}
-
-// GetResult returns the id from the query
-func (row getPageIDsForCodesRow) GetResult() int {
-	return int(row.ID)
-}
-
 // GetPageIDsForCodes returns ids for the requested codes
-func (q *Queries) GetPageIDsForCodes(ctx context.Context, codes []string) ([]common.Conversion[string, int], error) {
+func (q *Queries) GetPageIDsForCodes(ctx context.Context, codes []string) ([]common.Mapping[string, int], error) {
 	rows, err := q.getPageIDsForCodes(ctx, codes)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getPageIDsForCodesRow, _ int) common.Conversion[string, int] {
-		return i
+	return lo.Map(rows, func(i getPageIDsForCodesRow, _ int) common.Mapping[string, int] {
+		return common.Mapping[string, int]{Key: i.Code.String, Value: int(i.ID)}
 	}), nil
 }

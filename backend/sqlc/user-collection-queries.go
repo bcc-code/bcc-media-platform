@@ -46,37 +46,34 @@ func (q *Queries) GetUserCollectionEntries(ctx context.Context, ids []uuid.UUID)
 }
 
 // GetUserCollectionIDsForProfileIDs returns collection ids for profiles
-func (q *Queries) GetUserCollectionIDsForProfileIDs(ctx context.Context, profileIDs []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetUserCollectionIDsForProfileIDs(ctx context.Context, profileIDs []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getUserCollectionIDsForProfileIDs(ctx, profileIDs)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getUserCollectionIDsForProfileIDsRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
-		return relation[uuid.UUID, uuid.UUID](i)
+	return lo.Map(rows, func(i getUserCollectionIDsForProfileIDsRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: i.ParentID, Value: i.ID}
 	}), nil
 }
 
 // GetUserCollectionEntryIDsForUserCollectionIDs returns entry ids for collection ids
-func (q *Queries) GetUserCollectionEntryIDsForUserCollectionIDs(ctx context.Context, collectionIDs []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetUserCollectionEntryIDsForUserCollectionIDs(ctx context.Context, collectionIDs []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getUserCollectionEntryIDsForUserCollectionIDs(ctx, collectionIDs)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getUserCollectionEntryIDsForUserCollectionIDsRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
-		return relation[uuid.UUID, uuid.UUID](i)
+	return lo.Map(rows, func(i getUserCollectionEntryIDsForUserCollectionIDsRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: i.ParentID, Value: i.ID}
 	}), nil
 }
 
 // GetMyListCollectionForProfileIDs returns the id for the profile my list collection
-func (q *Queries) GetMyListCollectionForProfileIDs(ctx context.Context, profileIDs []uuid.UUID) ([]common.Conversion[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetMyListCollectionForProfileIDs(ctx context.Context, profileIDs []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getMyListCollectionForProfileIDs(ctx, profileIDs)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getMyListCollectionForProfileIDsRow, _ int) common.Conversion[uuid.UUID, uuid.UUID] {
-		return conversion[uuid.UUID, uuid.UUID]{
-			source: i.ParentID,
-			result: i.ID,
-		}
+	return lo.Map(rows, func(i getMyListCollectionForProfileIDsRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: i.ParentID, Value: i.ID}
 	}), nil
 }

@@ -63,18 +63,8 @@ func (q *Queries) GetQuestions(ctx context.Context, ids []uuid.UUID) ([]common.Q
 	return mapToQuestions(items), nil
 }
 
-// GetKey returns the id for this row
-func (row getQuestionIDsForCategoriesWithRolesRow) GetKey() uuid.UUID {
-	return row.ID
-}
-
-// GetRelationID returns the relation id for this row
-func (row getQuestionIDsForCategoriesWithRolesRow) GetRelationID() uuid.UUID {
-	return row.CategoryID
-}
-
 // GetQuestionIDsForCategories returns a list of episodes specified by seasons
-func (rq *RoleQueries) GetQuestionIDsForCategories(ctx context.Context, ids []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
+func (rq *RoleQueries) GetQuestionIDsForCategories(ctx context.Context, ids []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := rq.queries.getQuestionIDsForCategoriesWithRoles(ctx, getQuestionIDsForCategoriesWithRolesParams{
 		Roles:       rq.roles,
 		CategoryIds: ids,
@@ -82,7 +72,7 @@ func (rq *RoleQueries) GetQuestionIDsForCategories(ctx context.Context, ids []uu
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getQuestionIDsForCategoriesWithRolesRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
-		return i
+	return lo.Map(rows, func(i getQuestionIDsForCategoriesWithRolesRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: i.CategoryID, Value: i.ID}
 	}), nil
 }

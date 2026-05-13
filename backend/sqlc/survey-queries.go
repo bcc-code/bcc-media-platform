@@ -71,12 +71,12 @@ func (q *Queries) GetSurveyQuestions(ctx context.Context, ids []uuid.UUID) ([]co
 }
 
 // GetSurveyQuestionIDsForSurveyIDs returns relation structs for the questions
-func (rq *RoleQueries) GetSurveyQuestionIDsForSurveyIDs(ctx context.Context, ids []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
+func (rq *RoleQueries) GetSurveyQuestionIDsForSurveyIDs(ctx context.Context, ids []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := rq.queries.getQuestionIDsForSurveyIDs(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getQuestionIDsForSurveyIDsRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
-		return relation[uuid.UUID, uuid.UUID](i)
+	return lo.Map(rows, func(i getQuestionIDsForSurveyIDsRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: i.ParentID, Value: i.ID}
 	}), nil
 }

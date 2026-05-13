@@ -45,16 +45,13 @@ func (q *Queries) GetShorts(ctx context.Context, ids []uuid.UUID) ([]common.Shor
 }
 
 // GetMediaIDsForShortIDs returns media ids for the requested shortIds
-func (q *Queries) GetMediaIDsForShortIDs(ctx context.Context, ids []uuid.UUID) ([]common.Conversion[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetMediaIDsForShortIDs(ctx context.Context, ids []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getMediaIDForShorts(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getMediaIDForShortsRow, _ int) common.Conversion[uuid.UUID, uuid.UUID] {
-		return conversion[uuid.UUID, uuid.UUID]{
-			source: i.ID,
-			result: i.MediaitemID.UUID,
-		}
+	return lo.Map(rows, func(i getMediaIDForShortsRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: i.ID, Value: i.MediaitemID.UUID}
 	}), nil
 }
 

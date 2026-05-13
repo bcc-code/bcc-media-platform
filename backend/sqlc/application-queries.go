@@ -83,23 +83,13 @@ func (q *Queries) GetApplicationGroups(ctx context.Context, ids []uuid.UUID) ([]
 	}), nil
 }
 
-// GetOriginal returns the requested string
-func (row getApplicationIDsForCodesRow) GetOriginal() string {
-	return row.Code
-}
-
-// GetResult returns the id from the query
-func (row getApplicationIDsForCodesRow) GetResult() int {
-	return int(row.ID)
-}
-
 // GetApplicationIDsForCodes returns ids for the requested codes
-func (q *Queries) GetApplicationIDsForCodes(ctx context.Context, codes []string) ([]common.Conversion[string, int], error) {
+func (q *Queries) GetApplicationIDsForCodes(ctx context.Context, codes []string) ([]common.Mapping[string, int], error) {
 	rows, err := q.getApplicationIDsForCodes(ctx, codes)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getApplicationIDsForCodesRow, _ int) common.Conversion[string, int] {
-		return i
+	return lo.Map(rows, func(i getApplicationIDsForCodesRow, _ int) common.Mapping[string, int] {
+		return common.Mapping[string, int]{Key: i.Code, Value: int(i.ID)}
 	}), nil
 }

@@ -53,7 +53,7 @@ func (q *Queries) Collection(collection string) CollectionQueries {
 }
 
 // GetAchievementsForActions retrieves achievementIDs for actions
-func (cq *CollectionQueries) GetAchievementsForActions(ctx context.Context, actions []string) ([]common.Relation[uuid.UUID, string], error) {
+func (cq *CollectionQueries) GetAchievementsForActions(ctx context.Context, actions []string) ([]common.Mapping[string, uuid.UUID], error) {
 	rows, err := cq.getAchievementsForActions(ctx, getAchievementsForActionsParams{
 		Column1: cq.collection,
 		Column2: actions,
@@ -61,19 +61,19 @@ func (cq *CollectionQueries) GetAchievementsForActions(ctx context.Context, acti
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getAchievementsForActionsRow, _ int) common.Relation[uuid.UUID, string] {
-		return relation[uuid.UUID, string](i)
+	return lo.Map(rows, func(i getAchievementsForActionsRow, _ int) common.Mapping[string, uuid.UUID] {
+		return common.Mapping[string, uuid.UUID]{Key: i.ParentID, Value: i.ID}
 	}), nil
 }
 
 // GetAchievementsForGroups retrieves achievementIDs for actions
-func (q *Queries) GetAchievementsForGroups(ctx context.Context, groupIDs []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetAchievementsForGroups(ctx context.Context, groupIDs []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getAchievementsForGroups(ctx, groupIDs)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getAchievementsForGroupsRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
-		return relation[uuid.UUID, uuid.UUID](i)
+	return lo.Map(rows, func(i getAchievementsForGroupsRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: i.ParentID, Value: i.ID}
 	}), nil
 }
 
@@ -92,24 +92,24 @@ func (q *Queries) GetAchievementGroups(ctx context.Context, ids []uuid.UUID) ([]
 }
 
 // GetAchievementsForProfiles returns achievements achieved for profiles
-func (q *Queries) GetAchievementsForProfiles(ctx context.Context, ids []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetAchievementsForProfiles(ctx context.Context, ids []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getAchievedAchievementsForProfiles(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getAchievedAchievementsForProfilesRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
-		return relation[uuid.UUID, uuid.UUID](i)
+	return lo.Map(rows, func(i getAchievedAchievementsForProfilesRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: i.ParentID, Value: i.ID}
 	}), nil
 }
 
 // GetUnconfirmedAchievementsForProfiles returns achievements achieved for profiles
-func (q *Queries) GetUnconfirmedAchievementsForProfiles(ctx context.Context, ids []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetUnconfirmedAchievementsForProfiles(ctx context.Context, ids []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getUnconfirmedAchievedAchievementsForProfiles(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(i getUnconfirmedAchievedAchievementsForProfilesRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
-		return relation[uuid.UUID, uuid.UUID](i)
+	return lo.Map(rows, func(i getUnconfirmedAchievedAchievementsForProfilesRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: i.ParentID, Value: i.ID}
 	}), nil
 }
 
