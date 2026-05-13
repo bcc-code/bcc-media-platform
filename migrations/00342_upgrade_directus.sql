@@ -8,15 +8,15 @@ ALTER TABLE IF EXISTS "public"."directus_users" ADD COLUMN IF NOT EXISTS "text_d
 
 ALTER TABLE IF EXISTS "public"."directus_activity" DROP COLUMN IF EXISTS "comment" CASCADE; --WARN: Drop column can occure in data loss!
 
-CREATE INDEX directus_activity_timestamp_index ON public.directus_activity USING btree ("timestamp");
+CREATE INDEX IF NOT EXISTS directus_activity_timestamp_index ON public.directus_activity USING btree ("timestamp");
 
 ALTER TABLE IF EXISTS "public"."directus_versions" ADD COLUMN IF NOT EXISTS "delta" json NULL  ;
 
-CREATE INDEX directus_revisions_parent_index ON public.directus_revisions USING btree (parent);
+CREATE INDEX IF NOT EXISTS directus_revisions_parent_index ON public.directus_revisions USING btree (parent);
 
-CREATE INDEX directus_revisions_activity_index ON public.directus_revisions USING btree (activity);
+CREATE INDEX IF NOT EXISTS directus_revisions_activity_index ON public.directus_revisions USING btree (activity);
 
-CREATE INDEX timedmetadata_id_seconds_index ON public.timedmetadata USING btree (id, seconds);
+CREATE INDEX IF NOT EXISTS timedmetadata_id_seconds_index ON public.timedmetadata USING btree (id, seconds);
 
 CREATE TABLE IF NOT EXISTS "public"."directus_deployments" (
 	"id" uuid NOT NULL  ,
@@ -65,9 +65,18 @@ CREATE TABLE IF NOT EXISTS "public"."directus_comments" (
 	CONSTRAINT "directus_comments_user_updated_foreign" FOREIGN KEY (user_updated) REFERENCES directus_users(id)
 );
 
-CREATE INDEX mediaitems_translations_mediaitems_id_index ON public.mediaitems_translations USING btree (mediaitems_id);
+CREATE INDEX IF NOT EXISTS mediaitems_translations_mediaitems_id_index ON public.mediaitems_translations USING btree (mediaitems_id);
 
-ALTER TABLE IF EXISTS "public"."goose_db_version" ADD CONSTRAINT "goose_db_version_pkey" PRIMARY KEY (id);
+-- +goose StatementBegin
+DO $$
+BEGIN
+	IF NOT EXISTS (
+		SELECT 1 FROM pg_constraint WHERE conname = 'goose_db_version_pkey'
+	) THEN
+		ALTER TABLE "public"."goose_db_version" ADD CONSTRAINT "goose_db_version_pkey" PRIMARY KEY (id);
+	END IF;
+END $$;
+-- +goose StatementEnd
 
 ALTER TABLE IF EXISTS "public"."directus_settings" ADD COLUMN IF NOT EXISTS "visual_editor_urls" json NULL  ;
 
