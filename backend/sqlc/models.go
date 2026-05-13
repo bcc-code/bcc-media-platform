@@ -1093,6 +1093,7 @@ type Mediaitem struct {
 	AvailableFrom          null_v4.Time    `db:"available_from" json:"availableFrom"`
 	AvailableTo            null_v4.Time    `db:"available_to" json:"availableTo"`
 	PrimaryEpisodeID       null_v4.Int     `db:"primary_episode_id" json:"primaryEpisodeId"`
+	CopyrightHolderID      uuid.NullUUID   `db:"copyright_holder_id" json:"copyrightHolderId"`
 }
 
 type MediaitemsAsset struct {
@@ -1195,6 +1196,7 @@ type MediaitemsViewV2 struct {
 	AgeratingCode        null_v4.String  `db:"agerating_code" json:"ageratingCode"`
 	Audience             null_v4.String  `db:"audience" json:"audience"`
 	ContentType          null_v4.String  `db:"content_type" json:"contentType"`
+	CopyrightHolderID    uuid.NullUUID   `db:"copyright_holder_id" json:"copyrightHolderId"`
 	ProductionDate       time.Time       `db:"production_date" json:"productionDate"`
 	PublishedAt          time.Time       `db:"published_at" json:"publishedAt"`
 	TranslationsRequired bool            `db:"translations_required" json:"translationsRequired"`

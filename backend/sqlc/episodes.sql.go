@@ -415,7 +415,8 @@ SELECT e.id,
        mi.asset_date_updated,
        COALESCE(mi.agerating_code, e.agerating_code, s.agerating_code, 'A') as agerating,
        mi.audience,
-       mi.content_type
+       mi.content_type,
+       mi.copyright_holder_id
 FROM episodes e
          LEFT JOIN mediaitems_by_episodes_v2($1::int[]) mi ON mi.id = e.mediaitem_id
          LEFT JOIN ts ON e.id = ts.episodes_id
@@ -460,6 +461,7 @@ type getEpisodesRow struct {
 	Agerating             string                `db:"agerating" json:"agerating"`
 	Audience              null_v4.String        `db:"audience" json:"audience"`
 	ContentType           null_v4.String        `db:"content_type" json:"contentType"`
+	CopyrightHolderID     uuid.NullUUID         `db:"copyright_holder_id" json:"copyrightHolderId"`
 }
 
 func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpisodesRow, error) {
@@ -504,6 +506,7 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 			&i.Agerating,
 			&i.Audience,
 			&i.ContentType,
+			&i.CopyrightHolderID,
 		); err != nil {
 			return nil, err
 		}
@@ -615,7 +618,8 @@ SELECT e.id,
        mi.asset_date_updated,
        COALESCE(mi.agerating_code, e.agerating_code, s.agerating_code, 'A') as agerating,
        mi.audience,
-       mi.content_type
+       mi.content_type,
+       mi.copyright_holder_id
 FROM episodes e
          LEFT JOIN mediaitems_view_v2 mi ON mi.id = e.mediaitem_id
          LEFT JOIN ts ON e.id = ts.episodes_id
@@ -658,6 +662,7 @@ type listEpisodesRow struct {
 	Agerating             string                `db:"agerating" json:"agerating"`
 	Audience              null_v4.String        `db:"audience" json:"audience"`
 	ContentType           null_v4.String        `db:"content_type" json:"contentType"`
+	CopyrightHolderID     uuid.NullUUID         `db:"copyright_holder_id" json:"copyrightHolderId"`
 }
 
 func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
@@ -702,6 +707,7 @@ func (q *Queries) listEpisodes(ctx context.Context) ([]listEpisodesRow, error) {
 			&i.Agerating,
 			&i.Audience,
 			&i.ContentType,
+			&i.CopyrightHolderID,
 		); err != nil {
 			return nil, err
 		}
