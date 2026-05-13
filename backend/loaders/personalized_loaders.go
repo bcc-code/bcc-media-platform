@@ -54,7 +54,7 @@ func GetPersonalizedLoaders(
 		ContributionsForPersonLoader: NewListLoader(ctx, pq.GetContributionsForPersonsWithRoles, func(i common.Contribution) uuid.UUID {
 			return i.PersonID
 		}, WithName("person-contributions")),
-		TagEpisodesLoader: NewRelationLoader(ctx, pq.GetEpisodeIDsWithTagIDs, WithName("tags-episodes")),
+		TagEpisodesLoader: NewMappingListLoader(ctx, pq.GetEpisodeIDsWithTagIDs, WithName("tags-episodes")),
 	}
 
 	// Canceling the context on delete stops janitors nested inside the loaders as well.

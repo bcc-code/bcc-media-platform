@@ -3,21 +3,19 @@ package loaders
 import (
 	"context"
 
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/graph-gophers/dataloader/v7"
 )
 
-// NewMapped returns a single-value loader for cases where the factory's row
-// type differs from the value stored in the loader. The caller supplies a
-// keyFn to extract the lookup key from each row and a valFn to extract the
-// stored value.
+// NewMappingLoader returns a single-value loader for cases where the factory
+// returns rows that carry both a lookup key and a converted value (the
+// classic code -> id lookup). Each Mapping.Key indexes into a single
+// Mapping.Value.
 //
-// Use this when the underlying query returns rows that pair a lookup key
-// with a converted value (e.g. code -> id lookups).
-func NewMapped[K comparable, V any, Row any](
+// Replaces the old NewConversionLoader.
+func NewMappingLoader[K comparable, V any](
 	ctx context.Context,
-	factory func(ctx context.Context, keys []K) ([]Row, error),
-	keyFn func(Row) K,
-	valFn func(Row) V,
+	factory func(ctx context.Context, keys []K) ([]common.Mapping[K, V], error),
 	opts ...Option,
 ) *Loader[K, *V] {
 	batchLoad := func(ctx context.Context, keys []K) []*dataloader.Result[*V] {
@@ -25,8 +23,8 @@ func NewMapped[K comparable, V any, Row any](
 		resMap := map[K]*V{}
 		if err == nil {
 			for _, r := range res {
-				v := valFn(r)
-				resMap[keyFn(r)] = &v
+				v := r.Value
+				resMap[r.Key] = &v
 			}
 		}
 		return assembleBatch(keys, resMap, err)
@@ -36,19 +34,14 @@ func NewMapped[K comparable, V any, Row any](
 	return &Loader[K, *V]{Loader: dataloader.NewBatchedLoader(batchLoad, options...)}
 }
 
-// NewListMapped returns a list-value loader for cases where the factory's
-// row type differs from the values stored in the loader. The caller supplies
-// a keyFn to extract the lookup key (parent) from each row and a valFn to
-// extract the stored value (child) from each row. Multiple rows can map to
-// the same key.
+// NewMappingListLoader returns a list-value loader for cases where the factory
+// returns rows that describe a one-to-many relation between parent keys and
+// child values. Multiple Mapping rows can share the same Mapping.Key.
 //
-// Use this when the underlying query returns rows that describe a one-to-many
-// relation between parent keys and child values.
-func NewListMapped[K comparable, V any, Row any](
+// Replaces the old NewRelationLoader.
+func NewMappingListLoader[K comparable, V any](
 	ctx context.Context,
-	factory func(ctx context.Context, keys []K) ([]Row, error),
-	keyFn func(Row) K,
-	valFn func(Row) V,
+	factory func(ctx context.Context, keys []K) ([]common.Mapping[K, V], error),
 	opts ...Option,
 ) *Loader[K, []*V] {
 	batchLoad := func(ctx context.Context, keys []K) []*dataloader.Result[[]*V] {
@@ -56,9 +49,8 @@ func NewListMapped[K comparable, V any, Row any](
 		resMap := map[K][]*V{}
 		if err == nil {
 			for _, r := range res {
-				v := valFn(r)
-				key := keyFn(r)
-				resMap[key] = append(resMap[key], &v)
+				v := r.Value
+				resMap[r.Key] = append(resMap[r.Key], &v)
 			}
 		}
 		return assembleBatch(keys, resMap, err)

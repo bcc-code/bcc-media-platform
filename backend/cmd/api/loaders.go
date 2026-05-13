@@ -34,10 +34,10 @@ func getLoadersForProfile(queries *sqlc.Queries, profile *common.Profile) *loade
 		GetSelectedAlternativesLoader:      loaders.New(ctx, profileQueries.GetSelectedAlternatives, loaders.WithMemoryCache(time.Second*1), loaders.WithName("selected-alternatives")),
 		TaskAlternativesAnswersCountLoader: loaders.New(ctx, profileQueries.GetTaskAlternativesAnswersCount, loaders.WithMemoryCache(time.Second*15), loaders.WithName("task-alternatives-answers-count")),
 
-		SeasonDefaultEpisodeLoader: loaders.NewConversionLoader(ctx, profileQueries.DefaultEpisodeIDForSeasonIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("season-default-episodes")),
-		ShowDefaultEpisodeLoader:   loaders.NewConversionLoader(ctx, profileQueries.DefaultEpisodeIDForShowIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("show-default-episodes")),
+		SeasonDefaultEpisodeLoader: loaders.NewMappingLoader(ctx, profileQueries.DefaultEpisodeIDForSeasonIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("season-default-episodes")),
+		ShowDefaultEpisodeLoader:   loaders.NewMappingLoader(ctx, profileQueries.DefaultEpisodeIDForShowIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("show-default-episodes")),
 
-		TopicDefaultLessonLoader: loaders.NewConversionLoader(ctx, profileQueries.GetDefaultLessonIDForTopicIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("topic-default-lessons")),
+		TopicDefaultLessonLoader: loaders.NewMappingLoader(ctx, profileQueries.GetDefaultLessonIDForTopicIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("topic-default-lessons")),
 
 		MediaProgressLoader: loaders.New(ctx, func(ctx context.Context, ids []uuid.UUID) ([]common.MediaProgress, error) {
 			rows, err := queries.GetMediaProgress(ctx, sqlc.GetMediaProgressParams{

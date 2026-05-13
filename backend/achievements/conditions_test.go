@@ -57,7 +57,7 @@ func TestCheckNewAchievements(t *testing.T) {
 	taskID2 := testutils.CreateTask(t, ctx, q, lessonID2)
 
 	l := &loaders.BatchLoaders{
-		CompletedLessonsLoader: loaders.NewRelationLoader(ctx, q.GetCompletedLessons, loaders.WithName("completed-lessons")),
+		CompletedLessonsLoader: loaders.NewMappingListLoader(ctx, q.GetCompletedLessons, loaders.WithName("completed-lessons")),
 		StudyLessonLoader:      loaders.New(ctx, q.GetLessons),
 	}
 
