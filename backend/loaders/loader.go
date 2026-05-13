@@ -106,38 +106,37 @@ func NewCustomLoader[K comparable, V any](
 	opts ...Option,
 ) *Loader[K, *V] {
 	batchLoadItems := func(ctx context.Context, keys []K) []*dataloader.Result[*V] {
-		var results []*dataloader.Result[*V]
-
 		res, err := factory(ctx, keys)
-
 		resMap := map[K]*V{}
-
 		if err == nil {
 			for _, r := range res {
 				item := r
 				resMap[getKey(r)] = &item
 			}
 		}
-
-		for _, key := range keys {
-			r := &dataloader.Result[*V]{
-				Error: err,
-			}
-
-			if val, ok := resMap[key]; ok {
-				r.Data = val
-			}
-
-			results = append(results, r)
-		}
-
-		return results
+		return assembleBatch(keys, resMap, err)
 	}
 
 	options := getOptions[K, *V](ctx, opts...)
-
-	// Currently we do not want to cache at the GQL level
 	return &Loader[K, *V]{Loader: dataloader.NewBatchedLoader(batchLoadItems, options...)}
+}
+
+// Identity returns its argument unchanged. Useful as a WithKeyFunc argument for
+// loaders whose factory already returns key values (the old NewFilterLoader case).
+func Identity[T any](v T) T { return v }
+
+// assembleBatch turns a resolved map and a per-batch error into the ordered
+// []*dataloader.Result slice the dataloader library expects.
+func assembleBatch[K comparable, T any](keys []K, resMap map[K]T, err error) []*dataloader.Result[T] {
+	results := make([]*dataloader.Result[T], 0, len(keys))
+	for _, key := range keys {
+		r := &dataloader.Result[T]{Error: err}
+		if val, ok := resMap[key]; ok {
+			r.Data = val
+		}
+		results = append(results, r)
+	}
+	return results
 }
 
 // GetByID returns the object from the loader

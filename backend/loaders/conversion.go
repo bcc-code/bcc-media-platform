@@ -3,7 +3,6 @@ package loaders
 import (
 	"context"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/graph-gophers/dataloader/v7"
 )
 
 // NewConversionLoader creates a new batch loader that converts between two types.
@@ -37,36 +36,8 @@ func NewConversionLoader[o comparable, rt any](
 	converter func(ctx context.Context, ids []o) ([]common.Conversion[o, rt], error),
 	opts ...Option,
 ) *Loader[o, *rt] {
-	batchLoadLists := func(ctx context.Context, keys []o) []*dataloader.Result[*rt] {
-		var results []*dataloader.Result[*rt]
-
-		res, err := converter(ctx, keys)
-
-		resMap := map[o]*rt{}
-
-		if err == nil {
-			for _, r := range res {
-				v := r.GetResult()
-				resMap[r.GetOriginal()] = &v
-			}
-		}
-
-		for _, key := range keys {
-			r := &dataloader.Result[*rt]{
-				Error: err,
-			}
-
-			if val, ok := resMap[key]; ok {
-				r.Data = val
-			}
-
-			results = append(results, r)
-		}
-
-		return results
-	}
-
-	options := getOptions[o, *rt](ctx, opts...)
-
-	return &Loader[o, *rt]{Loader: dataloader.NewBatchedLoader(batchLoadLists, options...)}
+	return NewMapped(ctx, converter,
+		func(r common.Conversion[o, rt]) o { return r.GetOriginal() },
+		func(r common.Conversion[o, rt]) rt { return r.GetResult() },
+		opts...)
 }
