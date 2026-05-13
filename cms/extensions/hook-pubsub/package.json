@@ -12,7 +12,7 @@
 		"type": "hook",
 		"path": "dist/index.js",
 		"source": "src/index.ts",
-		"host": "^9.26.0"
+		"host": "^11.0.0"
 	},
 	"scripts": {
 		"build": "directus-extension build",
@@ -20,13 +20,13 @@
 		"link": "directus-extension link"
 	},
 	"devDependencies": {
-		"@directus/extensions-sdk": "^12.0.2",
+		"@directus/extensions-sdk": "^17.1.4",
 		"@types/node": "^22.7.4",
 		"@types/uuid": "^10.0.0",
 		"typescript": "^5.6.2"
 	},
 	"dependencies": {
-		"@directus/types": "^12.0.1",
+		"@directus/types": "^15.0.0",
 		"@google-cloud/pubsub": "^4.7.2",
 		"cloudevents": "^8.0.2"
 	},

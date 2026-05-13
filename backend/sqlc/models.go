@@ -361,7 +361,6 @@ type DirectusActivity struct {
 	UserAgent  null_v4.String `db:"user_agent" json:"userAgent"`
 	Collection string         `db:"collection" json:"collection"`
 	Item       string         `db:"item" json:"item"`
-	Comment    null_v4.String `db:"comment" json:"comment"`
 	Origin     null_v4.String `db:"origin" json:"origin"`
 }
 
@@ -388,6 +387,17 @@ type DirectusCollection struct {
 	Versioning            bool                  `db:"versioning" json:"versioning"`
 }
 
+type DirectusComment struct {
+	ID          uuid.UUID     `db:"id" json:"id"`
+	Collection  string        `db:"collection" json:"collection"`
+	Item        string        `db:"item" json:"item"`
+	Comment     string        `db:"comment" json:"comment"`
+	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
+	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
+	UserCreated uuid.NullUUID `db:"user_created" json:"userCreated"`
+	UserUpdated uuid.NullUUID `db:"user_updated" json:"userUpdated"`
+}
+
 type DirectusDashboard struct {
 	ID          uuid.UUID      `db:"id" json:"id"`
 	Name        string         `db:"name" json:"name"`
@@ -396,6 +406,43 @@ type DirectusDashboard struct {
 	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
 	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
 	Color       null_v4.String `db:"color" json:"color"`
+}
+
+type DirectusDeployment struct {
+	ID            uuid.UUID             `db:"id" json:"id"`
+	Provider      string                `db:"provider" json:"provider"`
+	Credentials   null_v4.String        `db:"credentials" json:"credentials"`
+	Options       null_v4.String        `db:"options" json:"options"`
+	DateCreated   null_v4.Time          `db:"date_created" json:"dateCreated"`
+	UserCreated   uuid.NullUUID         `db:"user_created" json:"userCreated"`
+	WebhookIds    pqtype.NullRawMessage `db:"webhook_ids" json:"webhookIds"`
+	WebhookSecret null_v4.String        `db:"webhook_secret" json:"webhookSecret"`
+	LastSyncedAt  null_v4.Time          `db:"last_synced_at" json:"lastSyncedAt"`
+}
+
+type DirectusDeploymentProject struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Deployment  uuid.UUID      `db:"deployment" json:"deployment"`
+	ExternalID  string         `db:"external_id" json:"externalId"`
+	Name        string         `db:"name" json:"name"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	Url         null_v4.String `db:"url" json:"url"`
+	Framework   null_v4.String `db:"framework" json:"framework"`
+	Deployable  bool           `db:"deployable" json:"deployable"`
+}
+
+type DirectusDeploymentRun struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Project     uuid.UUID      `db:"project" json:"project"`
+	ExternalID  string         `db:"external_id" json:"externalId"`
+	Target      string         `db:"target" json:"target"`
+	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
+	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
+	Status      null_v4.String `db:"status" json:"status"`
+	Url         null_v4.String `db:"url" json:"url"`
+	StartedAt   null_v4.Time   `db:"started_at" json:"startedAt"`
+	CompletedAt null_v4.Time   `db:"completed_at" json:"completedAt"`
 }
 
 type DirectusExtension struct {
@@ -426,6 +473,7 @@ type DirectusField struct {
 	Group             null_v4.String        `db:"group" json:"group"`
 	Validation        pqtype.NullRawMessage `db:"validation" json:"validation"`
 	ValidationMessage null_v4.String        `db:"validation_message" json:"validationMessage"`
+	Searchable        bool                  `db:"searchable" json:"searchable"`
 }
 
 type DirectusFile struct {
@@ -644,6 +692,31 @@ type DirectusSetting struct {
 	PublicRegistrationVerifyEmail bool                  `db:"public_registration_verify_email" json:"publicRegistrationVerifyEmail"`
 	PublicRegistrationRole        uuid.NullUUID         `db:"public_registration_role" json:"publicRegistrationRole"`
 	PublicRegistrationEmailFilter pqtype.NullRawMessage `db:"public_registration_email_filter" json:"publicRegistrationEmailFilter"`
+	VisualEditorUrls              pqtype.NullRawMessage `db:"visual_editor_urls" json:"visualEditorUrls"`
+	ProjectID                     uuid.NullUUID         `db:"project_id" json:"projectId"`
+	McpEnabled                    bool                  `db:"mcp_enabled" json:"mcpEnabled"`
+	McpAllowDeletes               bool                  `db:"mcp_allow_deletes" json:"mcpAllowDeletes"`
+	McpPromptsCollection          null_v4.String        `db:"mcp_prompts_collection" json:"mcpPromptsCollection"`
+	McpSystemPromptEnabled        bool                  `db:"mcp_system_prompt_enabled" json:"mcpSystemPromptEnabled"`
+	McpSystemPrompt               null_v4.String        `db:"mcp_system_prompt" json:"mcpSystemPrompt"`
+	ProjectOwner                  null_v4.String        `db:"project_owner" json:"projectOwner"`
+	ProjectUsage                  null_v4.String        `db:"project_usage" json:"projectUsage"`
+	OrgName                       null_v4.String        `db:"org_name" json:"orgName"`
+	ProductUpdates                sql.NullBool          `db:"product_updates" json:"productUpdates"`
+	ProjectStatus                 null_v4.String        `db:"project_status" json:"projectStatus"`
+	AiOpenaiApiKey                null_v4.String        `db:"ai_openai_api_key" json:"aiOpenaiApiKey"`
+	AiAnthropicApiKey             null_v4.String        `db:"ai_anthropic_api_key" json:"aiAnthropicApiKey"`
+	AiSystemPrompt                null_v4.String        `db:"ai_system_prompt" json:"aiSystemPrompt"`
+	AiGoogleApiKey                null_v4.String        `db:"ai_google_api_key" json:"aiGoogleApiKey"`
+	AiOpenaiCompatibleApiKey      null_v4.String        `db:"ai_openai_compatible_api_key" json:"aiOpenaiCompatibleApiKey"`
+	AiOpenaiCompatibleBaseUrl     null_v4.String        `db:"ai_openai_compatible_base_url" json:"aiOpenaiCompatibleBaseUrl"`
+	AiOpenaiCompatibleName        null_v4.String        `db:"ai_openai_compatible_name" json:"aiOpenaiCompatibleName"`
+	AiOpenaiCompatibleModels      pqtype.NullRawMessage `db:"ai_openai_compatible_models" json:"aiOpenaiCompatibleModels"`
+	AiOpenaiCompatibleHeaders     pqtype.NullRawMessage `db:"ai_openai_compatible_headers" json:"aiOpenaiCompatibleHeaders"`
+	AiOpenaiAllowedModels         pqtype.NullRawMessage `db:"ai_openai_allowed_models" json:"aiOpenaiAllowedModels"`
+	AiAnthropicAllowedModels      pqtype.NullRawMessage `db:"ai_anthropic_allowed_models" json:"aiAnthropicAllowedModels"`
+	AiGoogleAllowedModels         pqtype.NullRawMessage `db:"ai_google_allowed_models" json:"aiGoogleAllowedModels"`
+	CollaborativeEditingEnabled   bool                  `db:"collaborative_editing_enabled" json:"collaborativeEditingEnabled"`
 }
 
 type DirectusShare struct {
@@ -695,33 +768,21 @@ type DirectusUser struct {
 	ThemeLight          null_v4.String        `db:"theme_light" json:"themeLight"`
 	ThemeLightOverrides pqtype.NullRawMessage `db:"theme_light_overrides" json:"themeLightOverrides"`
 	ThemeDarkOverrides  pqtype.NullRawMessage `db:"theme_dark_overrides" json:"themeDarkOverrides"`
+	TextDirection       string                `db:"text_direction" json:"textDirection"`
 }
 
 type DirectusVersion struct {
-	ID          uuid.UUID      `db:"id" json:"id"`
-	Key         string         `db:"key" json:"key"`
-	Name        null_v4.String `db:"name" json:"name"`
-	Collection  string         `db:"collection" json:"collection"`
-	Item        string         `db:"item" json:"item"`
-	Hash        null_v4.String `db:"hash" json:"hash"`
-	DateCreated null_v4.Time   `db:"date_created" json:"dateCreated"`
-	DateUpdated null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-	UserCreated uuid.NullUUID  `db:"user_created" json:"userCreated"`
-	UserUpdated uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
-}
-
-type DirectusWebhook struct {
-	ID                         int32                 `db:"id" json:"id"`
-	Name                       string                `db:"name" json:"name"`
-	Method                     string                `db:"method" json:"method"`
-	Url                        string                `db:"url" json:"url"`
-	Status                     string                `db:"status" json:"status"`
-	Data                       bool                  `db:"data" json:"data"`
-	Actions                    string                `db:"actions" json:"actions"`
-	Collections                string                `db:"collections" json:"collections"`
-	Headers                    pqtype.NullRawMessage `db:"headers" json:"headers"`
-	WasActiveBeforeDeprecation bool                  `db:"was_active_before_deprecation" json:"wasActiveBeforeDeprecation"`
-	MigratedFlow               uuid.NullUUID         `db:"migrated_flow" json:"migratedFlow"`
+	ID          uuid.UUID             `db:"id" json:"id"`
+	Key         string                `db:"key" json:"key"`
+	Name        null_v4.String        `db:"name" json:"name"`
+	Collection  string                `db:"collection" json:"collection"`
+	Item        string                `db:"item" json:"item"`
+	Hash        null_v4.String        `db:"hash" json:"hash"`
+	DateCreated null_v4.Time          `db:"date_created" json:"dateCreated"`
+	DateUpdated null_v4.Time          `db:"date_updated" json:"dateUpdated"`
+	UserCreated uuid.NullUUID         `db:"user_created" json:"userCreated"`
+	UserUpdated uuid.NullUUID         `db:"user_updated" json:"userUpdated"`
+	Delta       pqtype.NullRawMessage `db:"delta" json:"delta"`
 }
 
 type Episode struct {
