@@ -24,12 +24,12 @@ func getLoadersForProfile(queries *sqlc.Queries, profile *common.Profile) *loade
 	profileQueries := queries.ProfileQueries(profile.ID)
 	ls := &loaders.ProfileLoaders{
 		ProgressLoader: loaders.New(ctx, profileQueries.GetProgressForEpisodes, loaders.WithMemoryCache(time.Second*5), loaders.WithName("progress")),
-		TaskCompletedLoader: loaders.NewFilterLoader(ctx, func(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
+		TaskCompletedLoader: loaders.New(ctx, func(ctx context.Context, ids []uuid.UUID) ([]uuid.UUID, error) {
 			return queries.GetAnsweredTasks(ctx, sqlc.GetAnsweredTasksParams{
 				ProfileID: profile.ID,
 				Column2:   ids,
 			})
-		}, loaders.WithMemoryCache(time.Second*5), loaders.WithName("task-completed")),
+		}, loaders.WithKeyFunc(loaders.Identity[uuid.UUID]), loaders.WithMemoryCache(time.Second*5), loaders.WithName("task-completed")),
 		AchievementAchievedAtLoader:        loaders.New(ctx, profileQueries.GetAchievementsAchievedAt, loaders.WithMemoryCache(time.Second*5), loaders.WithName("achieved-at")),
 		GetSelectedAlternativesLoader:      loaders.New(ctx, profileQueries.GetSelectedAlternatives, loaders.WithMemoryCache(time.Second*1), loaders.WithName("selected-alternatives")),
 		TaskAlternativesAnswersCountLoader: loaders.New(ctx, profileQueries.GetTaskAlternativesAnswersCount, loaders.WithMemoryCache(time.Second*15), loaders.WithName("task-alternatives-answers-count")),

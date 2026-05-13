@@ -55,7 +55,9 @@ type Option interface {
 	isOption()
 }
 
-// New creates a new batch loader
+// New creates a single-value batch loader. The factory returns []V; the key
+// used to index each value is either supplied via WithKeyFunc or, if V
+// implements HasKey[K], extracted via GetKey.
 func New[K comparable, V any](
 	ctx context.Context,
 	factory func(ctx context.Context, ids []K) ([]V, error),
@@ -63,9 +65,8 @@ func New[K comparable, V any](
 ) *Loader[K, *V] {
 	var getKey func(V) K
 	for _, opt := range opts {
-		switch t := opt.(type) {
-		case keyFunc[K, V]:
-			getKey = t
+		if kf, ok := opt.(keyFunc[K, V]); ok {
+			getKey = kf
 		}
 	}
 	if getKey == nil {
@@ -77,34 +78,7 @@ func New[K comparable, V any](
 			return any(i).(HasKey[K]).GetKey()
 		}
 	}
-	return NewCustomLoader(ctx, factory, getKey, opts...)
-}
 
-// NewLoader returns a configured batch loader for items
-func NewLoader[K comparable, V HasKey[K]](
-	ctx context.Context,
-	factory func(ctx context.Context, ids []K) ([]V, error),
-	opts ...Option,
-) *Loader[K, *V] {
-	return NewCustomLoader(ctx, factory, func(i V) K {
-		return i.GetKey()
-	}, opts...)
-}
-
-// NewFilterLoader is just for filtering a list of keys or checking if user has access to a specific id
-func NewFilterLoader[K comparable](ctx context.Context, factory func(ctx context.Context, keys []K) ([]K, error), opts ...Option) *Loader[K, *K] {
-	return NewCustomLoader(ctx, factory, func(key K) K {
-		return key
-	}, opts...)
-}
-
-// NewCustomLoader returns a configured batch loader for items
-func NewCustomLoader[K comparable, V any](
-	ctx context.Context,
-	factory func(ctx context.Context, ids []K) ([]V, error),
-	getKey func(V) K,
-	opts ...Option,
-) *Loader[K, *V] {
 	batchLoadItems := func(ctx context.Context, keys []K) []*dataloader.Result[*V] {
 		res, err := factory(ctx, keys)
 		resMap := map[K]*V{}
@@ -122,7 +96,7 @@ func NewCustomLoader[K comparable, V any](
 }
 
 // Identity returns its argument unchanged. Useful as a WithKeyFunc argument for
-// loaders whose factory already returns key values (the old NewFilterLoader case).
+// loaders whose factory returns the key values directly (filtering / ACL checks).
 func Identity[T any](v T) T { return v }
 
 // assembleBatch turns a resolved map and a per-batch error into the ordered

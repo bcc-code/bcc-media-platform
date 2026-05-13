@@ -159,21 +159,21 @@ func InitBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *Bat
 		EpisodeIDFromUuidLoader:    NewMappingLoader(ctx, queries.GetEpisodeIDsForUuids, WithName("episode-uuids-ids")),
 		ShowIDFromUuidLoader:       NewMappingLoader(ctx, queries.GetShowIDsForUuids, WithName("show-uuids-ids")),
 		// Permissions
-		ShowPermissionLoader: NewCustomLoader(ctx, queries.GetPermissionsForShows, func(i common.Permissions[int]) int {
-			return i.ItemID
-		}, WithName("show-permission"), WithMemoryCache(time.Second*15)),
-		SeasonPermissionLoader: NewCustomLoader(ctx, queries.GetPermissionsForSeasons, func(i common.Permissions[int]) int {
-			return i.ItemID
-		}, WithName("season-permission"), WithMemoryCache(time.Second*15)),
-		EpisodePermissionLoader: NewCustomLoader(ctx, queries.GetPermissionsForEpisodes, func(i common.Permissions[int]) int {
-			return i.ItemID
-		}, WithName("episode-permission"), WithMemoryCache(time.Second*15)),
-		PagePermissionLoader: NewCustomLoader(ctx, queries.GetPermissionsForPages, func(i common.Permissions[int]) int {
-			return i.ItemID
-		}, WithName("page-permission"), WithMemoryCache(time.Second*15)),
-		SectionPermissionLoader: NewCustomLoader(ctx, queries.GetPermissionsForSections, func(i common.Permissions[int]) int {
-			return i.ItemID
-		}, WithName("section-permission"), WithMemoryCache(time.Second*15)),
+		ShowPermissionLoader: New(ctx, queries.GetPermissionsForShows,
+			WithKeyFunc(func(i common.Permissions[int]) int { return i.ItemID }),
+			WithName("show-permission"), WithMemoryCache(time.Second*15)),
+		SeasonPermissionLoader: New(ctx, queries.GetPermissionsForSeasons,
+			WithKeyFunc(func(i common.Permissions[int]) int { return i.ItemID }),
+			WithName("season-permission"), WithMemoryCache(time.Second*15)),
+		EpisodePermissionLoader: New(ctx, queries.GetPermissionsForEpisodes,
+			WithKeyFunc(func(i common.Permissions[int]) int { return i.ItemID }),
+			WithName("episode-permission"), WithMemoryCache(time.Second*15)),
+		PagePermissionLoader: New(ctx, queries.GetPermissionsForPages,
+			WithKeyFunc(func(i common.Permissions[int]) int { return i.ItemID }),
+			WithName("page-permission"), WithMemoryCache(time.Second*15)),
+		SectionPermissionLoader: New(ctx, queries.GetPermissionsForSections,
+			WithKeyFunc(func(i common.Permissions[int]) int { return i.ItemID }),
+			WithName("section-permission"), WithMemoryCache(time.Second*15)),
 
 		MemberLoader: New(ctx, membersClient.GetMembersByIDs, WithKeyFunc(func(i members.Member) int {
 			return i.PersonID
@@ -219,9 +219,9 @@ func InitBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *Bat
 			return i.Key
 		})),
 
-		FAQCategoryLoader:  NewLoader(ctx, queries.GetFAQCategories),
-		QuestionLoader:     NewLoader(ctx, queries.GetQuestions),
-		MessageGroupLoader: NewLoader(ctx, queries.GetMessageGroups),
+		FAQCategoryLoader:  New(ctx, queries.GetFAQCategories),
+		QuestionLoader:     New(ctx, queries.GetQuestions),
+		MessageGroupLoader: New(ctx, queries.GetMessageGroups),
 
 		GameLoader: New(ctx, queries.GetGames, WithKeyFunc(func(i common.Game) uuid.UUID {
 			return i.ID

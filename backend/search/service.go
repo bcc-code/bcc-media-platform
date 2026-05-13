@@ -114,24 +114,21 @@ func New(queries *sqlc.Queries, config Config) *Service {
 	service.queries = queries
 
 	service.loaders = batchLoaders{
-		ShowLoader:    loaders.NewLoader(ctx, queries.GetShows),
-		SeasonLoader:  loaders.NewLoader(ctx, queries.GetSeasons),
-		EpisodeLoader: loaders.NewLoader(ctx, queries.GetEpisodes),
+		ShowLoader:    loaders.New(ctx, queries.GetShows),
+		SeasonLoader:  loaders.New(ctx, queries.GetSeasons),
+		EpisodeLoader: loaders.New(ctx, queries.GetEpisodes),
 		PlaylistLoader: loaders.New(ctx, queries.GetPlaylists, loaders.WithKeyFunc(func(i common.Playlist) uuid.UUID {
 			return i.ID
 		})),
-		TagLoader: loaders.NewLoader(ctx, service.queries.GetTags),
+		TagLoader: loaders.New(ctx, service.queries.GetTags),
 		// Permissions
-		ShowPermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForShows, func(i common.Permissions[int]) int {
-			return i.ItemID
-		}),
-		SeasonPermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForSeasons, func(i common.Permissions[int]) int {
-			return i.ItemID
-		}),
-		EpisodePermissionLoader: loaders.NewCustomLoader(ctx, queries.GetPermissionsForEpisodes, func(i common.Permissions[int]) int {
-			return i.ItemID
-		}),
-		PlaylistPermissionLoader: loaders.NewCustomLoader[uuid.UUID, common.Permissions[uuid.UUID]](ctx, func(ctx context.Context, ids []uuid.UUID) ([]common.Permissions[uuid.UUID], error) {
+		ShowPermissionLoader: loaders.New(ctx, queries.GetPermissionsForShows,
+			loaders.WithKeyFunc(func(i common.Permissions[int]) int { return i.ItemID })),
+		SeasonPermissionLoader: loaders.New(ctx, queries.GetPermissionsForSeasons,
+			loaders.WithKeyFunc(func(i common.Permissions[int]) int { return i.ItemID })),
+		EpisodePermissionLoader: loaders.New(ctx, queries.GetPermissionsForEpisodes,
+			loaders.WithKeyFunc(func(i common.Permissions[int]) int { return i.ItemID })),
+		PlaylistPermissionLoader: loaders.New(ctx, func(ctx context.Context, ids []uuid.UUID) ([]common.Permissions[uuid.UUID], error) {
 			rows, err := queries.GetRolesForPlaylists(ctx, ids)
 			if err != nil {
 				return nil, err
@@ -143,9 +140,7 @@ func New(queries *sqlc.Queries, config Config) *Service {
 					},
 				}
 			}), nil
-		}, func(i common.Permissions[uuid.UUID]) uuid.UUID {
-			return i.ItemID
-		}),
+		}, loaders.WithKeyFunc(func(i common.Permissions[uuid.UUID]) uuid.UUID { return i.ItemID })),
 	}
 
 	return &service
