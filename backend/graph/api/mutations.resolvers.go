@@ -162,18 +162,18 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 	}
 	found := false
 	for _, i := range ids {
-		if i != nil && *i == episodeID {
+		if i != nil && i.Value == episodeID {
 			found = true
 			break
 		}
 	}
 	if !found && episodeProgress != nil {
-		ids = append(ids, &episodeID)
+		ids = append(ids, &common.Mapping[uuid.UUID, int]{Key: p.ID, Value: episodeID})
 		r.Loaders.EpisodeProgressLoader.Clear(ctx, p.ID)
 		r.Loaders.EpisodeProgressLoader.Prime(ctx, p.ID, ids)
 	} else if found && episodeProgress == nil {
-		ids = lo.Filter(ids, func(i *int, _ int) bool {
-			return i != nil && *i != episodeID
+		ids = lo.Filter(ids, func(i *common.Mapping[uuid.UUID, int], _ int) bool {
+			return i != nil && i.Value != episodeID
 		})
 		r.Loaders.EpisodeProgressLoader.Clear(ctx, p.ID)
 		r.Loaders.EpisodeProgressLoader.Prime(ctx, p.ID, ids)
@@ -273,7 +273,7 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 			return false, err
 		}
 
-		if lo.Contains(utils.PointerArrayToArray(storedIds), task.ID) {
+		if lo.Contains(common.MappingValues(storedIds), task.ID) {
 			return false, common.ErrTaskAlreadyCompleted
 		}
 	}
@@ -297,8 +297,8 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 	}
 
 	completedIDs, err := r.Loaders.CompletedTasksLoader.Get(ctx, p.ID)
-	completed := lo.SomeBy(completedIDs, func(id *uuid.UUID) bool {
-		return id != nil && *id == task.ID
+	completed := lo.SomeBy(completedIDs, func(id *common.Mapping[uuid.UUID, uuid.UUID]) bool {
+		return id != nil && id.Value == task.ID
 	})
 
 	err = r.Queries.SetTaskCompleted(ctx, sqlc.SetTaskCompletedParams{
@@ -452,11 +452,11 @@ func (r *mutationRootResolver) ConfirmAchievement(ctx context.Context, id string
 	if err != nil {
 		return nil, err
 	}
-	if !lo.Contains(utils.PointerArrayToArray(ids), uid) {
+	if !lo.Contains(common.MappingValues(ids), uid) {
 		return nil, merry.New("", merry.WithUserMessage("Achievement is not unconfirmed"))
 	}
-	ids = lo.Filter(ids, func(i *uuid.UUID, _ int) bool {
-		return i != nil && *i != uid
+	ids = lo.Filter(ids, func(i *common.Mapping[uuid.UUID, uuid.UUID], _ int) bool {
+		return i != nil && i.Value != uid
 	})
 	err = r.Queries.ConfirmAchievement(ctx, sqlc.ConfirmAchievementParams{
 		ProfileID:     p.ID,
@@ -577,7 +577,7 @@ func (r *mutationRootResolver) RemoveEntryFromMyList(ctx context.Context, entryI
 		return nil, err
 	}
 
-	entryIDs := utils.PointerArrayToArray(pointerEntryIDs)
+	entryIDs := common.MappingValues(pointerEntryIDs)
 	if !lo.Contains(entryIDs, uid) {
 		chunks := lo.Chunk(entryIDs, 20)
 		for _, chunk := range chunks {
@@ -598,8 +598,8 @@ func (r *mutationRootResolver) RemoveEntryFromMyList(ctx context.Context, entryI
 		return nil, common.ErrItemNotFound
 	}
 
-	pointerEntryIDs = lo.Filter(pointerEntryIDs, func(i *uuid.UUID, _ int) bool {
-		return *i != uid
+	pointerEntryIDs = lo.Filter(pointerEntryIDs, func(i *common.Mapping[uuid.UUID, uuid.UUID], _ int) bool {
+		return i != nil && i.Value != uid
 	})
 	err = r.Queries.DeleteUserCollectionEntry(ctx, uid)
 	if err != nil {

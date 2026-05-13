@@ -31,13 +31,13 @@ func sectionStyleToImageStyle(style string) common.ImageStyle {
 	}
 }
 
-func filterWithIds(col *common.Collection, entries []collection.Entry, ids []*int) []collection.Entry {
+func filterWithIds(col *common.Collection, entries []collection.Entry, ids []int) []collection.Entry {
 	limit := 20
 	if col.Filter != nil && col.Filter.Limit != nil {
 		limit = *col.Filter.Limit
 	}
 	var newEntries []collection.Entry
-	for _, id := range utils.PointerArrayToArray(ids) {
+	for _, id := range ids {
 		entry, found := lo.Find(entries, func(e collection.Entry) bool {
 			return e.Collection == common.CollectionEpisodes && e.ID == strconv.Itoa(id)
 		})
@@ -72,7 +72,7 @@ func filterWithUuids(col *common.Collection, c common.ItemCollection, entries []
 	return newEntries
 }
 
-func resolveContinueWatchingCollection(ctx context.Context, ls *loaders.BatchLoaders) ([]*int, error) {
+func resolveContinueWatchingCollection(ctx context.Context, ls *loaders.BatchLoaders) ([]int, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -85,10 +85,10 @@ func resolveContinueWatchingCollection(ctx context.Context, ls *loaders.BatchLoa
 	if err != nil {
 		return nil, err
 	}
-	return ids, nil
+	return common.MappingValues(ids), nil
 }
 
-func resolveMyListCollection(ctx context.Context, ls *loaders.BatchLoaders) ([]*int, error) {
+func resolveMyListCollection(ctx context.Context, ls *loaders.BatchLoaders) ([]int, error) {
 	ginCtx, err := utils.GinCtx(ctx)
 	if err != nil {
 		return nil, err
@@ -101,11 +101,11 @@ func resolveMyListCollection(ctx context.Context, ls *loaders.BatchLoaders) ([]*
 	if err != nil || myListID == nil {
 		return nil, err
 	}
-	entryIDs, err := ls.UserCollectionEntryIDsLoader.Get(ctx, *myListID)
+	entryIDs, err := ls.UserCollectionEntryIDsLoader.Get(ctx, myListID.Value)
 	if err != nil {
 		return nil, err
 	}
-	collectionEntries, err := ls.UserCollectionEntryLoader.GetMany(ctx, utils.PointerArrayToArray(entryIDs))
+	collectionEntries, err := ls.UserCollectionEntryLoader.GetMany(ctx, common.MappingValues(entryIDs))
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func resolveMyListCollection(ctx context.Context, ls *loaders.BatchLoaders) ([]*
 	if err != nil {
 		return nil, err
 	}
-	return ids, nil
+	return common.MappingValues(ids), nil
 }
 
 func (r *Resolver) resolveShortsCollection(ctx context.Context) ([]uuid.UUID, error) {

@@ -136,7 +136,7 @@ func (r *eventResolver) Entries(ctx context.Context, obj *model.Event) ([]model.
 	if err != nil {
 		return nil, err
 	}
-	entries, err := r.GetFilteredLoaders(ctx).CalendarEntryLoader.GetMany(ctx, utils.PointerArrayToArray(ids))
+	entries, err := r.GetFilteredLoaders(ctx).CalendarEntryLoader.GetMany(ctx, common.MappingValues(ids))
 	if err != nil {
 		return nil, err
 	}

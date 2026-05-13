@@ -76,7 +76,7 @@ func (r *Resolver) isInMyList(ctx context.Context, id uuid.UUID) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	entryIDs := utils.PointerArrayToArray(list)
+	entryIDs := common.MappingValues(list)
 	chunks := lo.Chunk(entryIDs, 20)
 	for _, chunk := range chunks {
 		entries, err := r.Loaders.UserCollectionEntryLoader.GetMany(ctx, chunk)

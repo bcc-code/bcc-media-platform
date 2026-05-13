@@ -62,7 +62,7 @@ func resolveContribution(ctx context.Context, i *common.Contribution, loaders *l
 			log.Error().Err(err).Msg("failed to get primary episode id")
 			return nil, err
 		}
-		item, err = resolveChapter(ctx, loaders, strconv.Itoa(*episodeID), id)
+		item, err = resolveChapter(ctx, loaders, strconv.Itoa(episodeID.Value), id)
 		if err != nil {
 			return nil, err
 		}

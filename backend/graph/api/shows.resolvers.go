@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	merry "github.com/ansel1/merry/v2"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
@@ -33,12 +34,18 @@ func (r *showResolver) EpisodeCount(ctx context.Context, obj *model.Show) (int, 
 	}
 	el := r.FilteredLoaders(ctx).EpisodesLoader
 	for _, id := range seasonIDs {
-		el.Load(ctx, *id)
+		if id == nil {
+			continue
+		}
+		el.Load(ctx, id.Value)
 	}
 
 	count := 0
 	for _, id := range seasonIDs {
-		episodeIDs, err := el.Get(ctx, *id)
+		if id == nil {
+			continue
+		}
+		episodeIDs, err := el.Get(ctx, id.Value)
 		if err != nil {
 			return 0, err
 		}
@@ -69,9 +76,9 @@ func (r *showResolver) Seasons(ctx context.Context, obj *model.Show, first *int,
 	}
 
 	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
-	page := utils.Paginate[*int, *cursors.OffsetCursor](itemIDs, first, offset, dir, offsetCursor)
+	page := utils.Paginate(itemIDs, first, offset, dir, offsetCursor)
 
-	seasons, err := r.Loaders.SeasonLoader.GetMany(ctx, utils.PointerIntArrayToIntArray(page.Items))
+	seasons, err := r.Loaders.SeasonLoader.GetMany(ctx, common.MappingValues(page.Items))
 	if err != nil {
 		return nil, err
 	}
@@ -96,9 +103,13 @@ func (r *showResolver) DefaultEpisode(ctx context.Context, obj *model.Show) (*mo
 	ls := r.FilteredLoaders(ctx)
 	var eID *int
 	if p, _ := getProfile(ctx); p != nil {
-		eID, err = r.GetProfileLoaders(ctx).ShowDefaultEpisodeLoader.Get(ctx, s.ID)
+		m, err := r.GetProfileLoaders(ctx).ShowDefaultEpisodeLoader.Get(ctx, s.ID)
 		if err != nil {
 			return nil, err
+		}
+		if m != nil {
+			v := m.Value
+			eID = &v
 		}
 	}
 	var episode *model.Episode

@@ -16,14 +16,14 @@ import (
 // BatchLoaders contains loaders for the different items
 type BatchLoaders struct {
 	ApplicationLoader           *Loader[int, *common.Application]
-	ApplicationIDFromCodeLoader *Loader[string, *int]
+	ApplicationIDFromCodeLoader *Loader[string, *common.Mapping[string, int]]
 	ApplicationGroupLoader      *Loader[uuid.UUID, *common.ApplicationGroup]
 
 	RedirectLoader                     *Loader[uuid.UUID, *common.Redirect]
-	RedirectIDFromCodeLoader           *Loader[string, *uuid.UUID]
+	RedirectIDFromCodeLoader           *Loader[string, *common.Mapping[string, uuid.UUID]]
 	PageLoader                         *Loader[int, *common.Page]
-	PageIDFromCodeLoader               *Loader[string, *int]
-	CollectionIDFromSlugLoader         *Loader[string, *int]
+	PageIDFromCodeLoader               *Loader[string, *common.Mapping[string, int]]
+	CollectionIDFromSlugLoader         *Loader[string, *common.Mapping[string, int]]
 	SectionLoader                      *Loader[int, *common.Section]
 	CollectionLoader                   *Loader[int, *common.Collection]
 	CollectionItemLoader               *Loader[int, []*common.CollectionItem]
@@ -34,8 +34,8 @@ type BatchLoaders struct {
 	ShowLoader                         *Loader[int, *common.Show]
 	SeasonLoader                       *Loader[int, *common.Season]
 	EpisodeLoader                      *Loader[int, *common.Episode]
-	EpisodeIDFromLegacyIDLoader        *Loader[int, *int]
-	EpisodeIDFromLegacyProgramIDLoader *Loader[int, *int]
+	EpisodeIDFromLegacyIDLoader        *Loader[int, *common.Mapping[int, int]]
+	EpisodeIDFromLegacyProgramIDLoader *Loader[int, *common.Mapping[int, int]]
 	LinkLoader                         *Loader[int, *common.Link]
 	PlaylistLoader                     *Loader[uuid.UUID, *common.Playlist]
 
@@ -46,7 +46,7 @@ type BatchLoaders struct {
 	AssetStreamsLoader *Loader[int, []*common.Stream]
 
 	EventLoader        *Loader[int, *common.Event]
-	EventEntriesLoader *Loader[int, []*int]
+	EventEntriesLoader *Loader[int, []*common.Mapping[int, int]]
 
 	FAQCategoryLoader    *Loader[uuid.UUID, *common.FAQCategory]
 	QuestionLoader       *Loader[uuid.UUID, *common.Question]
@@ -55,14 +55,14 @@ type BatchLoaders struct {
 	SurveyQuestionLoader *Loader[uuid.UUID, *common.SurveyQuestion]
 	GameLoader           *Loader[uuid.UUID, *common.Game]
 	ShortLoader          *Loader[uuid.UUID, *common.Short]
-	ShortsMediaIDLoader  *Loader[uuid.UUID, *uuid.UUID]
+	ShortsMediaIDLoader  *Loader[uuid.UUID, *common.Mapping[uuid.UUID, uuid.UUID]]
 
 	MemberLoader       *Loader[int, *members.Member]
 	OrganizationLoader *Loader[uuid.UUID, *members.Organization]
 
-	EpisodeProgressLoader   *Loader[uuid.UUID, []*int]
-	EpisodeIDFromUuidLoader *Loader[uuid.UUID, *int]
-	ShowIDFromUuidLoader    *Loader[uuid.UUID, *int]
+	EpisodeProgressLoader   *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, int]]
+	EpisodeIDFromUuidLoader *Loader[uuid.UUID, *common.Mapping[uuid.UUID, int]]
+	ShowIDFromUuidLoader    *Loader[uuid.UUID, *common.Mapping[uuid.UUID, int]]
 	// Permissions
 	ShowPermissionLoader    *Loader[int, *common.Permissions[int]]
 	SeasonPermissionLoader  *Loader[int, *common.Permissions[int]]
@@ -70,18 +70,18 @@ type BatchLoaders struct {
 	PagePermissionLoader    *Loader[int, *common.Permissions[int]]
 	SectionPermissionLoader *Loader[int, *common.Permissions[int]]
 
-	CompletedTopicsLoader         *Loader[uuid.UUID, []*uuid.UUID]
-	CompletedLessonsLoader        *Loader[uuid.UUID, []*uuid.UUID]
-	CompletedTasksLoader          *Loader[uuid.UUID, []*uuid.UUID]
-	CompletedAndLockedTasksLoader *Loader[uuid.UUID, []*uuid.UUID]
+	CompletedTopicsLoader         *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, uuid.UUID]]
+	CompletedLessonsLoader        *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, uuid.UUID]]
+	CompletedTasksLoader          *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, uuid.UUID]]
+	CompletedAndLockedTasksLoader *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, uuid.UUID]]
 
 	// Achievements
 	AchievementLoader             *Loader[uuid.UUID, *common.Achievement]
 	AchievementGroupLoader        *Loader[uuid.UUID, *common.AchievementGroup]
-	AchievementsLoader            *Loader[uuid.UUID, []*uuid.UUID]
-	UnconfirmedAchievementsLoader *Loader[uuid.UUID, []*uuid.UUID]
+	AchievementsLoader            *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, uuid.UUID]]
+	UnconfirmedAchievementsLoader *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, uuid.UUID]]
 
-	AchievementGroupAchievementsLoader *Loader[uuid.UUID, []*uuid.UUID]
+	AchievementGroupAchievementsLoader *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, uuid.UUID]]
 
 	ComputedDataLoader *Loader[uuid.UUID, []*common.ComputedData]
 
@@ -90,14 +90,14 @@ type BatchLoaders struct {
 	// UserCollections
 	UserCollectionLoader         *Loader[uuid.UUID, *common.UserCollection]
 	UserCollectionEntryLoader    *Loader[uuid.UUID, *common.UserCollectionEntry]
-	UserCollectionEntryIDsLoader *Loader[uuid.UUID, []*uuid.UUID]
+	UserCollectionEntryIDsLoader *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, uuid.UUID]]
 
-	ProfileUserCollectionIDsLoader *Loader[uuid.UUID, []*uuid.UUID]
-	ProfileMyListCollectionID      *Loader[uuid.UUID, *uuid.UUID]
+	ProfileUserCollectionIDsLoader *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, uuid.UUID]]
+	ProfileMyListCollectionID      *Loader[uuid.UUID, *common.Mapping[uuid.UUID, uuid.UUID]]
 
 	PromptLoader *Loader[uuid.UUID, *common.Prompt]
 
-	MediaItemPrimaryEpisodeIDLoader *Loader[uuid.UUID, *int]
+	MediaItemPrimaryEpisodeIDLoader *Loader[uuid.UUID, *common.Mapping[uuid.UUID, int]]
 	TimedMetadataLoader             *Loader[uuid.UUID, *common.TimedMetadata]
 	ChaptersLoader                  *Loader[int, []*common.TimedMetadata]
 	PersonLoader                    *Loader[uuid.UUID, *common.Person]
@@ -114,50 +114,50 @@ func InitBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *Bat
 	return &BatchLoaders{
 		// App
 		ApplicationLoader:           New(ctx, queries.GetApplications),
-		ApplicationIDFromCodeLoader: NewMappingLoader(ctx, queries.GetApplicationIDsForCodes, WithName("application-id")),
+		ApplicationIDFromCodeLoader: New(ctx, queries.GetApplicationIDsForCodes, WithName("application-id")),
 		ApplicationGroupLoader:      New(ctx, queries.GetApplicationGroups),
 
 		//Redirect
 		RedirectLoader:           New(ctx, queries.GetRedirects),
-		RedirectIDFromCodeLoader: NewMappingLoader(ctx, queries.GetRedirectIDsForCodes, WithName("redirect-id")),
+		RedirectIDFromCodeLoader: New(ctx, queries.GetRedirectIDsForCodes, WithName("redirect-id")),
 		// Item
 		PageLoader:                         New(ctx, queries.GetPages),
-		PageIDFromCodeLoader:               NewMappingLoader(ctx, queries.GetPageIDsForCodes, WithName("page-id")),
+		PageIDFromCodeLoader:               New(ctx, queries.GetPageIDsForCodes, WithName("page-id")),
 		SectionLoader:                      New(ctx, queries.GetSections),
 		ShowLoader:                         New(ctx, queries.GetShows),
 		SeasonLoader:                       New(ctx, queries.GetSeasons),
 		EpisodeLoader:                      New(ctx, queries.GetEpisodes),
-		EpisodeIDFromLegacyProgramIDLoader: NewMappingLoader(ctx, queries.GetEpisodeIDsForLegacyProgramIDs, WithName("episode-programid")),
-		EpisodeIDFromLegacyIDLoader:        NewMappingLoader(ctx, queries.GetEpisodeIDsForLegacyIDs, WithName("episode-legacyid")),
+		EpisodeIDFromLegacyProgramIDLoader: New(ctx, queries.GetEpisodeIDsForLegacyProgramIDs, WithName("episode-programid")),
+		EpisodeIDFromLegacyIDLoader:        New(ctx, queries.GetEpisodeIDsForLegacyIDs, WithName("episode-legacyid")),
 		LinkLoader:                         New(ctx, queries.GetLinks),
 		EventLoader:                        New(ctx, queries.GetEvents),
-		EventEntriesLoader:                 NewMappingListLoader(ctx, queries.GetEntryIDsForEventIDs, WithName("event-entries")),
+		EventEntriesLoader:                 NewListLoader(ctx, queries.GetEntryIDsForEventIDs, WithName("event-entries")),
 		PlaylistLoader: New(ctx, queries.GetPlaylists, WithName("playlist-loader"), WithKeyFunc(func(i common.Playlist) uuid.UUID {
 			return i.ID
 		})),
 
-		FilesLoader: NewListLoader(ctx, queries.GetFilesForEpisodes, func(row common.File) int {
+		FilesLoader: NewListLoader(ctx, queries.GetFilesForEpisodes, WithKeyFunc(func(row common.File) int {
 			return row.EpisodeID
-		}),
-		StreamsLoader: NewListLoader(ctx, queries.GetStreamsForEpisodes, func(row common.Stream) int {
+		})),
+		StreamsLoader: NewListLoader(ctx, queries.GetStreamsForEpisodes, WithKeyFunc(func(row common.Stream) int {
 			return row.EpisodeID
-		}),
+		})),
 
-		AssetFilesLoader: NewListLoader(ctx, queries.GetFilesForAssets, func(row common.File) int {
+		AssetFilesLoader: NewListLoader(ctx, queries.GetFilesForAssets, WithKeyFunc(func(row common.File) int {
 			return row.AssetID
-		}),
-		AssetStreamsLoader: NewListLoader(ctx, queries.GetStreamsForAssets, func(row common.Stream) int {
+		})),
+		AssetStreamsLoader: NewListLoader(ctx, queries.GetStreamsForAssets, WithKeyFunc(func(row common.Stream) int {
 			return row.AssetID
-		}),
+		})),
 
 		CollectionLoader: New(ctx, queries.GetCollections),
-		CollectionItemLoader: NewListLoader(ctx, queries.GetItemsForCollections, func(row common.CollectionItem) int {
+		CollectionItemLoader: NewListLoader(ctx, queries.GetItemsForCollections, WithKeyFunc(func(row common.CollectionItem) int {
 			return row.CollectionID
-		}),
-		CollectionIDFromSlugLoader: NewMappingLoader(ctx, queries.GetCollectionIDsForCodes, WithName("collection-id")),
-		EpisodeProgressLoader:      NewMappingListLoader(ctx, queries.GetEpisodeIDsWithProgress, WithName("episode-progress")),
-		EpisodeIDFromUuidLoader:    NewMappingLoader(ctx, queries.GetEpisodeIDsForUuids, WithName("episode-uuids-ids")),
-		ShowIDFromUuidLoader:       NewMappingLoader(ctx, queries.GetShowIDsForUuids, WithName("show-uuids-ids")),
+		})),
+		CollectionIDFromSlugLoader: New(ctx, queries.GetCollectionIDsForCodes, WithName("collection-id")),
+		EpisodeProgressLoader:      NewListLoader(ctx, queries.GetEpisodeIDsWithProgress, WithName("episode-progress")),
+		EpisodeIDFromUuidLoader:    New(ctx, queries.GetEpisodeIDsForUuids, WithName("episode-uuids-ids")),
+		ShowIDFromUuidLoader:       New(ctx, queries.GetShowIDsForUuids, WithName("show-uuids-ids")),
 		// Permissions
 		ShowPermissionLoader: New(ctx, queries.GetPermissionsForShows,
 			WithKeyFunc(func(i common.Permissions[int]) int { return i.ItemID }),
@@ -201,20 +201,20 @@ func InitBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *Bat
 		SongLoader: New(ctx, queries.GetSongs, WithName("song-loader"), WithKeyFunc(func(i common.Song) uuid.UUID {
 			return i.ID
 		})),
-		SongIDsForMediaItemLoader: NewMappingListLoader(ctx, queries.GetSongIDsForMediaItems, WithName("song-ids-for-mediaitem")),
-		SongContributionsLoader: NewListLoader(ctx, queries.GetContributionsForSongs, func(c common.SongContribution) uuid.UUID {
+		SongIDsForMediaItemLoader: NewListLoader(ctx, queries.GetSongIDsForMediaItems, WithName("song-ids-for-mediaitem")),
+		SongContributionsLoader: NewListLoader(ctx, queries.GetContributionsForSongs, WithKeyFunc(func(c common.SongContribution) uuid.UUID {
 			return c.SongID
-		}, WithName("song-contributions")),
-		EpisodeContributionsLoader: NewListLoader(ctx, queries.GetContributionsForEpisodes, func(c common.EpisodeContribution) int {
+		}), WithName("song-contributions")),
+		EpisodeContributionsLoader: NewListLoader(ctx, queries.GetContributionsForEpisodes, WithKeyFunc(func(c common.EpisodeContribution) int {
 			return c.EpisodeID
-		}, WithName("episode-contributions")),
-		MediaItemPrimaryEpisodeIDLoader: NewMappingLoader(ctx, queries.GetPrimaryEpisodeIDForMediaItems, WithName("media-primary-episode")),
+		}), WithName("episode-contributions")),
+		MediaItemPrimaryEpisodeIDLoader: New(ctx, queries.GetPrimaryEpisodeIDForMediaItems, WithName("media-primary-episode")),
 		TimedMetadataLoader: New(ctx, queries.GetTimedMetadata, WithName("timedmetadata-loader"), WithKeyFunc(func(i common.TimedMetadata) uuid.UUID {
 			return i.ID
 		})),
-		ChaptersLoader: NewListLoader(ctx, queries.GetChaptersForEpisodeID, func(i common.TimedMetadata) int {
+		ChaptersLoader: NewListLoader(ctx, queries.GetChaptersForEpisodeID, WithKeyFunc(func(i common.TimedMetadata) int {
 			return i.ParentEpisodeID
-		}),
+		})),
 		PhraseLoader: New(ctx, queries.GetPhrases, WithName("phrases-loader"), WithKeyFunc(func(i common.Phrase) string {
 			return i.Key
 		})),
@@ -229,30 +229,30 @@ func InitBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *Bat
 		ShortLoader: New(ctx, queries.GetShorts, WithKeyFunc(func(i common.Short) uuid.UUID {
 			return i.ID
 		})),
-		ShortsMediaIDLoader: NewMappingLoader(ctx, queries.GetMediaIDsForShortIDs, WithName("shorts-media-id")),
+		ShortsMediaIDLoader: New(ctx, queries.GetMediaIDsForShortIDs, WithName("shorts-media-id")),
 
 		// User Data
 		StudyTopicLoader:  New(ctx, queries.GetTopics),
 		StudyLessonLoader: New(ctx, queries.GetLessons),
 		StudyTaskLoader:   New(ctx, queries.GetTasks),
-		StudyQuestionAlternativesLoader: NewListLoader(ctx, queries.GetQuestionAlternatives, func(alt common.QuestionAlternative) uuid.UUID {
+		StudyQuestionAlternativesLoader: NewListLoader(ctx, queries.GetQuestionAlternatives, WithKeyFunc(func(alt common.QuestionAlternative) uuid.UUID {
 			return alt.TaskID
-		}),
+		})),
 		// Achievements
 		AchievementLoader:                  New(ctx, queries.GetAchievements),
 		AchievementGroupLoader:             New(ctx, queries.GetAchievementGroups),
-		AchievementsLoader:                 NewMappingListLoader(ctx, queries.GetAchievementsForProfiles, WithMemoryCache(time.Second*30), WithName("achievements")),
-		UnconfirmedAchievementsLoader:      NewMappingListLoader(ctx, queries.GetUnconfirmedAchievementsForProfiles, WithMemoryCache(time.Second*30), WithName("unconfirmed-achievements")),
-		AchievementGroupAchievementsLoader: NewMappingListLoader(ctx, queries.GetAchievementsForGroups, WithName("group-achievements")),
+		AchievementsLoader:                 NewListLoader(ctx, queries.GetAchievementsForProfiles, WithMemoryCache(time.Second*30), WithName("achievements")),
+		UnconfirmedAchievementsLoader:      NewListLoader(ctx, queries.GetUnconfirmedAchievementsForProfiles, WithMemoryCache(time.Second*30), WithName("unconfirmed-achievements")),
+		AchievementGroupAchievementsLoader: NewListLoader(ctx, queries.GetAchievementsForGroups, WithName("group-achievements")),
 
-		CompletedTopicsLoader:         NewMappingListLoader(ctx, queries.GetCompletedTopics, WithName("completed-topics")),
-		CompletedLessonsLoader:        NewMappingListLoader(ctx, queries.GetCompletedLessons, WithName("completed-lessons")),
-		CompletedTasksLoader:          NewMappingListLoader(ctx, queries.GetCompletedTasks, WithName("completed-tasks")),
-		CompletedAndLockedTasksLoader: NewMappingListLoader(ctx, queries.GetCompletedAndLockedTasks, WithMemoryCache(time.Second*1), WithName("completed-locked-tasks")),
+		CompletedTopicsLoader:         NewListLoader(ctx, queries.GetCompletedTopics, WithName("completed-topics")),
+		CompletedLessonsLoader:        NewListLoader(ctx, queries.GetCompletedLessons, WithName("completed-lessons")),
+		CompletedTasksLoader:          NewListLoader(ctx, queries.GetCompletedTasks, WithName("completed-tasks")),
+		CompletedAndLockedTasksLoader: NewListLoader(ctx, queries.GetCompletedAndLockedTasks, WithMemoryCache(time.Second*1), WithName("completed-locked-tasks")),
 
-		ComputedDataLoader: NewListLoader(ctx, queries.GetComputedDataForGroups, func(i common.ComputedData) uuid.UUID {
+		ComputedDataLoader: NewListLoader(ctx, queries.GetComputedDataForGroups, WithKeyFunc(func(i common.ComputedData) uuid.UUID {
 			return i.GroupID
-		}),
+		})),
 
 		UserLoader: New(ctx, queries.GetUsers, WithKeyFunc(func(i common.User) string {
 			return i.PersonID
@@ -260,9 +260,9 @@ func InitBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *Bat
 
 		UserCollectionLoader:           New(ctx, queries.GetUserCollections, WithKeyFunc(func(i common.UserCollection) uuid.UUID { return i.ID })),
 		UserCollectionEntryLoader:      New(ctx, queries.GetUserCollectionEntries, WithKeyFunc(func(i common.UserCollectionEntry) uuid.UUID { return i.ID })),
-		UserCollectionEntryIDsLoader:   NewMappingListLoader(ctx, queries.GetUserCollectionEntryIDsForUserCollectionIDs, WithName("user-collection-entry-ids")),
-		ProfileUserCollectionIDsLoader: NewMappingListLoader(ctx, queries.GetUserCollectionIDsForProfileIDs, WithName("user-collection-ids")),
-		ProfileMyListCollectionID:      NewMappingLoader(ctx, queries.GetMyListCollectionForProfileIDs, WithName("user-my-list-id")),
+		UserCollectionEntryIDsLoader:   NewListLoader(ctx, queries.GetUserCollectionEntryIDsForUserCollectionIDs, WithName("user-collection-entry-ids")),
+		ProfileUserCollectionIDsLoader: NewListLoader(ctx, queries.GetUserCollectionIDsForProfileIDs, WithName("user-collection-ids")),
+		ProfileMyListCollectionID:      New(ctx, queries.GetMyListCollectionForProfileIDs, WithName("user-my-list-id")),
 	}
 }
 

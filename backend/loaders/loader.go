@@ -34,6 +34,10 @@ func (kf keyFunc[K, V]) isOption() {
 
 }
 
+type identityKeyOpt struct{}
+
+func (identityKeyOpt) isOption() {}
+
 type loaderName string
 
 func (loaderName) isOption() {
@@ -50,34 +54,46 @@ func WithKeyFunc[K comparable, V any](getKey func(V) K) Option {
 	return keyFunc[K, V](getKey)
 }
 
+// WithIdentityKey signals that the factory's items already _are_ the keys
+// (typical for filter / ACL loaders that return the subset of input keys the
+// caller has access to). Equivalent to WithKeyFunc(func(v V) K { return v.(K) }),
+// but without forcing the call site to spell the type. Panics at first batch
+// if V is not assignable to K.
+func WithIdentityKey() Option { return identityKeyOpt{} }
+
 // Option is the interface for all options
 type Option interface {
 	isOption()
 }
 
+// resolveKeyFunc picks a key extractor for V from the options, falling back to
+// HasKey[K] if V implements it. Panics at construction time when no rule
+// applies — same failure mode as a missing required argument.
+func resolveKeyFunc[K comparable, V any](opts ...Option) func(V) K {
+	for _, opt := range opts {
+		switch t := opt.(type) {
+		case keyFunc[K, V]:
+			return t
+		case identityKeyOpt:
+			return func(v V) K { return any(v).(K) }
+		}
+	}
+	var zero V
+	if _, ok := any(zero).(HasKey[K]); ok {
+		return func(v V) K { return any(v).(HasKey[K]).GetKey() }
+	}
+	panic("Couldn't determine key for item")
+}
+
 // New creates a single-value batch loader. The factory returns []V; the key
-// used to index each value is either supplied via WithKeyFunc or, if V
-// implements HasKey[K], extracted via GetKey.
+// used to index each value is supplied via WithKeyFunc, WithIdentityKey, or
+// V implementing HasKey[K].
 func New[K comparable, V any](
 	ctx context.Context,
 	factory func(ctx context.Context, ids []K) ([]V, error),
 	opts ...Option,
 ) *Loader[K, *V] {
-	var getKey func(V) K
-	for _, opt := range opts {
-		if kf, ok := opt.(keyFunc[K, V]); ok {
-			getKey = kf
-		}
-	}
-	if getKey == nil {
-		var i V
-		if _, ok := any(i).(HasKey[K]); !ok {
-			panic("Couldn't determine key for item")
-		}
-		getKey = func(i V) K {
-			return any(i).(HasKey[K]).GetKey()
-		}
-	}
+	getKey := resolveKeyFunc[K, V](opts...)
 
 	batchLoadItems := func(ctx context.Context, keys []K) []*dataloader.Result[*V] {
 		res, err := factory(ctx, keys)
@@ -94,10 +110,6 @@ func New[K comparable, V any](
 	options := getOptions[K, *V](ctx, opts...)
 	return &Loader[K, *V]{Loader: dataloader.NewBatchedLoader(batchLoadItems, options...)}
 }
-
-// Identity returns its argument unchanged. Useful as a WithKeyFunc argument for
-// loaders whose factory returns the key values directly (filtering / ACL checks).
-func Identity[T any](v T) T { return v }
 
 // assembleBatch turns a resolved map and a per-batch error into the ordered
 // []*dataloader.Result slice the dataloader library expects.

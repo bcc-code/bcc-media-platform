@@ -8,6 +8,7 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
@@ -42,9 +43,13 @@ func (r *seasonResolver) DefaultEpisode(ctx context.Context, obj *model.Season) 
 	ls := r.FilteredLoaders(ctx)
 	var eID *int
 	if p, _ := getProfile(ctx); p != nil {
-		eID, err = r.GetProfileLoaders(ctx).SeasonDefaultEpisodeLoader.Get(ctx, s.ID)
+		m, err := r.GetProfileLoaders(ctx).SeasonDefaultEpisodeLoader.Get(ctx, s.ID)
 		if err != nil {
 			return nil, err
+		}
+		if m != nil {
+			v := m.Value
+			eID = &v
 		}
 	}
 	if eID == nil {
@@ -54,7 +59,8 @@ func (r *seasonResolver) DefaultEpisode(ctx context.Context, obj *model.Season) 
 		}
 		for _, id := range eIDs {
 			if id != nil {
-				eID = id
+				v := id.Value
+				eID = &v
 				break
 			}
 		}
@@ -85,7 +91,7 @@ func (r *seasonResolver) Episodes(ctx context.Context, obj *model.Season, first 
 	parsedCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(itemIDs, first, offset, dir, parsedCursor)
 
-	episodes, err := r.Loaders.EpisodeLoader.GetMany(ctx, utils.PointerIntArrayToIntArray(page.Items))
+	episodes, err := r.Loaders.EpisodeLoader.GetMany(ctx, common.MappingValues(page.Items))
 	if err != nil {
 		return nil, err
 	}

@@ -95,7 +95,7 @@ func (r *lessonResolver) Tasks(ctx context.Context, obj *model.Lesson, first *in
 	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
-	tasks, err := r.Loaders.StudyTaskLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
+	tasks, err := r.Loaders.StudyTaskLoader.GetMany(ctx, common.MappingValues(page.Items))
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (r *lessonResolver) DefaultEpisode(ctx context.Context, obj *model.Lesson) 
 	if episodeIDs[0] == nil {
 		return nil, nil
 	}
-	episode, err := r.QueryRoot().Episode(ctx, strconv.Itoa(*episodeIDs[0]), nil)
+	episode, err := r.QueryRoot().Episode(ctx, strconv.Itoa(episodeIDs[0].Value), nil)
 	// Permission based errors that shouldn't trigger a failed response
 	if errors.Is(err, common.ErrItemNotPublished) ||
 		errors.Is(err, common.ErrItemNotFound) ||
@@ -149,7 +149,7 @@ func (r *lessonResolver) Episodes(ctx context.Context, obj *model.Lesson, first 
 	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
-	episodes, err := r.Loaders.EpisodeLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
+	episodes, err := r.Loaders.EpisodeLoader.GetMany(ctx, common.MappingValues(page.Items))
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +176,7 @@ func (r *lessonResolver) Links(ctx context.Context, obj *model.Lesson, first *in
 	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
-	links, err := r.Loaders.LinkLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
+	links, err := r.Loaders.LinkLoader.GetMany(ctx, common.MappingValues(page.Items))
 	if err != nil {
 		return nil, err
 	}
@@ -213,7 +213,7 @@ func (r *lessonResolver) Progress(ctx context.Context, obj *model.Lesson) (*mode
 		return nil, err
 	}
 
-	completed, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.GetMany(ctx, utils.PointerArrayToArray(ids))
+	completed, err := r.GetProfileLoaders(ctx).TaskCompletedLoader.GetMany(ctx, common.MappingValues(ids))
 	if err != nil {
 		return nil, err
 	}
@@ -253,7 +253,7 @@ func (r *lessonResolver) Completed(ctx context.Context, obj *model.Lesson) (bool
 		return false, err
 	}
 	for _, id := range ids {
-		if id != nil && *id == utils.AsUuid(obj.ID) {
+		if id != nil && id.Value == utils.AsUuid(obj.ID) {
 			return true, nil
 		}
 	}
@@ -281,7 +281,7 @@ func (r *lessonResolver) Previous(ctx context.Context, obj *model.Lesson) (*mode
 	}
 	index := -1
 	for i, s := range siblings {
-		if s != nil && *s == l.ID {
+		if s != nil && s.Value == l.ID {
 			index = i
 			break
 		}
@@ -289,7 +289,7 @@ func (r *lessonResolver) Previous(ctx context.Context, obj *model.Lesson) (*mode
 	if index <= 0 {
 		return nil, nil
 	}
-	return r.QueryRoot().StudyLesson(ctx, siblings[index-1].String())
+	return r.QueryRoot().StudyLesson(ctx, siblings[index-1].Value.String())
 }
 
 // Next is the resolver for the next field.
@@ -304,7 +304,7 @@ func (r *lessonResolver) Next(ctx context.Context, obj *model.Lesson) (*model.Le
 	}
 	index := -1
 	for i, s := range siblings {
-		if s != nil && *s == l.ID {
+		if s != nil && s.Value == l.ID {
 			index = i
 			break
 		}
@@ -312,7 +312,7 @@ func (r *lessonResolver) Next(ctx context.Context, obj *model.Lesson) (*model.Le
 	if index < 0 || index >= (len(siblings)-1) {
 		return nil, nil
 	}
-	return r.QueryRoot().StudyLesson(ctx, siblings[index+1].String())
+	return r.QueryRoot().StudyLesson(ctx, siblings[index+1].Value.String())
 }
 
 // Completed is the resolver for the completed field.
@@ -397,7 +397,7 @@ func (r *studyTopicResolver) DefaultLesson(ctx context.Context, obj *model.Study
 	}
 
 	// Retrieve the first non-completed lesson
-	lesson, err := r.QueryRoot().StudyLesson(ctx, lessonID.String())
+	lesson, err := r.QueryRoot().StudyLesson(ctx, lessonID.Value.String())
 	if err != nil {
 		return nil, err
 	}
@@ -430,7 +430,7 @@ func (r *studyTopicResolver) Lessons(ctx context.Context, obj *model.StudyTopic,
 	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
-	lessons, err := r.Loaders.StudyLessonLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
+	lessons, err := r.Loaders.StudyLessonLoader.GetMany(ctx, common.MappingValues(page.Items))
 	if err != nil {
 		return nil, err
 	}
@@ -457,15 +457,15 @@ func (r *studyTopicResolver) Progress(ctx context.Context, obj *model.StudyTopic
 	if err != nil {
 		return nil, err
 	}
-	noPointerIds := utils.PointerArrayToArray(ids)
+	noPointerIds := common.MappingValues(ids)
 	completedLessonIDs, err := r.Loaders.CompletedLessonsLoader.Get(ctx, p.ID)
 	if err != nil {
 		return nil, err
 	}
 	return &model.LessonsProgress{
 		Total: len(noPointerIds),
-		Completed: len(lo.Filter(completedLessonIDs, func(i *uuid.UUID, _ int) bool {
-			return i != nil && lo.Contains(noPointerIds, *i)
+		Completed: len(lo.Filter(completedLessonIDs, func(i *common.Mapping[uuid.UUID, uuid.UUID], _ int) bool {
+			return i != nil && lo.Contains(noPointerIds, i.Value)
 		})),
 	}, nil
 }

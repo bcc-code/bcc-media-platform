@@ -357,7 +357,7 @@ func (r *episodeResolver) Lessons(ctx context.Context, obj *model.Episode, first
 	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
 
-	lessons, err := r.Loaders.StudyLessonLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
+	lessons, err := r.Loaders.StudyLessonLoader.GetMany(ctx, common.MappingValues(page.Items))
 	if err != nil {
 		return nil, err
 	}

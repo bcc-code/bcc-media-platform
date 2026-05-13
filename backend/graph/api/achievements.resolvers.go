@@ -8,6 +8,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
@@ -25,7 +26,7 @@ func (r *achievementResolver) Achieved(ctx context.Context, obj *model.Achieveme
 	if err != nil {
 		return false, err
 	}
-	return lo.Contains(utils.PointerArrayToArray(achievedIDs), utils.AsUuid(obj.ID)), nil
+	return lo.Contains(common.MappingValues(achievedIDs), utils.AsUuid(obj.ID)), nil
 }
 
 // AchievedAt is the resolver for the achievedAt field.
@@ -61,7 +62,7 @@ func (r *achievementGroupResolver) Achievements(ctx context.Context, obj *model.
 	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
-	items, err := r.GetLoaders().AchievementLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
+	items, err := r.GetLoaders().AchievementLoader.GetMany(ctx, common.MappingValues(page.Items))
 	if err != nil {
 		return nil, err
 	}

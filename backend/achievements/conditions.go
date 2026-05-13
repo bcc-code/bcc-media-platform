@@ -2,6 +2,7 @@ package achievements
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
@@ -54,14 +55,14 @@ func amountToAchievedResult[T any](ctx context.Context, queries *sqlc.Queries, a
 	}), nil
 }
 
-func completedTopicIDsToAchievedResult(ctx context.Context, queries *sqlc.Queries, profileID uuid.UUID, factory func(ctx context.Context, id uuid.UUID) ([]*uuid.UUID, error)) ([]achievedResult, error) {
+func completedTopicIDsToAchievedResult(ctx context.Context, queries *sqlc.Queries, profileID uuid.UUID, factory func(ctx context.Context, id uuid.UUID) ([]*common.Mapping[uuid.UUID, uuid.UUID], error)) ([]achievedResult, error) {
 	rows, err := factory(ctx, profileID)
 	if err != nil {
 		return nil, err
 	}
 	achieved, err := queries.GetAchievementsWithTopicsCompletedAchieved(ctx, sqlc.GetAchievementsWithTopicsCompletedAchievedParams{
 		ProfileID: profileID,
-		TopicIds:  utils.PointerArrayToArray(rows),
+		TopicIds:  common.MappingValues(rows),
 	})
 	if err != nil {
 		return nil, err
@@ -128,7 +129,7 @@ func CheckCompletedLessonAchivements(ctx context.Context, queries *sqlc.Queries,
 		return nil, err
 	}
 
-	l := utils.PointerArrayToArray(lessons)
+	l := common.MappingValues(lessons)
 	completedLessons, err := loaders.StudyLessonLoader.GetMany(ctx, l)
 
 	if err != nil {

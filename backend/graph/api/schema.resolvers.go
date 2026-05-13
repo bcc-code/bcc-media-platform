@@ -262,7 +262,7 @@ func (r *queryRootResolver) Redirect(ctx context.Context, id string) (*model.Red
 		return nil, merry.New("no rows", merry.WithUserMessage("Code not found"))
 	}
 
-	redir, err := r.Loaders.RedirectLoader.Get(ctx, *redirID)
+	redir, err := r.Loaders.RedirectLoader.Get(ctx, redirID.Value)
 	if err != nil {
 		return nil, merry.Wrap(err, merry.WithUserMessage("Failed to retrieve data"))
 	}
@@ -329,7 +329,7 @@ func (r *queryRootResolver) Page(ctx context.Context, id *string, code *string) 
 		return resolverFor(ctx, &itemLoaders[int, common.Page]{
 			Item:        r.Loaders.PageLoader,
 			Permissions: r.Loaders.PagePermissionLoader,
-		}, *intID, model.PageFrom)
+		}, intID.Value, model.PageFrom)
 	}
 	if id != nil {
 		return resolverForIntID(ctx, &itemLoaders[int, common.Page]{
@@ -542,7 +542,7 @@ func (r *queryRootResolver) PendingAchievements(ctx context.Context) ([]*model.A
 	if err != nil {
 		return nil, err
 	}
-	items, err := r.Loaders.AchievementLoader.GetMany(ctx, utils.PointerArrayToArray(ids))
+	items, err := r.Loaders.AchievementLoader.GetMany(ctx, common.MappingValues(ids))
 	if err != nil {
 		return nil, err
 	}
@@ -713,7 +713,7 @@ func (r *queryRootResolver) MyList(ctx context.Context) (*model.UserCollection, 
 			},
 			ProfileID: p.ID,
 		}
-		id = &uc.ID
+		id = &common.Mapping[uuid.UUID, uuid.UUID]{Key: p.ID, Value: uc.ID}
 		l.Clear(ctx, p.ID)
 		l.Prime(ctx, p.ID, id)
 		err = r.Queries.UpsertUserCollection(ctx, sqlc.UpsertUserCollectionParams{
@@ -727,7 +727,7 @@ func (r *queryRootResolver) MyList(ctx context.Context) (*model.UserCollection, 
 			return nil, err
 		}
 	}
-	return r.QueryRoot().UserCollection(ctx, id.String())
+	return r.QueryRoot().UserCollection(ctx, id.Value.String())
 }
 
 // UserCollection is the resolver for the userCollection field.
@@ -794,7 +794,7 @@ func (r *queryRootResolver) Profile(ctx context.Context) (*model.Profile, error)
 
 // LegacyIDLookup is the resolver for the legacyIDLookup field.
 func (r *queryRootResolver) LegacyIDLookup(ctx context.Context, options *model.LegacyIDLookupOptions) (*model.LegacyIDLookup, error) {
-	var id *int
+	var id *common.Mapping[int, int]
 	var err error
 	if options.EpisodeID != nil {
 		id, err = r.Loaders.EpisodeIDFromLegacyIDLoader.Get(ctx, *options.EpisodeID)
@@ -809,7 +809,7 @@ func (r *queryRootResolver) LegacyIDLookup(ctx context.Context, options *model.L
 		return nil, ErrItemNotFound
 	}
 	return &model.LegacyIDLookup{
-		ID: strconv.Itoa(*id),
+		ID: strconv.Itoa(id.Value),
 	}, nil
 }
 

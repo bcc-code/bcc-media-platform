@@ -94,12 +94,12 @@ func (r *episodeResolver) getEpisodeQueue(ctx context.Context, episodeID string)
 		if err != nil {
 			return nil, err
 		}
-		episodePointerIDs, err := r.GetFilteredLoaders(ctx).EpisodesLoader.GetMany(ctx, utils.PointerArrayToArray(seasonIDs))
+		episodePointerIDs, err := r.GetFilteredLoaders(ctx).EpisodesLoader.GetMany(ctx, common.MappingValues(seasonIDs))
 		if err != nil {
 			return nil, err
 		}
-		episodeIDs = lo.Reduce(episodePointerIDs, func(a []int, b []*int, _ int) []int {
-			return append(a, utils.PointerArrayToArray(b)...)
+		episodeIDs = lo.Reduce(episodePointerIDs, func(a []int, b []*common.Mapping[int, int], _ int) []int {
+			return append(a, common.MappingValues(b)...)
 		}, []int{})
 	}
 	return episodeIDs, nil
@@ -131,7 +131,7 @@ func (r *Resolver) episodeIDResolver(ctx context.Context, id string) (string, er
 		if eid == nil {
 			return "", ErrItemNotFound
 		}
-		return strconv.Itoa(*eid), nil
+		return strconv.Itoa(eid.Value), nil
 	}
 }
 
@@ -298,8 +298,8 @@ func (r *episodeResolver) getRelatedEpisodeIDs(ctx context.Context, episodeID st
 	if err != nil {
 		return nil, err
 	}
-	episodeIDs := lo.Reduce(episodeGroupIDs, func(a []int, b []*int, _ int) []int {
-		return append(a, utils.PointerArrayToArray(b)...)
+	episodeIDs := lo.Reduce(episodeGroupIDs, func(a []int, b []*common.Mapping[int, int], _ int) []int {
+		return append(a, common.MappingValues(b)...)
 	}, []int{})
 	// Uncomment if we want all episodes to be treated equally.
 	// Keep it commented out to weigh episode with more common tags higher.

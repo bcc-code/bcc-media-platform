@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
@@ -22,7 +23,7 @@ func (r *surveyResolver) Questions(ctx context.Context, obj *model.Survey, first
 
 	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(items, first, offset, nil, offsetCursor)
-	questions, err := r.Loaders.SurveyQuestionLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
+	questions, err := r.Loaders.SurveyQuestionLoader.GetMany(ctx, common.MappingValues(page.Items))
 	if err != nil {
 		return nil, err
 	}

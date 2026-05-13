@@ -55,7 +55,7 @@ func (r *userCollectionResolver) Entries(ctx context.Context, obj *model.UserCol
 
 	offsetCursor := cursors.ParseOrDefaultOffsetCursor(cursor)
 	page := utils.Paginate(ids, first, offset, nil, offsetCursor)
-	entries, err := r.Loaders.UserCollectionEntryLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
+	entries, err := r.Loaders.UserCollectionEntryLoader.GetMany(ctx, common.MappingValues(page.Items))
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (r *userCollectionEntryResolver) Item(ctx context.Context, obj *model.UserC
 		if id == nil {
 			return &model.Show{}, nil
 		}
-		return r.QueryRoot().Show(ctx, strconv.Itoa(*id))
+		return r.QueryRoot().Show(ctx, strconv.Itoa(id.Value))
 	case "episode":
 		id, err := r.Loaders.EpisodeIDFromUuidLoader.Get(ctx, e.ItemID)
 		if err != nil {
@@ -100,7 +100,7 @@ func (r *userCollectionEntryResolver) Item(ctx context.Context, obj *model.UserC
 		if id == nil {
 			return &model.Episode{}, nil
 		}
-		return r.QueryRoot().Episode(ctx, strconv.Itoa(*id), nil)
+		return r.QueryRoot().Episode(ctx, strconv.Itoa(id.Value), nil)
 	case "short":
 		return r.QueryRoot().Short(ctx, e.ItemID.String())
 	}

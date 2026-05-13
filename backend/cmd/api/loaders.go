@@ -29,15 +29,15 @@ func getLoadersForProfile(queries *sqlc.Queries, profile *common.Profile) *loade
 				ProfileID: profile.ID,
 				Column2:   ids,
 			})
-		}, loaders.WithKeyFunc(loaders.Identity[uuid.UUID]), loaders.WithMemoryCache(time.Second*5), loaders.WithName("task-completed")),
+		}, loaders.WithIdentityKey(), loaders.WithMemoryCache(time.Second*5), loaders.WithName("task-completed")),
 		AchievementAchievedAtLoader:        loaders.New(ctx, profileQueries.GetAchievementsAchievedAt, loaders.WithMemoryCache(time.Second*5), loaders.WithName("achieved-at")),
 		GetSelectedAlternativesLoader:      loaders.New(ctx, profileQueries.GetSelectedAlternatives, loaders.WithMemoryCache(time.Second*1), loaders.WithName("selected-alternatives")),
 		TaskAlternativesAnswersCountLoader: loaders.New(ctx, profileQueries.GetTaskAlternativesAnswersCount, loaders.WithMemoryCache(time.Second*15), loaders.WithName("task-alternatives-answers-count")),
 
-		SeasonDefaultEpisodeLoader: loaders.NewMappingLoader(ctx, profileQueries.DefaultEpisodeIDForSeasonIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("season-default-episodes")),
-		ShowDefaultEpisodeLoader:   loaders.NewMappingLoader(ctx, profileQueries.DefaultEpisodeIDForShowIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("show-default-episodes")),
+		SeasonDefaultEpisodeLoader: loaders.New(ctx, profileQueries.DefaultEpisodeIDForSeasonIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("season-default-episodes")),
+		ShowDefaultEpisodeLoader:   loaders.New(ctx, profileQueries.DefaultEpisodeIDForShowIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("show-default-episodes")),
 
-		TopicDefaultLessonLoader: loaders.NewMappingLoader(ctx, profileQueries.GetDefaultLessonIDForTopicIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("topic-default-lessons")),
+		TopicDefaultLessonLoader: loaders.New(ctx, profileQueries.GetDefaultLessonIDForTopicIDs, loaders.WithMemoryCache(time.Second*5), loaders.WithName("topic-default-lessons")),
 
 		MediaProgressLoader: loaders.New(ctx, func(ctx context.Context, ids []uuid.UUID) ([]common.MediaProgress, error) {
 			rows, err := queries.GetMediaProgress(ctx, sqlc.GetMediaProgressParams{

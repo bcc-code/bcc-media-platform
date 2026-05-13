@@ -75,7 +75,7 @@ func (r *fAQCategoryResolver) Questions(ctx context.Context, obj *model.FAQCateg
 
 	page := utils.Paginate(itemIDs, first, offset, nil, offsetCursor)
 
-	items, err := r.Loaders.QuestionLoader.GetMany(ctx, utils.PointerArrayToArray(page.Items))
+	items, err := r.Loaders.QuestionLoader.GetMany(ctx, common.MappingValues(page.Items))
 	if err != nil {
 		return nil, err
 	}

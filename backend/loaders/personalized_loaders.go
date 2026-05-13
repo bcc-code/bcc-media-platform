@@ -19,7 +19,7 @@ type PersonalizedLoaders struct {
 
 	CollectionItemsLoader        *Loader[int, []*common.CollectionItem]
 	ContributionsForPersonLoader *Loader[uuid.UUID, []*common.Contribution]
-	TagEpisodesLoader            *Loader[int, []*int]
+	TagEpisodesLoader            *Loader[int, []*common.Mapping[int, int]]
 }
 
 var personalizedLoaders = NewCollection[string, *PersonalizedLoaders](time.Minute)
@@ -48,13 +48,13 @@ func GetPersonalizedLoaders(
 	ls := &PersonalizedLoaders{
 		Key: key,
 
-		CollectionItemsLoader: NewListLoader(ctx, pq.GetEntriesForCollectionsFilteredByRolesAndLanguages, func(i common.CollectionItem) int {
+		CollectionItemsLoader: NewListLoader(ctx, pq.GetEntriesForCollectionsFilteredByRolesAndLanguages, WithKeyFunc(func(i common.CollectionItem) int {
 			return i.CollectionID
-		}),
-		ContributionsForPersonLoader: NewListLoader(ctx, pq.GetContributionsForPersonsWithRoles, func(i common.Contribution) uuid.UUID {
+		})),
+		ContributionsForPersonLoader: NewListLoader(ctx, pq.GetContributionsForPersonsWithRoles, WithKeyFunc(func(i common.Contribution) uuid.UUID {
 			return i.PersonID
-		}, WithName("person-contributions")),
-		TagEpisodesLoader: NewMappingListLoader(ctx, pq.GetEpisodeIDsWithTagIDs, WithName("tags-episodes")),
+		}), WithName("person-contributions")),
+		TagEpisodesLoader: NewListLoader(ctx, pq.GetEpisodeIDsWithTagIDs, WithName("tags-episodes")),
 	}
 
 	// Canceling the context on delete stops janitors nested inside the loaders as well.

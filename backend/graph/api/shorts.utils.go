@@ -44,7 +44,7 @@ func (r *Resolver) getShortToMediaIDMap(ctx context.Context, shortIDs []uuid.UUI
 		if mID == nil {
 			continue
 		}
-		mappedIDs[sID] = *mID
+		mappedIDs[sID] = mID.Value
 	}
 	return mappedIDs, nil
 }
@@ -192,7 +192,7 @@ func (r *Resolver) shortIDsToMediaIDs(ctx context.Context, ids []uuid.UUID) ([]u
 	if err != nil {
 		return nil, err
 	}
-	return utils.PointerArrayToArray(res), nil
+	return common.MappingValues(res), nil
 }
 
 func (r *Resolver) clearShortsProgress(ctx context.Context, p *common.Profile) error {

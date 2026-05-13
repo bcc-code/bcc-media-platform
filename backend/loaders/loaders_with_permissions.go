@@ -13,27 +13,27 @@ type LoadersWithPermissions struct {
 
 	EpisodeFilterLoader     *Loader[int, *int]
 	EpisodeUUIDFilterLoader *Loader[uuid.UUID, *uuid.UUID]
-	EpisodesLoader          *Loader[int, []*int]
+	EpisodesLoader          *Loader[int, []*common.Mapping[int, int]]
 	SeasonFilterLoader      *Loader[int, *int]
-	SeasonsLoader           *Loader[int, []*int]
+	SeasonsLoader           *Loader[int, []*common.Mapping[int, int]]
 	ShowFilterLoader        *Loader[int, *int]
 	ShowUUIDFilterLoader    *Loader[uuid.UUID, *uuid.UUID]
-	SectionsLoader          *Loader[int, []*int]
+	SectionsLoader          *Loader[int, []*common.Mapping[int, int]]
 	CalendarEntryLoader     *Loader[int, *common.CalendarEntry]
 	StudyTopicFilterLoader  *Loader[uuid.UUID, *uuid.UUID]
-	StudyLessonsLoader      *Loader[uuid.UUID, []*uuid.UUID]
+	StudyLessonsLoader      *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, uuid.UUID]]
 	StudyLessonFilterLoader *Loader[uuid.UUID, *uuid.UUID]
-	StudyTasksLoader        *Loader[uuid.UUID, []*uuid.UUID]
+	StudyTasksLoader        *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, uuid.UUID]]
 	StudyTaskFilterLoader   *Loader[uuid.UUID, *uuid.UUID]
-	SurveyQuestionsLoader   *Loader[uuid.UUID, []*uuid.UUID]
+	SurveyQuestionsLoader   *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, uuid.UUID]]
 
-	FAQQuestionsLoader *Loader[uuid.UUID, []*uuid.UUID]
+	FAQQuestionsLoader *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, uuid.UUID]]
 
 	//Relations
-	StudyLessonEpisodesLoader *Loader[uuid.UUID, []*int]
-	EpisodeStudyLessonsLoader *Loader[int, []*uuid.UUID]
-	StudyLessonLinksLoader    *Loader[uuid.UUID, []*int]
-	LinkStudyLessonsLoader    *Loader[int, []*uuid.UUID]
+	StudyLessonEpisodesLoader *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, int]]
+	EpisodeStudyLessonsLoader *Loader[int, []*common.Mapping[int, uuid.UUID]]
+	StudyLessonLinksLoader    *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, int]]
+	LinkStudyLessonsLoader    *Loader[int, []*common.Mapping[int, uuid.UUID]]
 
 	// Lists
 	PromptIDsLoader       func(ctx context.Context) ([]uuid.UUID, error)

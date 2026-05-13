@@ -13,10 +13,10 @@ type ProfileLoaders struct {
 	AchievementAchievedAtLoader        *Loader[uuid.UUID, *common.Achieved]
 	GetSelectedAlternativesLoader      *Loader[uuid.UUID, *common.SelectedAlternatives]
 
-	SeasonDefaultEpisodeLoader *Loader[int, *int]
-	ShowDefaultEpisodeLoader   *Loader[int, *int]
+	SeasonDefaultEpisodeLoader *Loader[int, *common.Mapping[int, int]]
+	ShowDefaultEpisodeLoader   *Loader[int, *common.Mapping[int, int]]
 
 	MediaProgressLoader *Loader[uuid.UUID, *common.MediaProgress]
 
-	TopicDefaultLessonLoader *Loader[uuid.UUID, *uuid.UUID]
+	TopicDefaultLessonLoader *Loader[uuid.UUID, *common.Mapping[uuid.UUID, uuid.UUID]]
 }

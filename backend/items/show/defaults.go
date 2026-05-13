@@ -15,10 +15,14 @@ func getEpisodeIDFromSeason(ctx context.Context, ls *loaders.LoadersWithPermissi
 	if err != nil || len(eIDs) == 0 {
 		return nil, err
 	}
+	pick := eIDs[0]
 	if !first {
-		return lo.Last(eIDs)
+		pick, _ = lo.Last(eIDs)
 	}
-	return eIDs[0], nil
+	if pick == nil {
+		return nil, nil
+	}
+	return &pick.Value, nil
 }
 
 func getDefaultEpisodeString(show *common.Show) string {
@@ -42,15 +46,17 @@ func DefaultSeasonID(ctx context.Context, ls *loaders.LoadersWithPermissions, sh
 	if err != nil || len(sIDs) == 0 {
 		return nil, err
 	}
-	var sId *int
+	var s *common.Mapping[int, int]
 	switch getDefaultEpisodeString(show) {
 	case "first-of-first", "last-of-first":
-		sId = sIDs[0]
+		s = sIDs[0]
 	case "first-of-last", "last-of-last":
-		sId, _ = lo.Last(sIDs)
+		s, _ = lo.Last(sIDs)
 	}
-
-	return sId, err
+	if s == nil {
+		return nil, err
+	}
+	return &s.Value, err
 }
 
 // DefaultEpisodeID returns the default episode for the show
@@ -72,10 +78,14 @@ func DefaultEpisodeID(ctx context.Context, ls *loaders.LoadersWithPermissions, s
 	}
 
 	if eId == nil {
-		var sIDs []*int
+		var sIDs []*common.Mapping[int, int]
 		sIDs, err = ls.SeasonsLoader.Get(ctx, show.ID)
 		for i := 0; i < len(sIDs) && eId == nil && err == nil; i++ {
-			eId, err = getEpisodeIDFromSeason(ctx, ls, sIDs[i], true)
+			if sIDs[i] == nil {
+				continue
+			}
+			seasonID := sIDs[i].Value
+			eId, err = getEpisodeIDFromSeason(ctx, ls, &seasonID, true)
 		}
 	}
 

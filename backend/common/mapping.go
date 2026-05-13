@@ -12,3 +12,21 @@ type Mapping[K comparable, V any] struct {
 	Key   K
 	Value V
 }
+
+// GetKey makes Mapping satisfy loaders.HasKey[K] so it can be used directly with
+// the generic New / NewListLoader factories without an explicit WithKeyFunc.
+func (m Mapping[K, V]) GetKey() K { return m.Key }
+
+// MappingValues unwraps a slice of *Mapping into the bare values, dropping nils.
+// Common when a list loader returns the parent->child mappings but the caller
+// only needs the children.
+func MappingValues[K comparable, V any](ms []*Mapping[K, V]) []V {
+	out := make([]V, 0, len(ms))
+	for _, m := range ms {
+		if m == nil {
+			continue
+		}
+		out = append(out, m.Value)
+	}
+	return out
+}

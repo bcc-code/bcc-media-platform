@@ -169,7 +169,7 @@ func exportSeasons(ctx context.Context, l *loaders.BatchLoaders, filteredLoaders
 		return nil, err
 	}
 
-	seasonIDs := lo.Map(lo.Flatten(seasonIDsResult), func(i *int, _ int) int { return *i })
+	seasonIDs := lo.Map(lo.Flatten(seasonIDsResult), func(m *common.Mapping[int, int], _ int) int { return m.Value })
 	seasons, err := l.SeasonLoader.GetMany(ctx, seasonIDs)
 	if err != nil {
 		return nil, merry.Wrap(err)
@@ -208,7 +208,7 @@ func exportEpisodes(ctx context.Context, batchLoaders *loaders.BatchLoaders, fil
 		return nil, err
 	}
 
-	episodeIDs := lo.Map(lo.Flatten(episodesIDsResult), func(i *int, _ int) int { return *i })
+	episodeIDs := lo.Map(lo.Flatten(episodesIDsResult), func(m *common.Mapping[int, int], _ int) int { return m.Value })
 	episodes, err := batchLoaders.EpisodeLoader.GetMany(ctx, episodeIDs)
 	if err != nil {
 		return nil, merry.Wrap(err)
@@ -341,7 +341,7 @@ func exportSections(ctx context.Context, q *sqlc.Queries, batchLoaders *loaders.
 		return nil, nil, err
 	}
 
-	sectionIDs := lo.Map(lo.Flatten(sectionIDsResult), func(i *int, _ int) int { return *i })
+	sectionIDs := lo.Map(lo.Flatten(sectionIDsResult), func(m *common.Mapping[int, int], _ int) int { return m.Value })
 	sections, err := batchLoaders.SectionLoader.GetMany(ctx, sectionIDs)
 	if err != nil {
 		return nil, nil, merry.Wrap(err)

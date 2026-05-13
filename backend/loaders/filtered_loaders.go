@@ -30,27 +30,27 @@ func GetLoadersForRoles(queries *sqlc.Queries, roles []string) *LoadersWithPermi
 	ls := &LoadersWithPermissions{
 		Key: key,
 
-		ShowFilterLoader:        New(ctx, rq.GetShowIDsWithRoles, WithKeyFunc(Identity[int]), WithName("show-filter")),
-		ShowUUIDFilterLoader:    New(ctx, rq.GetShowUUIDsWithRoles, WithKeyFunc(Identity[uuid.UUID]), WithName("show-uuid-filter")),
-		SeasonFilterLoader:      New(ctx, rq.GetSeasonIDsWithRoles, WithKeyFunc(Identity[int]), WithName("season-filter")),
-		EpisodeFilterLoader:     New(ctx, rq.GetEpisodeIDsWithRoles, WithKeyFunc(Identity[int]), WithName("episode-filter")),
-		EpisodeUUIDFilterLoader: New(ctx, rq.GetEpisodeUUIDsWithRoles, WithKeyFunc(Identity[uuid.UUID]), WithName("episode-uuid-filter")),
-		SeasonsLoader:           NewMappingListLoader(ctx, rq.GetSeasonIDsForShowsWithRoles, WithName("seasons")),
-		SectionsLoader:          NewMappingListLoader(ctx, rq.GetSectionIDsForPagesWithRoles, WithName("sections")),
-		EpisodesLoader:          NewMappingListLoader(ctx, rq.GetEpisodeIDsForSeasonsWithRoles, WithName("episodes")),
+		ShowFilterLoader:        New(ctx, rq.GetShowIDsWithRoles, WithIdentityKey(), WithName("show-filter")),
+		ShowUUIDFilterLoader:    New(ctx, rq.GetShowUUIDsWithRoles, WithIdentityKey(), WithName("show-uuid-filter")),
+		SeasonFilterLoader:      New(ctx, rq.GetSeasonIDsWithRoles, WithIdentityKey(), WithName("season-filter")),
+		EpisodeFilterLoader:     New(ctx, rq.GetEpisodeIDsWithRoles, WithIdentityKey(), WithName("episode-filter")),
+		EpisodeUUIDFilterLoader: New(ctx, rq.GetEpisodeUUIDsWithRoles, WithIdentityKey(), WithName("episode-uuid-filter")),
+		SeasonsLoader:           NewListLoader(ctx, rq.GetSeasonIDsForShowsWithRoles, WithName("seasons")),
+		SectionsLoader:          NewListLoader(ctx, rq.GetSectionIDsForPagesWithRoles, WithName("sections")),
+		EpisodesLoader:          NewListLoader(ctx, rq.GetEpisodeIDsForSeasonsWithRoles, WithName("episodes")),
 		CalendarEntryLoader:     New(ctx, rq.GetCalendarEntries, WithMemoryCache(time.Minute*5)),
-		StudyTopicFilterLoader:  New(ctx, rq.GetTopicIDsWithRoles, WithKeyFunc(Identity[uuid.UUID]), WithName("study-topic-filter")),
-		StudyLessonFilterLoader: New(ctx, rq.GetLessonIDsWithRoles, WithKeyFunc(Identity[uuid.UUID]), WithName("study-lesson-filter")),
-		StudyTaskFilterLoader:   New(ctx, rq.GetTaskIDsWithRoles, WithKeyFunc(Identity[uuid.UUID]), WithName("study-task-filter")),
-		StudyLessonsLoader:      NewMappingListLoader(ctx, rq.GetLessonIDsForTopics, WithName("study-lessons")),
-		StudyTasksLoader:        NewMappingListLoader(ctx, rq.GetTaskIDsForLessons, WithName("study-tasks")),
+		StudyTopicFilterLoader:  New(ctx, rq.GetTopicIDsWithRoles, WithIdentityKey(), WithName("study-topic-filter")),
+		StudyLessonFilterLoader: New(ctx, rq.GetLessonIDsWithRoles, WithIdentityKey(), WithName("study-lesson-filter")),
+		StudyTaskFilterLoader:   New(ctx, rq.GetTaskIDsWithRoles, WithIdentityKey(), WithName("study-task-filter")),
+		StudyLessonsLoader:      NewListLoader(ctx, rq.GetLessonIDsForTopics, WithName("study-lessons")),
+		StudyTasksLoader:        NewListLoader(ctx, rq.GetTaskIDsForLessons, WithName("study-tasks")),
 
 		// Study Relations
-		StudyLessonEpisodesLoader: NewMappingListLoader(ctx, rq.GetEpisodeIDsForLessons, WithName("study-lesson-episodes")),
-		EpisodeStudyLessonsLoader: NewMappingListLoader(ctx, rq.GetLessonIDsForEpisodes, WithName("episode-study-lessons")),
-		StudyLessonLinksLoader:    NewMappingListLoader(ctx, rq.GetLinkIDsForLessons, WithName("study-lesson-links")),
-		LinkStudyLessonsLoader:    NewMappingListLoader(ctx, rq.GetLessonIDsForLinks, WithName("link-study-lessons")),
-		FAQQuestionsLoader:        NewMappingListLoader(ctx, rq.GetQuestionIDsForCategories, WithName("questions")),
+		StudyLessonEpisodesLoader: NewListLoader(ctx, rq.GetEpisodeIDsForLessons, WithName("study-lesson-episodes")),
+		EpisodeStudyLessonsLoader: NewListLoader(ctx, rq.GetLessonIDsForEpisodes, WithName("episode-study-lessons")),
+		StudyLessonLinksLoader:    NewListLoader(ctx, rq.GetLinkIDsForLessons, WithName("study-lesson-links")),
+		LinkStudyLessonsLoader:    NewListLoader(ctx, rq.GetLessonIDsForLinks, WithName("link-study-lessons")),
+		FAQQuestionsLoader:        NewListLoader(ctx, rq.GetQuestionIDsForCategories, WithName("questions")),
 
 		PromptIDsLoader: func(ctx context.Context) ([]uuid.UUID, error) {
 			return memorycache.GetOrSet(ctx, fmt.Sprintf("promptIDs:roles:%s", key), func(ctx context.Context) ([]uuid.UUID, error) {
@@ -62,7 +62,7 @@ func GetLoadersForRoles(queries *sqlc.Queries, roles []string) *LoadersWithPermi
 				return queries.ListFAQCategoryIDsForRoles(ctx, roles)
 			}, cache.WithExpiration(time.Minute*5))
 		},
-		SurveyQuestionsLoader: NewMappingListLoader(ctx, rq.GetSurveyQuestionIDsForSurveyIDs, WithName("survey-questions-loader")),
+		SurveyQuestionsLoader: NewListLoader(ctx, rq.GetSurveyQuestionIDsForSurveyIDs, WithName("survey-questions-loader")),
 
 		ShortIDsLoader: func(ctx context.Context) ([][]uuid.UUID, error) {
 			return memorycache.GetOrSet(ctx, fmt.Sprintf("shortIDs:roles:%s", key), func(ctx context.Context) ([][]uuid.UUID, error) {

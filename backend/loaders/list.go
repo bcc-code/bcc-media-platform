@@ -5,13 +5,16 @@ import (
 	"github.com/graph-gophers/dataloader/v7"
 )
 
-// NewListLoader returns a configured batch loader for Lists
+// NewListLoader returns a configured batch loader for one-to-many lookups. The
+// key for each row is resolved via WithKeyFunc, WithIdentityKey, or V
+// implementing HasKey[K] — same rules as New.
 func NewListLoader[K comparable, V any](
 	ctx context.Context,
 	factory func(ctx context.Context, ids []K) ([]V, error),
-	getKey func(item V) K,
 	opts ...Option,
 ) *Loader[K, []*V] {
+	getKey := resolveKeyFunc[K, V](opts...)
+
 	batchLoadLists := func(ctx context.Context, keys []K) []*dataloader.Result[[]*V] {
 		res, err := factory(ctx, keys)
 		resMap := map[K][]*V{}

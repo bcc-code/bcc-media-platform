@@ -73,7 +73,7 @@ func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int
 
 	page := utils.Paginate(itemIDs, first, offset, nil, offsetCursor)
 
-	sections, err := r.Loaders.SectionLoader.GetMany(ctx, utils.PointerIntArrayToIntArray(page.Items))
+	sections, err := r.Loaders.SectionLoader.GetMany(ctx, common.MappingValues(page.Items))
 	if err != nil {
 		return nil, err
 	}
