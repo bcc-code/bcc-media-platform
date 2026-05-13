@@ -20,7 +20,6 @@ const open = (i: { id: string }) => {
     window.open('https://admin.brunstad.tv/admin/content/episodes/' + i.id)
 }
 
-// eslint-disable-next-line no-undef
 const handleClick = (event: MouseEvent, index: number, id: string) =>
     interceptSpaLinkClick(event, true, (modified) => {
         emit('itemClick', index, id, modified)

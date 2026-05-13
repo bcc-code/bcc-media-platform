@@ -43,7 +43,6 @@ const click = () => {
     emit('click', false)
 }
 
-// eslint-disable-next-line no-undef
 const onLinkClick = (event: MouseEvent) =>
     interceptSpaLinkClick(event, true, (modified) => {
         emit('click', modified)

@@ -4,7 +4,6 @@ import { webViewMain, openInBrowser } from '@/services/webviews/mainHandler'
 
 const props = defineProps<{ link: LessonLinkFragment }>()
 
-// eslint-disable-next-line no-undef
 const handleClick = (event: MouseEvent) => {
     // Inside the native webview, hand off to the host browser instead of
     // letting the <a target="_blank"> navigate the webview itself.

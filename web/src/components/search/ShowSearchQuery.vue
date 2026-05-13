@@ -45,7 +45,6 @@ const open = (id: string) => {
     window.open('https://admin.brunstad.tv/admin/content/shows/' + id)
 }
 
-// eslint-disable-next-line no-undef
 const handleClick = (event: MouseEvent, index: number, id: string) =>
     interceptSpaLinkClick(event, true, (modified) => {
         onclick(index, id, modified)

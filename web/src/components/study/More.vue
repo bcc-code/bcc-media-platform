@@ -55,7 +55,6 @@ const playAgain = () => {
     router.push('/episode/' + episode.value.id)
 }
 
-// eslint-disable-next-line no-undef
 const handlePlayAgainClick = (event: MouseEvent) =>
     interceptSpaLinkClick(event, true, (modified) => {
         if (!modified) playAgain()

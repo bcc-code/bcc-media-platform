@@ -17,14 +17,12 @@ const emit = defineEmits<{
     (event: 'clickItem', index: number, isModified: boolean): void
 }>()
 
-// eslint-disable-next-line no-undef
 const sectionItem = ref<HTMLElement[] | null>(null)
 
 const imageSize = ref(0)
 
 const clicked = ref(-1)
 
-// eslint-disable-next-line no-undef
 const handleClick = (event: MouseEvent, index: number, href: string | null) =>
     interceptSpaLinkClick(event, !!href, (modified) => {
         emit('clickItem', index, modified)

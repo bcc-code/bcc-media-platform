@@ -26,7 +26,6 @@ const hrefFor = (index: number) =>
         collectionId: props.item.metadata?.collectionId ?? '',
     })
 
-// eslint-disable-next-line no-undef
 const handleClick = (event: MouseEvent, index: number, href: string | null) =>
     interceptSpaLinkClick(event, !!href, (modified) => {
         emit('clickItem', index, modified)

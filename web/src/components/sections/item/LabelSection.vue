@@ -11,7 +11,6 @@ const emit = defineEmits<{
     (event: 'clickItem', index: number, isModified: boolean): void
 }>()
 
-// eslint-disable-next-line no-undef
 const handleClick = (event: MouseEvent, index: number, href: string | null) =>
     interceptSpaLinkClick(event, !!href, (modified) => {
         emit('clickItem', index, modified)
