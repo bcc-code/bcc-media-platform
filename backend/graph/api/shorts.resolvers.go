@@ -137,7 +137,7 @@ func (r *shortResolver) Songs(ctx context.Context, obj *model.Short) ([]*model.S
 	if err != nil || mediaItemID == nil {
 		return []*model.Song{}, err
 	}
-	return r.loadSongsForMediaItem(ctx, *mediaItemID)
+	return r.loadSongsForMediaItem(ctx, mediaItemID.Value)
 }
 
 // Short returns generated.ShortResolver implementation.

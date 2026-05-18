@@ -102,7 +102,7 @@ type BatchLoaders struct {
 	ChaptersLoader                  *Loader[int, []*common.TimedMetadata]
 	PersonLoader                    *Loader[uuid.UUID, *common.Person]
 	SongLoader                      *Loader[uuid.UUID, *common.Song]
-	SongIDsForMediaItemLoader       *Loader[uuid.UUID, []*uuid.UUID]
+	SongIDsForMediaItemLoader       *Loader[uuid.UUID, []*common.Mapping[uuid.UUID, uuid.UUID]]
 	SongContributionsLoader         *Loader[uuid.UUID, []*common.SongContribution]
 	EpisodeContributionsLoader      *Loader[int, []*common.EpisodeContribution]
 	PhraseLoader                    *Loader[string, *common.Phrase]

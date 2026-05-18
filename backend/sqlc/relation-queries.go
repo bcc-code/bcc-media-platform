@@ -26,13 +26,13 @@ func (q *Queries) GetSongs(ctx context.Context, ids []uuid.UUID) ([]common.Song,
 }
 
 // GetSongIDsForMediaItems returns song ids related to mediaitem ids via mediaitems_songs.
-func (q *Queries) GetSongIDsForMediaItems(ctx context.Context, ids []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
+func (q *Queries) GetSongIDsForMediaItems(ctx context.Context, ids []uuid.UUID) ([]common.Mapping[uuid.UUID, uuid.UUID], error) {
 	rows, err := q.getSongIDsForMediaItems(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	return lo.Map(rows, func(r getSongIDsForMediaItemsRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
-		return relation[uuid.UUID, uuid.UUID](r)
+	return lo.Map(rows, func(r getSongIDsForMediaItemsRow, _ int) common.Mapping[uuid.UUID, uuid.UUID] {
+		return common.Mapping[uuid.UUID, uuid.UUID]{Key: r.ParentID, Value: r.ID}
 	}), nil
 }
 
