@@ -57,6 +57,33 @@ func (q *Queries) GetContributionsForSongs(ctx context.Context, songIDs []uuid.U
 	return out, nil
 }
 
+// GetContributionsForEpisodes returns contribution rows (person + type) for each
+// supplied primary_episode_id, aggregated across the episode's mediaitem and
+// any timedmetadata chapters. Rows are tagged with the episode id so the list
+// loader can bucket them.
+func (q *Queries) GetContributionsForEpisodes(ctx context.Context, episodeIDs []int) ([]common.EpisodeContribution, error) {
+	ids32 := make([]int32, len(episodeIDs))
+	for i, id := range episodeIDs {
+		ids32[i] = int32(id)
+	}
+	rows, err := q.getContributionsForEpisodes(ctx, ids32)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]common.EpisodeContribution, 0, len(rows))
+	for _, r := range rows {
+		if !r.EpisodeID.Valid {
+			continue
+		}
+		out = append(out, common.EpisodeContribution{
+			EpisodeID: int(r.EpisodeID.Int64),
+			PersonID:  r.PersonID,
+			Type:      r.Type,
+		})
+	}
+	return out, nil
+}
+
 // GetPersons returns persons for the specified ids
 func (q *Queries) GetPersons(ctx context.Context, ids []uuid.UUID) ([]common.Person, error) {
 	rows, err := q.getPersons(ctx, ids)

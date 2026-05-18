@@ -104,6 +104,7 @@ type BatchLoaders struct {
 	SongLoader                      *Loader[uuid.UUID, *common.Song]
 	SongIDsForMediaItemLoader       *Loader[uuid.UUID, []*uuid.UUID]
 	SongContributionsLoader         *Loader[uuid.UUID, []*common.SongContribution]
+	EpisodeContributionsLoader      *Loader[int, []*common.EpisodeContribution]
 	PhraseLoader                    *Loader[string, *common.Phrase]
 	ContributionsLoader             *Loader[int32, *common.Contribution]
 }
@@ -204,6 +205,9 @@ func InitBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *Bat
 		SongContributionsLoader: NewListLoader(ctx, queries.GetContributionsForSongs, func(c common.SongContribution) uuid.UUID {
 			return c.SongID
 		}, WithName("song-contributions")),
+		EpisodeContributionsLoader: NewListLoader(ctx, queries.GetContributionsForEpisodes, func(c common.EpisodeContribution) int {
+			return c.EpisodeID
+		}, WithName("episode-contributions")),
 		MediaItemPrimaryEpisodeIDLoader: NewConversionLoader(ctx, queries.GetPrimaryEpisodeIDForMediaItems, WithName("media-primary-episode")),
 		TimedMetadataLoader: New(ctx, queries.GetTimedMetadata, WithName("timedmetadata-loader"), WithKeyFunc(func(i common.TimedMetadata) uuid.UUID {
 			return i.ID

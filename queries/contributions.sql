@@ -11,10 +11,12 @@ WITH RelevantContributions AS (
   FROM
     public.mediaitems m
   INNER JOIN contributions c ON c.mediaitem_id = m.id
-    and c.person_id = ANY (@person_ids::uuid[])
-    and m.primary_episode_id is not null
-  UNION
-  ALL
+    AND c.person_id = ANY (@person_ids::uuid[])
+    AND m.primary_episode_id IS NOT NULL
+
+  UNION ALL
+
+  -- timedmetadata_from_asset = true: join timedmetadata on asset_id
   SELECT
     tm.id::text as item_id,
     c.type,
@@ -23,12 +25,26 @@ WITH RelevantContributions AS (
     m.id as mediaitem_id,
     COALESCE(tm.content_type, m.content_type)
   FROM timedmetadata tm
-  INNER JOIN mediaitems m ON
-    (m.timedmetadata_from_asset AND tm.asset_id = m.asset_id)
-    OR (NOT m.timedmetadata_from_asset AND tm.mediaitem_id = m.id)
+  INNER JOIN mediaitems m ON tm.asset_id = m.asset_id
   INNER JOIN contributions c ON c.timedmetadata_id = tm.id
-  and c.person_id = ANY (@person_ids::uuid[])
-  WHERE tm.status = 'published'
+    AND c.person_id = ANY (@person_ids::uuid[])
+  WHERE tm.status = 'published' AND m.timedmetadata_from_asset
+
+  UNION ALL
+
+  -- timedmetadata_from_asset = false: join timedmetadata on mediaitem_id
+  SELECT
+    tm.id::text as item_id,
+    c.type,
+    c.person_id,
+    'chapter' as item_type,
+    m.id as mediaitem_id,
+    COALESCE(tm.content_type, m.content_type)
+  FROM timedmetadata tm
+  INNER JOIN mediaitems m ON tm.mediaitem_id = m.id
+  INNER JOIN contributions c ON c.timedmetadata_id = tm.id
+    AND c.person_id = ANY (@person_ids::uuid[])
+  WHERE tm.status = 'published' AND NOT m.timedmetadata_from_asset
 )
 SELECT
   rc.type,
@@ -73,16 +89,49 @@ WHERE c.song_id = ANY (@song_ids::uuid[]);
 SELECT * FROM "public"."contributions" WHERE person_id = @person_id::uuid;
 
 -- name: GetContributionsForEpisode :many
-SELECT DISTINCT c.person_id, c.type
+-- The OR-join on m.timedmetadata_from_asset cannot use indexes; split into
+-- two mutually exclusive UNION branches so each can be index-driven.
+SELECT c.person_id, c.type
 FROM public.contributions c
 INNER JOIN public.mediaitems m ON c.mediaitem_id = m.id
 WHERE m.primary_episode_id = @episode_id
 
 UNION
 
-SELECT DISTINCT c.person_id, c.type
+SELECT c.person_id, c.type
 FROM public.contributions c
 INNER JOIN public.timedmetadata tm ON c.timedmetadata_id = tm.id
-INNER JOIN public.mediaitems m ON (m.timedmetadata_from_asset AND tm.asset_id = m.asset_id)
-                                 OR (NOT m.timedmetadata_from_asset AND tm.mediaitem_id = m.id)
-WHERE m.primary_episode_id = @episode_id;
+INNER JOIN public.mediaitems m ON tm.asset_id = m.asset_id
+WHERE m.timedmetadata_from_asset AND m.primary_episode_id = @episode_id
+
+UNION
+
+SELECT c.person_id, c.type
+FROM public.contributions c
+INNER JOIN public.timedmetadata tm ON c.timedmetadata_id = tm.id
+INNER JOIN public.mediaitems m ON tm.mediaitem_id = m.id
+WHERE NOT m.timedmetadata_from_asset AND m.primary_episode_id = @episode_id;
+
+-- name: getContributionsForEpisodes :many
+-- Batched variant of GetContributionsForEpisode used by EpisodeContributionsLoader
+-- to dedupe per-episode resolver calls into a single round trip.
+SELECT m.primary_episode_id AS episode_id, c.person_id, c.type
+FROM public.contributions c
+INNER JOIN public.mediaitems m ON c.mediaitem_id = m.id
+WHERE m.primary_episode_id = ANY (@episode_ids::int[])
+
+UNION
+
+SELECT m.primary_episode_id, c.person_id, c.type
+FROM public.contributions c
+INNER JOIN public.timedmetadata tm ON c.timedmetadata_id = tm.id
+INNER JOIN public.mediaitems m ON tm.asset_id = m.asset_id
+WHERE m.timedmetadata_from_asset AND m.primary_episode_id = ANY (@episode_ids::int[])
+
+UNION
+
+SELECT m.primary_episode_id, c.person_id, c.type
+FROM public.contributions c
+INNER JOIN public.timedmetadata tm ON c.timedmetadata_id = tm.id
+INNER JOIN public.mediaitems m ON tm.mediaitem_id = m.id
+WHERE NOT m.timedmetadata_from_asset AND m.primary_episode_id = ANY (@episode_ids::int[]);

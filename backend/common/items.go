@@ -551,6 +551,16 @@ type SongContribution struct {
 	Type     string
 }
 
+// EpisodeContribution is one (person, role) entry attached to an episode,
+// aggregated across the episode's primary mediaitem and any timedmetadata
+// chapters. Used by EpisodeContributionsLoader to batch the per-episode
+// resolver into a single query.
+type EpisodeContribution struct {
+	EpisodeID int
+	PersonID  uuid.UUID
+	Type      string
+}
+
 // PersonType discriminates between individual people and organizations.
 type PersonType string
 
