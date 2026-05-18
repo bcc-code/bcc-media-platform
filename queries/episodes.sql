@@ -153,17 +153,25 @@ WHERE e.legacy_id = ANY ($1::int[]);
 
 -- name: getPermissionsForEpisodes :many
 SELECT e.id,
-       e.status = 'unlisted'              AS unlisted,
-       access.published::bool             AS published,
-       access.available_from::timestamp   AS available_from,
-       access.available_to::timestamp     AS available_to,
-       access.published_on::timestamp     AS published_on,
-       roles.roles::varchar[]             AS usergroups,
-       roles.roles_download::varchar[]    AS usergroups_downloads,
-       roles.roles_earlyaccess::varchar[] AS usergroups_earlyaccess
+       e.status = 'unlisted'            AS unlisted,
+       access.published::bool           AS published,
+       access.available_from::timestamp AS available_from,
+       access.available_to::timestamp   AS available_to,
+       access.published_on::timestamp   AS published_on,
+       COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code)
+                 FROM mediaitems_usergroups eu
+                 WHERE eu.mediaitems_id = e.mediaitem_id),
+                '{}'::varchar[])::varchar[] AS usergroups,
+       COALESCE((SELECT array_agg(DISTINCT eud.usergroups_code)
+                 FROM mediaitems_usergroups_download eud
+                 WHERE eud.mediaitems_id = e.mediaitem_id),
+                '{}'::varchar[])::varchar[] AS usergroups_downloads,
+       COALESCE((SELECT array_agg(DISTINCT eue.usergroups_code)
+                 FROM mediaitems_usergroups_earlyaccess eue
+                 WHERE eue.mediaitems_id = e.mediaitem_id),
+                '{}'::varchar[])::varchar[] AS usergroups_earlyaccess
 FROM episodes e
          LEFT JOIN episode_availability access ON access.id = e.id
-         LEFT JOIN episode_roles roles ON roles.id = e.id
 WHERE e.id = ANY ($1::int[]);
 
 -- name: getEpisodeIDsForUuids :many
