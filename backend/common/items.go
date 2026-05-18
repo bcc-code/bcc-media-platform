@@ -154,6 +154,7 @@ type Episode struct {
 	ContentType       null.String   `json:"contentType"`
 	Audience          null.String   `json:"audience"`
 	CopyrightHolderID uuid.NullUUID `json:"copyrightHolderId"`
+	MediaItemID       uuid.NullUUID `json:"mediaItemId"`
 }
 
 // GetKey returns the key for this item
@@ -537,7 +538,27 @@ type Game struct {
 // Song contains some metadata for songs
 type Song struct {
 	ID    uuid.UUID
+	Key   string
 	Title LocaleString
+	URLs  []string
+}
+
+// SongContribution is one (person, role) entry attached to a song. Used by the
+// SongContributionsLoader to batch-load contributors across many songs.
+type SongContribution struct {
+	SongID   uuid.UUID
+	PersonID uuid.UUID
+	Type     string
+}
+
+// EpisodeContribution is one (person, role) entry attached to an episode,
+// aggregated across the episode's primary mediaitem and any timedmetadata
+// chapters. Used by EpisodeContributionsLoader to batch the per-episode
+// resolver into a single query.
+type EpisodeContribution struct {
+	EpisodeID int
+	PersonID  uuid.UUID
+	Type      string
 }
 
 // PersonType discriminates between individual people and organizations.

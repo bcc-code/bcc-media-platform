@@ -61,6 +61,7 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 			Audience:              e.Audience,
 			ContentType:           e.ContentType,
 			CopyrightHolderID:     e.CopyrightHolderID,
+			MediaItemID:           e.MediaitemID,
 			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
 				return int(id)
 			}),
@@ -118,6 +119,7 @@ func (q *Queries) mapListToEpisodes(episodes []listEpisodesRow) []common.Episode
 			Audience:              e.Audience,
 			ContentType:           e.ContentType,
 			CopyrightHolderID:     e.CopyrightHolderID,
+			MediaItemID:           e.MediaitemID,
 			TagIDs: lo.Map(e.TagIds, func(id int32, _ int) int {
 				return int(id)
 			}),

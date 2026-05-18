@@ -53,6 +53,7 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     inMyList: Boolean! @goField(forceResolver: true)
     contributors: [Contributor!]! @goField(forceResolver: true)
     copyrightHolder: Person @goField(forceResolver: true)
+    songs: [Song!]! @goField(forceResolver: true)
 
     """
     Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)

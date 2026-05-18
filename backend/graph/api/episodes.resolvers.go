@@ -401,55 +401,55 @@ func (r *episodeResolver) InMyList(ctx context.Context, obj *model.Episode) (boo
 func (r *episodeResolver) Contributors(ctx context.Context, obj *model.Episode) ([]*model.Contributor, error) {
 	episodeID := utils.AsInt(obj.ID)
 
-	// Get all contributions for this episode
-	contributions, err := r.Queries.GetContributionsForEpisode(ctx, null.IntFrom(int64(episodeID)))
+	rows, err := r.Loaders.EpisodeContributionsLoader.Get(ctx, episodeID)
 	if err != nil {
 		return nil, err
 	}
 
-	// Group by person and collect contribution types
 	type personContributions struct {
 		personID uuid.UUID
 		types    map[string]bool
 	}
-	contributorMap := make(map[string]*personContributions)
+	contributorMap := make(map[uuid.UUID]*personContributions)
 
-	for _, c := range contributions {
-		key := c.PersonID.String()
-		if contributorMap[key] == nil {
-			contributorMap[key] = &personContributions{
+	for _, c := range rows {
+		if c == nil {
+			continue
+		}
+		if contributorMap[c.PersonID] == nil {
+			contributorMap[c.PersonID] = &personContributions{
 				personID: c.PersonID,
 				types:    make(map[string]bool),
 			}
 		}
-		contributorMap[key].types[c.Type] = true
+		contributorMap[c.PersonID].types[c.Type] = true
 	}
 
-	// Collect all person IDs for batch loading
+	if len(contributorMap) == 0 {
+		return nil, nil
+	}
+
 	personIDs := make([]uuid.UUID, 0, len(contributorMap))
-	for _, pc := range contributorMap {
-		personIDs = append(personIDs, pc.personID)
+	for id := range contributorMap {
+		personIDs = append(personIDs, id)
 	}
 
-	// Load all persons in a single batch
 	persons, err := r.Loaders.PersonLoader.GetMany(ctx, personIDs)
 	if err != nil {
 		return nil, err
 	}
 
-	// Build a map of person ID to person for easy lookup
 	personMap := make(map[uuid.UUID]*common.Person, len(persons))
-	for i, person := range persons {
-		if person != nil {
-			personMap[personIDs[i]] = person
+	for i, p := range persons {
+		if p != nil {
+			personMap[personIDs[i]] = p
 		}
 	}
 
-	// Convert to model.Contributor
 	var contributors []*model.Contributor
 	for _, pc := range contributorMap {
-		person, exists := personMap[pc.personID]
-		if !exists || person == nil {
+		person, ok := personMap[pc.personID]
+		if !ok || person == nil {
 			continue
 		}
 
@@ -478,6 +478,15 @@ func (r *episodeResolver) CopyrightHolder(ctx context.Context, obj *model.Episod
 		return nil, err
 	}
 	return model.PersonFrom(ctx, person), nil
+}
+
+// Songs is the resolver for the songs field.
+func (r *episodeResolver) Songs(ctx context.Context, obj *model.Episode) ([]*model.Song, error) {
+	episode, err := r.Loaders.EpisodeLoader.Get(ctx, utils.AsInt(obj.ID))
+	if err != nil || episode == nil || !episode.MediaItemID.Valid {
+		return []*model.Song{}, err
+	}
+	return r.loadSongsForMediaItem(ctx, episode.MediaItemID.UUID)
 }
 
 // Next is the resolver for the next field.

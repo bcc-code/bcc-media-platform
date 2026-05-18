@@ -126,8 +126,43 @@ func (q *Queries) getPhrases(ctx context.Context, ids []string) ([]getPhrasesRow
 	return items, nil
 }
 
+const getSongIDsForMediaItems = `-- name: getSongIDsForMediaItems :many
+SELECT ms.songs_id      AS id,
+       ms.mediaitems_id AS parent_id
+FROM "public"."mediaitems_songs" ms
+WHERE ms.mediaitems_id = ANY ($1::uuid[])
+`
+
+type getSongIDsForMediaItemsRow struct {
+	ID       uuid.UUID `db:"id" json:"id"`
+	ParentID uuid.UUID `db:"parent_id" json:"parentId"`
+}
+
+func (q *Queries) getSongIDsForMediaItems(ctx context.Context, ids []uuid.UUID) ([]getSongIDsForMediaItemsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSongIDsForMediaItems, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getSongIDsForMediaItemsRow
+	for rows.Next() {
+		var i getSongIDsForMediaItemsRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSongs = `-- name: getSongs :many
-SELECT id, collection_id, title, key, date_updated
+SELECT id, collection_id, title, key, date_updated, urls
 FROM songs
 WHERE id = ANY ($1::uuid[])
 `
@@ -147,6 +182,7 @@ func (q *Queries) getSongs(ctx context.Context, ids []uuid.UUID) ([]Song, error)
 			&i.Title,
 			&i.Key,
 			&i.DateUpdated,
+			pq.Array(&i.Urls),
 		); err != nil {
 			return nil, err
 		}

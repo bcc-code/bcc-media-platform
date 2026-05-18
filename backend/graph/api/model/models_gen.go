@@ -66,6 +66,7 @@ type MediaItem interface {
 	GetTitle() string
 	GetOriginalTitle() string
 	GetImage() *string
+	GetSongs() []*Song
 }
 
 type Pagination interface {
@@ -516,6 +517,7 @@ type Episode struct {
 	InMyList              bool                   `json:"inMyList"`
 	Contributors          []*Contributor         `json:"contributors"`
 	CopyrightHolder       *Person                `json:"copyrightHolder,omitempty"`
+	Songs                 []*Song                `json:"songs"`
 	// Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
 	Next   []*Episode `json:"next"`
 	Cursor string     `json:"cursor"`
@@ -554,6 +556,17 @@ func (this Episode) GetFiles() []*File {
 }
 
 func (this Episode) GetOriginalTitle() string { return this.OriginalTitle }
+
+func (this Episode) GetSongs() []*Song {
+	if this.Songs == nil {
+		return nil
+	}
+	interfaceSlice := make([]*Song, 0, len(this.Songs))
+	for _, concrete := range this.Songs {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
 
 func (Episode) IsContributionItem() {}
 
@@ -1324,6 +1337,7 @@ type Short struct {
 	Files         []*File        `json:"files"`
 	Source        *SubclipSource `json:"source,omitempty"`
 	InMyList      bool           `json:"inMyList"`
+	Songs         []*Song        `json:"songs"`
 }
 
 func (Short) IsSectionItemType() {}
@@ -1361,6 +1375,17 @@ func (this Short) GetFiles() []*File {
 }
 
 func (this Short) GetOriginalTitle() string { return this.OriginalTitle }
+
+func (this Short) GetSongs() []*Song {
+	if this.Songs == nil {
+		return nil
+	}
+	interfaceSlice := make([]*Song, 0, len(this.Songs))
+	for _, concrete := range this.Songs {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
 
 func (Short) IsUserCollectionEntryItem() {}
 
@@ -1455,6 +1480,14 @@ func (this SimpleCalendarEntry) GetTitle() string       { return this.Title }
 func (this SimpleCalendarEntry) GetDescription() string { return this.Description }
 func (this SimpleCalendarEntry) GetStart() string       { return this.Start }
 func (this SimpleCalendarEntry) GetEnd() string         { return this.End }
+
+type Song struct {
+	ID           string         `json:"id"`
+	Key          string         `json:"key"`
+	Title        string         `json:"title"`
+	Urls         []string       `json:"urls"`
+	Contributors []*Contributor `json:"contributors"`
+}
 
 type Stream struct {
 	ID                string           `json:"id"`
