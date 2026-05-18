@@ -480,6 +480,15 @@ func (r *episodeResolver) CopyrightHolder(ctx context.Context, obj *model.Episod
 	return model.PersonFrom(ctx, person), nil
 }
 
+// Songs is the resolver for the songs field.
+func (r *episodeResolver) Songs(ctx context.Context, obj *model.Episode) ([]*model.Song, error) {
+	episode, err := r.Loaders.EpisodeLoader.Get(ctx, utils.AsInt(obj.ID))
+	if err != nil || episode == nil || !episode.MediaItemID.Valid {
+		return []*model.Song{}, err
+	}
+	return r.loadSongsForMediaItem(ctx, episode.MediaItemID.UUID)
+}
+
 // Next is the resolver for the next field.
 func (r *episodeResolver) Next(ctx context.Context, obj *model.Episode, limit *int) ([]*model.Episode, error) {
 	next, err := r.getNextEpisodes(ctx, obj.ID, limit)

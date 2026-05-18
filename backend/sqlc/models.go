@@ -342,6 +342,7 @@ type Contribution struct {
 	Type            string        `db:"type" json:"type"`
 	MediaitemID     uuid.NullUUID `db:"mediaitem_id" json:"mediaitemId"`
 	TimedmetadataID uuid.NullUUID `db:"timedmetadata_id" json:"timedmetadataId"`
+	SongID          uuid.NullUUID `db:"song_id" json:"songId"`
 }
 
 type DirectusAccess struct {
@@ -1165,6 +1166,12 @@ type MediaitemsAsset struct {
 	DateUpdated  time.Time `db:"date_updated" json:"dateUpdated"`
 }
 
+type MediaitemsSong struct {
+	ID           int32     `db:"id" json:"id"`
+	MediaitemsID uuid.UUID `db:"mediaitems_id" json:"mediaitemsId"`
+	SongsID      uuid.UUID `db:"songs_id" json:"songsId"`
+}
+
 type MediaitemsStyledimage struct {
 	ID             int32         `db:"id" json:"id"`
 	MediaitemsID   uuid.NullUUID `db:"mediaitems_id" json:"mediaitemsId"`
@@ -1702,6 +1709,7 @@ type Song struct {
 	Title        string    `db:"title" json:"title"`
 	Key          string    `db:"key" json:"key"`
 	DateUpdated  time.Time `db:"date_updated" json:"dateUpdated"`
+	Urls         []string  `db:"urls" json:"urls"`
 }
 
 type Songcollection struct {

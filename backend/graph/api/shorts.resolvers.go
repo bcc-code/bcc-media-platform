@@ -130,6 +130,16 @@ func (r *shortResolver) InMyList(ctx context.Context, obj *model.Short) (bool, e
 	return r.isInMyList(ctx, utils.AsUuid(obj.ID))
 }
 
+// Songs is the resolver for the songs field.
+func (r *shortResolver) Songs(ctx context.Context, obj *model.Short) ([]*model.Song, error) {
+	shortID := utils.AsUuid(obj.ID)
+	mediaItemID, err := r.Loaders.ShortsMediaIDLoader.Get(ctx, shortID)
+	if err != nil || mediaItemID == nil {
+		return []*model.Song{}, err
+	}
+	return r.loadSongsForMediaItem(ctx, *mediaItemID)
+}
+
 // Short returns generated.ShortResolver implementation.
 func (r *Resolver) Short() generated.ShortResolver { return &shortResolver{r} }
 

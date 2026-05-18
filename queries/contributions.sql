@@ -61,8 +61,13 @@ ORDER BY
   m.published_at DESC;
 
 -- name: InsertContribution :exec
-INSERT INTO "public"."contributions" (person_id, "type", mediaitem_id, timedmetadata_id)
-VALUES (@person_id::uuid, @type, sqlc.narg('mediaitem_id')::uuid, sqlc.narg('timedmetadata_id')::uuid);
+INSERT INTO "public"."contributions" (person_id, "type", mediaitem_id, timedmetadata_id, song_id)
+VALUES (@person_id::uuid, @type, sqlc.narg('mediaitem_id')::uuid, sqlc.narg('timedmetadata_id')::uuid, sqlc.narg('song_id')::uuid);
+
+-- name: getContributionsForSongs :many
+SELECT DISTINCT c.song_id, c.person_id, c.type
+FROM public.contributions c
+WHERE c.song_id = ANY (@song_ids::uuid[]);
 
 -- name: GetContributionsForPerson :many
 SELECT * FROM "public"."contributions" WHERE person_id = @person_id::uuid;

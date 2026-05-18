@@ -31,6 +31,7 @@ interface MediaItem {
     title: String!
     originalTitle: String!
     image(style: ImageStyle): String
+    songs: [Song!]!
     #duration: Int!
 }
 

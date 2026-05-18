@@ -58,7 +58,7 @@ func (q *Queries) GetContributionsForEpisode(ctx context.Context, episodeID null
 }
 
 const getContributionsForPerson = `-- name: GetContributionsForPerson :many
-SELECT id, user_created, date_created, user_updated, date_updated, person_id, type, mediaitem_id, timedmetadata_id FROM "public"."contributions" WHERE person_id = $1::uuid
+SELECT id, user_created, date_created, user_updated, date_updated, person_id, type, mediaitem_id, timedmetadata_id, song_id FROM "public"."contributions" WHERE person_id = $1::uuid
 `
 
 func (q *Queries) GetContributionsForPerson(ctx context.Context, personID uuid.UUID) ([]Contribution, error) {
@@ -80,6 +80,7 @@ func (q *Queries) GetContributionsForPerson(ctx context.Context, personID uuid.U
 			&i.Type,
 			&i.MediaitemID,
 			&i.TimedmetadataID,
+			&i.SongID,
 		); err != nil {
 			return nil, err
 		}
@@ -95,8 +96,8 @@ func (q *Queries) GetContributionsForPerson(ctx context.Context, personID uuid.U
 }
 
 const insertContribution = `-- name: InsertContribution :exec
-INSERT INTO "public"."contributions" (person_id, "type", mediaitem_id, timedmetadata_id)
-VALUES ($1::uuid, $2, $3::uuid, $4::uuid)
+INSERT INTO "public"."contributions" (person_id, "type", mediaitem_id, timedmetadata_id, song_id)
+VALUES ($1::uuid, $2, $3::uuid, $4::uuid, $5::uuid)
 `
 
 type InsertContributionParams struct {
@@ -104,6 +105,7 @@ type InsertContributionParams struct {
 	Type            string        `db:"type" json:"type"`
 	MediaitemID     uuid.NullUUID `db:"mediaitem_id" json:"mediaitemId"`
 	TimedmetadataID uuid.NullUUID `db:"timedmetadata_id" json:"timedmetadataId"`
+	SongID          uuid.NullUUID `db:"song_id" json:"songId"`
 }
 
 func (q *Queries) InsertContribution(ctx context.Context, arg InsertContributionParams) error {
@@ -112,6 +114,7 @@ func (q *Queries) InsertContribution(ctx context.Context, arg InsertContribution
 		arg.Type,
 		arg.MediaitemID,
 		arg.TimedmetadataID,
+		arg.SongID,
 	)
 	return err
 }
@@ -218,6 +221,41 @@ func (q *Queries) getContributionIDsForPersonsWithRoles(ctx context.Context, arg
 			&i.MediaitemID,
 			&i.ContentType,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getContributionsForSongs = `-- name: getContributionsForSongs :many
+SELECT DISTINCT c.song_id, c.person_id, c.type
+FROM public.contributions c
+WHERE c.song_id = ANY ($1::uuid[])
+`
+
+type getContributionsForSongsRow struct {
+	SongID   uuid.NullUUID `db:"song_id" json:"songId"`
+	PersonID uuid.UUID     `db:"person_id" json:"personId"`
+	Type     string        `db:"type" json:"type"`
+}
+
+func (q *Queries) getContributionsForSongs(ctx context.Context, songIds []uuid.UUID) ([]getContributionsForSongsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getContributionsForSongs, pq.Array(songIds))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getContributionsForSongsRow
+	for rows.Next() {
+		var i getContributionsForSongsRow
+		if err := rows.Scan(&i.SongID, &i.PersonID, &i.Type); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

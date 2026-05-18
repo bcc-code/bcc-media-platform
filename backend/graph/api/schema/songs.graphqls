@@ -1,0 +1,7 @@
+type Song {
+    id: ID!
+    key: String!
+    title: String!
+    urls: [String!]!
+    contributors: [Contributor!]! @goField(forceResolver: true)
+}

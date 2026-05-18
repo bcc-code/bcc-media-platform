@@ -18,9 +18,43 @@ func (q *Queries) GetSongs(ctx context.Context, ids []uuid.UUID) ([]common.Song,
 		title := toLocaleString(nil, i.Title)
 		return common.Song{
 			ID:    i.ID,
+			Key:   i.Key,
 			Title: title,
+			URLs:  i.Urls,
 		}
 	}), nil
+}
+
+// GetSongIDsForMediaItems returns song ids related to mediaitem ids via mediaitems_songs.
+func (q *Queries) GetSongIDsForMediaItems(ctx context.Context, ids []uuid.UUID) ([]common.Relation[uuid.UUID, uuid.UUID], error) {
+	rows, err := q.getSongIDsForMediaItems(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(r getSongIDsForMediaItemsRow, _ int) common.Relation[uuid.UUID, uuid.UUID] {
+		return relation[uuid.UUID, uuid.UUID](r)
+	}), nil
+}
+
+// GetContributionsForSongs returns contribution rows (person + type) for each of the supplied song ids.
+// Rows are tagged with their song id so the list loader can bucket them.
+func (q *Queries) GetContributionsForSongs(ctx context.Context, songIDs []uuid.UUID) ([]common.SongContribution, error) {
+	rows, err := q.getContributionsForSongs(ctx, songIDs)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]common.SongContribution, 0, len(rows))
+	for _, r := range rows {
+		if !r.SongID.Valid {
+			continue
+		}
+		out = append(out, common.SongContribution{
+			SongID:   r.SongID.UUID,
+			PersonID: r.PersonID,
+			Type:     r.Type,
+		})
+	}
+	return out, nil
 }
 
 // GetPersons returns persons for the specified ids

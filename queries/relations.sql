@@ -24,6 +24,12 @@ LIMIT 1;
 INSERT INTO "public"."songs" (id, key, collection_id, title)
 VALUES (@id, @key, @collection_id, @title);
 
+-- name: getSongIDsForMediaItems :many
+SELECT ms.songs_id      AS id,
+       ms.mediaitems_id AS parent_id
+FROM "public"."mediaitems_songs" ms
+WHERE ms.mediaitems_id = ANY (@ids::uuid[]);
+
 -- name: InsertSongCollection :exec
 INSERT INTO "public"."songcollections" (id, key, title)
 VALUES (@id, @key, @title);
