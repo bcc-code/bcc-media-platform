@@ -25,66 +25,75 @@ WHERE ci.collections_id = ANY ($1::int[]);
 -- name: getCollectionEntriesForCollectionsWithRoles :many
 SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
 FROM collections_entries ce
-         LEFT JOIN episode_roles er ON ce.collection = 'episodes' AND er.id::varchar = ce.item
-         LEFT JOIN episode_availability ea ON ce.collection = 'episodes' AND ea.id::varchar = ce.item
-         LEFT JOIN season_roles sr ON ce.collection = 'seasons' AND sr.id::varchar = ce.item
-         LEFT JOIN season_availability sa ON ce.collection = 'seasons' AND sa.id::varchar = ce.item
-         LEFT JOIN show_roles shr ON ce.collection = 'shows' AND shr.id::varchar = ce.item
-         LEFT JOIN show_availability sha ON ce.collection = 'shows' AND sha.id::varchar = ce.item
-         LEFT JOIN (SELECT gr.games_id::varchar, array_agg(gr.usergroups_code)::varchar[] roles
-                    FROM games_usergroups gr
-                    GROUP BY gr.games_id) gr ON ce.collection = 'games' AND gr.games_id::varchar = ce.item
-         LEFT JOIN (SELECT pr.playlists_id::varchar, array_agg(pr.usergroups_code)::varchar[] roles
-                    FROM playlists_usergroups pr
-                    GROUP BY pr.playlists_id) pr ON ce.collection = 'playlists' AND pr.playlists_id = ce.item
-         LEFT JOIN (SELECT s.page_id::varchar, array_agg(DISTINCT (ug.usergroups_code)) roles
-                    FROM sections_usergroups ug
-                             JOIN sections s ON s.id = ug.sections_id
-                    GROUP BY s.page_id) pageroles ON ce.collection = 'pages' AND pageroles.page_id = ce.item
-         LEFT JOIN (SELECT shortsr.shorts_id::varchar, array_agg(shortsr.usergroups_code)::varchar[] roles
-                    FROM shorts_usergroups shortsr
-                    GROUP BY shortsr.shorts_id::varchar) shortsr
-                   ON ce.collection = 'shorts' AND shortsr.shorts_id = ce.item
-
+         JOIN episode_roles er        ON er.id::varchar = ce.item
+         JOIN episode_availability ea ON ea.id::varchar = ce.item
 WHERE ce.collections_id = ANY (@ids::int[])
-  AND (
-    (ce.collection = 'episodes'
-        AND ea.published
-        AND ea.available_to
-         > now()
-        AND er.roles && @roles::varchar[]
-        AND
-     ea.available_from
-         < now())
-        OR
-    (ce.collection = 'seasons'
-        AND sa.published
-        AND sa.available_to
-         > now()
-        AND sr.roles && @roles::varchar[]
-        AND
-     sa.available_from
-         < now())
-        OR
-    (ce.collection = 'shows'
-        AND sha.published
-        AND sha.available_to
-         > now()
-        AND shr.roles && @roles::varchar[]
-        AND
-     sha.available_from
-         < now())
-        OR
-    (ce.collection = 'games' AND gr.roles && @roles::varchar[])
-        OR
-    (ce.collection = 'playlists' AND pr.roles && @roles::varchar[])
-        OR
-    (ce.collection = 'pages' AND pageroles.roles && @roles::varchar[])
-        OR
-    (ce.collection = 'shorts' AND shortsr.roles && @roles::varchar[])
-        OR
-    (ce.collection NOT IN ('episodes', 'seasons', 'shows', 'games', 'playlists', 'pages', 'shorts')))
-ORDER BY ce.sort;
+  AND ce.collection = 'episodes'
+  AND ea.published
+  AND ea.available_to   > now()
+  AND ea.available_from < now()
+  AND er.roles && @roles::varchar[]
+UNION ALL
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+         JOIN season_roles sr        ON sr.id::varchar = ce.item
+         JOIN season_availability sa ON sa.id::varchar = ce.item
+WHERE ce.collections_id = ANY (@ids::int[])
+  AND ce.collection = 'seasons'
+  AND sa.published
+  AND sa.available_to   > now()
+  AND sa.available_from < now()
+  AND sr.roles && @roles::varchar[]
+UNION ALL
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+         JOIN show_roles shr        ON shr.id::varchar = ce.item
+         JOIN show_availability sha ON sha.id::varchar = ce.item
+WHERE ce.collections_id = ANY (@ids::int[])
+  AND ce.collection = 'shows'
+  AND sha.published
+  AND sha.available_to   > now()
+  AND sha.available_from < now()
+  AND shr.roles && @roles::varchar[]
+UNION ALL
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+WHERE ce.collections_id = ANY (@ids::int[])
+  AND ce.collection = 'games'
+  AND EXISTS (SELECT 1 FROM games_usergroups gu
+              WHERE gu.games_id::varchar = ce.item
+                AND gu.usergroups_code = ANY (@roles::varchar[]))
+UNION ALL
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+WHERE ce.collections_id = ANY (@ids::int[])
+  AND ce.collection = 'playlists'
+  AND EXISTS (SELECT 1 FROM playlists_usergroups pu
+              WHERE pu.playlists_id::varchar = ce.item
+                AND pu.usergroups_code = ANY (@roles::varchar[]))
+UNION ALL
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+WHERE ce.collections_id = ANY (@ids::int[])
+  AND ce.collection = 'pages'
+  AND EXISTS (SELECT 1 FROM sections_usergroups sug
+                       JOIN sections s ON s.id = sug.sections_id
+              WHERE s.page_id::varchar = ce.item
+                AND sug.usergroups_code = ANY (@roles::varchar[]))
+UNION ALL
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+WHERE ce.collections_id = ANY (@ids::int[])
+  AND ce.collection = 'shorts'
+  AND EXISTS (SELECT 1 FROM shorts_usergroups shu
+              WHERE shu.shorts_id::varchar = ce.item
+                AND shu.usergroups_code = ANY (@roles::varchar[]))
+UNION ALL
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+WHERE ce.collections_id = ANY (@ids::int[])
+  AND ce.collection NOT IN ('episodes', 'seasons', 'shows', 'games', 'playlists', 'pages', 'shorts')
+ORDER BY sort;
 
 -- name: getCollectionIDsForCodes :many
 SELECT c.id, ct.slug
@@ -94,66 +103,81 @@ FROM collections c
 -- name: getCollectionEntriesForCollectionsFilteredByRolesAndLanguages :many
 SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
 FROM collections_entries ce
-         LEFT JOIN episode_roles er ON ce.collection = 'episodes' AND er.id::varchar = ce.item
-         LEFT JOIN episode_availability ea ON ce.collection = 'episodes' AND ea.id::varchar = ce.item
-         LEFT JOIN season_roles sr ON ce.collection = 'seasons' AND sr.id::varchar = ce.item
-         LEFT JOIN season_availability sa ON ce.collection = 'seasons' AND sa.id::varchar = ce.item
-         LEFT JOIN show_roles shr ON ce.collection = 'shows' AND shr.id::varchar = ce.item
-         LEFT JOIN show_availability sha ON ce.collection = 'shows' AND sha.id::varchar = ce.item
-         LEFT JOIN (SELECT gr.games_id::varchar, array_agg(gr.usergroups_code)::varchar[] roles
-                    FROM games_usergroups gr
-                    GROUP BY gr.games_id) gr ON ce.collection = 'games' AND gr.games_id::varchar = ce.item
-         LEFT JOIN (SELECT pr.playlists_id::varchar, array_agg(pr.usergroups_code)::varchar[] roles
-                    FROM playlists_usergroups pr
-                    GROUP BY pr.playlists_id) pr ON ce.collection = 'playlists' AND pr.playlists_id = ce.item
-         LEFT JOIN (SELECT s.page_id::varchar, array_agg(DISTINCT (ug.usergroups_code)) roles
-                    FROM sections_usergroups ug
-                             JOIN sections s ON s.id = ug.sections_id
-                    GROUP BY s.page_id) pageroles ON ce.collection = 'pages' AND pageroles.page_id = ce.item
-         LEFT JOIN (SELECT shortsr.shorts_id::varchar, array_agg(shortsr.usergroups_code)::varchar[] roles
-                    FROM shorts_usergroups shortsr
-                    GROUP BY shortsr.shorts_id::varchar) shortsr
-                   ON ce.collection = 'shorts' AND shortsr.shorts_id = ce.item
-
+         JOIN episode_roles er        ON er.id::varchar = ce.item
+         JOIN episode_availability ea ON ea.id::varchar = ce.item
 WHERE ce.collections_id = ANY (@ids::int[])
-  AND (
-    (
-            ce.collection = 'episodes'
-        AND ea.published
-        AND ea.available_to > now()
-        AND er.roles && @roles::varchar[]
-        AND ea.available_from < now()
-        AND (
-                NOT @only_prefered_languages
-                OR ea.audio && @preferred_audio_languages::varchar[]
-                OR ea.subtitle && @preferred_subtitle_languages::varchar[]
-            )
-        ) OR (
-            ce.collection = 'seasons'
-        AND sa.published
-        AND sa.available_to > now()
-        AND sr.roles && @roles::varchar[]
-        AND sa.available_from < now()
-        AND (
-            NOT @only_prefered_languages
-            OR sa.audio && @preferred_audio_languages::varchar[]
-            OR sa.subtitles && @preferred_subtitle_languages::varchar[]
-        )
-    ) OR (
-            ce.collection = 'shows'
-        AND sha.published
-        AND sha.available_to > now()
-        AND shr.roles && @roles::varchar[]
-        AND sha.available_from < now()
-        AND (
-            NOT @only_prefered_languages
-            OR sha.audio && @preferred_audio_languages::varchar[]
-            OR sha.subtitles && @preferred_subtitle_languages::varchar[]
-        )
-    )
-    OR (ce.collection = 'games' AND gr.roles && @roles::varchar[])
-    OR (ce.collection = 'playlists' AND pr.roles && @roles::varchar[])
-    OR (ce.collection = 'pages' AND pageroles.roles && @roles::varchar[])
-    OR (ce.collection = 'shorts' AND shortsr.roles && @roles::varchar[])
-    OR (ce.collection NOT IN ('episodes', 'seasons', 'shows', 'games', 'playlists', 'pages', 'shorts')))
-ORDER BY ce.sort;
+  AND ce.collection = 'episodes'
+  AND ea.published
+  AND ea.available_to   > now()
+  AND ea.available_from < now()
+  AND er.roles && @roles::varchar[]
+  AND (NOT @only_prefered_languages
+       OR ea.audio    && @preferred_audio_languages::varchar[]
+       OR ea.subtitle && @preferred_subtitle_languages::varchar[])
+UNION ALL
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+         JOIN season_roles sr        ON sr.id::varchar = ce.item
+         JOIN season_availability sa ON sa.id::varchar = ce.item
+WHERE ce.collections_id = ANY (@ids::int[])
+  AND ce.collection = 'seasons'
+  AND sa.published
+  AND sa.available_to   > now()
+  AND sa.available_from < now()
+  AND sr.roles && @roles::varchar[]
+  AND (NOT @only_prefered_languages
+       OR sa.audio     && @preferred_audio_languages::varchar[]
+       OR sa.subtitles && @preferred_subtitle_languages::varchar[])
+UNION ALL
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+         JOIN show_roles shr        ON shr.id::varchar = ce.item
+         JOIN show_availability sha ON sha.id::varchar = ce.item
+WHERE ce.collections_id = ANY (@ids::int[])
+  AND ce.collection = 'shows'
+  AND sha.published
+  AND sha.available_to   > now()
+  AND sha.available_from < now()
+  AND shr.roles && @roles::varchar[]
+  AND (NOT @only_prefered_languages
+       OR sha.audio     && @preferred_audio_languages::varchar[]
+       OR sha.subtitles && @preferred_subtitle_languages::varchar[])
+UNION ALL
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+WHERE ce.collections_id = ANY (@ids::int[])
+  AND ce.collection = 'games'
+  AND EXISTS (SELECT 1 FROM games_usergroups gu
+              WHERE gu.games_id::varchar = ce.item
+                AND gu.usergroups_code = ANY (@roles::varchar[]))
+UNION ALL
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+WHERE ce.collections_id = ANY (@ids::int[])
+  AND ce.collection = 'playlists'
+  AND EXISTS (SELECT 1 FROM playlists_usergroups pu
+              WHERE pu.playlists_id::varchar = ce.item
+                AND pu.usergroups_code = ANY (@roles::varchar[]))
+UNION ALL
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+WHERE ce.collections_id = ANY (@ids::int[])
+  AND ce.collection = 'pages'
+  AND EXISTS (SELECT 1 FROM sections_usergroups sug
+                       JOIN sections s ON s.id = sug.sections_id
+              WHERE s.page_id::varchar = ce.item
+                AND sug.usergroups_code = ANY (@roles::varchar[]))
+UNION ALL
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+WHERE ce.collections_id = ANY (@ids::int[])
+  AND ce.collection = 'shorts'
+  AND EXISTS (SELECT 1 FROM shorts_usergroups shu
+              WHERE shu.shorts_id::varchar = ce.item
+                AND shu.usergroups_code = ANY (@roles::varchar[]))
+UNION ALL
+SELECT ce.id, ce.collections_id, ce.item, ce.collection, ce.sort
+FROM collections_entries ce
+WHERE ce.collections_id = ANY (@ids::int[])
+  AND ce.collection NOT IN ('episodes', 'seasons', 'shows', 'games', 'playlists', 'pages', 'shorts')
+ORDER BY sort;
