@@ -1,0 +1,14 @@
+type: environment
+model: environment
+id: ev_4ANkv5ErXU
+workspaceId: wk_hGg2sqajat
+createdAt: 2026-05-19T06:49:19.254820
+updatedAt: 2026-05-19T07:54:13.457413
+name: Global Variables
+public: true
+base: true
+parentModel: workspace
+parentId: null
+variables: []
+color: null
+sortPriority: 0.0

@@ -1,0 +1,31 @@
+type: http_request
+model: http_request
+id: rq_dzBW9LpNSZ
+createdAt: 2026-05-19T07:24:23.057004
+updatedAt: 2026-05-19T07:55:01.892205
+workspaceId: wk_hGg2sqajat
+folderId: null
+authentication: {}
+authenticationType: null
+body:
+  query: |-
+    query {
+      me{
+        audience
+        anonymous
+        roles
+      }
+    }
+  variables: ''
+bodyType: graphql
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: dcY2MjdSkj
+method: POST
+name: ''
+sortPriority: -1779175463054.0
+url: ${[ BASE_URL ]}/query
+urlParameters: []

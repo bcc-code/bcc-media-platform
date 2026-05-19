@@ -1,0 +1,57 @@
+type: http_request
+model: http_request
+id: rq_sectionItems
+createdAt: 2026-05-19T08:00:00
+updatedAt: 2026-05-19T09:04:49.698990
+workspaceId: wk_hGg2sqajat
+folderId: fl_loaderRefactor
+authentication: {}
+authenticationType: null
+body:
+  query: |-
+    # Exercises CollectionItemLoader (NewListLoader) plus the rewritten
+    # entries-with-roles SQL (UNION ALL, commit 503cffd9) and the inlined
+    # role aggregations in getPermissionsForEpisodes (commit 06c07872).
+    query SectionItems($id: ID!) {
+      section(id: $id) {
+        __typename
+        id
+        title
+        ... on ItemSection {
+          metadata {
+            collectionId
+            useContext
+          }
+          items(first: 20) {
+            total
+            items {
+              id
+              title
+              sort
+              item {
+                __typename
+                ... on Episode { id title }
+                ... on Show { id title }
+                ... on Short { id title }
+              }
+            }
+          }
+        }
+      }
+    }
+  variables: |-
+    {
+      "id": "146"
+    }
+bodyType: graphql
+description: Section -> items (role-filtered). Exercises the rewritten entries-with-roles UNION ALL query and inlined episode permission aggregations.
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: h_ct_sectionItems
+method: POST
+name: Section -> items (role-filtered)
+sortPriority: -1779175540000.0
+url: ${[ BASE_URL ]}/query
+urlParameters: []

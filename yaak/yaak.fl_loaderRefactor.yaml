@@ -1,0 +1,12 @@
+type: folder
+model: folder
+id: fl_loaderRefactor
+createdAt: 2026-05-19T08:00:00.000000
+updatedAt: 2026-05-19T08:00:00.000000
+workspaceId: wk_hGg2sqajat
+folderId: null
+name: Loader refactor checks
+description: GraphQL queries that exercise the new loaders.New / NewListLoader /
+  NewMappingLoader paths and the common.Mapping return types introduced on the
+  refactor/loader-constructor-zoo branch.
+sortPriority: -1779175500000.0

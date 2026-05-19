@@ -1,0 +1,51 @@
+type: http_request
+model: http_request
+id: rq_episodeSongs
+createdAt: 2026-05-19T08:00:00
+updatedAt: 2026-05-19T09:07:41.219003
+workspaceId: wk_hGg2sqajat
+folderId: fl_loaderRefactor
+authentication: {}
+authenticationType: null
+body:
+  query: |-
+    # Exercises:
+    #   SongIDsForMediaItemLoader (NewListLoader, returns []*Mapping[uuid.UUID,uuid.UUID])
+    #   SongLoader.GetMany, SongContributionsLoader (NewListLoader)
+    #   EpisodeContributorsLoader
+    query EpisodeWithSongs($id: ID!) {
+      episode(id: $id) {
+        id
+        title
+        contributors {
+          person { id name }
+          contributionTypes
+        }
+        songs {
+          id
+          title
+          key
+          urls
+          contributors {
+            person { id name }
+            contributionTypes
+          }
+        }
+      }
+    }
+  variables: |-
+    {
+      "id": "3034"
+    }
+bodyType: graphql
+description: Episode -> songs + contributors. Hits the migrated song-on-mediaitem loader chain.
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: h_ct_episodeSongs
+method: POST
+name: Episode -> songs + contributors
+sortPriority: -1779175510000.0
+url: ${[ BASE_URL ]}/query
+urlParameters: []

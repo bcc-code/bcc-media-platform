@@ -1,0 +1,24 @@
+type: workspace
+model: workspace
+id: wk_hGg2sqajat
+createdAt: 2026-05-19T06:49:19.167059
+updatedAt: 2026-05-19T07:58:11.254489
+authentication:
+  accessTokenUrl: ${[ AUTH_TOKEN_URL ]}
+  audience: ${[ AUTH_AUDIENCE ]}
+  authorizationUrl: ${[ AUTH_AUTHORIZE_URL ]}
+  clientId: ${[ AUTH_CLIENT_ID ]}
+  grantType: authorization_code
+  redirectUri: ${[ AUTH_REDIRECT_URL ]}
+  scope: openid profile email offline_access
+  tokenName: access_token
+  usePkce: true
+authenticationType: oauth2
+description: ''
+headers: []
+name: BCC Media Platform
+encryptionKeyChallenge: null
+settingValidateCertificates: true
+settingFollowRedirects: true
+settingRequestTimeout: 0
+settingDnsOverrides: []

@@ -1,0 +1,38 @@
+type: environment
+model: environment
+id: ev_6YZeWeiBen
+workspaceId: wk_hGg2sqajat
+createdAt: 2026-05-19T07:53:43.613991
+updatedAt: 2026-05-19T07:57:34.153285
+name: Localhost
+public: true
+base: false
+parentModel: environment
+parentId: null
+variables:
+- enabled: true
+  name: BASE_URL
+  value: http://localhost:8077
+  id: DKJnK8AIaP
+- enabled: true
+  name: AUTH_CLIENT_ID
+  value: 5HeUZ75GtalcU6BbxoWDs5u4YrGIZJ3s
+  id: ICqgccdXqF
+- enabled: true
+  name: AUTH_REDIRECT_URL
+  value: http://localhost:3000
+  id: ApnXtQ7gAk
+- enabled: true
+  name: AUTH_AUDIENCE
+  value: sandbox-api.bcc.no
+  id: q0udyx952a
+- enabled: true
+  name: AUTH_TOKEN_URL
+  value: https://bcc-sso-sandbox.eu.auth0.com/oauth/token
+  id: VnnvX4rFni
+- enabled: true
+  name: AUTH_AUTHORIZE_URL
+  value: https://bcc-sso-sandbox.eu.auth0.com/authorize
+  id: F0PHEQT0k5
+color: var(--success)
+sortPriority: 0.0

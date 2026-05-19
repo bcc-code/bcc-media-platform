@@ -1,0 +1,54 @@
+type: http_request
+model: http_request
+id: rq_personContribs
+createdAt: 2026-05-19T08:00:00
+updatedAt: 2026-05-19T09:06:46.972507
+workspaceId: wk_hGg2sqajat
+folderId: fl_loaderRefactor
+authentication: {}
+authenticationType: null
+body:
+  query: |-
+    # Exercises EpisodeContributionsLoader and the episodeID.Value dereference
+    # in graph/api/contributions.utils.go (previously *episodeID).
+    query PersonContributions($id: ID!) {
+      person(id: $id) {
+        id
+        name
+        contributionTypes {
+          type { code }
+          count
+        }
+        contributions(first: 200) {
+          total
+          items {
+            type { code }
+            contentType{
+              code
+              title
+            }
+            item {
+              __typename
+              ... on Episode { id title }
+              ... on Chapter { id title episode { id } }
+            }
+          }
+        }
+      }
+    }
+  variables: |-
+    {
+      "id": "7e39462c-8f7f-49fa-ac9d-f2a01caaa0f2"
+    }
+bodyType: graphql
+description: Person -> contributions. Exercises EpisodeContributionsLoader and the episodeID.Value change in contributions.utils.go.
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: h_ct_personContribs
+method: POST
+name: Person -> contributions (paginated)
+sortPriority: -1779175530000.0
+url: ${[ BASE_URL ]}/query
+urlParameters: []

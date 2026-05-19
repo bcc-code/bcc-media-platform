@@ -1,0 +1,55 @@
+type: http_request
+model: http_request
+id: rq_meAchievements
+createdAt: 2026-05-19T08:00:00
+updatedAt: 2026-05-19T08:46:23.646776
+workspaceId: wk_hGg2sqajat
+folderId: fl_loaderRefactor
+authentication: {}
+authenticationType: null
+body:
+  query: |-
+    # Exercises the profile-scoped Mapping loaders:
+    #   AchievementsLoader, UnconfirmedAchievementsLoader,
+    #   AchievementGroupAchievementsLoader (all []*Mapping[uuid.UUID,uuid.UUID])
+    # Requires a valid bearer token via the workspace oauth2 flow.
+    query MeAchievements {
+      me {
+        id
+        firstName
+        roles
+      }
+      profile {
+        id
+      }
+      achievementGroups(first: 10) {
+        items {
+          id
+          title
+          achievements(first: 10) {
+            items {
+              id
+              title
+              achievedAt
+            }
+          }
+        }
+      }
+      pendingAchievements {
+        id
+        title
+      }
+    }
+  variables: '{}'
+bodyType: graphql
+description: Me -> profile -> achievements/progress. Exercises profile-scoped Mapping loaders (achievements, group achievements, pending). Needs a logged-in token.
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: h_ct_meAchievements
+method: POST
+name: Me -> profile -> achievements
+sortPriority: -1779175560000.0
+url: ${[ BASE_URL ]}/query
+urlParameters: []

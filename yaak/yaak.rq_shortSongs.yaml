@@ -1,0 +1,43 @@
+type: http_request
+model: http_request
+id: rq_shortSongs
+createdAt: 2026-05-19T08:00:00
+updatedAt: 2026-05-19T09:07:09.226957
+workspaceId: wk_hGg2sqajat
+folderId: fl_loaderRefactor
+authentication: {}
+authenticationType: null
+body:
+  query: |-
+    # Exercises the same SongIDsForMediaItemLoader path reached through the
+    # Short MediaItem implementer (shorts.utils.go).
+    query ShortWithSongs($id: UUID!) {
+      short(id: $id) {
+        id
+        title
+        songs {
+          id
+          title
+          contributors {
+            person { name }
+            contributionTypes
+          }
+        }
+      }
+    }
+  variables: |-
+    {
+      "id": "62a64231-119e-45eb-b24b-a3a1865abb70"
+    }
+bodyType: graphql
+description: Short -> songs + contributors. Confirms the mediaitem-level loader works for the Short implementer too.
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: h_ct_shortSongs
+method: POST
+name: Short -> songs + contributors
+sortPriority: -1779175520000.0
+url: ${[ BASE_URL ]}/query
+urlParameters: []

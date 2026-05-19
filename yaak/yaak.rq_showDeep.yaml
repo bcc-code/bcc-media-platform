@@ -1,0 +1,60 @@
+type: http_request
+model: http_request
+id: rq_showDeep
+createdAt: 2026-05-19T08:00:00
+updatedAt: 2026-05-19T08:49:25.809481
+workspaceId: wk_hGg2sqajat
+folderId: fl_loaderRefactor
+authentication: {}
+authenticationType: null
+body:
+  query: |-
+    # Broad fan-out: ShowLoader, SeasonLoader, EpisodeLoader, ChaptersLoader,
+    # FilesLoader, StreamsLoader, SongIDsForMediaItemLoader -- all wired through
+    # the new New / NewListLoader factories.
+    query ShowDeep($id: ID!) {
+      show(id: $id) {
+        id
+        title
+        seasons(first: 3) {
+          items {
+            id
+            title
+            number
+            episodes(first: 5) {
+              items {
+                id
+                title
+                duration
+                chapters {
+                  id
+                  title
+                  start
+                  duration
+                }
+                songs {
+                  id
+                  title
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  variables: |-
+    {
+      "id": "10"
+    }
+bodyType: graphql
+description: Show -> seasons -> episodes deep traversal. Exercises the broad batch loader stack via the new factory API.
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: h_ct_showDeep
+method: POST
+name: Show -> seasons -> episodes (deep)
+sortPriority: -1779175550000.0
+url: ${[ BASE_URL ]}/query
+urlParameters: []
