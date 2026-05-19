@@ -20,14 +20,21 @@ import (
 )
 
 func preloadEntryLoaders(ctx context.Context, loaders *loaders.BatchLoaders, entries []collection.Entry) {
+	var showIDs, seasonIDs, episodeIDs []int
 	for _, e := range entries {
 		switch e.Collection {
 		case common.CollectionShows:
-			loaders.ShowLoader.Load(ctx, utils.AsInt(e.ID))
+			id := utils.AsInt(e.ID)
+			showIDs = append(showIDs, id)
+			loaders.ShowLoader.Load(ctx, id)
 		case common.CollectionSeasons:
-			loaders.SeasonLoader.Load(ctx, utils.AsInt(e.ID))
+			id := utils.AsInt(e.ID)
+			seasonIDs = append(seasonIDs, id)
+			loaders.SeasonLoader.Load(ctx, id)
 		case common.CollectionEpisodes:
-			loaders.EpisodeLoader.Load(ctx, utils.AsInt(e.ID))
+			id := utils.AsInt(e.ID)
+			episodeIDs = append(episodeIDs, id)
+			loaders.EpisodeLoader.Load(ctx, id)
 		case common.CollectionPages:
 			loaders.PageLoader.Load(ctx, utils.AsInt(e.ID))
 		case common.CollectionStudyTopics:
@@ -41,6 +48,45 @@ func preloadEntryLoaders(ctx context.Context, loaders *loaders.BatchLoaders, ent
 		case common.CollectionShorts:
 			loaders.ShortLoader.Load(ctx, utils.AsUuid(e.ID))
 		}
+	}
+	// Warm the permission loaders alongside the entity loaders so that the
+	// downstream Locked / DefaultEpisode / EpisodeCount resolvers find them
+	// hot, instead of fragmenting into separate batch windows once each
+	// section's items have been resolved.
+	if len(showIDs) > 0 {
+		loaders.ShowPermissionLoader.LoadMany(ctx, showIDs)
+	}
+	if len(seasonIDs) > 0 {
+		loaders.SeasonPermissionLoader.LoadMany(ctx, seasonIDs)
+	}
+	if len(episodeIDs) > 0 {
+		loaders.EpisodePermissionLoader.LoadMany(ctx, episodeIDs)
+	}
+}
+
+// preloadFilteredEntryLoaders warms the per-role filtered loaders for the
+// downstream resolvers of show/season items in this entry set. Shows fan out
+// to SeasonsLoader (Show.EpisodeCount / SeasonCount / DefaultEpisode); seasons
+// fan out to EpisodesLoader (Season.Episodes / EpisodeCount). Warming here
+// collapses the otherwise-staggered per-section batches into one.
+func preloadFilteredEntryLoaders(ctx context.Context, fl *loaders.LoadersWithPermissions, entries []collection.Entry) {
+	if fl == nil {
+		return
+	}
+	var showIDs, seasonIDs []int
+	for _, e := range entries {
+		switch e.Collection {
+		case common.CollectionShows:
+			showIDs = append(showIDs, utils.AsInt(e.ID))
+		case common.CollectionSeasons:
+			seasonIDs = append(seasonIDs, utils.AsInt(e.ID))
+		}
+	}
+	if len(showIDs) > 0 {
+		fl.SeasonsLoader.LoadMany(ctx, showIDs)
+	}
+	if len(seasonIDs) > 0 {
+		fl.EpisodesLoader.LoadMany(ctx, seasonIDs)
 	}
 }
 

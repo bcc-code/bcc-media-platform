@@ -63,6 +63,7 @@ func getSectionItemsForCollectionPage(ctx context.Context, r *Resolver, collecti
 	pagination := utils.Paginate[collection.Entry, *cursors.RandomizedCursor](entries, first, offset, nil, randomizedCursor)
 
 	preloadEntryLoaders(ctx, ls, pagination.Items)
+	preloadFilteredEntryLoaders(ctx, r.FilteredLoaders(ctx), pagination.Items)
 
 	items, err := mapCollectionEntriesToSectionItems(ctx, ls, pagination.Items, common.ImageStyleDefault, col.NumberInTitles)
 	if err != nil {

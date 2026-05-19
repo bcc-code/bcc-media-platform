@@ -299,6 +299,7 @@ func (r *Resolver) sectionCollectionEntryResolver(
 	}
 
 	preloadEntryLoaders(ctx, ls, pagination.Items)
+	preloadFilteredEntryLoaders(ctx, r.FilteredLoaders(ctx), pagination.Items)
 
 	imageStyle := sectionStyleToImageStyle(section.Style)
 	items, err := mapCollectionEntriesToSectionItems(ctx, ls, pagination.Items, imageStyle, col.NumberInTitles)
