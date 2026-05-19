@@ -1,7 +1,14 @@
+type SongCollection {
+    id: ID!
+    title: String!
+    code: String!
+}
+
 type Song {
     id: ID!
-    key: String!
+    key: String! @goField(forceResolver: true)
     title: String!
     urls: [String!]!
+    collection: SongCollection! @goField(forceResolver: true)
     contributors: [Contributor!]! @goField(forceResolver: true)
 }

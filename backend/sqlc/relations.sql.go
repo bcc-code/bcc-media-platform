@@ -126,6 +126,40 @@ func (q *Queries) getPhrases(ctx context.Context, ids []string) ([]getPhrasesRow
 	return items, nil
 }
 
+const getSongCollections = `-- name: getSongCollections :many
+SELECT id, title, key, date_updated
+FROM songcollections
+WHERE id = ANY ($1::uuid[])
+`
+
+func (q *Queries) getSongCollections(ctx context.Context, ids []uuid.UUID) ([]Songcollection, error) {
+	rows, err := q.db.QueryContext(ctx, getSongCollections, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Songcollection
+	for rows.Next() {
+		var i Songcollection
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Key,
+			&i.DateUpdated,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSongIDsForMediaItems = `-- name: getSongIDsForMediaItems :many
 SELECT ms.songs_id      AS id,
        ms.mediaitems_id AS parent_id

@@ -14,6 +14,32 @@ import (
 	"github.com/google/uuid"
 )
 
+// Key is the resolver for the key field.
+func (r *songResolver) Key(ctx context.Context, obj *model.Song) (string, error) {
+	song, err := r.Loaders.SongLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil || song == nil {
+		return "", err
+	}
+	col, err := r.Loaders.SongCollectionLoader.Get(ctx, song.CollectionID)
+	if err != nil || col == nil || col.Code == "" {
+		return song.Key, err
+	}
+	return col.Code + "-" + song.Key, nil
+}
+
+// Collection is the resolver for the collection field.
+func (r *songResolver) Collection(ctx context.Context, obj *model.Song) (*model.SongCollection, error) {
+	song, err := r.Loaders.SongLoader.Get(ctx, utils.AsUuid(obj.ID))
+	if err != nil || song == nil {
+		return nil, err
+	}
+	col, err := r.Loaders.SongCollectionLoader.Get(ctx, song.CollectionID)
+	if err != nil || col == nil {
+		return nil, err
+	}
+	return model.SongCollectionFrom(col), nil
+}
+
 // Contributors is the resolver for the contributors field.
 func (r *songResolver) Contributors(ctx context.Context, obj *model.Song) ([]*model.Contributor, error) {
 	songID := utils.AsUuid(obj.ID)

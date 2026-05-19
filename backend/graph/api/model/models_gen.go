@@ -1482,11 +1482,18 @@ func (this SimpleCalendarEntry) GetStart() string       { return this.Start }
 func (this SimpleCalendarEntry) GetEnd() string         { return this.End }
 
 type Song struct {
-	ID           string         `json:"id"`
-	Key          string         `json:"key"`
-	Title        string         `json:"title"`
-	Urls         []string       `json:"urls"`
-	Contributors []*Contributor `json:"contributors"`
+	ID           string          `json:"id"`
+	Key          string          `json:"key"`
+	Title        string          `json:"title"`
+	Urls         []string        `json:"urls"`
+	Collection   *SongCollection `json:"collection"`
+	Contributors []*Contributor  `json:"contributors"`
+}
+
+type SongCollection struct {
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	Code  string `json:"code"`
 }
 
 type Stream struct {

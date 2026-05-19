@@ -17,10 +17,26 @@ func (q *Queries) GetSongs(ctx context.Context, ids []uuid.UUID) ([]common.Song,
 	return lo.Map(rows, func(i Song, _ int) common.Song {
 		title := toLocaleString(nil, i.Title)
 		return common.Song{
+			ID:           i.ID,
+			CollectionID: i.CollectionID,
+			Key:          i.Key,
+			Title:        title,
+			URLs:         i.Urls,
+		}
+	}), nil
+}
+
+// GetSongCollections returns song collections for the specified ids.
+func (q *Queries) GetSongCollections(ctx context.Context, ids []uuid.UUID) ([]common.SongCollection, error) {
+	rows, err := q.getSongCollections(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(i Songcollection, _ int) common.SongCollection {
+		return common.SongCollection{
 			ID:    i.ID,
-			Key:   i.Key,
-			Title: title,
-			URLs:  i.Urls,
+			Code:  i.Key,
+			Title: i.Title.ValueOrZero(),
 		}
 	}), nil
 }

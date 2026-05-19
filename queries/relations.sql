@@ -3,6 +3,11 @@ SELECT *
 FROM songs
 WHERE id = ANY (@ids::uuid[]);
 
+-- name: getSongCollections :many
+SELECT *
+FROM songcollections
+WHERE id = ANY (@ids::uuid[]);
+
 -- name: getPhrases :many
 SELECT p.key,
        p.value                                   AS original_value,

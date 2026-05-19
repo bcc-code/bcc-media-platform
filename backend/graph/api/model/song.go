@@ -24,3 +24,11 @@ func SongFrom(ctx context.Context, s *common.Song) *Song {
 		Urls:  urls,
 	}
 }
+
+func SongCollectionFrom(c *common.SongCollection) *SongCollection {
+	return &SongCollection{
+		ID:    c.ID.String(),
+		Code:  c.Code,
+		Title: c.Title,
+	}
+}

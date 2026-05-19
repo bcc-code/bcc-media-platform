@@ -537,10 +537,20 @@ type Game struct {
 
 // Song contains some metadata for songs
 type Song struct {
+	ID           uuid.UUID
+	CollectionID uuid.UUID
+	Key          string
+	Title        LocaleString
+	URLs         []string
+}
+
+// SongCollection groups songs together (e.g. a hymnal or songbook). The
+// Code is the short identifier (DB column `key`) shared as a prefix in
+// composite song keys.
+type SongCollection struct {
 	ID    uuid.UUID
-	Key   string
-	Title LocaleString
-	URLs  []string
+	Code  string
+	Title string
 }
 
 // SongContribution is one (person, role) entry attached to a song. Used by the
