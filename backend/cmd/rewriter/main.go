@@ -204,7 +204,8 @@ func main() {
 
 	config := getEnvConfig()
 
-	utils.MustSetupTracing("BTV-REWRITER", config.Tracing)
+	utils.MustSetupTracing("BCCM-REWRITER", config.Tracing)
+	utils.MustSetupMetrics("BCCM-REWRITER", config.Tracing)
 
 	rw := &rewriter{
 		apiEndpoint: config.APIEndpoint,

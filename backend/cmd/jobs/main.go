@@ -44,7 +44,8 @@ func main() {
 
 	config := getEnvConfig()
 
-	utils.MustSetupTracing("BTV-WORKER", config.Tracing)
+	utils.MustSetupTracing("BCCM-WORKER", config.Tracing)
+	utils.MustSetupMetrics("BCCM-WORKER", config.Tracing)
 	ctx, span := otel.Tracer("jobs/core").Start(ctx, "init")
 
 	serverConfig := server.ConfigData{

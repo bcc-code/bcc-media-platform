@@ -165,7 +165,8 @@ func main() {
 	config := getEnvConfig()
 
 	log.L.Info().Msg("Setting up tracing!")
-	utils.MustSetupTracing("BTV-API", config.Tracing)
+	utils.MustSetupTracing("BCCM-API", config.Tracing)
+	utils.MustSetupMetrics("BCCM-API", config.Tracing)
 
 	ctx, span := otel.Tracer("api/core").Start(ctx, "init")
 	db, dbChan := utils.MustCreateDBClient(ctx, config.DB)
