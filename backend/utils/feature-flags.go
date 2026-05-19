@@ -2,6 +2,7 @@ package utils
 
 import (
 	"strings"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 )
@@ -77,11 +78,60 @@ func GetFeatureFlags(ctx *gin.Context) FeatureFlags {
 	return featureFlags
 }
 
-// ReportFlagActivation reports flag activation as a header
-func ReportFlagActivation(ctx *gin.Context, flag string, variant string) {
-	if variant == "" {
-		ctx.Writer.Header().Add(featureFlagsHeader, flag)
-	} else {
-		ctx.Writer.Header().Add(featureFlagsHeader, flag+":"+variant)
+const reportedFlagsKey = "reported-feature-flags"
+
+// reportedFlags is per-request state for feature-flag activation reporting.
+// The mutex guards both the dedup set and the underlying http.Header.Add,
+// because gqlgen runs sibling field resolvers on parallel goroutines and
+// http.Header is a plain map.
+type reportedFlags struct {
+	mu    sync.Mutex
+	added map[string]struct{}
+}
+
+// EnsureReportedFlags installs per-request state for ReportFlagActivation.
+// Must be called from a middleware on routes that can fan out into parallel
+// resolver goroutines, before any handler runs. The lazy init relies on the
+// caller being single-goroutine, since gin.Context.Set is not safe against
+// concurrent first-time inserts of the same key.
+func EnsureReportedFlags(ctx *gin.Context) {
+	if _, ok := ctx.Get(reportedFlagsKey); ok {
+		return
 	}
+	ctx.Set(reportedFlagsKey, &reportedFlags{added: map[string]struct{}{}})
+}
+
+// FeatureFlagReporterMiddleware initializes per-request state for
+// ReportFlagActivation. Must run before any handler that fans out into
+// parallel resolver goroutines (e.g. gqlgen).
+func FeatureFlagReporterMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		EnsureReportedFlags(c)
+		c.Next()
+	}
+}
+
+// ReportFlagActivation reports flag activation as a response header. Safe
+// to call concurrently from sibling resolver goroutines; each (flag, variant)
+// is written to the response header at most once per request.
+//
+// Requires EnsureReportedFlags to have been called from middleware. Without
+// it the call is a silent no-op rather than racing on the bare header map.
+func ReportFlagActivation(ctx *gin.Context, flag string, variant string) {
+	val := flag
+	if variant != "" {
+		val = flag + ":" + variant
+	}
+	raw, ok := ctx.Get(reportedFlagsKey)
+	if !ok {
+		return
+	}
+	rf := raw.(*reportedFlags)
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	if _, already := rf.added[val]; already {
+		return
+	}
+	rf.added[val] = struct{}{}
+	ctx.Writer.Header().Add(featureFlagsHeader, val)
 }

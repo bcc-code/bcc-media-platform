@@ -144,7 +144,7 @@ func (r *Resolver) pickStreamSigner(ctx context.Context) (streamSigner, streamto
 	if ginCtx != nil {
 		flags := utils.GetFeatureFlags(ginCtx)
 		if v, ok := flags.GetVariant(unleash.StreamCDNProviderFlag); ok {
-			utils.ReportFlagActivation(ginCtx, unleash.StreamCDNProviderFlag, unleash.StreamCDNCloudfrontDirect)
+			utils.ReportFlagActivation(ginCtx, unleash.StreamCDNProviderFlag, v)
 
 			switch v {
 			case unleash.StreamCDNProxyIORiver:

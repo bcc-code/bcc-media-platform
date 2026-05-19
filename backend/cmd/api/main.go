@@ -242,6 +242,7 @@ func main() {
 	r.Use(gin.CustomRecovery(panicHandler))
 
 	r.Use(utils.GinContextToContextMiddleware())
+	r.Use(utils.FeatureFlagReporterMiddleware())
 	r.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
 		AllowMethods:    []string{"POST", "GET"},
