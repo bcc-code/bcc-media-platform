@@ -27,6 +27,32 @@ func resolveChapters(ctx context.Context, loaders *loaders.BatchLoaders, episode
 
 	chapters := make([]*model.Chapter, 0, len(tms))
 
+	var phraseKeys []string
+	var songKeys []uuid.UUID
+	var personKeys []uuid.UUID
+	for _, tm := range tms {
+		phraseKeys = append(phraseKeys, tm.ContentType.Value)
+		switch tm.ContentType {
+		case common.ContentTypeSong, common.ContentTypeSingAlong:
+			if tm.SongID.Valid {
+				songKeys = append(songKeys, tm.SongID.UUID)
+			}
+		case common.ContentTypeSpeech, common.ContentTypeInterview, common.ContentTypeTestimony:
+			if len(tm.PersonIDs) == 1 {
+				personKeys = append(personKeys, tm.PersonIDs[0])
+			}
+		}
+	}
+	if len(phraseKeys) > 0 {
+		loaders.PhraseLoader.LoadMany(ctx, phraseKeys)
+	}
+	if len(songKeys) > 0 {
+		loaders.SongLoader.LoadMany(ctx, songKeys)
+	}
+	if len(personKeys) > 0 {
+		loaders.PersonLoader.LoadMany(ctx, personKeys)
+	}
+
 	for _, tm := range tms {
 
 		ginCtx, _ := utils.GinCtx(ctx)
