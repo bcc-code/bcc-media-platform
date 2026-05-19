@@ -78,11 +78,18 @@ func (r *lessonResolver) Image(ctx context.Context, obj *model.Lesson, style *mo
 	if err != nil {
 		return nil, err
 	}
+	if e == nil {
+		return nil, nil
+	}
 	t, err := r.Loaders.StudyTopicLoader.Get(ctx, e.TopicID)
 	if err != nil {
 		return nil, err
 	}
-	return imageOrFallback(ctx, e.Images, style, t.Images), nil
+	var fallbacks []common.Images
+	if t != nil {
+		fallbacks = append(fallbacks, t.Images)
+	}
+	return imageOrFallback(ctx, e.Images, style, fallbacks...), nil
 }
 
 // Tasks is the resolver for the tasks field.
@@ -371,6 +378,9 @@ func (r *studyTopicResolver) Image(ctx context.Context, obj *model.StudyTopic, s
 	e, err := r.Loaders.StudyTopicLoader.Get(ctx, utils.AsUuid(obj.ID))
 	if err != nil {
 		return nil, err
+	}
+	if e == nil {
+		return nil, nil
 	}
 	return imageOrFallback(ctx, e.Images, style), nil
 }

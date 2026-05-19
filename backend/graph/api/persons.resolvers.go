@@ -55,6 +55,9 @@ func (r *personResolver) Image(ctx context.Context, obj *model.Person, style *mo
 	if err != nil {
 		return nil, err
 	}
+	if e == nil {
+		return nil, nil
+	}
 	return imageOrFallback(ctx, e.Images, style), nil
 }
 

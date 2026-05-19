@@ -18,6 +18,9 @@ func (r *gameResolver) Image(ctx context.Context, obj *model.Game, style *model.
 	if err != nil {
 		return nil, err
 	}
+	if e == nil {
+		return nil, nil
+	}
 	return imageOrFallback(ctx, e.Images, style), nil
 }
 

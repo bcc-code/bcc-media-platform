@@ -80,6 +80,9 @@ func (r *episodeResolver) Image(ctx context.Context, obj *model.Episode, style *
 	if err != nil {
 		return nil, err
 	}
+	if e == nil {
+		return nil, nil
+	}
 	var fallbacks []common.Images
 	if obj.Season != nil {
 		s, err := r.Loaders.SeasonLoader.Get(ctx, utils.AsInt(obj.Season.ID))
@@ -93,7 +96,9 @@ func (r *episodeResolver) Image(ctx context.Context, obj *model.Episode, style *
 			if err != nil {
 				return nil, err
 			}
-			fallbacks = append(fallbacks, sh.Images)
+			if sh != nil {
+				fallbacks = append(fallbacks, sh.Images)
+			}
 		}
 	}
 

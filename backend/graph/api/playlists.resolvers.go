@@ -19,6 +19,9 @@ func (r *playlistResolver) Image(ctx context.Context, obj *model.Playlist, style
 	if err != nil {
 		return nil, err
 	}
+	if i == nil {
+		return nil, nil
+	}
 	return imageOrFallback(ctx, i.Images, style), nil
 }
 

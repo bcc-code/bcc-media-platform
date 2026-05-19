@@ -45,6 +45,9 @@ func (r *pageResolver) Image(ctx context.Context, obj *model.Page, style *model.
 	if err != nil {
 		return nil, err
 	}
+	if e == nil {
+		return nil, nil
+	}
 	return imageOrFallback(ctx, e.Images, style), nil
 }
 

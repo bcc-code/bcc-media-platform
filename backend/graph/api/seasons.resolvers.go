@@ -21,12 +21,19 @@ func (r *seasonResolver) Image(ctx context.Context, obj *model.Season, style *mo
 	if err != nil {
 		return nil, err
 	}
+	if e == nil {
+		return nil, nil
+	}
 	sh, err := r.Loaders.ShowLoader.Get(ctx, e.ShowID)
 	if err != nil {
 		return nil, err
 	}
+	var fallbacks []common.Images
+	if sh != nil {
+		fallbacks = append(fallbacks, sh.Images)
+	}
 
-	return imageOrFallback(ctx, e.Images, style, sh.Images), nil
+	return imageOrFallback(ctx, e.Images, style, fallbacks...), nil
 }
 
 // Show is the resolver for the show field.
