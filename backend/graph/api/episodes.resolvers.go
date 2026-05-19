@@ -495,12 +495,13 @@ func (r *episodeResolver) Next(ctx context.Context, obj *model.Episode, limit *i
 	if err != nil {
 		return nil, err
 	}
-	var episodes []*model.Episode
-	for _, id := range next {
-		ep, err := r.QueryRoot().Episode(ctx, strconv.Itoa(id), nil)
-		if err == nil && ep != nil {
-			episodes = append(episodes, ep)
-		}
+	ids := make([]string, len(next))
+	for i, id := range next {
+		ids[i] = strconv.Itoa(id)
+	}
+	episodes, err := r.QueryRoot().Episodes(ctx, ids)
+	if err != nil {
+		return nil, nil
 	}
 	return episodes, nil
 }
