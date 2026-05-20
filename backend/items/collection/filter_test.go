@@ -192,12 +192,41 @@ func TestGetSQLForFilter_WithDeboost(t *testing.T) {
 	result := GetSQLForFilter(params)
 
 	assert.NotNil(t, result)
-	sql, _, _ := result.ToSql()
+	sql, args, _ := result.ToSql()
 
-	// Verify the SQL contains deboost logic
-	assert.Contains(t, sql, "WHEN t.tags @> ARRAY['preview']::varchar[] /* DeboostTag */ AND 0.500000 > 0.0 /* DeboostFactor */")
-	assert.Contains(t, sql, "THEN CASE WHEN random() < 1.0 - 0.500000 /* DeboostFactor */ THEN random() ELSE random() + 1 END")
+	// The CASE expression must use placeholders, not interpolated values.
+	assert.Contains(t, sql, "ARRAY[$1]::varchar[]")
+	assert.Contains(t, sql, "THEN CASE WHEN random() < 1.0 - $3")
 	assert.Contains(t, sql, "ELSE random()")
+	assert.Equal(t, "preview", args[0])
+	assert.Equal(t, 0.5, args[1])
+	assert.Equal(t, 0.5, args[2])
+}
+
+func TestGetSQLForFilter_DeboostTagEscaping(t *testing.T) {
+	// Regression: a DeboostTag containing SQL meta-characters must be passed
+	// through as a parameter, not interpolated into the SQL string.
+	filterJSON := `{"==": [{"var": "type"}, "episode"]}`
+
+	injection := "x'] OR 1=1; --"
+	params := FilterParams{
+		Filter: common.Filter{
+			Filter:        json.RawMessage(filterJSON),
+			DeboostTag:    injection,
+			DeboostFactor: 10.0,
+		},
+	}
+
+	result := GetSQLForFilter(params)
+	assert.NotNil(t, result)
+	sql, args, err := result.ToSql()
+	assert.NoError(t, err)
+
+	// The injection payload must NOT appear in the generated SQL.
+	assert.NotContains(t, sql, injection)
+	assert.NotContains(t, sql, "OR 1=1")
+	// It must appear unchanged in the args slice.
+	assert.Equal(t, injection, args[0])
 }
 
 func TestGetSQLForFilter_WithLimit(t *testing.T) {

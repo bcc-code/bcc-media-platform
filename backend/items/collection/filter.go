@@ -128,39 +128,19 @@ func GetSQLForFilter(args FilterParams) *squirrel.SelectBuilder {
 	// Convert % value to a [-1, 1] float
 	deboostFactor := args.Filter.DeboostFactor / 100.0
 
-	// --- Randomization/Deboost Logic ---
-	//
-	// This CASE expression calculates a pseudo-random value for each row, with optional deboosting if a specific tag is present.
-	//
-	// Variables:
-	//   - args.Filter.DeboostTag:     The tag (string) that triggers deboosting if present in t.tags (array)
-	//   - args.Filter.DeboostFactor:  The deboost factor (float64) to apply if the tag is present
-	//   - randomFunc:                 The SQL expression/function that produces a random value per row (e.g. random() or seeded value)
-	//
-	// Logic:
-	//   - If the row's tags contain DeboostTag AND DeboostFactor > 0:
-	//       - If the random value is less than DeboostFactor, increment the random value by 1 (pushes it to the end)
-	//       - Otherwise, keep the random value as is
-	//   - Else: just use the random value
-	//
-	// The result is aliased as 'r' and used for randomized ordering with deboost applied to tagged items.
-	selectFields = append(
-		selectFields,
-		fmt.Sprintf(
-			`CASE
-				WHEN t.tags @> ARRAY['%s']::varchar[] /* DeboostTag */ AND %f > 0.0 /* DeboostFactor */
-					THEN CASE WHEN random() < 1.0 - %f /* DeboostFactor */ THEN random() ELSE random() + 1 END
-				ELSE random()
-			END AS r`,
-			args.Filter.DeboostTag, // Tag to check for deboost
-			deboostFactor,          // Deboost factor threshold
-			deboostFactor,          // Deboost factor threshold
-		),
-	)
+	// Randomization with optional per-tag deboost. DeboostTag and DeboostFactor
+	// are parameterized to keep CMS-authored values from breaking out of the
+	// SQL literal.
+	const deboostExpr = `CASE
+			WHEN t.tags @> ARRAY[?]::varchar[] AND ? > 0.0
+				THEN CASE WHEN random() < 1.0 - ? THEN random() ELSE random() + 1 END
+			ELSE random()
+		END AS r`
 
 	q := squirrel.StatementBuilder.
 		PlaceholderFormat(squirrel.Dollar).
 		Select(selectFields...).
+		Column(squirrel.Expr(deboostExpr, args.Filter.DeboostTag, deboostFactor, deboostFactor)).
 		From(from).
 		Where(query.Filter)
 

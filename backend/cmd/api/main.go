@@ -298,7 +298,17 @@ func main() {
 	r.GET("/versionz", version.GinHandler)
 
 	if os.Getenv("PPROF") == "TRUE" {
-		pprof.Register(r, "debug/pprof")
+		// Mount pprof on a separate engine bound to localhost so it isn't
+		// reachable through the public load balancer. Operators reach it via
+		// `kubectl port-forward` or an in-pod shell.
+		debugR := gin.New()
+		debugR.Use(gin.Recovery())
+		pprof.Register(debugR, "debug/pprof")
+		go func() {
+			if err := debugR.Run("127.0.0.1:6060"); err != nil {
+				log.L.Warn().Err(err).Msg("pprof server stopped")
+			}
+		}()
 	}
 
 	r.GET("/.well-known/jwks.json", <-jwkChan)
