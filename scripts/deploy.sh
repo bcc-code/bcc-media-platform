@@ -12,7 +12,7 @@ if [ -f "run-deploy.yaml" ]; then
 	gcloud builds submit \
 		--project="btv-platform-${ENV}-2" \
 		--no-source \
-		--substitutions="_PROJECT_ID=btv-platform-${ENV}-2,_API_SERVICE=api-${ENV},_JOBS_SERVICE=background-worker-${ENV},_CMS_SERVICE=directus-${ENV},_REWRITER_SERVICE=rewriter-${ENV},_VIDEOMANIPULATOR_SERVICE=videomanipulator-${ENV},_STREAM_PROXY_SERVICE=stream-proxy-${ENV}" \
+		--substitutions="_PROJECT_ID=btv-platform-${ENV}-2,_API_SERVICE=api-${ENV},_JOBS_SERVICE=background-worker-${ENV},_CMS_SERVICE=directus-${ENV},_REWRITER_SERVICE=rewriter-${ENV},_VIDEOMANIPULATOR_SERVICE=videomanipulator-${ENV},_STREAM_PROXY_SERVICE=stream-proxy-${ENV},_COMMIT_SHA=${SEMAPHORE_GIT_SHA:-unknown}" \
 		--config=run-deploy.yaml
 fi
 
