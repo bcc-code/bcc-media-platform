@@ -38,6 +38,9 @@ func (r *episodeResolver) Locked(ctx context.Context, obj *model.Episode) (bool,
 	if err != nil {
 		return false, err
 	}
+	if e == nil {
+		return false, nil
+	}
 	perms, err := r.Loaders.EpisodePermissionLoader.Get(ctx, e.ID)
 	if err != nil {
 		return false, err

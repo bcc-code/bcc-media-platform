@@ -83,7 +83,7 @@ func (r *episodeResolver) getEpisodeQueue(ctx context.Context, episodeID string)
 		})
 	} else {
 		episode, err := r.Loaders.EpisodeLoader.Get(ctx, utils.AsInt(episodeID))
-		if err != nil || !episode.SeasonID.Valid {
+		if err != nil || episode == nil || !episode.SeasonID.Valid {
 			return nil, err
 		}
 		season, err := r.Loaders.SeasonLoader.Get(ctx, int(episode.SeasonID.Int64))
