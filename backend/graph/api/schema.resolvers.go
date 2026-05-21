@@ -403,10 +403,13 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string, context *mod
 	ginCtx, _ := utils.GinCtx(ctx)
 	if context != nil {
 		var collectionID null.Int
+		var playlistID uuid.NullUUID
 		if context.PlaylistID != nil {
-			playlist, err := r.Loaders.PlaylistLoader.Get(ctx, utils.AsUuid(*context.PlaylistID))
+			pID := utils.AsUuid(*context.PlaylistID)
+			playlist, err := r.Loaders.PlaylistLoader.Get(ctx, pID)
 			if err == nil && playlist != nil {
 				collectionID = playlist.CollectionID
+				playlistID = uuid.NullUUID{UUID: pID, Valid: true}
 			}
 		}
 		if !collectionID.Valid {
@@ -414,6 +417,7 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string, context *mod
 		}
 		ginCtx.Set(episodeContextKey, common.EpisodeContext{
 			CollectionID: collectionID,
+			PlaylistID:   playlistID,
 			Cursor:       null.StringFromPtr(context.Cursor),
 			Shuffle:      null.BoolFromPtr(context.Shuffle),
 		})

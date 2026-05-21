@@ -7135,7 +7135,7 @@ type GlobalConfig {
     standalone
 }
 
-union EpisodeContextUnion = Season | ContextCollection
+union EpisodeContextUnion = Season | ContextCollection | Playlist
 
 enum ShareRestriction {
     registered
@@ -50425,6 +50425,13 @@ func (ec *executionContext) _EpisodeContextUnion(ctx context.Context, sel ast.Se
 			return graphql.Null
 		}
 		return ec._Season(ctx, sel, obj)
+	case model.Playlist:
+		return ec._Playlist(ctx, sel, &obj)
+	case *model.Playlist:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Playlist(ctx, sel, obj)
 	case model.ContextCollection:
 		return ec._ContextCollection(ctx, sel, &obj)
 	case *model.ContextCollection:
@@ -57713,7 +57720,7 @@ func (ec *executionContext) _Person(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
-var playlistImplementors = []string{"Playlist", "CollectionItem", "SectionItemType"}
+var playlistImplementors = []string{"Playlist", "EpisodeContextUnion", "CollectionItem", "SectionItemType"}
 
 func (ec *executionContext) _Playlist(ctx context.Context, sel ast.SelectionSet, obj *model.Playlist) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, playlistImplementors)

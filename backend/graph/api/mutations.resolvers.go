@@ -137,10 +137,20 @@ func (r *mutationRootResolver) SetEpisodeProgress(ctx context.Context, id string
 
 		if context != nil {
 			var col null.Int
-			if context.CollectionID != nil {
+			var playlistID uuid.NullUUID
+			if context.PlaylistID != nil {
+				pID := utils.AsUuid(*context.PlaylistID)
+				playlist, err := r.Loaders.PlaylistLoader.Get(ctx, pID)
+				if err == nil && playlist != nil {
+					col = playlist.CollectionID
+					playlistID = uuid.NullUUID{UUID: pID, Valid: true}
+				}
+			}
+			if !col.Valid && context.CollectionID != nil {
 				col.SetValid(int64(utils.AsInt(*context.CollectionID)))
 			}
 			episodeProgress.Context.CollectionID = col
+			episodeProgress.Context.PlaylistID = playlistID
 		} else {
 			episodeProgress.Context = common.EpisodeContext{}
 		}

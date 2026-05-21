@@ -129,6 +129,7 @@ type Progress struct {
 // EpisodeContext contains context for episode
 type EpisodeContext struct {
 	CollectionID null.Int
+	PlaylistID   uuid.NullUUID
 	Cursor       null.String
 	Shuffle      null.Bool
 }

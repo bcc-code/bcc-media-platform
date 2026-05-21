@@ -1038,6 +1038,8 @@ type Playlist struct {
 	Items       *PlaylistItemPagination `json:"items"`
 }
 
+func (Playlist) IsEpisodeContextUnion() {}
+
 func (Playlist) IsCollectionItem()            {}
 func (this Playlist) GetID() string           { return this.ID }
 func (this Playlist) GetTitle() string        { return this.Title }
