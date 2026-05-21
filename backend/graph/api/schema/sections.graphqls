@@ -3,6 +3,7 @@ type ItemSectionMetadata {
     myList: Boolean!
     secondaryTitles: Boolean!
     collectionId: ID!
+    playlistId: ID
     useContext: Boolean!
     prependLiveElement: Boolean!
     page: Page @goField(forceResolver: true)

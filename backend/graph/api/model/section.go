@@ -28,11 +28,17 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 
 	switch s.Type {
 	case "item", "playlist":
+		var playlistID *string
+		if s.PlaylistID.Valid {
+			pid := s.PlaylistID.UUID.String()
+			playlistID = &pid
+		}
 		metadata := &ItemSectionMetadata{
 			SecondaryTitles:    s.Options.SecondaryTitles,
 			MyList:             s.Options.MyList,
 			ContinueWatching:   s.Options.ContinueWatching,
 			CollectionID:       strconv.Itoa(int(s.CollectionID.Int64)),
+			PlaylistID:         playlistID,
 			UseContext:         s.Options.UseContext,
 			PrependLiveElement: s.Options.PrependLiveElement,
 			Limit:              &s.Options.Limit,
