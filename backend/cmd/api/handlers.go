@@ -127,7 +127,11 @@ func graphqlHandler(
 			if _, ok := err.(*gqlerror.Error); ok {
 				return gqlError
 			}
-			log.L.Error().Err(err).Send()
+			ev := log.L.Error().Err(err).Str("path", gqlError.Path.String())
+			if graphql.HasOperationContext(ctx) {
+				ev = ev.Str("operation", graphql.GetOperationContext(ctx).OperationName)
+			}
+			ev.Msg("GraphQL resolver error")
 			gqlError.Message = "error occurred"
 		}
 		return gqlError
