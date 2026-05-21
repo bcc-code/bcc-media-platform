@@ -35,8 +35,8 @@ ON CONFLICT (id) DO UPDATE SET updated_at = now(),
 -- name: UpsertUserCollectionEntry :exec
 INSERT INTO users.collectionentries (id, collection_id, sort, type, item_id, created_at, updated_at)
 VALUES (@id, @collection_id, @sort, @type, @item_id, now(), now())
-ON CONFLICT(id) DO UPDATE SET sort       = EXCLUDED.sort,
-                              updated_at = EXCLUDED.updated_at;
+ON CONFLICT (collection_id, item_id, type) DO UPDATE SET sort       = EXCLUDED.sort,
+                                                         updated_at = EXCLUDED.updated_at;
 
 -- name: DeleteUserCollectionEntry :exec
 DELETE

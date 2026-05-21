@@ -53,8 +53,8 @@ func (q *Queries) UpsertUserCollection(ctx context.Context, arg UpsertUserCollec
 const upsertUserCollectionEntry = `-- name: UpsertUserCollectionEntry :exec
 INSERT INTO users.collectionentries (id, collection_id, sort, type, item_id, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, now(), now())
-ON CONFLICT(id) DO UPDATE SET sort       = EXCLUDED.sort,
-                              updated_at = EXCLUDED.updated_at
+ON CONFLICT (collection_id, item_id, type) DO UPDATE SET sort       = EXCLUDED.sort,
+                                                         updated_at = EXCLUDED.updated_at
 `
 
 type UpsertUserCollectionEntryParams struct {
