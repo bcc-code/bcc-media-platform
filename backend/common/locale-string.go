@@ -79,7 +79,7 @@ func (localeString LocaleString) AsJSON() []byte {
 
 	j, err := json.Marshal(out)
 	if err != nil {
-		log.L.Error().Err(err).Send()
+		log.L.Error().Err(err).Msg("Marshaling LocaleString to JSON failed")
 	}
 
 	return j

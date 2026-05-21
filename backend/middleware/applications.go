@@ -23,7 +23,7 @@ func ApplicationMiddleware(queries *sqlc.Queries) gin.HandlerFunc {
 
 		apps, err := memorycache.GetOrSet(ctx, "applications", queries.ListApplications, cache.WithExpiration(time.Minute*60))
 		if err != nil {
-			log.L.Error().Err(err).Send()
+			log.L.Error().Err(err).Msg("Loading applications list failed")
 			ctx.Set(common.CtxApp, nil)
 			return
 		}

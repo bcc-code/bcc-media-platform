@@ -358,7 +358,6 @@ func (r *mutationRootResolver) CompleteTask(ctx context.Context, id string, sele
 		for _, a := range actions {
 			err = achievements.CheckNewAchievements(ctx, r.Queries, r.Loaders, a)
 			if err != nil {
-				log.L.Error().Err(err).Send()
 				return false, err
 			}
 		}

@@ -56,7 +56,7 @@ func (s *Service) Queue(ctx context.Context, collection string, id string, at ti
 			break
 		}
 		if err != nil {
-			log.L.Error().Err(err).Send()
+			log.L.Error().Err(err).Str("queue", s.queueID).Msg("Listing existing tasks failed")
 			break
 		}
 		if !strings.HasPrefix(resp.GetName(), taskName) {

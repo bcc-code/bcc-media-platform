@@ -109,7 +109,6 @@ func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, que
 	searchResult := common.SearchResult{}
 
 	if err != nil {
-		log.L.Error().Err(err).Send()
 		return common.SearchResult{}, err
 	}
 
@@ -120,7 +119,6 @@ func doElasticSearch(ctx context.Context, client *elasticsearch.TypedClient, que
 
 	qResult, err := client.Search().Index(indexName).Raw(jsonQuery).Do(ctx)
 	if err != nil {
-		log.L.Error().Err(err).Send()
 		return common.SearchResult{}, err
 	}
 

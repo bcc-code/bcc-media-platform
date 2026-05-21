@@ -56,7 +56,7 @@ func getExplicitRolesFromContext(ctx *gin.Context, queries *sqlc.Queries) []stri
 	if explicitRoles := ctx.GetHeader(explicitRolesHeader); explicitRoles != "" {
 		allRoles, err := getRoles(ctx, queries)
 		if err != nil {
-			log.L.Error().Err(err).Send()
+			log.L.Error().Err(err).Msg("Loading roles for explicit-roles header failed")
 		} else {
 			specifiedRoles := strings.Split(explicitRoles, ",")
 
@@ -239,7 +239,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 					return i.OrgUid
 				}))
 				if err != nil {
-					log.L.Error().Err(err).Send()
+					log.L.Error().Err(err).Str("person_id", u.PersonID).Msg("Loading user organizations failed")
 				}
 				for _, org := range organizations {
 					if org != nil && org.Type == "Church" {
@@ -309,7 +309,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 			err = saveUser()
 
 			if err != nil {
-				log.L.Error().Err(err).Send()
+				log.L.Error().Err(err).Str("person_id", u.PersonID).Msg("Saving user to database failed")
 			}
 
 			return u, nil
@@ -327,7 +327,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 			ctx.Set(user.CtxUser, u)
 			return
 		} else {
-			log.L.Error().Err(err).Send()
+			log.L.Error().Err(err).Str("user_id", userID).Msg("Loading user from members API failed")
 			ctx.Set(user.CtxUser, &common.User{
 				Roles:     roles,
 				Anonymous: true,

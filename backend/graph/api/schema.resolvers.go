@@ -820,7 +820,7 @@ func (r *queryRootResolver) Prompts(ctx context.Context, timestamp *string) ([]m
 		withTimestampExpiration(ctx, "prompts:"+loaders.Key, timestamp, func() {
 			ids, err := loaders.PromptIDsLoader(ctx)
 			if err != nil {
-				log.L.Error().Err(err).Send()
+				log.L.Error().Err(err).Str("loaders_key", loaders.Key).Msg("Loading prompt IDs for timestamp expiration failed")
 			}
 			for _, id := range ids {
 				r.Loaders.PromptLoader.Clear(ctx, id)

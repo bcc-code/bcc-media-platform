@@ -96,13 +96,13 @@ func (s *Service) pushMessages(ctx context.Context, messages []*messaging.Messag
 	for _, r := range ranges {
 		failedTokens, err := s.batchSendMessages(ctx, r)
 		if err != nil {
-			log.L.Error().Err(err).Send()
+			log.L.Error().Err(err).Int("batch_size", len(r)).Msg("Push batch send failed")
 		}
 		for _, t := range failedTokens {
 			if messaging.IsUnregistered(t.Error) {
 				unregisterTokens = append(unregisterTokens, t.Token)
 			} else {
-				log.L.Warn().Err(t.Error).Send()
+				log.L.Warn().Err(t.Error).Str("token", t.Token).Msg("Push delivery failed for token")
 			}
 		}
 	}

@@ -32,6 +32,6 @@ func Lock(ctx context.Context, locker *redislock.Client, key string) (RemoteLock
 func Release(ctx context.Context, lock RemoteLock) {
 	err := lock.Release(ctx)
 	if err != nil {
-		log.L.Error().Err(err).Send()
+		log.L.Error().Err(err).Msg("Releasing remote lock failed")
 	}
 }
