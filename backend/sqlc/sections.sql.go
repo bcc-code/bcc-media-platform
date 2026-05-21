@@ -232,6 +232,7 @@ SELECT s.id,
        s.sort,
        s.status::text = 'published'::text       AS published,
        s.collection_id,
+       s.playlist_id,
        s.message_id,
        s.embed_url,
        s.embed_aspect_ratio,
@@ -265,6 +266,7 @@ type getSectionsRow struct {
 	Sort                null_v4.Int           `db:"sort" json:"sort"`
 	Published           bool                  `db:"published" json:"published"`
 	CollectionID        null_v4.Int           `db:"collection_id" json:"collectionId"`
+	PlaylistID          uuid.NullUUID         `db:"playlist_id" json:"playlistId"`
 	MessageID           null_v4.Int           `db:"message_id" json:"messageId"`
 	EmbedUrl            null_v4.String        `db:"embed_url" json:"embedUrl"`
 	EmbedAspectRatio    sql.NullFloat64       `db:"embed_aspect_ratio" json:"embedAspectRatio"`
@@ -300,6 +302,7 @@ func (q *Queries) getSections(ctx context.Context, dollar_1 []int32) ([]getSecti
 			&i.Sort,
 			&i.Published,
 			&i.CollectionID,
+			&i.PlaylistID,
 			&i.MessageID,
 			&i.EmbedUrl,
 			&i.EmbedAspectRatio,
