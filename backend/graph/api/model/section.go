@@ -27,7 +27,7 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 	}
 
 	switch s.Type {
-	case "item":
+	case "item", "playlist":
 		metadata := &ItemSectionMetadata{
 			SecondaryTitles:    s.Options.SecondaryTitles,
 			MyList:             s.Options.MyList,

@@ -265,26 +265,14 @@ func (r *Resolver) sectionCollectionEntryResolver(
 	limit int,
 ) (*utils.PaginationResult[*model.SectionItem], error) {
 	ls := r.GetLoaders()
-
-	effectiveCollectionID := section.CollectionID
-	if section.PlaylistID.Valid {
-		playlist, err := ls.PlaylistLoader.Get(ctx, section.PlaylistID.UUID)
-		if err != nil {
-			return nil, err
-		}
-		if playlist != nil {
-			effectiveCollectionID = playlist.CollectionID
-		}
-	}
-
-	if !effectiveCollectionID.Valid {
+	if !section.CollectionID.Valid {
 		return &utils.PaginationResult[*model.SectionItem]{
 			Cursor:     &cursors.OffsetCursor{},
 			NextCursor: &cursors.OffsetCursor{},
 		}, nil
 	}
 
-	collectionId := int(effectiveCollectionID.ValueOrZero())
+	collectionId := int(section.CollectionID.ValueOrZero())
 	col, err := ls.CollectionLoader.Get(ctx, collectionId)
 	if err != nil {
 		return nil, err
