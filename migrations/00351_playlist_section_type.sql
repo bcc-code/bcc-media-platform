@@ -10,9 +10,9 @@ COMMENT ON CONSTRAINT "sections_playlist_id_foreign" ON "public"."sections" IS N
 --- BEGIN SYNCHRONIZE TABLE "public"."directus_fields" RECORDS ---
 
 INSERT INTO "public"."directus_fields" ("id", "collection", "field", "special", "interface", "options", "display", "display_options", "readonly", "hidden", "sort", "width", "translations", "note", "conditions", "required", "group", "validation", "validation_message")
-VALUES (3099, 'sections', 'playlist_id', 'm2o', 'select-dropdown-m2o', '{"template":"{{title}}"}', NULL, NULL, false, false, NULL, 'full', NULL, NULL,
+VALUES (3099, 'sections', 'playlist_id', 'm2o', 'select-dropdown-m2o', '{"template":"{{title}}"}', NULL, NULL, false, true, 5, 'full', NULL, NULL,
   '[{"name":"Show if Playlist","rule":{"_and":[{"type":{"_eq":"playlist"}}]},"hidden":false,"required":true,"options":{"enableCreate":false,"enableSelect":true}}]'::json,
-  false, NULL, NULL, NULL);
+  false, 'configuration', NULL, NULL);
 
 UPDATE "public"."directus_fields"
 SET "options" = '{
