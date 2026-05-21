@@ -1,0 +1,293 @@
+@import 'tailwindcss';
+
+/*
+ * Design system tokens ported from bcc-media-play Flutter app.
+ * See: bcc-media-play/flutter/lib/features/design/themes/{light,dark}.dart
+ *
+ * Colors are exposed as Tailwind theme tokens that resolve to CSS custom
+ * properties. The actual color values are set on :root (light) and .dark
+ * (dark), so toggling the `dark` class on <html> swaps the entire palette.
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+
+  /* Primary / accent */
+  --color-primary-default: var(--ds-primary-default);
+  --color-primary-contrast: var(--ds-primary-contrast);
+  --color-on-primary: var(--ds-on-primary);
+
+  /* Surfaces */
+  --color-surface-default: var(--ds-surface-default);
+  --color-surface-indent: var(--ds-surface-indent);
+  --color-surface-raise: var(--ds-surface-raise);
+
+  /* Text — themed */
+  --color-text-default: var(--ds-text-default);
+  --color-text-muted: var(--ds-text-muted);
+  --color-text-hint: var(--ds-text-hint);
+
+  /* Text — fixed light (always white-ish) */
+  --color-text-light-default: var(--ds-text-light-default);
+  --color-text-light-muted: var(--ds-text-light-muted);
+  --color-text-light-hint: var(--ds-text-light-hint);
+
+  /* Text — fixed dark (always black-ish) */
+  --color-text-dark-default: var(--ds-text-dark-default);
+  --color-text-dark-muted: var(--ds-text-dark-muted);
+  --color-text-dark-hint: var(--ds-text-dark-hint);
+
+  /* Borders */
+  --color-border-1: var(--ds-border-1);
+
+  /* Semantic */
+  --color-semantic-error: var(--ds-semantic-error);
+  --color-semantic-success: var(--ds-semantic-success);
+  --color-semantic-warning: var(--ds-semantic-warning);
+  --color-semantic-info: var(--ds-semantic-info);
+  --color-on-error: var(--ds-on-error);
+
+  /* Focus ring */
+  --color-focus-ring: var(--ds-focus-ring);
+
+  /* Typography — values mirror Figma 1:1 with the Flutter design system. */
+  --text-heading-1: 48px;
+  --text-heading-1--line-height: 1.08;
+  --text-heading-1--font-weight: 700;
+  --text-heading-1--letter-spacing: -0.14px;
+
+  --text-heading-2: 32px;
+  --text-heading-2--line-height: 1.13;
+  --text-heading-2--font-weight: 600;
+  --text-heading-2--letter-spacing: -0.1px;
+
+  --text-heading-3: 22px;
+  --text-heading-3--line-height: 1.27;
+  --text-heading-3--font-weight: 700;
+  --text-heading-3--letter-spacing: -0.07px;
+
+  --text-title-1: 19px;
+  --text-title-1--line-height: 1.26;
+  --text-title-1--font-weight: 500;
+
+  --text-title-2: 17px;
+  --text-title-2--line-height: 1.18;
+  --text-title-2--font-weight: 500;
+
+  --text-title-3: 15px;
+  --text-title-3--line-height: 1.07;
+  --text-title-3--font-weight: 500;
+
+  --text-body-1: 18px;
+  --text-body-1--line-height: 1.11;
+  --text-body-1--font-weight: 400;
+
+  --text-body-2: 16px;
+  --text-body-2--line-height: 1.25;
+  --text-body-2--font-weight: 400;
+
+  --text-body-3: 14px;
+  --text-body-3--line-height: 1.14;
+  --text-body-3--font-weight: 400;
+  --text-body-3--letter-spacing: -0.04px;
+
+  --text-caption-1: 12px;
+  --text-caption-1--line-height: 1.33;
+  --text-caption-1--font-weight: 500;
+  --text-caption-1--letter-spacing: -0.04px;
+
+  --text-caption-2: 11px;
+  --text-caption-2--line-height: 1.27;
+  --text-caption-2--font-weight: 500;
+  --text-caption-2--letter-spacing: -0.04px;
+
+  /* Easing */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Shadows */
+  --shadow-resting:
+    0 0 0 1px rgb(0 0 0 / 0.04), 0 0 3px rgb(0 0 0 / 0.05),
+    0 2px 6px rgb(0 0 0 / 0.05);
+  --shadow-floating:
+    0 0 0 1px rgb(0 0 0 / 0.05), 0 1px 4px rgb(0 0 0 / 0.05),
+    0 4px 12px rgb(0 0 0 / 0.05);
+}
+
+@layer base {
+  :root {
+    /* Light theme */
+    --ds-primary-default: #b3acff;
+    --ds-primary-contrast: #7569f7;
+    --ds-on-primary: #130d19;
+
+    --ds-surface-default: #ffffff;
+    --ds-surface-indent: #f5f7f6;
+    --ds-surface-raise: #ffffff;
+
+    --ds-text-default: #130d19;
+    --ds-text-muted: #535d56;
+    --ds-text-hint: #99a39c;
+
+    --ds-text-light-default: #ffffff;
+    --ds-text-light-muted: rgb(255 255 255 / 0.8);
+    --ds-text-light-hint: rgb(255 255 255 / 0.6);
+
+    --ds-text-dark-default: #000000;
+    --ds-text-dark-muted: rgb(0 0 0 / 0.8);
+    --ds-text-dark-hint: rgb(0 0 0 / 0.6);
+
+    --ds-border-1: rgb(13 25 17 / 0.1);
+
+    --ds-semantic-error: #dc2626;
+    --ds-semantic-success: #16a34a;
+    --ds-semantic-warning: #ca8a04;
+    --ds-semantic-info: #2563eb;
+    --ds-on-error: #ffffff;
+
+    --ds-focus-ring: #000000;
+  }
+
+  .dark {
+    /* Dark theme — only themed tokens are overridden; the fixed
+       light/dark text tokens stay the same across both themes. */
+    --ds-primary-default: #b3acff;
+    --ds-primary-contrast: #b3acff;
+    --ds-on-primary: #130d19;
+
+    --ds-surface-default: #1c1f1d;
+    --ds-surface-indent: rgb(0 0 0 / 0.5);
+    --ds-surface-raise: #353836;
+
+    --ds-text-default: #ffffff;
+    --ds-text-muted: #bbc4bd;
+    --ds-text-hint: #99a39c;
+
+    --ds-border-1: rgb(255 255 255 / 0.1);
+
+    --ds-semantic-error: #ec6565;
+    --ds-semantic-success: #4dd27d;
+    --ds-semantic-warning: #e5bf4e;
+    --ds-semantic-info: #5c95f1;
+    --ds-on-error: #130d19;
+
+    --ds-focus-ring: #ffffff;
+  }
+
+  /* Brand variants — only the primary palette changes per brand so each
+     "brand" recolors the accent without altering the rest of the theme.
+     Activated by setting `data-brand="…"` on <html>. See `useBrand`. */
+  :root[data-brand='bcc'] {
+    --ds-primary-default: #004e48;
+    --ds-primary-contrast: #004e48;
+    --ds-on-primary: #ffffff;
+  }
+  .dark[data-brand='bcc'] {
+    --ds-primary-default: #a0cec8;
+    --ds-primary-contrast: #a0cec8;
+    --ds-on-primary: #130d19;
+  }
+
+  :root[data-brand='play'] {
+    --ds-primary-default: #b3acff;
+    --ds-primary-contrast: #7569f7;
+    --ds-on-primary: #130d19;
+  }
+  .dark[data-brand='play'] {
+    --ds-primary-default: #b3acff;
+    --ds-primary-contrast: #b3acff;
+    --ds-on-primary: #130d19;
+  }
+
+  :root[data-brand='neutral'] {
+    --ds-primary-default: #333333;
+    --ds-primary-contrast: #000000;
+    --ds-on-primary: #ffffff;
+  }
+  .dark[data-brand='neutral'] {
+    --ds-primary-default: #ffffff;
+    --ds-primary-contrast: #ffffff;
+    --ds-on-primary: #000000;
+  }
+
+  html,
+  body {
+    background-color: var(--color-surface-default);
+    color: var(--color-text-default);
+    font-family: var(--font-sans);
+  }
+
+  /* Visible focus ring for keyboard navigation on all interactive elements.
+     Uses :where() so the rule has zero specificity and can be overridden by
+     components when needed. */
+  :where(
+    a,
+    button,
+    input,
+    select,
+    textarea,
+    summary,
+    [tabindex]:not([tabindex='-1'])
+  ):focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+/* Gradient border using mask-composite on rounded elements */
+@utility gradient-border {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      to top,
+      rgb(255 255 255 / 0.05),
+      rgb(255 255 255 / 0.12)
+    );
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+@utility gradient-border-dark {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0.05),
+      rgb(0 0 0 / 0.12)
+    );
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+/* Required for Ark UI Tour absolute positioning to cover full document */
+body {
+  position: relative;
+}
+
+/* Hide scrollbar for horizontal scroll sections */
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
