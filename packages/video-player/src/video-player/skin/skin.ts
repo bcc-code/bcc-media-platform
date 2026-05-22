@@ -4,6 +4,8 @@
 // or reaching into shadow DOM. Icons are inlined SVG copied from the docs.
 
 import { isSmartTV } from "../utils/userAgent"
+import { type Lang, relabelSkin } from "../i18n/strings"
+import { installButtonLabels } from "../i18n/button-labels"
 
 const SEEK_TIME = 15
 let skinIdSeq = 0
@@ -32,6 +34,7 @@ const ICON_SPINNER_BUFFER = ICON_SPINNER
 export interface SkinOptions {
     poster?: string
     live?: boolean
+    language?: Lang
 }
 
 export function buildSkin(
@@ -79,18 +82,18 @@ export function buildSkin(
                 ${ICON_SEEK_FLIPPED}<span class="media-icon__label">${SEEK_TIME}</span>
               </span>
             </media-seek-button>
-            <media-tooltip id="${ID_SEEK_BACK}" side="top" class="media-surface media-tooltip">Seek backward ${SEEK_TIME} seconds</media-tooltip>
+            <media-tooltip id="${ID_SEEK_BACK}" side="top" class="media-surface media-tooltip"><span data-i18n="seekBackward" data-i18n-params='{"seconds":${SEEK_TIME}}'></span></media-tooltip>
 
             <media-seek-button commandfor="${ID_SEEK_FWD}" seconds="${SEEK_TIME}" class="media-button media-button--subtle media-button--icon media-button--seek">
               <span class="media-icon__container">
                 ${ICON_SEEK}<span class="media-icon__label">${SEEK_TIME}</span>
               </span>
             </media-seek-button>
-            <media-tooltip id="${ID_SEEK_FWD}" side="top" class="media-surface media-tooltip">Seek forward ${SEEK_TIME} seconds</media-tooltip>`
+            <media-tooltip id="${ID_SEEK_FWD}" side="top" class="media-surface media-tooltip"><span data-i18n="seekForward" data-i18n-params='{"seconds":${SEEK_TIME}}'></span></media-tooltip>`
 
     const timeControls = live
         ? `<bccm-live-button commandfor="${ID_LIVE}"></bccm-live-button>
-            <media-tooltip id="${ID_LIVE}" side="top" class="media-surface media-tooltip">Go to live</media-tooltip>`
+            <media-tooltip id="${ID_LIVE}" side="top" class="media-surface media-tooltip"><span data-i18n="goToLive"></span></media-tooltip>`
         : `<media-time type="current" class="media-time"></media-time>
             <media-time-slider class="media-slider">
               <media-slider-track class="media-slider__track">
@@ -116,11 +119,11 @@ export function buildSkin(
       <media-error-dialog class="media-error">
         <div class="media-error__dialog media-surface">
           <div class="media-error__content">
-            <media-alert-dialog-title class="media-error__title">Something went wrong.</media-alert-dialog-title>
+            <media-alert-dialog-title class="media-error__title" data-i18n="somethingWentWrong"></media-alert-dialog-title>
             <media-alert-dialog-description class="media-error__description"></media-alert-dialog-description>
           </div>
           <div class="media-error__actions">
-            <media-alert-dialog-close class="media-button media-button--primary">OK</media-alert-dialog-close>
+            <media-alert-dialog-close class="media-button media-button--primary" data-i18n="ok"></media-alert-dialog-close>
           </div>
         </div>
       </media-error-dialog>
@@ -140,7 +143,7 @@ export function buildSkin(
                 live
                     ? ""
                     : `<bccm-playback-rate-picker commandfor="${ID_RATE}"></bccm-playback-rate-picker>
-            <media-tooltip id="${ID_RATE}" side="top" class="media-surface media-tooltip">Playback speed</media-tooltip>`
+            <media-tooltip id="${ID_RATE}" side="top" class="media-surface media-tooltip"><span data-i18n="playbackSpeed"></span></media-tooltip>`
             }
 
             <media-mute-button commandfor="${ID_VOLUME}" class="media-button media-button--subtle media-button--icon media-button--mute">
@@ -157,13 +160,13 @@ export function buildSkin(
             </media-popover>
 
             <bccm-audio-picker commandfor="${ID_AUDIO}"></bccm-audio-picker>
-            <media-tooltip id="${ID_AUDIO}" side="top" class="media-surface media-tooltip">Audio</media-tooltip>
+            <media-tooltip id="${ID_AUDIO}" side="top" class="media-surface media-tooltip"><span data-i18n="audio"></span></media-tooltip>
 
             <bccm-subtitle-picker commandfor="${ID_SUBS}"></bccm-subtitle-picker>
-            <media-tooltip id="${ID_SUBS}" side="top" class="media-surface media-tooltip">Subtitles</media-tooltip>
+            <media-tooltip id="${ID_SUBS}" side="top" class="media-surface media-tooltip"><span data-i18n="subtitles"></span></media-tooltip>
 
             <bccm-quality-picker commandfor="${ID_QUALITY}"></bccm-quality-picker>
-            <media-tooltip id="${ID_QUALITY}" side="top" class="media-surface media-tooltip">Quality</media-tooltip>
+            <media-tooltip id="${ID_QUALITY}" side="top" class="media-surface media-tooltip"><span data-i18n="quality"></span></media-tooltip>
 
             <media-cast-button commandfor="${ID_CAST}" class="media-button media-button--subtle media-button--icon media-button--cast">
               ${ICON_CAST_ENTER}${ICON_CAST_EXIT}
@@ -183,7 +186,7 @@ export function buildSkin(
             ${
                 isSmartTV()
                     ? `<bccm-dismiss-controls-button commandfor="${ID_DISMISS}"></bccm-dismiss-controls-button>
-            <media-tooltip id="${ID_DISMISS}" side="top" class="media-surface media-tooltip">Hide controls</media-tooltip>`
+            <media-tooltip id="${ID_DISMISS}" side="top" class="media-surface media-tooltip"><span data-i18n="hideControls"></span></media-tooltip>`
                     : ""
             }
           </div>
@@ -236,6 +239,9 @@ export function buildSkin(
             poster.appendChild(img)
         }
     }
+
+    relabelSkin(container, options.language ?? "en")
+    installButtonLabels(container)
 
     return container
 }

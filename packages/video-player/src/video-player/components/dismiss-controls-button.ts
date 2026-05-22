@@ -5,6 +5,7 @@ import {
     type PropertyValues,
 } from "@videojs/html"
 import { selectControls } from "@videojs/core/dom"
+import { getLanguage, onLanguageChange, t } from "../i18n/strings"
 
 const TAG = "bccm-dismiss-controls-button"
 
@@ -28,13 +29,17 @@ export class DismissControlsButtonElement extends MediaElement {
 
         this.setAttribute("role", "button")
         this.setAttribute("tabindex", "0")
-        this.setAttribute("aria-label", "Hide controls")
+        this.setAttribute("aria-label", t(getLanguage(this), "hideControls"))
         this.className =
             "bccm-dismiss-controls media-button media-button--subtle media-button--icon"
         this.innerHTML = ICON_DISMISS
 
         this.addEventListener("click", this.#handleActivate, { signal })
         this.addEventListener("keydown", this.#handleKeydown, { signal })
+
+        onLanguageChange(this, signal, (lang) =>
+            this.setAttribute("aria-label", t(lang, "hideControls"))
+        )
     }
 
     disconnectedCallback(): void {

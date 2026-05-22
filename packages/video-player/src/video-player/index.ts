@@ -18,6 +18,18 @@ import {
     readSavedBandwidth,
     writeSavedBandwidth,
 } from "./utils/bandwidth"
+import {
+    DEFAULT_LANG,
+    getLanguage,
+    isSupportedLang,
+    LANGUAGE_CHANGE_EVENT,
+    type Lang,
+    relabelSkin,
+    t,
+} from "./i18n/strings"
+import { relabelButtons } from "./i18n/button-labels"
+
+export { LANGUAGE_CHANGE_EVENT } from "./i18n/strings"
 
 export interface Options {
     src: {
@@ -34,6 +46,9 @@ export interface Options {
      *  displays / seek buttons / thumbnail preview). Defaults to false. */
     live?: boolean
     subtitles: any[]
+    /** UI language for tooltips, pickers, and error messages. Defaults
+     *  to `"en"`. Use `player.setLanguage(...)` to swap at runtime. */
+    language?: Lang
     videojs: {
         poster?: string
         crossOrigin?: string
@@ -56,6 +71,9 @@ export interface Player {
     setAudioTrackToLanguage(language?: string): void
     setSubtitleTrackToLanguage(language?: string): void
     setVideoQuality(height: number): void
+    /** Swap the UI language (tooltips, pickers, error dialog) at runtime.
+     *  Falls back to `"en"` for unsupported values. */
+    setLanguage(lang: Lang): void
     dispose(): void
 }
 
@@ -69,11 +87,15 @@ export async function createPlayer(
     }
 
     const options = mergeOptions(getDefaults(), opts)
+    const initialLang: Lang = isSupportedLang(options.language)
+        ? options.language
+        : DEFAULT_LANG
 
     // Tear down any existing player rendered into this container.
     container.querySelector("video-player")?.remove()
 
     const player = document.createElement("video-player")
+    player.setAttribute("data-lang", initialLang)
     const media = document.createElement("hls-video") as HTMLElement & {
         src: string
         config: Record<string, unknown>
@@ -108,6 +130,7 @@ export async function createPlayer(
     const skin = buildSkin(media, {
         poster: options.videojs.poster,
         live: options.live,
+        language: initialLang,
     })
     player.appendChild(skin)
     container.insertAdjacentElement("afterbegin", player)
@@ -156,6 +179,20 @@ export async function createPlayer(
         },
         setVideoQuality(height) {
             setVideoQuality(media, height)
+        },
+        setLanguage(lang) {
+            const next: Lang = isSupportedLang(lang) ? lang : DEFAULT_LANG
+            if (player.getAttribute("data-lang") === next) return
+            player.setAttribute("data-lang", next)
+            relabelSkin(skin, next)
+            relabelButtons(skin)
+            renderErrorDialog(skin, next)
+            player.dispatchEvent(
+                new CustomEvent(LANGUAGE_CHANGE_EVENT, {
+                    bubbles: false,
+                    detail: { language: next },
+                })
+            )
         },
         dispose() {
             teardown.abort()
@@ -314,6 +351,10 @@ function setupBandwidthPersistence(
 // don't write their own text — we own the contents. For 401/403 responses
 // (BTV's auth tokens expiring during playback) surface a session-expired
 // message that points the user at reloading.
+//
+// State (last code + last message) is cached on the skin element itself so
+// that a language swap (`player.setLanguage`) can re-translate whichever
+// error is currently displayed without re-listening to the original event.
 function setupErrorHandling(
     media: HTMLElement,
     skin: HTMLElement,
@@ -329,25 +370,30 @@ function setupErrorHandling(
                   }
                 | undefined
             const code = error?.data?.response?.code
-            const titleEl = skin.querySelector<HTMLElement>(
-                "media-alert-dialog-title"
-            )
-            const descEl = skin.querySelector<HTMLElement>(
-                "media-alert-dialog-description"
-            )
-            if (!titleEl || !descEl) return
-
-            if (code === 401 || code === 403) {
-                titleEl.textContent = "Session expired"
-                descEl.textContent =
-                    "Try reloading the page to continue watching."
-            } else {
-                titleEl.textContent = "Something went wrong."
-                descEl.textContent = error?.message ?? ""
-            }
+            skin.dataset.bccmErrorCode = code != null ? String(code) : ""
+            skin.dataset.bccmErrorMessage = error?.message ?? ""
+            renderErrorDialog(skin, getLanguage(skin))
         },
         { signal }
     )
+}
+
+function renderErrorDialog(skin: HTMLElement, lang: Lang): void {
+    const codeStr = skin.dataset.bccmErrorCode
+    if (codeStr == null || codeStr === "") return
+    const titleEl = skin.querySelector<HTMLElement>("media-alert-dialog-title")
+    const descEl = skin.querySelector<HTMLElement>(
+        "media-alert-dialog-description"
+    )
+    if (!titleEl || !descEl) return
+    const code = Number(codeStr)
+    if (code === 401 || code === 403) {
+        titleEl.textContent = t(lang, "sessionExpired")
+        descEl.textContent = t(lang, "sessionExpiredDesc")
+    } else {
+        titleEl.textContent = t(lang, "somethingWentWrong")
+        descEl.textContent = skin.dataset.bccmErrorMessage ?? ""
+    }
 }
 
 function setVideoQuality(media: HTMLElement, height: number): void {

@@ -1,9 +1,10 @@
 import { MediaElement } from "@videojs/html"
+import { getLanguage, onLanguageChange, t } from "../i18n/strings"
 
 const TAG = "bccm-live-button"
 
 const ICON_DOT = `<span class="bccm-live-badge__dot" aria-hidden="true"></span>`
-const BADGE_TEXT = `<span class="bccm-live-badge__text">LIVE</span>`
+const BADGE_TEXT = `<span class="bccm-live-badge__text" data-i18n="live"></span>`
 
 type EngineHost = HTMLElement & {
     engine?: { liveSyncPosition?: number | null } | null
@@ -25,15 +26,27 @@ export class LiveButtonElement extends MediaElement {
         this.#disconnect = new AbortController()
         const { signal } = this.#disconnect
 
+        const lang = getLanguage(this)
         this.#button.type = "button"
         this.#button.className = "bccm-live-badge"
-        this.#button.setAttribute("aria-label", "Go to live")
+        this.#button.setAttribute("aria-label", t(lang, "goToLive"))
         this.#button.innerHTML = `${ICON_DOT}${BADGE_TEXT}`
+        // Seed the badge text on first upgrade; the initial relabel pass ran
+        // during buildSkin before this element existed. Subsequent language
+        // changes are handled by relabelSkin called from setLanguage().
+        const badgeText = this.#button.querySelector<HTMLElement>(
+            ".bccm-live-badge__text"
+        )
+        if (badgeText) badgeText.textContent = t(lang, "live")
         this.#button.addEventListener("click", () => this.#seekToLive(), {
             signal,
         })
 
         this.replaceChildren(this.#button)
+
+        onLanguageChange(this, signal, (lang) =>
+            this.#button.setAttribute("aria-label", t(lang, "goToLive"))
+        )
 
         // Some media events fire before the element is in the DOM tree at this
         // point — defer attaching listeners to the next microtask so closest()

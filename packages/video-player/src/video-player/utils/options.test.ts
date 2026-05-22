@@ -15,6 +15,7 @@ describe("getDefaults", () => {
             autoplay: false,
             languagePreferenceDefaults: {},
             subtitles: [],
+            language: "en",
             videojs: { crossOrigin: "anonymous" },
         })
     })

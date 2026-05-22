@@ -7,6 +7,7 @@ import {
 import { selectTextTrack } from "@videojs/core/dom"
 import { wirePickerKeyboard } from "./picker-keyboard"
 import { wirePickerPositioning } from "./picker-position"
+import { getLanguage, onLanguageChange, t } from "../i18n/strings"
 
 const TAG = "bccm-subtitle-picker"
 let popoverIdSeq = 0
@@ -38,7 +39,10 @@ export class SubtitlePickerElement extends MediaElement {
         this.#button.className =
             "bccm-picker-button media-button media-button--subtle media-button--icon media-button--captions"
         this.#button.setAttribute("popovertarget", popoverId)
-        this.#button.setAttribute("aria-label", "Subtitles")
+        this.#button.setAttribute(
+            "aria-label",
+            t(getLanguage(this), "subtitles")
+        )
         this.#button.innerHTML = ICON_CAPTIONS_OFF + ICON_CAPTIONS_ON
 
         // Native popover handles open/close + outside-click dismiss. Position
@@ -47,6 +51,8 @@ export class SubtitlePickerElement extends MediaElement {
         wirePickerKeyboard(this.#button, this.#menu, signal)
 
         this.replaceChildren(this.#button, this.#menu)
+
+        onLanguageChange(this, signal, () => this.requestUpdate())
     }
 
     disconnectedCallback(): void {
@@ -68,11 +74,14 @@ export class SubtitlePickerElement extends MediaElement {
         // .media-button--captions reads [data-active] to swap on/off icons
         // (rule lives in skin.css, lifted from the default v10 captions button).
         this.#button.toggleAttribute("data-active", !!active)
+        const lang = getLanguage(this)
         this.#button.setAttribute(
             "aria-label",
             active
-                ? `Subtitles: ${active.label || active.language || "on"}`
-                : "Subtitles: off"
+                ? t(lang, "subtitlesActive", {
+                      label: active.label || active.language || t(lang, "off"),
+                  })
+                : t(lang, "subtitlesOff")
         )
         this.toggleAttribute("data-empty", subs.length === 0)
 
@@ -83,18 +92,25 @@ export class SubtitlePickerElement extends MediaElement {
         subs: { kind: string; label: string; language: string; mode: string }[]
     ): void {
         this.#menu.replaceChildren()
+        const lang = getLanguage(this)
 
-        const off = this.#item("Off", () => this.#applySelection(undefined))
-        if (!subs.some((t) => t.mode === "showing")) {
+        const off = this.#item(t(lang, "off"), () =>
+            this.#applySelection(undefined)
+        )
+        if (!subs.some((track) => track.mode === "showing")) {
             off.setAttribute("aria-checked", "true")
         }
         this.#menu.appendChild(off)
 
-        for (const t of subs) {
-            const item = this.#item(t.label || t.language || "Track", () =>
-                this.#applySelection(t.language)
+        for (const track of subs) {
+            const item = this.#item(
+                track.label ||
+                    track.language ||
+                    t(lang, "subtitleTrackFallback"),
+                () => this.#applySelection(track.language)
             )
-            if (t.mode === "showing") item.setAttribute("aria-checked", "true")
+            if (track.mode === "showing")
+                item.setAttribute("aria-checked", "true")
             this.#menu.appendChild(item)
         }
     }
@@ -134,7 +150,6 @@ export class SubtitlePickerElement extends MediaElement {
             (player?.querySelector("video") as HTMLVideoElement | null)
         )
     }
-
 }
 
 if (!customElements.get(TAG)) customElements.define(TAG, SubtitlePickerElement)

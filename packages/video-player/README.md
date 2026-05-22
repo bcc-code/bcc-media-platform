@@ -33,18 +33,19 @@ const player = await createPlayer("player", {
 createPlayer(containerId, options)
 ```
 
-| Option                                 | Type                                      | Notes                                                                                |
-| -------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------ |
-| `src.src`                              | `string`                                  | HLS / DASH manifest URL.                                                             |
-| `autoplay`                             | `boolean`                                 |                                                                                      |
-| `live`                                 | `boolean`                                 | Switches to the live skin: LIVE badge, no seek buttons / time displays / thumbnails. |
-| `languagePreferenceDefaults.audio`     | `string`                                  | 3-letter code, e.g. `"eng"`.                                                         |
-| `languagePreferenceDefaults.subtitles` | `string`                                  | 3-letter code, or omit to disable.                                                   |
-| `subtitles`                            | `Track[]`                                 | External `<track>` descriptors (`src`, `srclang`, `label`, `kind`).                  |
-| `videojs.poster`                       | `string`                                  | Poster image URL.                                                                    |
-| `videojs.crossOrigin`                  | `string`                                  | Defaults to `"anonymous"`.                                                           |
-| `npaw`                                 | `NPAWOptions`                             | See [Analytics](#analytics).                                                         |
-| `onProgress`                           | `(currentTime, duration, player) => void` | Fires on `timeupdate`.                                                               |
+| Option                                 | Type                                      | Notes                                                                                                                                                                                                                                         |
+| -------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src.src`                              | `string`                                  | HLS / DASH manifest URL.                                                                                                                                                                                                                      |
+| `autoplay`                             | `boolean`                                 |                                                                                                                                                                                                                                               |
+| `live`                                 | `boolean`                                 | Switches to the live skin: LIVE badge, no seek buttons / time displays / thumbnails.                                                                                                                                                          |
+| `language`                             | `string`                                  | UI language for tooltips, pickers, and error messages. Built-in: `"en"`, `"no"`, `"nl"` (default `"en"`). Unsupported codes fall back to `"en"`. Swap at runtime with `player.setLanguage(...)`. See [Adding a language](#adding-a-language). |
+| `languagePreferenceDefaults.audio`     | `string`                                  | 3-letter code, e.g. `"eng"`.                                                                                                                                                                                                                  |
+| `languagePreferenceDefaults.subtitles` | `string`                                  | 3-letter code, or omit to disable.                                                                                                                                                                                                            |
+| `subtitles`                            | `Track[]`                                 | External `<track>` descriptors (`src`, `srclang`, `label`, `kind`).                                                                                                                                                                           |
+| `videojs.poster`                       | `string`                                  | Poster image URL.                                                                                                                                                                                                                             |
+| `videojs.crossOrigin`                  | `string`                                  | Defaults to `"anonymous"`.                                                                                                                                                                                                                    |
+| `npaw`                                 | `NPAWOptions`                             | See [Analytics](#analytics).                                                                                                                                                                                                                  |
+| `onProgress`                           | `(currentTime, duration, player) => void` | Fires on `timeupdate`.                                                                                                                                                                                                                        |
 
 ## Player API
 
@@ -57,6 +58,7 @@ interface Player {
     setAudioTrackToLanguage(language?: string): void
     setSubtitleTrackToLanguage(language?: string): void
     setVideoQuality(height: number): void // 0 / negative re-enables Auto (ABR)
+    setLanguage(lang: string): void // swaps UI strings live; unsupported codes fall back to "en"
     dispose(): void
 }
 ```
@@ -75,16 +77,35 @@ player.mediaEl.addEventListener("play", () => {
 
 The skin reads CSS variables from the player container.
 
-| Variable                | Default                | Effect                                                                                                                                 |
-| ----------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `--bccm-color-primary`  | `oklch(1 0 0)` (white) | Text / icon color across the whole skin. Cascades via `currentColor` to slider fill, focus ring, hover backgrounds, live-badge accent. |
-| `--bccm-color-accent`   | `oklch(1 0 0)` (white) | Background of primary-action buttons (e.g. the OK on the error dialog). Foreground text auto-flips black/white based on lightness.     |
+| Variable               | Default                | Effect                                                                                                                                 |
+| ---------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `--bccm-color-primary` | `oklch(1 0 0)` (white) | Text / icon color across the whole skin. Cascades via `currentColor` to slider fill, focus ring, hover backgrounds, live-badge accent. |
+| `--bccm-color-accent`  | `oklch(1 0 0)` (white) | Background of primary-action buttons (e.g. the OK on the error dialog). Foreground text auto-flips black/white based on lightness.     |
 
 Set on the container:
 
 ```html
 <div id="player" style="--bccm-color-accent: #6EB0E6"></div>
 ```
+
+## Adding a language
+
+Drop a file into `src/video-player/i18n/locales/`. The filename is the language code.
+
+```ts
+// src/video-player/i18n/locales/de.ts
+import type { LocaleTable } from "../strings"
+
+const de: LocaleTable = {
+    seekBackward: "{seconds} Sekunden zurück",
+    seekForward: "{seconds} Sekunden vor",
+    // ... TypeScript will fail until every key in LocaleTable is filled in.
+}
+
+export default de
+```
+
+The build picks it up automatically via `import.meta.glob` — no registration step. `en.ts` is the canonical reference for which keys exist and how interpolation placeholders (e.g. `{seconds}`, `{height}`, `{label}`) are spelled. Anything not translated falls back to English at runtime.
 
 ## Keyboard
 

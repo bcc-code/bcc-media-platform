@@ -11,6 +11,7 @@ export function getDefaults(): Options {
         autoplay: false,
         languagePreferenceDefaults: {},
         subtitles: [],
+        language: "en",
         videojs: {
             crossOrigin: "anonymous",
         },

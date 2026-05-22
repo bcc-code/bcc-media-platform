@@ -7,6 +7,7 @@ import {
 import { selectPlaybackRate } from "@videojs/core/dom"
 import { wirePickerKeyboard } from "./picker-keyboard"
 import { wirePickerPositioning } from "./picker-position"
+import { getLanguage, onLanguageChange, t } from "../i18n/strings"
 
 const TAG = "bccm-playback-rate-picker"
 let popoverIdSeq = 0
@@ -44,13 +45,18 @@ export class PlaybackRatePickerElement extends MediaElement {
         this.#button.className =
             "bccm-picker-button bccm-rate-button media-button media-button--subtle"
         this.#button.setAttribute("popovertarget", popoverId)
-        this.#button.setAttribute("aria-label", "Playback speed")
+        this.#button.setAttribute(
+            "aria-label",
+            t(getLanguage(this), "playbackSpeed")
+        )
         this.#button.textContent = "1\u00d7"
 
         wirePickerPositioning(this.#button, this.#menu, signal)
         wirePickerKeyboard(this.#button, this.#menu, signal)
 
         this.replaceChildren(this.#button, this.#menu)
+
+        onLanguageChange(this, signal, () => this.requestUpdate())
     }
 
     disconnectedCallback(): void {
@@ -64,10 +70,13 @@ export class PlaybackRatePickerElement extends MediaElement {
         const state = this.#playbackRate.value
         if (!state) return
 
+        const lang = getLanguage(this)
         this.#button.textContent = `${formatRate(state.playbackRate)}\u00d7`
         this.#button.setAttribute(
             "aria-label",
-            `Playback speed: ${formatRate(state.playbackRate)}\u00d7`
+            t(lang, "playbackSpeedActive", {
+                rate: formatRate(state.playbackRate),
+            })
         )
 
         this.#menu.replaceChildren()
@@ -88,7 +97,6 @@ export class PlaybackRatePickerElement extends MediaElement {
             this.#menu.appendChild(item)
         }
     }
-
 }
 
 function formatRate(rate: number): string {

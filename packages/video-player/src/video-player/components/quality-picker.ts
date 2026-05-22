@@ -1,6 +1,7 @@
 import { MediaElement } from "@videojs/html"
 import { wirePickerKeyboard } from "./picker-keyboard"
 import { wirePickerPositioning } from "./picker-position"
+import { getLanguage, onLanguageChange, t } from "../i18n/strings"
 
 const TAG = "bccm-quality-picker"
 let popoverIdSeq = 0
@@ -52,13 +53,18 @@ export class QualityPickerElement extends MediaElement {
         this.#button.className =
             "bccm-picker-button media-button media-button--subtle media-button--icon"
         this.#button.setAttribute("popovertarget", popoverId)
-        this.#button.setAttribute("aria-label", "Video quality")
+        this.#button.setAttribute(
+            "aria-label",
+            t(getLanguage(this), "videoQuality")
+        )
         this.#button.innerHTML = ICON_QUALITY
 
         wirePickerPositioning(this.#button, this.#menu, signal)
         wirePickerKeyboard(this.#button, this.#menu, signal)
 
         this.replaceChildren(this.#button, this.#menu)
+
+        onLanguageChange(this, signal, () => this.#refreshFromEngine())
 
         this.#waitForEngine()
     }
@@ -108,13 +114,21 @@ export class QualityPickerElement extends MediaElement {
 
         const isAuto = engine.autoLevelEnabled
         const activeLevel = levels[engine.loadLevel]
+        const lang = getLanguage(this)
 
-        this.#button.setAttribute(
-            "aria-label",
-            activeLevel?.height
-                ? `Video quality: ${isAuto ? `Auto (${activeLevel.height}p)` : `${activeLevel.height}p`}`
-                : "Video quality"
-        )
+        let ariaLabel: string
+        if (!activeLevel?.height) {
+            ariaLabel = t(lang, "videoQuality")
+        } else if (isAuto) {
+            ariaLabel = t(lang, "videoQualityAuto", {
+                height: activeLevel.height,
+            })
+        } else {
+            ariaLabel = t(lang, "videoQualityActive", {
+                height: activeLevel.height,
+            })
+        }
+        this.#button.setAttribute("aria-label", ariaLabel)
 
         // Sort by height descending (highest quality first), preserving the
         // original engine.levels index for selection.
@@ -126,8 +140,8 @@ export class QualityPickerElement extends MediaElement {
 
         const auto = this.#item(
             isAuto && activeLevel?.height
-                ? `Auto (${activeLevel.height}p)`
-                : "Auto",
+                ? t(lang, "autoWithHeight", { height: activeLevel.height })
+                : t(lang, "auto"),
             () => {
                 engine.currentLevel = -1
                 this.#menu.hidePopover()
@@ -139,7 +153,7 @@ export class QualityPickerElement extends MediaElement {
         for (const { level, idx } of sorted) {
             const label = level.height
                 ? `${level.height}p`
-                : level.name || `Level ${idx}`
+                : level.name || t(lang, "qualityLevelFallback", { idx })
             const item = this.#item(label, () => {
                 engine.currentLevel = idx
                 this.#menu.hidePopover()
@@ -149,6 +163,16 @@ export class QualityPickerElement extends MediaElement {
             }
             this.#menu.appendChild(item)
         }
+    }
+
+    #refreshFromEngine(): void {
+        const engine = this.#findMedia()?.engine
+        if (engine) this.#render(engine)
+        else
+            this.#button.setAttribute(
+                "aria-label",
+                t(getLanguage(this), "videoQuality")
+            )
     }
 
     #item(label: string, onActivate: () => void): HTMLButtonElement {
@@ -166,7 +190,6 @@ export class QualityPickerElement extends MediaElement {
         const player = this.closest("video-player")
         return (player?.querySelector("hls-video") as EngineHost | null) ?? null
     }
-
 }
 
 if (!customElements.get(TAG)) customElements.define(TAG, QualityPickerElement)
