@@ -2,7 +2,9 @@ export type ApiClientOptions = {
     tokenFactory: (() => Promise<string | null>) | null
     endpoint: string
     application?: string
-    headersFactory?: () => Record<string, string> | Promise<Record<string, string>>
+    headersFactory?: () =>
+        | Record<string, string>
+        | Promise<Record<string, string>>
 }
 
 export class ApiClient {
@@ -10,9 +12,16 @@ export class ApiClient {
     public application?: string
 
     private _tokens: null | (() => Promise<string | null>)
-    private _headers?: () => Record<string, string> | Promise<Record<string, string>>
+    private _headers?: () =>
+        | Record<string, string>
+        | Promise<Record<string, string>>
 
-    constructor({ tokenFactory, endpoint, application, headersFactory }: ApiClientOptions) {
+    constructor({
+        tokenFactory,
+        endpoint,
+        application,
+        headersFactory,
+    }: ApiClientOptions) {
         this._tokens = tokenFactory
         this.endpoint = endpoint
         this.application = application

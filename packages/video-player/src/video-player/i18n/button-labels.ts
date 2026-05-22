@@ -51,12 +51,16 @@ const SPECS: ButtonSpec[] = [
     },
     {
         selector: "media-mute-button",
-        label: (el, state) => t(getLanguage(el), state.muted ? "unmute" : "mute"),
+        label: (el, state) =>
+            t(getLanguage(el), state.muted ? "unmute" : "mute"),
     },
     {
         selector: "media-fullscreen-button",
         label: (el, state) =>
-            t(getLanguage(el), state.fullscreen ? "exitFullscreen" : "enterFullscreen"),
+            t(
+                getLanguage(el),
+                state.fullscreen ? "exitFullscreen" : "enterFullscreen"
+            ),
     },
     {
         selector: "media-pip-button",
