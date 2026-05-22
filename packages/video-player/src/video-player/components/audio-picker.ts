@@ -1,7 +1,12 @@
 import { MediaElement } from "@videojs/html"
 import { wirePickerKeyboard } from "./picker-keyboard"
 import { wirePickerPositioning } from "./picker-position"
-import { getLanguage, onLanguageChange, t } from "../i18n/strings"
+import {
+    getLanguage,
+    getTrackLanguageName,
+    onLanguageChange,
+    t,
+} from "../i18n/strings"
 
 const TAG = "bccm-audio-picker"
 let popoverIdSeq = 0
@@ -105,12 +110,15 @@ export class AudioPickerElement extends MediaElement {
         const tracks = engine.audioTracks ?? []
         const active = tracks.find((track) => track.id === engine.audioTrack)
         const lang = getLanguage(this)
+        const labelFor = (track: HlsAudioTrack) =>
+            getTrackLanguageName(track.lang) ||
+            track.name ||
+            track.lang ||
+            t(lang, "audioTrackFallback", { id: track.id })
         this.#button.setAttribute(
             "aria-label",
             active
-                ? t(lang, "audioLanguageActive", {
-                      name: active.name || active.lang || "—",
-                  })
+                ? t(lang, "audioLanguageActive", { name: labelFor(active) })
                 : t(lang, "audioLanguage")
         )
         this.toggleAttribute("data-empty", tracks.length <= 1)
@@ -122,10 +130,7 @@ export class AudioPickerElement extends MediaElement {
             item.setAttribute("tabindex", "-1")
             item.className = "bccm-picker-item"
             item.setAttribute("role", "menuitemradio")
-            item.textContent =
-                track.name ||
-                track.lang ||
-                t(lang, "audioTrackFallback", { id: track.id })
+            item.textContent = labelFor(track)
             if (track.id === engine.audioTrack)
                 item.setAttribute("aria-checked", "true")
             item.addEventListener("click", () => {

@@ -7,7 +7,12 @@ import {
 import { selectTextTrack } from "@videojs/core/dom"
 import { wirePickerKeyboard } from "./picker-keyboard"
 import { wirePickerPositioning } from "./picker-position"
-import { getLanguage, onLanguageChange, t } from "../i18n/strings"
+import {
+    getLanguage,
+    getTrackLanguageName,
+    onLanguageChange,
+    t,
+} from "../i18n/strings"
 
 const TAG = "bccm-subtitle-picker"
 let popoverIdSeq = 0
@@ -79,7 +84,11 @@ export class SubtitlePickerElement extends MediaElement {
             "aria-label",
             active
                 ? t(lang, "subtitlesActive", {
-                      label: active.label || active.language || t(lang, "off"),
+                      label:
+                          getTrackLanguageName(active.language) ||
+                          active.label ||
+                          active.language ||
+                          t(lang, "off"),
                   })
                 : t(lang, "subtitlesOff")
         )
@@ -104,7 +113,8 @@ export class SubtitlePickerElement extends MediaElement {
 
         for (const track of subs) {
             const item = this.#item(
-                track.label ||
+                getTrackLanguageName(track.language) ||
+                    track.label ||
                     track.language ||
                     t(lang, "subtitleTrackFallback"),
                 () => this.#applySelection(track.language)

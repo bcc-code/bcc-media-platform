@@ -9,6 +9,7 @@
 // locale file gets a compile error until you fill the new key in.
 
 export type StringKey =
+    | "languageName"
     | "seekBackward"
     | "seekForward"
     | "goToLive"
@@ -84,6 +85,42 @@ export function t(
     return tmpl.replace(/\{(\w+)\}/g, (_, name) =>
         params[name] != null ? String(params[name]) : `{${name}}`
     )
+}
+
+// Each locale's name in its own writing system — "English", "Norsk",
+// "Nederlands", "Deutsch". Use this in language pickers so a user who can't
+// read the current UI still recognizes their language. (Matches YouTube /
+// Netflix / Vimeo convention.)
+export function getLanguageName(lang: Lang): string {
+    return t(lang, "languageName")
+}
+
+// Resolve a media-track language code (BCP-47 "en" / ISO 639-2 "eng" /
+// "en-US") to its native name: track "no" → "Norsk", "de" → "Deutsch",
+// "fr" → "Français". Returns undefined for unrecognized codes so callers
+// can fall back to whatever name the manifest supplied.
+//
+// The track picker uses this so a user who can't read the current UI still
+// recognizes their language — the same logic that drives the UI language
+// switcher (matches YouTube / Netflix). For lowercase-by-default scripts
+// (Norwegian "norsk", French "français") the first letter is uppercased so
+// the picker reads as a standalone label rather than mid-sentence prose.
+export function getTrackLanguageName(
+    code: string | undefined | null
+): string | undefined {
+    if (!code) return undefined
+    try {
+        const tag = code.replace(/_/g, "-")
+        const dn = new Intl.DisplayNames([tag], {
+            type: "language",
+            fallback: "none",
+        })
+        const name = dn.of(tag)
+        if (!name) return undefined
+        return name.charAt(0).toLocaleUpperCase(tag) + name.slice(1)
+    } catch {
+        return undefined
+    }
 }
 
 export function getLanguage(el: Element | null | undefined): Lang {

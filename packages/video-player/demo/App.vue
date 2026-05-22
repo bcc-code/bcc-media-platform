@@ -2,7 +2,7 @@
     <div class="lang-controls">
         <span>UI language:</span>
         <button v-for="l in langs" :key="l" type="button" :aria-pressed="lang === l" @click="setLang(l)">
-            {{ l }}
+            {{ getLanguageName(l) }}
         </button>
     </div>
     <div id="vod-player" />
@@ -15,6 +15,7 @@ import {
     PlayerFactory,
     SUPPORTED_LANGS,
     createPlayer,
+    getLanguageName,
     type Lang,
     type Player,
 } from "../src"
@@ -137,7 +138,7 @@ body {
 
 .lang-controls {
     max-width: 920px;
-    margin: 0 auto 0.75rem;
+    margin: 0 auto 1rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -148,10 +149,9 @@ body {
     font: inherit;
     padding: 0.25rem 0.6rem;
     border: 1px solid #ccc;
-    border-radius: 0.25rem;
+    border-radius: 999px;
     background: white;
     cursor: pointer;
-    text-transform: uppercase;
 }
 .lang-controls button[aria-pressed="true"] {
     background: #222;

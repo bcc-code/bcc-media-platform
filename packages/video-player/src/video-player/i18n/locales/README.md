@@ -8,3 +8,5 @@ To add a language:
 2. Register it in `../strings.ts` — add the `import`, add the code to `SUPPORTED_LANGS`, and add the table to `STRINGS`. TypeScript will refuse to compile until all three are in sync.
 
 `en.ts` is the canonical reference. TypeScript will also refuse to compile until every key in `LocaleTable` is filled in. Interpolation placeholders (`{seconds}`, `{height}`, `{label}`, `{name}`, `{id}`, `{idx}`, `{rate}`) must be preserved verbatim — the runtime substitutes them by name.
+
+`languageName` is special: each locale fills it with its own name in its own writing system (e.g. `de.ts` → `"Deutsch"`, not `"German"`). The `getLanguageName(lang)` helper reads this for language pickers.

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
     DEFAULT_LANG,
+    getTrackLanguageName,
     isSupportedLang,
     SUPPORTED_LANGS,
     t,
@@ -90,6 +91,33 @@ describe("locale placeholder parity", () => {
         }
 
         expect(mismatches).toEqual([])
+    })
+})
+
+describe("getTrackLanguageName()", () => {
+    it("returns each language's native name regardless of where it's rendered", () => {
+        expect(getTrackLanguageName("en")).toBe("English")
+        expect(getTrackLanguageName("de")).toBe("Deutsch")
+        expect(getTrackLanguageName("nl")).toBe("Nederlands")
+    })
+
+    it("capitalizes the first letter for languages that lowercase their own name", () => {
+        // Norwegian / French / Spanish render "norsk" / "français" / "español"
+        // mid-sentence. As a standalone picker label we want a leading capital.
+        expect(getTrackLanguageName("no")).toBe("Norsk")
+        expect(getTrackLanguageName("fr")?.charAt(0)).toBe("F")
+        expect(getTrackLanguageName("es")?.charAt(0)).toBe("E")
+    })
+
+    it("accepts BCP-47 codes with region", () => {
+        expect(getTrackLanguageName("en-US")).toMatch(/english/i)
+    })
+
+    it("returns undefined for unrecognized codes (no fallback to the input)", () => {
+        expect(getTrackLanguageName("zz")).toBeUndefined()
+        expect(getTrackLanguageName("")).toBeUndefined()
+        expect(getTrackLanguageName(undefined)).toBeUndefined()
+        expect(getTrackLanguageName(null)).toBeUndefined()
     })
 })
 

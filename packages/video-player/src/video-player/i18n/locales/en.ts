@@ -1,6 +1,7 @@
 import type { LocaleTable } from "../strings"
 
 const en: LocaleTable = {
+    languageName: "English",
     seekBackward: "Seek backward {seconds} seconds",
     seekForward: "Seek forward {seconds} seconds",
     goToLive: "Go to live",

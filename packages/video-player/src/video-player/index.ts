@@ -31,6 +31,8 @@ import { relabelButtons } from "./i18n/button-labels"
 
 export {
     DEFAULT_LANG,
+    getLanguageName,
+    getTrackLanguageName,
     isSupportedLang,
     LANGUAGE_CHANGE_EVENT,
     SUPPORTED_LANGS,
