@@ -98,7 +98,7 @@ describe("isSupportedLang()", () => {
     })
 
     it("returns false for unregistered codes", () => {
-        expect(isSupportedLang("de")).toBe(false)
+        expect(isSupportedLang("zz")).toBe(false)
         expect(isSupportedLang("")).toBe(false)
         expect(isSupportedLang("EN")).toBe(false) // case-sensitive by design
     })

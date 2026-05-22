@@ -18,7 +18,7 @@ const factory = new PlayerFactory({
     endpoint: "https://api.brunstad.tv/query",
 })
 
-const langs = ["en", "no", "nl"] as const
+const langs = ["en", "no", "nl", "de"] as const
 type Lang = (typeof langs)[number]
 const lang = ref<Lang>("en")
 const players: Player[] = []
