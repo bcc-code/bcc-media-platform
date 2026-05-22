@@ -34,7 +34,7 @@
         "@urql/vue": "1.4.3",
         "@vueuse/core": "^13.5.0",
         "@vueuse/motion": "^2.2.6",
-        "bccm-video-player": "^3.0.6",
+        "bccm-video-player": "^3.1.0",
         "graphql": "^16.11.0",
         "graphql-tag": "^2.12.6",
         "hls.js": "^1.6.11",

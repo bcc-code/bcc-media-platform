@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { onMounted, onUnmounted, onUpdated, ref } from 'vue'
-import { Options, Player } from 'bccm-video-player'
+import { isSupportedLang, Options, Player } from 'bccm-video-player'
 import playerFactory from '@/services/player'
 import {
     EpisodeContext,
@@ -85,11 +85,13 @@ const load = async () => {
             await executeQuery()
         }
 
+        const uiLang = currentLanguage.value.code
         const options: Partial<Options> = {
             autoplay: !!props.autoPlay,
+            language: isSupportedLang(uiLang) ? uiLang : undefined,
             languagePreferenceDefaults: {
-                audio: languageTo3letter(currentLanguage.value.code),
-                subtitles: languageTo3letter(currentLanguage.value.code),
+                audio: languageTo3letter(uiLang),
+                subtitles: languageTo3letter(uiLang),
             },
             onProgress(currentTime, duration, player) {
                 onVideoProgress(currentTime, duration, player)
