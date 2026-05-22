@@ -11,15 +11,20 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from "vue"
-import { PlayerFactory, createPlayer, type Player } from "../src"
+import {
+    PlayerFactory,
+    SUPPORTED_LANGS,
+    createPlayer,
+    type Lang,
+    type Player,
+} from "../src"
 
 const factory = new PlayerFactory({
     tokenFactory: null,
     endpoint: "https://api.brunstad.tv/query",
 })
 
-const langs = ["en", "no", "nl", "de"] as const
-type Lang = (typeof langs)[number]
+const langs = SUPPORTED_LANGS
 const lang = ref<Lang>("en")
 const players: Player[] = []
 

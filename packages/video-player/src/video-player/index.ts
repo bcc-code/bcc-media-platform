@@ -29,7 +29,13 @@ import {
 } from "./i18n/strings"
 import { relabelButtons } from "./i18n/button-labels"
 
-export { LANGUAGE_CHANGE_EVENT } from "./i18n/strings"
+export {
+    DEFAULT_LANG,
+    isSupportedLang,
+    LANGUAGE_CHANGE_EVENT,
+    SUPPORTED_LANGS,
+} from "./i18n/strings"
+export type { Lang } from "./i18n/strings"
 
 export interface Options {
     src: {
