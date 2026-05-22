@@ -154,10 +154,10 @@ WHERE e.legacy_id = ANY ($1::int[]);
 -- name: getPermissionsForEpisodes :many
 SELECT e.id,
        e.status = 'unlisted'            AS unlisted,
-       access.published::bool           AS published,
-       access.available_from::timestamp AS available_from,
-       access.available_to::timestamp   AS available_to,
-       access.published_on::timestamp   AS published_on,
+       COALESCE(access.published, false)::bool             AS published,
+       COALESCE(access.available_from, '1800-01-01')::timestamp AS available_from,
+       COALESCE(access.available_to, '3000-01-01')::timestamp   AS available_to,
+       COALESCE(access.published_on, '3000-01-01')::timestamp   AS published_on,
        COALESCE((SELECT array_agg(DISTINCT eu.usergroups_code)
                  FROM mediaitems_usergroups eu
                  WHERE eu.mediaitems_id = e.mediaitem_id),

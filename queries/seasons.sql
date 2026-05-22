@@ -108,9 +108,9 @@ WHERE se.id = ANY ($1::int[])
 -- name: getPermissionsForSeasons :many
 SELECT se.id,
        se.status = 'unlisted'             AS unlisted,
-       access.published::bool             AS published,
-       access.available_from::timestamp   AS available_from,
-       access.available_to::timestamp     AS available_to,
+       COALESCE(access.published, false)::bool                 AS published,
+       COALESCE(access.available_from, '1800-01-01')::timestamp AS available_from,
+       COALESCE(access.available_to, '3000-01-01')::timestamp   AS available_to,
        roles.roles::varchar[]             AS usergroups,
        roles.roles_download::varchar[]    AS usergroups_downloads,
        roles.roles_earlyaccess::varchar[] AS usergroups_earlyaccess
