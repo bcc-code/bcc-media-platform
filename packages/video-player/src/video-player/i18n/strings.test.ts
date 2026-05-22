@@ -4,6 +4,7 @@ import {
     isSupportedLang,
     SUPPORTED_LANGS,
     t,
+    type Lang,
     type StringKey,
 } from "./strings"
 import en from "./locales/en"
@@ -39,7 +40,9 @@ describe("t()", () => {
     })
 
     it("falls back to en for an unsupported lang code", () => {
-        expect(t("zz", "off")).toBe("Off")
+        // Lang is a literal union now; deliberately pass an invalid value to
+        // exercise the runtime defense.
+        expect(t("zz" as Lang, "off")).toBe("Off")
     })
 
     it("falls back to en for an undefined lang", () => {

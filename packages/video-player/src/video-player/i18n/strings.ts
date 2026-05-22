@@ -1,12 +1,12 @@
 // UI string tables for the video player.
 //
-// Adding a language: drop a file into `./locales/`. The filename is the
-// language code (`de.ts` → `"de"`). Default-export a `LocaleTable`. The
-// glob below picks it up at build time — no other file needs editing.
+// Adding a language: create `./locales/<code>.ts` (default-export a
+// `LocaleTable`), then register it here in three places: the import, the
+// SUPPORTED_LANGS array, and the STRINGS registry. `Record<Lang, ...>` makes
+// it a compile error if you skip any one of them.
 //
-// Adding a string key: extend the `StringKey` union and the `LocaleTable`
-// interface in this file, then fill in every locale file (TypeScript will
-// complain at each one that's missing the new key).
+// Adding a string key: extend `StringKey` and `LocaleTable` here; every
+// locale file gets a compile error until you fill the new key in.
 
 export type StringKey =
     | "seekBackward"
@@ -51,32 +51,26 @@ export type StringKey =
 
 export type LocaleTable = Record<StringKey, string>
 
-// A language code. Validity is enforced at runtime by `isSupportedLang`,
-// which consults the locale registry assembled from `./locales/*.ts`.
-// Kept as `string` (rather than a union literal) so contributors can add a
-// language with a single new file — see the comment at the top of this file.
-export type Lang = string
+import en from "./locales/en"
+import no from "./locales/no"
+import nl from "./locales/nl"
+import de from "./locales/de"
+
+export const SUPPORTED_LANGS = ["en", "no", "nl", "de"] as const
+export type Lang = (typeof SUPPORTED_LANGS)[number]
 export const DEFAULT_LANG: Lang = "en"
 
 export const LANGUAGE_CHANGE_EVENT = "bccm-languagechange"
 
-// Vite resolves this glob at build time into static imports of every file
-// under ./locales/. The output bundle contains all locales — adding a new
-// locale file is the only change needed to ship it.
-const modules = import.meta.glob<{ default: LocaleTable }>("./locales/*.ts", {
-    eager: true,
-})
-
-const STRINGS: Record<string, LocaleTable> = {}
-for (const [path, mod] of Object.entries(modules)) {
-    const code = path.match(/\/([^/]+)\.ts$/)?.[1]
-    if (code) STRINGS[code] = mod.default
-}
-
-export const SUPPORTED_LANGS: readonly Lang[] = Object.keys(STRINGS).sort()
+// `Record<Lang, LocaleTable>` enforces that every entry in SUPPORTED_LANGS
+// has a registered table, and that every registered code is in the union.
+const STRINGS: Record<Lang, LocaleTable> = { en, no, nl, de }
 
 export function isSupportedLang(value: unknown): value is Lang {
-    return typeof value === "string" && value in STRINGS
+    return (
+        typeof value === "string" &&
+        (SUPPORTED_LANGS as readonly string[]).includes(value)
+    )
 }
 
 export function t(
@@ -84,9 +78,8 @@ export function t(
     key: StringKey,
     params?: Record<string, string | number>
 ): string {
-    const table =
-        (lang != null && STRINGS[lang]) || STRINGS[DEFAULT_LANG] || undefined
-    const tmpl = table?.[key] ?? STRINGS[DEFAULT_LANG]?.[key] ?? key
+    const table = (lang && STRINGS[lang]) || STRINGS[DEFAULT_LANG]
+    const tmpl = table[key] ?? STRINGS[DEFAULT_LANG][key] ?? key
     if (!params) return tmpl
     return tmpl.replace(/\{(\w+)\}/g, (_, name) =>
         params[name] != null ? String(params[name]) : `{${name}}`

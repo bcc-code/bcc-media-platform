@@ -90,22 +90,22 @@ Set on the container:
 
 ## Adding a language
 
-Drop a file into `src/video-player/i18n/locales/`. The filename is the language code.
+1. Create `src/video-player/i18n/locales/<code>.ts`:
 
-```ts
-// src/video-player/i18n/locales/de.ts
-import type { LocaleTable } from "../strings"
+    ```ts
+    import type { LocaleTable } from "../strings"
 
-const de: LocaleTable = {
-    seekBackward: "{seconds} Sekunden zurück",
-    seekForward: "{seconds} Sekunden vor",
-    // ... TypeScript will fail until every key in LocaleTable is filled in.
-}
+    const de: LocaleTable = {
+        seekBackward: "{seconds} Sekunden zurück",
+        seekForward: "{seconds} Sekunden vor",
+        // ... TypeScript will fail until every key in LocaleTable is filled in.
+    }
+    export default de
+    ```
 
-export default de
-```
+2. Register it in `src/video-player/i18n/strings.ts` — three lines: an `import`, an entry in `SUPPORTED_LANGS`, and an entry in `STRINGS`. `Record<Lang, LocaleTable>` makes it a compile error if any of the three is missing.
 
-The build picks it up automatically via `import.meta.glob` — no registration step. `en.ts` is the canonical reference for which keys exist and how interpolation placeholders (e.g. `{seconds}`, `{height}`, `{label}`) are spelled. Anything not translated falls back to English at runtime.
+`en.ts` is the canonical reference for which keys exist and how interpolation placeholders (e.g. `{seconds}`, `{height}`, `{label}`) are spelled.
 
 ## Keyboard
 
