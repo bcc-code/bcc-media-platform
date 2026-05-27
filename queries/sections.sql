@@ -13,7 +13,8 @@ SELECT s.id,
        s.show_title,
        s.sort,
        s.status::text = 'published'::text       AS published,
-       s.collection_id,
+       COALESCE(s.collection_id, pl.collection_id) AS collection_id,
+       s.playlist_id,
        s.message_id,
        s.embed_url,
        s.embed_aspect_ratio,
@@ -29,7 +30,8 @@ SELECT s.id,
        t.description
 FROM sections s
          JOIN pages p ON s.page_id = p.id
-         LEFT JOIN collections c ON c.id = s.collection_id
+         LEFT JOIN playlists pl ON pl.id = s.playlist_id
+         LEFT JOIN collections c ON c.id = COALESCE(s.collection_id, pl.collection_id)
          LEFT JOIN t ON s.id = t.sections_id
 WHERE s.id = ANY ($1::int[])
   AND s.status = 'published'

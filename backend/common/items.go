@@ -308,6 +308,7 @@ type Section struct {
 	Style               string         `json:"style"`
 	Size                string         `json:"size"`
 	CollectionID        null.Int       `json:"collectionId"`
+	PlaylistID          uuid.NullUUID  `json:"playlistId"`
 	MessageID           null.Int       `json:"messageId"`
 	EmbedUrl            null.String    `json:"embedUrl"`
 	EmbedAspectRatio    null.Float     `json:"embedAspectRatio"`

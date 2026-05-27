@@ -814,14 +814,15 @@ type Image struct {
 }
 
 type ItemSectionMetadata struct {
-	ContinueWatching   bool   `json:"continueWatching"`
-	MyList             bool   `json:"myList"`
-	SecondaryTitles    bool   `json:"secondaryTitles"`
-	CollectionID       string `json:"collectionId"`
-	UseContext         bool   `json:"useContext"`
-	PrependLiveElement bool   `json:"prependLiveElement"`
-	Page               *Page  `json:"page,omitempty"`
-	Limit              *int   `json:"limit,omitempty"`
+	ContinueWatching   bool    `json:"continueWatching"`
+	MyList             bool    `json:"myList"`
+	SecondaryTitles    bool    `json:"secondaryTitles"`
+	CollectionID       string  `json:"collectionId"`
+	PlaylistID         *string `json:"playlistId,omitempty"`
+	UseContext         bool    `json:"useContext"`
+	PrependLiveElement bool    `json:"prependLiveElement"`
+	Page               *Page   `json:"page,omitempty"`
+	Limit              *int    `json:"limit,omitempty"`
 }
 
 type LabelSection struct {
@@ -1037,6 +1038,8 @@ type Playlist struct {
 	Image       *string                 `json:"image,omitempty"`
 	Items       *PlaylistItemPagination `json:"items"`
 }
+
+func (Playlist) IsEpisodeContextUnion() {}
 
 func (Playlist) IsCollectionItem()            {}
 func (this Playlist) GetID() string           { return this.ID }

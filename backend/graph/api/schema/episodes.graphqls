@@ -3,7 +3,7 @@ enum EpisodeType {
     standalone
 }
 
-union EpisodeContextUnion = Season | ContextCollection
+union EpisodeContextUnion = Season | ContextCollection | Playlist
 
 enum ShareRestriction {
     registered

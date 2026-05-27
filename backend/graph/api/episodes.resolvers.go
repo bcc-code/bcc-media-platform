@@ -282,27 +282,31 @@ func (r *episodeResolver) Watched(ctx context.Context, obj *model.Episode) (bool
 
 // Context is the resolver for the context field.
 func (r *episodeResolver) Context(ctx context.Context, obj *model.Episode) (model.EpisodeContextUnion, error) {
-	var collectionId *int
-
 	episodeContext, err := r.getEpisodeContext(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	if episodeContext.CollectionID.Valid {
-		intId := int(episodeContext.CollectionID.Int64)
-		collectionId = &intId
+	if episodeContext.PlaylistID.Valid {
+		playlist, err := r.Loaders.PlaylistLoader.Get(ctx, episodeContext.PlaylistID.UUID)
+		if err != nil {
+			return nil, err
+		}
+		if playlist != nil {
+			return model.PlaylistFrom(ctx, playlist), nil
+		}
 	}
 
-	if collectionId != nil {
-		col, err := r.Loaders.CollectionLoader.Get(ctx, *collectionId)
+	if episodeContext.CollectionID.Valid {
+		collectionId := int(episodeContext.CollectionID.Int64)
+		col, err := r.Loaders.CollectionLoader.Get(ctx, collectionId)
 		if err != nil {
 			return nil, err
 		}
 		ginCtx, _ := utils.GinCtx(ctx)
 		languages := user.GetLanguagesFromCtx(ginCtx)
 
-		strID := strconv.Itoa(*collectionId)
+		strID := strconv.Itoa(collectionId)
 		return &model.ContextCollection{
 			ID:   strID,
 			Slug: col.Slugs.GetValueOrNil(languages),

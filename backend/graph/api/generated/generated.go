@@ -526,6 +526,7 @@ type ComplexityRoot struct {
 		Limit              func(childComplexity int) int
 		MyList             func(childComplexity int) int
 		Page               func(childComplexity int) int
+		PlaylistID         func(childComplexity int) int
 		PrependLiveElement func(childComplexity int) int
 		SecondaryTitles    func(childComplexity int) int
 		UseContext         func(childComplexity int) int
@@ -3519,6 +3520,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.ItemSectionMetadata.Page(childComplexity), true
+
+	case "ItemSectionMetadata.playlistId":
+		if e.complexity.ItemSectionMetadata.PlaylistID == nil {
+			break
+		}
+
+		return e.complexity.ItemSectionMetadata.PlaylistID(childComplexity), true
 
 	case "ItemSectionMetadata.prependLiveElement":
 		if e.complexity.ItemSectionMetadata.PrependLiveElement == nil {
@@ -7135,7 +7143,7 @@ type GlobalConfig {
     standalone
 }
 
-union EpisodeContextUnion = Season | ContextCollection
+union EpisodeContextUnion = Season | ContextCollection | Playlist
 
 enum ShareRestriction {
     registered
@@ -7875,6 +7883,7 @@ type SeasonPagination implements Pagination {
     myList: Boolean!
     secondaryTitles: Boolean!
     collectionId: ID!
+    playlistId: ID
     useContext: Boolean!
     prependLiveElement: Boolean!
     page: Page @goField(forceResolver: true)
@@ -16010,6 +16019,8 @@ func (ec *executionContext) fieldContext_AvatarSection_metadata(_ context.Contex
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "playlistId":
+				return ec.fieldContext_ItemSectionMetadata_playlistId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
@@ -16707,6 +16718,8 @@ func (ec *executionContext) fieldContext_CardListSection_metadata(_ context.Cont
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "playlistId":
+				return ec.fieldContext_ItemSectionMetadata_playlistId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
@@ -17009,6 +17022,8 @@ func (ec *executionContext) fieldContext_CardSection_metadata(_ context.Context,
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "playlistId":
+				return ec.fieldContext_ItemSectionMetadata_playlistId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
@@ -18978,6 +18993,8 @@ func (ec *executionContext) fieldContext_DefaultGridSection_metadata(_ context.C
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "playlistId":
+				return ec.fieldContext_ItemSectionMetadata_playlistId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
@@ -19280,6 +19297,8 @@ func (ec *executionContext) fieldContext_DefaultSection_metadata(_ context.Conte
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "playlistId":
+				return ec.fieldContext_ItemSectionMetadata_playlistId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
@@ -24887,6 +24906,8 @@ func (ec *executionContext) fieldContext_FeaturedSection_metadata(_ context.Cont
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "playlistId":
+				return ec.fieldContext_ItemSectionMetadata_playlistId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
@@ -25889,6 +25910,8 @@ func (ec *executionContext) fieldContext_IconGridSection_metadata(_ context.Cont
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "playlistId":
+				return ec.fieldContext_ItemSectionMetadata_playlistId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
@@ -26191,6 +26214,8 @@ func (ec *executionContext) fieldContext_IconSection_metadata(_ context.Context,
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "playlistId":
+				return ec.fieldContext_ItemSectionMetadata_playlistId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
@@ -26625,6 +26650,47 @@ func (ec *executionContext) fieldContext_ItemSectionMetadata_collectionId(_ cont
 	return fc, nil
 }
 
+func (ec *executionContext) _ItemSectionMetadata_playlistId(ctx context.Context, field graphql.CollectedField, obj *model.ItemSectionMetadata) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ItemSectionMetadata_playlistId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PlaylistID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ItemSectionMetadata_playlistId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ItemSectionMetadata",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ItemSectionMetadata_useContext(ctx context.Context, field graphql.CollectedField, obj *model.ItemSectionMetadata) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 	if err != nil {
@@ -26899,6 +26965,8 @@ func (ec *executionContext) fieldContext_LabelSection_metadata(_ context.Context
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "playlistId":
+				return ec.fieldContext_ItemSectionMetadata_playlistId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
@@ -29553,6 +29621,8 @@ func (ec *executionContext) fieldContext_ListSection_metadata(_ context.Context,
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "playlistId":
+				return ec.fieldContext_ItemSectionMetadata_playlistId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
@@ -33092,6 +33162,8 @@ func (ec *executionContext) fieldContext_PosterGridSection_metadata(_ context.Co
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "playlistId":
+				return ec.fieldContext_ItemSectionMetadata_playlistId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
@@ -33394,6 +33466,8 @@ func (ec *executionContext) fieldContext_PosterSection_metadata(_ context.Contex
 				return ec.fieldContext_ItemSectionMetadata_secondaryTitles(ctx, field)
 			case "collectionId":
 				return ec.fieldContext_ItemSectionMetadata_collectionId(ctx, field)
+			case "playlistId":
+				return ec.fieldContext_ItemSectionMetadata_playlistId(ctx, field)
 			case "useContext":
 				return ec.fieldContext_ItemSectionMetadata_useContext(ctx, field)
 			case "prependLiveElement":
@@ -50425,6 +50499,13 @@ func (ec *executionContext) _EpisodeContextUnion(ctx context.Context, sel ast.Se
 			return graphql.Null
 		}
 		return ec._Season(ctx, sel, obj)
+	case model.Playlist:
+		return ec._Playlist(ctx, sel, &obj)
+	case *model.Playlist:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Playlist(ctx, sel, obj)
 	case model.ContextCollection:
 		return ec._ContextCollection(ctx, sel, &obj)
 	case *model.ContextCollection:
@@ -55845,6 +55926,8 @@ func (ec *executionContext) _ItemSectionMetadata(ctx context.Context, sel ast.Se
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "playlistId":
+			out.Values[i] = ec._ItemSectionMetadata_playlistId(ctx, field, obj)
 		case "useContext":
 			out.Values[i] = ec._ItemSectionMetadata_useContext(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -57713,7 +57796,7 @@ func (ec *executionContext) _Person(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
-var playlistImplementors = []string{"Playlist", "CollectionItem", "SectionItemType"}
+var playlistImplementors = []string{"Playlist", "EpisodeContextUnion", "CollectionItem", "SectionItemType"}
 
 func (ec *executionContext) _Playlist(ctx context.Context, sel ast.SelectionSet, obj *model.Playlist) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, playlistImplementors)

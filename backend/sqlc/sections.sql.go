@@ -231,7 +231,8 @@ SELECT s.id,
        s.show_title,
        s.sort,
        s.status::text = 'published'::text       AS published,
-       s.collection_id,
+       COALESCE(s.collection_id, pl.collection_id) AS collection_id,
+       s.playlist_id,
        s.message_id,
        s.embed_url,
        s.embed_aspect_ratio,
@@ -247,7 +248,8 @@ SELECT s.id,
        t.description
 FROM sections s
          JOIN pages p ON s.page_id = p.id
-         LEFT JOIN collections c ON c.id = s.collection_id
+         LEFT JOIN playlists pl ON pl.id = s.playlist_id
+         LEFT JOIN collections c ON c.id = COALESCE(s.collection_id, pl.collection_id)
          LEFT JOIN t ON s.id = t.sections_id
 WHERE s.id = ANY ($1::int[])
   AND s.status = 'published'
@@ -265,6 +267,7 @@ type getSectionsRow struct {
 	Sort                null_v4.Int           `db:"sort" json:"sort"`
 	Published           bool                  `db:"published" json:"published"`
 	CollectionID        null_v4.Int           `db:"collection_id" json:"collectionId"`
+	PlaylistID          uuid.NullUUID         `db:"playlist_id" json:"playlistId"`
 	MessageID           null_v4.Int           `db:"message_id" json:"messageId"`
 	EmbedUrl            null_v4.String        `db:"embed_url" json:"embedUrl"`
 	EmbedAspectRatio    sql.NullFloat64       `db:"embed_aspect_ratio" json:"embedAspectRatio"`
@@ -300,6 +303,7 @@ func (q *Queries) getSections(ctx context.Context, dollar_1 []int32) ([]getSecti
 			&i.Sort,
 			&i.Published,
 			&i.CollectionID,
+			&i.PlaylistID,
 			&i.MessageID,
 			&i.EmbedUrl,
 			&i.EmbedAspectRatio,
