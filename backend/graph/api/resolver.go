@@ -75,6 +75,7 @@ type Resolver struct {
 	FileSigner            *signing.CloudFrontSigner
 	StreamURLSigner       *streamtoken.Signer
 	LegacyStreamSigner    *signing.CloudFrontStreamSigner
+	LivestreamSigner      *signing.CloudFrontSigner
 	PrimaryStreamProvider streamtoken.Provider
 	S3Client              *s3.Client
 	APIConfig             apiConfig

@@ -1,3 +1,14 @@
+-- name: getCurrentCalendarEntry :one
+SELECT e.id,
+       e.start,
+       e.end
+FROM calendarentries e
+WHERE e.status = 'published'
+  AND e.start <= now()
+  AND e.end > now()
+ORDER BY e.start DESC
+LIMIT 1;
+
 -- name: getCalendarEntries :many
 SELECT e.id,
        e.event_id,

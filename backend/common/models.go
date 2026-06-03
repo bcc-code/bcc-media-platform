@@ -75,8 +75,9 @@ type AppConfig struct {
 
 // GlobalConfig contains configuration of all clients
 type GlobalConfig struct {
-	LiveOnline  bool
-	NPAWEnabled bool
+	LiveOnline    bool
+	NPAWEnabled   bool
+	LivestreamURL string
 }
 
 // Notification contains notification data

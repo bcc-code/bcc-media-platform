@@ -147,6 +147,9 @@ type QueryRoot {
 
     config: Config!
 
+    # Live state plus, when online and permitted, a signed manifest URL.
+    live: Live! @goField(forceResolver: true)
+
     profiles: [Profile!]!
     profile: Profile!
 

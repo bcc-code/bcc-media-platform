@@ -3,6 +3,7 @@ package signing
 import (
 	"net/url"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/ansel1/merry/v2"
@@ -41,6 +42,40 @@ func NewCloudFrontSigner(cfg CloudFrontConfig) (*CloudFrontSigner, error) {
 // SignWithPolicy signs the URL with an explicit CloudFront policy.
 func (s *CloudFrontSigner) SignWithPolicy(url string, policy *sign.Policy) (string, error) {
 	return s.inner.SignWithPolicy(url, policy)
+}
+
+// SignURLCanned signs an absolute URL with a canned policy authorizing the
+// resource's parent directory (`<dir>/*`) for ttl, returning the original URL
+// with the CloudFront signature embedded in a single `EncodedPolicy` query
+// parameter plus the expiry time.
+//
+// Unlike CloudFrontStreamSigner.SignURL it makes no assumptions about the path
+// layout, so it works for arbitrary configured URLs (e.g. a livestream
+// manifest). Mirrors the bcc-connect-live livestream signer.
+func (s *CloudFrontSigner) SignURLCanned(rawURL string, ttl time.Duration) (string, time.Time, error) {
+	urlToSign, err := url.Parse(rawURL)
+	if err != nil {
+		return "", time.Time{}, merry.Wrap(err)
+	}
+
+	// Authorize everything in the same directory as the resource.
+	parts := strings.Split(rawURL, "/")
+	dir := strings.Join(parts[:len(parts)-1], "/")
+
+	expiresAt := time.Now().Add(ttl)
+	policy := sign.NewCannedPolicy(dir+"/*", expiresAt)
+	signed, err := s.inner.SignWithPolicy(urlToSign.String(), policy)
+	if err != nil {
+		return "", time.Time{}, merry.Wrap(err)
+	}
+
+	signedURL, err := url.Parse(signed)
+	if err != nil {
+		return "", time.Time{}, merry.Wrap(err)
+	}
+
+	urlToSign.RawQuery = "EncodedPolicy=" + url.QueryEscape(signedURL.RawQuery)
+	return urlToSign.String(), expiresAt, nil
 }
 
 // streamBasePathRegex matches the `/out/v1/<group1>/<group2>` prefix of a

@@ -8,21 +8,29 @@ package sqlc
 import (
 	"context"
 	"database/sql"
+
+	null_v4 "gopkg.in/guregu/null.v4"
 )
 
 const getGlobalConfig = `-- name: getGlobalConfig :one
-SELECT id, live_online, npaw_enabled FROM globalconfig LIMIT 1
+SELECT id, live_online, npaw_enabled, livestream_url FROM globalconfig LIMIT 1
 `
 
 type getGlobalConfigRow struct {
-	ID          int32        `db:"id" json:"id"`
-	LiveOnline  sql.NullBool `db:"live_online" json:"liveOnline"`
-	NpawEnabled sql.NullBool `db:"npaw_enabled" json:"npawEnabled"`
+	ID            int32          `db:"id" json:"id"`
+	LiveOnline    sql.NullBool   `db:"live_online" json:"liveOnline"`
+	NpawEnabled   sql.NullBool   `db:"npaw_enabled" json:"npawEnabled"`
+	LivestreamUrl null_v4.String `db:"livestream_url" json:"livestreamUrl"`
 }
 
 func (q *Queries) getGlobalConfig(ctx context.Context) (getGlobalConfigRow, error) {
 	row := q.db.QueryRowContext(ctx, getGlobalConfig)
 	var i getGlobalConfigRow
-	err := row.Scan(&i.ID, &i.LiveOnline, &i.NpawEnabled)
+	err := row.Scan(
+		&i.ID,
+		&i.LiveOnline,
+		&i.NpawEnabled,
+		&i.LivestreamUrl,
+	)
 	return i, err
 }

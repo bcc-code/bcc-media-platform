@@ -964,6 +964,12 @@ func (this ListSection) GetMetadata() *ItemSectionMetadata { return this.Metadat
 
 func (this ListSection) GetItems() *SectionItemPagination { return this.Items }
 
+type Live struct {
+	IsOnline  bool    `json:"isOnline"`
+	URL       *string `json:"url,omitempty"`
+	ExpiresAt *string `json:"expiresAt,omitempty"`
+}
+
 type Message struct {
 	Title   string        `json:"title"`
 	Content string        `json:"content"`

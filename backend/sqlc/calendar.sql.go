@@ -278,6 +278,31 @@ func (q *Queries) getCalendarEntryIDsForPeriod(ctx context.Context, arg getCalen
 	return items, nil
 }
 
+const getCurrentCalendarEntry = `-- name: getCurrentCalendarEntry :one
+SELECT e.id,
+       e.start,
+       e.end
+FROM calendarentries e
+WHERE e.status = 'published'
+  AND e.start <= now()
+  AND e.end > now()
+ORDER BY e.start DESC
+LIMIT 1
+`
+
+type getCurrentCalendarEntryRow struct {
+	ID    int32     `db:"id" json:"id"`
+	Start time.Time `db:"start" json:"start"`
+	End   time.Time `db:"end" json:"end"`
+}
+
+func (q *Queries) getCurrentCalendarEntry(ctx context.Context) (getCurrentCalendarEntryRow, error) {
+	row := q.db.QueryRowContext(ctx, getCurrentCalendarEntry)
+	var i getCurrentCalendarEntryRow
+	err := row.Scan(&i.ID, &i.Start, &i.End)
+	return i, err
+}
+
 const getEventIDsForPeriod = `-- name: getEventIDsForPeriod :many
 SELECT e.id
 FROM events e

@@ -2,7 +2,9 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -134,4 +136,22 @@ func (q *Queries) GetCalendarEntriesByID(ctx context.Context, ids []int) ([]comm
 	return mapToCalendarEntries(lo.Map(items, func(i getCalendarEntriesByIDRow, _ int) getCalendarEntriesRow {
 		return getCalendarEntriesRow(i)
 	})), nil
+}
+
+// GetCurrentCalendarEntry returns the published calendar entry currently in
+// progress (now within [start, end)), or nil if none is. When several overlap,
+// the most-recently-started one is returned.
+func (q *Queries) GetCurrentCalendarEntry(ctx context.Context) (*common.CalendarEntry, error) {
+	row, err := q.getCurrentCalendarEntry(ctx)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &common.CalendarEntry{
+		ID:    int(row.ID),
+		Start: row.Start,
+		End:   row.End,
+	}, nil
 }

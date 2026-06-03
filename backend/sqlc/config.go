@@ -19,7 +19,8 @@ func (q *Queries) GetGlobalConfig(ctx context.Context) (common.GlobalConfig, err
 	}
 
 	return common.GlobalConfig{
-		LiveOnline:  conf.LiveOnline.Bool,
-		NPAWEnabled: conf.NpawEnabled.Bool,
+		LiveOnline:    conf.LiveOnline.Bool,
+		NPAWEnabled:   conf.NpawEnabled.Bool,
+		LivestreamURL: conf.LivestreamUrl.String,
 	}, nil
 }

@@ -617,6 +617,12 @@ type ComplexityRoot struct {
 		Title       func(childComplexity int) int
 	}
 
+	Live struct {
+		ExpiresAt func(childComplexity int) int
+		IsOnline  func(childComplexity int) int
+		URL       func(childComplexity int) int
+	}
+
 	Message struct {
 		Content func(childComplexity int) int
 		Style   func(childComplexity int) int
@@ -752,6 +758,7 @@ type ComplexityRoot struct {
 		Game                func(childComplexity int, id string) int
 		Languages           func(childComplexity int) int
 		LegacyIDLookup      func(childComplexity int, options *model.LegacyIDLookupOptions) int
+		Live                func(childComplexity int) int
 		Me                  func(childComplexity int) int
 		MyList              func(childComplexity int) int
 		Page                func(childComplexity int, id *string, code *string) int
@@ -1383,6 +1390,7 @@ type QueryRootResolver interface {
 	MyList(ctx context.Context) (*model.UserCollection, error)
 	UserCollection(ctx context.Context, id string) (*model.UserCollection, error)
 	Config(ctx context.Context) (*model.Config, error)
+	Live(ctx context.Context) (*model.Live, error)
 	Profiles(ctx context.Context) ([]*model.Profile, error)
 	Profile(ctx context.Context) (*model.Profile, error)
 	LegacyIDLookup(ctx context.Context, options *model.LegacyIDLookupOptions) (*model.LegacyIDLookup, error)
@@ -3990,6 +3998,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.ListSection.Title(childComplexity), true
 
+	case "Live.expiresAt":
+		if e.complexity.Live.ExpiresAt == nil {
+			break
+		}
+
+		return e.complexity.Live.ExpiresAt(childComplexity), true
+
+	case "Live.isOnline":
+		if e.complexity.Live.IsOnline == nil {
+			break
+		}
+
+		return e.complexity.Live.IsOnline(childComplexity), true
+
+	case "Live.url":
+		if e.complexity.Live.URL == nil {
+			break
+		}
+
+		return e.complexity.Live.URL(childComplexity), true
+
 	case "Message.content":
 		if e.complexity.Message.Content == nil {
 			break
@@ -4854,6 +4883,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.QueryRoot.LegacyIDLookup(childComplexity, args["options"].(*model.LegacyIDLookupOptions)), true
+
+	case "QueryRoot.live":
+		if e.complexity.QueryRoot.Live == nil {
+			break
+		}
+
+		return e.complexity.QueryRoot.Live(childComplexity), true
 
 	case "QueryRoot.me":
 		if e.complexity.QueryRoot.Me == nil {
@@ -7123,8 +7159,14 @@ type Config {
 #}
 
 type GlobalConfig {
-    liveOnline: Boolean!
+    liveOnline: Boolean! @deprecated(reason: "Use live.isOnline")
     npawEnabled: Boolean!
+}
+
+type Live {
+    isOnline: Boolean!
+    url: String
+    expiresAt: Date
 }
 `, BuiltIn: false},
 	{Name: "../schema/devices.graphqls", Input: `type Device {
@@ -7759,6 +7801,9 @@ type QueryRoot {
     userCollection(id: UUID!): UserCollection!
 
     config: Config!
+
+    # Live state plus, when online and permitted, a signed manifest URL.
+    live: Live! @goField(forceResolver: true)
 
     profiles: [Profile!]!
     profile: Profile!
@@ -29837,6 +29882,132 @@ func (ec *executionContext) fieldContext_ListSection_items(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Live_isOnline(ctx context.Context, field graphql.CollectedField, obj *model.Live) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Live_isOnline(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsOnline, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Live_isOnline(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Live",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Live_url(ctx context.Context, field graphql.CollectedField, obj *model.Live) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Live_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Live_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Live",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Live_expiresAt(ctx context.Context, field graphql.CollectedField, obj *model.Live) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Live_expiresAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExpiresAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalODate2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Live_expiresAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Live",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Date does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Message_title(ctx context.Context, field graphql.CollectedField, obj *model.Message) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Message_title(ctx, field)
 	if err != nil {
@@ -36056,6 +36227,58 @@ func (ec *executionContext) fieldContext_QueryRoot_config(_ context.Context, fie
 				return ec.fieldContext_Config_global(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Config", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QueryRoot_live(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_live(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QueryRoot().Live(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Live)
+	fc.Result = res
+	return ec.marshalNLive2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLive(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_live(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "isOnline":
+				return ec.fieldContext_Live_isOnline(ctx, field)
+			case "url":
+				return ec.fieldContext_Live_url(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_Live_expiresAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Live", field.Name)
 		},
 	}
 	return fc, nil
@@ -57074,6 +57297,49 @@ func (ec *executionContext) _ListSection(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
+var liveImplementors = []string{"Live"}
+
+func (ec *executionContext) _Live(ctx context.Context, sel ast.SelectionSet, obj *model.Live) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, liveImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Live")
+		case "isOnline":
+			out.Values[i] = ec._Live_isOnline(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "url":
+			out.Values[i] = ec._Live_url(ctx, field, obj)
+		case "expiresAt":
+			out.Values[i] = ec._Live_expiresAt(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var messageImplementors = []string{"Message"}
 
 func (ec *executionContext) _Message(ctx context.Context, sel ast.SelectionSet, obj *model.Message) graphql.Marshaler {
@@ -58947,6 +59213,28 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._QueryRoot_config(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "live":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_live(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -64890,6 +65178,20 @@ func (ec *executionContext) unmarshalNLinkType2githubᚗcomᚋbccᚑcodeᚋbcc�
 
 func (ec *executionContext) marshalNLinkType2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLinkType(ctx context.Context, sel ast.SelectionSet, v model.LinkType) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) marshalNLive2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLive(ctx context.Context, sel ast.SelectionSet, v model.Live) graphql.Marshaler {
+	return ec._Live(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNLive2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLive(ctx context.Context, sel ast.SelectionSet, v *model.Live) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Live(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNMessage2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐMessage(ctx context.Context, sel ast.SelectionSet, v *model.Message) graphql.Marshaler {

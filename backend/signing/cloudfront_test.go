@@ -70,6 +70,38 @@ func TestCloudFrontStreamSignerSignURL(t *testing.T) {
 	assert.NotEmpty(t, innerQuery.Get("Signature"))
 }
 
+func TestCloudFrontSignerSignURLCanned(t *testing.T) {
+	keyPath := writeTempPEM(t)
+
+	cfg := &mocks.CloudFrontConfig{}
+	cfg.On("GetAwsSigningKeyPath").Return(keyPath)
+	cfg.On("GetAwsSigningKeyID").Return("CF-ID")
+
+	signer, err := NewCloudFrontSigner(cfg)
+	require.NoError(t, err)
+
+	rawURL := "https://live.example.com/out/v1/abc/def/index.m3u8"
+	signedURL, expiresAt, err := signer.SignURLCanned(rawURL, time.Hour)
+	require.NoError(t, err)
+
+	assert.WithinDuration(t, time.Now().Add(time.Hour), expiresAt, 5*time.Second)
+
+	parsed, err := url.Parse(signedURL)
+	require.NoError(t, err)
+	assert.Equal(t, "https", parsed.Scheme)
+	assert.Equal(t, "live.example.com", parsed.Host)
+	assert.Equal(t, "/out/v1/abc/def/index.m3u8", parsed.Path, "original path must be preserved")
+
+	encoded := parsed.Query().Get("EncodedPolicy")
+	require.NotEmpty(t, encoded, "EncodedPolicy parameter must be present")
+
+	innerQuery, err := url.ParseQuery(encoded)
+	require.NoError(t, err)
+	assert.Equal(t, "CF-ID", innerQuery.Get("Key-Pair-Id"))
+	assert.NotEmpty(t, innerQuery.Get("Policy"))
+	assert.NotEmpty(t, innerQuery.Get("Signature"))
+}
+
 func TestCloudFrontStreamSignerRejectsBadPath(t *testing.T) {
 	keyPath := writeTempPEM(t)
 

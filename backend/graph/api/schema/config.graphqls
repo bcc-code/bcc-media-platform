@@ -9,6 +9,12 @@ type Config {
 #}
 
 type GlobalConfig {
-    liveOnline: Boolean!
+    liveOnline: Boolean! @deprecated(reason: "Use live.isOnline")
     npawEnabled: Boolean!
+}
+
+type Live {
+    isOnline: Boolean!
+    url: String
+    expiresAt: Date
 }

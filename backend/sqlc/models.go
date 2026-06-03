@@ -1018,11 +1018,12 @@ type GamesUsergroup struct {
 }
 
 type Globalconfig struct {
-	DateUpdated time.Time    `db:"date_updated" json:"dateUpdated"`
-	ID          int32        `db:"id" json:"id"`
-	LiveOnline  sql.NullBool `db:"live_online" json:"liveOnline"`
-	NpawEnabled sql.NullBool `db:"npaw_enabled" json:"npawEnabled"`
-	UserUpdated uuid.UUID    `db:"user_updated" json:"userUpdated"`
+	DateUpdated   time.Time      `db:"date_updated" json:"dateUpdated"`
+	ID            int32          `db:"id" json:"id"`
+	LiveOnline    sql.NullBool   `db:"live_online" json:"liveOnline"`
+	NpawEnabled   sql.NullBool   `db:"npaw_enabled" json:"npawEnabled"`
+	UserUpdated   uuid.UUID      `db:"user_updated" json:"userUpdated"`
+	LivestreamUrl null_v4.String `db:"livestream_url" json:"livestreamUrl"`
 }
 
 type GooseDbVersion struct {

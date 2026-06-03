@@ -67,6 +67,7 @@ type envConfig struct {
 	Port          string
 	Auth0         auth0.Config
 	CDNConfig     cdnConfig
+	Livestream    livestreamConfig
 	StreamProxy   streamProxyConfig
 	Secrets       serviceSecrets
 	Redis         utils.RedisConfig
@@ -88,6 +89,17 @@ type cdnConfig struct {
 	AWSSigningKeyPath string
 	AWSSigningKeyID   string
 }
+
+// livestreamConfig holds the CloudFront key pair used to sign the livestream
+// manifest URL. This is a separate key pair from the VOD/file signing key in
+// cdnConfig. It satisfies signing.CloudFrontConfig.
+type livestreamConfig struct {
+	SigningKeyPath string
+	SigningKeyID   string
+}
+
+func (c livestreamConfig) GetAwsSigningKeyPath() string { return c.SigningKeyPath }
+func (c livestreamConfig) GetAwsSigningKeyID() string   { return c.SigningKeyID }
 
 type streamProxyConfig struct {
 	JWTSecret       string
@@ -257,6 +269,10 @@ func getEnvConfig() envConfig {
 			AWSSigningKeyID:   os.Getenv("CF_SIGNING_KEY_ID"),
 			AWSSigningKeyPath: os.Getenv("CF_SIGNING_KEY_PATH"),
 			LegacyVODDomain:   os.Getenv("LEGACY_CDN_DOMAIN"),
+		},
+		Livestream: livestreamConfig{
+			SigningKeyID:   os.Getenv("LIVESTREAM_SIGNING_KEY_ID"),
+			SigningKeyPath: os.Getenv("LIVESTREAM_SIGNING_KEY_PATH"),
 		},
 		StreamProxy: streamProxyConfig{
 			JWTSecret:       os.Getenv("STREAM_JWT_SECRET"),

@@ -190,6 +190,18 @@ func main() {
 	if err != nil {
 		log.L.Panic().Err(err).Msg("failed to init stream-proxy signer")
 	}
+	// The livestream uses its own CloudFront key pair. Optional: when it isn't
+	// configured the API still boots and live.isOnline works, but live.url is
+	// omitted (rather than panicking environments without the key deployed).
+	var livestreamSigner *signing.CloudFrontSigner
+	if config.Livestream.GetAwsSigningKeyPath() != "" {
+		livestreamSigner, err = signing.NewCloudFrontSigner(config.Livestream)
+		if err != nil {
+			log.L.Panic().Err(err).Msg("failed to init livestream signer")
+		}
+	} else {
+		log.L.Warn().Msg("livestream signing key not configured (LIVESTREAM_SIGNING_KEY_PATH); live.url will be unavailable")
+	}
 	queries := sqlc.New(db)
 	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)
 	authClient := auth0.New(config.Auth0)
@@ -282,6 +294,7 @@ func main() {
 		fileSigner,
 		streamSigner,
 		legacyStreamSigner,
+		livestreamSigner,
 		config,
 		s3Client,
 		config.AnalyticsSalt,

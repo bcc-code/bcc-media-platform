@@ -8,6 +8,11 @@ locals {
   # CloudFront, one for ioriver. Mounted as separate files so the keys can be
   # rotated independently.
   ioriver_signing_key_path = "/secrets3/ioriver.pem"
+
+  # The livestream is signed with its own CloudFront key pair (separate from the
+  # VOD/file key above). Mounted via the `livestream_signing_key` entry in
+  # var.api_secret_files; LIVESTREAM_SIGNING_KEY_ID is supplied via var.api_env.
+  livestream_signing_key_path = "/secrets4/live_aws.pem"
 }
 
 resource "google_service_account_iam_policy" "api-iam" {
@@ -89,6 +94,11 @@ resource "google_cloud_run_service" "api" {
         env {
           name  = "AZ_SIGNING_KEY_PATH"
           value = local.az_signing_key_path
+        }
+
+        env {
+          name  = "LIVESTREAM_SIGNING_KEY_PATH"
+          value = local.livestream_signing_key_path
         }
 
         env {

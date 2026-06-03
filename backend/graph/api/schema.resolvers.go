@@ -766,6 +766,55 @@ func (r *queryRootResolver) Config(ctx context.Context) (*model.Config, error) {
 	return &model.Config{}, nil
 }
 
+// Live is the resolver for the live field. isOnline always reflects the global
+// config; url/expiresAt are only populated when a stream is live and the
+// caller's roles permit it.
+func (r *queryRootResolver) Live(ctx context.Context) (*model.Live, error) {
+	conf, err := withCacheAndTimestamp(ctx, "global_config", r.Queries.GetGlobalConfig, time.Second*30, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	out := &model.Live{IsOnline: conf.LiveOnline}
+	if !conf.LiveOnline || conf.LivestreamURL == "" {
+		return out, nil
+	}
+
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	ctxApp, err := common.GetApplicationFromCtx(ginCtx)
+	if err != nil {
+		return nil, err
+	}
+	app, err := r.Loaders.ApplicationLoader.Get(ctx, ctxApp.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Gate the URL by livestream roles, matching the Application.livestreamEnabled check.
+	u := user.GetFromCtx(ginCtx)
+	allowed := len(app.LivestreamRoles) == 0 || len(lo.Intersect(app.LivestreamRoles, u.Roles)) > 0
+	if !allowed {
+		return out, nil
+	}
+
+	// No dedicated livestream signing key configured → online flag only, no URL.
+	if r.LivestreamSigner == nil {
+		return out, nil
+	}
+
+	signed, err := r.signedLiveURL(ctx, conf.LivestreamURL)
+	if err != nil {
+		return nil, err
+	}
+
+	out.URL = &signed.URL
+	out.ExpiresAt = &signed.ExpiresAt
+	return out, nil
+}
+
 // Profiles is the resolver for the profiles field.
 func (r *queryRootResolver) Profiles(ctx context.Context) ([]*model.Profile, error) {
 	ginCtx, err := utils.GinCtx(ctx)

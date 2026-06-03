@@ -1,0 +1,68 @@
+type: http_request
+model: http_request
+id: rq_pastEvents
+createdAt: 2026-06-03T08:00:00
+updatedAt: 2026-06-03T08:00:00
+workspaceId: wk_hGg2sqajat
+folderId: null
+authentication: {}
+authenticationType: null
+body:
+  query: |-
+    # Lists past calendar events. Calendar.events(from, to) filters by overlap
+    # with the [from, to] window (RFC3339), so a window ending "now" returns
+    # events that already started/ended.
+    query PastEvents($from: Date!, $to: Date!) {
+      calendar {
+        events(from: $from, to: $to) {
+          id
+          title
+          start
+          end
+          image
+          entries {
+            __typename
+            id
+            title
+            start
+            end
+            ... on EpisodeCalendarEntry {
+              isReplay
+              episode {
+                id
+                title
+              }
+            }
+            ... on ShowCalendarEntry {
+              show {
+                id
+                title
+              }
+            }
+            ... on SeasonCalendarEntry {
+              season {
+                id
+                title
+              }
+            }
+          }
+        }
+      }
+    }
+  variables: |-
+    {
+      "from": "2025-06-03T00:00:00Z",
+      "to": "2026-06-03T00:00:00Z"
+    }
+bodyType: graphql
+description: Past calendar events from the last year up to today. Requires a profile (authenticated).
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: h_ct_pastEvents
+method: POST
+name: Calendar -> past events
+sortPriority: 3000.0
+url: ${[ BASE_URL ]}/query
+urlParameters: []
