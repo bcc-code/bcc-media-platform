@@ -1,0 +1,33 @@
+type: http_request
+model: http_request
+id: rq_liveStream
+createdAt: 2026-06-03T14:54:13.789343
+updatedAt: 2026-06-03T14:54:44.054390
+workspaceId: wk_hGg2sqajat
+folderId: null
+authentication: {}
+authenticationType: null
+body:
+  query: |-
+    # Live state plus, when online and the caller's roles allow it, a signed
+    # manifest URL (with the MediaPackage start tag when an entry is in progress).
+    query Live {
+      live {
+        isOnline
+        url
+        expiresAt
+      }
+    }
+  variables: ""
+bodyType: graphql
+description: Live state and signed livestream URL. Requires a profile (authenticated).
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: h_ct_liveStream
+method: POST
+name: Live -> signed stream URL
+sortPriority: 3000.001
+url: ${[ BASE_URL ]}/query
+urlParameters: []
