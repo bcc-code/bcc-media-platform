@@ -22,9 +22,9 @@ type liveURL struct {
 }
 
 // signedLiveURL signs the configured livestream manifest URL and, when a
-// calendar entry is currently in progress, appends the AWS Elemental
-// MediaPackage start-over `start` parameter so playback joins from the program's
-// start. The result is cached in memory for 2 minutes.
+// calendar entry is currently in progress, inserts the AWS Elemental
+// MediaPackage start-over `start` path element so playback joins from the
+// program's start. The result is cached in memory for 2 minutes.
 func (r *Resolver) signedLiveURL(ctx context.Context, livestreamURL string) (liveURL, error) {
 	return memorycache.GetOrSet(ctx, "live_url", func(ctx context.Context) (liveURL, error) {
 		signedURL, expiresAt, err := r.LivestreamSigner.SignURLCanned(livestreamURL, livestreamURLExpiry)
@@ -48,11 +48,17 @@ func (r *Resolver) signedLiveURL(ctx context.Context, livestreamURL string) (liv
 }
 
 // appendStartTag appends the AWS Elemental MediaPackage start-over `start` query
-// parameter (epoch seconds) to a manifest URL. It concatenates raw rather than
-// re-encoding the query string, which would double-encode the already
-// percent-encoded CloudFront `EncodedPolicy` value. The CloudFront canned policy
-// signs the resource path (not the query), so the appended param does not
-// invalidate the signature.
+// parameter (Unix epoch seconds) to a manifest URL, e.g.
+//
+//	.../out/v1/<id>/index.m3u8  ->  .../out/v1/<id>/index.m3u8?start=1513717228
+//
+// MediaPackage v2 endpoints accept time-shift only as a query parameter — the
+// path-element form (.../start/<time>/index.m3u8) returns 400 there (verified
+// against the live egress endpoint). The value is concatenated raw rather than
+// via url.Values.Encode(), which would double-encode the already
+// percent-encoded CloudFront `EncodedPolicy`. The CloudFront canned policy signs
+// the resource path, not the query, so the extra param does not invalidate the
+// signature.
 func appendStartTag(signedURL string, start time.Time) string {
 	sep := "?"
 	if strings.Contains(signedURL, "?") {
