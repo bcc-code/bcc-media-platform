@@ -6,8 +6,7 @@ import (
 	"strings"
 	"time"
 
-	cache "github.com/Code-Hex/go-generics-cache"
-	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 )
 
 // livestreamURLExpiry is how long a signed livestream manifest URL stays valid.
@@ -38,37 +37,36 @@ type liveURL struct {
 // calendar entry is currently in progress, inserts the AWS Elemental
 // MediaPackage start-over `start` path element so playback joins from the
 // program's start (clamped to at most maxLivestreamStartAge in the past). The
-// URL's validity is capped at maxLivestreamURLAgeFromStart past that start. The
-// result is cached in memory for 2 minutes.
+// URL's validity is capped at maxLivestreamURLAgeFromStart past that start.
 func (r *Resolver) signedLiveURL(ctx context.Context, livestreamURL string) (liveURL, error) {
-	return memorycache.GetOrSet(ctx, "live_url", func(ctx context.Context) (liveURL, error) {
-		entry, err := r.Queries.GetCurrentCalendarEntry(ctx)
-		if err != nil {
-			return liveURL{}, err
-		}
+	entry, err := r.Queries.GetCurrentCalendarEntry(ctx)
+	if err != nil {
+		log.L.Error().Err(err).Msg("signedLiveURL: failed to get current calendar entry")
+		return liveURL{}, err
+	}
 
-		now := time.Now()
-		var start *time.Time
-		if entry != nil {
-			s := clampStart(entry.Start, now)
-			start = &s
-		}
+	now := time.Now()
+	var start *time.Time
+	if entry != nil {
+		s := clampStart(entry.Start, now)
+		start = &s
+	}
 
-		ttl := livestreamExpiresAt(start, now).Sub(now)
-		signedURL, expiresAt, err := r.LivestreamSigner.SignURLCanned(livestreamURL, ttl)
-		if err != nil {
-			return liveURL{}, err
-		}
+	ttl := livestreamExpiresAt(start, now).Sub(now)
+	signedURL, expiresAt, err := r.LivestreamSigner.SignURLCanned(livestreamURL, ttl)
+	if err != nil {
+		log.L.Error().Err(err).Str("livestreamURL", livestreamURL).Msg("signedLiveURL: failed to sign livestream URL")
+		return liveURL{}, err
+	}
 
-		if start != nil {
-			signedURL = appendStartTag(signedURL, *start)
-		}
+	if start != nil {
+		signedURL = appendStartTag(signedURL, *start)
+	}
 
-		return liveURL{
-			URL:       signedURL,
-			ExpiresAt: expiresAt.Format(time.RFC3339),
-		}, nil
-	}, cache.WithExpiration(2*time.Minute))
+	return liveURL{
+		URL:       signedURL,
+		ExpiresAt: expiresAt.Format(time.RFC3339),
+	}, nil
 }
 
 // livestreamExpiresAt returns when the signed URL should expire: at most
