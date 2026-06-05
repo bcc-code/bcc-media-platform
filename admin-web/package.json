@@ -14,10 +14,10 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
-    "@ark-ui/vue": "^5.36.2",
+    "@ark-ui/vue": "^5.37.0",
     "@auth0/auth0-vue": "^2.7.0",
     "@nuxt/fonts": "^0.14.0",
-    "@nuxt/icon": "^2.2.2",
+    "@nuxt/icon": "^2.2.3",
     "@nuxtjs/color-mode": "^4.0.0",
     "@pinia/nuxt": "^0.11.3",
     "@urql/exchange-auth": "^3.0.0",
@@ -25,25 +25,25 @@
     "@vueuse/core": "^14.3.0",
     "@vueuse/nuxt": "^14.3.0",
     "cva": "1.0.0-beta.4",
-    "graphql": "^16.14.0",
-    "nuxt": "^4.4.6",
-    "vue": "^3.5.34",
+    "graphql": "^16.14.1",
+    "nuxt": "4.4.6",
+    "vue": "^3.5.35",
     "vue-draggable-plus": "^0.6.1"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^7.0.0",
-    "@graphql-codegen/client-preset": "^6.0.0",
+    "@graphql-codegen/cli": "^7.1.2",
+    "@graphql-codegen/client-preset": "^6.0.1",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@iconify-json/tabler": "^1.2.35",
     "@nuxt/eslint": "^1.15.2",
     "@tailwindcss/vite": "^4.3.0",
     "dotenv": "^17.4.2",
-    "eslint": "^10.4.0",
+    "eslint": "^10.4.1",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",
-    "vue-tsc": "^3.3.1"
+    "vue-tsc": "^3.3.3"
   },
   "packageManager": "pnpm@10.33.0"
 }
