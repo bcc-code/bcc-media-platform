@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_liveStream
 createdAt: 2026-06-03T14:54:13.789343
-updatedAt: 2026-06-03T14:54:44.054390
+updatedAt: 2026-06-05T11:36:21.504673
 workspaceId: wk_hGg2sqajat
 folderId: null
 authentication: {}
@@ -18,7 +18,7 @@ body:
         expiresAt
       }
     }
-  variables: ""
+  variables: ''
 bodyType: graphql
 description: Live state and signed livestream URL. Requires a profile (authenticated).
 headers:
@@ -26,8 +26,31 @@ headers:
   name: Content-Type
   value: application/json
   id: h_ct_liveStream
+- enabled: true
+  name: X-Application
+  value: live-mobile
+  id: t2jsRyST8N
+- enabled: true
+  name: ''
+  value: ''
+  id: ZCEjPcXS9K
 method: POST
 name: Live -> signed stream URL
 sortPriority: 3000.001
 url: ${[ BASE_URL ]}/query
 urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0
