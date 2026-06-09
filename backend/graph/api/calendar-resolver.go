@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	cache "github.com/Code-Hex/go-generics-cache"
@@ -13,6 +14,102 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/samber/lo"
 )
+
+// defaultBufferAvailableHours is used when a calendar entry has no explicit
+// buffer_available_hours set (NULL). An explicit 0 means "never available".
+const defaultBufferAvailableHours = 48
+
+// maxBufferAvailableHours caps how long after an entry ends its buffer URL may
+// stay available — 7 days. A larger configured buffer_available_hours is clamped
+// to this.
+const maxBufferAvailableHours = 7 * 24
+
+// bufferWindow holds the data needed to expose a calendar entry's buffer
+// (start-over) playback: the configured livestream manifest, the entry whose
+// [start, end] window scopes it, and the absolute time until which it stays
+// available (entry.end + buffer_available_hours).
+type bufferWindow struct {
+	entry         *common.CalendarEntry
+	livestreamURL string
+	until         time.Time
+}
+
+// bufferWindowForEntry resolves the buffer playback window for the calendar entry
+// with the given id, or nil when no buffer should be offered to the caller. It is
+// the single gate shared by the bufferUrl and bufferAvailableUntil fields, so the
+// two are always consistent. A buffer is offered only when: a livestream signing
+// key and URL are configured; the caller passes the permission-group gate
+// (BufferAllowed — empty groups → all BCC members, else intersected with the
+// caller's roles in SQL); the linked episode is not published (the published
+// episode is then the canonical way to watch); buffer_available_hours > 0; and
+// now is within [entry.start, entry.end + hours] (hours capped at
+// maxBufferAvailableHours).
+func (r *Resolver) bufferWindowForEntry(ctx context.Context, id string) (*bufferWindow, error) {
+	if r.LivestreamSigner == nil {
+		return nil, nil
+	}
+
+	conf, err := withCacheAndTimestamp(ctx, "global_config", r.Queries.GetGlobalConfig, time.Second*30, nil)
+	if err != nil {
+		return nil, err
+	}
+	if conf.LivestreamURL == "" {
+		return nil, nil
+	}
+
+	entryID, err := strconv.Atoi(id)
+	if err != nil {
+		return nil, nil
+	}
+	entry, err := r.GetFilteredLoaders(ctx).CalendarEntryLoader.Get(ctx, entryID)
+	if err != nil {
+		return nil, err
+	}
+	if entry == nil {
+		return nil, nil
+	}
+
+	if !entry.BufferAllowed || entry.EpisodePublished {
+		return nil, nil
+	}
+
+	hours := int64(defaultBufferAvailableHours)
+	if entry.BufferAvailableHours.Valid {
+		hours = entry.BufferAvailableHours.Int64
+	}
+	if hours <= 0 {
+		return nil, nil
+	}
+	if hours > maxBufferAvailableHours {
+		hours = maxBufferAvailableHours
+	}
+
+	now := time.Now()
+	until := entry.End.Add(time.Duration(hours) * time.Hour)
+	if now.Before(entry.Start) || !now.Before(until) {
+		return nil, nil
+	}
+
+	return &bufferWindow{entry: entry, livestreamURL: conf.LivestreamURL, until: until}, nil
+}
+
+// bufferForEntry returns the signed buffer (start-over) playback for the calendar
+// entry — the URL scoped to its [start, end] window plus the absolute time until
+// which it stays available — or nil when no buffer is offered to the caller.
+func (r *Resolver) bufferForEntry(ctx context.Context, id string) (*model.CalendarEntryBuffer, error) {
+	w, err := r.bufferWindowForEntry(ctx, id)
+	if err != nil || w == nil {
+		return nil, err
+	}
+	url, err := r.signedBufferURL(w.livestreamURL, w.entry.Start, w.entry.End, w.until)
+	if err != nil {
+		return nil, err
+	}
+	return &model.CalendarEntryBuffer{
+		URL:            url,
+		AvailableUntil: w.until.Format(time.RFC3339),
+	}, nil
+}
 
 func getForPeriod[k comparable, t any](ctx context.Context, loader *loaders.Loader[k, *t], factory func(ctx context.Context, from time.Time, to time.Time) ([]k, error), from time.Time, to time.Time) ([]*t, error) {
 	fromTrunc := from.Truncate(time.Hour * 1)

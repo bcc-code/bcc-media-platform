@@ -19,6 +19,7 @@ type CalendarEntry interface {
 	GetDescription() string
 	GetStart() string
 	GetEnd() string
+	GetBuffer() *CalendarEntryBuffer
 }
 
 type CollectionItem interface {
@@ -291,6 +292,11 @@ type Calendar struct {
 type CalendarDay struct {
 	Events  []*Event        `json:"events"`
 	Entries []CalendarEntry `json:"entries"`
+}
+
+type CalendarEntryBuffer struct {
+	URL            string `json:"url"`
+	AvailableUntil string `json:"availableUntil"`
 }
 
 type CalendarPeriod struct {
@@ -577,23 +583,25 @@ func (Episode) IsSubclipSourceItem() {}
 func (Episode) IsUserCollectionEntryItem() {}
 
 type EpisodeCalendarEntry struct {
-	ID          string   `json:"id"`
-	Event       *Event   `json:"event,omitempty"`
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Start       string   `json:"start"`
-	End         string   `json:"end"`
-	IsReplay    bool     `json:"isReplay"`
-	Episode     *Episode `json:"episode,omitempty"`
+	ID          string               `json:"id"`
+	Event       *Event               `json:"event,omitempty"`
+	Title       string               `json:"title"`
+	Description string               `json:"description"`
+	Start       string               `json:"start"`
+	End         string               `json:"end"`
+	IsReplay    bool                 `json:"isReplay"`
+	Episode     *Episode             `json:"episode,omitempty"`
+	Buffer      *CalendarEntryBuffer `json:"buffer,omitempty"`
 }
 
-func (EpisodeCalendarEntry) IsCalendarEntry()            {}
-func (this EpisodeCalendarEntry) GetID() string          { return this.ID }
-func (this EpisodeCalendarEntry) GetEvent() *Event       { return this.Event }
-func (this EpisodeCalendarEntry) GetTitle() string       { return this.Title }
-func (this EpisodeCalendarEntry) GetDescription() string { return this.Description }
-func (this EpisodeCalendarEntry) GetStart() string       { return this.Start }
-func (this EpisodeCalendarEntry) GetEnd() string         { return this.End }
+func (EpisodeCalendarEntry) IsCalendarEntry()                     {}
+func (this EpisodeCalendarEntry) GetID() string                   { return this.ID }
+func (this EpisodeCalendarEntry) GetEvent() *Event                { return this.Event }
+func (this EpisodeCalendarEntry) GetTitle() string                { return this.Title }
+func (this EpisodeCalendarEntry) GetDescription() string          { return this.Description }
+func (this EpisodeCalendarEntry) GetStart() string                { return this.Start }
+func (this EpisodeCalendarEntry) GetEnd() string                  { return this.End }
+func (this EpisodeCalendarEntry) GetBuffer() *CalendarEntryBuffer { return this.Buffer }
 
 type EpisodeContext struct {
 	CollectionID *string `json:"collectionId,omitempty"`
@@ -1222,22 +1230,24 @@ func (this Season) GetDescription() *string { return &this.Description }
 func (Season) IsSectionItemType() {}
 
 type SeasonCalendarEntry struct {
-	ID          string  `json:"id"`
-	Event       *Event  `json:"event,omitempty"`
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Start       string  `json:"start"`
-	End         string  `json:"end"`
-	Season      *Season `json:"season,omitempty"`
+	ID          string               `json:"id"`
+	Event       *Event               `json:"event,omitempty"`
+	Title       string               `json:"title"`
+	Description string               `json:"description"`
+	Start       string               `json:"start"`
+	End         string               `json:"end"`
+	Season      *Season              `json:"season,omitempty"`
+	Buffer      *CalendarEntryBuffer `json:"buffer,omitempty"`
 }
 
-func (SeasonCalendarEntry) IsCalendarEntry()            {}
-func (this SeasonCalendarEntry) GetID() string          { return this.ID }
-func (this SeasonCalendarEntry) GetEvent() *Event       { return this.Event }
-func (this SeasonCalendarEntry) GetTitle() string       { return this.Title }
-func (this SeasonCalendarEntry) GetDescription() string { return this.Description }
-func (this SeasonCalendarEntry) GetStart() string       { return this.Start }
-func (this SeasonCalendarEntry) GetEnd() string         { return this.End }
+func (SeasonCalendarEntry) IsCalendarEntry()                     {}
+func (this SeasonCalendarEntry) GetID() string                   { return this.ID }
+func (this SeasonCalendarEntry) GetEvent() *Event                { return this.Event }
+func (this SeasonCalendarEntry) GetTitle() string                { return this.Title }
+func (this SeasonCalendarEntry) GetDescription() string          { return this.Description }
+func (this SeasonCalendarEntry) GetStart() string                { return this.Start }
+func (this SeasonCalendarEntry) GetEnd() string                  { return this.End }
+func (this SeasonCalendarEntry) GetBuffer() *CalendarEntryBuffer { return this.Buffer }
 
 type SeasonPagination struct {
 	Total       int       `json:"total"`
@@ -1432,22 +1442,24 @@ func (this Show) GetDescription() *string { return &this.Description }
 func (Show) IsUserCollectionEntryItem() {}
 
 type ShowCalendarEntry struct {
-	ID          string `json:"id"`
-	Event       *Event `json:"event,omitempty"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Start       string `json:"start"`
-	End         string `json:"end"`
-	Show        *Show  `json:"show,omitempty"`
+	ID          string               `json:"id"`
+	Event       *Event               `json:"event,omitempty"`
+	Title       string               `json:"title"`
+	Description string               `json:"description"`
+	Start       string               `json:"start"`
+	End         string               `json:"end"`
+	Show        *Show                `json:"show,omitempty"`
+	Buffer      *CalendarEntryBuffer `json:"buffer,omitempty"`
 }
 
-func (ShowCalendarEntry) IsCalendarEntry()            {}
-func (this ShowCalendarEntry) GetID() string          { return this.ID }
-func (this ShowCalendarEntry) GetEvent() *Event       { return this.Event }
-func (this ShowCalendarEntry) GetTitle() string       { return this.Title }
-func (this ShowCalendarEntry) GetDescription() string { return this.Description }
-func (this ShowCalendarEntry) GetStart() string       { return this.Start }
-func (this ShowCalendarEntry) GetEnd() string         { return this.End }
+func (ShowCalendarEntry) IsCalendarEntry()                     {}
+func (this ShowCalendarEntry) GetID() string                   { return this.ID }
+func (this ShowCalendarEntry) GetEvent() *Event                { return this.Event }
+func (this ShowCalendarEntry) GetTitle() string                { return this.Title }
+func (this ShowCalendarEntry) GetDescription() string          { return this.Description }
+func (this ShowCalendarEntry) GetStart() string                { return this.Start }
+func (this ShowCalendarEntry) GetEnd() string                  { return this.End }
+func (this ShowCalendarEntry) GetBuffer() *CalendarEntryBuffer { return this.Buffer }
 
 type ShowSearchItem struct {
 	ID          string  `json:"id"`
@@ -1474,21 +1486,23 @@ func (this ShowSearchItem) GetImage() *string       { return this.Image }
 func (this ShowSearchItem) GetURL() string          { return this.URL }
 
 type SimpleCalendarEntry struct {
-	ID          string `json:"id"`
-	Event       *Event `json:"event,omitempty"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Start       string `json:"start"`
-	End         string `json:"end"`
+	ID          string               `json:"id"`
+	Event       *Event               `json:"event,omitempty"`
+	Title       string               `json:"title"`
+	Description string               `json:"description"`
+	Start       string               `json:"start"`
+	End         string               `json:"end"`
+	Buffer      *CalendarEntryBuffer `json:"buffer,omitempty"`
 }
 
-func (SimpleCalendarEntry) IsCalendarEntry()            {}
-func (this SimpleCalendarEntry) GetID() string          { return this.ID }
-func (this SimpleCalendarEntry) GetEvent() *Event       { return this.Event }
-func (this SimpleCalendarEntry) GetTitle() string       { return this.Title }
-func (this SimpleCalendarEntry) GetDescription() string { return this.Description }
-func (this SimpleCalendarEntry) GetStart() string       { return this.Start }
-func (this SimpleCalendarEntry) GetEnd() string         { return this.End }
+func (SimpleCalendarEntry) IsCalendarEntry()                     {}
+func (this SimpleCalendarEntry) GetID() string                   { return this.ID }
+func (this SimpleCalendarEntry) GetEvent() *Event                { return this.Event }
+func (this SimpleCalendarEntry) GetTitle() string                { return this.Title }
+func (this SimpleCalendarEntry) GetDescription() string          { return this.Description }
+func (this SimpleCalendarEntry) GetStart() string                { return this.Start }
+func (this SimpleCalendarEntry) GetEnd() string                  { return this.End }
+func (this SimpleCalendarEntry) GetBuffer() *CalendarEntryBuffer { return this.Buffer }
 
 type Song struct {
 	ID           string          `json:"id"`

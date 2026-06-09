@@ -130,6 +130,11 @@ func (r *episodeCalendarEntryResolver) Episode(ctx context.Context, obj *model.E
 	return e, nil
 }
 
+// Buffer is the resolver for the buffer field.
+func (r *episodeCalendarEntryResolver) Buffer(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.CalendarEntryBuffer, error) {
+	return r.bufferForEntry(ctx, obj.ID)
+}
+
 // Entries is the resolver for the entries field.
 func (r *eventResolver) Entries(ctx context.Context, obj *model.Event) ([]model.CalendarEntry, error) {
 	ids, err := r.GetLoaders().EventEntriesLoader.Get(ctx, utils.AsInt(obj.ID))
@@ -180,6 +185,11 @@ func (r *seasonCalendarEntryResolver) Season(ctx context.Context, obj *model.Sea
 	return r.QueryRoot().Season(ctx, obj.Season.ID)
 }
 
+// Buffer is the resolver for the buffer field.
+func (r *seasonCalendarEntryResolver) Buffer(ctx context.Context, obj *model.SeasonCalendarEntry) (*model.CalendarEntryBuffer, error) {
+	return r.bufferForEntry(ctx, obj.ID)
+}
+
 // Event is the resolver for the event field.
 func (r *showCalendarEntryResolver) Event(ctx context.Context, obj *model.ShowCalendarEntry) (*model.Event, error) {
 	if obj.Event == nil {
@@ -218,12 +228,22 @@ func (r *showCalendarEntryResolver) Show(ctx context.Context, obj *model.ShowCal
 	return s, nil
 }
 
+// Buffer is the resolver for the buffer field.
+func (r *showCalendarEntryResolver) Buffer(ctx context.Context, obj *model.ShowCalendarEntry) (*model.CalendarEntryBuffer, error) {
+	return r.bufferForEntry(ctx, obj.ID)
+}
+
 // Event is the resolver for the event field.
 func (r *simpleCalendarEntryResolver) Event(ctx context.Context, obj *model.SimpleCalendarEntry) (*model.Event, error) {
 	if obj.Event == nil {
 		return nil, nil
 	}
 	return r.QueryRoot().Event(ctx, obj.Event.ID)
+}
+
+// Buffer is the resolver for the buffer field.
+func (r *simpleCalendarEntryResolver) Buffer(ctx context.Context, obj *model.SimpleCalendarEntry) (*model.CalendarEntryBuffer, error) {
+	return r.bufferForEntry(ctx, obj.ID)
 }
 
 // Calendar returns generated.CalendarResolver implementation.
@@ -258,3 +278,4 @@ type eventResolver struct{ *Resolver }
 type seasonCalendarEntryResolver struct{ *Resolver }
 type showCalendarEntryResolver struct{ *Resolver }
 type simpleCalendarEntryResolver struct{ *Resolver }
+

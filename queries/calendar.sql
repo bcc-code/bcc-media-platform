@@ -20,7 +20,16 @@ SELECT e.id,
        se.id                               AS season_id,
        sh.id                               AS show_id,
        ts.title,
-       ts.description
+       ts.description,
+       e.buffer_available_hours,
+       EXISTS (SELECT 1
+               FROM episode_availability ea2
+               WHERE ea2.id = e.episode_id
+                 AND ea2.published)        AS episode_published,
+       COALESCE((SELECT bool_or(cu.usergroups_code = ANY ($2::varchar[]))
+                 FROM calendarentries_usergroups_buffer cu
+                 WHERE cu.calendarentries_id = e.id),
+                true)::boolean             AS buffer_allowed
 FROM calendarentries e
          LEFT JOIN LATERAL (SELECT json_object_agg(ts.languages_code, ts.title)       AS title,
                                    json_object_agg(ts.languages_code, ts.description) AS description
@@ -95,7 +104,13 @@ SELECT e.id,
        se.id                               AS season_id,
        sh.id                               AS show_id,
        ts.title,
-       ts.description
+       ts.description,
+       e.buffer_available_hours,
+       EXISTS (SELECT 1
+               FROM episode_availability ea2
+               WHERE ea2.id = e.episode_id
+                 AND ea2.published)        AS episode_published,
+       true                                AS buffer_allowed
 FROM calendarentries e
          LEFT JOIN LATERAL (SELECT json_object_agg(ts.languages_code, ts.title)       AS title,
                                    json_object_agg(ts.languages_code, ts.description) AS description

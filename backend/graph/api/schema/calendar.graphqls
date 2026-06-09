@@ -17,6 +17,14 @@ type Event {
     entries: [CalendarEntry!]! @goField(forceResolver: true)
 }
 
+# Buffer (start-over) playback for a calendar entry: the signed livestream URL
+# scoped to the entry's window, plus the absolute time until which it stays
+# available. Present only when a buffer is offered to the caller.
+type CalendarEntryBuffer {
+    url: String!
+    availableUntil: Date!
+}
+
 interface CalendarEntry {
     id: ID!
     event: Event @goField(forceResolver: true)
@@ -24,6 +32,7 @@ interface CalendarEntry {
     description: String!
     start: Date!
     end: Date!
+    buffer: CalendarEntryBuffer @goField(forceResolver: true)
 }
 
 type SimpleCalendarEntry implements CalendarEntry {
@@ -33,6 +42,7 @@ type SimpleCalendarEntry implements CalendarEntry {
     description: String!
     start: Date!
     end: Date!
+    buffer: CalendarEntryBuffer @goField(forceResolver: true)
 }
 
 type EpisodeCalendarEntry implements CalendarEntry {
@@ -44,6 +54,7 @@ type EpisodeCalendarEntry implements CalendarEntry {
     end: Date!
     isReplay: Boolean!
     episode: Episode @goField(forceResolver: true)
+    buffer: CalendarEntryBuffer @goField(forceResolver: true)
 }
 
 type SeasonCalendarEntry implements CalendarEntry {
@@ -54,6 +65,7 @@ type SeasonCalendarEntry implements CalendarEntry {
     start: Date!
     end: Date!
     season: Season @goField(forceResolver: true)
+    buffer: CalendarEntryBuffer @goField(forceResolver: true)
 }
 
 type ShowCalendarEntry implements CalendarEntry {
@@ -64,6 +76,7 @@ type ShowCalendarEntry implements CalendarEntry {
     start: Date!
     end: Date!
     show: Show @goField(forceResolver: true)
+    buffer: CalendarEntryBuffer @goField(forceResolver: true)
 }
 
 type Calendar {
