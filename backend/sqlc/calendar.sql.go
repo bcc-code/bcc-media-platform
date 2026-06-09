@@ -65,7 +65,16 @@ SELECT e.id,
        se.id                               AS season_id,
        sh.id                               AS show_id,
        ts.title,
-       ts.description
+       ts.description,
+       e.buffer_available_hours,
+       EXISTS (SELECT 1
+               FROM episode_availability ea2
+               WHERE ea2.id = e.episode_id
+                 AND ea2.published)        AS episode_published,
+       COALESCE((SELECT bool_or(cu.usergroups_code = ANY ($2::varchar[]))
+                 FROM calendarentries_usergroups_buffer cu
+                 WHERE cu.calendarentries_id = e.id),
+                true)::boolean             AS buffer_allowed
 FROM calendarentries e
          LEFT JOIN LATERAL (SELECT json_object_agg(ts.languages_code, ts.title)       AS title,
                                    json_object_agg(ts.languages_code, ts.description) AS description
@@ -85,17 +94,20 @@ type getCalendarEntriesParams struct {
 }
 
 type getCalendarEntriesRow struct {
-	ID          int32           `db:"id" json:"id"`
-	EventID     null_v4.Int     `db:"event_id" json:"eventId"`
-	LinkType    null_v4.String  `db:"link_type" json:"linkType"`
-	Start       time.Time       `db:"start" json:"start"`
-	End         time.Time       `db:"end" json:"end"`
-	IsReplay    bool            `db:"is_replay" json:"isReplay"`
-	EpisodeID   null_v4.Int     `db:"episode_id" json:"episodeId"`
-	SeasonID    null_v4.Int     `db:"season_id" json:"seasonId"`
-	ShowID      null_v4.Int     `db:"show_id" json:"showId"`
-	Title       json.RawMessage `db:"title" json:"title"`
-	Description json.RawMessage `db:"description" json:"description"`
+	ID                   int32           `db:"id" json:"id"`
+	EventID              null_v4.Int     `db:"event_id" json:"eventId"`
+	LinkType             null_v4.String  `db:"link_type" json:"linkType"`
+	Start                time.Time       `db:"start" json:"start"`
+	End                  time.Time       `db:"end" json:"end"`
+	IsReplay             bool            `db:"is_replay" json:"isReplay"`
+	EpisodeID            null_v4.Int     `db:"episode_id" json:"episodeId"`
+	SeasonID             null_v4.Int     `db:"season_id" json:"seasonId"`
+	ShowID               null_v4.Int     `db:"show_id" json:"showId"`
+	Title                json.RawMessage `db:"title" json:"title"`
+	Description          json.RawMessage `db:"description" json:"description"`
+	BufferAvailableHours null_v4.Int     `db:"buffer_available_hours" json:"bufferAvailableHours"`
+	EpisodePublished     bool            `db:"episode_published" json:"episodePublished"`
+	BufferAllowed        bool            `db:"buffer_allowed" json:"bufferAllowed"`
 }
 
 func (q *Queries) getCalendarEntries(ctx context.Context, arg getCalendarEntriesParams) ([]getCalendarEntriesRow, error) {
@@ -119,6 +131,9 @@ func (q *Queries) getCalendarEntries(ctx context.Context, arg getCalendarEntries
 			&i.ShowID,
 			&i.Title,
 			&i.Description,
+			&i.BufferAvailableHours,
+			&i.EpisodePublished,
+			&i.BufferAllowed,
 		); err != nil {
 			return nil, err
 		}
@@ -144,7 +159,13 @@ SELECT e.id,
        se.id                               AS season_id,
        sh.id                               AS show_id,
        ts.title,
-       ts.description
+       ts.description,
+       e.buffer_available_hours,
+       EXISTS (SELECT 1
+               FROM episode_availability ea2
+               WHERE ea2.id = e.episode_id
+                 AND ea2.published)        AS episode_published,
+       true                                AS buffer_allowed
 FROM calendarentries e
          LEFT JOIN LATERAL (SELECT json_object_agg(ts.languages_code, ts.title)       AS title,
                                    json_object_agg(ts.languages_code, ts.description) AS description
@@ -158,17 +179,20 @@ WHERE e.id = ANY ($1::int[])
 `
 
 type getCalendarEntriesByIDRow struct {
-	ID          int32           `db:"id" json:"id"`
-	EventID     null_v4.Int     `db:"event_id" json:"eventId"`
-	LinkType    null_v4.String  `db:"link_type" json:"linkType"`
-	Start       time.Time       `db:"start" json:"start"`
-	End         time.Time       `db:"end" json:"end"`
-	IsReplay    bool            `db:"is_replay" json:"isReplay"`
-	EpisodeID   null_v4.Int     `db:"episode_id" json:"episodeId"`
-	SeasonID    null_v4.Int     `db:"season_id" json:"seasonId"`
-	ShowID      null_v4.Int     `db:"show_id" json:"showId"`
-	Title       json.RawMessage `db:"title" json:"title"`
-	Description json.RawMessage `db:"description" json:"description"`
+	ID                   int32           `db:"id" json:"id"`
+	EventID              null_v4.Int     `db:"event_id" json:"eventId"`
+	LinkType             null_v4.String  `db:"link_type" json:"linkType"`
+	Start                time.Time       `db:"start" json:"start"`
+	End                  time.Time       `db:"end" json:"end"`
+	IsReplay             bool            `db:"is_replay" json:"isReplay"`
+	EpisodeID            null_v4.Int     `db:"episode_id" json:"episodeId"`
+	SeasonID             null_v4.Int     `db:"season_id" json:"seasonId"`
+	ShowID               null_v4.Int     `db:"show_id" json:"showId"`
+	Title                json.RawMessage `db:"title" json:"title"`
+	Description          json.RawMessage `db:"description" json:"description"`
+	BufferAvailableHours null_v4.Int     `db:"buffer_available_hours" json:"bufferAvailableHours"`
+	EpisodePublished     bool            `db:"episode_published" json:"episodePublished"`
+	BufferAllowed        bool            `db:"buffer_allowed" json:"bufferAllowed"`
 }
 
 func (q *Queries) getCalendarEntriesByID(ctx context.Context, dollar_1 []int32) ([]getCalendarEntriesByIDRow, error) {
@@ -192,6 +216,9 @@ func (q *Queries) getCalendarEntriesByID(ctx context.Context, dollar_1 []int32) 
 			&i.ShowID,
 			&i.Title,
 			&i.Description,
+			&i.BufferAvailableHours,
+			&i.EpisodePublished,
+			&i.BufferAllowed,
 		); err != nil {
 			return nil, err
 		}

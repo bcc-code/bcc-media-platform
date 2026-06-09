@@ -7,19 +7,32 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAppendStartTag(t *testing.T) {
+func TestAppendTimeShiftTags(t *testing.T) {
 	start := time.Unix(1513717228, 0)
+	end := time.Unix(1513720828, 0)
 
-	t.Run("appends with & when the signed query is already present", func(t *testing.T) {
+	t.Run("start only, appends with & when the signed query is already present", func(t *testing.T) {
 		in := "https://live.example.com/out/v1/abc/def/index.m3u8?EncodedPolicy=xyz%3D"
-		got := appendStartTag(in, start)
+		got := appendTimeShiftTags(in, start, nil)
 		assert.Equal(t, in+"&start=1513717228", got)
 	})
 
-	t.Run("appends with ? when no query present", func(t *testing.T) {
+	t.Run("start only, appends with ? when no query present", func(t *testing.T) {
 		in := "https://live.example.com/out/v1/abc/def/index.m3u8"
-		got := appendStartTag(in, start)
+		got := appendTimeShiftTags(in, start, nil)
 		assert.Equal(t, in+"?start=1513717228", got)
+	})
+
+	t.Run("start and end, appends with & when the signed query is already present", func(t *testing.T) {
+		in := "https://live.example.com/out/v1/abc/def/index.m3u8?EncodedPolicy=xyz%3D"
+		got := appendTimeShiftTags(in, start, &end)
+		assert.Equal(t, in+"&start=1513717228&end=1513720828", got)
+	})
+
+	t.Run("start and end, appends start with ? and end with & when no query present", func(t *testing.T) {
+		in := "https://live.example.com/out/v1/abc/def/index.m3u8"
+		got := appendTimeShiftTags(in, start, &end)
+		assert.Equal(t, in+"?start=1513717228&end=1513720828", got)
 	})
 }
 

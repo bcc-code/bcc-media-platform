@@ -213,6 +213,11 @@ type ComplexityRoot struct {
 		Events  func(childComplexity int) int
 	}
 
+	CalendarEntryBuffer struct {
+		AvailableUntil func(childComplexity int) int
+		URL            func(childComplexity int) int
+	}
+
 	CalendarPeriod struct {
 		ActiveDays func(childComplexity int) int
 		Events     func(childComplexity int) int
@@ -372,6 +377,7 @@ type ComplexityRoot struct {
 	}
 
 	EpisodeCalendarEntry struct {
+		Buffer      func(childComplexity int) int
 		Description func(childComplexity int) int
 		End         func(childComplexity int) int
 		Episode     func(childComplexity int) int
@@ -840,6 +846,7 @@ type ComplexityRoot struct {
 	}
 
 	SeasonCalendarEntry struct {
+		Buffer      func(childComplexity int) int
 		Description func(childComplexity int) int
 		End         func(childComplexity int) int
 		Event       func(childComplexity int) int
@@ -944,6 +951,7 @@ type ComplexityRoot struct {
 	}
 
 	ShowCalendarEntry struct {
+		Buffer      func(childComplexity int) int
 		Description func(childComplexity int) int
 		End         func(childComplexity int) int
 		Event       func(childComplexity int) int
@@ -967,6 +975,7 @@ type ComplexityRoot struct {
 	}
 
 	SimpleCalendarEntry struct {
+		Buffer      func(childComplexity int) int
 		Description func(childComplexity int) int
 		End         func(childComplexity int) int
 		Event       func(childComplexity int) int
@@ -1248,6 +1257,7 @@ type EpisodeCalendarEntryResolver interface {
 	Description(ctx context.Context, obj *model.EpisodeCalendarEntry) (string, error)
 
 	Episode(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.Episode, error)
+	Buffer(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.CalendarEntryBuffer, error)
 }
 type EpisodeSearchItemResolver interface {
 	Show(ctx context.Context, obj *model.EpisodeSearchItem) (*model.Show, error)
@@ -1416,6 +1426,7 @@ type SeasonCalendarEntryResolver interface {
 	Description(ctx context.Context, obj *model.SeasonCalendarEntry) (string, error)
 
 	Season(ctx context.Context, obj *model.SeasonCalendarEntry) (*model.Season, error)
+	Buffer(ctx context.Context, obj *model.SeasonCalendarEntry) (*model.CalendarEntryBuffer, error)
 }
 type SeasonSearchItemResolver interface {
 	Show(ctx context.Context, obj *model.SeasonSearchItem) (*model.Show, error)
@@ -1448,12 +1459,15 @@ type ShowCalendarEntryResolver interface {
 	Description(ctx context.Context, obj *model.ShowCalendarEntry) (string, error)
 
 	Show(ctx context.Context, obj *model.ShowCalendarEntry) (*model.Show, error)
+	Buffer(ctx context.Context, obj *model.ShowCalendarEntry) (*model.CalendarEntryBuffer, error)
 }
 type ShowSearchItemResolver interface {
 	Show(ctx context.Context, obj *model.ShowSearchItem) (*model.Show, error)
 }
 type SimpleCalendarEntryResolver interface {
 	Event(ctx context.Context, obj *model.SimpleCalendarEntry) (*model.Event, error)
+
+	Buffer(ctx context.Context, obj *model.SimpleCalendarEntry) (*model.CalendarEntryBuffer, error)
 }
 type SongResolver interface {
 	Key(ctx context.Context, obj *model.Song) (string, error)
@@ -1984,6 +1998,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.CalendarDay.Events(childComplexity), true
+
+	case "CalendarEntryBuffer.availableUntil":
+		if e.complexity.CalendarEntryBuffer.AvailableUntil == nil {
+			break
+		}
+
+		return e.complexity.CalendarEntryBuffer.AvailableUntil(childComplexity), true
+
+	case "CalendarEntryBuffer.url":
+		if e.complexity.CalendarEntryBuffer.URL == nil {
+			break
+		}
+
+		return e.complexity.CalendarEntryBuffer.URL(childComplexity), true
 
 	case "CalendarPeriod.activeDays":
 		if e.complexity.CalendarPeriod.ActiveDays == nil {
@@ -2767,6 +2795,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Episode.Watched(childComplexity), true
+
+	case "EpisodeCalendarEntry.buffer":
+		if e.complexity.EpisodeCalendarEntry.Buffer == nil {
+			break
+		}
+
+		return e.complexity.EpisodeCalendarEntry.Buffer(childComplexity), true
 
 	case "EpisodeCalendarEntry.description":
 		if e.complexity.EpisodeCalendarEntry.Description == nil {
@@ -5370,6 +5405,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Season.Title(childComplexity), true
 
+	case "SeasonCalendarEntry.buffer":
+		if e.complexity.SeasonCalendarEntry.Buffer == nil {
+			break
+		}
+
+		return e.complexity.SeasonCalendarEntry.Buffer(childComplexity), true
+
 	case "SeasonCalendarEntry.description":
 		if e.complexity.SeasonCalendarEntry.Description == nil {
 			break
@@ -5924,6 +5966,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Show.Type(childComplexity), true
 
+	case "ShowCalendarEntry.buffer":
+		if e.complexity.ShowCalendarEntry.Buffer == nil {
+			break
+		}
+
+		return e.complexity.ShowCalendarEntry.Buffer(childComplexity), true
+
 	case "ShowCalendarEntry.description":
 		if e.complexity.ShowCalendarEntry.Description == nil {
 			break
@@ -6042,6 +6091,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.ShowSearchItem.URL(childComplexity), true
+
+	case "SimpleCalendarEntry.buffer":
+		if e.complexity.SimpleCalendarEntry.Buffer == nil {
+			break
+		}
+
+		return e.complexity.SimpleCalendarEntry.Buffer(childComplexity), true
 
 	case "SimpleCalendarEntry.description":
 		if e.complexity.SimpleCalendarEntry.Description == nil {
@@ -7088,6 +7144,14 @@ type Event {
     entries: [CalendarEntry!]! @goField(forceResolver: true)
 }
 
+# Buffer (start-over) playback for a calendar entry: the signed livestream URL
+# scoped to the entry's window, plus the absolute time until which it stays
+# available. Present only when a buffer is offered to the caller.
+type CalendarEntryBuffer {
+    url: String!
+    availableUntil: Date!
+}
+
 interface CalendarEntry {
     id: ID!
     event: Event @goField(forceResolver: true)
@@ -7095,6 +7159,7 @@ interface CalendarEntry {
     description: String!
     start: Date!
     end: Date!
+    buffer: CalendarEntryBuffer @goField(forceResolver: true)
 }
 
 type SimpleCalendarEntry implements CalendarEntry {
@@ -7104,6 +7169,7 @@ type SimpleCalendarEntry implements CalendarEntry {
     description: String!
     start: Date!
     end: Date!
+    buffer: CalendarEntryBuffer @goField(forceResolver: true)
 }
 
 type EpisodeCalendarEntry implements CalendarEntry {
@@ -7115,6 +7181,7 @@ type EpisodeCalendarEntry implements CalendarEntry {
     end: Date!
     isReplay: Boolean!
     episode: Episode @goField(forceResolver: true)
+    buffer: CalendarEntryBuffer @goField(forceResolver: true)
 }
 
 type SeasonCalendarEntry implements CalendarEntry {
@@ -7125,6 +7192,7 @@ type SeasonCalendarEntry implements CalendarEntry {
     start: Date!
     end: Date!
     season: Season @goField(forceResolver: true)
+    buffer: CalendarEntryBuffer @goField(forceResolver: true)
 }
 
 type ShowCalendarEntry implements CalendarEntry {
@@ -7135,6 +7203,7 @@ type ShowCalendarEntry implements CalendarEntry {
     start: Date!
     end: Date!
     show: Show @goField(forceResolver: true)
+    buffer: CalendarEntryBuffer @goField(forceResolver: true)
 }
 
 type Calendar {
@@ -16573,6 +16642,94 @@ func (ec *executionContext) fieldContext_CalendarDay_entries(_ context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _CalendarEntryBuffer_url(ctx context.Context, field graphql.CollectedField, obj *model.CalendarEntryBuffer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CalendarEntryBuffer_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CalendarEntryBuffer_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CalendarEntryBuffer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CalendarEntryBuffer_availableUntil(ctx context.Context, field graphql.CollectedField, obj *model.CalendarEntryBuffer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CalendarEntryBuffer_availableUntil(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AvailableUntil, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNDate2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CalendarEntryBuffer_availableUntil(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CalendarEntryBuffer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Date does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CalendarPeriod_activeDays(ctx context.Context, field graphql.CollectedField, obj *model.CalendarPeriod) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CalendarPeriod_activeDays(ctx, field)
 	if err != nil {
@@ -22225,6 +22382,53 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(_ context.
 				return ec.fieldContext_Episode_cursor(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EpisodeCalendarEntry_buffer(ctx context.Context, field graphql.CollectedField, obj *model.EpisodeCalendarEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EpisodeCalendarEntry_buffer(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.EpisodeCalendarEntry().Buffer(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.CalendarEntryBuffer)
+	fc.Result = res
+	return ec.marshalOCalendarEntryBuffer2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntryBuffer(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EpisodeCalendarEntry_buffer(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EpisodeCalendarEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "url":
+				return ec.fieldContext_CalendarEntryBuffer_url(ctx, field)
+			case "availableUntil":
+				return ec.fieldContext_CalendarEntryBuffer_availableUntil(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CalendarEntryBuffer", field.Name)
 		},
 	}
 	return fc, nil
@@ -38814,6 +39018,53 @@ func (ec *executionContext) fieldContext_SeasonCalendarEntry_season(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _SeasonCalendarEntry_buffer(ctx context.Context, field graphql.CollectedField, obj *model.SeasonCalendarEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SeasonCalendarEntry_buffer(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SeasonCalendarEntry().Buffer(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.CalendarEntryBuffer)
+	fc.Result = res
+	return ec.marshalOCalendarEntryBuffer2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntryBuffer(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SeasonCalendarEntry_buffer(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SeasonCalendarEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "url":
+				return ec.fieldContext_CalendarEntryBuffer_url(ctx, field)
+			case "availableUntil":
+				return ec.fieldContext_CalendarEntryBuffer_availableUntil(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CalendarEntryBuffer", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SeasonPagination_total(ctx context.Context, field graphql.CollectedField, obj *model.SeasonPagination) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SeasonPagination_total(ctx, field)
 	if err != nil {
@@ -42501,6 +42752,53 @@ func (ec *executionContext) fieldContext_ShowCalendarEntry_show(_ context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _ShowCalendarEntry_buffer(ctx context.Context, field graphql.CollectedField, obj *model.ShowCalendarEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShowCalendarEntry_buffer(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ShowCalendarEntry().Buffer(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.CalendarEntryBuffer)
+	fc.Result = res
+	return ec.marshalOCalendarEntryBuffer2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntryBuffer(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShowCalendarEntry_buffer(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShowCalendarEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "url":
+				return ec.fieldContext_CalendarEntryBuffer_url(ctx, field)
+			case "availableUntil":
+				return ec.fieldContext_CalendarEntryBuffer_availableUntil(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CalendarEntryBuffer", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ShowSearchItem_id(ctx context.Context, field graphql.CollectedField, obj *model.ShowSearchItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ShowSearchItem_id(ctx, field)
 	if err != nil {
@@ -43224,6 +43522,53 @@ func (ec *executionContext) fieldContext_SimpleCalendarEntry_end(_ context.Conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Date does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SimpleCalendarEntry_buffer(ctx context.Context, field graphql.CollectedField, obj *model.SimpleCalendarEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SimpleCalendarEntry_buffer(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SimpleCalendarEntry().Buffer(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.CalendarEntryBuffer)
+	fc.Result = res
+	return ec.marshalOCalendarEntryBuffer2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntryBuffer(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SimpleCalendarEntry_buffer(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SimpleCalendarEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "url":
+				return ec.fieldContext_CalendarEntryBuffer_url(ctx, field)
+			case "availableUntil":
+				return ec.fieldContext_CalendarEntryBuffer_availableUntil(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CalendarEntryBuffer", field.Name)
 		},
 	}
 	return fc, nil
@@ -52669,6 +53014,50 @@ func (ec *executionContext) _CalendarDay(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
+var calendarEntryBufferImplementors = []string{"CalendarEntryBuffer"}
+
+func (ec *executionContext) _CalendarEntryBuffer(ctx context.Context, sel ast.SelectionSet, obj *model.CalendarEntryBuffer) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, calendarEntryBufferImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CalendarEntryBuffer")
+		case "url":
+			out.Values[i] = ec._CalendarEntryBuffer_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "availableUntil":
+			out.Values[i] = ec._CalendarEntryBuffer_availableUntil(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var calendarPeriodImplementors = []string{"CalendarPeriod"}
 
 func (ec *executionContext) _CalendarPeriod(ctx context.Context, sel ast.SelectionSet, obj *model.CalendarPeriod) graphql.Marshaler {
@@ -54824,6 +55213,39 @@ func (ec *executionContext) _EpisodeCalendarEntry(ctx context.Context, sel ast.S
 					}
 				}()
 				res = ec._EpisodeCalendarEntry_episode(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "buffer":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._EpisodeCalendarEntry_buffer(ctx, field, obj)
 				return res
 			}
 
@@ -60152,6 +60574,39 @@ func (ec *executionContext) _SeasonCalendarEntry(ctx context.Context, sel ast.Se
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "buffer":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SeasonCalendarEntry_buffer(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -61390,6 +61845,39 @@ func (ec *executionContext) _ShowCalendarEntry(ctx context.Context, sel ast.Sele
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "buffer":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ShowCalendarEntry_buffer(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -61582,6 +62070,39 @@ func (ec *executionContext) _SimpleCalendarEntry(ctx context.Context, sel ast.Se
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "buffer":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SimpleCalendarEntry_buffer(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -66804,6 +67325,13 @@ func (ec *executionContext) marshalOCalendar2ᚖgithubᚗcomᚋbccᚑcodeᚋbcc�
 		return graphql.Null
 	}
 	return ec._Calendar(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOCalendarEntryBuffer2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntryBuffer(ctx context.Context, sel ast.SelectionSet, v *model.CalendarEntryBuffer) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CalendarEntryBuffer(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOChapter2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐChapter(ctx context.Context, sel ast.SelectionSet, v *model.Chapter) graphql.Marshaler {

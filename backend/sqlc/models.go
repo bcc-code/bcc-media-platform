@@ -249,6 +249,12 @@ type CalendarentriesTranslation struct {
 	DateUpdated       time.Time      `db:"date_updated" json:"dateUpdated"`
 }
 
+type CalendarentriesUsergroupsBuffer struct {
+	ID                int32          `db:"id" json:"id"`
+	CalendarentriesID null_v4.Int    `db:"calendarentries_id" json:"calendarentriesId"`
+	UsergroupsCode    null_v4.String `db:"usergroups_code" json:"usergroupsCode"`
+}
+
 type Calendarentry struct {
 	DateCreated   null_v4.Time   `db:"date_created" json:"dateCreated"`
 	DateUpdated   null_v4.Time   `db:"date_updated" json:"dateUpdated"`
@@ -267,6 +273,8 @@ type Calendarentry struct {
 	UserUpdated   uuid.NullUUID  `db:"user_updated" json:"userUpdated"`
 	IsReplay      sql.NullBool   `db:"is_replay" json:"isReplay"`
 	Label         null_v4.String `db:"label" json:"label"`
+	// Hours the buffer URL stays available after the entry ends. 0 = never available.
+	BufferAvailableHours null_v4.Int `db:"buffer_available_hours" json:"bufferAvailableHours"`
 }
 
 type Collection struct {

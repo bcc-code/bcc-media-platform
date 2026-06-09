@@ -89,15 +89,18 @@ func mapToCalendarEntries(items []getCalendarEntriesRow) []common.CalendarEntry 
 		}
 
 		return common.CalendarEntry{
-			ID:          int(i.ID),
-			EventID:     i.EventID,
-			Title:       title,
-			Description: description,
-			Start:       i.Start,
-			End:         i.End,
-			Type:        i.LinkType,
-			IsReplay:    i.IsReplay,
-			ItemID:      itemID,
+			ID:                   int(i.ID),
+			EventID:              i.EventID,
+			Title:                title,
+			Description:          description,
+			Start:                i.Start,
+			End:                  i.End,
+			Type:                 i.LinkType,
+			IsReplay:             i.IsReplay,
+			ItemID:               itemID,
+			BufferAvailableHours: i.BufferAvailableHours,
+			EpisodePublished:     i.EpisodePublished,
+			BufferAllowed:        i.BufferAllowed,
 		}
 	})
 }

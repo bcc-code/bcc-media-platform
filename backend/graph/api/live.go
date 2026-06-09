@@ -60,13 +60,34 @@ func (r *Resolver) signedLiveURL(ctx context.Context, livestreamURL string) (liv
 	}
 
 	if start != nil {
-		signedURL = appendStartTag(signedURL, *start)
+		signedURL = appendTimeShiftTags(signedURL, *start, nil)
 	}
 
 	return liveURL{
 		URL:       signedURL,
 		ExpiresAt: expiresAt.Format(time.RFC3339),
 	}, nil
+}
+
+// signedBufferURL signs the configured livestream manifest URL for a specific,
+// already-aired calendar entry and inserts the AWS Elemental MediaPackage
+// start-over `start` and `end` query parameters so playback is scoped to exactly
+// that entry's window. Unlike signedLiveURL it does not clamp the start: the
+// buffer is meant to replay the real program window, and the origin's start-over
+// retention is expected to cover it.
+//
+// Note: a window (end-start) longer than ~2h hits the same origin/lambda
+// manifest-size limit described on maxLivestreamURLAgeFromStart. Entries are
+// almost always shorter; revisit (e.g. chunked playback) if long buffers are
+// needed rather than truncating the window here.
+func (r *Resolver) signedBufferURL(livestreamURL string, start, end, expiresAt time.Time) (string, error) {
+	now := time.Now()
+	signedURL, _, err := r.LivestreamSigner.SignURLCanned(livestreamURL, expiresAt.Sub(now))
+	if err != nil {
+		log.L.Error().Err(err).Str("livestreamURL", livestreamURL).Msg("signedBufferURL: failed to sign livestream URL")
+		return "", err
+	}
+	return appendTimeShiftTags(signedURL, start, &end), nil
 }
 
 // livestreamExpiresAt returns when the signed URL should expire: at most
@@ -92,22 +113,28 @@ func clampStart(start, now time.Time) time.Time {
 	return start
 }
 
-// appendStartTag appends the AWS Elemental MediaPackage start-over `start` query
-// parameter (Unix epoch seconds) to a manifest URL, e.g.
+// appendTimeShiftTags appends the AWS Elemental MediaPackage start-over `start`
+// query parameter (Unix epoch seconds) to a manifest URL and, when end is
+// non-nil, the `end` parameter too — bounding playback to a fixed window, e.g.
 //
 //	.../out/v1/<id>/index.m3u8  ->  .../out/v1/<id>/index.m3u8?start=1513717228
+//	                            ->  ...?start=1513717228&end=1513720828
 //
 // MediaPackage v2 endpoints accept time-shift only as a query parameter — the
 // path-element form (.../start/<time>/index.m3u8) returns 400 there (verified
-// against the live egress endpoint). The value is concatenated raw rather than
+// against the live egress endpoint). The values are concatenated raw rather than
 // via url.Values.Encode(), which would double-encode the already
 // percent-encoded CloudFront `EncodedPolicy`. The CloudFront canned policy signs
-// the resource path, not the query, so the extra param does not invalidate the
+// the resource path, not the query, so the extra params do not invalidate the
 // signature.
-func appendStartTag(signedURL string, start time.Time) string {
+func appendTimeShiftTags(signedURL string, start time.Time, end *time.Time) string {
 	sep := "?"
 	if strings.Contains(signedURL, "?") {
 		sep = "&"
 	}
-	return signedURL + sep + "start=" + strconv.FormatInt(start.Unix(), 10)
+	out := signedURL + sep + "start=" + strconv.FormatInt(start.Unix(), 10)
+	if end != nil {
+		out += "&end=" + strconv.FormatInt(end.Unix(), 10)
+	}
+	return out
 }

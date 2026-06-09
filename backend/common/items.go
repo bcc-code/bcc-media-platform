@@ -400,15 +400,18 @@ func (i Event) GetKey() int {
 
 // CalendarEntry contains details about a specific TvGuide entry
 type CalendarEntry struct {
-	ID          int
-	EventID     null.Int
-	Title       LocaleString
-	Description LocaleString
-	Start       time.Time
-	End         time.Time
-	Type        null.String
-	IsReplay    bool
-	ItemID      null.Int
+	ID                   int
+	EventID              null.Int
+	Title                LocaleString
+	Description          LocaleString
+	Start                time.Time
+	End                  time.Time
+	Type                 null.String
+	IsReplay             bool
+	ItemID               null.Int
+	BufferAvailableHours null.Int
+	EpisodePublished     bool
+	BufferAllowed        bool
 }
 
 // GetKey returns the key for this item
