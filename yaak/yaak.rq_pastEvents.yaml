@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_pastEvents
 createdAt: 2026-06-03T08:00:00
-updatedAt: 2026-06-03T08:00:00
+updatedAt: 2026-06-09T09:27:35.486249
 workspaceId: wk_hGg2sqajat
 folderId: null
 authentication: {}
@@ -28,6 +28,10 @@ body:
             end
             ... on EpisodeCalendarEntry {
               isReplay
+              buffer{
+                url
+                availableUntil
+              }
               episode {
                 id
                 title
@@ -51,8 +55,8 @@ body:
     }
   variables: |-
     {
-      "from": "2025-06-03T00:00:00Z",
-      "to": "2026-06-03T00:00:00Z"
+      "from": "2025-06-07T00:00:00Z",
+      "to": "2026-06-10T00:00:00Z"
     }
 bodyType: graphql
 description: Past calendar events from the last year up to today. Requires a profile (authenticated).
@@ -66,3 +70,18 @@ name: Calendar -> past events
 sortPriority: 3000.0
 url: ${[ BASE_URL ]}/query
 urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

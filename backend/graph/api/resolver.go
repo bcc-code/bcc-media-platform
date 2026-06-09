@@ -197,7 +197,11 @@ var (
 	ErrProfileNotSet = common.ErrProfileNotSet
 )
 
-var requestLocks = map[string]*sync.Mutex{}
+// requestLocks is keyed by cache key; it serializes the factory call for a given
+// key. It is a sync.Map because fields like CalendarEntry.buffer resolve
+// concurrently (gqlgen dispatches one goroutine per field), so multiple
+// goroutines may get-or-create a lock for the same key at once.
+var requestLocks sync.Map // map[string]*sync.Mutex
 var requestCache = cache.New[string, any]()
 
 type timedCacheEntry[t any] struct {
@@ -233,11 +237,8 @@ func withCacheAndTimestamp[r any](ctx context.Context, key string, factory func(
 		}
 	}
 
-	lock, ok := requestLocks[key]
-	if !ok {
-		lock = &sync.Mutex{}
-		requestLocks[key] = lock
-	}
+	lockAny, _ := requestLocks.LoadOrStore(key, &sync.Mutex{})
+	lock := lockAny.(*sync.Mutex)
 	lock.Lock()
 	defer lock.Unlock()
 
