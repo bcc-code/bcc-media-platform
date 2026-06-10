@@ -99,6 +99,8 @@ func mapToCalendarEntries(items []getCalendarEntriesRow) []common.CalendarEntry 
 			IsReplay:             i.IsReplay,
 			ItemID:               itemID,
 			BufferAvailableHours: i.BufferAvailableHours,
+			BufferStart:          i.BufferStart,
+			BufferEnd:            i.BufferEnd,
 			EpisodePublished:     i.EpisodePublished,
 			BufferAllowed:        i.BufferAllowed,
 		}

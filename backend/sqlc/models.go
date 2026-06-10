@@ -275,6 +275,10 @@ type Calendarentry struct {
 	Label         null_v4.String `db:"label" json:"label"`
 	// Hours the buffer URL stays available after the entry ends. 0 = never available.
 	BufferAvailableHours null_v4.Int `db:"buffer_available_hours" json:"bufferAvailableHours"`
+	// Optional. Overrides the start of the buffer (start-over) playback URL. Independent of buffer_end; falls back to the entry start when unset. Ignored if the resulting window end is not after start.
+	BufferStart null_v4.Time `db:"buffer_start" json:"bufferStart"`
+	// Optional. Overrides the end of the buffer (start-over) playback URL. Independent of buffer_start; falls back to the entry end when unset. Ignored if the resulting window end is not after start.
+	BufferEnd null_v4.Time `db:"buffer_end" json:"bufferEnd"`
 }
 
 type Collection struct {

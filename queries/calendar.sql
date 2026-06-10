@@ -22,6 +22,8 @@ SELECT e.id,
        ts.title,
        ts.description,
        e.buffer_available_hours,
+       e.buffer_start,
+       e.buffer_end,
        EXISTS (SELECT 1
                FROM episode_availability ea2
                WHERE ea2.id = e.episode_id
@@ -106,6 +108,8 @@ SELECT e.id,
        ts.title,
        ts.description,
        e.buffer_available_hours,
+       e.buffer_start,
+       e.buffer_end,
        EXISTS (SELECT 1
                FROM episode_availability ea2
                WHERE ea2.id = e.episode_id

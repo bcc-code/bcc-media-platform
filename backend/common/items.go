@@ -410,6 +410,8 @@ type CalendarEntry struct {
 	IsReplay             bool
 	ItemID               null.Int
 	BufferAvailableHours null.Int
+	BufferStart          null.Time
+	BufferEnd            null.Time
 	EpisodePublished     bool
 	BufferAllowed        bool
 }

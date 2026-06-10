@@ -67,6 +67,8 @@ SELECT e.id,
        ts.title,
        ts.description,
        e.buffer_available_hours,
+       e.buffer_start,
+       e.buffer_end,
        EXISTS (SELECT 1
                FROM episode_availability ea2
                WHERE ea2.id = e.episode_id
@@ -106,6 +108,8 @@ type getCalendarEntriesRow struct {
 	Title                json.RawMessage `db:"title" json:"title"`
 	Description          json.RawMessage `db:"description" json:"description"`
 	BufferAvailableHours null_v4.Int     `db:"buffer_available_hours" json:"bufferAvailableHours"`
+	BufferStart          null_v4.Time    `db:"buffer_start" json:"bufferStart"`
+	BufferEnd            null_v4.Time    `db:"buffer_end" json:"bufferEnd"`
 	EpisodePublished     bool            `db:"episode_published" json:"episodePublished"`
 	BufferAllowed        bool            `db:"buffer_allowed" json:"bufferAllowed"`
 }
@@ -132,6 +136,8 @@ func (q *Queries) getCalendarEntries(ctx context.Context, arg getCalendarEntries
 			&i.Title,
 			&i.Description,
 			&i.BufferAvailableHours,
+			&i.BufferStart,
+			&i.BufferEnd,
 			&i.EpisodePublished,
 			&i.BufferAllowed,
 		); err != nil {
@@ -161,6 +167,8 @@ SELECT e.id,
        ts.title,
        ts.description,
        e.buffer_available_hours,
+       e.buffer_start,
+       e.buffer_end,
        EXISTS (SELECT 1
                FROM episode_availability ea2
                WHERE ea2.id = e.episode_id
@@ -191,6 +199,8 @@ type getCalendarEntriesByIDRow struct {
 	Title                json.RawMessage `db:"title" json:"title"`
 	Description          json.RawMessage `db:"description" json:"description"`
 	BufferAvailableHours null_v4.Int     `db:"buffer_available_hours" json:"bufferAvailableHours"`
+	BufferStart          null_v4.Time    `db:"buffer_start" json:"bufferStart"`
+	BufferEnd            null_v4.Time    `db:"buffer_end" json:"bufferEnd"`
 	EpisodePublished     bool            `db:"episode_published" json:"episodePublished"`
 	BufferAllowed        bool            `db:"buffer_allowed" json:"bufferAllowed"`
 }
@@ -217,6 +227,8 @@ func (q *Queries) getCalendarEntriesByID(ctx context.Context, dollar_1 []int32) 
 			&i.Title,
 			&i.Description,
 			&i.BufferAvailableHours,
+			&i.BufferStart,
+			&i.BufferEnd,
 			&i.EpisodePublished,
 			&i.BufferAllowed,
 		); err != nil {

@@ -93,6 +93,28 @@ func (r *Resolver) bufferWindowForEntry(ctx context.Context, id string) (*buffer
 	return &bufferWindow{entry: entry, livestreamURL: conf.LivestreamURL, until: until}, nil
 }
 
+// bufferPlaybackWindow returns the [start, end] window the buffer (start-over)
+// playback URL should be scoped to. The optional buffer_start and buffer_end
+// overrides are applied independently — either, both, or neither may be set —
+// letting editors trim the replay to the actual program window; each unset side
+// falls back to the entry's corresponding time. If the resulting window is invalid
+// (end not after start) the override is ignored entirely and the entry's own times
+// are used. This only affects the URL's time-shift tags — availability gating still
+// keys off the entry's times (see bufferWindowForEntry).
+func bufferPlaybackWindow(entry *common.CalendarEntry) (start, end time.Time) {
+	start, end = entry.Start, entry.End
+	if entry.BufferStart.Valid {
+		start = entry.BufferStart.Time
+	}
+	if entry.BufferEnd.Valid {
+		end = entry.BufferEnd.Time
+	}
+	if !end.After(start) {
+		return entry.Start, entry.End
+	}
+	return start, end
+}
+
 // bufferForEntry returns the signed buffer (start-over) playback for the calendar
 // entry — the URL scoped to its [start, end] window plus the absolute time until
 // which it stays available — or nil when no buffer is offered to the caller.
@@ -101,7 +123,8 @@ func (r *Resolver) bufferForEntry(ctx context.Context, id string) (*model.Calend
 	if err != nil || w == nil {
 		return nil, err
 	}
-	url, err := r.signedBufferURL(w.livestreamURL, w.entry.Start, w.entry.End, w.until)
+	start, end := bufferPlaybackWindow(w.entry)
+	url, err := r.signedBufferURL(w.livestreamURL, start, end, w.until)
 	if err != nil {
 		return nil, err
 	}
