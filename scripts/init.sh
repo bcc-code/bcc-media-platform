@@ -11,7 +11,7 @@ set -euf -o pipefail
 SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 REPO_ROOT="$( cd "$SCRIPTPATH/.." >/dev/null 2>&1 ; pwd -P )"
 
-ENVPATHS="${SCRIPTPATH}/../cms ${SCRIPTPATH}/../backend/cmd/api ${SCRIPTPATH}/../web ${SCRIPTPATH}/.."
+ENVPATHS="${SCRIPTPATH}/../cms ${SCRIPTPATH}/../backend/cmd/api ${SCRIPTPATH}/../backend/cmd/jobs ${SCRIPTPATH}/../backend/cmd/stream-proxy ${SCRIPTPATH}/../web ${SCRIPTPATH}/.."
 COMMANDS="cp realpath go gum docker docker-compose pg-diff goose psql node npm pnpm"
 OPTIONAL_COMMANDS="op"
 SECRETS_FILE="${REPO_ROOT}/local-secrets.env"
