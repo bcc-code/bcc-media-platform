@@ -450,6 +450,7 @@ type Application struct {
 	ID                  int
 	UUID                uuid.UUID
 	GroupID             uuid.UUID
+	GroupLabel          string
 	Default             bool
 	Code                string
 	ClientVersion       string

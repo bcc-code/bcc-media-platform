@@ -27,6 +27,7 @@ func mapToApplications(applications []getApplicationsRow) []common.Application {
 			ID:                  int(p.ID),
 			UUID:                p.Uuid,
 			GroupID:             p.GroupID,
+			GroupLabel:          p.GroupLabel,
 			Default:             p.Default,
 			Code:                p.Code,
 			ClientVersion:       p.ClientVersion.ValueOrZero(),

@@ -1,12 +1,12 @@
 package middleware
 
 import (
-	"fmt"
+	"strings"
+	"time"
+
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
-	"strings"
-	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
@@ -65,11 +65,7 @@ func RoleMiddleware(ctx *gin.Context) {
 		return
 	}
 
-	computedRoles := lo.Reduce(userRoles, func(rs []string, r string, _ int) []string {
-		return append(rs, fmt.Sprintf("%s-%s", app.Code, r))
-	}, userRoles)
-
-	effectiveRoles := lo.Intersect(computedRoles, app.Roles)
+	effectiveRoles := lo.Intersect(app.ComputedRoles(userRoles), app.Roles)
 
 	ctx.Set(user.CtxRoles, effectiveRoles)
 }

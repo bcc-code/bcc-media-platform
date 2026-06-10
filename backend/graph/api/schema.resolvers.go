@@ -14,7 +14,7 @@ import (
 	"time"
 
 	gpubsub "cloud.google.com/go/pubsub"
-	"github.com/Code-Hex/go-generics-cache"
+	cache "github.com/Code-Hex/go-generics-cache"
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -60,7 +60,7 @@ func (r *queryRootResolver) Application(ctx context.Context, timestamp *string) 
 	}
 
 	u := user.GetFromCtx(ginCtx)
-	livestreamEnabled := len(app.LivestreamRoles) == 0 || len(lo.Intersect(app.LivestreamRoles, u.Roles)) > 0
+	livestreamEnabled := len(app.LivestreamRoles) == 0 || len(lo.Intersect(app.LivestreamRoles, app.ComputedRoles(u.Roles))) > 0
 
 	var page *model.Page
 	if app.DefaultPageID.Valid {
@@ -795,7 +795,7 @@ func (r *queryRootResolver) Live(ctx context.Context) (*model.Live, error) {
 
 	// Gate the URL by livestream roles, matching the Application.livestreamEnabled check.
 	u := user.GetFromCtx(ginCtx)
-	allowed := len(app.LivestreamRoles) == 0 || len(lo.Intersect(app.LivestreamRoles, u.Roles)) > 0
+	allowed := len(app.LivestreamRoles) == 0 || len(lo.Intersect(app.LivestreamRoles, app.ComputedRoles(u.Roles))) > 0
 	if !allowed {
 		return out, nil
 	}

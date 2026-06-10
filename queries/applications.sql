@@ -12,6 +12,7 @@ SELECT a.id::int                                 AS id,
        a.standalone_related_collection_id        AS standalone_related_collection_id,
        g.support_email                           AS support_email,
        g.web_prefix                              AS web_prefix,
+       g.label                                   AS group_label,
        COALESCE(r.roles, '{}')::varchar[]        AS roles,
        COALESCE(ls_roles.roles, '{}')::varchar[] AS livestream_roles
 FROM applications a
@@ -21,6 +22,7 @@ FROM applications a
                     GROUP BY r.applicationgroups_id) r ON r.applicationgroups_id = g.id
          LEFT JOIN (SELECT r.applicationgroups_id, array_agg(DISTINCT r.usergroups_code) roles
                     FROM applicationgroups_usergroups_ls r
+                    WHERE r.usergroups_code IS NOT NULL
                     GROUP BY r.applicationgroups_id) ls_roles ON ls_roles.applicationgroups_id = g.id
 WHERE a.id = ANY ($1::int[])
   AND a.status = 'published';
@@ -39,6 +41,7 @@ SELECT a.id::int                                 AS id,
        a.standalone_related_collection_id        AS standalone_related_collection_id,
        g.support_email                           AS support_email,
        g.web_prefix                              AS web_prefix,
+       g.label                                   AS group_label,
        COALESCE(r.roles, '{}')::varchar[]        AS roles,
        COALESCE(ls_roles.roles, '{}')::varchar[] AS livestream_roles
 FROM applications a
@@ -48,6 +51,7 @@ FROM applications a
                     GROUP BY r.applicationgroups_id) r ON r.applicationgroups_id = g.id
          LEFT JOIN (SELECT r.applicationgroups_id, array_agg(DISTINCT r.usergroups_code) roles
                     FROM applicationgroups_usergroups_ls r
+                    WHERE r.usergroups_code IS NOT NULL
                     GROUP BY r.applicationgroups_id) ls_roles ON ls_roles.applicationgroups_id = g.id
 WHERE a.status = 'published';
 

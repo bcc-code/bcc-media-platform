@@ -145,6 +145,7 @@ SELECT a.id::int                                 AS id,
        a.standalone_related_collection_id        AS standalone_related_collection_id,
        g.support_email                           AS support_email,
        g.web_prefix                              AS web_prefix,
+       g.label                                   AS group_label,
        COALESCE(r.roles, '{}')::varchar[]        AS roles,
        COALESCE(ls_roles.roles, '{}')::varchar[] AS livestream_roles
 FROM applications a
@@ -154,6 +155,7 @@ FROM applications a
                     GROUP BY r.applicationgroups_id) r ON r.applicationgroups_id = g.id
          LEFT JOIN (SELECT r.applicationgroups_id, array_agg(DISTINCT r.usergroups_code) roles
                     FROM applicationgroups_usergroups_ls r
+                    WHERE r.usergroups_code IS NOT NULL
                     GROUP BY r.applicationgroups_id) ls_roles ON ls_roles.applicationgroups_id = g.id
 WHERE a.id = ANY ($1::int[])
   AND a.status = 'published'
@@ -173,6 +175,7 @@ type getApplicationsRow struct {
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionId"`
 	SupportEmail                  null_v4.String `db:"support_email" json:"supportEmail"`
 	WebPrefix                     null_v4.String `db:"web_prefix" json:"webPrefix"`
+	GroupLabel                    string         `db:"group_label" json:"groupLabel"`
 	Roles                         []string       `db:"roles" json:"roles"`
 	LivestreamRoles               []string       `db:"livestream_roles" json:"livestreamRoles"`
 }
@@ -200,6 +203,7 @@ func (q *Queries) getApplications(ctx context.Context, dollar_1 []int32) ([]getA
 			&i.StandaloneRelatedCollectionID,
 			&i.SupportEmail,
 			&i.WebPrefix,
+			&i.GroupLabel,
 			pq.Array(&i.Roles),
 			pq.Array(&i.LivestreamRoles),
 		); err != nil {
@@ -230,6 +234,7 @@ SELECT a.id::int                                 AS id,
        a.standalone_related_collection_id        AS standalone_related_collection_id,
        g.support_email                           AS support_email,
        g.web_prefix                              AS web_prefix,
+       g.label                                   AS group_label,
        COALESCE(r.roles, '{}')::varchar[]        AS roles,
        COALESCE(ls_roles.roles, '{}')::varchar[] AS livestream_roles
 FROM applications a
@@ -239,6 +244,7 @@ FROM applications a
                     GROUP BY r.applicationgroups_id) r ON r.applicationgroups_id = g.id
          LEFT JOIN (SELECT r.applicationgroups_id, array_agg(DISTINCT r.usergroups_code) roles
                     FROM applicationgroups_usergroups_ls r
+                    WHERE r.usergroups_code IS NOT NULL
                     GROUP BY r.applicationgroups_id) ls_roles ON ls_roles.applicationgroups_id = g.id
 WHERE a.status = 'published'
 `
@@ -257,6 +263,7 @@ type listApplicationsRow struct {
 	StandaloneRelatedCollectionID null_v4.Int    `db:"standalone_related_collection_id" json:"standaloneRelatedCollectionId"`
 	SupportEmail                  null_v4.String `db:"support_email" json:"supportEmail"`
 	WebPrefix                     null_v4.String `db:"web_prefix" json:"webPrefix"`
+	GroupLabel                    string         `db:"group_label" json:"groupLabel"`
 	Roles                         []string       `db:"roles" json:"roles"`
 	LivestreamRoles               []string       `db:"livestream_roles" json:"livestreamRoles"`
 }
@@ -284,6 +291,7 @@ func (q *Queries) listApplications(ctx context.Context) ([]listApplicationsRow, 
 			&i.StandaloneRelatedCollectionID,
 			&i.SupportEmail,
 			&i.WebPrefix,
+			&i.GroupLabel,
 			pq.Array(&i.Roles),
 			pq.Array(&i.LivestreamRoles),
 		); err != nil {
