@@ -30,6 +30,7 @@ interface CalendarEntry {
     event: Event @goField(forceResolver: true)
     title: String!
     description: String!
+    image(width: Int): String! @goField(forceResolver: true)
     start: Date!
     end: Date!
     buffer: CalendarEntryBuffer @goField(forceResolver: true)
@@ -40,6 +41,7 @@ type SimpleCalendarEntry implements CalendarEntry {
     event: Event @goField(forceResolver: true)
     title: String!
     description: String!
+    image(width: Int): String! @goField(forceResolver: true)
     start: Date!
     end: Date!
     buffer: CalendarEntryBuffer @goField(forceResolver: true)
@@ -50,6 +52,7 @@ type EpisodeCalendarEntry implements CalendarEntry {
     event: Event @goField(forceResolver: true)
     title: String! @goField(forceResolver: true)
     description: String! @goField(forceResolver: true)
+    image(width: Int): String! @goField(forceResolver: true)
     start: Date!
     end: Date!
     isReplay: Boolean!
@@ -62,6 +65,7 @@ type SeasonCalendarEntry implements CalendarEntry {
     event: Event @goField(forceResolver: true)
     title: String! @goField(forceResolver: true)
     description: String! @goField(forceResolver: true)
+    image(width: Int): String! @goField(forceResolver: true)
     start: Date!
     end: Date!
     season: Season @goField(forceResolver: true)
@@ -73,6 +77,7 @@ type ShowCalendarEntry implements CalendarEntry {
     event: Event @goField(forceResolver: true)
     title: String! @goField(forceResolver: true)
     description: String! @goField(forceResolver: true)
+    image(width: Int): String! @goField(forceResolver: true)
     start: Date!
     end: Date!
     show: Show @goField(forceResolver: true)

@@ -219,6 +219,42 @@ func TestImagesGetStrict(t *testing.T) {
 	}
 }
 
+func TestResizeImageURL(t *testing.T) {
+	tests := []struct {
+		name  string
+		url   string
+		width int
+		want  string
+	}{
+		{
+			name:  "no existing query appends with ?",
+			url:   "https://cdn.example.test/abc.png",
+			width: 100,
+			want:  "https://cdn.example.test/abc.png?w=100",
+		},
+		{
+			name:  "existing query appends with &",
+			url:   "https://cdn.example.test/abc.png?fit=crop",
+			width: 100,
+			want:  "https://cdn.example.test/abc.png?fit=crop&w=100",
+		},
+		{
+			name:  "custom width",
+			url:   "https://cdn.example.test/abc.png",
+			width: 250,
+			want:  "https://cdn.example.test/abc.png?w=250",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := ResizeImageURL(tt.url, tt.width); got != tt.want {
+				t.Errorf("ResizeImageURL(%q, %d) = %q, want %q", tt.url, tt.width, got, tt.want)
+			}
+		})
+	}
+}
+
 // Helper function to create string pointers
 func strPtr(s string) *string {
 	return &s

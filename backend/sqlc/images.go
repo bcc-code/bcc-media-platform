@@ -30,3 +30,8 @@ func (q *Queries) getImages(jsonMessage json.RawMessage) common.Images {
 func (q *Queries) filenameToImageURL(filename string) string {
 	return fmt.Sprintf("https://%s/%s", q.getImageCDNDomain(), filename)
 }
+
+// FilenameToImageURL returns the public CDN URL for an image filename.
+func (q *Queries) FilenameToImageURL(filename string) string {
+	return q.filenameToImageURL(filename)
+}

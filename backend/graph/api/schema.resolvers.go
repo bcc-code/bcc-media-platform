@@ -14,7 +14,7 @@ import (
 	"time"
 
 	gpubsub "cloud.google.com/go/pubsub"
-	cache "github.com/Code-Hex/go-generics-cache"
+	"github.com/Code-Hex/go-generics-cache"
 	merry "github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
 	"github.com/bcc-code/bcc-media-platform/backend/common"

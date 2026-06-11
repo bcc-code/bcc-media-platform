@@ -28,6 +28,14 @@ SELECT e.id,
                FROM episode_availability ea2
                WHERE ea2.id = e.episode_id
                  AND ea2.published)        AS episode_published,
+       EXISTS (SELECT 1
+               FROM episode_availability ea3
+                        JOIN episode_roles er3 ON er3.id = ea3.id
+               WHERE ea3.id = e.episode_id
+                 AND ea3.published
+                 AND ea3.published_on > now()
+                 AND NOT (er3.roles_earlyaccess && $2::varchar[]))
+                                           AS episode_locked,
        COALESCE((SELECT bool_or(cu.usergroups_code = ANY ($2::varchar[]))
                  FROM calendarentries_usergroups_buffer cu
                  WHERE cu.calendarentries_id = e.id),
@@ -114,6 +122,12 @@ SELECT e.id,
                FROM episode_availability ea2
                WHERE ea2.id = e.episode_id
                  AND ea2.published)        AS episode_published,
+       EXISTS (SELECT 1
+               FROM episode_availability ea3
+               WHERE ea3.id = e.episode_id
+                 AND ea3.published
+                 AND ea3.published_on > now())
+                                           AS episode_locked,
        true                                AS buffer_allowed
 FROM calendarentries e
          LEFT JOIN LATERAL (SELECT json_object_agg(ts.languages_code, ts.title)       AS title,

@@ -73,6 +73,14 @@ SELECT e.id,
                FROM episode_availability ea2
                WHERE ea2.id = e.episode_id
                  AND ea2.published)        AS episode_published,
+       EXISTS (SELECT 1
+               FROM episode_availability ea3
+                        JOIN episode_roles er3 ON er3.id = ea3.id
+               WHERE ea3.id = e.episode_id
+                 AND ea3.published
+                 AND ea3.published_on > now()
+                 AND NOT (er3.roles_earlyaccess && $2::varchar[]))
+                                           AS episode_locked,
        COALESCE((SELECT bool_or(cu.usergroups_code = ANY ($2::varchar[]))
                  FROM calendarentries_usergroups_buffer cu
                  WHERE cu.calendarentries_id = e.id),
@@ -111,6 +119,7 @@ type getCalendarEntriesRow struct {
 	BufferStart          null_v4.Time    `db:"buffer_start" json:"bufferStart"`
 	BufferEnd            null_v4.Time    `db:"buffer_end" json:"bufferEnd"`
 	EpisodePublished     bool            `db:"episode_published" json:"episodePublished"`
+	EpisodeLocked        bool            `db:"episode_locked" json:"episodeLocked"`
 	BufferAllowed        bool            `db:"buffer_allowed" json:"bufferAllowed"`
 }
 
@@ -139,6 +148,7 @@ func (q *Queries) getCalendarEntries(ctx context.Context, arg getCalendarEntries
 			&i.BufferStart,
 			&i.BufferEnd,
 			&i.EpisodePublished,
+			&i.EpisodeLocked,
 			&i.BufferAllowed,
 		); err != nil {
 			return nil, err
@@ -173,6 +183,12 @@ SELECT e.id,
                FROM episode_availability ea2
                WHERE ea2.id = e.episode_id
                  AND ea2.published)        AS episode_published,
+       EXISTS (SELECT 1
+               FROM episode_availability ea3
+               WHERE ea3.id = e.episode_id
+                 AND ea3.published
+                 AND ea3.published_on > now())
+                                           AS episode_locked,
        true                                AS buffer_allowed
 FROM calendarentries e
          LEFT JOIN LATERAL (SELECT json_object_agg(ts.languages_code, ts.title)       AS title,
@@ -202,6 +218,7 @@ type getCalendarEntriesByIDRow struct {
 	BufferStart          null_v4.Time    `db:"buffer_start" json:"bufferStart"`
 	BufferEnd            null_v4.Time    `db:"buffer_end" json:"bufferEnd"`
 	EpisodePublished     bool            `db:"episode_published" json:"episodePublished"`
+	EpisodeLocked        bool            `db:"episode_locked" json:"episodeLocked"`
 	BufferAllowed        bool            `db:"buffer_allowed" json:"bufferAllowed"`
 }
 
@@ -230,6 +247,7 @@ func (q *Queries) getCalendarEntriesByID(ctx context.Context, dollar_1 []int32) 
 			&i.BufferStart,
 			&i.BufferEnd,
 			&i.EpisodePublished,
+			&i.EpisodeLocked,
 			&i.BufferAllowed,
 		); err != nil {
 			return nil, err

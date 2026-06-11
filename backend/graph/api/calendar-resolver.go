@@ -11,6 +11,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
+	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/samber/lo"
 )
@@ -23,6 +24,18 @@ const defaultBufferAvailableHours = 48
 // stay available — 7 days. A larger configured buffer_available_hours is clamped
 // to this.
 const maxBufferAvailableHours = 7 * 24
+
+// bufferLeadIn and bufferLeadOut pad the default buffer playback window so the
+// replay starts shortly before the entry begins and ends shortly after it ends,
+// avoiding clipped openings/closings. They apply only to the entry-derived
+// defaults — explicit buffer_start/buffer_end overrides are used as-is.
+const bufferLeadIn = time.Minute
+const bufferLeadOut = 5 * time.Minute
+
+// defaultCalendarEntryImageFilename is the fallback calendar entry image, served
+// from the same image CDN as episode images, used when the linked episode has no
+// image (or there is no linked episode).
+const defaultCalendarEntryImageFilename = "49e4b7bc-b8fa-4ed0-abf0-52bdf76b560c.png"
 
 // bufferWindow holds the data needed to expose a calendar entry's buffer
 // (start-over) playback: the configured livestream manifest, the entry whose
@@ -40,10 +53,11 @@ type bufferWindow struct {
 // two are always consistent. A buffer is offered only when: a livestream signing
 // key and URL are configured; the caller passes the permission-group gate
 // (BufferAllowed — empty groups → all BCC members, else intersected with the
-// caller's roles in SQL); the linked episode is not published (the published
-// episode is then the canonical way to watch); buffer_available_hours > 0; and
-// now is within [entry.start, entry.end + hours] (hours capped at
-// maxBufferAvailableHours).
+// caller's roles in SQL); the linked episode is not yet watchable for the caller —
+// i.e. either not published, or published but still "locked" (publish date in the
+// future and the caller lacks early access), since a watchable published episode is
+// then the canonical way to watch; buffer_available_hours > 0; and now is within
+// [entry.start, entry.end + hours] (hours capped at maxBufferAvailableHours).
 func (r *Resolver) bufferWindowForEntry(ctx context.Context, id string) (*bufferWindow, error) {
 	if r.LivestreamSigner == nil {
 		return nil, nil
@@ -69,7 +83,7 @@ func (r *Resolver) bufferWindowForEntry(ctx context.Context, id string) (*buffer
 		return nil, nil
 	}
 
-	if !entry.BufferAllowed || entry.EpisodePublished {
+	if !entry.BufferAllowed || (entry.EpisodePublished && !entry.EpisodeLocked) {
 		return nil, nil
 	}
 
@@ -102,7 +116,7 @@ func (r *Resolver) bufferWindowForEntry(ctx context.Context, id string) (*buffer
 // are used. This only affects the URL's time-shift tags — availability gating still
 // keys off the entry's times (see bufferWindowForEntry).
 func bufferPlaybackWindow(entry *common.CalendarEntry) (start, end time.Time) {
-	start, end = entry.Start, entry.End
+	start, end = entry.Start.Add(-bufferLeadIn), entry.End.Add(bufferLeadOut)
 	if entry.BufferStart.Valid {
 		start = entry.BufferStart.Time
 	}
@@ -110,9 +124,52 @@ func bufferPlaybackWindow(entry *common.CalendarEntry) (start, end time.Time) {
 		end = entry.BufferEnd.Time
 	}
 	if !end.After(start) {
-		return entry.Start, entry.End
+		return entry.Start.Add(-bufferLeadIn), entry.End.Add(bufferLeadOut)
 	}
 	return start, end
+}
+
+// defaultCalendarEntryImageWidth is the width (px) calendar entry images are
+// resized to via the image CDN's ?w= parameter when no width is requested.
+const defaultCalendarEntryImageWidth = 100
+
+// imageForEntry returns the image to show for the calendar entry with the given
+// id: the linked episode's image when it has one, otherwise a hardcoded fallback
+// served from the same image CDN. width overrides the default resize width when set.
+func (r *Resolver) imageForEntry(ctx context.Context, id string, width *int) (string, error) {
+	entryID, err := strconv.Atoi(id)
+	if err != nil {
+		return r.entryImageURL(ctx, nil, width), nil
+	}
+	entry, err := r.GetFilteredLoaders(ctx).CalendarEntryLoader.Get(ctx, entryID)
+	if err != nil {
+		return "", err
+	}
+	return r.entryImageURL(ctx, entry, width), nil
+}
+
+// entryImageURL returns the image to show for a calendar entry: the linked
+// episode's image when it has one, otherwise a hardcoded fallback served from the
+// same image CDN. Only episode-linked entries have a linked episode; other entry
+// types (and a nil entry) always fall back. The URL is resized to width when set,
+// otherwise to defaultCalendarEntryImageWidth.
+func (r *Resolver) entryImageURL(ctx context.Context, entry *common.CalendarEntry, width *int) string {
+	url := r.Queries.FilenameToImageURL(defaultCalendarEntryImageFilename)
+	if entry != nil && entry.Type.ValueOrZero() == "episode" && entry.ItemID.Valid {
+		ep, err := r.Loaders.EpisodeLoader.Get(ctx, int(entry.ItemID.Int64))
+		if err == nil && ep != nil {
+			ginCtx, _ := utils.GinCtx(ctx)
+			languages := user.GetLanguagesFromCtx(ginCtx)
+			if img := ep.Images.GetDefault(languages, common.ImageStyleDefault); img != nil {
+				url = *img
+			}
+		}
+	}
+	w := defaultCalendarEntryImageWidth
+	if width != nil {
+		w = *width
+	}
+	return common.ResizeImageURL(url, w)
 }
 
 // bufferForEntry returns the signed buffer (start-over) playback for the calendar

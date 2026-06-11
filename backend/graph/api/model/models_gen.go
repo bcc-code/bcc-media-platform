@@ -17,6 +17,7 @@ type CalendarEntry interface {
 	GetEvent() *Event
 	GetTitle() string
 	GetDescription() string
+	GetImage() string
 	GetStart() string
 	GetEnd() string
 	GetBuffer() *CalendarEntryBuffer
@@ -587,6 +588,7 @@ type EpisodeCalendarEntry struct {
 	Event       *Event               `json:"event,omitempty"`
 	Title       string               `json:"title"`
 	Description string               `json:"description"`
+	Image       string               `json:"image"`
 	Start       string               `json:"start"`
 	End         string               `json:"end"`
 	IsReplay    bool                 `json:"isReplay"`
@@ -599,6 +601,7 @@ func (this EpisodeCalendarEntry) GetID() string                   { return this.
 func (this EpisodeCalendarEntry) GetEvent() *Event                { return this.Event }
 func (this EpisodeCalendarEntry) GetTitle() string                { return this.Title }
 func (this EpisodeCalendarEntry) GetDescription() string          { return this.Description }
+func (this EpisodeCalendarEntry) GetImage() string                { return this.Image }
 func (this EpisodeCalendarEntry) GetStart() string                { return this.Start }
 func (this EpisodeCalendarEntry) GetEnd() string                  { return this.End }
 func (this EpisodeCalendarEntry) GetBuffer() *CalendarEntryBuffer { return this.Buffer }
@@ -1234,6 +1237,7 @@ type SeasonCalendarEntry struct {
 	Event       *Event               `json:"event,omitempty"`
 	Title       string               `json:"title"`
 	Description string               `json:"description"`
+	Image       string               `json:"image"`
 	Start       string               `json:"start"`
 	End         string               `json:"end"`
 	Season      *Season              `json:"season,omitempty"`
@@ -1245,6 +1249,7 @@ func (this SeasonCalendarEntry) GetID() string                   { return this.I
 func (this SeasonCalendarEntry) GetEvent() *Event                { return this.Event }
 func (this SeasonCalendarEntry) GetTitle() string                { return this.Title }
 func (this SeasonCalendarEntry) GetDescription() string          { return this.Description }
+func (this SeasonCalendarEntry) GetImage() string                { return this.Image }
 func (this SeasonCalendarEntry) GetStart() string                { return this.Start }
 func (this SeasonCalendarEntry) GetEnd() string                  { return this.End }
 func (this SeasonCalendarEntry) GetBuffer() *CalendarEntryBuffer { return this.Buffer }
@@ -1446,6 +1451,7 @@ type ShowCalendarEntry struct {
 	Event       *Event               `json:"event,omitempty"`
 	Title       string               `json:"title"`
 	Description string               `json:"description"`
+	Image       string               `json:"image"`
 	Start       string               `json:"start"`
 	End         string               `json:"end"`
 	Show        *Show                `json:"show,omitempty"`
@@ -1457,6 +1463,7 @@ func (this ShowCalendarEntry) GetID() string                   { return this.ID 
 func (this ShowCalendarEntry) GetEvent() *Event                { return this.Event }
 func (this ShowCalendarEntry) GetTitle() string                { return this.Title }
 func (this ShowCalendarEntry) GetDescription() string          { return this.Description }
+func (this ShowCalendarEntry) GetImage() string                { return this.Image }
 func (this ShowCalendarEntry) GetStart() string                { return this.Start }
 func (this ShowCalendarEntry) GetEnd() string                  { return this.End }
 func (this ShowCalendarEntry) GetBuffer() *CalendarEntryBuffer { return this.Buffer }
@@ -1490,6 +1497,7 @@ type SimpleCalendarEntry struct {
 	Event       *Event               `json:"event,omitempty"`
 	Title       string               `json:"title"`
 	Description string               `json:"description"`
+	Image       string               `json:"image"`
 	Start       string               `json:"start"`
 	End         string               `json:"end"`
 	Buffer      *CalendarEntryBuffer `json:"buffer,omitempty"`
@@ -1500,6 +1508,7 @@ func (this SimpleCalendarEntry) GetID() string                   { return this.I
 func (this SimpleCalendarEntry) GetEvent() *Event                { return this.Event }
 func (this SimpleCalendarEntry) GetTitle() string                { return this.Title }
 func (this SimpleCalendarEntry) GetDescription() string          { return this.Description }
+func (this SimpleCalendarEntry) GetImage() string                { return this.Image }
 func (this SimpleCalendarEntry) GetStart() string                { return this.Start }
 func (this SimpleCalendarEntry) GetEnd() string                  { return this.End }
 func (this SimpleCalendarEntry) GetBuffer() *CalendarEntryBuffer { return this.Buffer }

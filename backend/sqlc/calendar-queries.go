@@ -102,6 +102,7 @@ func mapToCalendarEntries(items []getCalendarEntriesRow) []common.CalendarEntry 
 			BufferStart:          i.BufferStart,
 			BufferEnd:            i.BufferEnd,
 			EpisodePublished:     i.EpisodePublished,
+			EpisodeLocked:        i.EpisodeLocked,
 			BufferAllowed:        i.BufferAllowed,
 		}
 	})

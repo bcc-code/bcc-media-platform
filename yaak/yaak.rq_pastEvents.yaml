@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_pastEvents
 createdAt: 2026-06-03T08:00:00
-updatedAt: 2026-06-09T09:29:36.502916
+updatedAt: 2026-06-11T11:24:42.242262
 workspaceId: wk_hGg2sqajat
 folderId: null
 authentication: {}
@@ -26,12 +26,13 @@ body:
             title
             start
             end
+            image
+            buffer {
+              url
+              availableUntil
+            }
             ... on EpisodeCalendarEntry {
               isReplay
-              buffer{
-                url
-                availableUntil
-              }
               episode {
                 id
                 title

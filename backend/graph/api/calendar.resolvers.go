@@ -124,6 +124,11 @@ func (r *episodeCalendarEntryResolver) Description(ctx context.Context, obj *mod
 	return e.Description, nil
 }
 
+// Image is the resolver for the image field.
+func (r *episodeCalendarEntryResolver) Image(ctx context.Context, obj *model.EpisodeCalendarEntry, width *int) (string, error) {
+	return r.imageForEntry(ctx, obj.ID, width)
+}
+
 // Episode is the resolver for the episode field.
 func (r *episodeCalendarEntryResolver) Episode(ctx context.Context, obj *model.EpisodeCalendarEntry) (*model.Episode, error) {
 	e, _ := r.QueryRoot().Episode(ctx, obj.Episode.ID, nil)
@@ -180,6 +185,11 @@ func (r *seasonCalendarEntryResolver) Description(ctx context.Context, obj *mode
 	return s.Description, nil
 }
 
+// Image is the resolver for the image field.
+func (r *seasonCalendarEntryResolver) Image(ctx context.Context, obj *model.SeasonCalendarEntry, width *int) (string, error) {
+	return r.imageForEntry(ctx, obj.ID, width)
+}
+
 // Season is the resolver for the season field.
 func (r *seasonCalendarEntryResolver) Season(ctx context.Context, obj *model.SeasonCalendarEntry) (*model.Season, error) {
 	return r.QueryRoot().Season(ctx, obj.Season.ID)
@@ -222,6 +232,11 @@ func (r *showCalendarEntryResolver) Description(ctx context.Context, obj *model.
 	return s.Description, nil
 }
 
+// Image is the resolver for the image field.
+func (r *showCalendarEntryResolver) Image(ctx context.Context, obj *model.ShowCalendarEntry, width *int) (string, error) {
+	return r.imageForEntry(ctx, obj.ID, width)
+}
+
 // Show is the resolver for the show field.
 func (r *showCalendarEntryResolver) Show(ctx context.Context, obj *model.ShowCalendarEntry) (*model.Show, error) {
 	s, _ := r.QueryRoot().Show(ctx, obj.Show.ID)
@@ -239,6 +254,11 @@ func (r *simpleCalendarEntryResolver) Event(ctx context.Context, obj *model.Simp
 		return nil, nil
 	}
 	return r.QueryRoot().Event(ctx, obj.Event.ID)
+}
+
+// Image is the resolver for the image field.
+func (r *simpleCalendarEntryResolver) Image(ctx context.Context, obj *model.SimpleCalendarEntry, width *int) (string, error) {
+	return r.imageForEntry(ctx, obj.ID, width)
 }
 
 // Buffer is the resolver for the buffer field.
@@ -278,4 +298,3 @@ type eventResolver struct{ *Resolver }
 type seasonCalendarEntryResolver struct{ *Resolver }
 type showCalendarEntryResolver struct{ *Resolver }
 type simpleCalendarEntryResolver struct{ *Resolver }
-

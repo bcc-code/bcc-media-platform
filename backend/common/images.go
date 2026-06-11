@@ -1,7 +1,22 @@
 package common
 
+import (
+	"strconv"
+	"strings"
+)
+
 // Images is a map of styles with related images
 type Images map[string]LocaleMap[string]
+
+// ResizeImageURL returns the image CDN URL resized to the given width via the
+// ?w= query parameter, preserving any existing query string.
+func ResizeImageURL(url string, width int) string {
+	sep := "?"
+	if strings.Contains(url, "?") {
+		sep = "&"
+	}
+	return url + sep + "w=" + strconv.Itoa(width)
+}
 
 // ImageStyle is the specific styles
 type ImageStyle = string

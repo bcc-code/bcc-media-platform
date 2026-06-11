@@ -413,6 +413,7 @@ type CalendarEntry struct {
 	BufferStart          null.Time
 	BufferEnd            null.Time
 	EpisodePublished     bool
+	EpisodeLocked        bool
 	BufferAllowed        bool
 }
 
