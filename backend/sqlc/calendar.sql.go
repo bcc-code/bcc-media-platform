@@ -16,7 +16,7 @@ import (
 )
 
 const getCalendarEntriesTranslatable = `-- name: GetCalendarEntriesTranslatable :many
-SELECT e.id, title, description
+SELECT e.id, COALESCE(et.title, '')::varchar AS title, description
 FROM calendarentries_translations et
     JOIN calendarentries e ON e.id = et.calendarentries_id
 WHERE et.languages_code ='no'
@@ -27,7 +27,7 @@ WHERE et.languages_code ='no'
 
 type GetCalendarEntriesTranslatableRow struct {
 	ID          int32          `db:"id" json:"id"`
-	Title       null_v4.String `db:"title" json:"title"`
+	Title       string         `db:"title" json:"title"`
 	Description null_v4.String `db:"description" json:"description"`
 }
 

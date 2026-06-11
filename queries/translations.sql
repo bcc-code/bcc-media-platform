@@ -49,7 +49,7 @@ ON CONFLICT (shows_id, languages_code) DO UPDATE SET title       = EXCLUDED.titl
                                                      description = EXCLUDED.description;
 
 -- name: GetEventTranslatable :many
-SELECT e.id, title, description
+SELECT e.id, COALESCE(et.title, '')::varchar AS title, description
 FROM events_translations et
          JOIN events e ON e.id = et.events_id
 WHERE et.languages_code = 'no' AND e.status = ANY ('{published,unlisted}')

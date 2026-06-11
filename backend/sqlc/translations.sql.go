@@ -106,7 +106,7 @@ func (q *Queries) GetEpisodeTranslatable(ctx context.Context, dateUpdated time.T
 }
 
 const getEventTranslatable = `-- name: GetEventTranslatable :many
-SELECT e.id, title, description
+SELECT e.id, COALESCE(et.title, '')::varchar AS title, description
 FROM events_translations et
          JOIN events e ON e.id = et.events_id
 WHERE et.languages_code = 'no' AND e.status = ANY ('{published,unlisted}')
@@ -115,7 +115,7 @@ AND et.date_updated > $1
 
 type GetEventTranslatableRow struct {
 	ID          int32          `db:"id" json:"id"`
-	Title       null_v4.String `db:"title" json:"title"`
+	Title       string         `db:"title" json:"title"`
 	Description null_v4.String `db:"description" json:"description"`
 }
 

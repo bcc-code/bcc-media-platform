@@ -128,7 +128,7 @@ WHERE e.id = ANY ($1::int[]);
 
 
 -- name: GetCalendarEntriesTranslatable :many
-SELECT e.id, title, description
+SELECT e.id, COALESCE(et.title, '')::varchar AS title, description
 FROM calendarentries_translations et
     JOIN calendarentries e ON e.id = et.calendarentries_id
 WHERE et.languages_code ='no'

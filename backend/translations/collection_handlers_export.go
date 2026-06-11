@@ -104,7 +104,7 @@ func (s *Service) getDataForEvents(ctx context.Context) ([]common.TranslationDat
 
 	for _, t := range data {
 		value := TitleDescriptionTranslation{
-			Title:       t.Title.ValueOrZero(),
+			Title:       t.Title,
 			Description: t.Description,
 		}
 
@@ -130,7 +130,7 @@ func (s *Service) getDataForCalendarEntries(ctx context.Context) ([]common.Trans
 
 	for _, t := range data {
 		value := TitleDescriptionTranslation{
-			Title:       t.Title.ValueOrZero(),
+			Title:       t.Title,
 			Description: t.Description,
 		}
 
