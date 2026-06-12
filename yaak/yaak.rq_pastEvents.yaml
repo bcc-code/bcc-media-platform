@@ -2,58 +2,13 @@ type: http_request
 model: http_request
 id: rq_pastEvents
 createdAt: 2026-06-03T08:00:00
-updatedAt: 2026-06-11T11:24:42.242262
+updatedAt: 2026-06-11T12:21:49.929079
 workspaceId: wk_hGg2sqajat
 folderId: null
 authentication: {}
 authenticationType: null
 body:
-  query: |-
-    # Lists past calendar events. Calendar.events(from, to) filters by overlap
-    # with the [from, to] window (RFC3339), so a window ending "now" returns
-    # events that already started/ended.
-    query PastEvents($from: Date!, $to: Date!) {
-      calendar {
-        events(from: $from, to: $to) {
-          id
-          title
-          start
-          end
-          image
-          entries {
-            __typename
-            id
-            title
-            start
-            end
-            image
-            buffer {
-              url
-              availableUntil
-            }
-            ... on EpisodeCalendarEntry {
-              isReplay
-              episode {
-                id
-                title
-              }
-            }
-            ... on ShowCalendarEntry {
-              show {
-                id
-                title
-              }
-            }
-            ... on SeasonCalendarEntry {
-              season {
-                id
-                title
-              }
-            }
-          }
-        }
-      }
-    }
+  query: "# Lists past calendar events. Calendar.events(from, to) filters by overlap\n# with the [from, to] window (RFC3339), so a window ending \"now\" returns\n# events that already started/ended.\nquery PastEvents($from: Date!, $to: Date!) {\n  calendar {\n    events(from: $from, to: $to) {\n      id\n      title\n      start\n      end\n      image\n      entries {\n        __typename\n        id\n        title\n        start\n        end\n        \n        buffer {\n          url\n          availableUntil\n        }\n        ... on EpisodeCalendarEntry {\n          isReplay\n          episode {\n            id\n            title\n            streams{\n              type\n              videoLanguage\n            }\n          }\n        }\n        ... on ShowCalendarEntry {\n          show {\n            id\n            title\n          }\n        }\n        ... on SeasonCalendarEntry {\n          season {\n            id\n            title\n          }\n        }\n      }\n    }\n  }\n}"
   variables: |-
     {
       "from": "2026-04-01T00:00:00Z",
