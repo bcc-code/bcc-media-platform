@@ -6,10 +6,19 @@ var DefaultLanguages = []string{"en", "no"}
 // LocaleMap is a map of strings to nullable strings
 type LocaleMap[T any] map[string]T
 
+// withDefaults returns a new slice of the requested languages followed by the
+// DefaultLanguages. It never mutates the input slice, which is important
+// because the caller's slice (e.g. the one cached on the request context) is
+// shared across concurrently-running resolvers.
+func withDefaults(languages []string) []string {
+	out := make([]string, 0, len(languages)+len(DefaultLanguages))
+	out = append(out, languages...)
+	return append(out, DefaultLanguages...)
+}
+
 // Get from a translation map based on the fallbacks
 func (localeMap LocaleMap[T]) Get(languages []string) T {
-	languages = append(languages, DefaultLanguages...) // We force the DefaultLanguages as the last languages regardless if they have been specified before already
-	for _, l := range languages {
+	for _, l := range withDefaults(languages) {
 		if val, ok := localeMap[l]; ok {
 			return val
 		}
@@ -26,8 +35,7 @@ func (localeMap LocaleMap[T]) Get(languages []string) T {
 
 // GetValueOrNil returns either the value for selected languages or nil
 func (localeMap LocaleMap[T]) GetValueOrNil(languages []string) *T {
-	languages = append(languages, DefaultLanguages...) // We force the DefaultLanguages as the last languages regardless if they have been specified before already
-	for _, l := range languages {
+	for _, l := range withDefaults(languages) {
 		if val, ok := localeMap[l]; ok {
 			return &val
 		}

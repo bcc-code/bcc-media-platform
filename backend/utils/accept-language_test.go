@@ -1,8 +1,33 @@
 package utils
 
 import (
+	"reflect"
 	"testing"
 )
+
+// TestParseAcceptLanguageSkipsEmptySegments guards against the regression where
+// a malformed/empty segment caused the parser to abandon every language that
+// followed it (it used to `return` instead of `continue`).
+func TestParseAcceptLanguageSkipsEmptySegments(t *testing.T) {
+	got := ParseAcceptLanguage("en, , de")
+	want := []string{"en", "de"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ParseAcceptLanguage(\"en, , de\") = %v, want %v", got, want)
+	}
+}
+
+// TestParseAcceptLanguageFallsBackToEnglish ensures an empty or fully malformed
+// header still yields the english fallback, so callers (e.g. the audio/subtitle
+// language-preference middleware) never receive an empty preference list.
+func TestParseAcceptLanguageFallsBackToEnglish(t *testing.T) {
+	for _, header := range []string{"", "   ", ",", "-"} {
+		got := ParseAcceptLanguage(header)
+		want := []string{"en"}
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("ParseAcceptLanguage(%q) = %v, want %v", header, got, want)
+		}
+	}
+}
 
 func TestParseAcceptLanguage(t *testing.T) {
 	t.Log("da, en-gb;q=0.8, en;q=0.7")

@@ -21,6 +21,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/translations"
 	"github.com/bcc-code/bcc-media-platform/backend/utils/testutils"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestShowSeasonEpisodeTranslations(t *testing.T) {
@@ -71,6 +72,44 @@ func TestShowSeasonEpisodeTranslations(t *testing.T) {
 
 	err = service.SendCollectionToTranslation(ctx, translations.CollectionEpisodes)
 	assert.NoError(t, err)
+
+	tsMock.AssertExpectations(t)
+}
+
+// TestTranslationsResentAfterWindow guards the A1 fix: an unchanged payload is
+// deduplicated only by the per-collection 30-minute window. Once that window
+// elapses it must be sent again (re-notifying translators). The previous
+// global GetTranslationsHash check blocked this permanently once the hash had
+// ever been recorded - which is why sending silently stopped in prod.
+func TestTranslationsResentAfterWindow(t *testing.T) {
+	log.ConfigureGlobalLogger(zerolog.DebugLevel)
+
+	db := testutils.NewDB(t)
+	q := sqlc.New(db)
+
+	ctx := context.Background()
+
+	err := testutils.InsertDefaults(ctx, q)
+	assert.NoError(t, err)
+
+	testutils.CreateRandomShow(t, ctx, q)
+
+	tsMock := Mocktranslations.MockTranslationsProvider{}
+	tsMock.EXPECT().SendToTranslation(ctx, "shows", mock.Anything).Return(nil).Twice()
+
+	service := translations.NewService(q, &tsMock)
+
+	// First send records the hash.
+	assert.NoError(t, service.SendCollectionToTranslation(ctx, translations.CollectionShows))
+	// Immediate re-send is skipped (still inside the 30-minute window).
+	assert.NoError(t, service.SendCollectionToTranslation(ctx, translations.CollectionShows))
+
+	// Backdate last_sent so the dedup window has elapsed.
+	_, err = db.ExecContext(ctx, "UPDATE translations_hash SET last_sent = NOW() - INTERVAL '31 minutes' WHERE collection = 'shows'")
+	assert.NoError(t, err)
+
+	// Now the same payload must be sent again.
+	assert.NoError(t, service.SendCollectionToTranslation(ctx, translations.CollectionShows))
 
 	tsMock.AssertExpectations(t)
 }

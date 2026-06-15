@@ -42,6 +42,7 @@ type EpisodesTranslations struct {
 }
 
 type TitleWithId struct {
-	Title string
-	ID    string `json:"@id"`
+	Title       string
+	Description null.String `json:"description,omitempty"`
+	ID          string      `json:"@id"`
 }

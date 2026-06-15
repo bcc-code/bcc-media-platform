@@ -24,20 +24,22 @@ func ParseAcceptLanguage(acceptLanguage string) []string {
 		trimmedLangQStr := strings.Trim(langQStr, " ")
 		langQ := strings.Split(trimmedLangQStr, ";")
 
-		if len(langQ) == 0 {
-			lqs = append(lqs, "en") // Fallback to english
-			return lqs
-		}
-
 		lq := langQ[0]
 		lq2 := strings.FieldsFunc(lq, func(char rune) bool {
 			return char == '-' || char == '_'
 		})
 		if len(lq2) == 0 {
-			lqs = append(lqs, "en") // Fallback to english
-			return lqs
+			// Empty/malformed segment (e.g. a stray comma) - skip it instead
+			// of abandoning the languages that follow.
+			continue
 		}
 		lqs = append(lqs, parseLanguageCode(lq2[0]))
+	}
+
+	if len(lqs) == 0 {
+		// No valid language was parsed (empty or fully malformed header);
+		// fall back to english so callers always get a non-empty list.
+		lqs = append(lqs, "en")
 	}
 
 	return lqs

@@ -12,18 +12,22 @@ import (
 func (s *Service) updateAchievementGroups(ctx context.Context, data []common.TranslationData) []error {
 	errs := make([]error, 0)
 	for _, d := range data {
-		value := &TitleDescriptionTranslation{}
+		// Achievement groups are exported as TitleTranslation (title only),
+		// so decode the same shape here to avoid losing the title to a
+		// type mismatch.
+		value := &TitleTranslation{}
 		err := json.Unmarshal(d.Value, value)
 		if err != nil {
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdateAchievementGroupTranslation(ctx, sqlc.UpdateAchievementGroupTranslationParams{
-			Language:    d.Language,
-			ItemID:      utils.AsUuid(d.ID),
-			Description: value.Description,
-			Title:       null.StringFrom(value.Title),
-		})
+		if err := s.queries.UpdateAchievementGroupTranslation(ctx, sqlc.UpdateAchievementGroupTranslationParams{
+			Language: d.Language,
+			ItemID:   utils.AsUuid(d.ID),
+			Title:    value.Title,
+		}); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {
@@ -42,12 +46,14 @@ func (s *Service) updateAchievements(ctx context.Context, data []common.Translat
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdateAchievementTranslation(ctx, sqlc.UpdateAchievementTranslationParams{
+		if err := s.queries.UpdateAchievementTranslation(ctx, sqlc.UpdateAchievementTranslationParams{
 			Language:    d.Language,
 			ItemID:      utils.AsUuid(d.ID),
 			Description: value.Description,
 			Title:       null.StringFrom(value.Title),
-		})
+		}); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {
@@ -67,19 +73,23 @@ func (s *Service) updateStudyQuestions(ctx context.Context, data []common.Transl
 			continue
 		}
 
-		s.queries.UpdateTaskTranslation(ctx, sqlc.UpdateTaskTranslationParams{
+		if err := s.queries.UpdateTaskTranslation(ctx, sqlc.UpdateTaskTranslationParams{
 			Language:    d.Language,
 			ItemID:      utils.AsUuid(d.ID),
 			Title:       null.StringFrom(value.Question),
 			Description: value.Description,
-		})
+		}); err != nil {
+			errs = append(errs, err)
+		}
 
 		for _, answer := range value.Answers {
-			s.queries.UpdateAlternativeTranslation(ctx, sqlc.UpdateAlternativeTranslationParams{
+			if err := s.queries.UpdateAlternativeTranslation(ctx, sqlc.UpdateAlternativeTranslationParams{
 				Language: d.Language,
 				ItemID:   utils.AsUuid(answer.ID),
 				Title:    null.StringFrom(answer.Title),
-			})
+			}); err != nil {
+				errs = append(errs, err)
+			}
 		}
 	}
 
@@ -100,12 +110,14 @@ func (s *Service) updateCalendarEntries(ctx context.Context, data []common.Trans
 			continue
 		}
 
-		s.queries.UpdateCalendarEntryTranslation(ctx, sqlc.UpdateCalendarEntryTranslationParams{
+		if err := s.queries.UpdateCalendarEntryTranslation(ctx, sqlc.UpdateCalendarEntryTranslationParams{
 			Language:    d.Language,
 			ItemID:      int32(utils.AsInt(d.ID)),
 			Description: value.Description,
 			Title:       null.StringFrom(value.Title),
-		})
+		}); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {
@@ -124,12 +136,14 @@ func (s *Service) updateEpisodes(ctx context.Context, data []common.TranslationD
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdateEpisodeTranslation(ctx, sqlc.UpdateEpisodeTranslationParams{
+		if err := s.queries.UpdateEpisodeTranslation(ctx, sqlc.UpdateEpisodeTranslationParams{
 			Language:    d.Language,
 			ItemID:      int32(utils.AsInt(d.ID)),
 			Description: value.Description,
 			Title:       null.StringFrom(value.Title),
-		})
+		}); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {
@@ -148,12 +162,14 @@ func (s *Service) updateEvents(ctx context.Context, data []common.TranslationDat
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdateEventTranslation(ctx, sqlc.UpdateEventTranslationParams{
+		if err := s.queries.UpdateEventTranslation(ctx, sqlc.UpdateEventTranslationParams{
 			Language:    d.Language,
 			ItemID:      int32(utils.AsInt(d.ID)),
 			Description: value.Description,
 			Title:       null.StringFrom(value.Title),
-		})
+		}); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {
@@ -166,18 +182,20 @@ func (s *Service) updateEvents(ctx context.Context, data []common.TranslationDat
 func (s *Service) updateFAQCategories(ctx context.Context, data []common.TranslationData) []error {
 	errs := make([]error, 0)
 	for _, d := range data {
-		value := &TitleDescriptionTranslation{}
+		// FAQ categories are exported as TitleTranslation (title only).
+		value := &TitleTranslation{}
 		err := json.Unmarshal(d.Value, value)
 		if err != nil {
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdateFAQCategoryTranslation(ctx, sqlc.UpdateFAQCategoryTranslationParams{
-			Language:    d.Language,
-			ItemID:      utils.AsUuid(d.ID),
-			Description: value.Description,
-			Title:       null.StringFrom(value.Title),
-		})
+		if err := s.queries.UpdateFAQCategoryTranslation(ctx, sqlc.UpdateFAQCategoryTranslationParams{
+			Language: d.Language,
+			ItemID:   utils.AsUuid(d.ID),
+			Title:    value.Title,
+		}); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {
@@ -196,12 +214,14 @@ func (s *Service) updateFAQs(ctx context.Context, data []common.TranslationData)
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdateFAQTranslation(ctx, sqlc.UpdateFAQTranslationParams{
+		if err := s.queries.UpdateFAQTranslation(ctx, sqlc.UpdateFAQTranslationParams{
 			Language: d.Language,
 			ItemID:   utils.AsUuid(d.ID),
 			Question: value.Question,
 			Answer:   value.Answer,
-		})
+		}); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {
@@ -220,12 +240,14 @@ func (s *Service) updateGames(ctx context.Context, data []common.TranslationData
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdateGameTranslation(ctx, sqlc.UpdateGameTranslationParams{
+		if err := s.queries.UpdateGameTranslation(ctx, sqlc.UpdateGameTranslationParams{
 			Language:    d.Language,
 			ItemID:      utils.AsUuid(d.ID),
 			Description: value.Description,
 			Title:       null.StringFrom(value.Title),
-		})
+		}); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {
@@ -244,12 +266,14 @@ func (s *Service) updateLessons(ctx context.Context, data []common.TranslationDa
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdateLessonTranslation(ctx, sqlc.UpdateLessonTranslationParams{
+		if err := s.queries.UpdateLessonTranslation(ctx, sqlc.UpdateLessonTranslationParams{
 			Language:    d.Language,
 			ItemID:      utils.AsUuid(d.ID),
 			Description: value.Description,
 			Title:       null.StringFrom(value.Title),
-		})
+		}); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {
@@ -268,12 +292,14 @@ func (s *Service) updateLinks(ctx context.Context, data []common.TranslationData
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdateLinkTranslation(ctx, sqlc.UpdateLinkTranslationParams{
+		if err := s.queries.UpdateLinkTranslation(ctx, sqlc.UpdateLinkTranslationParams{
 			Language:    d.Language,
 			ItemID:      int32(utils.AsInt(d.ID)),
 			Description: value.Description.ValueOrZero(),
 			Title:       value.Title,
-		})
+		}); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {
@@ -292,12 +318,14 @@ func (s *Service) updateMediaItems(ctx context.Context, data []common.Translatio
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdateMediaItemTranslation(ctx, sqlc.UpdateMediaItemTranslationParams{
+		if err := s.queries.UpdateMediaItemTranslation(ctx, sqlc.UpdateMediaItemTranslationParams{
 			Language:    d.Language,
 			ItemID:      utils.AsUuid(d.ID),
 			Description: value.Description,
 			Title:       value.Title,
-		})
+		}); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {
@@ -317,12 +345,14 @@ func (s *Service) updatePages(ctx context.Context, data []common.TranslationData
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdatePageTranslation(ctx, sqlc.UpdatePageTranslationParams{
+		if err := s.queries.UpdatePageTranslation(ctx, sqlc.UpdatePageTranslationParams{
 			Language:    d.Language,
 			ItemID:      int32(utils.AsInt(d.ID)),
 			Description: value.Description,
 			Title:       null.StringFrom(value.Title),
-		})
+		}); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {
@@ -341,12 +371,14 @@ func (s *Service) updatePlaylists(ctx context.Context, data []common.Translation
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdatePlaylistTranslation(ctx, sqlc.UpdatePlaylistTranslationParams{
+		if err := s.queries.UpdatePlaylistTranslation(ctx, sqlc.UpdatePlaylistTranslationParams{
 			Language:    d.Language,
 			ItemID:      utils.AsUuid(d.ID),
 			Description: value.Description,
 			Title:       null.StringFrom(value.Title),
-		})
+		}); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {
@@ -365,12 +397,14 @@ func (s *Service) updateSeasons(ctx context.Context, data []common.TranslationDa
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdateSeasonTranslation(ctx, sqlc.UpdateSeasonTranslationParams{
+		if err := s.queries.UpdateSeasonTranslation(ctx, sqlc.UpdateSeasonTranslationParams{
 			Language:    d.Language,
 			ItemID:      int32(utils.AsInt(d.ID)),
 			Description: value.Description,
 			Title:       null.StringFrom(value.Title),
-		})
+		}); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {
@@ -389,12 +423,14 @@ func (s *Service) updateSections(ctx context.Context, data []common.TranslationD
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdateSectionTranslation(ctx, sqlc.UpdateSectionTranslationParams{
+		if err := s.queries.UpdateSectionTranslation(ctx, sqlc.UpdateSectionTranslationParams{
 			Language:    d.Language,
 			ItemID:      int32(utils.AsInt(d.ID)),
 			Description: value.Description,
 			Title:       null.StringFrom(value.Title),
-		})
+		}); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {
@@ -413,12 +449,14 @@ func (s *Service) updateShows(ctx context.Context, data []common.TranslationData
 			errs = append(errs, err)
 			continue
 		}
-		s.queries.UpdateShowTranslation(ctx, sqlc.UpdateShowTranslationParams{
+		if err := s.queries.UpdateShowTranslation(ctx, sqlc.UpdateShowTranslationParams{
 			Language:    d.Language,
 			ItemID:      int32(utils.AsInt(d.ID)),
 			Description: value.Description,
 			Title:       null.StringFrom(value.Title),
-		})
+		}); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	if len(errs) > 0 {
@@ -449,9 +487,10 @@ func (s *Service) updateSurveys(ctx context.Context, data []common.TranslationDa
 
 		for _, q := range value.Questions {
 			err = s.queries.UpdateSurveyQuestionTranslation(ctx, sqlc.UpdateSurveyQuestionTranslationParams{
-				Language: d.Language,
-				ItemID:   utils.AsUuid(q.ID),
-				Title:    null.StringFrom(q.Title),
+				Language:    d.Language,
+				ItemID:      utils.AsUuid(q.ID),
+				Title:       null.StringFrom(q.Title),
+				Description: q.Description,
 			})
 			if err != nil {
 				errs = append(errs, err)

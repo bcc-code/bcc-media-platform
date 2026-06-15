@@ -7,58 +7,11 @@ package sqlc
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
-
-const getCalendarEntryTranslatable = `-- name: GetCalendarEntryTranslatable :many
-SELECT et.id,
-       calendarentries_id                                            as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
-FROM calendarentries_translations et
-         JOIN events e ON e.id = et.calendarentries_id
-WHERE et.languages_code = 'no'
-AND et.date_updated > $1
-`
-
-type GetCalendarEntryTranslatableRow struct {
-	ID       int32           `db:"id" json:"id"`
-	ParentID int32           `db:"parent_id" json:"parentId"`
-	Language string          `db:"language" json:"language"`
-	Values   json.RawMessage `db:"values" json:"values"`
-}
-
-func (q *Queries) GetCalendarEntryTranslatable(ctx context.Context, dateUpdated time.Time) ([]GetCalendarEntryTranslatableRow, error) {
-	rows, err := q.db.QueryContext(ctx, getCalendarEntryTranslatable, dateUpdated)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetCalendarEntryTranslatableRow
-	for rows.Next() {
-		var i GetCalendarEntryTranslatableRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.ParentID,
-			&i.Language,
-			&i.Values,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
 
 const getEpisodeTranslatable = `-- name: GetEpisodeTranslatable :many
 WITH episodes AS (SELECT e.id
@@ -404,38 +357,6 @@ func (q *Queries) GetShowTranslatable(ctx context.Context, dateUpdated time.Time
 	for rows.Next() {
 		var i GetShowTranslatableRow
 		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getTranslationsHash = `-- name: GetTranslationsHash :many
-SELECT collection, hash, last_sent, date_updated FROM translations_hash WHERE hash = $1
-`
-
-func (q *Queries) GetTranslationsHash(ctx context.Context, hash []byte) ([]TranslationsHash, error) {
-	rows, err := q.db.QueryContext(ctx, getTranslationsHash, hash)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []TranslationsHash
-	for rows.Next() {
-		var i TranslationsHash
-		if err := rows.Scan(
-			&i.Collection,
-			&i.Hash,
-			&i.LastSent,
-			&i.DateUpdated,
-		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

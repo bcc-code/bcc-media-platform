@@ -62,16 +62,6 @@ VALUES (@item_id, @language, @title, @description)
 ON CONFLICT (events_id, languages_code) DO UPDATE SET title       = EXCLUDED.title,
                                                       description = EXCLUDED.description;
 
--- name: GetCalendarEntryTranslatable :many
-SELECT et.id,
-       calendarentries_id                                            as parent_id,
-       languages_code                                                as language,
-       json_build_object('title', title, 'description', description) as values
-FROM calendarentries_translations et
-         JOIN events e ON e.id = et.calendarentries_id
-WHERE et.languages_code = 'no'
-AND et.date_updated > @date_updated;
-
 -- name: UpdateCalendarEntryTranslation :exec
 INSERT INTO calendarentries_translations (calendarentries_id, languages_code, title, description)
 VALUES (@item_id, @language, @title, @description)
@@ -241,9 +231,6 @@ FROM translations_hash
 WHERE collection = @collection
   AND hash = @hash::bytea
   AND last_sent > NOW() - INTERVAL '30 minutes';
-
--- name: GetTranslationsHash :many
-SELECT * FROM translations_hash WHERE hash = @hash;
 
 -- name: UpdateTranslationsHash :exec
 INSERT INTO translations_hash (collection, hash)
