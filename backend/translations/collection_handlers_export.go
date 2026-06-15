@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"gopkg.in/guregu/null.v4"
 	"time"
 )
@@ -283,7 +284,10 @@ func (s *Service) getDataForSurveys(ctx context.Context) ([]common.TranslationDa
 
 	for _, t := range data {
 		questions := []TitleWithId{}
-		_ = json.Unmarshal(t.Questions, &questions)
+		if err := json.Unmarshal(t.Questions, &questions); err != nil {
+			log.L.Error().Err(err).Str("id", t.ID.String()).Msg("Failed to unmarshal survey questions; skipping")
+			continue
+		}
 
 		value := SurveyTranslations{
 			Title:       t.Title,
@@ -313,7 +317,10 @@ func (s *Service) getDataForStudyQuestions(ctx context.Context) ([]common.Transl
 
 	for _, t := range data {
 		answers := []TitleWithId{}
-		_ = json.Unmarshal(t.Answers, &answers)
+		if err := json.Unmarshal(t.Answers, &answers); err != nil {
+			log.L.Error().Err(err).Str("id", t.ID.String()).Msg("Failed to unmarshal study question answers; skipping")
+			continue
+		}
 
 		value := StudyQuestions{
 			Question:    t.Question.ValueOrZero(),

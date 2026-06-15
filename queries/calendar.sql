@@ -147,5 +147,4 @@ FROM calendarentries_translations et
     JOIN calendarentries e ON e.id = et.calendarentries_id
 WHERE et.languages_code ='no'
   AND et.date_updated > @date_updated
-  AND e.date_updated > @date_updated
   AND e.status = ANY ('{published,unlisted}');

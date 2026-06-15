@@ -878,31 +878,6 @@ type EpisodesTranslation struct {
 	DateUpdated      time.Time      `db:"date_updated" json:"dateUpdated"`
 }
 
-type EpisodesUsergroup struct {
-	EpisodesID     int32          `db:"episodes_id" json:"episodesId"`
-	ID             int32          `db:"id" json:"id"`
-	Type           null_v4.String `db:"type" json:"type"`
-	UsergroupsCode string         `db:"usergroups_code" json:"usergroupsCode"`
-	DateCreated    time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated    null_v4.Time   `db:"date_updated" json:"dateUpdated"`
-}
-
-type EpisodesUsergroupsDownload struct {
-	EpisodesID     int32     `db:"episodes_id" json:"episodesId"`
-	ID             int32     `db:"id" json:"id"`
-	UsergroupsCode string    `db:"usergroups_code" json:"usergroupsCode"`
-	DateCreated    time.Time `db:"date_created" json:"dateCreated"`
-	DateUpdated    time.Time `db:"date_updated" json:"dateUpdated"`
-}
-
-type EpisodesUsergroupsEarlyaccess struct {
-	EpisodesID     int32     `db:"episodes_id" json:"episodesId"`
-	ID             int32     `db:"id" json:"id"`
-	UsergroupsCode string    `db:"usergroups_code" json:"usergroupsCode"`
-	DateCreated    time.Time `db:"date_created" json:"dateCreated"`
-	DateUpdated    time.Time `db:"date_updated" json:"dateUpdated"`
-}
-
 type Event struct {
 	DateCreated null_v4.Time  `db:"date_created" json:"dateCreated"`
 	DateUpdated null_v4.Time  `db:"date_updated" json:"dateUpdated"`
