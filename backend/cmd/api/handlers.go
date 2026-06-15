@@ -15,10 +15,12 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/analytics"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
 	"github.com/bcc-code/bcc-media-platform/backend/email"
+	gqlextension "github.com/99designs/gqlgen/graphql/handler/extension"
 	graphadmin "github.com/bcc-code/bcc-media-platform/backend/graph/admin"
 	graphadmingenerated "github.com/bcc-code/bcc-media-platform/backend/graph/admin/generated"
 	graphapi "github.com/bcc-code/bcc-media-platform/backend/graph/api"
 	graphapigenerated "github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
+	apiextension "github.com/bcc-code/bcc-media-platform/backend/graph/extension"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/gqltracer"
 	graphpublic "github.com/bcc-code/bcc-media-platform/backend/graph/public"
 	graphpublicgenerated "github.com/bcc-code/bcc-media-platform/backend/graph/public/generated"
@@ -102,6 +104,8 @@ func graphqlHandler(
 	// Resolver is in the resolver.go file
 	h := handler.NewDefaultServer(graphapigenerated.NewExecutableSchema(graphapigenerated.Config{Resolvers: &resolver}))
 	h.Use(tracer)
+	h.Use(gqlextension.FixedComplexityLimit(1000))
+	h.Use(apiextension.DepthLimit{Max: 15})
 
 	h.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
 		// Wrap the panic error with a stack trace using pkg/errors
@@ -159,6 +163,8 @@ func publicGraphqlHandler(loaders *loaders.BatchLoaders) gin.HandlerFunc {
 	// Resolver is in the resolver.go file
 	h := handler.NewDefaultServer(graphpublicgenerated.NewExecutableSchema(graphpublicgenerated.Config{Resolvers: &resolver}))
 	h.Use(tracer)
+	h.Use(gqlextension.FixedComplexityLimit(500))
+	h.Use(apiextension.DepthLimit{Max: 10})
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
@@ -175,6 +181,8 @@ func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, lo
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
 	h := handler.NewDefaultServer(graphadmingenerated.NewExecutableSchema(graphadmingenerated.Config{Resolvers: &resolver}))
+	h.Use(gqlextension.FixedComplexityLimit(5000))
+	h.Use(apiextension.DepthLimit{Max: 20})
 
 	directusSecret := config.Secrets.Directus
 	if directusSecret == "" {
