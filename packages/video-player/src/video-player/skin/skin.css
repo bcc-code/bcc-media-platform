@@ -363,19 +363,6 @@ media-tooltip-group {
     left: -1px;
 }
 
-.media-minimal-skin .media-button--playback-rate {
-    padding: 0;
-    font-variant-numeric: tabular-nums;
-}
-.media-minimal-skin .media-button--playback-rate::after {
-    width: 4ch;
-    content: attr(data-rate) "\00D7";
-}
-.media-minimal-skin
-    .media-button--playback-rate[data-inline-rate-label]::after {
-    content: none;
-}
-
 /* ==========================================================================
    Button Groups
    ========================================================================== */
