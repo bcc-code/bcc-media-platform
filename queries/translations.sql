@@ -226,11 +226,14 @@ ON CONFLICT (episodes_id, languages_code) DO UPDATE SET title       = EXCLUDED.t
 -----------
 
 -- name: ShouldSendTranslations :one
-SELECT (COUNT(*) = 0)::bool as should -- if we have any rows, that means this hash should not be sent
+-- Send only when content changed (hash differs from the last send) AND we have
+-- not sent within the last 30 minutes. Unchanged content is never re-sent;
+-- changed content is throttled to at most once per 30 minutes per collection.
+-- A matching row (same hash, or sent within the window) means "do not send".
+SELECT (COUNT(*) = 0)::bool AS should
 FROM translations_hash
 WHERE collection = @collection
-  AND hash = @hash::bytea
-  AND last_sent > NOW() - INTERVAL '30 minutes';
+  AND (hash = @hash::bytea OR last_sent > NOW() - INTERVAL '30 minutes');
 
 -- name: UpdateTranslationsHash :exec
 INSERT INTO translations_hash (collection, hash)

@@ -6,6 +6,7 @@ package translations_test
 import (
 	"context"
 	"crypto/sha1"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -22,6 +23,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/utils/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"gopkg.in/guregu/null.v4"
 )
 
 func TestShowSeasonEpisodeTranslations(t *testing.T) {
@@ -76,12 +78,20 @@ func TestShowSeasonEpisodeTranslations(t *testing.T) {
 	tsMock.AssertExpectations(t)
 }
 
-// TestTranslationsResentAfterWindow guards the A1 fix: an unchanged payload is
-// deduplicated only by the per-collection 30-minute window. Once that window
-// elapses it must be sent again (re-notifying translators). The previous
-// global GetTranslationsHash check blocked this permanently once the hash had
-// ever been recorded - which is why sending silently stopped in prod.
-func TestTranslationsResentAfterWindow(t *testing.T) {
+// elapseWindow backdates last_sent so the 30-minute dedup window has passed.
+func elapseWindow(t *testing.T, ctx context.Context, db *sql.DB, collection string) {
+	t.Helper()
+	_, err := db.ExecContext(ctx,
+		"UPDATE translations_hash SET last_sent = NOW() - INTERVAL '31 minutes' WHERE collection = $1",
+		collection)
+	assert.NoError(t, err)
+}
+
+// TestTranslationsDedup guards the dedup contract: send only when content
+// actually changed (hash differs from the last send), throttled to at most once
+// per 30-minute window per collection. Unchanged content is never re-sent, no
+// matter how much time passes - that is what was causing spurious Phrase updates.
+func TestTranslationsDedup(t *testing.T) {
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
 
 	db := testutils.NewDB(t)
@@ -92,24 +102,52 @@ func TestTranslationsResentAfterWindow(t *testing.T) {
 	err := testutils.InsertDefaults(ctx, q)
 	assert.NoError(t, err)
 
-	testutils.CreateRandomShow(t, ctx, q)
+	show := testutils.CreateRandomShow(t, ctx, q)
 
 	tsMock := Mocktranslations.MockTranslationsProvider{}
-	tsMock.EXPECT().SendToTranslation(ctx, "shows", mock.Anything).Return(nil).Twice()
+	// No cardinality: we assert the exact call count after each step.
+	tsMock.EXPECT().SendToTranslation(ctx, "shows", mock.Anything).Return(nil)
 
 	service := translations.NewService(q, &tsMock)
 
+	changeContent := func(title string) {
+		err := q.UpdateShowTranslation(ctx, sqlc.UpdateShowTranslationParams{
+			Title:       null.NewString(title, true),
+			Description: null.NewString("description", true),
+			ItemID:      int32(show.ID),
+			Language:    "no",
+		})
+		assert.NoError(t, err)
+	}
+
 	// First send records the hash.
 	assert.NoError(t, service.SendCollectionToTranslation(ctx, translations.CollectionShows))
-	// Immediate re-send is skipped (still inside the 30-minute window).
-	assert.NoError(t, service.SendCollectionToTranslation(ctx, translations.CollectionShows))
+	tsMock.AssertNumberOfCalls(t, "SendToTranslation", 1)
 
-	// Backdate last_sent so the dedup window has elapsed.
-	_, err = db.ExecContext(ctx, "UPDATE translations_hash SET last_sent = NOW() - INTERVAL '31 minutes' WHERE collection = 'shows'")
-	assert.NoError(t, err)
-
-	// Now the same payload must be sent again.
+	// Same content inside the window: skipped.
 	assert.NoError(t, service.SendCollectionToTranslation(ctx, translations.CollectionShows))
+	tsMock.AssertNumberOfCalls(t, "SendToTranslation", 1)
+
+	// Same content after the window has elapsed: still skipped (unchanged content
+	// is never re-sent). This is the behavior that fixes the spurious updates.
+	elapseWindow(t, ctx, db, "shows")
+	assert.NoError(t, service.SendCollectionToTranslation(ctx, translations.CollectionShows))
+	tsMock.AssertNumberOfCalls(t, "SendToTranslation", 1)
+
+	// Changed content with the window elapsed: sent.
+	changeContent("changed title")
+	assert.NoError(t, service.SendCollectionToTranslation(ctx, translations.CollectionShows))
+	tsMock.AssertNumberOfCalls(t, "SendToTranslation", 2)
+
+	// Changed again inside the window: throttled (deferred), not sent yet.
+	changeContent("changed title 2")
+	assert.NoError(t, service.SendCollectionToTranslation(ctx, translations.CollectionShows))
+	tsMock.AssertNumberOfCalls(t, "SendToTranslation", 2)
+
+	// Once the window elapses, the deferred change is picked up on the next run.
+	elapseWindow(t, ctx, db, "shows")
+	assert.NoError(t, service.SendCollectionToTranslation(ctx, translations.CollectionShows))
+	tsMock.AssertNumberOfCalls(t, "SendToTranslation", 3)
 
 	tsMock.AssertExpectations(t)
 }

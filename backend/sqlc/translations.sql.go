@@ -372,11 +372,10 @@ func (q *Queries) GetShowTranslatable(ctx context.Context, dateUpdated time.Time
 
 const shouldSendTranslations = `-- name: ShouldSendTranslations :one
 
-SELECT (COUNT(*) = 0)::bool as should -- if we have any rows, that means this hash should not be sent
+SELECT (COUNT(*) = 0)::bool AS should
 FROM translations_hash
 WHERE collection = $1
-  AND hash = $2::bytea
-  AND last_sent > NOW() - INTERVAL '30 minutes'
+  AND (hash = $2::bytea OR last_sent > NOW() - INTERVAL '30 minutes')
 `
 
 type ShouldSendTranslationsParams struct {
@@ -387,6 +386,10 @@ type ShouldSendTranslationsParams struct {
 // ---------
 // HASH ---
 // ---------
+// Send only when content changed (hash differs from the last send) AND we have
+// not sent within the last 30 minutes. Unchanged content is never re-sent;
+// changed content is throttled to at most once per 30 minutes per collection.
+// A matching row (same hash, or sent within the window) means "do not send".
 func (q *Queries) ShouldSendTranslations(ctx context.Context, arg ShouldSendTranslationsParams) (bool, error) {
 	row := q.db.QueryRowContext(ctx, shouldSendTranslations, arg.Collection, arg.Hash)
 	var should bool
