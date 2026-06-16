@@ -7,13 +7,10 @@ import {
     onLanguageChange,
     t,
 } from "../i18n/strings"
+import ICON_LANGUAGE from "../skin/icons/language.svg?raw"
 
 const TAG = "bccm-audio-picker"
 let popoverIdSeq = 0
-
-// Material-style "translate" / language icon — recognizable as
-// "switch language" alongside the (volume-only) mute button.
-const ICON_LANGUAGE = `<svg class="media-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" aria-hidden="true" viewBox="0 0 24 24"><path fill="currentColor" d="M12.87 15.07 10.33 12.56l.03-.03A17.5 17.5 0 0 0 14.07 6h2.93V4h-7V2h-2v2h-7v2h11.17a15.5 15.5 0 0 1-3.17 5.32A15.5 15.5 0 0 1 7.41 8H5.41A17.5 17.5 0 0 0 9.34 13.95l-5.13 5.07L5.62 20.4 10.5 15.5l3.04 3.04 1.33-1.47ZM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2L18.5 10ZM15.88 17l1.62-4.33L19.12 17h-3.24Z"/></svg>`
 
 type HlsAudioTrack = { id: number; lang?: string; name?: string }
 type HlsEngine = {

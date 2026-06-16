@@ -6,14 +6,9 @@ import {
 } from "@videojs/html"
 import { selectControls } from "@videojs/core/dom"
 import { getLanguage, onLanguageChange, t } from "../i18n/strings"
+import ICON_DISMISS from "../skin/icons/dismiss.svg?raw"
 
 const TAG = "bccm-dismiss-controls-button"
-
-// Down-chevron icon — tapping dismisses the control bar overlay so the user
-// can see the video. Only useful on smart TVs where there's no mouse to
-// trigger the auto-hide-on-idle behavior; the wrapper only renders this
-// element when isSmartTV() is true.
-const ICON_DISMISS = `<svg class="media-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" aria-hidden="true" viewBox="0 0 18 18"><path fill="currentColor" d="M3.22 6.22a.75.75 0 0 1 1.06 0L9 10.94l4.72-4.72a.75.75 0 0 1 1.06 1.06l-5.25 5.25a.75.75 0 0 1-1.06 0L3.22 7.28a.75.75 0 0 1 0-1.06"/></svg>`
 
 export class DismissControlsButtonElement extends MediaElement {
     static readonly tagName = TAG
