@@ -67,15 +67,9 @@ export function buildSkin(
     const ID_LIVE = `live-tooltip-${sid}`
     const ID_DISMISS = `dismiss-tooltip-${sid}`
 
-    // Live skin: drop seek buttons, current/duration time displays, and the
-    // thumbnail preview (no thumbs available for live). Show a LIVE badge in
-    // the time-controls area instead of the time displays.
-    const leftButtons = live
-        ? `<media-play-button commandfor="${ID_PLAY}" class="media-button media-button--subtle media-button--icon media-button--play">
-              ${ICON_RESTART}${ICON_PLAY}${ICON_PAUSE}
-            </media-play-button>
-            <media-tooltip id="${ID_PLAY}" side="top" class="media-surface media-tooltip"></media-tooltip>`
-        : `<media-play-button commandfor="${ID_PLAY}" class="media-button media-button--subtle media-button--icon media-button--play">
+    // The live and VOD skins share nearly everything — only the right-hand
+    // side of the time controls differs (LIVE badge vs duration display).
+    const leftButtons = `<media-play-button commandfor="${ID_PLAY}" class="media-button media-button--subtle media-button--icon media-button--play">
               ${ICON_RESTART}${ICON_PLAY}${ICON_PAUSE}
             </media-play-button>
             <media-tooltip id="${ID_PLAY}" side="top" class="media-surface media-tooltip"></media-tooltip>
@@ -94,10 +88,12 @@ export function buildSkin(
             </media-seek-button>
             <media-tooltip id="${ID_SEEK_FWD}" side="top" class="media-surface media-tooltip"><span data-i18n="seekForward" data-i18n-params='{"seconds":${SEEK_TIME}}'></span></media-tooltip>`
 
-    const timeControls = live
+    const trailingTime = live
         ? `<bccm-live-button commandfor="${ID_LIVE}"></bccm-live-button>
             <media-tooltip id="${ID_LIVE}" side="top" class="media-surface media-tooltip"><span data-i18n="goToLive"></span></media-tooltip>`
-        : `<media-time type="current" class="media-time"></media-time>
+        : `<media-time type="duration" class="media-time"></media-time>`
+
+    const timeControls = `<media-time type="current" class="media-time"></media-time>
             <media-time-slider class="media-slider">
               <media-slider-track class="media-slider__track">
                 <media-slider-fill class="media-slider__fill"></media-slider-fill>
@@ -110,7 +106,7 @@ export function buildSkin(
                 ${ICON_SPINNER_PREVIEW}
               </div>
             </media-time-slider>
-            <media-time type="duration" class="media-time"></media-time>`
+            ${trailingTime}`
 
     container.innerHTML = `
       <media-poster></media-poster>
@@ -206,14 +202,14 @@ export function buildSkin(
       <media-hotkey keys="i" action="togglePictureInPicture"></media-hotkey>
       <media-hotkey keys="ArrowUp" action="volumeStep" value="0.05"></media-hotkey>
       <media-hotkey keys="ArrowDown" action="volumeStep" value="-0.05"></media-hotkey>
-      ${
-          live
-              ? ""
-              : `<media-hotkey keys="ArrowRight" action="seekStep" value="5"></media-hotkey>
+      <media-hotkey keys="ArrowRight" action="seekStep" value="5"></media-hotkey>
       <media-hotkey keys="ArrowLeft" action="seekStep" value="-5"></media-hotkey>
       <media-hotkey keys="l" action="seekStep" value="10"></media-hotkey>
       <media-hotkey keys="j" action="seekStep" value="-10"></media-hotkey>
-      <media-hotkey keys="0-9" action="seekToPercent"></media-hotkey>
+      ${
+          live
+              ? ""
+              : `<media-hotkey keys="0-9" action="seekToPercent"></media-hotkey>
       <media-hotkey keys="Home" action="seekToPercent" value="0"></media-hotkey>
       <media-hotkey keys="End" action="seekToPercent" value="100"></media-hotkey>`
       }
@@ -221,12 +217,8 @@ export function buildSkin(
       <media-gesture type="tap" action="togglePaused" pointer="mouse" region="center"></media-gesture>
       <media-gesture type="tap" action="toggleControls" pointer="touch"></media-gesture>
       <media-gesture type="doubletap" action="toggleFullscreen" region="center"></media-gesture>
-      ${
-          live
-              ? ""
-              : `<media-gesture type="doubletap" action="seekStep" value="-10" region="left"></media-gesture>
-      <media-gesture type="doubletap" action="seekStep" value="10" region="right"></media-gesture>`
-      }
+      <media-gesture type="doubletap" action="seekStep" value="-10" region="left"></media-gesture>
+      <media-gesture type="doubletap" action="seekStep" value="10" region="right"></media-gesture>
     `
 
     // Insert the media element first so the buffering indicator / poster
