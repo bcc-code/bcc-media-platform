@@ -1,9 +1,9 @@
-// Ejected from @videojs/html/video/skin (default video skin) per the
-// "Customize skins" guide. Composing the DOM in light DOM lets us insert
-// custom controls into the bottom button group without subclassing the skin
-// or reaching into shadow DOM. Icons live as .svg files under ./icons and
-// are inlined into innerHTML via Vite's ?raw imports — the media-icon--*
-// classes on each SVG drive the skin CSS's state toggling.
+// Ejected from @videojs/html/video/minimal-skin per the "Customize skins"
+// guide. Composing the DOM in light DOM lets us insert custom controls into
+// the bottom button group without subclassing the skin or reaching into
+// shadow DOM. Icons live as .svg files under ./icons and are inlined into
+// innerHTML via Vite's ?raw imports — the media-icon--* classes on each SVG
+// drive the skin CSS's state toggling.
 
 import { isSmartTV } from "../utils/userAgent"
 import { type Lang, relabelSkin } from "../i18n/strings"
@@ -32,7 +32,6 @@ const ICON_SPINNER_PREVIEW = ICON_SPINNER.replace(
     'class="media-icon"',
     'class="media-preview__spinner media-icon"'
 )
-const ICON_SPINNER_BUFFER = ICON_SPINNER
 
 export interface SkinOptions {
     poster?: string
@@ -45,7 +44,7 @@ export function buildSkin(
     options: SkinOptions
 ): HTMLElement {
     const container = document.createElement("media-container")
-    container.className = "media-default-skin media-default-skin--video"
+    container.className = "media-minimal-skin media-minimal-skin--video"
 
     const live = options.live === true
     // Each skin instance needs unique IDs for tooltip / popover targets.
@@ -72,36 +71,42 @@ export function buildSkin(
     const leftButtons = `<media-play-button commandfor="${ID_PLAY}" class="media-button media-button--subtle media-button--icon media-button--play">
               ${ICON_RESTART}${ICON_PLAY}${ICON_PAUSE}
             </media-play-button>
-            <media-tooltip id="${ID_PLAY}" side="top" class="media-surface media-tooltip"></media-tooltip>
+            <media-tooltip id="${ID_PLAY}" side="top" class="media-tooltip"></media-tooltip>
 
             <media-seek-button commandfor="${ID_SEEK_BACK}" seconds="${-SEEK_TIME}" class="media-button media-button--subtle media-button--icon media-button--seek">
               <span class="media-icon__container">
                 ${ICON_SEEK_FLIPPED}<span class="media-icon__label">${SEEK_TIME}</span>
               </span>
             </media-seek-button>
-            <media-tooltip id="${ID_SEEK_BACK}" side="top" class="media-surface media-tooltip"><span data-i18n="seekBackward" data-i18n-params='{"seconds":${SEEK_TIME}}'></span></media-tooltip>
+            <media-tooltip id="${ID_SEEK_BACK}" side="top" class="media-tooltip"><span data-i18n="seekBackward" data-i18n-params='{"seconds":${SEEK_TIME}}'></span></media-tooltip>
 
             <media-seek-button commandfor="${ID_SEEK_FWD}" seconds="${SEEK_TIME}" class="media-button media-button--subtle media-button--icon media-button--seek">
               <span class="media-icon__container">
                 ${ICON_SEEK}<span class="media-icon__label">${SEEK_TIME}</span>
               </span>
             </media-seek-button>
-            <media-tooltip id="${ID_SEEK_FWD}" side="top" class="media-surface media-tooltip"><span data-i18n="seekForward" data-i18n-params='{"seconds":${SEEK_TIME}}'></span></media-tooltip>`
+            <media-tooltip id="${ID_SEEK_FWD}" side="top" class="media-tooltip"><span data-i18n="seekForward" data-i18n-params='{"seconds":${SEEK_TIME}}'></span></media-tooltip>`
+
+    // Current time sits left of the slider; duration (VOD) or the LIVE badge
+    // (live) sits to the right.
+    const leadingTime = `<media-time type="current" class="media-time media-time--current"></media-time>`
 
     const trailingTime = live
         ? `<bccm-live-button commandfor="${ID_LIVE}"></bccm-live-button>
-            <media-tooltip id="${ID_LIVE}" side="top" class="media-surface media-tooltip"><span data-i18n="goToLive"></span></media-tooltip>`
-        : `<media-time type="duration" class="media-time"></media-time>`
+            <media-tooltip id="${ID_LIVE}" side="top" class="media-tooltip"><span data-i18n="goToLive"></span></media-tooltip>`
+        : `<media-time type="duration" class="media-time media-time--duration"></media-time>`
 
-    const timeControls = `<media-time type="current" class="media-time"></media-time>
+    const timeControls = `${leadingTime}
             <media-time-slider class="media-slider">
               <media-slider-track class="media-slider__track">
                 <media-slider-fill class="media-slider__fill"></media-slider-fill>
                 <media-slider-buffer class="media-slider__buffer"></media-slider-buffer>
               </media-slider-track>
               <media-slider-thumb class="media-slider__thumb"></media-slider-thumb>
-              <div class="media-surface media-preview media-slider__preview">
-                <media-slider-thumbnail class="media-preview__thumbnail"></media-slider-thumbnail>
+              <div class="media-preview media-slider__preview">
+                <div class="media-preview__thumbnail-wrapper">
+                  <media-slider-thumbnail class="media-preview__thumbnail"></media-slider-thumbnail>
+                </div>
                 <media-slider-value type="pointer" class="media-time media-preview__time"></media-slider-value>
                 ${ICON_SPINNER_PREVIEW}
               </div>
@@ -112,11 +117,11 @@ export function buildSkin(
       <media-poster></media-poster>
 
       <media-buffering-indicator class="media-buffering-indicator">
-        <div class="media-surface">${ICON_SPINNER_BUFFER}</div>
+        ${ICON_SPINNER}
       </media-buffering-indicator>
 
       <media-error-dialog class="media-error">
-        <div class="media-error__dialog media-surface">
+        <div class="media-error__dialog">
           <div class="media-error__content">
             <media-alert-dialog-title class="media-error__title" data-i18n="somethingWentWrong"></media-alert-dialog-title>
             <media-alert-dialog-description class="media-error__description"></media-alert-dialog-description>
@@ -127,7 +132,7 @@ export function buildSkin(
         </div>
       </media-error-dialog>
 
-      <media-controls class="media-surface media-controls">
+      <media-controls class="media-controls">
         <media-tooltip-group>
           <div class="media-button-group">
             ${leftButtons}
@@ -142,14 +147,14 @@ export function buildSkin(
                 live
                     ? ""
                     : `<bccm-playback-rate-picker commandfor="${ID_RATE}"></bccm-playback-rate-picker>
-            <media-tooltip id="${ID_RATE}" side="top" class="media-surface media-tooltip"><span data-i18n="playbackSpeed"></span></media-tooltip>`
+            <media-tooltip id="${ID_RATE}" side="top" class="media-tooltip"><span data-i18n="playbackSpeed"></span></media-tooltip>`
             }
 
             <media-mute-button commandfor="${ID_VOLUME}" class="media-button media-button--subtle media-button--icon media-button--mute">
               ${ICON_VOLUME_OFF}${ICON_VOLUME_LOW}${ICON_VOLUME_HIGH}
             </media-mute-button>
 
-            <media-popover id="${ID_VOLUME}" open-on-hover delay="200" close-delay="100" side="top" class="media-surface media-popover media-popover--volume">
+            <media-popover id="${ID_VOLUME}" open-on-hover delay="200" close-delay="100" side="top" class="media-popover media-popover--volume">
               <media-volume-slider class="media-slider" orientation="vertical" thumb-alignment="edge">
                 <media-slider-track class="media-slider__track">
                   <media-slider-fill class="media-slider__fill"></media-slider-fill>
@@ -159,33 +164,33 @@ export function buildSkin(
             </media-popover>
 
             <bccm-audio-picker commandfor="${ID_AUDIO}"></bccm-audio-picker>
-            <media-tooltip id="${ID_AUDIO}" side="top" class="media-surface media-tooltip"><span data-i18n="audio"></span></media-tooltip>
+            <media-tooltip id="${ID_AUDIO}" side="top" class="media-tooltip"><span data-i18n="audio"></span></media-tooltip>
 
             <bccm-subtitle-picker commandfor="${ID_SUBS}"></bccm-subtitle-picker>
-            <media-tooltip id="${ID_SUBS}" side="top" class="media-surface media-tooltip"><span data-i18n="subtitles"></span></media-tooltip>
+            <media-tooltip id="${ID_SUBS}" side="top" class="media-tooltip"><span data-i18n="subtitles"></span></media-tooltip>
 
             <bccm-quality-picker commandfor="${ID_QUALITY}"></bccm-quality-picker>
-            <media-tooltip id="${ID_QUALITY}" side="top" class="media-surface media-tooltip"><span data-i18n="quality"></span></media-tooltip>
+            <media-tooltip id="${ID_QUALITY}" side="top" class="media-tooltip"><span data-i18n="quality"></span></media-tooltip>
 
             <media-cast-button commandfor="${ID_CAST}" class="media-button media-button--subtle media-button--icon media-button--cast">
               ${ICON_CAST_ENTER}${ICON_CAST_EXIT}
             </media-cast-button>
-            <media-tooltip id="${ID_CAST}" side="top" class="media-surface media-tooltip"></media-tooltip>
+            <media-tooltip id="${ID_CAST}" side="top" class="media-tooltip"></media-tooltip>
 
             <media-pip-button commandfor="${ID_PIP}" class="media-button media-button--subtle media-button--icon media-button--pip">
               ${ICON_PIP_ENTER}${ICON_PIP_EXIT}
             </media-pip-button>
-            <media-tooltip id="${ID_PIP}" side="top" class="media-surface media-tooltip"></media-tooltip>
+            <media-tooltip id="${ID_PIP}" side="top" class="media-tooltip"></media-tooltip>
 
             <media-fullscreen-button commandfor="${ID_FS}" class="media-button media-button--subtle media-button--icon media-button--fullscreen">
               ${ICON_FS_ENTER}${ICON_FS_EXIT}
             </media-fullscreen-button>
-            <media-tooltip id="${ID_FS}" side="top" class="media-surface media-tooltip"></media-tooltip>
+            <media-tooltip id="${ID_FS}" side="top" class="media-tooltip"></media-tooltip>
 
             ${
                 isSmartTV()
                     ? `<bccm-dismiss-controls-button commandfor="${ID_DISMISS}"></bccm-dismiss-controls-button>
-            <media-tooltip id="${ID_DISMISS}" side="top" class="media-surface media-tooltip"><span data-i18n="hideControls"></span></media-tooltip>`
+            <media-tooltip id="${ID_DISMISS}" side="top" class="media-tooltip"><span data-i18n="hideControls"></span></media-tooltip>`
                     : ""
             }
           </div>

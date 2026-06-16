@@ -1,26 +1,39 @@
 /* -------------------------------------------------------------------------- */
-/* Base                                                                       */
+/* Ejected from @videojs/html/video/minimal-skin (formatted source) plus the  */
+/* bccm-specific theming knobs and custom component rules at the bottom.      */
 /* -------------------------------------------------------------------------- */
 
-video-player {
+/* -------------------------------------------------------------------------- */
+/* Global styles for the host document, outside of the Shadow DOM             */
+/* -------------------------------------------------------------------------- */
+
+video-player,
+live-video-player {
     display: contents;
 }
 
 video-player video,
-video-player [slot="poster"] {
+video-player [slot="poster"],
+live-video-player video,
+live-video-player [slot="poster"] {
     display: block;
     width: 100%;
     height: 100%;
 }
 
-video-player video::-webkit-media-text-track-container {
-    transition: translate var(--media-caption-track-duration, 0) ease-out;
-    transition-delay: var(--media-caption-track-delay, 0);
-    translate: 0 var(--media-caption-track-y, 0);
-    scale: 0.98;
+video-player video::-webkit-media-text-track-container,
+live-video-player video::-webkit-media-text-track-container {
     z-index: 1;
     font-family: inherit;
+    scale: 0.98;
+    translate: 0 var(--media-caption-track-y, 0);
+    transition: translate var(--media-caption-track-duration, 0) ease-out;
+    transition-delay: var(--media-caption-track-delay, 0);
 }
+
+/* -------------------------------------------------------------------------- */
+/* Shared styles for all HTML skins                                           */
+/* -------------------------------------------------------------------------- */
 
 media-tooltip-group {
     display: contents;
@@ -41,22 +54,25 @@ media-tooltip-group {
    Reset
    ========================================================================== */
 
-.media-default-skin *,
-.media-default-skin *::before,
-.media-default-skin *::after {
+.media-minimal-skin *,
+.media-minimal-skin *::before,
+.media-minimal-skin *::after {
     box-sizing: border-box;
 }
-.media-default-skin img,
-.media-default-skin video,
-.media-default-skin svg {
+.media-minimal-skin img,
+.media-minimal-skin video,
+.media-minimal-skin svg {
     display: block;
     max-width: 100%;
 }
-.media-default-skin button {
+.media-minimal-skin button {
     font: inherit;
 }
+.media-minimal-skin [hidden][hidden] {
+    display: none;
+}
 @media (prefers-reduced-motion: no-preference) {
-    .media-default-skin {
+    .media-minimal-skin {
         interpolate-size: allow-keywords;
     }
 }
@@ -65,85 +81,68 @@ media-tooltip-group {
    Root Container
    ========================================================================== */
 
-.media-default-skin {
+.media-minimal-skin {
     /* Public theming knobs (BCC-prefixed). Consumers set these on the player
        container; v10's internal --media-* vars are not part of our API. */
     --media-color-primary: var(--bccm-color-primary, oklch(1 0 0));
 
-    container: media-root / inline-size;
+    --media-current-shadow-color: oklch(
+        from currentColor 0 0 0 / clamp(0, calc((l - 0.5) * 0.5), 0.15)
+    );
+    --media-current-shadow-color-subtle: oklch(
+        from var(--media-current-shadow-color) l c h / calc(alpha * 0.4)
+    );
+    --media-icon-size: 18px;
+
     position: relative;
-    isolation: isolate;
     display: block;
-    height: 100%;
     width: 100%;
-    border-radius: var(--media-border-radius, 2rem);
-    outline: 2px solid transparent;
-    outline-offset: 2px;
+    height: 100%;
+    container: media-root / inline-size;
     font-family:
         Inter Variable,
         Inter,
         ui-sans-serif,
         system-ui,
         sans-serif;
-    line-height: 1.5;
-    letter-spacing: normal;
+    font-size: 0.8125rem;
     -webkit-font-smoothing: auto;
     -moz-osx-font-smoothing: auto;
+    line-height: 1.5;
+    letter-spacing: normal;
+    outline: 2px solid transparent;
+    outline-offset: -4px;
+    border-radius: var(--media-border-radius, 0.75rem);
+    isolation: isolate;
+    transition-timing-function: ease-out;
+    transition-duration: 100ms;
+    transition-property: outline-offset, outline-color;
 }
-.media-default-skin:focus-visible {
+.media-minimal-skin:focus-visible {
     outline-color: currentColor;
-}
-.media-default-skin > * {
-    font-size: 0.75rem;
-}
-@container media-root (width > 48rem) {
-    .media-default-skin > * {
-        font-size: 0.875rem;
-    }
-}
-
-/* ==========================================================================
-   Surface
-   ========================================================================== */
-
-.media-default-skin .media-surface {
-    background-color: var(--media-surface-background-color);
-    backdrop-filter: var(--media-surface-backdrop-filter);
-    box-shadow:
-        0 0 0 1px var(--media-surface-outer-border-color),
-        0 1px 3px 0 var(--media-surface-shadow-color),
-        0 1px 2px -1px var(--media-surface-shadow-color);
-}
-.media-default-skin .media-surface::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 10;
-    border-radius: inherit;
-    box-shadow: inset 0 0 0 1px var(--media-surface-inner-border-color);
-    pointer-events: none;
+    outline-offset: 2px;
 }
 
 /* ==========================================================================
    Media Element
    ========================================================================== */
 
-.media-default-skin ::slotted(video),
-.media-default-skin video {
+.media-minimal-skin ::slotted(video),
+.media-minimal-skin video {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: var(--media-object-fit, contain);
     object-position: var(--media-object-position, center);
 }
-.media-default-skin ::slotted(video) {
+.media-minimal-skin ::slotted(video) {
     border-radius: var(--media-video-border-radius);
 }
-.media-default-skin video {
+.media-minimal-skin video {
     border-radius: inherit;
 }
-.media-default-skin:fullscreen ::slotted(video),
-.media-default-skin:fullscreen video {
+.media-minimal-skin:fullscreen ::slotted(video),
+.media-minimal-skin:fullscreen video {
     object-fit: contain;
 }
 
@@ -151,40 +150,40 @@ media-tooltip-group {
    Overlay / Scrim
    ========================================================================== */
 
-.media-default-skin .media-overlay {
+.media-minimal-skin .media-overlay {
     position: absolute;
     inset: 0;
-    border-radius: inherit;
+    pointer-events: none;
     background-image: linear-gradient(
         to top,
-        oklch(0 0 0 / 0.5),
-        oklch(0 0 0 / 0.3),
+        oklch(0 0 0 / 0.7),
+        oklch(0 0 0 / 0.5) 7.5rem,
         oklch(0 0 0 / 0)
     );
-    backdrop-filter: blur(0) saturate(1);
+    border-radius: inherit;
     opacity: 0;
-    pointer-events: none;
-    transition-property: opacity, backdrop-filter;
-    transition-duration: var(--media-controls-transition-duration);
+    backdrop-filter: blur(0) saturate(1);
     transition-timing-function: ease-out;
+    transition-duration: var(--media-controls-transition-duration);
+    transition-property: opacity, backdrop-filter;
 }
-.media-default-skin .media-error ~ .media-overlay {
-    transition-duration: var(--media-error-dialog-transition-duration);
+.media-minimal-skin .media-error ~ .media-overlay {
     transition-delay: var(--media-error-dialog-transition-delay);
+    transition-duration: var(--media-error-dialog-transition-duration);
 }
-.media-default-skin .media-controls[data-visible] ~ .media-overlay,
-.media-default-skin .media-error[data-open] ~ .media-overlay {
+.media-minimal-skin .media-controls[data-visible] ~ .media-overlay,
+.media-minimal-skin .media-error[data-open] ~ .media-overlay {
     opacity: 1;
 }
-.media-default-skin .media-error[data-open] ~ .media-overlay {
-    backdrop-filter: blur(16px) saturate(1.5);
+.media-minimal-skin .media-error[data-open] ~ .media-overlay {
+    backdrop-filter: blur(16px) saturate(1.2);
 }
 
 /* ==========================================================================
    Buffering Indicator
    ========================================================================== */
 
-.media-default-skin .media-buffering-indicator {
+.media-minimal-skin .media-buffering-indicator {
     position: absolute;
     inset: 0;
     display: none;
@@ -193,40 +192,36 @@ media-tooltip-group {
     color: oklch(1 0 0);
     pointer-events: none;
 }
-.media-default-skin .media-buffering-indicator[data-visible] {
-    display: flex;
+.media-minimal-skin .media-buffering-indicator:not([data-visible]) {
+    --media-spinner-animation: none;
 }
-.media-default-skin .media-buffering-indicator .media-surface {
-    padding: 0.25rem;
-    border-radius: 100%;
+.media-minimal-skin .media-buffering-indicator[data-visible] {
+    display: flex;
 }
 
 /* ==========================================================================
    Error Dialog
    ========================================================================== */
 
-.media-default-skin .media-error {
-    outline: none;
-}
-.media-default-skin .media-error:not([data-open]) {
+.media-minimal-skin .media-error:not([data-open]) {
     display: none;
 }
-.media-default-skin .media-error__title {
+.media-minimal-skin .media-error__title {
     font-weight: 600;
     line-height: 1.25;
 }
-.media-default-skin .media-error__description {
-    opacity: 0.7;
+.media-minimal-skin .media-error__description {
     overflow-wrap: anywhere;
+    opacity: 0.7;
 }
-.media-default-skin .media-error__actions {
+.media-minimal-skin .media-error__actions {
     display: flex;
     gap: 0.5rem;
 }
-.media-default-skin .media-error__actions > * {
+.media-minimal-skin .media-error__actions > * {
     flex: 1;
 }
-.media-default-skin .media-error[data-open] ~ .media-controls * {
+.media-minimal-skin .media-error[data-open] ~ .media-controls * {
     visibility: hidden;
 }
 
@@ -234,80 +229,84 @@ media-tooltip-group {
    Controls
    ========================================================================== */
 
-.media-default-skin .media-controls {
-    container: media-controls / inline-size;
+.media-minimal-skin .media-controls {
     display: flex;
     align-items: center;
-    column-gap: 0.075rem;
-    padding: 0.375rem;
-    border-radius: 1.5rem;
-    --media-controls-current-shadow-color: oklch(
-        from currentColor 0 0 0 / clamp(0, calc((l - 0.5) * 0.5), 0.15)
-    );
-    --media-controls-current-shadow-color-subtle: oklch(
-        from var(--media-controls-current-shadow-color) l c h /
-            calc(alpha * 0.4)
-    );
-    text-shadow: 0 1px 0 var(--media-controls-current-shadow-color);
+    container: media-controls / inline-size;
+    text-shadow: 0 1px 0 var(--media-current-shadow-color);
+    background-color: var(--media-controls-background-color);
+    backdrop-filter: var(--media-controls-backdrop-filter);
 }
 
 /* ==========================================================================
-   Time Display
+   Time Controls & Display
    ========================================================================== */
 
-.media-default-skin .media-time-controls {
-    container: media-time-controls / inline-size;
+.media-minimal-skin .media-time-controls {
     display: flex;
-    align-items: center;
     flex: 1;
-    gap: 0.75rem;
-    padding-inline: 0.5rem;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+    container: media-time-controls / inline-size;
 }
-.media-default-skin .media-time {
+.media-minimal-skin .media-time {
     font-variant-numeric: tabular-nums;
+}
+.media-minimal-skin .media-time--current,
+.media-minimal-skin .media-time--duration {
+    flex: 0 0 auto;
 }
 
 /* ==========================================================================
    Buttons
    ========================================================================== */
 
-.media-default-skin .media-button {
+.media-minimal-skin .media-button {
     display: flex;
+    flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
+    min-height: 0;
     padding: 0.5rem 1rem;
-    border: none;
-    border-radius: calc(infinity * 1px);
-    outline: 2px solid transparent;
-    outline-offset: -2px;
-    transition-property: background-color, outline-offset, scale;
-    will-change: scale;
-    transition-duration: 150ms;
-    transition-timing-function: ease-out;
-    cursor: pointer;
-    user-select: none;
     text-align: center;
     touch-action: manipulation;
+    cursor: pointer;
+    user-select: none;
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    border: none;
+    border-radius: 0.5rem;
+    transition-timing-function: ease-out;
+    transition-duration: 150ms;
+    transition-property: background-color, outline-offset, scale;
+    will-change: scale;
 }
-.media-default-skin .media-button:focus-visible {
+.media-minimal-skin .media-button:focus-visible {
     outline-color: currentColor;
     outline-offset: 2px;
 }
-.media-default-skin .media-button:active {
+.media-minimal-skin .media-button:active {
     scale: 0.98;
 }
-.media-default-skin .media-button[disabled] {
+.media-minimal-skin .media-button[disabled] {
+    cursor: not-allowed;
     opacity: 0.5;
     filter: grayscale(1);
-    cursor: not-allowed;
 }
-.media-default-skin .media-button[data-availability="unavailable"],
-.media-default-skin .media-button[data-availability="unsupported"] {
+.media-minimal-skin .media-button[data-availability="unavailable"],
+.media-minimal-skin .media-button[data-availability="unsupported"] {
     display: none;
 }
+@supports (corner-shape: squircle) {
+    .media-minimal-skin .media-button {
+        border-radius: 1rem;
+        corner-shape: squircle;
+    }
+}
 
-.media-default-skin .media-button--primary {
+.media-minimal-skin .media-button--primary {
+    font-weight: 500;
     /* `--bccm-color-accent` is the BCC theming hook for primary-action
        buttons (OK on the error dialog, etc.). Foreground auto-flips
        black/white based on the accent's OKLCH lightness so brand colors
@@ -317,38 +316,39 @@ media-tooltip-group {
         from var(--bccm-color-accent, oklch(1 0 0))
             clamp(0, (0.6 - l) * 1000, 1) 0 0
     );
-    font-weight: 500;
     text-shadow: none;
 }
 
-.media-default-skin .media-button--subtle {
-    background: transparent;
+.media-minimal-skin .media-button--subtle {
     color: inherit;
     text-shadow: inherit;
+    background: transparent;
 }
-.media-default-skin .media-button--subtle:hover,
-.media-default-skin .media-button--subtle:focus-visible,
-.media-default-skin .media-button--subtle[aria-expanded="true"] {
-    background-color: oklch(from currentColor l c h / 0.1);
-    text-decoration: none;
+.media-minimal-skin .media-button--subtle:hover,
+.media-minimal-skin .media-button--subtle:focus-visible,
+.media-minimal-skin .media-button--subtle[aria-expanded="true"] {
+    background: oklch(from currentColor l c h / 0.1);
 }
 
-.media-default-skin .media-button--icon {
+.media-minimal-skin .media-button--icon {
     display: grid;
-    width: 2.25rem;
-    padding: 0;
+    width: 2.375rem;
     aspect-ratio: 1;
+    padding: 0;
 }
-.media-default-skin .media-button--icon:active {
+.media-minimal-skin .media-button--icon:active {
     scale: 0.9;
 }
-.media-default-skin .media-button--icon .media-icon {
-    filter: drop-shadow(
-        0 1px 0 var(--media-controls-current-shadow-color, oklch(0 0 0 / 0.25))
-    );
+.media-minimal-skin .media-button--icon .media-icon {
+    grid-area: 1 / 1;
+    transition-behavior: allow-discrete;
+    transition-property: display, opacity;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+    filter: drop-shadow(0 1px 0 var(--media-current-shadow-color));
 }
 
-.media-default-skin .media-button--seek .media-icon__label {
+.media-minimal-skin .media-button--seek .media-icon__label {
     position: absolute;
     right: -1px;
     bottom: -3px;
@@ -356,33 +356,37 @@ media-tooltip-group {
     font-weight: 480;
     font-variant-numeric: tabular-nums;
 }
-.media-default-skin
+.media-minimal-skin
     .media-button--seek:has(.media-icon--flipped)
     .media-icon__label {
     right: unset;
     left: -1px;
 }
 
-.media-default-skin .media-button--playback-rate {
+.media-minimal-skin .media-button--playback-rate {
     padding: 0;
-}
-.media-default-skin .media-button--playback-rate::after {
-    content: attr(data-rate) "\00D7";
-    width: 4ch;
     font-variant-numeric: tabular-nums;
+}
+.media-minimal-skin .media-button--playback-rate::after {
+    width: 4ch;
+    content: attr(data-rate) "\00D7";
+}
+.media-minimal-skin
+    .media-button--playback-rate[data-inline-rate-label]::after {
+    content: none;
 }
 
 /* ==========================================================================
    Button Groups
    ========================================================================== */
 
-.media-default-skin .media-button-group {
+.media-minimal-skin .media-button-group {
     display: flex;
-    align-items: center;
     gap: 0.075rem;
+    align-items: center;
 }
 @container media-root (width > 42rem) {
-    .media-default-skin .media-button-group {
+    .media-minimal-skin .media-button-group {
         gap: 0.125rem;
     }
 }
@@ -391,43 +395,37 @@ media-tooltip-group {
    Icons
    ========================================================================== */
 
-.media-default-skin .media-icon__container {
+.media-minimal-skin .media-icon__container {
     position: relative;
 }
-.media-default-skin .media-icon {
-    display: block;
+.media-minimal-skin .media-icon {
     flex-shrink: 0;
-    grid-area: 1 / 1;
-    width: 18px;
-    height: 18px;
-    transition-behavior: allow-discrete;
-    transition-property: display, opacity;
-    transition-duration: 150ms;
-    transition-timing-function: ease-out;
+    width: var(--media-icon-size);
+    height: var(--media-icon-size);
 }
-.media-default-skin .media-icon--flipped {
+.media-minimal-skin .media-icon--flipped {
     scale: -1 1;
 }
 
 /* ==========================================================================
-   Poster
+   Poster Image
    ========================================================================== */
 
-.media-default-skin media-poster,
-.media-default-skin > img {
+.media-minimal-skin media-poster,
+.media-minimal-skin > img {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    transition: opacity 0.25s;
     pointer-events: none;
+    transition: opacity 0.25s;
 }
-.media-default-skin media-poster:not([data-visible]),
-.media-default-skin > img:not([data-visible]) {
+.media-minimal-skin media-poster:not([data-visible]),
+.media-minimal-skin > img:not([data-visible]) {
     opacity: 0;
 }
-.media-default-skin media-poster ::slotted(img),
-.media-default-skin media-poster img {
+.media-minimal-skin media-poster ::slotted(img),
+.media-minimal-skin media-poster img {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -436,70 +434,63 @@ media-tooltip-group {
     object-position: var(--media-object-position, center);
     border-radius: var(--media-video-border-radius);
 }
-.media-default-skin > img {
+.media-minimal-skin > img {
     object-fit: var(--media-object-fit, contain);
     object-position: var(--media-object-position, center);
     border-radius: inherit;
 }
-.media-default-skin:fullscreen media-poster ::slotted(img),
-.media-default-skin:fullscreen media-poster img,
-.media-default-skin:fullscreen > img {
+.media-minimal-skin:fullscreen media-poster ::slotted(img),
+.media-minimal-skin:fullscreen media-poster img,
+.media-minimal-skin:fullscreen > img {
     object-fit: contain;
 }
 
 /* ==========================================================================
-   Slider preview
+   Media preview
    ========================================================================== */
 
-.media-default-skin .media-preview {
-    background-color: oklch(0 0 0 / 0.9);
-    border-radius: 0.75rem;
+.media-minimal-skin .media-preview {
     pointer-events: none;
 }
-.media-default-skin .media-preview .media-preview__thumbnail {
-    display: block;
+.media-minimal-skin .media-preview .media-preview__thumbnail-wrapper {
     position: relative;
-    border-radius: inherit;
-    overflow: clip;
+    background-color: oklch(0 0 0 / 0.9);
+    border-radius: 0.5rem;
 }
-.media-default-skin .media-preview .media-preview__thumbnail::after {
-    content: "";
-    position: absolute;
-    inset: 0;
+.media-minimal-skin .media-preview .media-preview__thumbnail {
+    display: block;
     border-radius: inherit;
-    background-image: linear-gradient(
-        to top,
-        oklch(0 0 0 / 0.8),
-        oklch(0 0 0 / 0.3),
-        oklch(0 0 0 / 0)
-    );
 }
-.media-default-skin .media-preview .media-preview__time {
-    position: absolute;
-    bottom: 0.5rem;
-    inset-inline: 0;
+.media-minimal-skin .media-preview .media-preview__time {
+    display: block;
+    margin-top: 0.5rem;
     text-align: center;
 }
-.media-default-skin .media-preview .media-overlay {
+.media-minimal-skin .media-preview .media-overlay {
     opacity: 1;
 }
-.media-default-skin .media-preview .media-preview__spinner {
+.media-minimal-skin .media-preview .media-preview__spinner {
     position: absolute;
     top: 50%;
     left: 50%;
-    translate: -50% -50%;
     opacity: 0;
+    translate: -50% -50%;
 }
-.media-default-skin .media-preview .media-preview__thumbnail,
-.media-default-skin .media-preview .media-preview__spinner {
+.media-minimal-skin .media-preview .media-preview__thumbnail,
+.media-minimal-skin .media-preview .media-preview__spinner {
     transition: opacity 150ms ease-out;
 }
-.media-default-skin
+.media-minimal-skin
+    .media-preview:not(:has(.media-preview__thumbnail[data-loading]))
+    .media-preview__spinner {
+    --media-spinner-animation: none;
+}
+.media-minimal-skin
     .media-preview:has(.media-preview__thumbnail[data-loading])
     .media-preview__thumbnail {
     opacity: 0;
 }
-.media-default-skin
+.media-minimal-skin
     .media-preview:has(.media-preview__thumbnail[data-loading])
     .media-preview__spinner {
     opacity: 1;
@@ -509,158 +500,139 @@ media-tooltip-group {
    Slider
    ========================================================================== */
 
-.media-default-skin .media-slider {
+.media-minimal-skin .media-slider {
     position: relative;
     display: flex;
+    flex: 1;
     align-items: center;
     justify-content: center;
-    flex: 1;
-    border-radius: calc(infinity * 1px);
-    outline: none;
     cursor: pointer;
+    outline: none;
+    border-radius: calc(infinity * 1px);
 }
-.media-default-skin .media-slider[data-orientation="horizontal"] {
-    min-width: 5rem;
+.media-minimal-skin .media-slider[data-orientation="horizontal"] {
     width: 100%;
+    min-width: 5rem;
     height: 2rem;
 }
-.media-default-skin .media-slider[data-orientation="vertical"] {
+.media-minimal-skin .media-slider[data-orientation="vertical"] {
     width: 2rem;
-    height: 5rem;
+    height: 4.5rem;
 }
 
-.media-default-skin .media-slider__track {
+.media-minimal-skin .media-slider__track {
     position: relative;
-    isolation: isolate;
     overflow: hidden;
-    border-radius: inherit;
     user-select: none;
+    background-color: oklch(from currentColor l c h / 0.2);
+    border-radius: inherit;
+    isolation: isolate;
 }
-.media-default-skin .media-slider__track[data-orientation="horizontal"] {
+.media-minimal-skin .media-slider__track[data-orientation="horizontal"] {
     width: 100%;
-    height: 0.25rem;
+    height: 0.1875rem;
 }
-.media-default-skin .media-slider__track[data-orientation="vertical"] {
-    width: 0.25rem;
+.media-minimal-skin .media-slider__track[data-orientation="vertical"] {
+    width: 0.1875rem;
     height: 100%;
 }
 
-.media-default-skin .media-slider__thumb {
-    z-index: 10;
+.media-minimal-skin .media-slider__thumb {
     position: absolute;
-    translate: -50% -50%;
-    width: 0.625rem;
-    height: 0.625rem;
+    z-index: 10;
+    width: 0.75rem;
+    height: 0.75rem;
+    user-select: none;
+    outline: 2px solid transparent;
+    outline-offset: -2px;
     background-color: currentColor;
     border-radius: calc(infinity * 1px);
     box-shadow:
-        0 0 0 1px
-            var(
-                --media-controls-current-shadow-color-subtle,
-                oklch(0 0 0 / 0.1)
-            ),
+        0 0 0 1px var(--media-current-shadow-color-subtle, oklch(0 0 0 / 0.1)),
         0 1px 3px 0 oklch(0 0 0 / 0.15),
         0 1px 2px -1px oklch(0 0 0 / 0.15);
     opacity: 0;
-    transition-property: opacity, height, width, outline-offset;
-    transition-duration: 150ms;
+    transform-origin: center;
+    scale: 0.7;
+    translate: -50% -50%;
     transition-timing-function: ease-out;
-    user-select: none;
-    outline: 4px solid transparent;
-    outline-offset: -4px;
+    transition-duration: 150ms;
+    transition-property: opacity, scale, outline-offset;
 }
-.media-default-skin .media-slider__thumb[data-orientation="horizontal"] {
+.media-minimal-skin .media-slider__thumb[data-orientation="horizontal"] {
     top: 50%;
     left: var(--media-slider-fill);
 }
-.media-default-skin .media-slider__thumb[data-orientation="vertical"] {
-    left: 50%;
+.media-minimal-skin .media-slider__thumb[data-orientation="vertical"] {
     top: calc(100% - var(--media-slider-fill));
+    left: 50%;
 }
-.media-default-skin .media-slider__thumb:hover,
-.media-default-skin .media-slider__thumb:focus {
-    outline-color: oklch(from currentColor l c h / 0.25);
-    outline-offset: 0;
+.media-minimal-skin .media-slider__thumb:focus-visible {
+    outline-color: currentColor;
+    outline-offset: 2px;
 }
-.media-default-skin .media-slider__thumb::after {
-    content: "";
-    position: absolute;
-    inset: -4px;
-    border-radius: inherit;
-    box-shadow: 0 0 0 2px oklch(1 0 0);
-    transition-property: opacity, scale;
-    transition-duration: 150ms;
-    transition-timing-function: ease-out;
-}
-.media-default-skin .media-slider__thumb:not(:focus-visible)::after {
-    scale: 0.5;
-    opacity: 0;
-}
-.media-default-skin .media-slider:active .media-slider__thumb,
-.media-default-skin .media-slider__thumb--persistent {
-    width: 0.75rem;
-    height: 0.75rem;
-}
-.media-default-skin .media-slider:hover .media-slider__thumb,
-.media-default-skin .media-slider__thumb:focus-visible,
-.media-default-skin .media-slider__thumb--persistent {
+.media-minimal-skin .media-slider:hover .media-slider__thumb,
+.media-minimal-skin .media-slider:focus-within .media-slider__thumb,
+.media-minimal-skin .media-slider__thumb--persistent {
     opacity: 1;
+    scale: 1;
 }
 
-.media-default-skin .media-slider__buffer,
-.media-default-skin .media-slider__fill {
+.media-minimal-skin .media-slider__buffer,
+.media-minimal-skin .media-slider__fill {
     position: absolute;
-    border-radius: inherit;
     pointer-events: none;
+    border-radius: inherit;
 }
-.media-default-skin .media-slider__buffer[data-orientation="horizontal"],
-.media-default-skin .media-slider__fill[data-orientation="horizontal"] {
+.media-minimal-skin .media-slider__buffer[data-orientation="horizontal"],
+.media-minimal-skin .media-slider__fill[data-orientation="horizontal"] {
     inset-block: 0;
     left: 0;
 }
-.media-default-skin .media-slider__buffer[data-orientation="vertical"],
-.media-default-skin .media-slider__fill[data-orientation="vertical"] {
+.media-minimal-skin .media-slider__buffer[data-orientation="vertical"],
+.media-minimal-skin .media-slider__fill[data-orientation="vertical"] {
     inset-inline: 0;
     bottom: 0;
 }
-.media-default-skin .media-slider__buffer {
+.media-minimal-skin .media-slider__buffer {
     background-color: oklch(from currentColor l c h / 0.2);
-    transition-duration: 0.25s;
     transition-timing-function: ease-out;
+    transition-duration: 0.25s;
 }
-.media-default-skin .media-slider__buffer[data-orientation="horizontal"] {
+.media-minimal-skin .media-slider__buffer[data-orientation="horizontal"] {
     width: var(--media-slider-buffer);
     transition-property: width;
 }
-.media-default-skin .media-slider__buffer[data-orientation="vertical"] {
+.media-minimal-skin .media-slider__buffer[data-orientation="vertical"] {
     height: var(--media-slider-buffer);
     transition-property: height;
 }
-.media-default-skin .media-slider__fill {
+.media-minimal-skin .media-slider__fill {
     background-color: currentColor;
 }
-.media-default-skin .media-slider__fill[data-orientation="horizontal"] {
+.media-minimal-skin .media-slider__fill[data-orientation="horizontal"] {
     width: var(--media-slider-fill);
 }
-.media-default-skin .media-slider__fill[data-orientation="vertical"] {
+.media-minimal-skin .media-slider__fill[data-orientation="vertical"] {
     height: var(--media-slider-fill);
 }
-.media-default-skin
+
+.media-minimal-skin
     .media-slider[data-dragging]
     .media-slider__thumb[data-orientation="horizontal"] {
     left: var(--media-slider-pointer);
 }
-.media-default-skin
+.media-minimal-skin
     .media-slider[data-dragging]
     .media-slider__thumb[data-orientation="vertical"] {
     top: calc(100% - var(--media-slider-pointer));
 }
-.media-default-skin
+.media-minimal-skin
     .media-slider[data-dragging]
     .media-slider__fill[data-orientation="horizontal"] {
     width: var(--media-slider-pointer);
 }
-.media-default-skin
+.media-minimal-skin
     .media-slider[data-dragging]
     .media-slider__fill[data-orientation="vertical"] {
     height: var(--media-slider-pointer);
@@ -670,144 +642,150 @@ media-tooltip-group {
    Popups & Tooltips
    ========================================================================== */
 
-.media-default-skin .media-popover,
-.media-default-skin .media-tooltip {
+.media-minimal-skin .media-popover,
+.media-minimal-skin .media-tooltip {
     margin: 0;
-    border: 0;
-    color: inherit;
     overflow: visible;
-    transition-property: scale, opacity, filter;
-    transition-duration: var(--media-popup-transition-duration);
+    color: inherit;
+    border: 0;
     transition-timing-function: var(--media-popup-transition-timing-function);
+    transition-duration: var(--media-popup-transition-duration);
+    transition-property: scale, opacity, filter;
 }
-.media-default-skin .media-popover[data-starting-style],
-.media-default-skin .media-popover[data-ending-style],
-.media-default-skin .media-tooltip[data-starting-style],
-.media-default-skin .media-tooltip[data-ending-style] {
+.media-minimal-skin .media-popover[data-starting-style],
+.media-minimal-skin .media-popover[data-ending-style],
+.media-minimal-skin .media-tooltip[data-starting-style],
+.media-minimal-skin .media-tooltip[data-ending-style] {
     opacity: 0;
-    scale: 0.5;
     filter: blur(8px);
+    scale: 0.5;
 }
-.media-default-skin .media-popover[data-instant],
-.media-default-skin .media-tooltip[data-instant] {
+.media-minimal-skin .media-popover[data-instant],
+.media-minimal-skin .media-tooltip[data-instant] {
     transition-duration: 0ms;
 }
-.media-default-skin .media-popover[data-side="top"],
-.media-default-skin .media-tooltip[data-side="top"] {
+.media-minimal-skin .media-popover[data-side="top"],
+.media-minimal-skin .media-tooltip[data-side="top"] {
     transform-origin: bottom;
 }
-.media-default-skin .media-popover[data-side="bottom"],
-.media-default-skin .media-tooltip[data-side="bottom"] {
+.media-minimal-skin .media-popover[data-side="bottom"],
+.media-minimal-skin .media-tooltip[data-side="bottom"] {
     transform-origin: top;
 }
-.media-default-skin .media-popover[data-side="left"],
-.media-default-skin .media-tooltip[data-side="left"] {
+.media-minimal-skin .media-popover[data-side="left"],
+.media-minimal-skin .media-tooltip[data-side="left"] {
     transform-origin: right;
 }
-.media-default-skin .media-popover[data-side="right"],
-.media-default-skin .media-tooltip[data-side="right"] {
+.media-minimal-skin .media-popover[data-side="right"],
+.media-minimal-skin .media-tooltip[data-side="right"] {
     transform-origin: left;
 }
-.media-default-skin .media-popover::before,
-.media-default-skin .media-tooltip::before {
-    content: "";
+.media-minimal-skin .media-popover::before,
+.media-minimal-skin .media-tooltip::before {
     position: absolute;
     pointer-events: inherit;
+    content: "";
 }
-.media-default-skin .media-popover[data-side="top"]::before,
-.media-default-skin .media-popover[data-side="bottom"]::before,
-.media-default-skin .media-tooltip[data-side="top"]::before,
-.media-default-skin .media-tooltip[data-side="bottom"]::before {
-    width: 100%;
+.media-minimal-skin .media-popover[data-side="top"]::before,
+.media-minimal-skin .media-popover[data-side="bottom"]::before,
+.media-minimal-skin .media-tooltip[data-side="top"]::before,
+.media-minimal-skin .media-tooltip[data-side="bottom"]::before {
     inset-inline: 0;
+    width: 100%;
 }
-.media-default-skin .media-popover[data-side="top"]::before,
-.media-default-skin .media-tooltip[data-side="top"]::before {
+.media-minimal-skin .media-popover[data-side="top"]::before,
+.media-minimal-skin .media-tooltip[data-side="top"]::before {
     top: 100%;
 }
-.media-default-skin .media-popover[data-side="bottom"]::before,
-.media-default-skin .media-tooltip[data-side="bottom"]::before {
+.media-minimal-skin .media-popover[data-side="bottom"]::before,
+.media-minimal-skin .media-tooltip[data-side="bottom"]::before {
     bottom: 100%;
 }
-.media-default-skin .media-popover[data-side="left"]::before,
-.media-default-skin .media-popover[data-side="right"]::before,
-.media-default-skin .media-tooltip[data-side="left"]::before,
-.media-default-skin .media-tooltip[data-side="right"]::before {
-    height: 100%;
+.media-minimal-skin .media-popover[data-side="left"]::before,
+.media-minimal-skin .media-popover[data-side="right"]::before,
+.media-minimal-skin .media-tooltip[data-side="left"]::before,
+.media-minimal-skin .media-tooltip[data-side="right"]::before {
     inset-block: 0;
+    height: 100%;
 }
-.media-default-skin .media-popover[data-side="left"]::before,
-.media-default-skin .media-tooltip[data-side="left"]::before {
+.media-minimal-skin .media-popover[data-side="left"]::before,
+.media-minimal-skin .media-tooltip[data-side="left"]::before {
     left: 100%;
 }
-.media-default-skin .media-popover[data-side="right"]::before,
-.media-default-skin .media-tooltip[data-side="right"]::before {
+.media-minimal-skin .media-popover[data-side="right"]::before,
+.media-minimal-skin .media-tooltip[data-side="right"]::before {
     right: 100%;
 }
-.media-default-skin .media-popover[data-side="top"]::before,
-.media-default-skin .media-popover[data-side="bottom"]::before {
+
+.media-minimal-skin .media-popover[data-side="top"]::before,
+.media-minimal-skin .media-popover[data-side="bottom"]::before {
     height: var(--media-popover-side-offset);
 }
-.media-default-skin .media-popover[data-side="left"]::before,
-.media-default-skin .media-popover[data-side="right"]::before {
+.media-minimal-skin .media-popover[data-side="left"]::before,
+.media-minimal-skin .media-popover[data-side="right"]::before {
     width: var(--media-popover-side-offset);
 }
-.media-default-skin .media-popover--volume {
-    padding: 0.75rem 0;
-    border-radius: calc(infinity * 1px);
+
+.media-minimal-skin .media-tooltip {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    color: var(--media-tooltip-text-color);
+    white-space: nowrap;
+    background-color: var(--media-tooltip-background-color);
+    border-radius: 0.5rem;
+    box-shadow:
+        0 0 0 1px var(--media-tooltip-border-color),
+        0 4px 6px -1px oklch(0 0 0 / 0.1),
+        0 2px 4px -2px oklch(0 0 0 / 0.1);
+    backdrop-filter: var(--media-tooltip-backdrop-filter);
 }
-.media-default-skin
+.media-minimal-skin .media-tooltip[data-side="top"]::before,
+.media-minimal-skin .media-tooltip[data-side="bottom"]::before {
+    height: var(--media-tooltip-side-offset);
+}
+.media-minimal-skin .media-tooltip[data-side="left"]::before,
+.media-minimal-skin .media-tooltip[data-side="right"]::before {
+    width: var(--media-tooltip-side-offset);
+}
+
+.media-minimal-skin
     .media-popover--volume:has(
         media-volume-slider[data-availability="unsupported"]
     ) {
     display: none;
 }
-.media-default-skin .media-tooltip {
-    padding: 0.25rem 0.625rem;
-    border-radius: calc(infinity * 1px);
-    font-size: 0.75rem;
-    white-space: nowrap;
-}
-.media-default-skin .media-tooltip[data-side="top"]::before,
-.media-default-skin .media-tooltip[data-side="bottom"]::before {
-    height: var(--media-tooltip-side-offset);
-}
-.media-default-skin .media-tooltip[data-side="left"]::before,
-.media-default-skin .media-tooltip[data-side="right"]::before {
-    width: var(--media-tooltip-side-offset);
-}
 
 /* ==========================================================================
-   Native caption track
+   Native Caption Track
    ========================================================================== */
 
-.media-default-skin {
+.media-minimal-skin {
     --media-caption-track-duration: var(--media-controls-transition-duration);
     --media-caption-track-delay: 25ms;
     --media-caption-track-y: -0.5rem;
 }
-.media-default-skin:has(.media-controls[data-visible]) {
-    --media-caption-track-y: -5.5rem;
+.media-minimal-skin:has(.media-controls[data-visible]) {
+    --media-caption-track-y: -5rem;
 }
 @container media-root (width > 42rem) {
-    .media-default-skin:has(.media-controls[data-visible]) > * {
-        --media-caption-track-y: -3.5rem;
+    .media-minimal-skin:has(.media-controls[data-visible]) > * {
+        --media-caption-track-y: -3rem;
     }
 }
-.media-default-skin video::-webkit-media-text-track-container {
-    transition: translate var(--media-caption-track-duration) ease-out;
-    transition-delay: var(--media-caption-track-delay);
-    translate: 0 var(--media-caption-track-y);
-    scale: 0.98;
+.media-minimal-skin video::-webkit-media-text-track-container {
     z-index: 1;
     font-family: inherit;
+    scale: 0.98;
+    translate: 0 var(--media-caption-track-y);
+    transition: translate var(--media-caption-track-duration) ease-out;
+    transition-delay: var(--media-caption-track-delay);
 }
-.media-default-skin video::cue {
+.media-minimal-skin video::cue {
     background-color: rgba(0, 0, 0, 0.5);
 }
 
 /* ==========================================================================
-   Icon visibility
+   Icon State Visibility
    ========================================================================== */
 
 .media-button--play .media-icon--restart,
@@ -851,59 +829,52 @@ media-tooltip-group {
    Root variant
    ========================================================================== */
 
-.media-default-skin--video {
-    background: oklch(0 0 0);
-    --media-spring-transition: linear(
-        0,
-        0.034 1.5%,
-        0.763 9.7%,
-        1.066 13.9%,
-        1.198 19.9%,
-        1.184 21.8%,
-        0.963 37.5%,
-        0.997 50.9%,
-        1
-    );
-    --media-border-color: oklch(0 0 0 / 0.1);
-    --media-surface-background-color: oklch(1 0 0 / 0.1);
-    --media-surface-inner-border-color: oklch(1 0 0 / 0.05);
-    --media-surface-outer-border-color: oklch(0 0 0 / 0.1);
-    --media-surface-shadow-color: oklch(0 0 0 / 0.15);
-    --media-surface-backdrop-filter: blur(16px) saturate(1.5);
-    --media-video-border-radius: var(--media-border-radius, 2rem);
+.media-minimal-skin--video {
+    --media-border-color: oklch(0 0 0 / 0.15);
+    --media-video-border-radius: var(--media-border-radius, 0.75rem);
+    --media-controls-background-color: transparent;
     --media-controls-transition-duration: 100ms;
     --media-controls-transition-timing-function: ease-out;
-    --media-error-dialog-transition-duration: 350ms;
+    --media-error-dialog-transition-duration: 150ms;
     --media-error-dialog-transition-delay: 100ms;
-    --media-error-dialog-transition-timing-function: var(
-        --media-spring-transition
-    );
+    --media-error-dialog-transition-timing-function: ease-out;
     --media-popup-transition-duration: 100ms;
     --media-popup-transition-timing-function: ease-out;
-    --media-tooltip-side-offset: 0.75rem;
-    --media-popover-side-offset: 0.5rem;
+    --media-tooltip-background-color: oklch(1 0 0 / 0.1);
+    --media-tooltip-border-color: transparent;
+    --media-tooltip-backdrop-filter: blur(16px) saturate(1.5);
+    --media-tooltip-text-color: currentColor;
+    --media-tooltip-side-offset: 0.5rem;
+    --media-tooltip-boundary-offset: 0.5rem;
+    --media-popover-side-offset: 1.5rem;
+    --media-popover-boundary-offset: 0.5rem;
+    overflow: clip;
+    background: oklch(0 0 0);
 }
 @media (prefers-reduced-motion: reduce) {
-    .media-default-skin--video {
+    .media-minimal-skin--video {
         --media-error-dialog-transition-duration: 50ms;
         --media-error-dialog-transition-delay: 0ms;
-        --media-error-dialog-transition-timing-function: ease-out;
         --media-popup-transition-duration: 0ms;
     }
 }
 @media (prefers-color-scheme: dark) {
-    .media-default-skin--video {
+    .media-minimal-skin--video {
         --media-border-color: oklch(1 0 0 / 0.15);
     }
 }
 @media (prefers-reduced-transparency: reduce) or (prefers-contrast: more) {
-    .media-default-skin--video {
-        --media-surface-background-color: oklch(0 0 0);
-        --media-surface-inner-border-color: oklch(1 0 0 / 0.25);
-        --media-surface-outer-border-color: transparent;
+    .media-minimal-skin--video {
+        --media-controls-background-color: oklch(0 0 0);
+        --media-tooltip-background-color: oklch(0 0 0);
     }
 }
-.media-default-skin--video:has(.media-controls:not([data-visible])) {
+@container media-root (width > 42rem) {
+    .media-minimal-skin--video > * {
+        --media-popover-side-offset: 0.5rem;
+    }
+}
+.media-minimal-skin--video:has(.media-controls:not([data-visible])) {
     @media (pointer: fine) {
         --media-controls-transition-duration: 300ms;
     }
@@ -914,162 +885,163 @@ media-tooltip-group {
         --media-controls-transition-duration: 50ms;
     }
 }
-.media-default-skin--video::after {
-    content: "";
+.media-minimal-skin--video::after {
     position: absolute;
     inset: 0;
     z-index: 10;
+    pointer-events: none;
+    content: "";
     border-radius: inherit;
     box-shadow: inset 0 0 0 1px var(--media-border-color);
-    pointer-events: none;
 }
-.media-default-skin--video:fullscreen {
+.media-minimal-skin--video:fullscreen {
     --media-border-radius: 0;
 }
 
 /* ==========================================================================
-   Error dialog (video)
+   Error Dialog (video)
    ========================================================================== */
 
-.media-default-skin--video .media-error {
+.media-minimal-skin--video .media-error {
     position: absolute;
     inset: 0;
     z-index: 20;
     display: flex;
     align-items: center;
     justify-content: center;
+    pointer-events: none;
+    outline: none;
 }
-.media-default-skin--video .media-error__dialog {
+.media-minimal-skin--video .media-error__dialog {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    max-width: 18rem;
-    padding: 0.75rem;
-    border-radius: 1.75rem;
+    max-width: 16rem;
+    padding: 1rem;
     color: oklch(1 0 0);
-    text-shadow: 0 1px 0 oklch(0 0 0 / 0.25);
-    transition-property: opacity, scale;
-    transition-duration: var(--media-error-dialog-transition-duration);
+    text-shadow: 0 1px 0 oklch(0 0 0 / 0.5);
+    pointer-events: auto;
     transition-delay: var(--media-error-dialog-transition-delay);
     transition-timing-function: var(
         --media-error-dialog-transition-timing-function
     );
+    transition-duration: var(--media-error-dialog-transition-duration);
+    transition-property: opacity, scale;
 }
-.media-default-skin--video
+.media-minimal-skin--video
     .media-error[data-starting-style]
     .media-error__dialog,
-.media-default-skin--video
+.media-minimal-skin--video
     .media-error[data-ending-style]
     .media-error__dialog {
     opacity: 0;
     scale: 0.5;
 }
-.media-default-skin--video
+.media-minimal-skin--video
     .media-error[data-ending-style]
     .media-error__dialog {
     transition-delay: 0ms;
 }
-.media-default-skin--video .media-error__content {
+.media-minimal-skin--video .media-error__content {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding: 0.5rem 0.5rem 0.375rem;
-    text-shadow: inherit;
+    padding: 0.375rem 0;
 }
-.media-default-skin--video .media-error__title {
-    font-size: 1rem;
+.media-minimal-skin--video .media-error__title {
+    font-size: 1.125rem;
+}
+.media-minimal-skin--video .media-error[data-open] ~ .media-controls {
+    display: none;
 }
 
 /* ==========================================================================
    Controls (hide/show behavior)
    ========================================================================== */
 
-.media-default-skin--video .media-controls {
-    flex-wrap: wrap;
+.media-minimal-skin--video .media-controls {
     position: absolute;
-    bottom: 0.5rem;
-    inset-inline: 0.5rem;
+    inset-inline: 0.25rem;
+    bottom: 0.25rem;
     z-index: 10;
+    flex-wrap: wrap;
+    column-gap: 0.5rem;
+    max-width: 56rem;
+    padding: 0.25rem;
+    margin-inline: auto;
     color: var(--media-color-primary, oklch(1 0 0));
-    transition-duration: var(--media-controls-transition-duration);
+    border-radius: 0.75rem;
     transition-timing-function: var(
         --media-controls-transition-timing-function
     );
-    transform-origin: bottom;
+    transition-duration: var(--media-controls-transition-duration);
 }
 @media (pointer: fine) {
-    .media-default-skin--video .media-controls {
-        will-change: scale, filter, opacity;
-        transition-property: scale, filter, opacity;
+    .media-minimal-skin--video .media-controls {
+        transition-property: translate, filter, opacity;
+        will-change: translate, filter, opacity;
     }
 }
 @media (pointer: coarse) {
-    .media-default-skin--video .media-controls {
-        will-change: scale, opacity;
-        transition-property: scale, opacity;
+    .media-minimal-skin--video .media-controls {
+        transition-property: translate, opacity;
+        will-change: translate, opacity;
     }
 }
-.media-default-skin--video .media-controls:not([data-visible]) {
-    opacity: 0;
+.media-minimal-skin--video .media-controls:not([data-visible]) {
     pointer-events: none;
-    scale: 0.9;
+    opacity: 0;
 }
 @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
-    .media-default-skin--video .media-controls:not([data-visible]) {
+    .media-minimal-skin--video .media-controls:not([data-visible]) {
         filter: blur(8px);
     }
 }
-@media (prefers-reduced-motion: reduce) {
-    .media-default-skin--video .media-controls:not([data-visible]) {
-        scale: 1;
+@media (prefers-reduced-motion: no-preference) {
+    .media-minimal-skin--video .media-controls:not([data-visible]) {
+        translate: 0 100%;
     }
 }
 /* Pin the control bar visible while a picker popover is open, otherwise
    the bar fades on mouseleave and leaves the menu floating untethered. */
-.media-default-skin--video:has(.bccm-picker-menu:popover-open) .media-controls {
+.media-minimal-skin--video:has(.bccm-picker-menu:popover-open) .media-controls {
     opacity: 1;
     pointer-events: auto;
-    scale: 1;
+    translate: 0;
     filter: none;
 }
-.media-default-skin--video:has(.bccm-picker-menu:popover-open) {
+.media-minimal-skin--video:has(.bccm-picker-menu:popover-open) {
     cursor: auto;
 }
-.media-default-skin--video .media-controls .media-time-controls {
-    order: -1;
+.media-minimal-skin--video .media-controls .media-time-controls {
     flex: 0 0 100%;
+    order: -1;
     padding-inline: 0.625rem;
 }
-.media-default-skin--video .media-controls .media-button-group:first-child {
+.media-minimal-skin--video .media-controls .media-button-group:first-child {
     flex: 1;
     text-align: left;
 }
-.media-default-skin--video .media-controls .media-button-group:last-child {
+.media-minimal-skin--video .media-controls .media-button-group:last-child {
     flex: 1;
     justify-content: end;
 }
 @container media-root (width > 42rem) {
-    .media-default-skin--video .media-controls {
-        bottom: 0.75rem;
-        inset-inline: 0.75rem;
+    .media-minimal-skin--video .media-controls {
+        inset-inline: 0.5rem;
+        bottom: 0.5rem;
         flex-wrap: nowrap;
-        column-gap: 0.125rem;
-        padding: 0.25rem;
     }
-    .media-default-skin--video .media-controls .media-time-controls {
-        order: unset;
+    .media-minimal-skin--video .media-controls .media-time-controls {
         flex: 1;
+        order: unset;
     }
-    .media-default-skin--video .media-controls .media-button-group:first-child,
-    .media-default-skin--video .media-controls .media-button-group:last-child {
+    .media-minimal-skin--video .media-controls .media-button-group:first-child,
+    .media-minimal-skin--video .media-controls .media-button-group:last-child {
         flex: 0 0 auto;
     }
 }
-
-.media-default-skin--video .media-error[data-open] ~ .media-controls {
-    display: none;
-}
-.media-default-skin--video:has(.media-controls:not([data-visible])) {
+.media-minimal-skin--video:has(.media-controls:not([data-visible])) {
     cursor: none;
 }
 
@@ -1077,89 +1049,139 @@ media-tooltip-group {
    Sliders (video)
    ========================================================================== */
 
-.media-default-skin--video .media-slider__track {
-    background-color: oklch(1 0 0 / 0.2);
+.media-minimal-skin--video .media-slider__track {
     box-shadow: 0 0 0 1px oklch(0 0 0 / 0.05);
 }
 
-.media-default-skin--video .media-slider__preview {
+.media-minimal-skin--video .media-popover--volume {
+    padding-block: 0.75rem;
+    background: transparent;
+    border-radius: 0.75rem;
+}
+@media (prefers-reduced-transparency: reduce) or (prefers-contrast: more) {
+    .media-minimal-skin--video .media-popover--volume {
+        background: var(--media-controls-background-color);
+    }
+}
+@container media-root (width > 42rem) {
+    .media-minimal-skin--video .media-popover--volume > * {
+        --media-popover-side-offset: 0rem;
+    }
+}
+
+/* ==========================================================================
+   Slider preview (video)
+   ========================================================================== */
+
+.media-minimal-skin--video .media-slider__preview {
     --media-preview-max-width: 11rem;
-    --media-preview-padding: -1.125rem;
-    --media-preview-inset: calc((100cqi - 100%) / 2);
+    --media-preview-padding: -0.5rem;
+    --media-preview-inset: calc(100cqi - 100%);
 
     position: absolute;
+    bottom: 100%;
     left: clamp(
-        calc(
-            var(--media-preview-max-width) / 2 + var(--media-preview-padding) -
-                var(--media-preview-inset)
-        ),
+        calc(var(--media-preview-max-width) / 2 + var(--media-preview-padding)),
         var(--media-slider-pointer),
         calc(
             100% - var(--media-preview-max-width) / 2 -
                 var(--media-preview-padding) + var(--media-preview-inset)
         )
     );
-    bottom: calc(100% + 1.2rem);
-    translate: -50%;
     opacity: 0;
-    scale: 0.8;
     filter: blur(8px);
-    transition-property: scale, opacity, filter;
-    transition-duration: 150ms;
-    transition-timing-function: ease-out;
     transform-origin: bottom;
-    pointer-events: none;
+    scale: 0.8;
+    translate: -50%;
+    transition-timing-function: ease-out;
+    transition-duration: 150ms;
+    transition-property: scale, opacity, filter;
 }
-.media-default-skin--video .media-slider__preview .media-preview__thumbnail {
+@container media-root (width > 42rem) {
+    .media-minimal-skin--video .media-slider__preview {
+        bottom: calc(100% + 0.25rem);
+        left: var(--media-slider-pointer);
+    }
+}
+.media-minimal-skin--video
+    .media-slider__preview
+    .media-preview__thumbnail-wrapper {
+    position: relative;
+}
+.media-minimal-skin--video
+    .media-slider__preview
+    .media-preview__thumbnail-wrapper::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    border-radius: inherit;
+    box-shadow:
+        0 0 0 1px oklch(0 0 0 / 0.05),
+        0 1px 3px 0 oklch(0 0 0 / 0.2),
+        0 1px 2px -1px oklch(0 0 0 / 0.2);
+}
+.media-minimal-skin--video .media-slider__preview .media-preview__thumbnail {
     max-width: var(--media-preview-max-width);
 }
-.media-default-skin--video
+.media-minimal-skin--video
     .media-slider__preview:has(.media-preview__thumbnail[data-loading]) {
     max-height: 6rem;
 }
-.media-default-skin--video
+.media-minimal-skin--video
     .media-slider[data-pointing]
     .media-slider__preview:has([role="img"]:not([data-hidden])) {
     opacity: 1;
-    scale: 1;
     filter: blur(0);
+    scale: 1;
 }
 
 /* ==========================================================================
    BCCM dismiss-controls (smart-TV only)
    ========================================================================== */
 
-.media-default-skin bccm-dismiss-controls-button[data-hidden] {
+.media-minimal-skin bccm-dismiss-controls-button[data-hidden] {
     display: none;
 }
 
 /* ==========================================================================
    BCCM live badge
+
+   We render our own pill-shaped LIVE button (not the videojs media-button--live)
+   so we can localize the label and own the click-to-live-edge behavior.
    ========================================================================== */
 
-.media-default-skin .bccm-live-badge {
+.media-minimal-skin .bccm-live-badge {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.4rem 0.75rem;
+    padding: 0.5rem 0.75rem;
     border: 0;
-    border-radius: calc(infinity * 1px);
+    border-radius: 0.5rem;
     background: transparent;
     color: inherit;
     font: inherit;
+    font-size: 0.75rem;
     font-weight: 600;
+    line-height: 1;
     letter-spacing: 0.05em;
+    text-transform: uppercase;
     font-variant-numeric: tabular-nums;
     text-shadow: inherit;
     cursor: pointer;
     transition: background-color 150ms ease-out;
 }
-.media-default-skin .bccm-live-badge:hover,
-.media-default-skin .bccm-live-badge:focus-visible {
+@supports (corner-shape: squircle) {
+    .media-minimal-skin .bccm-live-badge {
+        border-radius: 1rem;
+        corner-shape: squircle;
+    }
+}
+.media-minimal-skin .bccm-live-badge:hover,
+.media-minimal-skin .bccm-live-badge:focus-visible {
     background-color: oklch(from currentColor l c h / 0.1);
     outline: none;
 }
-.media-default-skin .bccm-live-badge__dot {
+.media-minimal-skin .bccm-live-badge__dot {
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 100%;
@@ -1167,22 +1189,22 @@ media-tooltip-group {
     background-color: oklch(from currentColor l c h / 0.4);
     transition: background-color 150ms ease-out;
 }
-.media-default-skin .bccm-live-badge[data-at-live] .bccm-live-badge__dot {
-    background-color: oklch(0.6 0.18 25);
+.media-minimal-skin .bccm-live-badge[data-at-live] .bccm-live-badge__dot {
+    background-color: oklch(0.65 0.22 27);
 }
-.media-default-skin .bccm-live-badge__text {
+.media-minimal-skin .bccm-live-badge__text {
     margin-top: -1px;
 }
 
 /* ==========================================================================
-   BCCM picker styling (subtitle/audio language pickers)
+   BCCM picker styling (subtitle / audio / quality / playback-rate)
 
    The button lives inside the control bar and inherits .media-button styling.
    The menu uses the native popover API so it renders in the top layer — that
-   way backdrop-filter actually sees the video underneath instead of being
-   clipped by the controls' own surface stacking context. Because top-layer
-   elements are pulled out of normal flow, menu rules can't be scoped under
-   .media-default-skin and must target the element directly.
+   way backdrop-filter sees the video underneath instead of being clipped by
+   the controls' own stacking context. Because top-layer elements are pulled
+   out of normal flow, menu rules can't be scoped under .media-minimal-skin
+   and must target the element directly.
    ========================================================================== */
 
 bccm-audio-picker,
@@ -1206,15 +1228,12 @@ bccm-subtitle-picker[data-empty] {
     width: auto;
     aspect-ratio: auto;
     padding: 0 0.5rem;
-    min-width: 2.25rem;
+    min-width: 2.375rem;
     font-variant-numeric: tabular-nums;
 }
 
 .bccm-picker-menu {
     /* UA stylesheet renders [popover] with display: none until open. */
-    /* The outer + inner border rings are baked into a single box-shadow
-       (instead of using .media-surface's ::after pseudo-element), so they
-       paint relative to the popover's box and don't scroll with content. */
     /* Hidden until JS has positioned us — avoids a one-frame flash at the
        UA-default popover location before the toggle handler runs. */
     visibility: hidden;
@@ -1224,17 +1243,15 @@ bccm-subtitle-picker[data-empty] {
     min-width: 11rem;
     overflow-y: auto;
     color: var(--media-color-primary, oklch(1 0 0));
-    background-color: var(--media-surface-background-color, oklch(0 0 0 / 0.7));
+    background-color: var(--media-tooltip-background-color, oklch(1 0 0 / 0.1));
     backdrop-filter: var(
-        --media-surface-backdrop-filter,
+        --media-tooltip-backdrop-filter,
         blur(16px) saturate(1.5)
     );
     box-shadow:
-        inset 0 0 0 1px
-            var(--media-surface-inner-border-color, oklch(1 0 0 / 0.05)),
-        0 0 0 1px var(--media-surface-outer-border-color, transparent),
-        0 1px 3px 0 var(--media-surface-shadow-color, oklch(0 0 0 / 0.15)),
-        0 1px 2px -1px var(--media-surface-shadow-color, oklch(0 0 0 / 0.15));
+        0 0 0 1px var(--media-tooltip-border-color, transparent),
+        0 4px 6px -1px oklch(0 0 0 / 0.1),
+        0 2px 4px -2px oklch(0 0 0 / 0.1);
     border-radius: 0.75rem;
     font-family: inherit;
     text-shadow: 0 1px 0 oklch(0 0 0 / 0.25);
