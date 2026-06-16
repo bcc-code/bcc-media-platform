@@ -81,11 +81,15 @@ The skin reads CSS variables from the player container.
 | ---------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `--bccm-color-primary` | `oklch(1 0 0)` (white) | Text / icon color across the whole skin. Cascades via `currentColor` to slider fill, focus ring, hover backgrounds, live-badge accent. |
 | `--bccm-color-accent`  | `oklch(1 0 0)` (white) | Background of primary-action buttons (e.g. the OK on the error dialog). Foreground text auto-flips black/white based on lightness.     |
+| `--bccm-font-family`   | `Inter, system-ui`     | Font stack for all skin text (controls, tooltips, picker menus, error dialog, native captions). Load the webfont yourself.             |
 
 Set on the container:
 
 ```html
-<div id="player" style="--bccm-color-accent: #6EB0E6"></div>
+<div
+    id="player"
+    style="--bccm-color-accent: #6EB0E6; --bccm-font-family: 'Archivo', sans-serif"
+></div>
 ```
 
 ## Adding a language
