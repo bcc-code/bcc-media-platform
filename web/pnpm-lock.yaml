@@ -51,8 +51,8 @@ importers:
         specifier: ^2.2.6
         version: 2.2.6(rollup@4.44.1)(vue@3.5.17(typescript@5.8.3))
       bccm-video-player:
-        specifier: ^3.3.1
-        version: 3.3.1(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)
+        specifier: ^3.3.2
+        version: 3.3.2(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)
       graphql:
         specifier: ^16.11.0
         version: 16.11.0
@@ -1766,8 +1766,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  bccm-video-player@3.3.1:
-    resolution: {integrity: sha512-pLjEJ7XWsdAUjmlHlQOIHSJA/nhegRd/rI0oMxYVqz+pfLIdn8P9dueEVyeD0IfhoRdNx5fpJOIZp5SpMIzoQA==}
+  bccm-video-player@3.3.2:
+    resolution: {integrity: sha512-ycq/WoFJdyP5TUX8RuoWZ4sVpOGlq7ORyoSM1IwUJ8oSOfwtWyYu2vMN1a+QZ+PYPF65a4JZiyleFbRGBjL3TQ==}
 
   bcp-47-match@2.0.3:
     resolution: {integrity: sha512-JtTezzbAibu8G0R9op9zb3vcWZd9JF6M0xOYGPn0fNCd7wOpRB1mU2mH9T8gaBGbAAyIIVgB2G7xG0GP98zMAQ==}
@@ -5833,7 +5833,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  bccm-video-player@3.3.1(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1):
+  bccm-video-player@3.3.2(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1):
     dependencies:
       '@videojs/core': 10.0.0-beta.24(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)(@videojs/element@10.0.0-beta.24)
       '@videojs/element': 10.0.0-beta.24
