@@ -25,7 +25,6 @@
         "@headlessui/vue": "^1.7.23",
         "@heroicons/vue": "^2.2.0",
         "@sentry/browser": "^10.58.0",
-        "@sentry/tracing": "^7.120.4",
         "@sentry/vue": "^10.58.0",
         "@takuma-ru/vue-swipe-modal": "^5.0.5",
         "@types/showdown": "^2.0.6",
