@@ -97,8 +97,8 @@ const { t } = useI18n()
                         >
                             <div>
                                 <MenuButton
-                                    :class="open ? '' : 'text-opacity-90'"
-                                    class="flex hover:scale-110 transition rounded-md text-base font-medium text-white hover:text-opacity-100 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                                    :class="open ? '' : 'text-white/90'"
+                                    class="flex hover:scale-110 transition rounded-md text-base font-medium text-white hover:text-white focus-visible:ring-2 focus-visible:ring-white/75"
                                 >
                                     <img
                                         v-if="user?.picture"
@@ -120,7 +120,7 @@ const { t } = useI18n()
                                 leave-to-class="translate-y-1 opacity-0"
                             >
                                 <MenuItems
-                                    class="absolute text-base right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-slate-800 shadow-lg ring-1 ring-black ring-opacity-5 z-10"
+                                    class="absolute text-base right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-slate-800 shadow-lg ring-1 ring-black/5 z-10"
                                 >
                                     <div class="p-1">
                                         <MenuItem v-slot="{ active }">
@@ -200,7 +200,7 @@ const { t } = useI18n()
                         </Menu>
                         <button
                             v-else
-                            class="ml-2 flex hover:bg-slate-800 transition rounded-full text-base px-2 p-1 font-medium text-white hover:text-opacity-100 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                            class="ml-2 flex hover:bg-slate-800 transition rounded-full text-base px-2 p-1 font-medium text-white hover:text-white focus-visible:ring-2 focus-visible:ring-white/75"
                             @click="signIn()"
                         >
                             <ProfileIcon
@@ -221,8 +221,8 @@ const { t } = useI18n()
                     <div class="ml-auto right-4 flex">
                         <Menu as="div" class="relative my-auto">
                             <MenuButton
-                                :class="open ? '' : 'text-opacity-90'"
-                                class="flex transition rounded-full text-base px-2 p-1 font-medium text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                                :class="open ? '' : 'text-white/90'"
+                                class="flex transition rounded-full text-base px-2 p-1 font-medium text-white focus-visible:ring-2 focus-visible:ring-white/75"
                             >
                                 <svg
                                     width="24"
@@ -251,7 +251,7 @@ const { t } = useI18n()
                                 leave-to-class="translate-y-1 opacity-0"
                             >
                                 <MenuItems
-                                    class="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-slate-800 shadow-lg ring-1 ring-black ring-opacity-5 z-10"
+                                    class="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-slate-800 shadow-lg ring-1 ring-black/5 z-10"
                                 >
                                     <div class="p-1 max-h-96 overflow-y-scroll">
                                         <MenuItem
@@ -286,8 +286,8 @@ const { t } = useI18n()
                         <Menu as="div" class="relative my-auto ml-2">
                             <div>
                                 <MenuButton
-                                    :class="open ? '' : 'text-opacity-90'"
-                                    class="flex rounded-md text-base font-medium text-white hover:text-opacity-100 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                                    :class="open ? '' : 'text-white/90'"
+                                    class="flex rounded-md text-base font-medium text-white hover:text-white focus-visible:ring-2 focus-visible:ring-white/75"
                                 >
                                     <img
                                         v-if="authenticated && user?.picture"
@@ -309,7 +309,7 @@ const { t } = useI18n()
                                 leave-to-class="translate-y-1 opacity-0"
                             >
                                 <MenuItems
-                                    class="absolute text-base right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-slate-800 shadow-lg ring-1 ring-black ring-opacity-5 z-10"
+                                    class="absolute text-base right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-slate-800 shadow-lg ring-1 ring-black/5 z-10"
                                 >
                                     <div class="p-1">
                                         <MenuItem v-slot="{ active }">

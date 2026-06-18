@@ -89,7 +89,7 @@ const closePanel = () => {
                 leave-from="opacity-100"
                 leave-to="opacity-0"
             >
-                <div class="fixed inset-0 bg-black bg-opacity-30" />
+                <div class="fixed inset-0 bg-black/30" />
             </TransitionChild>
             <div
                 class="flex min-h-full items-center justify-center lg:p-4 text-center fixed inset-0 overflow-y-auto"
@@ -120,7 +120,7 @@ const closePanel = () => {
                                 v-model="title"
                                 type="text"
                                 maxlength="50"
-                                class="ellipsis border border-white rounded text-lg px-2 py-1 border-opacity-25 bg-primary bg-opacity-10"
+                                class="ellipsis border border-white/25 rounded text-lg px-2 py-1 bg-primary/10"
                                 :placeholder="t('support.subject')"
                             />
                             <!-- <div v-if="!!titleErrorMsg" class="text-red">&#x26A0; {{titleErrorMsg}}</div> -->
@@ -138,7 +138,7 @@ const closePanel = () => {
                                         :placeholder="
                                             t('support.describeIssue')
                                         "
-                                        class="w-full ellipsis border border-white rounded text-lg px-2 py-1 border-opacity-25 bg-primary bg-opacity-10"
+                                        class="w-full ellipsis border border-white/25 rounded text-lg px-2 py-1 bg-primary/10"
                                     ></textarea>
                                 </div>
                             </section>

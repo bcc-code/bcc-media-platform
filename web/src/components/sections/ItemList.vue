@@ -27,11 +27,11 @@ const { t } = useI18n()
             <button
                 v-for="i in items.filter((i) => i.type === 'Episode')"
                 :key="i.id"
-                class="flex text-left w-full p-2 gap-2 cursor-pointer border-l-4 border-red hover:bg-red hover:bg-opacity-10 hover:border-opacity-100 transition duration-200"
+                class="flex text-left w-full p-2 gap-2 cursor-pointer border-l-4 hover:bg-red/10 hover:border-red transition duration-200"
                 :class="[
                     i.id === currentId
-                        ? 'bg-red bg-opacity-20 hover:bg-opacity-20'
-                        : 'border-opacity-0',
+                        ? 'bg-red/20 hover:bg-red/20 border-red'
+                        : 'border-red/0',
                     episodeComingSoon(i) ? 'pointer-events-none' : '',
                 ]"
                 @click="$emit('itemClick', i)"

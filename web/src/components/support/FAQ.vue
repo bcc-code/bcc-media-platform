@@ -40,7 +40,7 @@ const { data, fetching } = useGetFaqQuery({ variables: {} })
                 leave-from="opacity-100"
                 enter-to="opacity-100"
             >
-                <div class="fixed inset-0 bg-slate-800/50 bg-opacity-30" />
+                <div class="fixed inset-0 bg-slate-800/50" />
             </TransitionChild>
             <div
                 class="flex min-h-full items-center justify-center lg:p-4 text-center fixed inset-0 overflow-y-auto"

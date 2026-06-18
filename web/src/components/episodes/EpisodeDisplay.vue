@@ -276,11 +276,11 @@ const audioOnly = computed(() => {
                         v-if="
                             episode.context?.__typename === 'ContextCollection'
                         "
-                        class="bg-primary-light uppercase border-separator-on-light border px-3 py-1 rounded-full transition duration-100"
+                        class="uppercase border-separator-on-light border px-3 py-1 rounded-full transition duration-100"
                         :class="[
                             effectiveView === 'context'
-                                ? 'opacity-100 border-opacity-40 '
-                                : 'opacity-50 bg-opacity-0 border-opacity-0',
+                                ? 'opacity-100 bg-primary-light '
+                                : 'opacity-50',
                         ]"
                         @click="effectiveView = 'context'"
                     >
@@ -288,11 +288,11 @@ const audioOnly = computed(() => {
                     </button>
                     <button
                         v-else-if="seasonId"
-                        class="bg-primary-light uppercase border-separator-on-light border px-3 py-1 rounded-full transition duration-100"
+                        class="uppercase border-separator-on-light border px-3 py-1 rounded-full transition duration-100"
                         :class="[
                             effectiveView === 'episodes'
-                                ? 'opacity-100 border-opacity-40 '
-                                : 'opacity-50 bg-opacity-0 border-opacity-0',
+                                ? 'opacity-100 bg-primary-light '
+                                : 'opacity-50',
                         ]"
                         @click="effectiveView = 'episodes'"
                     >
@@ -300,22 +300,22 @@ const audioOnly = computed(() => {
                     </button>
                     <button
                         v-if="episode.chapters.length > 0"
-                        class="bg-primary-light uppercase border-separator-on-light border px-3 py-1 rounded-full transition duration-100"
+                        class="uppercase border-separator-on-light border px-3 py-1 rounded-full transition duration-100"
                         :class="[
                             effectiveView === 'chapters'
-                                ? 'opacity-100 border-opacity-40 '
-                                : 'opacity-50 bg-opacity-0 border-opacity-0',
+                                ? 'opacity-100 bg-primary-light '
+                                : 'opacity-50',
                         ]"
                         @click="effectiveView = 'chapters'"
                     >
                         {{ t('episode.chapters') }}
                     </button>
                     <button
-                        class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
+                        class="uppercase border px-3 py-1 rounded-full transition duration-100"
                         :class="[
                             effectiveView === 'details'
-                                ? 'opacity-100 border-opacity-40'
-                                : 'opacity-50 bg-opacity-0 border-opacity-0',
+                                ? 'opacity-100 bg-primary-light border-gray/40'
+                                : 'opacity-50 border-gray/0',
                         ]"
                         @click="effectiveView = 'details'"
                     >
@@ -323,11 +323,11 @@ const audioOnly = computed(() => {
                     </button>
                     <button
                         v-if="episode.files.length > 0"
-                        class="bg-primary-light uppercase border-gray border px-3 py-1 rounded-full transition duration-100"
+                        class="uppercase border px-3 py-1 rounded-full transition duration-100"
                         :class="[
                             effectiveView === 'download'
-                                ? 'opacity-100 border-opacity-40'
-                                : 'opacity-50 bg-opacity-0 border-opacity-0',
+                                ? 'opacity-100 bg-primary-light border-gray/40'
+                                : 'opacity-50 border-gray/0',
                         ]"
                         @click="effectiveView = 'download'"
                     >

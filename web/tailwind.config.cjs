@@ -59,14 +59,9 @@ module.exports = {
         },
     },
     plugins: [
-        plugin(function ({ addVariant, e }) {
-            addVariant('embed', ({ modifySelectors, separator }) => {
-                modifySelectors(({ className }) => {
-                    return `.embedded-page .${e(
-                        `embed${separator}${className}`
-                    )}`
-                })
-            })
+        plugin(function ({ addVariant }) {
+            // v4-compatible variant: `embed:foo` -> `.embedded-page .embed\:foo`
+            addVariant('embed', '.embedded-page &')
         }),
         plugin(function ({ addComponents }) {
             addComponents({
