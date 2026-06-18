@@ -26,7 +26,7 @@
     "@vueuse/nuxt": "^14.3.0",
     "cva": "1.0.0-beta.4",
     "graphql": "^16.14.1",
-    "nuxt": "4.4.6",
+    "nuxt": "4.4.7",
     "vue": "^3.5.35",
     "vue-draggable-plus": "^0.6.1"
   },
