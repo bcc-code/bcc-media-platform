@@ -1,5 +1,4 @@
-@import 'tailwindcss';
-@config '../../tailwind.config.cjs';
+@import './tailwind.css';
 
 /*
   Tailwind v4 changed the default border/divide color from gray-200 to
