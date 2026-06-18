@@ -1,5 +1,6 @@
 import config from '@/config'
 import { PlayerFactory } from 'bccm-video-player'
+// @ts-expect-error CSS side-effect import from the package has no bundled type declarations
 import 'bccm-video-player/css'
 import Auth from './auth'
 import { currentApp } from './app'

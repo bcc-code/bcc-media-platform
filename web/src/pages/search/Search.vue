@@ -39,7 +39,7 @@ const clickEpisode = (index: number, id: string, isModified: boolean) => {
     }
 }
 
-let timeout = ref<NodeJS.Timeout>()
+let timeout = ref<ReturnType<typeof setTimeout>>()
 
 const queryVariable = ref(queryString.value)
 
