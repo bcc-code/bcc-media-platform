@@ -128,7 +128,7 @@ const { t } = useI18n()
                                                 :class="[
                                                     active
                                                         ? 'bg-violet-500 text-white'
-                                                        : 'text-gray-900',
+                                                        : 'text-label-1',
                                                     'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
                                                 ]"
                                                 @click="
@@ -161,7 +161,7 @@ const { t } = useI18n()
                                                 :class="[
                                                     active
                                                         ? 'bg-violet-500 text-white'
-                                                        : 'text-gray-900',
+                                                        : 'text-label-1',
                                                     'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
                                                 ]"
                                             >
@@ -182,7 +182,7 @@ const { t } = useI18n()
                                                 :class="[
                                                     active
                                                         ? 'bg-violet-500 text-white'
-                                                        : 'text-gray-900',
+                                                        : 'text-label-1',
                                                     'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
                                                 ]"
                                             >
@@ -263,7 +263,7 @@ const { t } = useI18n()
                                                 :class="[
                                                     active
                                                         ? 'bg-violet-500 text-white'
-                                                        : 'text-gray-900',
+                                                        : 'text-label-1',
                                                     'w-full rounded-md px-2 py-2 text-sm transition duration-50 cursor-pointer',
                                                 ]"
                                                 @click="setLanguage(l.code)"
@@ -317,7 +317,7 @@ const { t } = useI18n()
                                                 :class="[
                                                     active
                                                         ? 'bg-violet-500 text-white'
-                                                        : 'text-gray-900',
+                                                        : 'text-label-1',
                                                     'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
                                                 ]"
                                                 @click="
@@ -347,7 +347,7 @@ const { t } = useI18n()
                                                 :class="[
                                                     active
                                                         ? 'bg-violet-500 text-white'
-                                                        : 'text-gray-900',
+                                                        : 'text-label-1',
                                                     'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
                                                 ]"
                                             >
@@ -367,7 +367,7 @@ const { t } = useI18n()
                                                 :class="[
                                                     active
                                                         ? 'bg-violet-500 text-white'
-                                                        : 'text-gray-900',
+                                                        : 'text-label-1',
                                                     'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
                                                 ]"
                                             >
@@ -388,7 +388,7 @@ const { t } = useI18n()
                                                 :class="[
                                                     active
                                                         ? 'bg-violet-500 text-white'
-                                                        : 'text-gray-900',
+                                                        : 'text-label-1',
                                                     'flex w-full rounded-md px-2 py-2 text-sm items-center transition duration-50',
                                                 ]"
                                             >

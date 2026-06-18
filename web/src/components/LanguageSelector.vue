@@ -47,7 +47,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
                             :class="[
                                 active
                                     ? 'bg-white/10 text-white'
-                                    : 'text-gray-900',
+                                    : 'text-label-1',
                                 'w-full rounded-md px-2 py-2 text-sm transition duration-50 cursor-pointer',
                             ]"
                             @click="setLanguage(l.code)"

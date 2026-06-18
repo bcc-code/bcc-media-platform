@@ -59,7 +59,7 @@ function closeModal() {
                         >
                             <DialogTitle
                                 as="h3"
-                                class="text-lg font-medium leading-6 text-gray-900"
+                                class="text-lg font-medium leading-6 text-label-1"
                             >
                                 <slot name="title">
                                     {{ t('requests.confirmSend') }}
