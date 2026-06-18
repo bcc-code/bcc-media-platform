@@ -37,7 +37,7 @@ export function setup(options: I18nOptions = { locale: 'en' }): I18n {
 }
 
 export function setLanguage(i18n: I18n, locale: Locale): void {
-    (i18n.global as Composer).locale.value = locale
+    ;(i18n.global as Composer).locale.value = locale
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,6 +83,8 @@ export default setup({
     legacy: false,
     locale: 'en',
     fallbackLocale: 'en',
-    silentTranslationWarn: import.meta.env.PROD,
-    silentFallbackWarn: import.meta.env.PROD,
+    // Composition-mode equivalents of the legacy silent*Warn options
+    // (those are ignored when legacy: false). Warn only outside production.
+    missingWarn: !import.meta.env.PROD,
+    fallbackWarn: !import.meta.env.PROD,
 })

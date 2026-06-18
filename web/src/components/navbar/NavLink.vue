@@ -15,7 +15,7 @@ defineProps<{
     >
         <span
             class="lg:flex gap-1 transition rounded-full lg:hover:bg-slate-800 px-2 py-1"
-            :class="[isExactActive ? 'lg:bg-slate-800 lg:bg-opacity-50' : '']"
+            :class="[isExactActive ? 'lg:bg-slate-800/50' : '']"
         >
             <span class="relative">
                 <component

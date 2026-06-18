@@ -218,7 +218,7 @@ const downloadFile = () => {
             </div>
             <div v-if="file && downloading" class="flex flex-col gap-2">
                 <div
-                    class="w-64 flex bg-black bg-opacity-20 my-auto h-8 rounded p-2"
+                    class="w-64 flex bg-black/20 my-auto h-8 rounded p-2"
                 >
                     <div
                         class="bg-primary h-4 rounded my-auto"

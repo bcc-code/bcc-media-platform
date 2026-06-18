@@ -7,7 +7,7 @@ const { accepted } = useCookies()
 const { t } = useI18n()
 </script>
 <template>
-    <div class="flex flex-col bg-black bg-opacity-20 mt-4 opacity-90">
+    <div class="flex flex-col bg-black/20 mt-4 opacity-90">
         <div
             class="px-4 lg:px-20 py-4 flex gap-4 flex-col text-sm lg:text-base"
         >

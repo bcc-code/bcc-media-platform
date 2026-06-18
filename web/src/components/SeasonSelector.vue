@@ -53,7 +53,7 @@ const selected = computed(() => {
                 leave-to-class="opacity-0"
             >
                 <ListboxOptions
-                    class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-slate-900 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5"
+                    class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-slate-900 py-1 text-base shadow-lg ring-1 ring-black/5"
                 >
                     <ListboxOption
                         v-for="s in items"
@@ -64,8 +64,8 @@ const selected = computed(() => {
                     >
                         <li
                             :class="[
-                                active ? 'text-white bg-primary' : 'opacity-80',
-                                'relative cursor-default select-none bg-opacity-20 py-2 pl-3 pr-9',
+                                active ? 'text-white bg-primary/20' : 'opacity-80',
+                                'relative cursor-default select-none py-2 pl-3 pr-9',
                             ]"
                         >
                             <div class="flex items-center">

@@ -116,7 +116,7 @@ const aspect = computed(() => {
                 />
                 <div
                     v-if="comingSoon(item) && item.__typename === 'Episode'"
-                    class="absolute flex top-0 h-full w-full bg-black bg-opacity-80"
+                    class="absolute flex top-0 h-full w-full bg-black/80"
                 >
                     <div
                         class="mx-auto my-auto text-center items-center flex flex-col"

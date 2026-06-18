@@ -84,7 +84,7 @@ const conditionalClass = computed(() => {
 <template>
     <div
         :class="
-            'inline-flex space-x-4 items-center justify-start w-full min-h-[4rem] py-2.5 pl-4 bg-separator-on-light bg-opacity-10 rounded-xl border-2 relative ' +
+            'inline-flex space-x-4 items-center justify-start w-full min-h-[4rem] py-2.5 pl-4 bg-separator-on-light/10 rounded-xl border-2 relative ' +
             conditionalClass
         "
         @click="handleClick"

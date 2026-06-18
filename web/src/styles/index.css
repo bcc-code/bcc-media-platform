@@ -1,6 +1,20 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import './tailwind.css';
+
+/*
+  Tailwind v4 changed the default border/divide color from gray-200 to
+  currentColor. Restore the v3 default so bare `border`/`divide` utilities
+  keep their previous appearance.
+*/
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
 html {
     scrollbar-gutter: stable both-edges;
 }
@@ -67,16 +81,14 @@ img {
     background-color: rgba(0, 0, 0, 0.7);
 }
 
-@layer utilities {
-    /* Hide scrollbar for Chrome, Safari and Opera */
-    .hide-scrollbar::-webkit-scrollbar {
-        display: none;
-    }
+/* Hide scrollbar for IE, Edge and Firefox */
+@utility hide-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
 
-    /* Hide scrollbar for IE, Edge and Firefox */
-    .hide-scrollbar {
-        -ms-overflow-style: none; /* IE and Edge */
-        scrollbar-width: none; /* Firefox */
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+        display: none;
     }
 }
 

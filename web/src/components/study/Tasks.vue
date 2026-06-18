@@ -267,7 +267,7 @@ const anyPreviousStep = computed(() => currentTaskIndex.value > 0)
             >
                 <div class="w-full right-0 bottom-0">
                     <div
-                        class="flex-1 h-full bg-black bg-opacity-50 rounded-full"
+                        class="flex-1 h-full bg-black/50 rounded-full"
                     >
                         <div>
                             <div

@@ -16,10 +16,10 @@ const progress = computed(() => {
     <span class="p-1 md:p-2 text-xs md:text-sm">
         <div
             v-if="progress || progress === 0"
-            class="flex bg-black bg-opacity-50 px-2 rounded"
+            class="flex bg-black/50 px-2 rounded"
         >
             <div
-                class="w-full bg-gray rounded h-1 md:h-1.5 bg-opacity-50 my-auto"
+                class="w-full bg-gray/50 rounded h-1 md:h-1.5 my-auto"
             >
                 <div
                     class="bg-white h-1 md:h-1.5 rounded"
@@ -34,7 +34,7 @@ const progress = computed(() => {
         </div>
         <div
             v-else
-            class="flex bg-black bg-opacity-60 px-2 rounded ml-auto mr-0 float-right"
+            class="flex bg-black/60 px-2 rounded ml-auto mr-0 float-right"
         >
             <span>{{ secondsToTime(item.duration) }}</span>
         </div>

@@ -1,0 +1,186 @@
+@import 'tailwindcss';
+
+@plugin '@tailwindcss/typography';
+
+/* `embed:foo` -> `.embedded-page .embed\:foo` */
+@custom-variant embed (.embedded-page &);
+
+/* Static brand colors, fonts and easing. */
+@theme {
+    --font-archivo: 'Archivo', sans-serif;
+
+    --color-primary: #6eb0e6;
+    --color-primary-hover: #6dafe5cc;
+    --color-primary-light: #1d2838;
+    --color-background: #0d1623;
+    --color-gray: #707c8e;
+    --color-green: #71d2a4;
+    --color-green-hover: #71d2a4cc;
+    --color-red: #e63c62;
+    --color-red-hover: #e63c62cc;
+    --color-secondary: #202a39;
+    --color-secondary-hover: #202a39cc;
+    --color-bcc: #004e48;
+    --color-bcc-1: #1e1e1e;
+    --color-bcc-2: #012625;
+    --color-bcc-3: #dbe1c0;
+
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/*
+  Figma design-system colors. The actual channel/color values live in
+  design-system.css as `--color-*` custom properties. `@theme inline` makes
+  Tailwind inline these references into the generated utilities instead of
+  re-emitting the variables to :root — that avoids shadowing the
+  design-system.css definitions, which are also used directly via var().
+*/
+@theme inline {
+    --color-tint-1: rgb(var(--color-tint-1));
+    --color-tint-2: rgb(var(--color-tint-2));
+    --color-tint-3: rgb(var(--color-tint-3));
+    --color-on-tint: rgb(var(--color-on-tint));
+    --color-label-1: rgb(var(--color-label-1));
+    --color-label-2: rgb(var(--color-label-2));
+    --color-label-3: rgb(var(--color-label-3));
+    --color-label-4: rgb(var(--color-label-4));
+    --color-background-1: rgb(var(--color-background-1));
+    --color-background-2: rgb(var(--color-background-2));
+    --color-separator-on-light: var(--color-separator-on-light);
+    --color-light-1: rgb(var(--color-light-1));
+    --color-dark-transparent: var(--color-dark-transparent);
+}
+
+/* Typography scale (was addComponents in tailwind.config.cjs). */
+@layer components {
+    .text-style-headline-1 {
+        font-size: 2.125rem;
+        font-family: 'Barlow';
+        font-weight: 800;
+        font-style: normal;
+        line-height: 40px;
+        text-decoration: none;
+        text-transform: none;
+    }
+    .text-style-headline-2 {
+        font-size: 1.75rem;
+        font-family: 'Barlow';
+        font-weight: 800;
+        font-style: normal;
+        line-height: 32px;
+        text-decoration: none;
+        text-transform: none;
+    }
+    .text-style-title-1 {
+        font-size: 1.5rem;
+        font-family: 'Barlow';
+        font-weight: 800;
+        font-style: normal;
+        line-height: 28px;
+        text-decoration: none;
+        text-transform: none;
+    }
+    .text-style-title-2 {
+        font-size: 1.25rem;
+        font-family: 'Barlow';
+        font-weight: 700;
+        font-style: normal;
+        line-height: 24px;
+        letter-spacing: -0.3px;
+        text-decoration: none;
+        text-transform: none;
+    }
+    .text-style-title-3 {
+        font-size: 1.062rem;
+        font-family: 'Barlow';
+        font-weight: 700;
+        font-style: normal;
+        line-height: 20px;
+        text-decoration: none;
+        text-transform: none;
+    }
+    .text-style-body-1 {
+        font-size: 1.188rem;
+        font-family: 'Barlow';
+        font-weight: 400;
+        font-style: normal;
+        line-height: 24px;
+        text-decoration: none;
+        text-transform: none;
+    }
+    .text-style-body-2 {
+        font-size: 1rem;
+        font-family: 'Barlow';
+        font-weight: 500;
+        font-style: normal;
+        line-height: 20px;
+        font-spacing: 0px;
+        text-decoration: none;
+        text-transform: none;
+    }
+    .text-style-button-1 {
+        font-size: 1.125rem;
+        font-family: 'Barlow';
+        font-weight: 700;
+        font-style: normal;
+        line-height: 24px;
+        text-decoration: none;
+        text-transform: none;
+    }
+    .text-style-button-2 {
+        font-size: 0.938rem;
+        font-family: 'Barlow';
+        font-weight: 700;
+        font-style: normal;
+        line-height: 24px;
+        text-decoration: none;
+        text-transform: none;
+    }
+    .text-style-button-2-upper {
+        font-size: 0.938rem;
+        font-family: 'Barlow';
+        font-weight: 700;
+        font-style: normal;
+        line-height: 24px;
+        text-decoration: none;
+        text-transform: uppercase;
+    }
+    .text-style-caption-1 {
+        font-size: 0.875rem;
+        font-family: 'Barlow';
+        font-weight: 500;
+        font-style: normal;
+        line-height: 16px;
+        text-decoration: none;
+        text-transform: none;
+    }
+    .text-style-caption-2 {
+        font-size: 0.75rem;
+        font-family: 'Barlow';
+        font-weight: 500;
+        font-style: normal;
+        line-height: 14px;
+        text-decoration: none;
+        text-transform: none;
+    }
+    .text-style-caption-3 {
+        font-size: 0.688rem;
+        font-family: 'Barlow';
+        font-weight: 500;
+        font-style: normal;
+        line-height: 12px;
+        letter-spacing: -0.27px;
+        text-decoration: none;
+        text-transform: none;
+    }
+    .text-style-overline {
+        font-size: 0.938rem;
+        font-family: 'Barlow';
+        font-weight: 600;
+        font-style: normal;
+        line-height: 20px;
+        letter-spacing: 1px;
+        text-decoration: none;
+        text-transform: uppercase;
+    }
+}
