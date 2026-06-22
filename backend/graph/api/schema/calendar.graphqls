@@ -18,11 +18,13 @@ type Event {
 }
 
 # Buffer (start-over) playback for a calendar entry: the signed livestream URL
-# scoped to the entry's window, plus the absolute time until which it stays
-# available. Present only when a buffer is offered to the caller.
+# scoped to the [start, end] window (UTC), plus the absolute time until which it
+# stays available. Present only when a buffer is offered to the caller.
 type CalendarEntryBuffer {
     url: String!
     availableUntil: Date!
+    start: Date!
+    end: Date!
 }
 
 interface CalendarEntry {

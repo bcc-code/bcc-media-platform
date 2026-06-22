@@ -188,6 +188,8 @@ func (r *Resolver) bufferForEntry(ctx context.Context, id string) (*model.Calend
 	return &model.CalendarEntryBuffer{
 		URL:            url,
 		AvailableUntil: w.until.Format(time.RFC3339),
+		Start:          start.UTC().Format(time.RFC3339),
+		End:            end.UTC().Format(time.RFC3339),
 	}, nil
 }
 

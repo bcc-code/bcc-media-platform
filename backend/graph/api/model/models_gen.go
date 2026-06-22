@@ -298,6 +298,8 @@ type CalendarDay struct {
 type CalendarEntryBuffer struct {
 	URL            string `json:"url"`
 	AvailableUntil string `json:"availableUntil"`
+	Start          string `json:"start"`
+	End            string `json:"end"`
 }
 
 type CalendarPeriod struct {
