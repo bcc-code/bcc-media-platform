@@ -11,7 +11,7 @@ import "./components/dismiss-controls-button"
 import "./skin/skin.css"
 
 import { buildSkin } from "./skin/skin"
-import { enableNPAW, type NPAWOptions, setOptions } from "./npaw"
+import { enableNPAW, type NPAWOptions, restartView, setOptions } from "./npaw"
 import { getDefaults, mergeOptions } from "./utils/options"
 import {
     BW_WRITE_THROTTLE_MS,
@@ -235,6 +235,14 @@ export async function createPlayer(
 
 export function setNPAWOptions(player: Player, options: NPAWOptions): void {
     setOptions(player, options)
+}
+
+// Ends the current NPAW view and starts a fresh one with new metadata. Use this
+// (rather than `setNPAWOptions`, which updates the ongoing view in place) when a
+// continuous live stream rolls over to a new program, so each program is tracked
+// as its own NPAW view.
+export function restartNPAWView(player: Player, options: NPAWOptions): void {
+    restartView(player, options)
 }
 
 // hls.js (when active) owns the audio-track list via its engine, not via the

@@ -61,6 +61,30 @@ export function setOptions(player: Player, options: NPAWOptions): void {
     npaw.setAnalyticsOptions(toConfig(options))
 }
 
+// Ends the current NPAW view and opens a fresh one with new metadata, so a
+// continuous live stream can be split into one view per program (e.g. each
+// calendar entry / episode). `removeAdapter` fires a stop for the old view;
+// re-registering the adapter on the same — still playing — engine starts a new
+// view. Track-change wiring from `enableNPAW` keeps working because it resolves
+// the current adapter lazily (see `wireTrackChangeEvents`), so we don't re-wire.
+export function restartView(player: Player, options: NPAWOptions): void {
+    const npaw = (player as Player & { _npaw?: NpawPlugin })._npaw
+    if (!npaw) return
+    npaw.removeAdapter()
+    npaw.setAnalyticsOptions(toConfig(options))
+
+    const engine = (player.mediaEl as { engine?: unknown | null }).engine
+    if (!engine) return
+    npaw.registerAdapterFromClass(
+        engine,
+        (NpawAdapters as { HlsjsAdapter: unknown }).HlsjsAdapter
+    )
+    const adapter = npaw.getAdapter() as
+        | { checkExistsPlayer?: () => boolean }
+        | undefined
+    if (adapter) adapter.checkExistsPlayer = () => true
+}
+
 type HlsAudioTrack = { lang?: string; name?: string }
 type HlsEngine = {
     audioTracks?: HlsAudioTrack[]
@@ -75,10 +99,14 @@ function wireTrackChangeEvents(
     npaw: NpawPlugin,
     signal: AbortSignal | undefined
 ): void {
-    const adapter = npaw.getAdapter() as
-        | { fireEvent(name: string, dimensions?: object): void }
-        | undefined
-    if (!adapter?.fireEvent) return
+    // Resolve the adapter lazily on each fire: `restartView` swaps the adapter
+    // when a new view starts, so capturing it once here would go stale.
+    const fire = (name: string, dimensions?: object) => {
+        const adapter = npaw.getAdapter() as
+            | { fireEvent?(name: string, dimensions?: object): void }
+            | undefined
+        adapter?.fireEvent?.(name, dimensions)
+    }
 
     // Subtitles: v10's hls.js promotes subtitle tracks onto media.textTracks,
     // so DOM events cover both native HLS and MSE paths.
@@ -89,7 +117,7 @@ function wireTrackChangeEvents(
                 t.mode === "showing" &&
                 (t.kind === "subtitles" || t.kind === "captions")
         )
-        adapter.fireEvent("subtitleChange", {
+        fire("subtitleChange", {
             language: active?.language ?? "off",
             label: active?.label ?? "off",
         })
@@ -104,7 +132,7 @@ function wireTrackChangeEvents(
     if (typeof eng.on === "function") {
         const onAudioChange = () => {
             const active = eng.audioTracks?.[eng.audioTrack]
-            adapter.fireEvent("audioChange", {
+            fire("audioChange", {
                 language: active?.lang ?? "",
                 label: active?.name ?? "",
             })
