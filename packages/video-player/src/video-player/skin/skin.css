@@ -1027,6 +1027,76 @@ media-tooltip-group {
 }
 
 /* ==========================================================================
+   BCCM centered playback controls (touch only)
+
+   On coarse pointers the skin hides the bottom bar's playback group and shows
+   this centered cluster over the video instead — large thumb targets, YouTube
+   / Netflix style. It tracks the control bar's [data-visible] state via :has()
+   so it fades in and out together with the bar, and stays hidden entirely on
+   fine pointers (mouse users keep the playback controls in the bottom bar).
+   ========================================================================== */
+
+.media-minimal-skin--video .bccm-center-controls {
+    --media-icon-size: 26px;
+
+    position: absolute;
+    inset: 0;
+    z-index: 9;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    /* This layer lives outside .media-controls, which is what normally sets the
+       white control color, so set it here too — otherwise the icons inherit the
+       document's default text color and render dark. */
+    color: var(--media-color-primary, oklch(1 0 0));
+    text-shadow: 0 1px 0 var(--media-current-shadow-color);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--media-controls-transition-duration) ease-out;
+}
+.media-minimal-skin--video .bccm-center-button {
+    pointer-events: none;
+}
+/* No button background — match the rest of the skin. The centered icons don't
+   sit over the bottom scrim, so give them a slightly stronger drop-shadow than
+   the bar buttons to stay legible over bright frames. */
+.media-minimal-skin--video .bccm-center-button .media-icon {
+    filter: drop-shadow(0 1px 3px oklch(0 0 0 / 0.5));
+}
+.media-minimal-skin--video .bccm-center-button.media-button--icon {
+    width: 3.25rem;
+}
+.media-minimal-skin--video .bccm-center-button--play {
+    --media-icon-size: 36px;
+}
+.media-minimal-skin--video .bccm-center-button--play.media-button--icon {
+    width: 4.5rem;
+}
+
+@media (pointer: coarse) {
+    .media-minimal-skin--video .bccm-center-controls {
+        display: flex;
+    }
+    .media-minimal-skin--video .media-controls .media-button-group:first-child {
+        display: none;
+    }
+}
+
+.media-minimal-skin--video:has(.media-controls[data-visible])
+    .bccm-center-controls {
+    opacity: 1;
+}
+.media-minimal-skin--video:has(.media-controls[data-visible])
+    .bccm-center-button {
+    pointer-events: auto;
+}
+/* The error dialog hides the bar; hide the centered cluster with it. */
+.media-minimal-skin--video:has(.media-error[data-open]) .bccm-center-controls {
+    display: none;
+}
+
+/* ==========================================================================
    Sliders (video)
    ========================================================================== */
 

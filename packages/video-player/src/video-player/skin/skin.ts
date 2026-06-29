@@ -87,6 +87,28 @@ export function buildSkin(
             </media-seek-button>
             <media-tooltip id="${ID_SEEK_FWD}" side="top" class="media-tooltip"><span data-i18n="seekForward" data-i18n-params='{"seconds":${SEEK_TIME}}'></span></media-tooltip>`
 
+    // Touch-only centered playback cluster (YouTube / Netflix style). On coarse
+    // pointers the skin CSS hides the bottom bar's playback group and shows this
+    // over the video instead, giving big thumb targets. These buttons bind to
+    // the same player state as the bar's via context, so only one set is ever
+    // visible / interactive at a time. No tooltips — they're for touch.
+    const centerControls = `
+      <div class="bccm-center-controls">
+        <media-seek-button seconds="${-SEEK_TIME}" class="media-button media-button--subtle media-button--icon media-button--seek bccm-center-button">
+          <span class="media-icon__container">
+            ${ICON_SEEK_FLIPPED}<span class="media-icon__label">${SEEK_TIME}</span>
+          </span>
+        </media-seek-button>
+        <media-play-button class="media-button media-button--subtle media-button--icon media-button--play bccm-center-button bccm-center-button--play">
+          ${ICON_RESTART}${ICON_PLAY}${ICON_PAUSE}
+        </media-play-button>
+        <media-seek-button seconds="${SEEK_TIME}" class="media-button media-button--subtle media-button--icon media-button--seek bccm-center-button">
+          <span class="media-icon__container">
+            ${ICON_SEEK}<span class="media-icon__label">${SEEK_TIME}</span>
+          </span>
+        </media-seek-button>
+      </div>`
+
     // Current time sits left of the slider; duration (VOD) or the LIVE badge
     // (live) sits to the right.
     const leadingTime = `<media-time type="current" class="media-time media-time--current"></media-time>`
@@ -196,6 +218,8 @@ export function buildSkin(
           </div>
         </media-tooltip-group>
       </media-controls>
+
+      ${centerControls}
 
       <div class="media-overlay"></div>
 
