@@ -89,22 +89,55 @@ func (r *userCollectionEntryResolver) Item(ctx context.Context, obj *model.UserC
 			return nil, err
 		}
 		if id == nil {
-			return &model.Show{}, nil
+			return nil, nil
 		}
-		return r.QueryRoot().Show(ctx, strconv.Itoa(id.Value))
+		show, err := r.QueryRoot().Show(ctx, strconv.Itoa(id.Value))
+		if isItemUnavailableErr(err) {
+			return nil, nil
+		}
+		if err != nil {
+			return nil, err
+		}
+		return show, nil
 	case "episode":
 		id, err := r.Loaders.EpisodeIDFromUuidLoader.Get(ctx, e.ItemID)
 		if err != nil {
 			return nil, err
 		}
 		if id == nil {
-			return &model.Episode{}, nil
+			return nil, nil
 		}
-		return r.QueryRoot().Episode(ctx, strconv.Itoa(id.Value), nil)
+		episode, err := r.QueryRoot().Episode(ctx, strconv.Itoa(id.Value), nil)
+		if isItemUnavailableErr(err) {
+			return nil, nil
+		}
+		if err != nil {
+			return nil, err
+		}
+		return episode, nil
 	case "short":
-		return r.QueryRoot().Short(ctx, e.ItemID.String())
+		short, err := r.QueryRoot().Short(ctx, e.ItemID.String())
+		if isItemUnavailableErr(err) {
+			return nil, nil
+		}
+		if err != nil {
+			return nil, err
+		}
+		return short, nil
 	}
 	return nil, common.ErrItemNotFound
+}
+
+// Title is the resolver for the title field.
+func (r *userCollectionEntryResolver) Title(ctx context.Context, obj *model.UserCollectionEntry) (*string, error) {
+	title, _, err := r.userCollectionEntryItemInfo(ctx, obj.ID)
+	return title, err
+}
+
+// Available is the resolver for the available field.
+func (r *userCollectionEntryResolver) Available(ctx context.Context, obj *model.UserCollectionEntry) (bool, error) {
+	_, available, err := r.userCollectionEntryItemInfo(ctx, obj.ID)
+	return available, err
 }
 
 // User returns generated.UserResolver implementation.

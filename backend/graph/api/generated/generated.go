@@ -1129,8 +1129,10 @@ type ComplexityRoot struct {
 	}
 
 	UserCollectionEntry struct {
-		ID   func(childComplexity int) int
-		Item func(childComplexity int) int
+		Available func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Item      func(childComplexity int) int
+		Title     func(childComplexity int) int
 	}
 
 	UserCollectionEntryPagination struct {
@@ -1512,6 +1514,8 @@ type UserCollectionResolver interface {
 }
 type UserCollectionEntryResolver interface {
 	Item(ctx context.Context, obj *model.UserCollectionEntry) (model.UserCollectionEntryItem, error)
+	Title(ctx context.Context, obj *model.UserCollectionEntry) (*string, error)
+	Available(ctx context.Context, obj *model.UserCollectionEntry) (bool, error)
 }
 type VideoTaskResolver interface {
 	Completed(ctx context.Context, obj *model.VideoTask) (bool, error)
@@ -6864,6 +6868,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.UserCollection.Title(childComplexity), true
 
+	case "UserCollectionEntry.available":
+		if e.complexity.UserCollectionEntry.Available == nil {
+			break
+		}
+
+		return e.complexity.UserCollectionEntry.Available(childComplexity), true
+
 	case "UserCollectionEntry.id":
 		if e.complexity.UserCollectionEntry.ID == nil {
 			break
@@ -6877,6 +6888,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.UserCollectionEntry.Item(childComplexity), true
+
+	case "UserCollectionEntry.title":
+		if e.complexity.UserCollectionEntry.Title == nil {
+			break
+		}
+
+		return e.complexity.UserCollectionEntry.Title(childComplexity), true
 
 	case "UserCollectionEntryPagination.cursor":
 		if e.complexity.UserCollectionEntryPagination.Cursor == nil {
@@ -8596,6 +8614,10 @@ type UserCollectionEntry {
     #    updatedAt: Date!
     #    createdAt: Date!
     item: UserCollectionEntryItem @goField(forceResolver: true)
+    "Title of the underlying item, resolvable even when item is null because it is unavailable. Null if the item was deleted."
+    title: String @goField(forceResolver: true)
+    "Whether the underlying item currently resolves for this user (published, within availability window, role access)."
+    available: Boolean! @goField(forceResolver: true)
 }
 
 type UserCollectionEntryPagination implements Pagination {
@@ -48268,6 +48290,91 @@ func (ec *executionContext) fieldContext_UserCollectionEntry_item(_ context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _UserCollectionEntry_title(ctx context.Context, field graphql.CollectedField, obj *model.UserCollectionEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCollectionEntry_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.UserCollectionEntry().Title(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCollectionEntry_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCollectionEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserCollectionEntry_available(ctx context.Context, field graphql.CollectedField, obj *model.UserCollectionEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserCollectionEntry_available(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.UserCollectionEntry().Available(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserCollectionEntry_available(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserCollectionEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _UserCollectionEntryPagination_total(ctx context.Context, field graphql.CollectedField, obj *model.UserCollectionEntryPagination) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserCollectionEntryPagination_total(ctx, field)
 	if err != nil {
@@ -48619,6 +48726,10 @@ func (ec *executionContext) fieldContext_UserCollectionEntryPagination_items(_ c
 				return ec.fieldContext_UserCollectionEntry_id(ctx, field)
 			case "item":
 				return ec.fieldContext_UserCollectionEntry_item(ctx, field)
+			case "title":
+				return ec.fieldContext_UserCollectionEntry_title(ctx, field)
+			case "available":
+				return ec.fieldContext_UserCollectionEntry_available(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserCollectionEntry", field.Name)
 		},
@@ -64180,6 +64291,75 @@ func (ec *executionContext) _UserCollectionEntry(ctx context.Context, sel ast.Se
 					}
 				}()
 				res = ec._UserCollectionEntry_item(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "title":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserCollectionEntry_title(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "available":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserCollectionEntry_available(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 

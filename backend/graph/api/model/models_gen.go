@@ -1710,6 +1710,10 @@ type UserCollection struct {
 type UserCollectionEntry struct {
 	ID   string                  `json:"id"`
 	Item UserCollectionEntryItem `json:"item,omitempty"`
+	// Title of the underlying item, resolvable even when item is null because it is unavailable. Null if the item was deleted.
+	Title *string `json:"title,omitempty"`
+	// Whether the underlying item currently resolves for this user (published, within availability window, role access).
+	Available bool `json:"available"`
 }
 
 type UserCollectionEntryPagination struct {
