@@ -73,6 +73,13 @@ WHERE
     )
     OR (roles.roles_earlyaccess && @roles::varchar[])
   )
+  -- episodes with a future publish date stay listed (clients render them locked),
+  -- but chapters have no locked state, so hide them until the publish date passes
+  AND (
+    rc.item_type = 'episode'
+    OR access.published_on < now()
+    OR roles.roles_earlyaccess && @roles::varchar[]
+  )
 ORDER BY
   m.published_at DESC;
 
