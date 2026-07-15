@@ -27,6 +27,7 @@ const (
 	ageRatingField     = "ageRating"
 	availableFromField = "availableFrom"
 	availableToField   = "availableTo"
+	publishedOnField   = "publishedOn"
 	showIDField        = "showID"
 	showTitleField     = "showTitle"
 	seasonIDField      = "seasonID"
@@ -48,6 +49,7 @@ type searchItem struct {
 	Duration      *int
 	AvailableFrom int
 	AvailableTo   int
+	PublishedOn   int
 	ShowID        *int
 	ShowTitle     *common.LocaleString
 	SeasonID      *int
@@ -104,6 +106,7 @@ func (i *searchItem) toSearchObject() searchObject {
 	}
 	object[availableFromField] = i.AvailableFrom
 	object[availableToField] = i.AvailableTo
+	object[publishedOnField] = i.PublishedOn
 	if i.ShowID != nil {
 		object[showIDField] = i.ShowID
 	}
@@ -134,6 +137,11 @@ func (i *searchItem) assignVisibility(a common.Availability) {
 		i.AvailableTo = 0
 	} else {
 		i.AvailableTo = int(a.To.Unix())
+	}
+	if a.PublishedOn.IsZero() {
+		i.PublishedOn = 0
+	} else {
+		i.PublishedOn = int(a.PublishedOn.Unix())
 	}
 }
 

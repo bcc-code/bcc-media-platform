@@ -48,6 +48,19 @@
             ],
             "minimum_should_match": 1
           }
+        },
+        {
+          "bool": {
+            "must_not": [
+              {
+                "range": {
+                  "publishedOn": {
+                    "gt": {{ .TimeNow }}
+                  }
+                }
+              }
+            ]
+          }
         }
       ],
       "should": [

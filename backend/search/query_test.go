@@ -28,10 +28,6 @@ func TestMain(m *testing.M) {
 
 	log.ConfigureGlobalLogger(zerolog.DebugLevel)
 
-	if !elasticTestsEnabled {
-		return
-	}
-
 	os.Exit(m.Run())
 }
 
@@ -88,6 +84,9 @@ func importElasticDocuments(ctx context.Context, client *elasticsearch.TypedClie
 }
 
 func TestElastic(t *testing.T) {
+	if !elasticTestsEnabled {
+		t.Skip("Elastic tests are disabled. Enable with the -elastic flag (requires a local server)")
+	}
 	suite.Run(t, new(ElasticQueryTestSuite))
 }
 
@@ -201,6 +200,49 @@ func (s *ElasticQueryTestSuite) SetupSuite() {
 		s.T().Fatal(err)
 	}
 
+	err = s.insertObject(IndexEpisodes, &common.Permissions[int]{
+		ItemID: 3,
+		Availability: common.Availability{
+			Unlisted:    false,
+			Published:   true,
+			From:        time.Now().Add(-time.Hour * 24),
+			To:          time.Now().Add(time.Hour * 24),
+			PublishedOn: time.Now().Add(time.Hour * 24),
+		},
+		Roles: common.Roles{
+			Access:      []string{"bcc-members"},
+			Download:    []string{"bcc-members"},
+			EarlyAccess: []string{},
+		},
+	}, searchItem{
+		ID:        "test-3",
+		Published: true,
+		Type:      "episode",
+		Tags:      []string{"tag1", "tag2"},
+		Image:     nil,
+		Title: common.LocaleString{
+			"en": null.StringFrom("f2b4d8a1-9c3e-4f5a-b6d7-0e1f2a3b4c5d"),
+			"de": null.StringFrom("Test Titel"),
+		},
+		Description: common.LocaleString{
+			"en": null.StringFrom("Test Description"),
+		},
+		Header:        nil,
+		AgeRating:     nil,
+		Duration:      nil,
+		AvailableFrom: 0,
+		AvailableTo:   0,
+		ShowID:        nil,
+		ShowTitle:     nil,
+		SeasonID:      nil,
+		SeasonTitle:   nil,
+		ElasticID:     "ep-3",
+	})
+
+	if err != nil {
+		s.T().Fatal(err)
+	}
+
 	// Let elasticsearch catch up
 	time.Sleep(time.Second * 1)
 }
@@ -266,6 +308,41 @@ func (s *ElasticQueryTestSuite) Test_NoPermissions() {
 	s.Assert().NoError(err)
 	s.Assert().NotNil(res)
 	s.Assert().Equal(0, res.HitCount)
+}
+
+func (s *ElasticQueryTestSuite) Test_FuturePublishedOnHidden() {
+	// The episode with a publishedOn date in the future must not show up,
+	// even for users with the correct role.
+	res, err := doElasticSearch(s.ctx, s.client,
+		common.SearchQuery{
+			Query: "f2b4d8a1-9c3e-4f5a-b6d7-0e1f2a3b4c5d",
+		},
+		[]string{
+			"bcc-members",
+		},
+		[]string{
+			"no", "en", "de",
+		})
+
+	s.Assert().NoError(err)
+	s.Assert().NotNil(res)
+	s.Assert().Equal(0, res.HitCount)
+
+	// Control: an otherwise identical episode with publishedOn in the past is found.
+	res, err = doElasticSearch(s.ctx, s.client,
+		common.SearchQuery{
+			Query: "8e7a6a3b-6e14-4c2d-a47a-bf306d958bd9",
+		},
+		[]string{
+			"bcc-members",
+		},
+		[]string{
+			"no", "en", "de",
+		})
+
+	s.Assert().NoError(err)
+	s.Assert().NotNil(res)
+	s.Assert().Equal(1, res.HitCount)
 }
 
 func (s *ElasticQueryTestSuite) Test_ø() {
