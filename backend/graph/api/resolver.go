@@ -206,6 +206,35 @@ func (r *Resolver) pickLiveProxySigner(ctx context.Context) (*streamtoken.Signer
 	return r.StreamURLSigner, streamtoken.DefaultPrimaryProvider, true
 }
 
+// liveSigning is the per-request resolution of which signer mints the livestream
+// manifest URL. pickLiveProxySigner has a telemetry side effect
+// (ReportFlagActivation), so the decision is resolved exactly once per request
+// (resolveLiveSigning) and shared by URL-expiry selection (livestreamExpiresAt)
+// and signing (signLiveManifestWith).
+type liveSigning struct {
+	proxy    *streamtoken.Signer // signer for the proxy path; nil on the legacy path
+	provider streamtoken.Provider
+	useProxy bool
+}
+
+// resolveLiveSigning decides, once, whether this request's livestream manifest
+// is minted through the stream-proxy or the legacy CloudFront signer.
+func (r *Resolver) resolveLiveSigning(ctx context.Context) liveSigning {
+	signer, provider, useProxy := r.pickLiveProxySigner(ctx)
+	return liveSigning{proxy: signer, provider: provider, useProxy: useProxy}
+}
+
+// canSignLive reports whether a signer capable of producing a URL is configured
+// for the resolved path. The proxy path is always ready (pickLiveProxySigner
+// only selects it when StreamURLSigner is set); the legacy path needs the
+// dedicated CloudFront livestream signer.
+func (r *Resolver) canSignLive(ls liveSigning) bool {
+	if ls.useProxy {
+		return true
+	}
+	return r.LivestreamSigner != nil
+}
+
 func (r *Resolver) GetCDNConfig() export.CDNConfig {
 	return r.APIConfig
 }
