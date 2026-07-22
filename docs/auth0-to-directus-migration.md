@@ -1,6 +1,16 @@
 # Auth0 → Directus authentication migration
 
-Status: **backend done**, admin-web frontend next.
+Status: **backend + admin-web frontend done, working locally.** Remaining:
+verify against staging, configure cross-origin cookies/CORS for real domains,
+and finish Auth0 cleanup.
+
+Note: the `/admin` `x-api-key` path is **permanent, not a migration fallback** —
+the Directus `endpoint-tools` extension
+(`cms/extensions/endpoint-tools/src/index.ts`) calls `/admin` server-to-server
+with `X-Api-Key: API_SECRET` to resolve `preview { collection }` / `preview
+{ asset }`, backing the video-preview and query-builder interfaces. `/admin`
+therefore accepts **either** the `x-api-key` (Directus server) **or** a Directus
+user access token (admin-web browser), and both must keep working.
 
 Goal: stop using Auth0 for `admin-web` authentication and instead reuse the
 authentication that Directus already provides (its own users, roles and
@@ -68,18 +78,72 @@ authentication that Directus already provides (its own users, roles and
 Verified: `go build ./backend/...`, `go vet`, and `go test ./backend/directus/...`
 all pass; `terraform fmt` clean.
 
+### Follow-up fix: global Auth0 middleware rejected Directus tokens (401)
+
+Discovered while testing locally: `r.Use(authClient.ValidateToken())`
+(`main.go`) runs on every route and **aborts with 401 when a bearer token is
+present but fails Auth0 validation** (`auth0/authentication.go`). A Directus
+token is not an Auth0 token, so it was rejected globally before reaching the
+`/admin` handler. (`/query` relies on that 401 to trigger token refresh, so we
+can't just stop aborting.)
+
+Fix (keeps the `auth0` package Directus-agnostic):
+
+- `auth0.Client` gained an optional `secondaryValidator func(token string) bool`
+  - `SetSecondaryValidator`. `validateTokenAndFillCtx` consults it when the
+    Auth0 validators fail; if it accepts the token the request is marked
+    authenticated and continues (the route handler still authorizes).
+- `main.go` builds the `directus.TokenValidator` once, registers it as the
+  secondary validator, and passes it into `adminGraphqlHandler`
+  (which no longer builds its own).
+
+## Frontend changes (admin-web, done)
+
+Uses `$fetch` directly against Directus (no `@directus/sdk` dependency), cookie
+mode.
+
+1. `app/composables/useAuth.ts` (NEW) — singleton auth state (module-scoped
+   refs; fine because `ssr: false`). `login`/`logout`/`refresh`/
+   `getAccessToken`/`ensureAuthenticated`/`currentUser`/`avatarUrl`. Access
+   token + expiry kept in memory; refresh token lives in Directus's httpOnly
+   cookie. `getAccessToken` transparently refreshes when the token is missing
+   (e.g. after reload) or within 10s of expiry; concurrent refreshes are
+   de-duped via a shared promise.
+2. `app/pages/login.vue` (NEW) — email/password form (`layout: false`), posts to
+   `login()`, redirects to `?redirect=` or `/`.
+3. `app/middleware/auth.global.ts` — now redirects to `/login` (with `redirect`
+   query) when `ensureAuthenticated()` fails; skips the guard on `/login`.
+4. `app/plugins/urql.ts` — `authExchange` pulls the token from `useAuth`;
+   `refreshAuth` calls `refresh()` and navigates to `/login` if it fails. No
+   longer `dependsOn: ['auth0']`.
+5. `app/plugins/auth0.ts` — DELETED.
+6. `app/components/layout/AppSidebar.vue` — user info from `currentUser`
+   (`displayName` from first/last name or email, `avatarUrl()` from the Directus
+   file id); logout via `useAuth`.
+7. `app/components/design/DesignInput.vue` — added `'password'` to the `type`
+   union.
+8. `nuxt.config.ts` — dropped `auth0Domain`/`auth0ClientId`, added
+   `directusUrl` (default `https://admin.brunstad.tv`); removed
+   `@auth0/auth0-vue` from `optimizeDeps`.
+9. `package.json` — removed `@auth0/auth0-vue` (lockfile synced).
+
+Verified: `pnpm typecheck`, `pnpm lint` (0 errors), and `pnpm dev` boot all
+clean. Not yet exercised against a live Directus login.
+
 ## Rollout / sequencing
 
-1. Ship backend accepting both credentials (no breakage).
-2. Switch `admin-web` to Directus login (next pass).
-3. Once verified, drop the `x-api-key` fallback and remove all Auth0 code/deps.
+1. Ship backend accepting both credentials (no breakage). ✅
+2. Switch `admin-web` to Directus login. ✅
+3. Once verified in staging, remove the Auth0 code/deps that are no longer
+   used. Keep the `x-api-key` path — it is used by the Directus extension (see
+   the note at the top), not a migration leftover.
 
 ## Open questions / follow-ups
 
 - Role mapping: currently the admin resolvers don't enforce per-field roles
-  (`Roles: nil`). Endpoint-level gate on `app_access` is the meaningful control
-  for now. Decide later whether platform roles should be derived from Directus
-  roles or stay email-driven via `GetRolesForEmail`.
+  (`Roles: nil`). Endpoint-level gate on `admin_access` is the meaningful
+  control for now. Decide later whether platform roles should be derived from
+  Directus roles or stay email-driven via `GetRolesForEmail`.
 - Cross-subdomain cookies: `admin-web` vs `api.<domain>` vs `admin.<domain>` —
   if not same-site, cookie-mode refresh needs `SameSite=None; Secure` + CORS
   `credentials`. Fallback: `json` mode with refresh token in memory.

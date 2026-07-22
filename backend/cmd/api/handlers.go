@@ -174,7 +174,7 @@ func publicGraphqlHandler(loaders *loaders.BatchLoaders) gin.HandlerFunc {
 	}
 }
 
-func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *loaders.BatchLoaders) gin.HandlerFunc {
+func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *loaders.BatchLoaders, tokenValidator *directus.TokenValidator) gin.HandlerFunc {
 	resolver := graphadmin.Resolver{
 		DB:      db,
 		Queries: queries,
@@ -188,16 +188,6 @@ func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, lo
 	h.Use(apiextension.DepthLimit{Max: 20})
 
 	directusSecret := config.Secrets.Directus
-
-	var tokenValidator *directus.TokenValidator
-	if config.Secrets.DirectusJWT != "" {
-		v, err := directus.NewTokenValidator(config.Secrets.DirectusJWT)
-		if err != nil {
-			log.L.Error().Err(err).Msg("Failed to set up the Directus token validator")
-		} else {
-			tokenValidator = v
-		}
-	}
 
 	if directusSecret == "" && tokenValidator == nil {
 		log.L.Debug().Msg("No Directus secret or JWT secret found in environment. Disabling endpoint")

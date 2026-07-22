@@ -12,6 +12,10 @@ export default defineNuxtConfig({
 
   ssr: false,
 
+  devServer: {
+    port: 4000
+  },
+
   app: {
     head: {
       link: [
@@ -53,8 +57,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiUrl: 'https://api.brunstad.tv/admin',
-      auth0Domain: 'https://login.bcc.no',
-      auth0ClientId: 'yxkvLCpWCA6O0F4SxKZy217yALi61zFC' // TODO: get own client_id, this is from Live
+      directusUrl: 'https://admin.brunstad.tv'
     }
   },
 
@@ -72,7 +75,6 @@ export default defineNuxtConfig({
         '@ark-ui/vue',
         '@urql/vue',
         'vue-draggable-plus',
-        '@auth0/auth0-vue',
         '@urql/exchange-auth'
       ]
     }

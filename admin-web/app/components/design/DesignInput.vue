@@ -4,7 +4,7 @@ import { Field } from '@ark-ui/vue'
 interface Props {
   label?: string
   placeholder?: string
-  type?: 'text' | 'email' | 'url' | 'date' | 'time'
+  type?: 'text' | 'email' | 'url' | 'date' | 'time' | 'password'
   disabled?: boolean
   required?: boolean
   invalid?: boolean
