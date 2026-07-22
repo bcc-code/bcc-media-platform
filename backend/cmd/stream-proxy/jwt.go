@@ -26,10 +26,20 @@ func newJWTValidator(secret, issuer string) (*jwtValidator, error) {
 	}, nil
 }
 
-// validate parses and verifies the token, then returns the `base` claim and
-// the optional `provider` claim. provider is ProviderUnspecified when the
-// claim is absent; callers fall back to the configured default in that case.
-func (v *jwtValidator) validate(token string) (base string, provider streamtoken.Provider, err error) {
+// claims are the authorization details carried by a validated stream token.
+type claims struct {
+	// base is the path-prefix the token authorizes.
+	base string
+	// provider names the upstream CDN; ProviderUnspecified when the claim is
+	// absent, in which case callers fall back to the configured default.
+	provider streamtoken.Provider
+	// live is true for livestream tokens, which the handler serves with a short
+	// cache TTL, time-shift forwarding, and no-store — false for VOD.
+	live bool
+}
+
+// validate parses and verifies the token, then returns its claims.
+func (v *jwtValidator) validate(token string) (claims, error) {
 	opts := []jwt.ParseOption{
 		jwt.WithKey(jwa.HS256, v.secret),
 		jwt.WithValidate(true),
@@ -42,24 +52,35 @@ func (v *jwtValidator) validate(token string) (base string, provider streamtoken
 
 	tok, err := jwt.Parse([]byte(token), opts...)
 	if err != nil {
-		return "", streamtoken.ProviderUnspecified, err
+		return claims{}, err
 	}
 
 	raw, ok := tok.Get("base")
 	if !ok {
-		return "", streamtoken.ProviderUnspecified, fmt.Errorf("missing base claim")
+		return claims{}, fmt.Errorf("missing base claim")
 	}
 	baseStr, ok := raw.(string)
 	if !ok || baseStr == "" {
-		return "", streamtoken.ProviderUnspecified, fmt.Errorf("base claim is not a non-empty string")
+		return claims{}, fmt.Errorf("base claim is not a non-empty string")
 	}
+
+	out := claims{base: baseStr}
 
 	if rawProv, ok := tok.Get("provider"); ok {
 		s, ok := rawProv.(string)
 		if !ok {
-			return "", streamtoken.ProviderUnspecified, fmt.Errorf("provider claim is not a string")
+			return claims{}, fmt.Errorf("provider claim is not a string")
 		}
-		provider = streamtoken.Provider(s)
+		out.provider = streamtoken.Provider(s)
 	}
-	return baseStr, provider, nil
+
+	if rawLive, ok := tok.Get("live"); ok {
+		b, ok := rawLive.(bool)
+		if !ok {
+			return claims{}, fmt.Errorf("live claim is not a bool")
+		}
+		out.live = b
+	}
+
+	return out, nil
 }

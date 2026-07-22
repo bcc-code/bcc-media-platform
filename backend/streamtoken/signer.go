@@ -125,6 +125,19 @@ var streamBasePathRegex = regexp.MustCompile(`(/out/v1/[a-z0-9]+/[a-z0-9]+)`)
 // upstream CDN; when the caller passes ProviderUnspecified the Signer's
 // configured primary provider is used.
 func (s *Signer) SignURL(streamPath string, ttl time.Duration, provider Provider) (string, time.Time, error) {
+	return s.sign(streamPath, ttl, provider, false)
+}
+
+// SignLiveURL is like SignURL but additionally sets a `live: true` claim. The
+// stream-proxy reads that claim to serve the manifest with a short cache TTL,
+// forward MediaPackage time-shift (`start`/`end`) query params to the upstream,
+// and mark the response no-store — live manifests are rewritten every segment,
+// so they must never be cached the way VOD manifests are.
+func (s *Signer) SignLiveURL(streamPath string, ttl time.Duration, provider Provider) (string, time.Time, error) {
+	return s.sign(streamPath, ttl, provider, true)
+}
+
+func (s *Signer) sign(streamPath string, ttl time.Duration, provider Provider, live bool) (string, time.Time, error) {
 	if provider == ProviderUnspecified {
 		provider = s.primaryProvider
 	}
@@ -151,6 +164,11 @@ func (s *Signer) SignURL(streamPath string, ttl time.Duration, provider Provider
 	if provider != ProviderUnspecified {
 		if err := tok.Set("provider", string(provider)); err != nil {
 			return "", time.Time{}, fmt.Errorf("set provider claim: %w", err)
+		}
+	}
+	if live {
+		if err := tok.Set("live", true); err != nil {
+			return "", time.Time{}, fmt.Errorf("set live claim: %w", err)
 		}
 	}
 

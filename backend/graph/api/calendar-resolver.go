@@ -180,7 +180,7 @@ func (r *Resolver) bufferForEntry(ctx context.Context, id string) (*model.Calend
 		return nil, err
 	}
 	start, end := bufferPlaybackWindow(w.entry)
-	url, err := r.signedBufferURL(w.livestreamURL, start, end, w.until)
+	url, err := r.signedBufferURL(ctx, w.livestreamURL, start, end, w.until)
 	if err != nil {
 		return nil, err
 	}

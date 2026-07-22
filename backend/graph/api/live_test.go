@@ -1,11 +1,79 @@
 package graph
 
 import (
+	"context"
+	"net/url"
 	"testing"
 	"time"
 
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+// liveTestStreamCfg is a minimal streamtoken.Config for building a proxy signer
+// in tests.
+type liveTestStreamCfg struct {
+	secret   string
+	issuer   string
+	domain   string
+	provider streamtoken.Provider
+}
+
+func (c liveTestStreamCfg) GetStreamJWTSecret() string                     { return c.secret }
+func (c liveTestStreamCfg) GetStreamJWTIssuer() string                     { return c.issuer }
+func (c liveTestStreamCfg) GetStreamProxyDomain() string                   { return c.domain }
+func (c liveTestStreamCfg) GetStreamPrimaryProvider() streamtoken.Provider { return c.provider }
+
+func newLiveProxyResolver(t *testing.T) *Resolver {
+	t.Helper()
+	signer, err := streamtoken.NewSigner(liveTestStreamCfg{secret: "s", domain: "stream.example.com"})
+	require.NoError(t, err)
+	return &Resolver{
+		StreamURLSigner:       signer,
+		PrimaryStreamProvider: streamtoken.ProviderIoriver,
+	}
+}
+
+// TestSignLiveManifest_ProxyPath verifies that when the primary provider selects
+// the proxy, the livestream manifest is minted as a stream-proxy URL (jwt at the
+// proxy host) with the manifest path preserved, rather than a CloudFront
+// EncodedPolicy URL at the original host.
+func TestSignLiveManifest_ProxyPath(t *testing.T) {
+	r := newLiveProxyResolver(t)
+
+	livestreamURL := "https://vod2.brunstad.tv/out/v1/aaaaaa/bbbbbb/index.m3u8"
+	signed, expiresAt, err := r.signLiveManifest(context.Background(), livestreamURL, time.Hour)
+	require.NoError(t, err)
+	assert.True(t, expiresAt.After(time.Now()))
+
+	parsed, err := url.Parse(signed)
+	require.NoError(t, err)
+	assert.Equal(t, "stream.example.com", parsed.Host, "must point at the proxy, not the CDN")
+	assert.Equal(t, "/out/v1/aaaaaa/bbbbbb/index.m3u8", parsed.Path)
+	assert.NotEmpty(t, parsed.Query().Get("jwt"))
+	assert.Empty(t, parsed.Query().Get("EncodedPolicy"), "proxy path must not use CloudFront EncodedPolicy")
+}
+
+// TestSignedBufferURL_ProxyPath verifies the buffer URL on the proxy path keeps
+// the time-shift window appended after the proxy jwt.
+func TestSignedBufferURL_ProxyPath(t *testing.T) {
+	r := newLiveProxyResolver(t)
+
+	start := time.Unix(1513717228, 0)
+	end := time.Unix(1513720828, 0)
+	livestreamURL := "https://vod2.brunstad.tv/out/v1/aaaaaa/bbbbbb/index.m3u8"
+
+	signed, err := r.signedBufferURL(context.Background(), livestreamURL, start, end, time.Now().Add(time.Hour))
+	require.NoError(t, err)
+
+	parsed, err := url.Parse(signed)
+	require.NoError(t, err)
+	assert.Equal(t, "stream.example.com", parsed.Host)
+	assert.NotEmpty(t, parsed.Query().Get("jwt"))
+	assert.Equal(t, "1513717228", parsed.Query().Get("start"))
+	assert.Equal(t, "1513720828", parsed.Query().Get("end"))
+}
 
 func TestAppendTimeShiftTags(t *testing.T) {
 	start := time.Unix(1513717228, 0)

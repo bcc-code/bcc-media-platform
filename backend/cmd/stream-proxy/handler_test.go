@@ -55,11 +55,13 @@ func writeTempStreamProxyPEM(t *testing.T) string {
 // serves a canned playlist body so the handler can complete normally.
 type recordingTransport struct {
 	lastURL atomic.Value // string
+	calls   atomic.Int64
 	body    []byte
 }
 
 func (t *recordingTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 	t.lastURL.Store(r.URL.String())
+	t.calls.Add(1)
 	return &http.Response{
 		StatusCode: http.StatusOK,
 		Body:       io.NopCloser(bytes.NewReader(t.body)),
@@ -90,23 +92,48 @@ func mintTestJWT(t *testing.T, base, provider string) string {
 	return string(signed)
 }
 
+// mintTestJWTLive is mintTestJWT plus the `live: true` claim.
+func mintTestJWTLive(t *testing.T, base, provider string) string {
+	t.Helper()
+	tok := jwt.New()
+	require.NoError(t, tok.Set("base", base))
+	require.NoError(t, tok.Set(jwt.ExpirationKey, time.Now().Add(time.Hour)))
+	if provider != "" {
+		require.NoError(t, tok.Set("provider", provider))
+	}
+	require.NoError(t, tok.Set("live", true))
+	signed, err := jwt.Sign(tok, jwt.WithKey(jwa.HS256, []byte(handlerTestSecret)))
+	require.NoError(t, err)
+	return string(signed)
+}
+
 func newTestHandler(t *testing.T) (*proxyHandler, *recordingTransport) {
 	t.Helper()
-	cfPEM := writeTempStreamProxyPEM(t)
-	ioriverPEM := writeTempStreamProxyPEM(t)
 
-	cfSigner, err := signing.NewSigner(cloudfrontSigningConfig{
-		KeyPath: cfPEM,
-		KeyID:   "CF-DIRECT-ID",
-	})
-	require.NoError(t, err)
+	newSigners := func(cfID, ioCFID, ioFSID string) cdnTarget {
+		cfSigner, err := signing.NewSigner(cloudfrontSigningConfig{
+			KeyPath: writeTempStreamProxyPEM(t),
+			KeyID:   cfID,
+		})
+		require.NoError(t, err)
+		ioriverSigner, err := signing.NewSigner(ioriverSigningConfig{
+			KeyPath:         writeTempStreamProxyPEM(t),
+			CloudFrontKeyID: ioCFID,
+			FastlyKeyID:     ioFSID,
+		})
+		require.NoError(t, err)
+		return cdnTarget{cfSigner: cfSigner, ioriverSigner: ioriverSigner}
+	}
 
-	ioriverSigner, err := signing.NewSigner(ioriverSigningConfig{
-		KeyPath:         ioriverPEM,
-		CloudFrontKeyID: "IORIVER-CF-ID",
-		FastlyKeyID:     "IORIVER-FS-ID",
-	})
-	require.NoError(t, err)
+	vod := newSigners("CF-DIRECT-ID", "IORIVER-CF-ID", "IORIVER-FS-ID")
+	vod.cfDomain = "cf.example.com"
+	vod.ioriverDomain = "ioriver.example.com"
+
+	// Distinct live hosts + key ids so tests can assert the live claim routes to
+	// the live target rather than reusing the VOD signers/hosts.
+	live := newSigners("LIVE-CF-DIRECT-ID", "LIVE-IORIVER-CF-ID", "LIVE-IORIVER-FS-ID")
+	live.cfDomain = "live-cf.example.com"
+	live.ioriverDomain = "live.example.com"
 
 	validator, err := newJWTValidator(handlerTestSecret, "")
 	require.NoError(t, err)
@@ -117,13 +144,12 @@ func newTestHandler(t *testing.T) (*proxyHandler, *recordingTransport) {
 	httpc := &http.Client{Transport: transport}
 
 	cfg := envConfig{
-		CDNDomainCloudFront: "cf.example.com",
-		CDNDomainIoriver:    "ioriver.example.com",
-		DefaultProvider:     streamtoken.ProviderIoriver,
-		CacheTTL:            time.Minute,
-		SignTTL:             time.Hour,
+		DefaultProvider: streamtoken.ProviderIoriver,
+		CacheTTL:        time.Minute,
+		LiveCacheTTL:    time.Minute,
+		SignTTL:         time.Hour,
 	}
-	return newProxyHandler(validator, cfSigner, ioriverSigner, httpc, cfg), transport
+	return newProxyHandler(validator, vod, live, httpc, cfg), transport
 }
 
 func runHandler(h *proxyHandler, target string) *httptest.ResponseRecorder {
@@ -283,6 +309,101 @@ func TestHandle_VariantPlaylist_SignsJWTBaseWildcard(t *testing.T) {
 		"policy must authorize the JWT base wildcard")
 	assert.NotContains(t, decoded, "eeeeee/*",
 		"policy must not be scoped to the variant playlist's directory")
+}
+
+// TestHandle_Live_ForwardsTimeShiftAndNoStore verifies the live path: the
+// MediaPackage start/end params are forwarded to the upstream fetch, the
+// response is marked no-store, and the master playlist's variant URIs carry the
+// jwt plus the same time-shift window so the variant request comes back through
+// the proxy with the window intact.
+func TestHandle_Live_ForwardsTimeShiftAndNoStore(t *testing.T) {
+	h, transport := newTestHandler(t)
+	// A master playlist with one variant URI so we can assert on how the
+	// placeholder is filled in for the index case.
+	transport.body = []byte("#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=1\nvariant.m3u8\n")
+
+	base := "/out/v1/aa/bb/"
+	tok := mintTestJWTLive(t, base, string(streamtoken.ProviderIoriver))
+	target := fmt.Sprintf("/out/v1/aa/bb/index.m3u8?jwt=%s&start=1000&end=2000", url.QueryEscape(tok))
+
+	rec := runHandler(h, target)
+	require.Equal(t, http.StatusOK, rec.Code, "body=%s", rec.Body.String())
+
+	// Downstream caching disabled for live.
+	assert.Equal(t, "no-store, max-age=0", rec.Header().Get("Cache-Control"))
+
+	// Routed to the live ioriver target (host + key ids), not the VOD one.
+	last := transport.last()
+	require.NotEmpty(t, last)
+	assert.Equal(t, "live.example.com", upstreamHostFor(t, last))
+	assert.Contains(t, last, "Key-Pair-Id=LIVE-IORIVER-CF-ID")
+	assert.Contains(t, last, "FS-Key-Id=LIVE-IORIVER-FS-ID")
+	// Time-shift forwarded to the upstream fetch.
+	assert.Contains(t, last, "start=1000")
+	assert.Contains(t, last, "end=2000")
+
+	// Master variant URI carries jwt + the same window back to the proxy.
+	body := rec.Body.String()
+	assert.Contains(t, body, "variant.m3u8?jwt=")
+	assert.Contains(t, body, "start=1000")
+	assert.Contains(t, body, "end=2000")
+}
+
+// TestHandle_Live_SegmentsOmitTimeShift verifies the start-over window is NOT
+// appended to segment (.ts/.mp4) URIs in a live variant playlist — those get
+// only the wildcard CDN signature. It also confirms an init segment (.mp4 in an
+// EXT-X-MAP URI) is left free of the window.
+func TestHandle_Live_SegmentsOmitTimeShift(t *testing.T) {
+	h, transport := newTestHandler(t)
+	transport.body = []byte("#EXTM3U\n#EXT-X-MAP:URI=\"init.mp4\"\n#EXTINF:6,\nseg1.mp4\n")
+
+	base := "/out/v1/cc/dd/"
+	tok := mintTestJWTLive(t, base, string(streamtoken.ProviderIoriver))
+	// Variant playlist (not index.m3u8) so the segment/wildcard branch runs.
+	target := fmt.Sprintf("/out/v1/cc/dd/ee/index_1.m3u8?jwt=%s&start=1000&end=2000", url.QueryEscape(tok))
+
+	rec := runHandler(h, target)
+	require.Equal(t, http.StatusOK, rec.Code, "body=%s", rec.Body.String())
+
+	body := rec.Body.String()
+	assert.NotContains(t, body, "start=1000", "segments must not carry the time-shift window")
+	assert.NotContains(t, body, "end=2000")
+	// But the upstream variant fetch still forwarded the window.
+	assert.Contains(t, transport.last(), "start=1000")
+}
+
+// TestHandle_Live_CacheKeyedByWindow verifies different start-over windows are
+// cached separately (each hits the upstream) while a repeat of the same window
+// is served from the short-lived cache (single upstream fetch).
+func TestHandle_Live_CacheKeyedByWindow(t *testing.T) {
+	h, transport := newTestHandler(t)
+
+	base := "/out/v1/cc/dd/"
+	tok := mintTestJWTLive(t, base, string(streamtoken.ProviderIoriver))
+	reqFor := func(start string) string {
+		return fmt.Sprintf("/out/v1/cc/dd/index.m3u8?jwt=%s&start=%s", url.QueryEscape(tok), start)
+	}
+
+	require.Equal(t, http.StatusOK, runHandler(h, reqFor("1000")).Code)
+	require.Equal(t, http.StatusOK, runHandler(h, reqFor("1000")).Code) // cache hit
+	require.Equal(t, http.StatusOK, runHandler(h, reqFor("2000")).Code) // new window
+
+	assert.Equal(t, int64(2), transport.calls.Load(),
+		"same window should coalesce to one upstream fetch; a different window is a separate fetch")
+}
+
+// TestHandle_VOD_NoCacheControlHeader guards that the VOD path is unchanged: no
+// live claim means no Cache-Control header is emitted.
+func TestHandle_VOD_NoCacheControlHeader(t *testing.T) {
+	h, _ := newTestHandler(t)
+
+	base := "/out/v1/aa/bb/"
+	tok := mintTestJWT(t, base, string(streamtoken.ProviderIoriver))
+	target := fmt.Sprintf("/out/v1/aa/bb/index.m3u8?jwt=%s", url.QueryEscape(tok))
+
+	rec := runHandler(h, target)
+	require.Equal(t, http.StatusOK, rec.Code)
+	assert.Empty(t, rec.Header().Get("Cache-Control"))
 }
 
 func TestHandle_DefaultProviderUnset_NoClaim_400(t *testing.T) {

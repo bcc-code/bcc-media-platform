@@ -163,6 +163,89 @@ func isAbsoluteURI(s string) bool {
 	return strings.HasPrefix(s, "https://") || strings.HasPrefix(s, "http://")
 }
 
+// appendTimeShiftToManifestURIs appends the MediaPackage start-over query
+// fragment (`timeShift`, e.g. `start=1000&end=2000`) to every child-manifest
+// (.m3u8) URI in the body, leaving segment (.mp4/.ts) and other URIs untouched.
+// Used on live master playlists so the window propagates onto variant/rendition
+// requests — which must reach the proxy to be forwarded upstream — but never
+// onto segment requests, which don't need it.
+func appendTimeShiftToManifestURIs(body []byte, timeShift string) []byte {
+	var out strings.Builder
+	out.Grow(len(body) + 128)
+	for _, line := range strings.SplitAfter(string(body), "\n") {
+		out.WriteString(timeShiftLine(line, timeShift))
+	}
+	return []byte(out.String())
+}
+
+func timeShiftLine(line, timeShift string) string {
+	core := line
+	suffix := ""
+	if strings.HasSuffix(core, "\r\n") {
+		core, suffix = core[:len(core)-2], "\r\n"
+	} else if strings.HasSuffix(core, "\n") {
+		core, suffix = core[:len(core)-1], "\n"
+	}
+
+	if core == "" {
+		return line
+	}
+
+	if strings.HasPrefix(core, "#") {
+		return timeShiftInsideURIAttr(core, timeShift) + suffix
+	}
+	return appendTimeShiftToURI(core, timeShift) + suffix
+}
+
+// appendTimeShiftToURI appends the time-shift fragment to a single URI only when
+// it names a manifest (.m3u8). Uses `?` when the URI has no query yet, `&`
+// otherwise.
+func appendTimeShiftToURI(uri, timeShift string) string {
+	if !isManifestURI(uri) {
+		return uri
+	}
+	sep := "?"
+	if strings.Contains(uri, "?") {
+		sep = "&"
+	}
+	return uri + sep + timeShift
+}
+
+// isManifestURI reports whether the URI's path (ignoring any query string) names
+// an HLS playlist (.m3u8).
+func isManifestURI(uri string) bool {
+	p := uri
+	if i := strings.IndexByte(p, '?'); i >= 0 {
+		p = p[:i]
+	}
+	return strings.HasSuffix(p, ".m3u8")
+}
+
+func timeShiftInsideURIAttr(line, timeShift string) string {
+	const marker = `URI="`
+	var b strings.Builder
+	i := 0
+	for i < len(line) {
+		idx := strings.Index(line[i:], marker)
+		if idx < 0 {
+			b.WriteString(line[i:])
+			break
+		}
+		b.WriteString(line[i : i+idx+len(marker)])
+		valueStart := i + idx + len(marker)
+		end := strings.IndexByte(line[valueStart:], '"')
+		if end < 0 {
+			b.WriteString(line[valueStart:])
+			break
+		}
+		value := line[valueStart : valueStart+end]
+		b.WriteString(appendTimeShiftToURI(value, timeShift))
+		b.WriteByte('"')
+		i = valueStart + end + 1
+	}
+	return b.String()
+}
+
 // appendInsideURIAttr rewrites every URI="..." in a tag line so the inner
 // value carries the placeholder. Other tag attributes are left alone.
 func appendInsideURIAttr(line string) string {

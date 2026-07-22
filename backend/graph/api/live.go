@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -53,7 +54,7 @@ func (r *Resolver) signedLiveURL(ctx context.Context, livestreamURL string) (liv
 	}
 
 	ttl := livestreamExpiresAt(start, now).Sub(now)
-	signedURL, expiresAt, err := r.LivestreamSigner.SignURLCanned(livestreamURL, ttl)
+	signedURL, expiresAt, err := r.signLiveManifest(ctx, livestreamURL, ttl)
 	if err != nil {
 		log.L.Error().Err(err).Str("livestreamURL", livestreamURL).Msg("signedLiveURL: failed to sign livestream URL")
 		return liveURL{}, err
@@ -80,14 +81,36 @@ func (r *Resolver) signedLiveURL(ctx context.Context, livestreamURL string) (liv
 // manifest-size limit described on maxLivestreamURLAgeFromStart. Entries are
 // almost always shorter; revisit (e.g. chunked playback) if long buffers are
 // needed rather than truncating the window here.
-func (r *Resolver) signedBufferURL(livestreamURL string, start, end, expiresAt time.Time) (string, error) {
+func (r *Resolver) signedBufferURL(ctx context.Context, livestreamURL string, start, end, expiresAt time.Time) (string, error) {
 	now := time.Now()
-	signedURL, _, err := r.LivestreamSigner.SignURLCanned(livestreamURL, expiresAt.Sub(now))
+	signedURL, _, err := r.signLiveManifest(ctx, livestreamURL, expiresAt.Sub(now))
 	if err != nil {
 		log.L.Error().Err(err).Str("livestreamURL", livestreamURL).Msg("signedBufferURL: failed to sign livestream URL")
 		return "", err
 	}
 	return appendTimeShiftTags(signedURL, start, &end), nil
+}
+
+// signLiveManifest signs the livestream manifest URL for ttl. It routes through
+// the stream-proxy (multi-CDN via ioriver) when pickLiveProxySigner selects it,
+// and otherwise falls back to the legacy CloudFront canned-policy signer, whose
+// URLs are rewritten per-request by the Lambda@Edge manifest handler. It returns
+// the signed URL and its expiry, before any MediaPackage time-shift tags are
+// appended by the caller.
+//
+// The CDN/CloudFront signature signs the resource path, not the query, so the
+// caller can safely append `start`/`end` time-shift params to the returned URL
+// without invalidating it (see appendTimeShiftTags). On the proxy path those
+// params travel to the proxy, which forwards them to the upstream manifest.
+func (r *Resolver) signLiveManifest(ctx context.Context, livestreamURL string, ttl time.Duration) (string, time.Time, error) {
+	if signer, provider, ok := r.pickLiveProxySigner(ctx); ok {
+		u, err := url.Parse(livestreamURL)
+		if err != nil {
+			return "", time.Time{}, err
+		}
+		return signer.SignLiveURL(u.Path, ttl, provider)
+	}
+	return r.LivestreamSigner.SignURLCanned(livestreamURL, ttl)
 }
 
 // livestreamExpiresAt returns when the signed URL should expire: at most

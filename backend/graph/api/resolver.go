@@ -165,6 +165,47 @@ func (r *Resolver) pickStreamSigner(ctx context.Context) (streamSigner, streamto
 	return r.StreamURLSigner, streamtoken.DefaultPrimaryProvider
 }
 
+// pickLiveProxySigner decides whether livestream manifests should be minted as
+// stream-proxy URLs (multi-CDN via ioriver) or fall back to the legacy
+// CloudFront canned-policy signer + Lambda@Edge manifest rewriter. It mirrors
+// pickStreamSigner's routing but returns the concrete *streamtoken.Signer
+// (SignLiveURL is not on the shared streamSigner interface) and an ok flag:
+//   - ok == false → use the legacy r.LivestreamSigner path.
+//   - ok == true  → mint a proxy URL with the returned signer and provider.
+//
+// The `cdn-provider` Unleash flag's `cloudfront-direct` variant forces the
+// legacy path (shared emergency rollback with VOD); otherwise the configured
+// PrimaryStreamProvider decides. When the proxy signer is not configured we
+// always fall back so live keeps working.
+func (r *Resolver) pickLiveProxySigner(ctx context.Context) (*streamtoken.Signer, streamtoken.Provider, bool) {
+	if r.StreamURLSigner == nil {
+		return nil, streamtoken.ProviderUnspecified, false
+	}
+
+	ginCtx, _ := utils.GinCtx(ctx)
+	if ginCtx != nil {
+		flags := utils.GetFeatureFlags(ginCtx)
+		if v, ok := flags.GetVariant(unleash.StreamCDNProviderFlag); ok {
+			utils.ReportFlagActivation(ginCtx, unleash.StreamCDNProviderFlag, v)
+
+			switch v {
+			case unleash.StreamCDNProxyIORiver:
+				return r.StreamURLSigner, streamtoken.ProviderIoriver, true
+			case unleash.StreamCDNProxyCF:
+				return r.StreamURLSigner, streamtoken.ProviderCloudFront, true
+			default:
+				return nil, streamtoken.ProviderUnspecified, false
+			}
+		}
+	}
+
+	if r.PrimaryStreamProvider != streamtoken.ProviderIoriver {
+		return nil, streamtoken.ProviderUnspecified, false
+	}
+
+	return r.StreamURLSigner, streamtoken.DefaultPrimaryProvider, true
+}
+
 func (r *Resolver) GetCDNConfig() export.CDNConfig {
 	return r.APIConfig
 }
