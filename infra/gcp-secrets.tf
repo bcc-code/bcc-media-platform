@@ -41,7 +41,7 @@ module "staging_sync_secrets" {
       data = random_password.staging_sync_db_password.result
     },
   }
-  project = google_project.brunstadtv.project_id
+  project          = google_project.brunstadtv.project_id
   secret_accessors = []
 }
 
@@ -101,6 +101,12 @@ module "api_secrets" {
       ANALYTICS_SALT = {
         data = random_password.analytics_id_salt.result
         name = "ANALYTICS_SALT"
+      },
+      # Directus signs its access tokens with this secret; the API needs it to
+      # validate the tokens admin-web users present to the /admin endpoint.
+      DIRECTUS_JWT_SECRET = {
+        data = random_password.directus_secret.result
+        name = "DIRECTUS_JWT_SECRET"
       },
     }
   )

@@ -1,15 +1,21 @@
 <script setup lang="ts">
-import { useAuth0 } from '@auth0/auth0-vue'
-
-const { user, logout } = useAuth0()
+const { currentUser, logout, avatarUrl } = useAuth()
 const collapsed = useLocalStorage('sidebar:collapsed', false)
+
+const displayName = computed(() => {
+  const u = currentUser.value
+  if (!u) return ''
+  const name = [u.first_name, u.last_name].filter(Boolean).join(' ')
+  return name || u.email
+})
 
 function toggle() {
   collapsed.value = !collapsed.value
 }
 
-function handleLogout() {
-  logout({ logoutParams: { returnTo: window.location.origin } })
+async function handleLogout() {
+  await logout()
+  await navigateTo('/login')
 }
 
 const navSections = [
@@ -115,7 +121,7 @@ const navSections = [
 
     <div class="border-border-1 border-t p-2">
       <DesignTooltip
-        :content="user?.name ?? user?.email ?? ''"
+        :content="displayName"
         placement="right"
         :disabled="!collapsed"
       >
@@ -123,13 +129,13 @@ const navSections = [
           class="flex items-center gap-3 rounded-xl"
           :class="collapsed ? 'justify-center' : 'pl-3'"
         >
-          <DesignAvatar :src="user?.picture" :name="user?.name ?? undefined" />
+          <DesignAvatar :src="avatarUrl()" :name="displayName || undefined" />
           <div v-if="!collapsed" class="min-w-0 flex-1">
             <p class="text-title-3 text-text-default truncate">
-              {{ user?.name }}
+              {{ displayName }}
             </p>
             <p class="text-caption-2 text-text-muted truncate">
-              {{ user?.email }}
+              {{ currentUser?.email }}
             </p>
           </div>
           <DesignTooltip v-if="!collapsed" content="Logg ut" placement="top">

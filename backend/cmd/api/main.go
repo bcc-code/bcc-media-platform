@@ -18,6 +18,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
 	"github.com/bcc-code/bcc-media-platform/backend/bmm"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/directus"
 	"github.com/bcc-code/bcc-media-platform/backend/email"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
@@ -206,6 +207,24 @@ func main() {
 	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)
 	authClient := auth0.New(config.Auth0)
 
+	// Directus-issued admin tokens are validated with the shared Directus JWT
+	// secret. Registering it as the Auth0 client's secondary validator stops
+	// the global token middleware from rejecting them with 401; the /admin
+	// handler then performs the actual authorization.
+	var directusValidator *directus.TokenValidator
+	if config.Secrets.DirectusJWT != "" {
+		v, err := directus.NewTokenValidator(config.Secrets.DirectusJWT)
+		if err != nil {
+			log.L.Error().Err(err).Msg("Failed to set up the Directus token validator")
+		} else {
+			directusValidator = v
+			authClient.SetSecondaryValidator(func(token string) bool {
+				_, err := v.Validate(token)
+				return err == nil
+			})
+		}
+	}
+
 	cb := gobreaker.NewCircuitBreaker(gobreaker.Settings{
 		Name:    "Members",
 		Timeout: time.Second * 2,
@@ -305,7 +324,7 @@ func main() {
 		jobPubSubTopic,
 	))
 	r.GET("/", playgroundHandler())
-	r.POST("/admin", adminGraphqlHandler(config, db, queries, ls))
+	r.POST("/admin", adminGraphqlHandler(config, db, queries, ls, directusValidator))
 	r.POST("/public", publicGraphqlHandler(ls))
 	r.GET("/topbarsearch/:term", topbarSearchHandler(searchService))
 	r.GET("/versionz", version.GinHandler)
