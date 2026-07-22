@@ -130,6 +130,53 @@ func TestSignURLSetsProviderClaim(t *testing.T) {
 	assert.Equal(t, "cloudfront", raw)
 }
 
+func TestSignLiveURLSetsLiveClaim(t *testing.T) {
+	cfg := fakeConfig{secret: "topsecret", domain: "proxy.example.com"}
+	signer, err := NewSigner(cfg)
+	require.NoError(t, err)
+
+	streamPath := "/out/v1/aaaaaa/bbbbbb/index.m3u8"
+	signedURL, _, err := signer.SignLiveURL(streamPath, time.Hour, ProviderIoriver)
+	require.NoError(t, err)
+
+	parsed, err := url.Parse(signedURL)
+	require.NoError(t, err)
+	tokStr := parsed.Query().Get("jwt")
+	require.NotEmpty(t, tokStr)
+
+	tok, err := jwt.Parse(
+		[]byte(tokStr),
+		jwt.WithKey(jwa.HS256, []byte(cfg.secret)),
+		jwt.WithValidate(true),
+	)
+	require.NoError(t, err)
+
+	raw, ok := tok.Get("live")
+	require.True(t, ok, "live claim must be present")
+	assert.Equal(t, true, raw)
+
+	prov, ok := tok.Get("provider")
+	require.True(t, ok)
+	assert.Equal(t, "ioriver", prov)
+}
+
+func TestSignURLOmitsLiveClaim(t *testing.T) {
+	cfg := fakeConfig{secret: "topsecret", domain: "proxy.example.com"}
+	signer, err := NewSigner(cfg)
+	require.NoError(t, err)
+
+	signedURL, _, err := signer.SignURL("/out/v1/aaaaaa/bbbbbb/index.m3u8", time.Hour, ProviderUnspecified)
+	require.NoError(t, err)
+
+	parsed, err := url.Parse(signedURL)
+	require.NoError(t, err)
+	tok, err := jwt.Parse([]byte(parsed.Query().Get("jwt")), jwt.WithKey(jwa.HS256, []byte(cfg.secret)), jwt.WithValidate(true))
+	require.NoError(t, err)
+
+	_, ok := tok.Get("live")
+	assert.False(t, ok, "VOD tokens must not carry a live claim")
+}
+
 func TestSignURLOmitsIssuerWhenUnset(t *testing.T) {
 	cfg := fakeConfig{secret: "topsecret", domain: "proxy.example.com"}
 	signer, err := NewSigner(cfg)

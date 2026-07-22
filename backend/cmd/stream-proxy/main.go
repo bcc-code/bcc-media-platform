@@ -35,6 +35,12 @@ func main() {
 	if cfg.IoriverSigning.KeyPath == "" {
 		log.L.Fatal().Msg("IORIVER_SIGNING_KEY_PATH is required")
 	}
+	if cfg.LiveCloudFrontSigning.KeyPath == "" {
+		log.L.Fatal().Msg("LIVE_CF_SIGNING_KEY_PATH is required")
+	}
+	if cfg.LiveIoriverSigning.KeyPath == "" {
+		log.L.Fatal().Msg("LIVE_IORIVER_SIGNING_KEY_PATH is required")
+	}
 
 	cfSigner, err := signing.NewSigner(cfg.CloudFrontSigning)
 	if err != nil {
@@ -44,6 +50,14 @@ func main() {
 	if err != nil {
 		log.L.Fatal().Err(err).Msg("failed to init ioriver signer")
 	}
+	liveCfSigner, err := signing.NewSigner(cfg.LiveCloudFrontSigning)
+	if err != nil {
+		log.L.Fatal().Err(err).Msg("failed to init live cloudfront signer")
+	}
+	liveIoriverSigner, err := signing.NewSigner(cfg.LiveIoriverSigning)
+	if err != nil {
+		log.L.Fatal().Err(err).Msg("failed to init live ioriver signer")
+	}
 
 	validator, err := newJWTValidator(cfg.JWTSecret, cfg.JWTIssuer)
 	if err != nil {
@@ -52,7 +66,20 @@ func main() {
 
 	httpc := &http.Client{Timeout: 10 * time.Second}
 
-	handler := newProxyHandler(validator, cfSigner, ioriverSigner, httpc, cfg)
+	vodTarget := cdnTarget{
+		cfSigner:      cfSigner,
+		cfDomain:      cfg.CDNDomainCloudFront,
+		ioriverSigner: ioriverSigner,
+		ioriverDomain: cfg.CDNDomainIoriver,
+	}
+	liveTarget := cdnTarget{
+		cfSigner:      liveCfSigner,
+		cfDomain:      cfg.LiveCDNDomainCloudFront,
+		ioriverSigner: liveIoriverSigner,
+		ioriverDomain: cfg.LiveCDNDomainIoriver,
+	}
+
+	handler := newProxyHandler(validator, vodTarget, liveTarget, httpc, cfg)
 
 	if cfg.Environment != "development" {
 		gin.SetMode(gin.ReleaseMode)

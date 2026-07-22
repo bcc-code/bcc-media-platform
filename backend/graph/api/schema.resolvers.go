@@ -800,14 +800,13 @@ func (r *queryRootResolver) Live(ctx context.Context) (*model.Live, error) {
 		return out, nil
 	}
 
-	// No dedicated livestream signing key configured → online flag only, no URL.
-	if r.LivestreamSigner == nil {
-		return out, nil
-	}
-
 	signed, err := r.signedLiveURL(ctx, conf.LivestreamURL)
 	if err != nil {
 		return nil, err
+	}
+	// No signer configured for the selected path → online flag only, no URL.
+	if signed == nil {
+		return out, nil
 	}
 
 	out.URL = &signed.URL

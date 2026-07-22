@@ -29,8 +29,8 @@ const maxBufferAvailableHours = 7 * 24
 // replay starts shortly before the entry begins and ends shortly after it ends,
 // avoiding clipped openings/closings. They apply only to the entry-derived
 // defaults — explicit buffer_start/buffer_end overrides are used as-is.
-const bufferLeadIn = time.Minute
-const bufferLeadOut = 5 * time.Minute
+const bufferLeadIn = 5 * time.Minute
+const bufferLeadOut = 10 * time.Minute
 
 // defaultCalendarEntryImageFilename is the fallback calendar entry image, served
 // from the same image CDN as episode images, used when the linked episode has no
@@ -59,7 +59,7 @@ type bufferWindow struct {
 // then the canonical way to watch; buffer_available_hours > 0; and now is within
 // [entry.start, entry.end + hours] (hours capped at maxBufferAvailableHours).
 func (r *Resolver) bufferWindowForEntry(ctx context.Context, id string) (*bufferWindow, error) {
-	if r.LivestreamSigner == nil {
+	if !r.canSignLive(r.resolveLiveSigning(ctx)) {
 		return nil, nil
 	}
 
@@ -82,7 +82,6 @@ func (r *Resolver) bufferWindowForEntry(ctx context.Context, id string) (*buffer
 	if entry == nil {
 		return nil, nil
 	}
-
 	if !entry.BufferAllowed || (entry.EpisodePublished && !entry.EpisodeLocked) {
 		return nil, nil
 	}
@@ -181,7 +180,7 @@ func (r *Resolver) bufferForEntry(ctx context.Context, id string) (*model.Calend
 		return nil, err
 	}
 	start, end := bufferPlaybackWindow(w.entry)
-	url, err := r.signedBufferURL(w.livestreamURL, start, end, w.until)
+	url, err := r.signedBufferURL(ctx, w.livestreamURL, start, end, w.until)
 	if err != nil {
 		return nil, err
 	}

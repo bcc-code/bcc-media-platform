@@ -168,3 +168,29 @@ func TestCleanPlaylist_RealMaster(t *testing.T) {
 		}
 	}
 }
+
+func TestAppendTimeShiftToManifestURIs(t *testing.T) {
+	// A master playlist post-substitution: variant + audio rendition are .m3u8
+	// (should get the window); an EXT-X-MAP init segment is .mp4 (must not).
+	in := "#EXTM3U\n" +
+		"#EXT-X-MEDIA:TYPE=AUDIO,URI=\"audio.m3u8?jwt=T\"\n" +
+		"#EXT-X-MAP:URI=\"init.mp4?jwt=T\"\n" +
+		"#EXT-X-STREAM-INF:BANDWIDTH=1\n" +
+		"variant.m3u8?jwt=T\n" +
+		"seg1.mp4?jwt=T\n"
+
+	got := string(appendTimeShiftToManifestURIs([]byte(in), "start=1000&end=2000"))
+
+	if !strings.Contains(got, "variant.m3u8?jwt=T&start=1000&end=2000") {
+		t.Errorf("variant manifest URI should carry the window: %q", got)
+	}
+	if !strings.Contains(got, "audio.m3u8?jwt=T&start=1000&end=2000") {
+		t.Errorf("audio rendition manifest URI should carry the window: %q", got)
+	}
+	if !strings.Contains(got, "init.mp4?jwt=T\"") || strings.Contains(got, "init.mp4?jwt=T&start") {
+		t.Errorf("init segment (.mp4) must not carry the window: %q", got)
+	}
+	if !strings.Contains(got, "seg1.mp4?jwt=T\n") || strings.Contains(got, "seg1.mp4?jwt=T&start") {
+		t.Errorf("segment (.mp4) must not carry the window: %q", got)
+	}
+}

@@ -34,10 +34,11 @@ client                    stream-proxy                   CDN
    - **Master playlist (`index.m3u8`)** — variant URIs stay relative and
      get `?jwt=<token>`, so the client bounces back to the proxy and the
      JWT is re-verified per variant.
-   - **Variant playlist** — segment URIs are absolutized to
-     `https://<STREAM_PROXY_CDN_DOMAIN>/…` and signed with one wildcard
-     covering the playlist's directory (`STREAM_PROXY_SIGN_TTL`, default
-     6h). Clients fetch segments straight from the CDN.
+   - **Variant playlist** — segment URIs are absolutized to the resolved
+     upstream host (`STREAM_PROXY_CDN_DOMAIN_CLOUDFRONT` or `..._IORIVER`,
+     per the `provider` claim) and signed with one wildcard covering the
+     asset root (`STREAM_PROXY_SIGN_TTL`, default 6h). Clients fetch
+     segments straight from the CDN.
 
 ## Run
 
@@ -56,20 +57,33 @@ configured in `cmd/api` and `cmd/jobs`, otherwise validation fails.
 
 See [`env.sample`](./env.sample) for the full list. Key vars:
 
-| Var                       | Notes                                                                                |
-|---------------------------|--------------------------------------------------------------------------------------|
-| `PORT`                    | Listen port. Default `8081`.                                                         |
-| `ENVIRONMENT`             | Anything other than `development` switches Gin into release mode.                    |
-| `STREAM_PROXY_CDN_DOMAIN` | Upstream CDN host. **Required.**                                                     |
-| `STREAM_PROXY_CACHE_TTL`  | Per-path playlist cache. Default `10m`.                                              |
-| `STREAM_PROXY_SIGN_TTL`   | Validity of the CDN signature stamped onto served URIs. Default `6h`.                |
-| `STREAM_JWT_SECRET`       | HS256 shared secret. **Required**, must match `cmd/api` and `cmd/jobs`.              |
-| `STREAM_JWT_ISSUER`       | Optional. If set, JWTs without a matching `iss` are rejected.                        |
-| `CF_SIGNING_KEY_PATH`     | RSA PEM for CloudFront signing. **Required.**                                        |
-| `CF_SIGNING_KEY_ID`       | CloudFront key ID.                                                                   |
-| `FASTLY_SIGNING_KEY_ID`   | Fastly key ID. Optional — leave empty to skip Fastly params.                         |
-| `AKAMAI_SIGNING_KEY_ID`   | Akamai key ID. Optional.                                                             |
-| `AKAMAI_ENCRYPTION_KEY`   | Hex-encoded Akamai HMAC key. Required if `AKAMAI_SIGNING_KEY_ID` is set.             |
+Per-request routing between the two upstream identities is driven by the JWT
+`provider` claim (`cloudfront` / `ioriver`); `STREAM_PROXY_DEFAULT_PROVIDER` is
+used when the claim is absent. The `live` claim switches to the live upstream,
+whose vars default to the VOD equivalents when unset.
+
+| Var                                | Notes                                                                        |
+|------------------------------------|------------------------------------------------------------------------------|
+| `PORT`                             | Listen port. Default `8081`.                                                 |
+| `ENVIRONMENT`                      | Anything other than `development` switches Gin into release mode.            |
+| `STREAM_PROXY_CDN_DOMAIN_CLOUDFRONT`| Upstream host for the `cloudfront` provider. **Required.**                  |
+| `STREAM_PROXY_CDN_DOMAIN_IORIVER`  | Upstream host for the `ioriver` provider. **Required.**                      |
+| `STREAM_PROXY_DEFAULT_PROVIDER`    | `cloudfront` or `ioriver`. Used when the JWT has no `provider` claim. **Required.** |
+| `STREAM_PROXY_CACHE_TTL`           | Per-path VOD playlist cache. Default `10m`.                                  |
+| `STREAM_PROXY_LIVE_CACHE_TTL`      | Live playlist cache (rewritten every segment). Default `2s`.                 |
+| `STREAM_PROXY_SIGN_TTL`            | Validity of the CDN signature stamped onto served URIs. Default `6h`.        |
+| `STREAM_JWT_SECRET`                | HS256 shared secret. **Required**, must match `cmd/api` and `cmd/jobs`.      |
+| `STREAM_JWT_ISSUER`                | Optional. If set, JWTs without a matching `iss` are rejected.                |
+| `CF_SIGNING_KEY_PATH`              | RSA PEM for the direct-CloudFront (`cloudfront` provider) signer. **Required.** |
+| `CF_SIGNING_KEY_ID`                | Direct-CloudFront key-pair ID.                                               |
+| `IORIVER_SIGNING_KEY_PATH`         | RSA PEM for the ioriver (`ioriver` provider) signer. **Required.**           |
+| `IORIVER_CLOUDFRONT_KEY_ID`        | ioriver-issued CloudFront key ID.                                           |
+| `IORIVER_FASTLY_KEY_ID`            | ioriver Fastly key ID. Optional — leave empty to skip Fastly params.        |
+| `IORIVER_AKAMAI_KEY_ID`            | ioriver Akamai key ID. Optional.                                            |
+| `IORIVER_AKAMAI_ENCRYPTION_KEY`    | Hex-encoded Akamai HMAC key. Required if `IORIVER_AKAMAI_KEY_ID` is set.     |
+| `STREAM_PROXY_LIVE_CDN_DOMAIN_CLOUDFRONT` / `..._IORIVER` | Live upstream hosts. Optional — default to the VOD hosts. |
+| `LIVE_CF_SIGNING_KEY_PATH` / `LIVE_CF_SIGNING_KEY_ID`     | Live direct-CloudFront key material. Optional — default to VOD. |
+| `LIVE_IORIVER_SIGNING_KEY_PATH` / `LIVE_IORIVER_CLOUDFRONT_KEY_ID` / `LIVE_IORIVER_FASTLY_KEY_ID` / `LIVE_IORIVER_AKAMAI_KEY_ID` / `LIVE_IORIVER_AKAMAI_ENCRYPTION_KEY` | Live ioriver key material. Optional — default to VOD. |
 
 For ad-hoc signing against the same key material, see
 [`cmd/sign-url`](../sign-url/readme.md).
