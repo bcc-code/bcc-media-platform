@@ -139,7 +139,12 @@ type awsConfig struct {
 }
 
 type serviceSecrets struct {
+	// Directus is the shared secret used as the `x-api-key` for the /admin
+	// endpoint (server-to-server calls from Directus).
 	Directus string
+	// DirectusJWT is the Directus `SECRET` signing key, used to validate the
+	// access tokens Directus issues to admin-web users.
+	DirectusJWT string
 }
 
 type redirectConfig struct {
@@ -281,7 +286,8 @@ func getEnvConfig() envConfig {
 			PrimaryProvider: parsePrimaryProvider(os.Getenv("STREAM_PRIMARY_PROVIDER")),
 		},
 		Secrets: serviceSecrets{
-			Directus: os.Getenv("SERVICE_SECRET_DIRECTUS"),
+			Directus:    os.Getenv("SERVICE_SECRET_DIRECTUS"),
+			DirectusJWT: os.Getenv("DIRECTUS_JWT_SECRET"),
 		},
 		Redis: utils.RedisConfig{
 			Address:  os.Getenv("REDIS_ADDRESS"),

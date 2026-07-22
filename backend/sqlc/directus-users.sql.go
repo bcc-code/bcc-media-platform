@@ -12,6 +12,35 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const getDirectusUserByID = `-- name: GetDirectusUserByID :one
+SELECT id, email, first_name, last_name, role, status
+FROM directus_users
+WHERE id = $1
+`
+
+type GetDirectusUserByIDRow struct {
+	ID        uuid.UUID      `db:"id" json:"id"`
+	Email     null_v4.String `db:"email" json:"email"`
+	FirstName null_v4.String `db:"first_name" json:"firstName"`
+	LastName  null_v4.String `db:"last_name" json:"lastName"`
+	Role      uuid.NullUUID  `db:"role" json:"role"`
+	Status    string         `db:"status" json:"status"`
+}
+
+func (q *Queries) GetDirectusUserByID(ctx context.Context, id uuid.UUID) (GetDirectusUserByIDRow, error) {
+	row := q.db.QueryRowContext(ctx, getDirectusUserByID, id)
+	var i GetDirectusUserByIDRow
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.FirstName,
+		&i.LastName,
+		&i.Role,
+		&i.Status,
+	)
+	return i, err
+}
+
 const getUserIDByEmail = `-- name: GetUserIDByEmail :one
 SELECT id FROM directus_users WHERE email = $1
 `
