@@ -182,6 +182,19 @@ func TestCanSignLive(t *testing.T) {
 	})
 }
 
+// TestBufferGate_ProxyEnablesBuffersWithoutLegacySigner guards the calendar
+// buffer gate (bufferWindowForEntry) against regressing to a legacy-only check.
+// The gate is `!r.canSignLive(r.resolveLiveSigning(ctx))`, so a proxy-primary
+// resolver with no legacy LivestreamSigner must still be able to sign — i.e.
+// buffers are offered, not silently dropped.
+func TestBufferGate_ProxyEnablesBuffersWithoutLegacySigner(t *testing.T) {
+	r := newLiveProxyResolver(t) // StreamURLSigner set, LivestreamSigner nil, ProviderIoriver
+	require.Nil(t, r.LivestreamSigner)
+
+	assert.True(t, r.canSignLive(r.resolveLiveSigning(context.Background())),
+		"proxy path must permit calendar buffers even without the legacy livestream signer")
+}
+
 // TestSignedLiveURL_NoSigner verifies signedLiveURL reports "no URL" (nil result)
 // without error — and without touching the database — when no signer is
 // configured for the selected path, so the resolver serves the online flag only.

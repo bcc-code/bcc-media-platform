@@ -17,9 +17,9 @@ type envConfig struct {
 	DefaultProvider     streamtoken.Provider
 
 	// Live upstreams. Live is a separate MediaPackage origin behind its own CDN
-	// distributions / ioriver stream, so it has its own hosts and key material.
-	// Each field falls back to the VOD equivalent above when its env var is
-	// unset, so a shared setup needs no live-specific config.
+	// distributions / ioriver stream, with its own hosts and key material. It is
+	// configured entirely independently of VOD (its own LIVE_* /
+	// STREAM_PROXY_LIVE_* env vars) — there is no VOD fallback.
 	LiveCDNDomainCloudFront string
 	LiveCDNDomainIoriver    string
 
@@ -87,15 +87,6 @@ func parseDurationOr(raw string, fallback time.Duration) time.Duration {
 	return d
 }
 
-// envOr returns the value of env var key, or fallback when it is unset/empty.
-// Used to let the live-specific signing config default to the VOD values.
-func envOr(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return fallback
-}
-
 func getEnvConfig() envConfig {
 	_ = godotenv.Load("backend/cmd/stream-proxy/.env")
 	_ = godotenv.Load(".env")
@@ -115,6 +106,22 @@ func getEnvConfig() envConfig {
 		AkamaiEncryptionKey: os.Getenv("IORIVER_AKAMAI_ENCRYPTION_KEY"),
 	}
 
+	// Live signing is configured independently of VOD from its own LIVE_* vars —
+	// no VOD fallback. Live is a separate origin/key identity; sourcing any live
+	// field from VOD would splice a live key with VOD key ids (or vice versa),
+	// producing signatures the CDN cannot validate.
+	liveCFSigning := cloudfrontSigningConfig{
+		KeyPath: os.Getenv("LIVE_CF_SIGNING_KEY_PATH"),
+		KeyID:   os.Getenv("LIVE_CF_SIGNING_KEY_ID"),
+	}
+	liveIoriverSigning := ioriverSigningConfig{
+		KeyPath:             os.Getenv("LIVE_IORIVER_SIGNING_KEY_PATH"),
+		CloudFrontKeyID:     os.Getenv("LIVE_IORIVER_CLOUDFRONT_KEY_ID"),
+		FastlyKeyID:         os.Getenv("LIVE_IORIVER_FASTLY_KEY_ID"),
+		AkamaiKeyID:         os.Getenv("LIVE_IORIVER_AKAMAI_KEY_ID"),
+		AkamaiEncryptionKey: os.Getenv("LIVE_IORIVER_AKAMAI_ENCRYPTION_KEY"),
+	}
+
 	return envConfig{
 		Port:        os.Getenv("PORT"),
 		Environment: os.Getenv("ENVIRONMENT"),
@@ -123,8 +130,8 @@ func getEnvConfig() envConfig {
 		CDNDomainIoriver:    cdnDomainIoriver,
 		DefaultProvider:     streamtoken.Provider(os.Getenv("STREAM_PROXY_DEFAULT_PROVIDER")),
 
-		LiveCDNDomainCloudFront: envOr("STREAM_PROXY_LIVE_CDN_DOMAIN_CLOUDFRONT", cdnDomainCloudFront),
-		LiveCDNDomainIoriver:    envOr("STREAM_PROXY_LIVE_CDN_DOMAIN_IORIVER", cdnDomainIoriver),
+		LiveCDNDomainCloudFront: os.Getenv("STREAM_PROXY_LIVE_CDN_DOMAIN_CLOUDFRONT"),
+		LiveCDNDomainIoriver:    os.Getenv("STREAM_PROXY_LIVE_CDN_DOMAIN_IORIVER"),
 
 		CacheTTL: parseDurationOr(os.Getenv("STREAM_PROXY_CACHE_TTL"), 10*time.Minute),
 		// Live manifests are rewritten every segment, so they are cached only
@@ -140,18 +147,8 @@ func getEnvConfig() envConfig {
 		CloudFrontSigning: cfSigning,
 		IoriverSigning:    ioriverSigning,
 
-		LiveCloudFrontSigning: cloudfrontSigningConfig{
-			KeyPath: envOr("LIVE_CF_SIGNING_KEY_PATH", cfSigning.KeyPath),
-			KeyID:   envOr("LIVE_CF_SIGNING_KEY_ID", cfSigning.KeyID),
-		},
-
-		LiveIoriverSigning: ioriverSigningConfig{
-			KeyPath:             envOr("LIVE_IORIVER_SIGNING_KEY_PATH", ioriverSigning.KeyPath),
-			CloudFrontKeyID:     envOr("LIVE_IORIVER_CLOUDFRONT_KEY_ID", ioriverSigning.CloudFrontKeyID),
-			FastlyKeyID:         envOr("LIVE_IORIVER_FASTLY_KEY_ID", ioriverSigning.FastlyKeyID),
-			AkamaiKeyID:         envOr("LIVE_IORIVER_AKAMAI_KEY_ID", ioriverSigning.AkamaiKeyID),
-			AkamaiEncryptionKey: envOr("LIVE_IORIVER_AKAMAI_ENCRYPTION_KEY", ioriverSigning.AkamaiEncryptionKey),
-		},
+		LiveCloudFrontSigning: liveCFSigning,
+		LiveIoriverSigning:    liveIoriverSigning,
 
 		Tracing: tracingConfig{
 			UptraceDSN:        os.Getenv("UPTRACE_DSN"),

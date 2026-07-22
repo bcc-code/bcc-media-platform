@@ -59,7 +59,7 @@ type bufferWindow struct {
 // then the canonical way to watch; buffer_available_hours > 0; and now is within
 // [entry.start, entry.end + hours] (hours capped at maxBufferAvailableHours).
 func (r *Resolver) bufferWindowForEntry(ctx context.Context, id string) (*bufferWindow, error) {
-	if r.LivestreamSigner == nil {
+	if !r.canSignLive(r.resolveLiveSigning(ctx)) {
 		return nil, nil
 	}
 

@@ -35,6 +35,12 @@ func main() {
 	if cfg.IoriverSigning.KeyPath == "" {
 		log.L.Fatal().Msg("IORIVER_SIGNING_KEY_PATH is required")
 	}
+	if cfg.LiveCloudFrontSigning.KeyPath == "" {
+		log.L.Fatal().Msg("LIVE_CF_SIGNING_KEY_PATH is required")
+	}
+	if cfg.LiveIoriverSigning.KeyPath == "" {
+		log.L.Fatal().Msg("LIVE_IORIVER_SIGNING_KEY_PATH is required")
+	}
 
 	cfSigner, err := signing.NewSigner(cfg.CloudFrontSigning)
 	if err != nil {
