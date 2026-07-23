@@ -1,35 +1,76 @@
-// Directus-backed authentication for the admin panel.
+// Authentication via the admin GraphQL API's `auth` mutations
+// (backend/graph/admin). The API proxies credentials to Directus server-side
+// and mints its own short-lived access token, which we hold in memory and
+// send as a Bearer token on GraphQL requests. The refresh token lives in an
+// httpOnly cookie scoped to /admin, so on reload `getAccessToken()`
+// transparently mints a new session — login and refresh both return the user.
 //
-// We log users in against Directus (`POST /auth/login`, cookie mode): Directus
-// keeps the refresh token in an httpOnly cookie and returns a short-lived
-// access token, which we hold in memory and send as a Bearer token to the
-// admin GraphQL API. On reload the in-memory token is gone but the refresh
-// cookie survives, so `getAccessToken()` transparently mints a new one.
+// These calls go through $fetch rather than urql: urql's authExchange calls
+// refresh() itself, so auth can't depend on the urql client.
 
-interface DirectusUser {
+interface AdminUser {
   id: string
   email: string
-  first_name: string | null
-  last_name: string | null
-  avatar: string | null
+  firstName: string | null
+  lastName: string | null
+  avatarUrl: string | null
 }
 
-interface AuthResponse {
-  data: {
-    access_token: string
-    // Milliseconds until the access token expires.
-    expires: number
-  }
+interface AuthResult {
+  accessToken: string
+  // Milliseconds until the access token expires.
+  expiresInMs: number
+  user: AdminUser
 }
+
+const AUTH_RESULT_FIELDS = `
+  accessToken
+  expiresInMs
+  user {
+    id
+    email
+    firstName
+    lastName
+    avatarUrl
+  }
+`
+
+const LOGIN_MUTATION = `
+  mutation Login($email: String!, $password: String!) {
+    auth {
+      login(email: $email, password: $password) {
+        ${AUTH_RESULT_FIELDS}
+      }
+    }
+  }
+`
+
+const REFRESH_MUTATION = `
+  mutation Refresh {
+    auth {
+      refresh {
+        ${AUTH_RESULT_FIELDS}
+      }
+    }
+  }
+`
+
+const LOGOUT_MUTATION = `
+  mutation Logout {
+    auth {
+      logout
+    }
+  }
+`
 
 // Module-scoped singleton state. This is a client-only SPA (ssr: false), so a
 // single shared instance across the app is exactly what we want.
 const accessToken = ref<string | null>(null)
 const expiresAt = ref<number | null>(null)
-const currentUser = ref<DirectusUser | null>(null)
+const currentUser = ref<AdminUser | null>(null)
 
 // De-dupes concurrent refreshes (e.g. the router middleware and urql racing on
-// first load) so only one `/auth/refresh` call is in flight at a time.
+// first load) so only one refresh mutation is in flight at a time.
 let refreshPromise: Promise<string | null> | null = null
 
 // Refresh this many milliseconds before the token actually expires, to avoid
@@ -37,22 +78,32 @@ let refreshPromise: Promise<string | null> | null = null
 const EXPIRY_MARGIN_MS = 10_000
 
 export function useAuth() {
-  const directusUrl = useRuntimeConfig().public.directusUrl
+  const apiUrl = useRuntimeConfig().public.apiUrl
 
-  function request<T>(
-    path: string,
-    options: Parameters<typeof $fetch>[1] = {}
-  ) {
-    return $fetch<T>(`${directusUrl}${path}`, {
-      // Send/receive the Directus refresh-token cookie.
-      credentials: 'include',
-      ...options
-    })
+  // Minimal GraphQL POST; throws when the response carries errors.
+  async function mutate<T>(
+    query: string,
+    variables?: Record<string, unknown>
+  ): Promise<T> {
+    const res = await $fetch<{ data?: T; errors?: { message: string }[] }>(
+      `${apiUrl}/admin`,
+      {
+        method: 'POST',
+        // Send/receive the httpOnly refresh-token cookie.
+        credentials: 'include',
+        body: { query, variables }
+      }
+    )
+    if (res.errors?.length || !res.data) {
+      throw new Error(res.errors?.[0]?.message ?? 'auth request failed')
+    }
+    return res.data
   }
 
-  function setSession(token: string, expiresInMs: number) {
-    accessToken.value = token
-    expiresAt.value = Date.now() + expiresInMs
+  function setSession(res: AuthResult) {
+    accessToken.value = res.accessToken
+    expiresAt.value = Date.now() + res.expiresInMs
+    currentUser.value = res.user
   }
 
   function clearSession() {
@@ -62,24 +113,21 @@ export function useAuth() {
   }
 
   async function login(email: string, password: string) {
-    const res = await request<AuthResponse>('/auth/login', {
-      method: 'POST',
-      body: { email, password, mode: 'cookie' }
-    })
-    setSession(res.data.access_token, res.data.expires)
-    await fetchCurrentUser()
+    const data = await mutate<{ auth: { login: AuthResult } }>(
+      LOGIN_MUTATION,
+      { email, password }
+    )
+    setSession(data.auth.login)
   }
 
   async function refresh(): Promise<string | null> {
     if (refreshPromise) return refreshPromise
     refreshPromise = (async () => {
       try {
-        const res = await request<AuthResponse>('/auth/refresh', {
-          method: 'POST',
-          body: { mode: 'cookie' }
-        })
-        setSession(res.data.access_token, res.data.expires)
-        return res.data.access_token
+        const data =
+          await mutate<{ auth: { refresh: AuthResult } }>(REFRESH_MUTATION)
+        setSession(data.auth.refresh)
+        return data.auth.refresh.accessToken
       } catch {
         clearSession()
         return null
@@ -103,44 +151,23 @@ export function useAuth() {
     return refresh()
   }
 
-  async function fetchCurrentUser() {
-    const res = await request<{ data: DirectusUser }>(
-      '/users/me?fields=id,email,first_name,last_name,avatar',
-      { headers: { Authorization: `Bearer ${accessToken.value}` } }
-    )
-    currentUser.value = res.data
-  }
-
   // Restores/validates the session for route guards. Returns whether the user
-  // is authenticated.
+  // is authenticated. The refresh result carries the user, so no separate
+  // profile fetch is needed.
   async function ensureAuthenticated(): Promise<boolean> {
-    const token = await getAccessToken()
-    if (!token) return false
-    if (!currentUser.value) {
-      try {
-        await fetchCurrentUser()
-      } catch {
-        return false
-      }
-    }
-    return true
+    return !!(await getAccessToken())
   }
 
   async function logout() {
     try {
-      await request('/auth/logout', {
-        method: 'POST',
-        body: { mode: 'cookie' }
-      })
+      await mutate(LOGOUT_MUTATION)
     } finally {
       clearSession()
     }
   }
 
   function avatarUrl(): string | undefined {
-    return currentUser.value?.avatar
-      ? `${directusUrl}/assets/${currentUser.value.avatar}`
-      : undefined
+    return currentUser.value?.avatarUrl ?? undefined
   }
 
   return {

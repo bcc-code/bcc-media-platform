@@ -190,3 +190,9 @@ variable "semaphore_service_account" {
   type = string
 }
 
+
+variable "admin_cors_origins" {
+  type        = string
+  description = "Comma-separated origin allowlist for the admin auth/GraphQL endpoints (admin-web origins). Placeholder until admin-web hosting is defined."
+  default     = "https://admin-web.brunstad.tv"
+}

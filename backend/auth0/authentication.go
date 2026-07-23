@@ -39,7 +39,7 @@ func (c customClaims) Validate(ctx context.Context) error {
 	return nil
 }
 
-func validateTokenAndFillCtx(vs []*validator.Validator, secondary func(token string) bool) gin.HandlerFunc {
+func validateTokenAndFillCtx(vs []*validator.Validator) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		parts := strings.Split(authHeader, " ")
@@ -61,13 +61,6 @@ func validateTokenAndFillCtx(vs []*validator.Validator, secondary func(token str
 			}
 		}
 		if !success {
-			// A non-Auth0 token (e.g. a Directus admin token) may still be
-			// valid. Let the secondary validator decide before rejecting; the
-			// route handler is responsible for the actual authorization.
-			if secondary != nil && secondary(parts[1]) {
-				ctx.Set(CtxAuthenticated, true)
-				return
-			}
 			ctx.JSON(401, "Invalid token")
 			ctx.Abort()
 			return
@@ -130,5 +123,5 @@ func (c *Client) ValidateToken() gin.HandlerFunc {
 		}
 	}
 
-	return validateTokenAndFillCtx(validators, c.secondaryValidator)
+	return validateTokenAndFillCtx(validators)
 }

@@ -8,7 +8,7 @@ export default defineNuxtPlugin({
     const { getAccessToken, refresh } = useAuth()
 
     const client = new Client({
-      url: config.public.apiUrl,
+      url: `${config.public.apiUrl}/admin`,
       exchanges: [
         cacheExchange,
         authExchange(async (utils) => {
@@ -22,7 +22,14 @@ export default defineNuxtPlugin({
               })
             },
             didAuthError(error) {
-              return error.response?.status === 401
+              // Auth failures arrive as GraphQL errors with an
+              // UNAUTHENTICATED code (the endpoint responds 200).
+              return (
+                error.response?.status === 401 ||
+                error.graphQLErrors.some(
+                  (e) => e.extensions?.code === 'UNAUTHENTICATED'
+                )
+              )
             },
             async refreshAuth() {
               token = await refresh()

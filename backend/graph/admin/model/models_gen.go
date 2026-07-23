@@ -9,6 +9,26 @@ import (
 	"strconv"
 )
 
+type AdminUser struct {
+	ID        string  `json:"id"`
+	Email     string  `json:"email"`
+	FirstName *string `json:"firstName,omitempty"`
+	LastName  *string `json:"lastName,omitempty"`
+	AvatarURL *string `json:"avatarUrl,omitempty"`
+}
+
+type Auth struct {
+	Login   *AuthResult `json:"login"`
+	Refresh *AuthResult `json:"refresh"`
+	Logout  bool        `json:"logout"`
+}
+
+type AuthResult struct {
+	AccessToken string     `json:"accessToken"`
+	ExpiresInMs int        `json:"expiresInMs"`
+	User        *AdminUser `json:"user"`
+}
+
 type CollectionItem struct {
 	Collection Collection `json:"collection"`
 	ID         string     `json:"id"`
@@ -21,6 +41,9 @@ type Episodes struct {
 
 type MediaItems struct {
 	ImportTimedMetadata bool `json:"importTimedMetadata"`
+}
+
+type MutationRoot struct {
 }
 
 type Preview struct {
