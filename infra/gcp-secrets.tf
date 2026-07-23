@@ -102,11 +102,17 @@ module "api_secrets" {
         data = random_password.analytics_id_salt.result
         name = "ANALYTICS_SALT"
       },
-      # Directus signs its access tokens with this secret; the API needs it to
-      # validate the tokens admin-web users present to the /admin endpoint.
+      # No longer used by any service — the API mints its own admin tokens
+      # instead of validating Directus JWTs. Kept because this module sets
+      # prevent_destroy on every secret, so removing the entry fails to apply.
       DIRECTUS_JWT_SECRET = {
         data = random_password.directus_secret.result
         name = "DIRECTUS_JWT_SECRET"
+      },
+      # Signs the access tokens the API mints for admin-web (/auth/login).
+      ADMIN_JWT_SECRET = {
+        data = random_password.admin_jwt_secret.result
+        name = "ADMIN_JWT_SECRET"
       },
     }
   )

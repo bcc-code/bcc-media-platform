@@ -3,7 +3,7 @@ model: environment
 id: ev_6YZeWeiBen
 workspaceId: wk_hGg2sqajat
 createdAt: 2026-05-19T07:53:43.613991
-updatedAt: 2026-06-05T11:27:11.459722
+updatedAt: 2026-07-23T18:41:49.570855
 name: Localhost
 public: true
 base: false
@@ -34,5 +34,21 @@ variables:
   name: AUTH_AUTHORIZE_URL
   value: https://bcc-sso-sandbox.eu.auth0.com/authorize
   id: F0PHEQT0k5
+- enabled: true
+  name: DIRECTUS_URL
+  value: http://localhost:8055
+  id: v_directusUrl
+- enabled: true
+  name: ADMIN_API_URL
+  value: http://localhost:8077
+  id: v_adminApiUrl
+- enabled: false
+  name: DIRECTUS_EMAIL
+  value: ''
+  id: v_directusEmail
+- enabled: false
+  name: DIRECTUS_PASSWORD
+  value: ''
+  id: v_directusPassword
 color: var(--success)
 sortPriority: 0.0

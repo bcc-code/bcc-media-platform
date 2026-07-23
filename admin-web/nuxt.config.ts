@@ -56,8 +56,8 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiUrl: 'https://api.brunstad.tv/admin',
-      directusUrl: 'https://admin.brunstad.tv'
+      // Host base of the admin API; urql appends /admin, useAuth /auth/*.
+      apiUrl: 'https://api.brunstad.tv'
     }
   },
 

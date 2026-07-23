@@ -19,9 +19,10 @@ import (
 
 // Resolver contains the common properties for all endpoints
 type Resolver struct {
-	DB      *sql.DB
-	Queries *sqlc.Queries
-	Loaders *loaders.BatchLoaders
+	DB         *sql.DB
+	Queries    *sqlc.Queries
+	Loaders    *loaders.BatchLoaders
+	AuthConfig AuthConfig
 }
 
 func (r *previewResolver) getItemsForFilter(ctx context.Context, filter common.Filter) ([]*model.CollectionItem, error) {

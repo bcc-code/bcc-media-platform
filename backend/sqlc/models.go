@@ -1983,6 +1983,14 @@ type UsersAchievement struct {
 	ConfirmedAt   null_v4.Time `db:"confirmed_at" json:"confirmedAt"`
 }
 
+type UsersAdminSession struct {
+	ID        uuid.UUID `db:"id" json:"id"`
+	UserID    uuid.UUID `db:"user_id" json:"userId"`
+	TokenHash string    `db:"token_hash" json:"tokenHash"`
+	CreatedAt time.Time `db:"created_at" json:"createdAt"`
+	ExpiresAt time.Time `db:"expires_at" json:"expiresAt"`
+}
+
 type UsersCollection struct {
 	ID                 uuid.UUID `db:"id" json:"id"`
 	ProfileID          uuid.UUID `db:"profile_id" json:"profileId"`

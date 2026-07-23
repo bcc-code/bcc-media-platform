@@ -7,18 +7,169 @@ package graph
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/directus"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/admin/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/admin/model"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
+
+// Login is the resolver for the login field. It proxies the credentials to
+// Directus server-side and, when the user is allowed in, responds with our
+// own access token and refresh cookie. Brute-force protection is delegated
+// to Directus's own login throttling.
+func (r *authResolver) Login(ctx context.Context, obj *model.Auth, email string, password string, otp *string) (*model.AuthResult, error) {
+	if !r.AuthConfig.enabled() {
+		return nil, fmt.Errorf("auth is not configured")
+	}
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if email == "" || password == "" {
+		return nil, fmt.Errorf("email and password are required")
+	}
+
+	claims, err := r.AuthConfig.Directus.Login(ctx, email, password, lo.FromPtr(otp))
+	if err != nil {
+		var loginErr *directus.LoginError
+		if errors.As(err, &loginErr) && loginErr.IsCredentialError() {
+			// Deliberately vague: don't reveal which factor failed.
+			return nil, fmt.Errorf("invalid credentials")
+		}
+		log.L.Error().Err(err).Msg("Directus login proxy failed")
+		return nil, fmt.Errorf("login unavailable")
+	}
+
+	// Admin access is granted by Directus policies and only surfaced in the
+	// token claims (Directus 11 moved the flag off the roles table), so this
+	// is the authoritative admission check.
+	if !claims.AdminAccess {
+		log.L.Warn().Str(logFieldAdminUserID, claims.UserID).Msg("Directus user without admin access attempted admin login")
+		return nil, fmt.Errorf("not allowed")
+	}
+
+	userID, err := uuid.Parse(claims.UserID)
+	if err != nil {
+		log.L.Warn().Err(err).Str(logFieldAdminUserID, claims.UserID).Msg("Directus token has an invalid user id")
+		return nil, fmt.Errorf("not allowed")
+	}
+
+	user, ok := loadActiveAdminUser(ctx, r.Queries, userID)
+	if !ok {
+		return nil, fmt.Errorf("not allowed")
+	}
+
+	// Opportunistic cleanup; the table only grows on logins, so this keeps
+	// it tidy without a cron.
+	if err := r.Queries.DeleteExpiredAdminSessions(ctx); err != nil {
+		log.L.Warn().Err(err).Msg("Failed to sweep expired admin sessions")
+	}
+
+	plain, hash, err := newRefreshToken()
+	if err != nil {
+		return nil, err
+	}
+	err = r.Queries.CreateAdminSession(ctx, sqlc.CreateAdminSessionParams{
+		UserID:    userID,
+		TokenHash: hash,
+		ExpiresAt: time.Now().Add(refreshTokenTTL),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := buildAuthResult(r.AuthConfig, user)
+	if err != nil {
+		return nil, err
+	}
+	setRefreshCookie(ginCtx, plain, r.AuthConfig.SecureCookie)
+	return res, nil
+}
+
+// Refresh is the resolver for the refresh field. It rotates the refresh
+// cookie and responds with a fresh access token. The result includes the user
+// so a page reload can restore the session without an extra operation.
+func (r *authResolver) Refresh(ctx context.Context, obj *model.Auth) (*model.AuthResult, error) {
+	if !r.AuthConfig.enabled() {
+		return nil, fmt.Errorf("auth is not configured")
+	}
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	cookie, err := ginCtx.Cookie(refreshCookieName)
+	if err != nil || cookie == "" {
+		return nil, errUnauthenticated(ctx)
+	}
+
+	session, err := r.Queries.GetAdminSessionByTokenHash(ctx, hashRefreshToken(cookie))
+	if err != nil {
+		// Unknown or expired token: the cookie is useless, drop it.
+		clearRefreshCookie(ginCtx, r.AuthConfig.SecureCookie)
+		return nil, errUnauthenticated(ctx)
+	}
+
+	user, ok := loadActiveAdminUser(ctx, r.Queries, session.UserID)
+	if !ok {
+		// Deactivated (or vanished) user: kill the session immediately.
+		if err := r.Queries.DeleteAdminSessionByTokenHash(ctx, session.TokenHash); err != nil {
+			log.L.Warn().Err(err).Msg("Failed to delete admin session")
+		}
+		clearRefreshCookie(ginCtx, r.AuthConfig.SecureCookie)
+		return nil, errUnauthenticated(ctx)
+	}
+
+	// Rotate: a stolen-and-replayed old token dies on the hash mismatch, and
+	// the sliding window extends for the active user.
+	plain, hash, err := newRefreshToken()
+	if err != nil {
+		return nil, err
+	}
+	err = r.Queries.RotateAdminSession(ctx, sqlc.RotateAdminSessionParams{
+		ID:        session.ID,
+		TokenHash: hash,
+		ExpiresAt: time.Now().Add(refreshTokenTTL),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := buildAuthResult(r.AuthConfig, user)
+	if err != nil {
+		return nil, err
+	}
+	setRefreshCookie(ginCtx, plain, r.AuthConfig.SecureCookie)
+	return res, nil
+}
+
+// Logout is the resolver for the logout field. It deletes the session behind
+// the refresh cookie.
+func (r *authResolver) Logout(ctx context.Context, obj *model.Auth) (bool, error) {
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return false, err
+	}
+	if cookie, err := ginCtx.Cookie(refreshCookieName); err == nil && cookie != "" {
+		if err := r.Queries.DeleteAdminSessionByTokenHash(ctx, hashRefreshToken(cookie)); err != nil {
+			log.L.Warn().Err(err).Msg("Failed to delete admin session on logout")
+		}
+	}
+	clearRefreshCookie(ginCtx, r.AuthConfig.SecureCookie)
+	return true, nil
+}
 
 // ImportTimedMetadata is the resolver for the importTimedMetadata field.
 func (r *episodesResolver) ImportTimedMetadata(ctx context.Context, obj *model.Episodes, episodeID string) (bool, error) {
@@ -104,6 +255,11 @@ func (r *mediaItemsResolver) ImportTimedMetadata(ctx context.Context, obj *model
 		}
 	}
 	return true, nil
+}
+
+// Auth is the resolver for the auth field.
+func (r *mutationRootResolver) Auth(ctx context.Context) (*model.Auth, error) {
+	return &model.Auth{}, nil
 }
 
 // Collection is the resolver for the collection field.
@@ -212,11 +368,17 @@ func (r *statisticsResolver) LessonProgressGroupedByOrg(ctx context.Context, obj
 	return out, err
 }
 
+// Auth returns generated.AuthResolver implementation.
+func (r *Resolver) Auth() generated.AuthResolver { return &authResolver{r} }
+
 // Episodes returns generated.EpisodesResolver implementation.
 func (r *Resolver) Episodes() generated.EpisodesResolver { return &episodesResolver{r} }
 
 // MediaItems returns generated.MediaItemsResolver implementation.
 func (r *Resolver) MediaItems() generated.MediaItemsResolver { return &mediaItemsResolver{r} }
+
+// MutationRoot returns generated.MutationRootResolver implementation.
+func (r *Resolver) MutationRoot() generated.MutationRootResolver { return &mutationRootResolver{r} }
 
 // Preview returns generated.PreviewResolver implementation.
 func (r *Resolver) Preview() generated.PreviewResolver { return &previewResolver{r} }
@@ -227,8 +389,10 @@ func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootRe
 // Statistics returns generated.StatisticsResolver implementation.
 func (r *Resolver) Statistics() generated.StatisticsResolver { return &statisticsResolver{r} }
 
+type authResolver struct{ *Resolver }
 type episodesResolver struct{ *Resolver }
 type mediaItemsResolver struct{ *Resolver }
+type mutationRootResolver struct{ *Resolver }
 type previewResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }
 type statisticsResolver struct{ *Resolver }

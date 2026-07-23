@@ -13,9 +13,11 @@ import (
 )
 
 const getDirectusUserByID = `-- name: GetDirectusUserByID :one
-SELECT id, email, first_name, last_name, role, status
-FROM directus_users
-WHERE id = $1
+SELECT u.id, u.email, u.first_name, u.last_name, u.role, u.status, u.avatar,
+       r.name AS role_name
+FROM directus_users u
+         LEFT JOIN directus_roles r ON r.id = u.role
+WHERE u.id = $1
 `
 
 type GetDirectusUserByIDRow struct {
@@ -25,6 +27,8 @@ type GetDirectusUserByIDRow struct {
 	LastName  null_v4.String `db:"last_name" json:"lastName"`
 	Role      uuid.NullUUID  `db:"role" json:"role"`
 	Status    string         `db:"status" json:"status"`
+	Avatar    uuid.NullUUID  `db:"avatar" json:"avatar"`
+	RoleName  null_v4.String `db:"role_name" json:"roleName"`
 }
 
 func (q *Queries) GetDirectusUserByID(ctx context.Context, id uuid.UUID) (GetDirectusUserByIDRow, error) {
@@ -37,6 +41,8 @@ func (q *Queries) GetDirectusUserByID(ctx context.Context, id uuid.UUID) (GetDir
 		&i.LastName,
 		&i.Role,
 		&i.Status,
+		&i.Avatar,
+		&i.RoleName,
 	)
 	return i, err
 }

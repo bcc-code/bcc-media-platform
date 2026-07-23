@@ -35,7 +35,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/version"
 	"github.com/bsm/redislock"
 	"github.com/gin-contrib/cors"
-	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwk"
@@ -207,24 +206,6 @@ func main() {
 	queries.SetImageCDNDomain(config.CDNConfig.ImageCDNDomain)
 	authClient := auth0.New(config.Auth0)
 
-	// Directus-issued admin tokens are validated with the shared Directus JWT
-	// secret. Registering it as the Auth0 client's secondary validator stops
-	// the global token middleware from rejecting them with 401; the /admin
-	// handler then performs the actual authorization.
-	var directusValidator *directus.TokenValidator
-	if config.Secrets.DirectusJWT != "" {
-		v, err := directus.NewTokenValidator(config.Secrets.DirectusJWT)
-		if err != nil {
-			log.L.Error().Err(err).Msg("Failed to set up the Directus token validator")
-		} else {
-			directusValidator = v
-			authClient.SetSecondaryValidator(func(token string) bool {
-				_, err := v.Validate(token)
-				return err == nil
-			})
-		}
-	}
-
 	cb := gobreaker.NewCircuitBreaker(gobreaker.Settings{
 		Name:    "Members",
 		Timeout: time.Second * 2,
@@ -274,7 +255,13 @@ func main() {
 
 	r.Use(utils.GinContextToContextMiddleware())
 	r.Use(utils.FeatureFlagReporterMiddleware())
-	r.Use(cors.New(cors.Config{
+
+	// Two CORS policies: the public API stays wildcard, while the admin
+	// endpoints carry an httpOnly refresh cookie and therefore need
+	// credentials mode with an explicit origin allowlist. A single
+	// engine-level dispatcher (instead of per-group middleware) so OPTIONS
+	// preflights are answered even though gin never routes them.
+	publicCORS := cors.New(cors.Config{
 		AllowAllOrigins: true,
 		AllowMethods:    []string{"POST", "GET"},
 		AllowHeaders: []string{
@@ -291,20 +278,43 @@ func main() {
 			"x-only-preferred-languages-content",
 		},
 		AllowCredentials: true,
-	}))
+	})
+	var adminCORS gin.HandlerFunc
+	if len(config.Admin.CORSOrigins) > 0 {
+		adminCORS = cors.New(cors.Config{
+			AllowOrigins:     config.Admin.CORSOrigins,
+			AllowMethods:     []string{"POST", "OPTIONS"},
+			AllowHeaders:     []string{"content-type", "authorization", "accept-language"},
+			AllowCredentials: true,
+		})
+	} else {
+		adminCORS = publicCORS
+	}
+	r.Use(func(c *gin.Context) {
+		if c.Request.URL.Path == "/admin" {
+			adminCORS(c)
+			return
+		}
+		publicCORS(c)
+	})
 
 	r.Use(utils.RequestIDMiddleware)
 	r.Use(otelgin.Middleware("api"))
-	r.Use(authClient.ValidateToken())
-	r.Use(commonMiddleware.ApplicationMiddleware(queries))
-	r.Use(commonMiddleware.LanguagePreferencesMiddleware(ls))
-	r.Use(userMiddleware.NewUserMiddleware(queries, remoteCache, ls, authClient))
-	r.Use(userMiddleware.NewFakeUserMiddleware(os.Getenv("FAKE_USER_SECRET")))
-	r.Use(userMiddleware.NewProfileMiddleware(queries, remoteCache))
-	r.Use(commonMiddleware.RoleMiddleware)
-	r.Use(ratelimit.Middleware)
 
-	r.POST("/query", graphqlHandler(
+	// The Auth0 middleware chain is scoped to the consumer endpoints; the
+	// admin realm below uses this service's own tokens, and ValidateToken
+	// would 401 them before they reached the handler.
+	pub := r.Group("")
+	pub.Use(authClient.ValidateToken())
+	pub.Use(commonMiddleware.ApplicationMiddleware(queries))
+	pub.Use(commonMiddleware.LanguagePreferencesMiddleware(ls))
+	pub.Use(userMiddleware.NewUserMiddleware(queries, remoteCache, ls, authClient))
+	pub.Use(userMiddleware.NewFakeUserMiddleware(os.Getenv("FAKE_USER_SECRET")))
+	pub.Use(userMiddleware.NewProfileMiddleware(queries, remoteCache))
+	pub.Use(commonMiddleware.RoleMiddleware)
+	pub.Use(ratelimit.Middleware)
+
+	pub.POST("/query", graphqlHandler(
 		db,
 		queries,
 		ls,
@@ -323,27 +333,34 @@ func main() {
 		bmmClient,
 		jobPubSubTopic,
 	))
-	r.GET("/", playgroundHandler())
-	r.POST("/admin", adminGraphqlHandler(config, db, queries, ls, directusValidator))
-	r.POST("/public", publicGraphqlHandler(ls))
-	r.GET("/topbarsearch/:term", topbarSearchHandler(searchService))
-	r.GET("/versionz", version.GinHandler)
+	pub.GET("/", playgroundHandler())
+	pub.POST("/public", publicGraphqlHandler(ls))
+	pub.GET("/topbarsearch/:term", topbarSearchHandler(searchService))
+	pub.GET("/versionz", version.GinHandler)
 
-	if os.Getenv("PPROF") == "TRUE" {
-		// Mount pprof on a separate engine bound to localhost so it isn't
-		// reachable through the public load balancer. Operators reach it via
-		// `kubectl port-forward` or an in-pod shell.
-		debugR := gin.New()
-		debugR.Use(gin.Recovery())
-		pprof.Register(debugR, "debug/pprof")
-		go func() {
-			if err := debugR.Run("127.0.0.1:6060"); err != nil {
-				log.L.Warn().Err(err).Msg("pprof server stopped")
-			}
-		}()
+	// Admin realm: /admin serves the admin GraphQL schema, including the
+	// `auth` mutations (login proxy to Directus + refresh-cookie session
+	// management). Access control is per operation (graphadmin.AuthExtension:
+	// x-api-key from the Directus endpoint-tools extension OR an access token
+	// this service minted; only auth mutations run unauthenticated). Never
+	// behind the Auth0 chain. The admin resolvers read languages from the
+	// context, which the user middleware would otherwise provide.
+	var directusClient *directus.Client
+	if config.Admin.JWTSecret != "" && config.Admin.DirectusURL != "" {
+		directusClient, err = directus.NewClient(config.Admin.DirectusURL)
+		if err != nil {
+			log.L.Panic().Err(err).Msg("failed to init directus login client")
+		}
+	} else {
+		log.L.Warn().Msg("ADMIN_JWT_SECRET or DIRECTUS_URL not set. Admin auth mutations disabled")
 	}
+	adm := r.Group("")
+	adm.Use(func(c *gin.Context) {
+		c.Set(user.CtxLanguages, user.GetAcceptedLanguagesFromCtx(c))
+	})
+	adm.POST("/admin", adminGraphqlHandler(config, db, queries, ls, directusClient))
 
-	r.GET("/.well-known/jwks.json", <-jwkChan)
+	pub.GET("/.well-known/jwks.json", <-jwkChan)
 
 	err = <-dbChan
 	if err != nil {

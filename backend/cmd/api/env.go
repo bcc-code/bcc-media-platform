@@ -60,6 +60,18 @@ func (e env) Test() bool {
 
 var environment = env(os.Getenv("ENVIRONMENT"))
 
+// splitAndTrim splits a comma-separated env value into trimmed, non-empty
+// entries.
+func splitAndTrim(raw string) []string {
+	var out []string
+	for _, s := range strings.Split(raw, ",") {
+		if s = strings.TrimSpace(s); s != "" {
+			out = append(out, s)
+		}
+	}
+	return out
+}
+
 type envConfig struct {
 	Members       members.Config
 	DB            utils.DatabaseConfig
@@ -79,6 +91,23 @@ type envConfig struct {
 	Analytics     analytics.Config
 	BMM           bmm.Config
 	PubSub        pubsub.Config
+	Admin         adminConfig
+}
+
+// adminConfig configures the admin API's own auth: /auth/* endpoints proxy
+// logins to Directus and mint this service's own tokens.
+type adminConfig struct {
+	// DirectusURL is the base URL of the Directus instance logins are
+	// proxied to.
+	DirectusURL string
+	// JWTSecret is the HS256 key for access tokens THIS service mints.
+	JWTSecret string
+	// CORSOrigins is the explicit allowlist for the admin endpoints —
+	// credentials-mode CORS forbids wildcards.
+	CORSOrigins []string
+	// SecureCookie sets the Secure attribute on the refresh cookie. Default
+	// true; only the literal env value "false" opts out (local http dev).
+	SecureCookie bool
 }
 
 type cdnConfig struct {
@@ -142,9 +171,6 @@ type serviceSecrets struct {
 	// Directus is the shared secret used as the `x-api-key` for the /admin
 	// endpoint (server-to-server calls from Directus).
 	Directus string
-	// DirectusJWT is the Directus `SECRET` signing key, used to validate the
-	// access tokens Directus issues to admin-web users.
-	DirectusJWT string
 }
 
 type redirectConfig struct {
@@ -286,8 +312,13 @@ func getEnvConfig() envConfig {
 			PrimaryProvider: parsePrimaryProvider(os.Getenv("STREAM_PRIMARY_PROVIDER")),
 		},
 		Secrets: serviceSecrets{
-			Directus:    os.Getenv("SERVICE_SECRET_DIRECTUS"),
-			DirectusJWT: os.Getenv("DIRECTUS_JWT_SECRET"),
+			Directus: os.Getenv("SERVICE_SECRET_DIRECTUS"),
+		},
+		Admin: adminConfig{
+			DirectusURL:  os.Getenv("DIRECTUS_URL"),
+			JWTSecret:    os.Getenv("ADMIN_JWT_SECRET"),
+			CORSOrigins:  splitAndTrim(os.Getenv("ADMIN_CORS_ORIGINS")),
+			SecureCookie: os.Getenv("ADMIN_COOKIE_SECURE") != "false",
 		},
 		Redis: utils.RedisConfig{
 			Address:  os.Getenv("REDIS_ADDRESS"),

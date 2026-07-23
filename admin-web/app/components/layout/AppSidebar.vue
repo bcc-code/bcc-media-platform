@@ -5,7 +5,7 @@ const collapsed = useLocalStorage('sidebar:collapsed', false)
 const displayName = computed(() => {
   const u = currentUser.value
   if (!u) return ''
-  const name = [u.first_name, u.last_name].filter(Boolean).join(' ')
+  const name = [u.firstName, u.lastName].filter(Boolean).join(' ')
   return name || u.email
 })
 
