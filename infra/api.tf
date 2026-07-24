@@ -87,6 +87,16 @@ resource "google_cloud_run_service" "api" {
         }
 
         env {
+          name  = "DIRECTUS_URL"
+          value = "https://admin.${var.base_platform_domain}" # Directus domain mapping (directus.tf)
+        }
+
+        env {
+          name  = "ADMIN_CORS_ORIGINS"
+          value = var.admin_cors_origins
+        }
+
+        env {
           name  = "CF_SIGNING_KEY_PATH"
           value = local.cf_signing_key_path
         }

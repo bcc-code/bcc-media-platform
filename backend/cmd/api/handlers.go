@@ -35,11 +35,9 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/bmm-sdk-golang"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	pkgerrors "github.com/pkg/errors"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	"strconv"
-	"strings"
 )
 
 // Defining the Graphql handler
@@ -174,11 +172,26 @@ func publicGraphqlHandler(loaders *loaders.BatchLoaders) gin.HandlerFunc {
 	}
 }
 
-func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *loaders.BatchLoaders, tokenValidator *directus.TokenValidator) gin.HandlerFunc {
+func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *loaders.BatchLoaders, directusClient *directus.Client) gin.HandlerFunc {
+	directusSecret := config.Secrets.Directus
+
+	if directusSecret == "" && config.Admin.JWTSecret == "" {
+		log.L.Debug().Msg("No Directus secret or admin JWT secret found in environment. Disabling endpoint")
+		return func(c *gin.Context) {
+			c.AbortWithStatus(404)
+		}
+	}
+
 	resolver := graphadmin.Resolver{
 		DB:      db,
 		Queries: queries,
 		Loaders: loaders,
+		AuthConfig: graphadmin.AuthConfig{
+			Directus:     directusClient,
+			JWTSecret:    []byte(config.Admin.JWTSecret),
+			DirectusURL:  config.Admin.DirectusURL,
+			SecureCookie: config.Admin.SecureCookie,
+		},
 	}
 
 	// NewExecutableSchema and Config are in the generated.go file
@@ -186,78 +199,18 @@ func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, lo
 	h := handler.NewDefaultServer(graphadmingenerated.NewExecutableSchema(graphadmingenerated.Config{Resolvers: &resolver}))
 	h.Use(gqlextension.FixedComplexityLimit(5000))
 	h.Use(apiextension.DepthLimit{Max: 20})
-
-	directusSecret := config.Secrets.Directus
-
-	if directusSecret == "" && tokenValidator == nil {
-		log.L.Debug().Msg("No Directus secret or JWT secret found in environment. Disabling endpoint")
-		return func(c *gin.Context) {
-			c.AbortWithStatus(404)
-		}
-	}
+	// Per-operation access control: x-api-key (Directus endpoint-tools,
+	// server-to-server) or a token this service minted (admin-web); only the
+	// `auth` mutations execute without credentials.
+	h.Use(graphadmin.AuthExtension{
+		Queries:        queries,
+		JWTSecret:      []byte(config.Admin.JWTSecret),
+		DirectusSecret: directusSecret,
+	})
 
 	return func(c *gin.Context) {
-		// Legacy server-to-server access via the shared secret header.
-		if directusSecret != "" && c.GetHeader("x-api-key") == directusSecret {
-			h.ServeHTTP(c.Writer, c.Request)
-			return
-		}
-
-		// Per-user access via a Directus-issued access token.
-		if tokenValidator != nil && authorizeDirectusUser(c, queries, tokenValidator) {
-			h.ServeHTTP(c.Writer, c.Request)
-			return
-		}
-
-		c.AbortWithStatus(403)
+		h.ServeHTTP(c.Writer, c.Request)
 	}
-}
-
-// logFieldDirectusUserID is the structured-log field for the Directus user id
-// on the /admin endpoint.
-const logFieldDirectusUserID = "directus_user_id"
-
-// authorizeDirectusUser validates the Directus access token from the
-// Authorization header and confirms the user is allowed to use the admin API.
-// It returns true when the request should be allowed through.
-func authorizeDirectusUser(c *gin.Context, queries *sqlc.Queries, v *directus.TokenValidator) bool {
-	scheme, token, ok := strings.Cut(c.GetHeader("Authorization"), " ")
-	if !ok || !strings.EqualFold(scheme, "Bearer") {
-		return false
-	}
-
-	claims, err := v.Validate(token)
-	if err != nil {
-		log.L.Debug().Err(err).Msg("Rejected Directus admin token")
-		return false
-	}
-
-	// This is the frontend for the Directus admin, so require Directus admin
-	// access; app access alone (restricted/API-only users) is not enough.
-	if !claims.AdminAccess {
-		log.L.Warn().Str(logFieldDirectusUserID, claims.UserID).Msg("Directus user without admin access attempted admin API access")
-		return false
-	}
-
-	userID, err := uuid.Parse(claims.UserID)
-	if err != nil {
-		log.L.Warn().Err(err).Str(logFieldDirectusUserID, claims.UserID).Msg("Directus token has an invalid user id")
-		return false
-	}
-
-	// Look the user up so a deactivated account is rejected even while a
-	// short-lived token is still cryptographically valid.
-	dbUser, err := queries.GetDirectusUserByID(c.Request.Context(), userID)
-	if err != nil {
-		log.L.Warn().Err(err).Str(logFieldDirectusUserID, claims.UserID).Msg("Directus user from token could not be loaded")
-		return false
-	}
-	if dbUser.Status != "active" {
-		log.L.Warn().Str(logFieldDirectusUserID, claims.UserID).Str("status", dbUser.Status).Msg("Directus user is not active")
-		return false
-	}
-
-	return true
 }
 
 func topbarSearchHandler(searchService *search.Service) gin.HandlerFunc {

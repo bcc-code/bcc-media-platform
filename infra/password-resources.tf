@@ -57,3 +57,10 @@ resource "random_password" "stream_jwt_secret" {
   length  = 64
   special = false
 }
+
+# HS256 key for the access tokens the API mints for admin-web (see the
+# /auth/* endpoints in backend/cmd/api).
+resource "random_password" "admin_jwt_secret" {
+  length  = 64
+  special = false
+}
