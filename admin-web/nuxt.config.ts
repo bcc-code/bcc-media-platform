@@ -56,8 +56,10 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      // Host base of the admin API; urql appends /admin, useAuth /auth/*.
-      apiUrl: 'https://api.brunstad.tv'
+      // Host base of the admin API; urql and useAuth append /admin. Must be
+      // same-site with the admin-web origin (both under bcc.media) so the
+      // SameSite=Lax refresh cookie is sent.
+      apiUrl: 'https://api.bcc.media'
     }
   },
 

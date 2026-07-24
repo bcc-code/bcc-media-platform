@@ -33,7 +33,7 @@ const (
 	authIssuer = "bccm-admin"
 	// accessTokenTTL — short-lived; the refresh cookie does the heavy
 	// lifting.
-	accessTokenTTL = 15 * time.Minute
+	accessTokenTTL = 1 * time.Hour
 	// refreshTokenTTL is the sliding session lifetime (extended on each
 	// rotation).
 	refreshTokenTTL = 7 * 24 * time.Hour
@@ -135,7 +135,9 @@ func hashRefreshToken(plain string) string {
 
 // SameSite=Lax suffices: admin-web and the API are same-site both locally
 // (localhost:4000 → localhost:8077; ports don't affect same-site) and in
-// production (*.brunstad.tv).
+// production (admin.app.bcc.media → api.bcc.media, an extra domain mapping
+// on the api service — both under bcc.media). If either host ever moves to
+// a different registrable domain, Lax cookies stop being sent entirely.
 func setRefreshCookie(c *gin.Context, value string, secure bool) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie(refreshCookieName, value, int(refreshTokenTTL.Seconds()),
@@ -147,8 +149,11 @@ func clearRefreshCookie(c *gin.Context, secure bool) {
 	c.SetCookie(refreshCookieName, "", -1, refreshCookiePath, "", secure, true)
 }
 
-// loadActiveAdminUser fetches the Directus user and enforces the active
-// check.
+// loadActiveAdminUser fetches the Directus user and enforces that it is
+// still active AND still has admin access (derived from the Directus
+// policies in the same query). Login, refresh and the per-request guard all
+// go through here, so revoking either in Directus takes effect immediately —
+// not just at the next login.
 func loadActiveAdminUser(ctx context.Context, queries *sqlc.Queries, userID uuid.UUID) (sqlc.GetDirectusUserByIDRow, bool) {
 	u, err := queries.GetDirectusUserByID(ctx, userID)
 	if err != nil {
@@ -157,6 +162,10 @@ func loadActiveAdminUser(ctx context.Context, queries *sqlc.Queries, userID uuid
 	}
 	if u.Status != "active" {
 		log.L.Warn().Str(logFieldAdminUserID, userID.String()).Str("status", u.Status).Msg("Admin user is not active")
+		return sqlc.GetDirectusUserByIDRow{}, false
+	}
+	if !u.AdminAccess {
+		log.L.Warn().Str(logFieldAdminUserID, userID.String()).Msg("Admin user no longer has admin access")
 		return sqlc.GetDirectusUserByIDRow{}, false
 	}
 	return u, true
@@ -216,10 +225,11 @@ type AuthExtension struct {
 	DirectusSecret string
 }
 
-var _ interface {
-	graphql.HandlerExtension
-	graphql.OperationContextMutator
-} = AuthExtension{}
+// Compile-time checks that AuthExtension implements the gqlgen extension hooks it uses.
+var (
+	_ graphql.HandlerExtension        = AuthExtension{}
+	_ graphql.OperationContextMutator = AuthExtension{}
+)
 
 // ExtensionName implements graphql.HandlerExtension.
 func (AuthExtension) ExtensionName() string {

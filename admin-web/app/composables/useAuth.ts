@@ -120,17 +120,29 @@ export function useAuth() {
     setSession(data.auth.login)
   }
 
+  async function refreshOnce(): Promise<string> {
+    const data =
+      await mutate<{ auth: { refresh: AuthResult } }>(REFRESH_MUTATION)
+    setSession(data.auth.refresh)
+    return data.auth.refresh.accessToken
+  }
+
   async function refresh(): Promise<string | null> {
     if (refreshPromise) return refreshPromise
     refreshPromise = (async () => {
       try {
-        const data =
-          await mutate<{ auth: { refresh: AuthResult } }>(REFRESH_MUTATION)
-        setSession(data.auth.refresh)
-        return data.auth.refresh.accessToken
+        return await refreshOnce()
       } catch {
-        clearSession()
-        return null
+        // Retry once: refresh rotation is a compare-and-swap on the server,
+        // so a tab that lost a cross-tab race gets a fresh attempt with the
+        // winner's cookie (the jar is shared) instead of bouncing to /login.
+        try {
+          await new Promise((resolve) => setTimeout(resolve, 250))
+          return await refreshOnce()
+        } catch {
+          clearSession()
+          return null
+        }
       } finally {
         refreshPromise = null
       }
@@ -138,14 +150,20 @@ export function useAuth() {
     return refreshPromise
   }
 
+  // Whether the in-memory token is missing or about to expire — sync, so
+  // urql's exchange can consult it per operation.
+  function tokenNeedsRefresh(): boolean {
+    return (
+      !accessToken.value ||
+      !expiresAt.value ||
+      Date.now() >= expiresAt.value - EXPIRY_MARGIN_MS
+    )
+  }
+
   // Returns a valid access token, refreshing via the cookie when the current
   // one is missing or about to expire. Null means the user must log in again.
   async function getAccessToken(): Promise<string | null> {
-    if (
-      accessToken.value &&
-      expiresAt.value &&
-      Date.now() < expiresAt.value - EXPIRY_MARGIN_MS
-    ) {
+    if (!tokenNeedsRefresh()) {
       return accessToken.value
     }
     return refresh()
@@ -172,6 +190,10 @@ export function useAuth() {
 
   return {
     currentUser: readonly(currentUser),
+    // Live token state so the urql exchange always sends the CURRENT
+    // session's token (login/logout take effect on the next operation).
+    accessToken: readonly(accessToken),
+    tokenNeedsRefresh,
     isAuthenticated: computed(() => !!accessToken.value),
     login,
     logout,

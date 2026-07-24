@@ -115,36 +115,34 @@ func (r *authResolver) Refresh(ctx context.Context, obj *model.Auth) (*model.Aut
 		return nil, errUnauthenticated(ctx)
 	}
 
-	session, err := r.Queries.GetAdminSessionByTokenHash(ctx, hashRefreshToken(cookie))
+	// Rotate first, as an atomic compare-and-swap on the old hash: of
+	// several concurrent refreshes (multiple tabs share the cookie jar) only
+	// one can win; a stolen-and-replayed old token dies the same way.
+	plain, hash, err := newRefreshToken()
 	if err != nil {
-		// Unknown or expired token: the cookie is useless, drop it.
-		clearRefreshCookie(ginCtx, r.AuthConfig.SecureCookie)
+		return nil, err
+	}
+	session, err := r.Queries.RotateAdminSession(ctx, sqlc.RotateAdminSessionParams{
+		OldTokenHash: hashRefreshToken(cookie),
+		NewTokenHash: hash,
+		ExpiresAt:    time.Now().Add(refreshTokenTTL),
+	})
+	if err != nil {
+		// Unknown, expired, or lost-the-race token. Do NOT clear the cookie:
+		// the browser may already hold the winner's newer value, and
+		// clearing it would kill a healthy session.
 		return nil, errUnauthenticated(ctx)
 	}
 
 	user, ok := loadActiveAdminUser(ctx, r.Queries, session.UserID)
 	if !ok {
-		// Deactivated (or vanished) user: kill the session immediately.
-		if err := r.Queries.DeleteAdminSessionByTokenHash(ctx, session.TokenHash); err != nil {
+		// Deactivated or de-admined user: kill the session immediately. We
+		// just won the CAS, so the cookie we're clearing is ours.
+		if err := r.Queries.DeleteAdminSessionByID(ctx, session.ID); err != nil {
 			log.L.Warn().Err(err).Msg("Failed to delete admin session")
 		}
 		clearRefreshCookie(ginCtx, r.AuthConfig.SecureCookie)
 		return nil, errUnauthenticated(ctx)
-	}
-
-	// Rotate: a stolen-and-replayed old token dies on the hash mismatch, and
-	// the sliding window extends for the active user.
-	plain, hash, err := newRefreshToken()
-	if err != nil {
-		return nil, err
-	}
-	err = r.Queries.RotateAdminSession(ctx, sqlc.RotateAdminSessionParams{
-		ID:        session.ID,
-		TokenHash: hash,
-		ExpiresAt: time.Now().Add(refreshTokenTTL),
-	})
-	if err != nil {
-		return nil, err
 	}
 
 	res, err := buildAuthResult(r.AuthConfig, user)

@@ -77,7 +77,9 @@ func TestValidate_WrongIssuer(t *testing.T) {
 }
 
 func TestValidate_Expired(t *testing.T) {
-	token, _, err := mintAccessToken(authTestSecret, authTestUser(), time.Now().Add(-time.Hour))
+	// Mint far enough in the past that the token is expired regardless of
+	// the configured TTL (plus the validator's 1-minute skew allowance).
+	token, _, err := mintAccessToken(authTestSecret, authTestUser(), time.Now().Add(-accessTokenTTL-time.Hour))
 	require.NoError(t, err)
 
 	_, err = validateAccessToken(authTestSecret, token)

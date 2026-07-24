@@ -28,6 +28,17 @@ func (q *Queries) CreateAdminSession(ctx context.Context, arg CreateAdminSession
 	return err
 }
 
+const deleteAdminSessionByID = `-- name: DeleteAdminSessionByID :exec
+DELETE
+FROM users.admin_sessions
+WHERE id = $1
+`
+
+func (q *Queries) DeleteAdminSessionByID(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteAdminSessionByID, id)
+	return err
+}
+
 const deleteAdminSessionByTokenHash = `-- name: DeleteAdminSessionByTokenHash :exec
 DELETE
 FROM users.admin_sessions
@@ -50,40 +61,32 @@ func (q *Queries) DeleteExpiredAdminSessions(ctx context.Context) error {
 	return err
 }
 
-const getAdminSessionByTokenHash = `-- name: GetAdminSessionByTokenHash :one
-SELECT id, user_id, token_hash, created_at, expires_at
-FROM users.admin_sessions
-WHERE token_hash = $1
-  AND expires_at > now()
-`
-
-func (q *Queries) GetAdminSessionByTokenHash(ctx context.Context, tokenHash string) (UsersAdminSession, error) {
-	row := q.db.QueryRowContext(ctx, getAdminSessionByTokenHash, tokenHash)
-	var i UsersAdminSession
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.TokenHash,
-		&i.CreatedAt,
-		&i.ExpiresAt,
-	)
-	return i, err
-}
-
-const rotateAdminSession = `-- name: RotateAdminSession :exec
+const rotateAdminSession = `-- name: RotateAdminSession :one
 UPDATE users.admin_sessions
-SET token_hash = $2,
-    expires_at = $3
-WHERE id = $1
+SET token_hash = $1,
+    expires_at = $2
+WHERE token_hash = $3
+  AND expires_at > now()
+RETURNING id, user_id
 `
 
 type RotateAdminSessionParams struct {
-	ID        uuid.UUID `db:"id" json:"id"`
-	TokenHash string    `db:"token_hash" json:"tokenHash"`
-	ExpiresAt time.Time `db:"expires_at" json:"expiresAt"`
+	NewTokenHash string    `db:"new_token_hash" json:"newTokenHash"`
+	ExpiresAt    time.Time `db:"expires_at" json:"expiresAt"`
+	OldTokenHash string    `db:"old_token_hash" json:"oldTokenHash"`
 }
 
-func (q *Queries) RotateAdminSession(ctx context.Context, arg RotateAdminSessionParams) error {
-	_, err := q.db.ExecContext(ctx, rotateAdminSession, arg.ID, arg.TokenHash, arg.ExpiresAt)
-	return err
+type RotateAdminSessionRow struct {
+	ID     uuid.UUID `db:"id" json:"id"`
+	UserID uuid.UUID `db:"user_id" json:"userId"`
+}
+
+// Atomic compare-and-swap: matching on the OLD hash means only one of
+// several concurrent refreshes with the same cookie can win; the losers
+// match zero rows.
+func (q *Queries) RotateAdminSession(ctx context.Context, arg RotateAdminSessionParams) (RotateAdminSessionRow, error) {
+	row := q.db.QueryRowContext(ctx, rotateAdminSession, arg.NewTokenHash, arg.ExpiresAt, arg.OldTokenHash)
+	var i RotateAdminSessionRow
+	err := row.Scan(&i.ID, &i.UserID)
+	return i, err
 }

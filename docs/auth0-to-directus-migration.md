@@ -2,7 +2,8 @@
 
 Status: **backend + admin-web frontend done, verified locally end-to-end.**
 Remaining: apply infra (new `ADMIN_JWT_SECRET` secret + api env vars), set the
-real `admin_cors_origins` once admin-web hosting is defined, verify in
+TLS cert for the `api.bcc.media` domain mapping to finish provisioning,
+verify in
 staging, and finish Auth0 dependency cleanup in admin-web.
 
 ## Final architecture
@@ -30,16 +31,20 @@ schema, no REST side-channel:
    Directus 11 computes it from `directus_policies`; the flag no longer lives
    on `directus_roles`) and an `active` `directus_users` row. The API then
    mints its **own HS256 access token** (`ADMIN_JWT_SECRET`, iss
-   `bccm-admin`, 15 min; claims: sub = user uuid, email, name, role_id,
+   `bccm-admin`, 1 h; claims: sub = user uuid, email, name, role_id,
    role_name) and sets an opaque **refresh cookie** (`admin_session`:
    httpOnly, `Path=/admin`, `SameSite=Lax`, `Secure` outside local dev,
    7-day sliding). Result: `AuthResult { accessToken, expiresInMs, user
    { id, email, firstName, lastName, avatarUrl } }`.
-2. `mutation { auth { refresh } }` — looks up the session by sha256 hash
-   (only digests are stored in `users.admin_sessions`), re-checks the user is
-   still active (instant lockout), **rotates** the token (replayed old
-   cookies die), and returns the same `AuthResult` — so a page reload
-   restores the session and user with one operation.
+2. `mutation { auth { refresh } }` — **atomic compare-and-swap rotation**
+   keyed on the old token's sha256 hash (only digests are stored in
+   `users.admin_sessions`): of several concurrent refreshes — multiple tabs
+   share the cookie jar — exactly one wins; losers get UNAUTHENTICATED
+   *without* the cookie being cleared (it may already hold the winner's new
+   value), and the frontend retries once so a losing tab recovers via the
+   shared jar. After winning, the user is re-checked (active + admin access)
+   and the same `AuthResult` is returned — so a page reload restores the
+   session and user with one operation.
 3. `mutation { auth { logout } }` — deletes the session row, clears the
    cookie.
 4. **Per-operation access control** (`graphadmin.AuthExtension`,
@@ -47,11 +52,19 @@ schema, no REST side-channel:
    `x-api-key == SERVICE_SECRET_DIRECTUS` (the Directus `endpoint-tools`
    extension, `cms/extensions/endpoint-tools/src/index.ts`, calls it
    server-to-server — permanent, not a migration fallback) OR a Bearer token
-   this service minted (admin-web; the user's `active` status is re-checked
-   per request). The **only** exception: mutations whose root selections are
-   exclusively the `auth` namespace — that's where clients obtain tokens.
-   Auth failures are GraphQL errors with `extensions.code: UNAUTHENTICATED`
-   (HTTP stays 200); admin-web's urql `didAuthError` keys on that code.
+   this service minted (admin-web). The **only** exception: mutations whose
+   root selections are exclusively the `auth` namespace — that's where
+   clients obtain tokens. Auth failures are GraphQL errors with
+   `extensions.code: UNAUTHENTICATED` (HTTP stays 200); admin-web's urql
+   `didAuthError` keys on that code.
+5. **Revocation is immediate on every path.** Login, refresh, and the
+   per-request guard all load the user through one helper that requires
+   `status = 'active'` AND `admin_access` **derived in the DB** from the
+   Directus policies (`GetDirectusUserByID` computes it via
+   `directus_access` → `directus_policies`, including the role ancestor
+   chain — mirroring Directus 11's own semantics). Deactivating a user or
+   removing their admin policy in Directus locks them out on their next
+   request, not at the next login.
 
 CORS is split by an engine-level dispatcher: `/admin` gets an explicit origin
 allowlist (`ADMIN_CORS_ORIGINS`) with credentials (cookies forbid wildcards);
@@ -113,8 +126,11 @@ mode are gone).
 - Infra: `random_password.admin_jwt_secret` → `ADMIN_JWT_SECRET` in
   `module.api_secrets` (auto-injected into the api container);
   `DIRECTUS_URL=https://admin.${base_platform_domain}`;
-  `var.admin_cors_origins` (placeholder default until admin-web hosting is
-  defined). The old `DIRECTUS_JWT_SECRET` secret entry is **unused but
+  `var.admin_cors_origins` (default `https://admin.app.bcc.media`). admin-web
+  is hosted on `admin.app.bcc.media` and reaches the API via `api.bcc.media`
+  (an extra domain mapping on the api service, added outside this repo's
+  terraform) — both under `bcc.media`, keeping the SameSite=Lax refresh
+  cookie same-site. The old `DIRECTUS_JWT_SECRET` secret entry is **unused but
   retained** — the gcp-secrets module sets `prevent_destroy`, so removing the
   entry would fail to apply.
 - Directus access tokens are HS256 JWTs with claims `id`, `role`,
@@ -135,7 +151,7 @@ URL built server-side).
    de-duped. urql's `didAuthError` also recognizes the `UNAUTHENTICATED`
    GraphQL error code.
 2. `nuxt.config.ts` — `public.apiUrl` is the host base
-   (`https://api.brunstad.tv`); urql appends `/admin`.
+   (`https://api.bcc.media`); urql appends `/admin`.
 3. `app/plugins/urql.ts` — unchanged apart from the `/admin` suffix; 401 →
    `refresh()` → `/login` redirect as before.
 4. `AppSidebar.vue` — user fields are camelCase (`firstName`/`lastName`).
