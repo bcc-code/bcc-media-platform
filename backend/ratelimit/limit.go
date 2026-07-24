@@ -2,6 +2,7 @@ package ratelimit
 
 import (
 	"context"
+	"errors"
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
@@ -10,6 +11,34 @@ import (
 	"github.com/gin-gonic/gin"
 	"time"
 )
+
+// ErrRateLimited is returned by Key when the limit for the window is reached.
+var ErrRateLimited = errors.New("rate limit exceeded")
+
+// Key increments the distributed counter for an arbitrary key and returns
+// ErrRateLimited once the limit within the fixed window is exceeded. Unlike
+// Remote it does not derive the key from the request context, so it works on
+// routes without the user middleware. INCR is atomic, so concurrent requests
+// cannot slip past the limit. Any other error is a Redis failure — callers
+// decide whether to fail open or closed.
+func Key(ctx context.Context, remoteClient *remotecache.Client, key string, limit int, window time.Duration) error {
+	cacheKey := "ratelimit:" + key
+	count, err := remoteClient.Client().Incr(ctx, cacheKey).Result()
+	if err != nil {
+		return err
+	}
+	if count == 1 {
+		remoteClient.Client().Expire(ctx, cacheKey, window)
+	} else if ttl, err := remoteClient.Client().TTL(ctx, cacheKey).Result(); err == nil && ttl < 0 {
+		// The first hit's Expire was lost (e.g. that process died between
+		// INCR and EXPIRE); without this the counter would never reset.
+		remoteClient.Client().Expire(ctx, cacheKey, window)
+	}
+	if count > int64(limit) {
+		return ErrRateLimited
+	}
+	return nil
+}
 
 var limitCache = cache.New[string, RateLimit]()
 

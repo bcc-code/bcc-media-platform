@@ -172,7 +172,7 @@ func publicGraphqlHandler(loaders *loaders.BatchLoaders) gin.HandlerFunc {
 	}
 }
 
-func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *loaders.BatchLoaders, directusClient *directus.Client) gin.HandlerFunc {
+func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *loaders.BatchLoaders, directusClient *directus.Client, remoteCache *remotecache.Client) gin.HandlerFunc {
 	directusSecret := config.Secrets.Directus
 
 	if directusSecret == "" && config.Admin.JWTSecret == "" {
@@ -191,6 +191,7 @@ func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, lo
 			JWTSecret:    []byte(config.Admin.JWTSecret),
 			DirectusURL:  config.Admin.DirectusURL,
 			SecureCookie: config.Admin.SecureCookie,
+			RemoteCache:  remoteCache,
 		},
 	}
 

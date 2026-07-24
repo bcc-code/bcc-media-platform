@@ -362,7 +362,7 @@ func main() {
 	adm.Use(func(c *gin.Context) {
 		c.Set(user.CtxLanguages, user.GetAcceptedLanguagesFromCtx(c))
 	})
-	adm.POST("/admin", adminGraphqlHandler(config, db, queries, ls, directusClient))
+	adm.POST("/admin", adminGraphqlHandler(config, db, queries, ls, directusClient, remoteCache))
 
 	pub.GET("/.well-known/jwks.json", <-jwkChan)
 

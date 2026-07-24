@@ -77,6 +77,9 @@ let refreshPromise: Promise<string | null> | null = null
 // racing the clock on in-flight requests.
 const EXPIRY_MARGIN_MS = 10_000
 
+// Total refresh attempts before giving up and treating the session as gone.
+const MAX_REFRESH_ATTEMPTS = 4
+
 export function useAuth() {
   const apiUrl = useRuntimeConfig().public.apiUrl
 
@@ -131,17 +134,23 @@ export function useAuth() {
     if (refreshPromise) return refreshPromise
     refreshPromise = (async () => {
       try {
-        return await refreshOnce()
-      } catch {
-        // Retry once: refresh rotation is a compare-and-swap on the server,
-        // so a tab that lost a cross-tab race gets a fresh attempt with the
-        // winner's cookie (the jar is shared) instead of bouncing to /login.
-        try {
-          await new Promise((resolve) => setTimeout(resolve, 250))
-          return await refreshOnce()
-        } catch {
-          clearSession()
-          return null
+        // Bounded, jittered retries: refresh rotation is a compare-and-swap
+        // on the server, so a tab that lost a cross-tab race gets a fresh
+        // attempt with the winner's cookie (the jar is shared) instead of
+        // bouncing to /login. Each racing round produces one winner, so N
+        // retries cover N+1 concurrently refreshing tabs; the jitter
+        // de-synchronizes the losers so later rounds rarely collide at all.
+        for (let attempt = 1; ; attempt++) {
+          try {
+            return await refreshOnce()
+          } catch {
+            if (attempt >= MAX_REFRESH_ATTEMPTS) {
+              clearSession()
+              return null
+            }
+            const delay = 150 * attempt + Math.random() * 250
+            await new Promise((resolve) => setTimeout(resolve, delay))
+          }
         }
       } finally {
         refreshPromise = null

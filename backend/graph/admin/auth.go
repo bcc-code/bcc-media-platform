@@ -4,8 +4,10 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -15,6 +17,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/directus"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/admin/model"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
+	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/gin-gonic/gin"
@@ -60,6 +63,9 @@ type AuthConfig struct {
 	// SecureCookie sets the Secure attribute on the refresh cookie (false
 	// only for local http dev).
 	SecureCookie bool
+	// RemoteCache backs the distributed login rate limiter. nil disables
+	// limiting (tests only — production wiring always provides it).
+	RemoteCache *remotecache.Client
 }
 
 func (c AuthConfig) enabled() bool {
@@ -149,26 +155,38 @@ func clearRefreshCookie(c *gin.Context, secure bool) {
 	c.SetCookie(refreshCookieName, "", -1, refreshCookiePath, "", secure, true)
 }
 
+// errAdminUserNotAllowed means the user was positively confirmed to not be
+// allowed in (deleted, inactive, or without admin access) — as opposed to a
+// transient failure where nothing about the user could be determined. Callers
+// must only take destructive action (revoking sessions, clearing cookies) on
+// this error, never on transient ones.
+var errAdminUserNotAllowed = errors.New("admin user is not allowed")
+
 // loadActiveAdminUser fetches the Directus user and enforces that it is
 // still active AND still has admin access (derived from the Directus
 // policies in the same query). Login, refresh and the per-request guard all
 // go through here, so revoking either in Directus takes effect immediately —
-// not just at the next login.
-func loadActiveAdminUser(ctx context.Context, queries *sqlc.Queries, userID uuid.UUID) (sqlc.GetDirectusUserByIDRow, bool) {
+// not just at the next login. Returns errAdminUserNotAllowed when the user is
+// confirmed unauthorized; any other error is transient (e.g. a DB hiccup).
+func loadActiveAdminUser(ctx context.Context, queries *sqlc.Queries, userID uuid.UUID) (sqlc.GetDirectusUserByIDRow, error) {
 	u, err := queries.GetDirectusUserByID(ctx, userID)
+	if errors.Is(err, sql.ErrNoRows) {
+		log.L.Warn().Str(logFieldAdminUserID, userID.String()).Msg("Admin user does not exist")
+		return sqlc.GetDirectusUserByIDRow{}, errAdminUserNotAllowed
+	}
 	if err != nil {
 		log.L.Warn().Err(err).Str(logFieldAdminUserID, userID.String()).Msg("Admin user could not be loaded")
-		return sqlc.GetDirectusUserByIDRow{}, false
+		return sqlc.GetDirectusUserByIDRow{}, fmt.Errorf("load admin user: %w", err)
 	}
 	if u.Status != "active" {
 		log.L.Warn().Str(logFieldAdminUserID, userID.String()).Str("status", u.Status).Msg("Admin user is not active")
-		return sqlc.GetDirectusUserByIDRow{}, false
+		return sqlc.GetDirectusUserByIDRow{}, errAdminUserNotAllowed
 	}
 	if !u.AdminAccess {
 		log.L.Warn().Str(logFieldAdminUserID, userID.String()).Msg("Admin user no longer has admin access")
-		return sqlc.GetDirectusUserByIDRow{}, false
+		return sqlc.GetDirectusUserByIDRow{}, errAdminUserNotAllowed
 	}
-	return u, true
+	return u, nil
 }
 
 // buildAuthResult mints an access token and assembles the login/refresh
@@ -274,7 +292,9 @@ func (a AuthExtension) MutateOperationContext(ctx context.Context, opCtx *graphq
 				log.L.Debug().Err(err).Msg("Rejected admin access token")
 				return errUnauthenticated(ctx)
 			}
-			if _, ok := loadActiveAdminUser(ctx, a.Queries, userID); ok {
+			// Fail closed on any failure — transient or confirmed — a guard
+			// must not let requests through it could not verify.
+			if _, err := loadActiveAdminUser(ctx, a.Queries, userID); err == nil {
 				return nil
 			}
 		}

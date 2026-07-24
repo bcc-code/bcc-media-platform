@@ -95,9 +95,10 @@ mode are gone).
 - **OTP**: the backend forwards `otp` to Directus; no login-form field yet
   (no local users have `tfa_secret`). Wrong-credential responses are a
   generic 401 that doesn't reveal which factor failed.
-- **Brute force**: delegated to Directus's own login throttling (the API's
-  `ratelimit.Middleware` depends on the Auth0 user middleware and can't be
-  reused here); own limiter is a possible follow-up.
+- **Brute force**: the login resolver rate limits attempts via Redis
+  (`ratelimit.Key`, atomic INCR), keyed by client IP (20/5min) and by
+  normalized email (10/5min); it fails closed when Redis is unavailable.
+  Directus's own throttling is not relied on (disabled in our deployment).
 
 ## Key implementation facts
 

@@ -18,6 +18,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/graph/admin/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/admin/model"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
+	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/google/uuid"
@@ -27,8 +28,9 @@ import (
 
 // Login is the resolver for the login field. It proxies the credentials to
 // Directus server-side and, when the user is allowed in, responds with our
-// own access token and refresh cookie. Brute-force protection is delegated
-// to Directus's own login throttling.
+// own access token and refresh cookie. Attempts are rate limited here, keyed
+// by client IP and by target email — Directus's own login throttling is
+// disabled in our deployment, and this endpoint is unauthenticated.
 func (r *authResolver) Login(ctx context.Context, obj *model.Auth, email string, password string, otp *string) (*model.AuthResult, error) {
 	if !r.AuthConfig.enabled() {
 		return nil, fmt.Errorf("auth is not configured")
@@ -39,6 +41,32 @@ func (r *authResolver) Login(ctx context.Context, obj *model.Auth, email string,
 	}
 	if email == "" || password == "" {
 		return nil, fmt.Errorf("email and password are required")
+	}
+
+	if r.AuthConfig.RemoteCache != nil {
+		// Per-IP catches password spraying across accounts; per-email catches
+		// distributed attempts against one account. Counted before the proxy
+		// call so failed and successful attempts both consume the budget.
+		normEmail := strings.ToLower(strings.TrimSpace(email))
+		for _, l := range []struct {
+			key   string
+			limit int
+		}{
+			{"admin-login:ip:" + ginCtx.ClientIP(), 20},
+			{"admin-login:email:" + normEmail, 10},
+		} {
+			err := ratelimit.Key(ctx, r.AuthConfig.RemoteCache, l.key, l.limit, 5*time.Minute)
+			if errors.Is(err, ratelimit.ErrRateLimited) {
+				log.L.Warn().Str("key", l.key).Msg("Admin login rate limited")
+				return nil, fmt.Errorf("too many attempts, try again later")
+			}
+			if err != nil {
+				// Redis failure: fail closed — an unlimited login endpoint is
+				// worse than a temporarily unavailable one.
+				log.L.Error().Err(err).Msg("Admin login rate limiter unavailable")
+				return nil, fmt.Errorf("login unavailable")
+			}
+		}
 	}
 
 	claims, err := r.AuthConfig.Directus.Login(ctx, email, password, lo.FromPtr(otp))
@@ -66,9 +94,12 @@ func (r *authResolver) Login(ctx context.Context, obj *model.Auth, email string,
 		return nil, fmt.Errorf("not allowed")
 	}
 
-	user, ok := loadActiveAdminUser(ctx, r.Queries, userID)
-	if !ok {
+	user, err := loadActiveAdminUser(ctx, r.Queries, userID)
+	if errors.Is(err, errAdminUserNotAllowed) {
 		return nil, fmt.Errorf("not allowed")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("login unavailable")
 	}
 
 	// Opportunistic cleanup; the table only grows on logins, so this keeps
@@ -134,19 +165,30 @@ func (r *authResolver) Refresh(ctx context.Context, obj *model.Auth) (*model.Aut
 		return nil, errUnauthenticated(ctx)
 	}
 
-	user, ok := loadActiveAdminUser(ctx, r.Queries, session.UserID)
-	if !ok {
-		// Deactivated or de-admined user: kill the session immediately. We
-		// just won the CAS, so the cookie we're clearing is ours.
+	user, err := loadActiveAdminUser(ctx, r.Queries, session.UserID)
+	if errors.Is(err, errAdminUserNotAllowed) {
+		// Deactivated or de-admined user — positively confirmed: kill the
+		// session immediately. We just won the CAS, so the cookie we're
+		// clearing is ours.
 		if err := r.Queries.DeleteAdminSessionByID(ctx, session.ID); err != nil {
 			log.L.Warn().Err(err).Msg("Failed to delete admin session")
 		}
 		clearRefreshCookie(ginCtx, r.AuthConfig.SecureCookie)
 		return nil, errUnauthenticated(ctx)
 	}
+	if err != nil {
+		// Transient failure (e.g. DB hiccup): the rotation above already
+		// happened, so the browser MUST still receive the new cookie or the
+		// session dies orphaned. Keep the session; the client retries.
+		setRefreshCookie(ginCtx, plain, r.AuthConfig.SecureCookie)
+		return nil, fmt.Errorf("refresh unavailable")
+	}
 
 	res, err := buildAuthResult(r.AuthConfig, user)
 	if err != nil {
+		// Same as above: the rotated cookie must reach the browser even when
+		// minting the access token fails.
+		setRefreshCookie(ginCtx, plain, r.AuthConfig.SecureCookie)
 		return nil, err
 	}
 	setRefreshCookie(ginCtx, plain, r.AuthConfig.SecureCookie)
