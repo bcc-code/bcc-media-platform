@@ -51,6 +51,30 @@ type MediaItems {
     importTimedMetadata(mediaItemId: ID!): Boolean! @goField(forceResolver: true)
 }
 
+type AdminUser {
+    id: ID!
+    email: String!
+    firstName: String
+    lastName: String
+    avatarUrl: String
+}
+
+type AuthResult {
+    accessToken: String!
+    expiresInMs: Int!
+    user: AdminUser!
+}
+
+# Session management for admin-web. Login is proxied to Directus server-side;
+# the API mints its own access token and keeps the refresh token in an
+# httpOnly cookie. These are the only operations that execute without
+# credentials (see the auth extension in auth.go).
+type Auth {
+    login(email: String!, password: String!, otp: String): AuthResult! @goField(forceResolver: true)
+    refresh: AuthResult! @goField(forceResolver: true)
+    logout: Boolean! @goField(forceResolver: true)
+}
+
 type QueryRoot {
     preview: Preview!
     statistics: Statistics!
@@ -58,6 +82,11 @@ type QueryRoot {
     mediaItems: MediaItems!
 }
 
+type MutationRoot {
+    auth: Auth!
+}
+
 schema{
     query: QueryRoot
+    mutation: MutationRoot
 }

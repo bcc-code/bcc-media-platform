@@ -190,3 +190,9 @@ variable "semaphore_service_account" {
   type = string
 }
 
+
+variable "admin_cors_origins" {
+  type        = string
+  description = "Comma-separated origin allowlist for the admin auth/GraphQL endpoints (admin-web origins). Must be same-site with the API host admin-web uses (api.bcc.media) for the refresh cookie to work."
+  default     = "https://admin.app.bcc.media"
+}

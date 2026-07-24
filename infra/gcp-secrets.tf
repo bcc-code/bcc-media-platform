@@ -41,7 +41,7 @@ module "staging_sync_secrets" {
       data = random_password.staging_sync_db_password.result
     },
   }
-  project = google_project.brunstadtv.project_id
+  project          = google_project.brunstadtv.project_id
   secret_accessors = []
 }
 
@@ -101,6 +101,11 @@ module "api_secrets" {
       ANALYTICS_SALT = {
         data = random_password.analytics_id_salt.result
         name = "ANALYTICS_SALT"
+      },
+      # Signs the access tokens the API mints for admin-web (/auth/login).
+      ADMIN_JWT_SECRET = {
+        data = random_password.admin_jwt_secret.result
+        name = "ADMIN_JWT_SECRET"
       },
     }
   )

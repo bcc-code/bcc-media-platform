@@ -12,6 +12,10 @@ export default defineNuxtConfig({
 
   ssr: false,
 
+  devServer: {
+    port: 4000
+  },
+
   app: {
     head: {
       link: [
@@ -52,9 +56,10 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiUrl: 'https://api.brunstad.tv/admin',
-      auth0Domain: 'https://login.bcc.no',
-      auth0ClientId: 'yxkvLCpWCA6O0F4SxKZy217yALi61zFC' // TODO: get own client_id, this is from Live
+      // Host base of the admin API; urql and useAuth append /admin. Must be
+      // same-site with the admin-web origin (both under bcc.media) so the
+      // SameSite=Lax refresh cookie is sent.
+      apiUrl: 'https://api.bcc.media'
     }
   },
 
@@ -72,7 +77,6 @@ export default defineNuxtConfig({
         '@ark-ui/vue',
         '@urql/vue',
         'vue-draggable-plus',
-        '@auth0/auth0-vue',
         '@urql/exchange-auth'
       ]
     }

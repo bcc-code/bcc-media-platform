@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/bcc-media-platform/backend/analytics"
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
+	"github.com/bcc-code/bcc-media-platform/backend/directus"
 	"github.com/bcc-code/bcc-media-platform/backend/email"
 	gqlextension "github.com/99designs/gqlgen/graphql/handler/extension"
 	graphadmin "github.com/bcc-code/bcc-media-platform/backend/graph/admin"
@@ -171,11 +172,27 @@ func publicGraphqlHandler(loaders *loaders.BatchLoaders) gin.HandlerFunc {
 	}
 }
 
-func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *loaders.BatchLoaders) gin.HandlerFunc {
+func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *loaders.BatchLoaders, directusClient *directus.Client, remoteCache *remotecache.Client) gin.HandlerFunc {
+	directusSecret := config.Secrets.Directus
+
+	if directusSecret == "" && config.Admin.JWTSecret == "" {
+		log.L.Debug().Msg("No Directus secret or admin JWT secret found in environment. Disabling endpoint")
+		return func(c *gin.Context) {
+			c.AbortWithStatus(404)
+		}
+	}
+
 	resolver := graphadmin.Resolver{
 		DB:      db,
 		Queries: queries,
 		Loaders: loaders,
+		AuthConfig: graphadmin.AuthConfig{
+			Directus:     directusClient,
+			JWTSecret:    []byte(config.Admin.JWTSecret),
+			DirectusURL:  config.Admin.DirectusURL,
+			SecureCookie: config.Admin.SecureCookie,
+			RemoteCache:  remoteCache,
+		},
 	}
 
 	// NewExecutableSchema and Config are in the generated.go file
@@ -183,22 +200,16 @@ func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, lo
 	h := handler.NewDefaultServer(graphadmingenerated.NewExecutableSchema(graphadmingenerated.Config{Resolvers: &resolver}))
 	h.Use(gqlextension.FixedComplexityLimit(5000))
 	h.Use(apiextension.DepthLimit{Max: 20})
-
-	directusSecret := config.Secrets.Directus
-	if directusSecret == "" {
-		log.L.Debug().Msg("No secret for Directus found in environment. Disabling endpoint")
-		return func(c *gin.Context) {
-			c.AbortWithStatus(404)
-		}
-	}
+	// Per-operation access control: x-api-key (Directus endpoint-tools,
+	// server-to-server) or a token this service minted (admin-web); only the
+	// `auth` mutations execute without credentials.
+	h.Use(graphadmin.AuthExtension{
+		Queries:        queries,
+		JWTSecret:      []byte(config.Admin.JWTSecret),
+		DirectusSecret: directusSecret,
+	})
 
 	return func(c *gin.Context) {
-		headerValue := c.GetHeader("x-api-key")
-		if headerValue != directusSecret {
-			c.AbortWithStatus(403)
-			return
-		}
-
 		h.ServeHTTP(c.Writer, c.Request)
 	}
 }

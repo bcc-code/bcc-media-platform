@@ -1,0 +1,57 @@
+type: http_request
+model: http_request
+id: rq_adminQuery
+createdAt: 2026-07-23T00:00:00
+updatedAt: 2026-07-23T00:00:00
+workspaceId: wk_hGg2sqajat
+folderId: null
+authentication:
+  token: ${[ response.body.path(request='rq_directusLogin', path='$.data.auth.login.accessToken', behavior='smart') ]}
+authenticationType: bearer
+body:
+  query: |-
+    # Sample admin query; the bearer token is chained from "Directus login".
+    query AdminPreview($filter: String!) {
+      preview {
+        collection(filter: $filter) {
+          items {
+            id
+            title
+            collection
+          }
+        }
+      }
+    }
+  variables: |-
+    {
+      "filter": "{\"Filter\":{\"==\":[{\"var\":\"collection\"},\"episodes\"]},\"Limit\":3}"
+    }
+bodyType: graphql
+description: >-
+  Admin GraphQL API (/admin on cmd/api). Auth is the API's own access token —
+  fetched automatically from the "Admin login" request when missing.
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: h_ct_adminQuery
+method: POST
+name: Admin API query
+sortPriority: 5000.001
+url: ${[ ADMIN_API_URL ]}/admin
+urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

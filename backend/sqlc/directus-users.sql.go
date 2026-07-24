@@ -12,6 +12,63 @@ import (
 	null_v4 "gopkg.in/guregu/null.v4"
 )
 
+const getDirectusUserByID = `-- name: GetDirectusUserByID :one
+WITH RECURSIVE role_chain(id) AS (
+    SELECT u.role
+    FROM directus_users u
+    WHERE u.id = $1
+    UNION ALL
+    SELECT pr.parent
+    FROM directus_roles pr
+             JOIN role_chain c ON pr.id = c.id
+    WHERE pr.parent IS NOT NULL
+)
+SELECT u.id, u.email, u.first_name, u.last_name, u.role, u.status, u.avatar,
+       r.name AS role_name,
+       EXISTS (
+           SELECT 1
+           FROM directus_access a
+                    JOIN directus_policies p ON p.id = a.policy
+           WHERE p.admin_access
+             AND (a."user" = u.id OR a.role IN (SELECT id FROM role_chain))
+       )::bool AS admin_access
+FROM directus_users u
+         LEFT JOIN directus_roles r ON r.id = u.role
+WHERE u.id = $1
+`
+
+type GetDirectusUserByIDRow struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	Email       null_v4.String `db:"email" json:"email"`
+	FirstName   null_v4.String `db:"first_name" json:"firstName"`
+	LastName    null_v4.String `db:"last_name" json:"lastName"`
+	Role        uuid.NullUUID  `db:"role" json:"role"`
+	Status      string         `db:"status" json:"status"`
+	Avatar      uuid.NullUUID  `db:"avatar" json:"avatar"`
+	RoleName    null_v4.String `db:"role_name" json:"roleName"`
+	AdminAccess bool           `db:"admin_access" json:"adminAccess"`
+}
+
+// admin_access mirrors Directus 11's derivation: any policy with
+// admin_access attached to the user directly or to the user's role or any
+// of its ancestors (child roles inherit parent policies).
+func (q *Queries) GetDirectusUserByID(ctx context.Context, id uuid.UUID) (GetDirectusUserByIDRow, error) {
+	row := q.db.QueryRowContext(ctx, getDirectusUserByID, id)
+	var i GetDirectusUserByIDRow
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.FirstName,
+		&i.LastName,
+		&i.Role,
+		&i.Status,
+		&i.Avatar,
+		&i.RoleName,
+		&i.AdminAccess,
+	)
+	return i, err
+}
+
 const getUserIDByEmail = `-- name: GetUserIDByEmail :one
 SELECT id FROM directus_users WHERE email = $1
 `
