@@ -1,7 +1,7 @@
-resource "google_cloud_scheduler_job" "refresh_filter_dataset" {
+resource "google_cloud_scheduler_job" "refresh_views" {
   project     = google_project.brunstadtv.project_id
-  name        = "refresh-filter-dataset"
-  description = "Pings the episode access view to refresh it"
+  name        = "refresh-views"
+  description = "Refresh dependent materialized views in order (availability chain + filter_dataset)"
   schedule    = var.views_refresh_schedule
   region      = "europe-west1" // Cloud scheduler is not available in europe-west4
 
@@ -9,15 +9,23 @@ resource "google_cloud_scheduler_job" "refresh_filter_dataset" {
     topic_name = google_pubsub_topic.background_worker.id
     data = base64encode(jsonencode({
       "specversion" : "1.0",
-      "id" : "cloudscheduler-1",
+      "id" : "cloudscheduler-refresh-views",
       "source" : "cloudscheduler",
       "type" : "view.refresh",
       "datacontenttype" : "application/json",
       "data" : {
-        "viewName" : "filter_dataset",
+        "viewName" : "all",
         "force" : false
       }
     }))
+  }
+
+  retry_config {
+    retry_count          = 0
+    max_retry_duration   = "0s"
+    min_backoff_duration = "5s"
+    max_backoff_duration = "3600s"
+    max_doublings        = 5
   }
 }
 
@@ -89,75 +97,6 @@ resource "google_cloud_scheduler_job" "shorts_scores_sync" {
       "id" : "cloudscheduler-4",
       "source" : "cloudscheduler",
       "type" : "statistics.importshortsscores"
-    }))
-  }
-}
-
-resource "google_cloud_scheduler_job" "refresh_episode_availability" {
-  project     = google_project.brunstadtv.project_id
-  name        = "refresh-episode-availability"
-  description = "Refresh the episode_availability materialized view"
-  schedule    = var.views_refresh_schedule
-  region      = "europe-west1"
-
-  pubsub_target {
-    topic_name = google_pubsub_topic.background_worker.id
-    data = base64encode(jsonencode({
-      "specversion" : "1.0",
-      "id" : "cloudscheduler-episode-availability",
-      "source" : "cloudscheduler",
-      "type" : "view.refresh",
-      "datacontenttype" : "application/json",
-      "data" : {
-        "viewName" : "episode_availability",
-        "force" : false
-      }
-    }))
-  }
-}
-
-resource "google_cloud_scheduler_job" "refresh_season_availability" {
-  project     = google_project.brunstadtv.project_id
-  name        = "refresh-season-availability"
-  description = "Refresh the season_availability materialized view"
-  schedule    = var.views_refresh_schedule
-  region      = "europe-west1"
-
-  pubsub_target {
-    topic_name = google_pubsub_topic.background_worker.id
-    data = base64encode(jsonencode({
-      "specversion" : "1.0",
-      "id" : "cloudscheduler-season-availability",
-      "source" : "cloudscheduler",
-      "type" : "view.refresh",
-      "datacontenttype" : "application/json",
-      "data" : {
-        "viewName" : "season_availability",
-        "force" : false
-      }
-    }))
-  }
-}
-
-resource "google_cloud_scheduler_job" "refresh_show_availability" {
-  project     = google_project.brunstadtv.project_id
-  name        = "refresh-show-availability"
-  description = "Refresh the show_availability materialized view"
-  schedule    = var.views_refresh_schedule
-  region      = "europe-west1"
-
-  pubsub_target {
-    topic_name = google_pubsub_topic.background_worker.id
-    data = base64encode(jsonencode({
-      "specversion" : "1.0",
-      "id" : "cloudscheduler-show-availability",
-      "source" : "cloudscheduler",
-      "type" : "view.refresh",
-      "datacontenttype" : "application/json",
-      "data" : {
-        "viewName" : "show_availability",
-        "force" : false
-      }
     }))
   }
 }
