@@ -279,17 +279,21 @@ func main() {
 		},
 		AllowCredentials: true,
 	})
-	var adminCORS gin.HandlerFunc
-	if len(config.Admin.CORSOrigins) > 0 {
-		adminCORS = cors.New(cors.Config{
-			AllowOrigins:     config.Admin.CORSOrigins,
-			AllowMethods:     []string{"POST", "OPTIONS"},
-			AllowHeaders:     []string{"content-type", "authorization", "accept-language"},
-			AllowCredentials: true,
-		})
-	} else {
-		adminCORS = publicCORS
+	// The admin realm carries credentials, so its CORS fails closed: without
+	// a configured allowlist, no cross-origin browser access at all (curl and
+	// server-to-server calls are unaffected — they don't do CORS).
+	adminCORSConfig := cors.Config{
+		AllowMethods:     []string{"POST", "OPTIONS"},
+		AllowHeaders:     []string{"content-type", "authorization", "accept-language"},
+		AllowCredentials: true,
 	}
+	if len(config.Admin.CORSOrigins) > 0 {
+		adminCORSConfig.AllowOrigins = config.Admin.CORSOrigins
+	} else {
+		log.L.Warn().Msg("ADMIN_CORS_ORIGINS not set. Cross-origin browser access to /admin is disabled")
+		adminCORSConfig.AllowOriginFunc = func(string) bool { return false }
+	}
+	adminCORS := cors.New(adminCORSConfig)
 	r.Use(func(c *gin.Context) {
 		if c.Request.URL.Path == "/admin" {
 			adminCORS(c)
