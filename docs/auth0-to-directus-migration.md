@@ -130,9 +130,9 @@ mode are gone).
   is hosted on `admin.app.bcc.media` and reaches the API via `api.bcc.media`
   (an extra domain mapping on the api service, added outside this repo's
   terraform) — both under `bcc.media`, keeping the SameSite=Lax refresh
-  cookie same-site. The old `DIRECTUS_JWT_SECRET` secret entry is **unused but
-  retained** — the gcp-secrets module sets `prevent_destroy`, so removing the
-  entry would fail to apply.
+  cookie same-site. The old `DIRECTUS_JWT_SECRET` secret entry was removed —
+  it was never applied, so `prevent_destroy` on the gcp-secrets module never
+  came into play.
 - Directus access tokens are HS256 JWTs with claims `id`, `role`,
   `app_access`, `admin_access`, `iss: "directus"` — the login client checks
   the issuer and extracts these.
