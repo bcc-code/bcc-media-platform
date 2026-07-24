@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_adminQuery
 createdAt: 2026-07-23T00:00:00
-updatedAt: 2026-07-23T00:00:00
+updatedAt: 2026-07-24T18:37:46.516014
 workspaceId: wk_hGg2sqajat
 folderId: null
 authentication:
@@ -27,9 +27,7 @@ body:
       "filter": "{\"Filter\":{\"==\":[{\"var\":\"collection\"},\"episodes\"]},\"Limit\":3}"
     }
 bodyType: graphql
-description: >-
-  Admin GraphQL API (/admin on cmd/api). Auth is the API's own access token —
-  fetched automatically from the "Admin login" request when missing.
+description: Admin GraphQL API (/admin on cmd/api). Auth is the API's own access token — fetched automatically from the "Admin login" request when missing.
 headers:
 - enabled: true
   name: Content-Type

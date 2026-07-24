@@ -88,6 +88,22 @@ resource "google_compute_url_map" "website" {
     }
   }
 
+  dynamic "host_rule" {
+    for_each = length(var.admin_web_domains) > 0 ? [1] : []
+    content {
+      hosts        = var.admin_web_domains
+      path_matcher = "admin-web"
+    }
+  }
+
+  dynamic "path_matcher" {
+    for_each = length(var.admin_web_domains) > 0 ? [1] : []
+    content {
+      name            = "admin-web"
+      default_service = google_compute_backend_bucket.admin_web.self_link
+    }
+  }
+
   dynamic "path_matcher" {
     for_each = google_project.brunstadtv.project_id == "btv-platform-prod-2" ? [1] : []
     content {
@@ -132,6 +148,7 @@ resource "google_compute_target_https_proxy" "website" {
   ssl_certificates = flatten([
     var.additional_key_path != "" ? [google_compute_ssl_certificate.additional_cert[0].self_link] : [],
     google_compute_managed_ssl_certificate.website2.self_link,
+    length(var.admin_web_domains) > 0 ? [google_compute_managed_ssl_certificate.admin_web[0].self_link] : [],
     google_project.brunstadtv.project_id == "btv-platform-prod-2" ? [
       "https://www.googleapis.com/compute/v1/projects/btv-platform-prod-2/global/sslCertificates/app-biblekids-io"
     ] : []

@@ -161,6 +161,23 @@ blocks:
         on_pass:
           commands:
             - cache store
+  - name: Build Admin Web
+    dependencies: []
+    task:
+      prologue:
+        commands:
+          - sem-version node 22
+          - corepack enable
+          - checkout
+      jobs:
+        - name: Build
+          commands:
+            - cd ./admin-web
+            - cache restore admin-web-node-$(checksum pnpm-lock.yaml)
+            - cd ..
+            - ./scripts/generate-admin-web-build.sh
+            - cd ./admin-web
+            - cache store admin-web-node-$(checksum pnpm-lock.yaml) $(pnpm store path)
 promotions:
   #  - name: Deploy to DEV
   #    pipeline_file: deploy-dev.yml

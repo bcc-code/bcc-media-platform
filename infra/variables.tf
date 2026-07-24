@@ -191,6 +191,12 @@ variable "semaphore_service_account" {
 }
 
 
+variable "admin_web_domains" {
+  type        = list(string)
+  description = "Domains for the admin-web static site (empty = no cert/LB routing in this env)"
+  default     = []
+}
+
 variable "admin_cors_origins" {
   type        = string
   description = "Comma-separated origin allowlist for the admin auth/GraphQL endpoints (admin-web origins). Must be same-site with the API host admin-web uses (api.bcc.media) for the refresh cookie to work."
