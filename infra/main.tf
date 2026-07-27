@@ -2,6 +2,16 @@ locals {
   aws_region = "eu-north-1"
 }
 
+terraform {
+  required_providers {
+    # Non-hashicorp providers are not implicitly resolvable and must be declared.
+    ioriver = {
+      source  = "ioriver/ioriver"
+      version = "~> 1.4"
+    }
+  }
+}
+
 provider "aws" {
   region  = local.aws_region
   profile = var.aws_profile
@@ -20,6 +30,21 @@ provider "google" {
 
 provider "google-beta" {
   region = var.gcp-region
+}
+
+# DNS zones live in their own project (see the private infra repo's
+# projects/global/dns), so cross-project record sets need a dedicated provider.
+provider "google" {
+  alias   = "dns"
+  project = var.dns_project
+  region  = var.gcp-region
+}
+
+# Live-CDN ioriver account (separate account from the dashboard-managed VOD
+# one). The token is empty in envs where var.live_cdn is null — the provider
+# does not validate it until a resource actually calls the API.
+provider "ioriver" {
+  token = var.ioriver_live_token
 }
 
 module "vod_cdn" {
