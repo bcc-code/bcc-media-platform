@@ -11,9 +11,11 @@ locals {
   stream_proxy_live_cf_key_files = [
     for v in module.api_secret_files.data : v if v.name == local.live_cf_signing_key_path
   ]
-  stream_proxy_live_ioriver_key_files = [
-    for v in module.api_secret_files.data : v if v.name == local.live_ioriver_signing_key_path
-  ]
+
+  # The live ioriver signing key is generated in terraform (live-cdn.tf) rather
+  # than mounted from var.api_secret_files like the others; only the mount path
+  # is defined here.
+  live_ioriver_signing_key_path = "/secrets6/live_ioriver.pem"
 }
 
 resource "google_service_account" "stream_proxy" {
@@ -98,6 +100,32 @@ resource "google_cloud_run_service" "stream_proxy" {
           value = local.live_ioriver_signing_key_path
         }
 
+        # Live ioriver upstream (live-cdn.tf): the hostname and the per-CDN
+        # signing key ids come straight from the ioriver resources.
+        dynamic "env" {
+          for_each = local.live_cdn_enabled ? [1] : []
+          content {
+            name  = "STREAM_PROXY_LIVE_CDN_DOMAIN_IORIVER"
+            value = var.live_cdn.hostname
+          }
+        }
+
+        dynamic "env" {
+          for_each = local.live_cdn_enabled ? [1] : []
+          content {
+            name  = "LIVE_IORIVER_CLOUDFRONT_KEY_ID"
+            value = lookup(ioriver_url_signing_key.live[0].provider_keys, "Cloudfront", "")
+          }
+        }
+
+        dynamic "env" {
+          for_each = local.live_cdn_enabled ? [1] : []
+          content {
+            name  = "LIVE_IORIVER_FASTLY_KEY_ID"
+            value = lookup(ioriver_url_signing_key.live[0].provider_keys, "Fastly", "")
+          }
+        }
+
         dynamic "env" {
           for_each = module.stream_proxy_secrets.data
           iterator = v
@@ -156,11 +184,11 @@ resource "google_cloud_run_service" "stream_proxy" {
         }
 
         dynamic "volume_mounts" {
-          for_each = local.stream_proxy_live_ioriver_key_files
+          for_each = google_secret_manager_secret.live_ioriver_signing_key
           iterator = v
           content {
-            mount_path = dirname(v.value.name)
-            name       = v.value.secret_name
+            mount_path = dirname(local.live_ioriver_signing_key_path)
+            name       = v.value.secret_id
           }
         }
       }
@@ -211,15 +239,15 @@ resource "google_cloud_run_service" "stream_proxy" {
       }
 
       dynamic "volumes" {
-        for_each = local.stream_proxy_live_ioriver_key_files
+        for_each = google_secret_manager_secret.live_ioriver_signing_key
         iterator = v
         content {
-          name = v.value.secret_name
+          name = v.value.secret_id
           secret {
-            secret_name = v.value.secret_name
+            secret_name = v.value.secret_id
             items {
               key  = "latest"
-              path = basename(v.value.name)
+              path = basename(local.live_ioriver_signing_key_path)
             }
           }
         }
