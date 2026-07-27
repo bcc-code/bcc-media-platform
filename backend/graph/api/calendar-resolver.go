@@ -29,8 +29,8 @@ const maxBufferAvailableHours = 7 * 24
 // replay starts shortly before the entry begins and ends shortly after it ends,
 // avoiding clipped openings/closings. They apply only to the entry-derived
 // defaults — explicit buffer_start/buffer_end overrides are used as-is.
-const bufferLeadIn = 5 * time.Minute
-const bufferLeadOut = 10 * time.Minute
+const bufferLeadIn = time.Minute
+const bufferLeadOut = 5 * time.Minute
 
 // defaultCalendarEntryImageFilename is the fallback calendar entry image, served
 // from the same image CDN as episode images, used when the linked episode has no
