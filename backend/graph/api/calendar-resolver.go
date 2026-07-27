@@ -45,6 +45,7 @@ type bufferWindow struct {
 	entry         *common.CalendarEntry
 	livestreamURL string
 	until         time.Time
+	signing       liveSigning
 }
 
 // bufferWindowForEntry resolves the buffer playback window for the calendar entry
@@ -59,7 +60,8 @@ type bufferWindow struct {
 // then the canonical way to watch; buffer_available_hours > 0; and now is within
 // [entry.start, entry.end + hours] (hours capped at maxBufferAvailableHours).
 func (r *Resolver) bufferWindowForEntry(ctx context.Context, id string) (*bufferWindow, error) {
-	if !r.canSignLive(r.resolveLiveSigning(ctx)) {
+	ls := r.resolveLiveSigning(ctx)
+	if !r.canSignLive(ls) {
 		return nil, nil
 	}
 
@@ -103,7 +105,7 @@ func (r *Resolver) bufferWindowForEntry(ctx context.Context, id string) (*buffer
 		return nil, nil
 	}
 
-	return &bufferWindow{entry: entry, livestreamURL: conf.LivestreamURL, until: until}, nil
+	return &bufferWindow{entry: entry, livestreamURL: conf.LivestreamURL, until: until, signing: ls}, nil
 }
 
 // bufferPlaybackWindow returns the [start, end] window the buffer (start-over)
@@ -180,7 +182,7 @@ func (r *Resolver) bufferForEntry(ctx context.Context, id string) (*model.Calend
 		return nil, err
 	}
 	start, end := bufferPlaybackWindow(w.entry)
-	url, err := r.signedBufferURL(ctx, w.livestreamURL, start, end, w.until)
+	url, err := r.signedBufferURL(w.signing, w.livestreamURL, start, end, w.until)
 	if err != nil {
 		return nil, err
 	}

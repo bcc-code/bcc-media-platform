@@ -173,8 +173,9 @@ func (r *Resolver) pickStreamSigner(ctx context.Context) (streamSigner, streamto
 //   - ok == false → use the legacy r.LivestreamSigner path.
 //   - ok == true  → mint a proxy URL with the returned signer and provider.
 //
-// The `cdn-provider` Unleash flag's `cloudfront-direct` variant forces the
-// legacy path (shared emergency rollback with VOD); otherwise the configured
+// The `live-cdn-provider` Unleash flag routes live independently of VOD's
+// `cdn-provider`: its `cloudfront-direct` variant forces the legacy path
+// (live-only emergency rollback); when the flag is absent the configured
 // PrimaryStreamProvider decides. When the proxy signer is not configured we
 // always fall back so live keeps working.
 func (r *Resolver) pickLiveProxySigner(ctx context.Context) (*streamtoken.Signer, streamtoken.Provider, bool) {
@@ -185,8 +186,8 @@ func (r *Resolver) pickLiveProxySigner(ctx context.Context) (*streamtoken.Signer
 	ginCtx, _ := utils.GinCtx(ctx)
 	if ginCtx != nil {
 		flags := utils.GetFeatureFlags(ginCtx)
-		if v, ok := flags.GetVariant(unleash.StreamCDNProviderFlag); ok {
-			utils.ReportFlagActivation(ginCtx, unleash.StreamCDNProviderFlag, v)
+		if v, ok := flags.GetVariant(unleash.LiveCDNProviderFlag); ok {
+			utils.ReportFlagActivation(ginCtx, unleash.LiveCDNProviderFlag, v)
 
 			switch v {
 			case unleash.StreamCDNProxyIORiver:

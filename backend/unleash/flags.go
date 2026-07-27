@@ -23,3 +23,10 @@ const StreamCDNProviderFlag = "cdn-provider"
 const StreamCDNCloudfrontDirect = "cloudfront-direct"
 const StreamCDNProxyCF = "cloudfront"
 const StreamCDNProxyIORiver = "ioriver"
+
+// LiveCDNProviderFlag is the livestream counterpart of StreamCDNProviderFlag,
+// using the same variants, so live can be rolled out to (and rolled back from)
+// the stream-proxy independently of VOD.
+//
+// Added: 27.07.2026
+const LiveCDNProviderFlag = "live-cdn-provider"

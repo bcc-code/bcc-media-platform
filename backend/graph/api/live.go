@@ -91,9 +91,8 @@ func (r *Resolver) signedLiveURL(ctx context.Context, livestreamURL string) (*li
 // stream-proxy has no such limit. Entries are almost always shorter regardless;
 // revisit (e.g. chunked playback) if long buffers are needed rather than
 // truncating the window here.
-func (r *Resolver) signedBufferURL(ctx context.Context, livestreamURL string, start, end, expiresAt time.Time) (string, error) {
+func (r *Resolver) signedBufferURL(ls liveSigning, livestreamURL string, start, end, expiresAt time.Time) (string, error) {
 	now := time.Now()
-	ls := r.resolveLiveSigning(ctx)
 	signedURL, _, err := r.signLiveManifestWith(ls, livestreamURL, expiresAt.Sub(now))
 	if err != nil {
 		log.L.Error().Err(err).Str("livestreamURL", livestreamURL).Msg("signedBufferURL: failed to sign livestream URL")

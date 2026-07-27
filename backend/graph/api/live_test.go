@@ -66,7 +66,7 @@ func TestSignedBufferURL_ProxyPath(t *testing.T) {
 	end := time.Unix(1513720828, 0)
 	livestreamURL := "https://vod2.brunstad.tv/out/v1/aaaaaa/bbbbbb/index.m3u8"
 
-	signed, err := r.signedBufferURL(context.Background(), livestreamURL, start, end, time.Now().Add(time.Hour))
+	signed, err := r.signedBufferURL(r.resolveLiveSigning(context.Background()), livestreamURL, start, end, time.Now().Add(time.Hour))
 	require.NoError(t, err)
 
 	parsed, err := url.Parse(signed)
