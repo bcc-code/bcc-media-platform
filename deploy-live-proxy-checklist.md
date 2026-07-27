@@ -53,12 +53,16 @@ manual:
 
 - [ ] Commit (git-crypt unlocked).
 
-## C. Terraform apply — **before merging the PR**
+## C. Merge `live-proxy-infra` + terraform apply — **before merging this PR**
 
-- [ ] Ensure `src/override.tf` points the module source at the local
-      `~/prog/bcc.media/brunstadtv/infra`, with the `live-proxy` branch checked out there
-      (terragrunt otherwise reads `infra/` from GitHub master, which doesn't have the
-      new tf yet).
+The infra changes are split onto the `live-proxy-infra` branch (infra/ only) so
+they can merge and apply independently of the code.
+
+- [ ] Merge `live-proxy-infra` to master. This redeploys the unchanged master
+      binaries (harmless); the Cloud Run env only changes at the terraform apply
+      below. Terragrunt reads `infra/` from GitHub master, so no `override.tf`
+      is needed once it's merged. (To apply *before* merging it, point
+      `src/override.tf` at the local working tree on that branch instead.)
 - [ ] `make infra.prod` — review the plan before confirming. Expected changes, nothing else:
   - ioriver: certificate, service (origin + domain + default behavior), URL signing key
   - DNS: `live-cdn.bcc.media` CNAME + `_acme-challenge.live-cdn.bcc.media` CNAME
