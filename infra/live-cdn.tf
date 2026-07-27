@@ -35,7 +35,7 @@ resource "ioriver_certificate" "live" {
 
   name = "live-cdn"
   type = "MANAGED"
-  cn   = var.live_cdn.hostname
+  cn   = jsonencode([var.live_cdn.hostname]) # the API wants a JSON array of domains in a string
 }
 
 resource "ioriver_service" "live" {
@@ -70,7 +70,11 @@ resource "ioriver_service" "live" {
         actions = {
           # Signed URLs only, and cache per the MediaPackage origin's
           # Cache-Control (short for live manifests, long for segments).
-          url_signing          = true
+          # TEMP BOOTSTRAP: url_signing must stay false until the signing key
+          # exists (the API rejects the behavior otherwise). Run
+          # scripts/create-live-ioriver-signing-key.sh, then flip to true and
+          # re-apply. DO NOT COMMIT with false.
+          url_signing          = false
           origin_cache_control = true
         }
       }
@@ -78,17 +82,31 @@ resource "ioriver_service" "live" {
   }
 }
 
-# The backend-facing key ids land in provider_keys (map keyed "Cloudfront" /
-# "Fastly") and are wired straight into the stream-proxy env in
-# stream-proxy.tf — nothing to copy into tfvars.
-resource "ioriver_url_signing_key" "live" {
+# The CDN provider attached to the service: ioriver's bundled vCDN
+# (CloudFront + Fastly under ioriver's own accounts — hence no
+# account_provider). The attachment was created outside terraform when the
+# service was first set up; bring it under management with
+#   terragrunt import 'module.bcc-media-platform.ioriver_service_provider.live[0]' "<service-id>,<provider-id>"
+# (ids from GET /api/v1/services/ and /services/<id>/providers/; adjust the
+# module prefix to wherever this file is instantiated).
+resource "ioriver_service_provider" "live" {
   count = local.live_cdn_enabled ? 1 : 0
 
-  service        = ioriver_service.live[0].id
-  name           = "live-cdn"
-  public_key     = tls_private_key.live_ioriver_signing[0].public_key_pem
-  encryption_key = random_password.live_ioriver_encryption_key[0].result
+  service = ioriver_service.live[0].id
 }
+
+# The URL signing key itself is NOT terraform-managed and CANNOT be: since
+# v1.0.0 ioriver_url_signing_key is a gutted deprecated stub — it still shows
+# up in the provider docs, but Create/Update/Import all return a hard
+# "resource is deprecated" error and Read silently drops it from state. Only
+# the REST API supports it. It is created out-of-band from the key material above
+# by scripts/create-live-ioriver-signing-key.sh, which prints the per-CDN key
+# ids ("Cloudfront"/"Fastly") to paste into stream_proxy_env in the env tfvars
+# as LIVE_IORIVER_CLOUDFRONT_KEY_ID / LIVE_IORIVER_FASTLY_KEY_ID.
+#
+# Bootstrap order (the API rejects a url_signing behavior until a key exists):
+# apply with url_signing = false below, run the script, set url_signing = true,
+# apply again.
 
 # --- DNS (bcc-media zone in the shared DNS project) ---
 
@@ -150,9 +168,4 @@ resource "google_secret_manager_secret_iam_member" "live_ioriver_signing_key_str
 
 output "live_cdn_hostname" {
   value = local.live_cdn_enabled ? var.live_cdn.hostname : null
-}
-
-output "live_ioriver_provider_keys" {
-  value     = local.live_cdn_enabled ? ioriver_url_signing_key.live[0].provider_keys : null
-  sensitive = true
 }

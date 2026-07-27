@@ -100,29 +100,16 @@ resource "google_cloud_run_service" "stream_proxy" {
           value = local.live_ioriver_signing_key_path
         }
 
-        # Live ioriver upstream (live-cdn.tf): the hostname and the per-CDN
-        # signing key ids come straight from the ioriver resources.
+        # Live ioriver upstream (live-cdn.tf). The per-CDN signing key ids
+        # (LIVE_IORIVER_CLOUDFRONT_KEY_ID / LIVE_IORIVER_FASTLY_KEY_ID) come
+        # via var.stream_proxy_env from the env tfvars — the key is created
+        # out-of-band by scripts/create-live-ioriver-signing-key.sh, see
+        # live-cdn.tf.
         dynamic "env" {
           for_each = local.live_cdn_enabled ? [1] : []
           content {
             name  = "STREAM_PROXY_LIVE_CDN_DOMAIN_IORIVER"
             value = var.live_cdn.hostname
-          }
-        }
-
-        dynamic "env" {
-          for_each = local.live_cdn_enabled ? [1] : []
-          content {
-            name  = "LIVE_IORIVER_CLOUDFRONT_KEY_ID"
-            value = lookup(ioriver_url_signing_key.live[0].provider_keys, "Cloudfront", "")
-          }
-        }
-
-        dynamic "env" {
-          for_each = local.live_cdn_enabled ? [1] : []
-          content {
-            name  = "LIVE_IORIVER_FASTLY_KEY_ID"
-            value = lookup(ioriver_url_signing_key.live[0].provider_keys, "Fastly", "")
           }
         }
 
