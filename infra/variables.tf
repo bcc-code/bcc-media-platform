@@ -202,3 +202,25 @@ variable "admin_cors_origins" {
   description = "Comma-separated origin allowlist for the admin auth/GraphQL endpoints (admin-web origins). Must be same-site with the API host admin-web uses (api.bcc.media) for the refresh cookie to work."
   default     = "https://admin.app.bcc.media"
 }
+
+variable "live_cdn" {
+  type = object({
+    hostname    = string # e.g. live-cdn.bcc.media — becomes STREAM_PROXY_LIVE_CDN_DOMAIN_IORIVER
+    origin_host = string # live MediaPackage endpoint host
+  })
+  description = "Live ioriver vCDN config; null disables all live-cdn resources (dev/sta)."
+  default     = null
+}
+
+variable "ioriver_live_token" {
+  type        = string
+  description = "API token for the live-CDN ioriver account (separate account from VOD)."
+  sensitive   = true
+  default     = ""
+}
+
+variable "dns_project" {
+  type        = string
+  description = "GCP project holding the Cloud DNS zones (see the private infra repo's projects/global/dns)."
+  default     = "dns-managmenet"
+}
