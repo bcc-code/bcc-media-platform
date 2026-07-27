@@ -60,7 +60,8 @@ See [`env.sample`](./env.sample) for the full list. Key vars:
 Per-request routing between the two upstream identities is driven by the JWT
 `provider` claim (`cloudfront` / `ioriver`); `STREAM_PROXY_DEFAULT_PROVIDER` is
 used when the claim is absent. The `live` claim switches to the live upstream,
-whose vars default to the VOD equivalents when unset.
+which is configured entirely from its own `LIVE_*` / `STREAM_PROXY_LIVE_*`
+vars — there is no fallback to the VOD values.
 
 | Var                                | Notes                                                                        |
 |------------------------------------|------------------------------------------------------------------------------|
@@ -81,9 +82,9 @@ whose vars default to the VOD equivalents when unset.
 | `IORIVER_FASTLY_KEY_ID`            | ioriver Fastly key ID. Optional — leave empty to skip Fastly params.        |
 | `IORIVER_AKAMAI_KEY_ID`            | ioriver Akamai key ID. Optional.                                            |
 | `IORIVER_AKAMAI_ENCRYPTION_KEY`    | Hex-encoded Akamai HMAC key. Required if `IORIVER_AKAMAI_KEY_ID` is set.     |
-| `STREAM_PROXY_LIVE_CDN_DOMAIN_CLOUDFRONT` / `..._IORIVER` | Live upstream hosts. Optional — default to the VOD hosts. |
-| `LIVE_CF_SIGNING_KEY_PATH` / `LIVE_CF_SIGNING_KEY_ID`     | Live direct-CloudFront key material. Optional — default to VOD. |
-| `LIVE_IORIVER_SIGNING_KEY_PATH` / `LIVE_IORIVER_CLOUDFRONT_KEY_ID` / `LIVE_IORIVER_FASTLY_KEY_ID` / `LIVE_IORIVER_AKAMAI_KEY_ID` / `LIVE_IORIVER_AKAMAI_ENCRYPTION_KEY` | Live ioriver key material. Optional — default to VOD. |
+| `STREAM_PROXY_LIVE_CDN_DOMAIN_CLOUDFRONT` / `..._IORIVER` | Live upstream hosts. **Required.** |
+| `LIVE_CF_SIGNING_KEY_PATH` / `LIVE_CF_SIGNING_KEY_ID`     | Live direct-CloudFront key material. **Both required.** |
+| `LIVE_IORIVER_SIGNING_KEY_PATH` / `LIVE_IORIVER_CLOUDFRONT_KEY_ID` / `LIVE_IORIVER_FASTLY_KEY_ID` / `LIVE_IORIVER_AKAMAI_KEY_ID` / `LIVE_IORIVER_AKAMAI_ENCRYPTION_KEY` | Live ioriver key material. **Key path + at least one key id required**; the rest optional. |
 
 For ad-hoc signing against the same key material, see
 [`cmd/sign-url`](../sign-url/readme.md).

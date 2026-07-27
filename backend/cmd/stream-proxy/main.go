@@ -23,6 +23,12 @@ func main() {
 	if cfg.CDNDomainIoriver == "" {
 		log.L.Fatal().Msg("STREAM_PROXY_CDN_DOMAIN_IORIVER is required")
 	}
+	if cfg.LiveCDNDomainCloudFront == "" {
+		log.L.Fatal().Msg("STREAM_PROXY_LIVE_CDN_DOMAIN_CLOUDFRONT is required")
+	}
+	if cfg.LiveCDNDomainIoriver == "" {
+		log.L.Fatal().Msg("STREAM_PROXY_LIVE_CDN_DOMAIN_IORIVER is required")
+	}
 	if cfg.JWTSecret == "" {
 		log.L.Fatal().Msg("JWT_SECRET is required")
 	}
