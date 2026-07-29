@@ -95,9 +95,32 @@ resource "google_cloud_run_service" "stream_proxy" {
           value = local.live_cf_signing_key_path
         }
 
+        # The direct-CF live path reuses the legacy livestream key pair: the
+        # PEM comes via the live_cf mount below, the key-pair id from the same
+        # api_env value cmd/api signs with.
+        dynamic "env" {
+          for_each = contains(keys(var.api_env), "LIVESTREAM_SIGNING_KEY_ID") ? [1] : []
+          content {
+            name  = "LIVE_CF_SIGNING_KEY_ID"
+            value = var.api_env["LIVESTREAM_SIGNING_KEY_ID"]
+          }
+        }
+
         env {
           name  = "LIVE_IORIVER_SIGNING_KEY_PATH"
           value = local.live_ioriver_signing_key_path
+        }
+
+        # Live manifests are fetched unsigned straight from the MediaPackage
+        # origin — the same host the ioriver service (live-cdn.tf) uses as its
+        # origin. The CDN hosts below are only what client-facing segment URLs
+        # are signed for.
+        dynamic "env" {
+          for_each = local.live_cdn_enabled ? [1] : []
+          content {
+            name  = "STREAM_PROXY_LIVE_ORIGIN_HOST"
+            value = var.live_cdn.origin_host
+          }
         }
 
         # Live ioriver upstream (live-cdn.tf). The per-CDN signing key ids

@@ -6,7 +6,7 @@
 # error and read drops it from state) — only the REST API supports it, so the
 # key is created here
 # from material that already lives in terraform state (tls_private_key +
-# random_password in live-cdn.tf).
+# random_bytes in live-cdn.tf).
 #
 # Idempotent: if a key with the expected name already exists on the service,
 # it is not recreated — its provider key ids are printed either way. Paste
@@ -50,8 +50,8 @@ service_id=$(state_attr ioriver_service live id) ||
   { echo "error: ioriver_service.live not in state — apply it first" >&2; exit 1; }
 public_key=$(state_attr tls_private_key live_ioriver_signing public_key_pem) ||
   { echo "error: tls_private_key.live_ioriver_signing not in state — apply it first" >&2; exit 1; }
-encryption_key=$(state_attr random_password live_ioriver_encryption_key result) ||
-  { echo "error: random_password.live_ioriver_encryption_key not in state — apply it first" >&2; exit 1; }
+encryption_key=$(state_attr random_bytes live_ioriver_encryption_key hex) ||
+  { echo "error: random_bytes.live_ioriver_encryption_key not in state — apply it first" >&2; exit 1; }
 
 auth=(-H "Authorization: token $token" -H "Content-Type: application/json")
 keys_url="$API_BASE/services/$service_id/url-signing-keys/"

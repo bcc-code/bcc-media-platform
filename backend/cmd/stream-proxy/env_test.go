@@ -77,11 +77,15 @@ func TestLiveCDNDomainsAreIndependent(t *testing.T) {
 	setVODSigning(t)
 
 	t.Run("set from live vars", func(t *testing.T) {
+		t.Setenv("STREAM_PROXY_LIVE_ORIGIN_HOST", "live-origin.example.com")
 		t.Setenv("STREAM_PROXY_LIVE_CDN_DOMAIN_CLOUDFRONT", "live-cf.example.com")
 		t.Setenv("STREAM_PROXY_LIVE_CDN_DOMAIN_IORIVER", "live.example.com")
 
 		cfg := getEnvConfig()
 
+		if cfg.LiveOriginHost != "live-origin.example.com" {
+			t.Errorf("live origin host = %q, want live-origin.example.com", cfg.LiveOriginHost)
+		}
 		if cfg.LiveCDNDomainCloudFront != "live-cf.example.com" {
 			t.Errorf("live CF domain = %q, want live-cf.example.com", cfg.LiveCDNDomainCloudFront)
 		}
@@ -93,6 +97,9 @@ func TestLiveCDNDomainsAreIndependent(t *testing.T) {
 	t.Run("empty when unset (no VOD fallback)", func(t *testing.T) {
 		cfg := getEnvConfig()
 
+		if cfg.LiveOriginHost != "" {
+			t.Errorf("live origin host = %q, want empty", cfg.LiveOriginHost)
+		}
 		if cfg.LiveCDNDomainCloudFront != "" {
 			t.Errorf("live CF domain = %q, want empty", cfg.LiveCDNDomainCloudFront)
 		}

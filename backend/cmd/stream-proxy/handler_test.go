@@ -145,6 +145,7 @@ func newTestHandler(t *testing.T) (*proxyHandler, *recordingTransport) {
 
 	cfg := envConfig{
 		DefaultProvider: streamtoken.ProviderIoriver,
+		LiveOriginHost:  "live-origin.example.com",
 		CacheTTL:        time.Minute,
 		LiveCacheTTL:    time.Minute,
 		SignTTL:         time.Hour,
@@ -332,12 +333,15 @@ func TestHandle_Live_ForwardsTimeShiftAndNoStore(t *testing.T) {
 	// Downstream caching disabled for live.
 	assert.Equal(t, "no-store, max-age=0", rec.Header().Get("Cache-Control"))
 
-	// Routed to the live ioriver target (host + key ids), not the VOD one.
+	// The manifest is fetched unsigned straight from the MediaPackage origin —
+	// not from the CDN, and with no signature params on the request.
 	last := transport.last()
 	require.NotEmpty(t, last)
-	assert.Equal(t, "live.example.com", upstreamHostFor(t, last))
-	assert.Contains(t, last, "Key-Pair-Id=LIVE-IORIVER-CF-ID")
-	assert.Contains(t, last, "FS-Key-Id=LIVE-IORIVER-FS-ID")
+	assert.Equal(t, "live-origin.example.com", upstreamHostFor(t, last))
+	assert.NotContains(t, last, "Policy=")
+	assert.NotContains(t, last, "Signature=")
+	assert.NotContains(t, last, "Key-Pair-Id=")
+	assert.NotContains(t, last, "FS-Key-Id=")
 	// Time-shift forwarded to the upstream fetch.
 	assert.Contains(t, last, "start=1000")
 	assert.Contains(t, last, "end=2000")
@@ -368,8 +372,41 @@ func TestHandle_Live_SegmentsOmitTimeShift(t *testing.T) {
 	body := rec.Body.String()
 	assert.NotContains(t, body, "start=1000", "segments must not carry the time-shift window")
 	assert.NotContains(t, body, "end=2000")
-	// But the upstream variant fetch still forwarded the window.
+	// Segment URIs are absolutized to the live ioriver CDN host and signed with
+	// the live ioriver identity — the origin host must not leak into the body.
+	assert.Contains(t, body, "https://live.example.com/out/v1/cc/dd/ee/")
+	assert.Contains(t, body, "Key-Pair-Id=LIVE-IORIVER-CF-ID")
+	assert.Contains(t, body, "FS-Key-Id=LIVE-IORIVER-FS-ID")
+	assert.NotContains(t, body, "live-origin.example.com")
+	// But the upstream variant fetch (from the origin) still forwarded the window.
 	assert.Contains(t, transport.last(), "start=1000")
+	assert.Equal(t, "live-origin.example.com", upstreamHostFor(t, transport.last()))
+}
+
+// TestHandle_Live_CloudFrontClaim verifies the live + `cloudfront` provider
+// combination: the manifest is still fetched unsigned from the origin, while
+// segment URIs are absolutized to the direct-CF live domain and signed with the
+// live direct-CF identity (and no ioriver params).
+func TestHandle_Live_CloudFrontClaim(t *testing.T) {
+	h, transport := newTestHandler(t)
+	transport.body = []byte("#EXTM3U\n#EXTINF:6,\nseg1.mp4\n")
+
+	base := "/out/v1/ee/ff/"
+	tok := mintTestJWTLive(t, base, string(streamtoken.ProviderCloudFront))
+	target := fmt.Sprintf("/out/v1/ee/ff/gg/index_1.m3u8?jwt=%s", url.QueryEscape(tok))
+
+	rec := runHandler(h, target)
+	require.Equal(t, http.StatusOK, rec.Code, "body=%s", rec.Body.String())
+
+	last := transport.last()
+	require.NotEmpty(t, last)
+	assert.Equal(t, "live-origin.example.com", upstreamHostFor(t, last))
+	assert.NotContains(t, last, "Key-Pair-Id=")
+
+	body := rec.Body.String()
+	assert.Contains(t, body, "https://live-cf.example.com/out/v1/ee/ff/gg/")
+	assert.Contains(t, body, "Key-Pair-Id=LIVE-CF-DIRECT-ID")
+	assert.NotContains(t, body, "FS-Key-Id")
 }
 
 // TestHandle_Live_CacheKeyedByWindow verifies different start-over windows are

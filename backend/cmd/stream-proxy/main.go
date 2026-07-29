@@ -23,6 +23,9 @@ func main() {
 	if cfg.CDNDomainIoriver == "" {
 		log.L.Fatal().Msg("STREAM_PROXY_CDN_DOMAIN_IORIVER is required")
 	}
+	if cfg.LiveOriginHost == "" {
+		log.L.Fatal().Msg("STREAM_PROXY_LIVE_ORIGIN_HOST is required")
+	}
 	if cfg.LiveCDNDomainCloudFront == "" {
 		log.L.Fatal().Msg("STREAM_PROXY_LIVE_CDN_DOMAIN_CLOUDFRONT is required")
 	}

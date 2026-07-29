@@ -11,9 +11,10 @@ locals {
 
   # Live is a separate origin with its own signing identities, configured
   # independently of the VOD keys above (no fallback). The live ioriver key is
-  # terraform-generated (see live-cdn.tf / stream-proxy.tf); only the direct-CF
-  # key is mounted from var.api_secret_files.
-  live_cf_signing_key_path = "/secrets5/live_cf.pem"
+  # terraform-generated (see live-cdn.tf / stream-proxy.tf); the direct-CF
+  # path reuses the legacy livestream key pair below — same PEM mount, and
+  # stream-proxy gets the key-pair id from api_env's LIVESTREAM_SIGNING_KEY_ID.
+  live_cf_signing_key_path = local.livestream_signing_key_path
 
   # The livestream is signed with its own CloudFront key pair (separate from the
   # VOD/file key above). Mounted via the `livestream_signing_key` entry in

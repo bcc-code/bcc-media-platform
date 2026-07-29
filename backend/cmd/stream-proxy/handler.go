@@ -24,7 +24,9 @@ const indexFilename = "index.m3u8"
 // cdnTarget bundles the (signer, host) pairs for one origin's two provider
 // identities. The proxy holds one target for VOD and one for live — live is a
 // separate MediaPackage origin behind its own CDN distributions / ioriver
-// stream, so it needs its own key material and hostnames.
+// stream, so it needs its own key material and hostnames. For live, the pair
+// is used only for the client-facing segment URLs (absolutize + sign);
+// manifests are fetched unsigned from liveOriginHost, not through the CDN.
 type cdnTarget struct {
 	cfSigner      *signing.Signer
 	cfDomain      string
@@ -52,6 +54,7 @@ type proxyHandler struct {
 	validator       *jwtValidator
 	vod             cdnTarget
 	live            cdnTarget
+	liveOriginHost  string
 	httpc           *http.Client
 	defaultProvider streamtoken.Provider
 	cacheTTL        time.Duration
@@ -70,6 +73,7 @@ func newProxyHandler(
 		validator:       validator,
 		vod:             vod,
 		live:            live,
+		liveOriginHost:  cfg.LiveOriginHost,
 		httpc:           httpc,
 		defaultProvider: cfg.DefaultProvider,
 		cacheTTL:        cfg.CacheTTL,
@@ -197,10 +201,19 @@ func pathUnderBase(reqPath, base string) bool {
 }
 
 func (h *proxyHandler) fetchAndClean(ctx context.Context, signer *signing.Signer, host, reqPath string, live bool, timeShift string) ([]byte, string, error) {
-	// Cache key includes the host so a path served by both providers does not
-	// collide between the two upstreams, and the time-shift window so different
-	// start-over windows are cached separately.
-	cacheKey := "stream-proxy:" + host + ":" + reqPath
+	// Live manifests are fetched unsigned straight from the MediaPackage
+	// origin; only client-facing segment URLs involve the CDN. VOD manifests
+	// still go through the CDN with a signed exact-URL.
+	upstreamHost := host
+	if live {
+		upstreamHost = h.liveOriginHost
+	}
+	// Cache key includes the upstream host so a path served by two upstreams
+	// does not collide, and the time-shift window so different start-over
+	// windows are cached separately. For live the upstream is the shared
+	// origin, so one cached manifest serves both provider claims (per-provider
+	// rewriting happens after cache retrieval).
+	cacheKey := "stream-proxy:" + upstreamHost + ":" + reqPath
 	if timeShift != "" {
 		cacheKey += "?" + timeShift
 	}
@@ -213,20 +226,21 @@ func (h *proxyHandler) fetchAndClean(ctx context.Context, signer *signing.Signer
 	// callers get "" and never log it.
 	var attemptedURL string
 	body, err := memorycache.GetOrSet(ctx, cacheKey, func(ctx context.Context) ([]byte, error) {
-		exactURL := "https://" + host + reqPath
-		query, err := signer.SignRawQuery(exactURL, h.signTTL)
-		if err != nil {
-			return nil, fmt.Errorf("sign upstream url: %w", err)
+		upstreamURL := "https://" + upstreamHost + reqPath
+		if live {
+			if timeShift != "" {
+				upstreamURL += "?" + timeShift
+			}
+		} else {
+			query, err := signer.SignRawQuery(upstreamURL, h.signTTL)
+			if err != nil {
+				return nil, fmt.Errorf("sign upstream url: %w", err)
+			}
+			upstreamURL += "?" + query
 		}
-		// The CDN signature signs the resource path, not the query, so
-		// appending the time-shift params does not invalidate it.
-		cdnURL := exactURL + "?" + query
-		if timeShift != "" {
-			cdnURL += "&" + timeShift
-		}
-		attemptedURL = cdnURL
+		attemptedURL = upstreamURL
 
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, cdnURL, nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, upstreamURL, nil)
 		if err != nil {
 			return nil, err
 		}

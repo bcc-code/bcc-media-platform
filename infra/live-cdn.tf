@@ -1,7 +1,8 @@
 # Live delivery via ioriver vCDN (CloudFront + Fastly under ioriver-managed
 # tenancy — no provider credentials of our own). This is the `ioriver` half of
-# the stream-proxy live upstream; the direct-CloudFront half (/secrets5,
-# LIVE_CF_*) is provisioned outside terraform.
+# the stream-proxy live upstream; the direct-CloudFront half reuses the legacy
+# livestream key pair (see api.tf/stream-proxy.tf) — only the distribution
+# itself lives outside terraform.
 #
 # Everything is gated on var.live_cdn (null in dev/sta): with it unset this
 # file creates nothing and the empty ioriver token is never used.
@@ -22,12 +23,12 @@ resource "tls_private_key" "live_ioriver_signing" {
 
 # Required by the ioriver signing-key API alongside the RSA public key (used
 # for HMAC-style providers); stream-proxy only consumes it for Akamai, which
-# is not enabled here.
-resource "random_password" "live_ioriver_encryption_key" {
+# is not enabled yet. ioriver validates it as hexadecimal ("even number of
+# hexadecimal characters"), hence random_bytes + .hex (64 hex chars).
+resource "random_bytes" "live_ioriver_encryption_key" {
   count = local.live_cdn_enabled ? 1 : 0
 
-  length  = 32
-  special = false
+  length = 32
 }
 
 resource "ioriver_certificate" "live" {
@@ -68,7 +69,7 @@ resource "ioriver_service" "live" {
     behaviors = {
       default = {
         actions = {
-          url_signing          = null
+          url_signing          = true
           origin_cache_control = true
           cache_ttl            = 1209600
           host_header = {

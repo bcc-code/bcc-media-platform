@@ -20,6 +20,11 @@ type envConfig struct {
 	// distributions / ioriver stream, with its own hosts and key material. It is
 	// configured entirely independently of VOD (its own LIVE_* /
 	// STREAM_PROXY_LIVE_* env vars) — there is no VOD fallback.
+	//
+	// Manifests are fetched unsigned straight from the MediaPackage origin
+	// (LiveOriginHost); the CDN domains below are only what client-facing
+	// segment URLs are absolutized to and signed for.
+	LiveOriginHost          string
 	LiveCDNDomainCloudFront string
 	LiveCDNDomainIoriver    string
 
@@ -130,6 +135,7 @@ func getEnvConfig() envConfig {
 		CDNDomainIoriver:    cdnDomainIoriver,
 		DefaultProvider:     streamtoken.Provider(os.Getenv("STREAM_PROXY_DEFAULT_PROVIDER")),
 
+		LiveOriginHost:          os.Getenv("STREAM_PROXY_LIVE_ORIGIN_HOST"),
 		LiveCDNDomainCloudFront: os.Getenv("STREAM_PROXY_LIVE_CDN_DOMAIN_CLOUDFRONT"),
 		LiveCDNDomainIoriver:    os.Getenv("STREAM_PROXY_LIVE_CDN_DOMAIN_IORIVER"),
 

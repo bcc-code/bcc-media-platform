@@ -26,10 +26,13 @@ client                    stream-proxy                   CDN
    `STREAM_JWT_ISSUER`. The token's `base` claim is treated as a path
    prefix; requests outside it get `403`. `..` segments are rejected
    outright.
-3. The raw upstream playlist is fetched once per path with a fresh signed
-   query and cached (`STREAM_PROXY_CACHE_TTL`, default 10m). All existing
-   query strings on URI lines are stripped and replaced with a sentinel
-   placeholder so the cached body is JWT-independent.
+3. The raw upstream playlist is fetched once per path and cached
+   (`STREAM_PROXY_CACHE_TTL`, default 10m). VOD manifests are fetched from
+   the CDN with a fresh signed query; live manifests (`live` claim) are
+   fetched unsigned straight from the MediaPackage origin
+   (`STREAM_PROXY_LIVE_ORIGIN_HOST`). All existing query strings on URI
+   lines are stripped and replaced with a sentinel placeholder so the
+   cached body is JWT-independent.
 4. On serve, the placeholder is swapped:
    - **Master playlist (`index.m3u8`)** — variant URIs stay relative and
      get `?jwt=<token>`, so the client bounces back to the proxy and the
@@ -61,7 +64,9 @@ Per-request routing between the two upstream identities is driven by the JWT
 `provider` claim (`cloudfront` / `ioriver`); `STREAM_PROXY_DEFAULT_PROVIDER` is
 used when the claim is absent. The `live` claim switches to the live upstream,
 which is configured entirely from its own `LIVE_*` / `STREAM_PROXY_LIVE_*`
-vars — there is no fallback to the VOD values.
+vars — there is no fallback to the VOD values. For live, manifests come
+unsigned from the MediaPackage origin; the live CDN domains and key material
+are only used to sign the client-facing segment URLs.
 
 | Var                                | Notes                                                                        |
 |------------------------------------|------------------------------------------------------------------------------|
@@ -82,7 +87,8 @@ vars — there is no fallback to the VOD values.
 | `IORIVER_FASTLY_KEY_ID`            | ioriver Fastly key ID. Optional — leave empty to skip Fastly params.        |
 | `IORIVER_AKAMAI_KEY_ID`            | ioriver Akamai key ID. Optional.                                            |
 | `IORIVER_AKAMAI_ENCRYPTION_KEY`    | Hex-encoded Akamai HMAC key. Required if `IORIVER_AKAMAI_KEY_ID` is set.     |
-| `STREAM_PROXY_LIVE_CDN_DOMAIN_CLOUDFRONT` / `..._IORIVER` | Live upstream hosts. **Required.** |
+| `STREAM_PROXY_LIVE_ORIGIN_HOST`    | MediaPackage origin host live manifests are fetched from (unsigned). **Required.** |
+| `STREAM_PROXY_LIVE_CDN_DOMAIN_CLOUDFRONT` / `..._IORIVER` | Live CDN hosts client segment URLs are signed for. **Required.** |
 | `LIVE_CF_SIGNING_KEY_PATH` / `LIVE_CF_SIGNING_KEY_ID`     | Live direct-CloudFront key material. **Both required.** |
 | `LIVE_IORIVER_SIGNING_KEY_PATH` / `LIVE_IORIVER_CLOUDFRONT_KEY_ID` / `LIVE_IORIVER_FASTLY_KEY_ID` / `LIVE_IORIVER_AKAMAI_KEY_ID` / `LIVE_IORIVER_AKAMAI_ENCRYPTION_KEY` | Live ioriver key material. **Key path + at least one key id required**; the rest optional. |
 
