@@ -68,14 +68,44 @@ resource "ioriver_service" "live" {
     behaviors = {
       default = {
         actions = {
-          # Signed URLs only, and cache per the MediaPackage origin's
-          # Cache-Control (short for live manifests, long for segments).
-          # TEMP BOOTSTRAP: url_signing must stay false until the signing key
-          # exists (the API rejects the behavior otherwise). Run
-          # scripts/create-live-ioriver-signing-key.sh, then flip to true and
-          # re-apply. DO NOT COMMIT with false.
-          url_signing          = false
+          url_signing          = null
           origin_cache_control = true
+          cache_ttl            = 1209600
+          host_header = {
+            use_origin_host = true
+          }
+          status_codes_ttl = [
+            {
+              cache_behavior = "BYPASS"
+              cache_ttl      = 0
+              status_code    = "4xx"
+            },
+            {
+              cache_behavior = "BYPASS"
+              cache_ttl      = 0
+              status_code    = "5xx"
+          }]
+          cache_key = {
+            headers = [
+              {
+                header = "Host"
+              }
+            ]
+            query_strings = {
+              type = "all"
+            }
+          }
+          allowed_methods = [
+            {
+              method = "GET"
+            },
+            {
+              method = "HEAD"
+            },
+            {
+              method = "OPTIONS"
+            }
+          ]
         }
       }
     }

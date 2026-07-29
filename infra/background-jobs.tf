@@ -1,6 +1,6 @@
 locals {
-  service_name = "background-worker-${var.env}"
-  image_name   = "eu.gcr.io/${google_project.brunstadtv.project_id}/background-worker/background-jobs"
+  service_name                          = "background-worker-${var.env}"
+  image_name                            = "eu.gcr.io/${google_project.brunstadtv.project_id}/background-worker/background-jobs"
   cf_signing_key_path_background_worker = "/secrets/aws_key.pem"
 }
 
@@ -271,7 +271,7 @@ resource "google_pubsub_subscription" "push_background_worker" {
   name    = "background_worker_google"
   topic   = google_pubsub_topic.background_worker.name
 
-  ack_deadline_seconds = 600
+  ack_deadline_seconds  = 600
   retain_acked_messages = true
 
   retry_policy {

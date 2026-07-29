@@ -323,17 +323,17 @@ resource "aws_iam_policy" "imgix-bucket-access" {
   }
 
   policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        "Sid": "Statement1",
-        "Effect": "Allow",
-        "Action": [
+        "Sid" : "Statement1",
+        "Effect" : "Allow",
+        "Action" : [
           "s3:GetBucketLocation",
           "s3:GetObject",
           "s3:ListBucket"
         ],
-        "Resource": [
+        "Resource" : [
           "arn:aws:s3:::${aws_s3_bucket.s3-directus-storage.bucket}/*",
           "arn:aws:s3:::${aws_s3_bucket.s3-directus-storage.bucket}"
         ]
@@ -379,15 +379,15 @@ resource "aws_iam_policy" "directus-bucket-access" {
   }
 
   policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        "Sid": "Statement1",
-        "Effect": "Allow",
-        "Action": [
+        "Sid" : "Statement1",
+        "Effect" : "Allow",
+        "Action" : [
           "s3:*"
         ],
-        "Resource": [
+        "Resource" : [
           "arn:aws:s3:::${aws_s3_bucket.s3-directus-storage.bucket}/*",
           "arn:aws:s3:::${aws_s3_bucket.s3-directus-storage.bucket}"
         ]
