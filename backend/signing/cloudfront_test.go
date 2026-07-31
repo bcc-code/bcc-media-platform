@@ -70,6 +70,28 @@ func TestCloudFrontStreamSignerSignURL(t *testing.T) {
 	assert.NotEmpty(t, innerQuery.Get("Signature"))
 }
 
+func TestCloudFrontStreamSignerSignURLHyphenatedChannelPath(t *testing.T) {
+	keyPath := writeTempPEM(t)
+
+	cfg := &mocks.CloudFrontConfig{}
+	cfg.On("GetAwsSigningKeyPath").Return(keyPath)
+	cfg.On("GetAwsSigningKeyID").Return("CF-ID")
+
+	cf, err := NewCloudFrontSigner(cfg)
+	require.NoError(t, err)
+
+	signer := NewCloudFrontStreamSigner(cf, "vod2.example.com")
+
+	streamPath := "/out/v1/some-channel/live/cloudfront/index.m3u8"
+	signedURL, _, err := signer.SignURL(streamPath, time.Hour, "" /* provider unused */)
+	require.NoError(t, err)
+
+	parsed, err := url.Parse(signedURL)
+	require.NoError(t, err)
+	assert.Equal(t, streamPath, parsed.Path, "original path must be preserved")
+	require.NotEmpty(t, parsed.Query().Get("EncodedPolicy"), "EncodedPolicy parameter must be present")
+}
+
 func TestCloudFrontSignerSignURLCanned(t *testing.T) {
 	keyPath := writeTempPEM(t)
 

@@ -116,7 +116,7 @@ func splitProxyScheme(raw string) (scheme, host string) {
 // streamBasePathRegex matches the `/out/v1/<group1>/<group2>` prefix of a
 // MediaPackage manifest path. Mirrors the pattern previously used by the
 // multi-CDN signer to scope the resource to a single stream's directory.
-var streamBasePathRegex = regexp.MustCompile(`(/out/v1/[a-z0-9]+/[a-z0-9]+)`)
+var streamBasePathRegex = regexp.MustCompile(`(/out/v1/[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+)`)
 
 // SignURL returns a stream-proxy URL pointing at the configured proxy domain
 // with an HS256 JWT in the `jwt` query parameter. The token's `base` claim

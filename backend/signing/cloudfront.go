@@ -81,7 +81,7 @@ func (s *CloudFrontSigner) SignURLCanned(rawURL string, ttl time.Duration) (stri
 // streamBasePathRegex matches the `/out/v1/<group1>/<group2>` prefix of a
 // MediaPackage manifest path — the directory level the legacy CloudFront
 // stream signer authorizes with a `<dir>/*` canned policy.
-var streamBasePathRegex = regexp.MustCompile(`(/out/v1/[a-z0-9]+/[a-z0-9]+)`)
+var streamBasePathRegex = regexp.MustCompile(`(/out/v1/[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+)`)
 
 // CloudFrontStreamSigner mints stream URLs in the legacy CloudFront form:
 // the original path is preserved and a single `EncodedPolicy=<urlencoded>`

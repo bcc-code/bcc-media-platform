@@ -80,6 +80,28 @@ func TestSignURLRoundTrip(t *testing.T) {
 	assert.Equal(t, string(DefaultPrimaryProvider), provRaw)
 }
 
+func TestSignURLHyphenatedChannelPath(t *testing.T) {
+	cfg := fakeConfig{secret: "topsecret", domain: "proxy.example.com"}
+	signer, err := NewSigner(cfg)
+	require.NoError(t, err)
+
+	streamPath := "/out/v1/some-channel/live/cloudfront/index.m3u8"
+	signedURL, _, err := signer.SignURL(streamPath, time.Hour, ProviderUnspecified)
+	require.NoError(t, err)
+
+	parsed, err := url.Parse(signedURL)
+	require.NoError(t, err)
+	assert.Equal(t, streamPath, parsed.Path)
+
+	tokStr := parsed.Query().Get("jwt")
+	tok, err := jwt.Parse([]byte(tokStr), jwt.WithKey(jwa.HS256, []byte(cfg.secret)), jwt.WithValidate(true))
+	require.NoError(t, err)
+
+	raw, ok := tok.Get("base")
+	require.True(t, ok, "base claim must be present")
+	assert.Equal(t, "/out/v1/some-channel/live/", raw)
+}
+
 func TestSignURLUsesConfiguredPrimaryProvider(t *testing.T) {
 	cfg := fakeConfig{secret: "s", domain: "proxy.example.com", primaryProvider: ProviderIoriver}
 	signer, err := NewSigner(cfg)
