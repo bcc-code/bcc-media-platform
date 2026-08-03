@@ -11,6 +11,9 @@ import (
 )
 
 // livestreamURLExpiry is how long a signed livestream manifest URL stays valid.
+// On the proxy path this is the *advertised* expiry — the point at which the
+// client should refresh — not the token's lifetime: streamtoken.SignLiveURL
+// mints the JWT with extra headroom on top (see its doc comment).
 const livestreamURLExpiry = 6 * time.Hour
 
 // maxLivestreamStartAge caps how far in the past the MediaPackage start-over
@@ -39,7 +42,9 @@ type liveURL struct {
 // MediaPackage start-over `start` path element so playback joins from the
 // program's start (clamped to at most maxLivestreamStartAge in the past). On the
 // legacy path the URL's validity is capped at maxLivestreamURLAgeFromStart past
-// that start; on the proxy path it keeps the full livestreamURLExpiry.
+// that start; on the proxy path it keeps the full livestreamURLExpiry, and the
+// returned ExpiresAt is earlier than the token's real expiry (see
+// signLiveManifestWith).
 //
 // It returns nil (with a nil error) when no signer is configured for the
 // selected path, so the caller serves the online flag only.
@@ -107,7 +112,9 @@ func (r *Resolver) signedBufferURL(ls liveSigning, livestreamURL string, start, 
 // otherwise falls back to the legacy CloudFront canned-policy signer, whose URLs
 // are rewritten per-request by the Lambda@Edge manifest handler. It returns the
 // signed URL and its expiry, before any MediaPackage time-shift tags are
-// appended by the caller.
+// appended by the caller. On the proxy path that expiry is the advertised one,
+// which streamtoken.SignLiveURL deliberately reports earlier than the JWT's
+// `exp` claim; the legacy signer's expiry is exactly now+ttl.
 //
 // The CDN/CloudFront signature signs the resource path, not the query, so the
 // caller can safely append `start`/`end` time-shift params to the returned URL
@@ -131,6 +138,10 @@ func (r *Resolver) signLiveManifestWith(ls liveSigning, livestreamURL string, tt
 // start time — the from-start cap exists because manifests larger than that
 // exceed the Lambda@Edge size limit. The stream-proxy has no such limit, so on
 // the proxy path (useProxy) the URL keeps the full livestreamURLExpiry.
+//
+// The result is the window handed to the signer as a ttl. On the proxy path the
+// minted JWT outlives it (streamtoken.SignLiveURL); on the legacy path it is the
+// signature's exact expiry.
 func livestreamExpiresAt(start *time.Time, now time.Time, useProxy bool) time.Time {
 	expiresAt := now.Add(livestreamURLExpiry)
 	if useProxy {

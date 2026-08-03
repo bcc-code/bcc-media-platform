@@ -222,6 +222,64 @@ func TestSignURLOmitsIssuerWhenUnset(t *testing.T) {
 	assert.Empty(t, tok.Issuer(), "iss should be unset when not configured")
 }
 
+// The live token is minted for max(liveTokenMinTTL, ttl+liveTokenHeadroom) and
+// the expiry handed back to the caller is liveTokenGrace earlier than the `exp`
+// claim, so a client refreshing on the advertised schedule always still holds a
+// working token.
+func TestSignLiveURLExtendsTokenBeyondAdvertisedExpiry(t *testing.T) {
+	cfg := fakeConfig{secret: "topsecret", domain: "proxy.example.com"}
+	signer, err := NewSigner(cfg)
+	require.NoError(t, err)
+
+	tests := []struct {
+		name    string
+		ttl     time.Duration
+		wantExp time.Duration
+	}{
+		{"headroom on top of the live path's 6h", 6 * time.Hour, 7 * time.Hour},
+		{"headroom wins for long windows", 10 * time.Hour, 11 * time.Hour},
+		{"floor wins for short windows", 30 * time.Minute, 7 * time.Hour},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			now := time.Now()
+			signedURL, expiresAt, err := signer.SignLiveURL("/out/v1/aaaaaa/bbbbbb/index.m3u8", tt.ttl, ProviderUnspecified)
+			require.NoError(t, err)
+
+			parsed, err := url.Parse(signedURL)
+			require.NoError(t, err)
+			tok, err := jwt.Parse([]byte(parsed.Query().Get("jwt")), jwt.WithKey(jwa.HS256, []byte(cfg.secret)), jwt.WithValidate(true))
+			require.NoError(t, err)
+
+			// exp is a NumericDate, so it is truncated to whole seconds.
+			assert.WithinDuration(t, now.Add(tt.wantExp), tok.Expiration(), 2*time.Second)
+			assert.WithinDuration(t, tok.Expiration().Add(-liveTokenGrace), expiresAt, 2*time.Second)
+			assert.True(t, expiresAt.Before(tok.Expiration()), "advertised expiry must precede the token's exp")
+		})
+	}
+}
+
+// VOD tokens keep expiring exactly when the caller asked; only the live path
+// carries the floor/headroom/grace behaviour.
+func TestSignURLExpiryIsUnchanged(t *testing.T) {
+	cfg := fakeConfig{secret: "topsecret", domain: "proxy.example.com"}
+	signer, err := NewSigner(cfg)
+	require.NoError(t, err)
+
+	now := time.Now()
+	signedURL, expiresAt, err := signer.SignURL("/out/v1/aaaaaa/bbbbbb/index.m3u8", 6*time.Hour, ProviderUnspecified)
+	require.NoError(t, err)
+
+	assert.WithinDuration(t, now.Add(6*time.Hour), expiresAt, 2*time.Second)
+
+	parsed, err := url.Parse(signedURL)
+	require.NoError(t, err)
+	tok, err := jwt.Parse([]byte(parsed.Query().Get("jwt")), jwt.WithKey(jwa.HS256, []byte(cfg.secret)), jwt.WithValidate(true))
+	require.NoError(t, err)
+	assert.WithinDuration(t, expiresAt, tok.Expiration(), 2*time.Second)
+}
+
 func TestSignURLRejectsUnexpectedPath(t *testing.T) {
 	signer, err := NewSigner(fakeConfig{secret: "s", domain: "proxy.example.com"})
 	require.NoError(t, err)

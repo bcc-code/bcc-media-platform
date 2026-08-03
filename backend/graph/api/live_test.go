@@ -57,6 +57,27 @@ func TestSignLiveManifest_ProxyPath(t *testing.T) {
 	assert.Empty(t, parsed.Query().Get("EncodedPolicy"), "proxy path must not use CloudFront EncodedPolicy")
 }
 
+// TestSignLiveManifest_ProxyPathAdvertisedExpiry verifies the expiry that ends up
+// on Live.expiresAt: on the proxy path streamtoken mints the JWT for at least 7h
+// and reports an expiry 20m before it, so the advertised value outlives the
+// requested window while still preceding the token's own death.
+func TestSignLiveManifest_ProxyPathAdvertisedExpiry(t *testing.T) {
+	r := newLiveProxyResolver(t)
+
+	livestreamURL := "https://vod2.brunstad.tv/out/v1/aaaaaa/bbbbbb/index.m3u8"
+	ls := r.resolveLiveSigning(context.Background())
+	require.True(t, ls.useProxy)
+
+	now := time.Now()
+	_, expiresAt, err := r.signLiveManifestWith(ls, livestreamURL, livestreamURLExpiry)
+	require.NoError(t, err)
+
+	assert.True(t, expiresAt.After(now.Add(livestreamURLExpiry)),
+		"advertised expiry should extend past the requested window")
+	assert.True(t, expiresAt.Before(now.Add(7*time.Hour)),
+		"advertised expiry must land before the token's 7h lifetime")
+}
+
 // TestSignedBufferURL_ProxyPath verifies the buffer URL on the proxy path keeps
 // the time-shift window appended after the proxy jwt.
 func TestSignedBufferURL_ProxyPath(t *testing.T) {

@@ -128,13 +128,35 @@ func (s *Signer) SignURL(streamPath string, ttl time.Duration, provider Provider
 	return s.sign(streamPath, ttl, provider, false)
 }
 
+// liveTokenMinTTL and liveTokenHeadroom set how long a live stream JWT is
+// minted for: at least liveTokenMinTTL, and always liveTokenHeadroom longer
+// than the window the caller asked for.
+const (
+	liveTokenMinTTL   = 7 * time.Hour
+	liveTokenHeadroom = time.Hour
+)
+
+// liveTokenGrace is how far before the JWT's real expiry the advertised expiry
+// is reported, so a client that refreshes on schedule always does so while its
+// current token still works.
+const liveTokenGrace = 20 * time.Minute
+
 // SignLiveURL is like SignURL but additionally sets a `live: true` claim. The
 // stream-proxy reads that claim to serve the manifest with a short cache TTL,
 // forward MediaPackage time-shift (`start`/`end`) query params to the upstream,
 // and mark the response no-store — live manifests are rewritten every segment,
 // so they must never be cached the way VOD manifests are.
+//
+// Unlike SignURL, the returned time is deliberately NOT the token's `exp`
+// claim: the JWT is minted for max(liveTokenMinTTL, ttl+liveTokenHeadroom) and
+// the returned (advertised) expiry is liveTokenGrace earlier, so playback that
+// crosses the advertised expiry keeps working while the client refreshes.
 func (s *Signer) SignLiveURL(streamPath string, ttl time.Duration, provider Provider) (string, time.Time, error) {
-	return s.sign(streamPath, ttl, provider, true)
+	signedURL, jwtExpiry, err := s.sign(streamPath, max(liveTokenMinTTL, ttl+liveTokenHeadroom), provider, true)
+	if err != nil {
+		return "", time.Time{}, err
+	}
+	return signedURL, jwtExpiry.Add(-liveTokenGrace), nil
 }
 
 func (s *Signer) sign(streamPath string, ttl time.Duration, provider Provider, live bool) (string, time.Time, error) {
