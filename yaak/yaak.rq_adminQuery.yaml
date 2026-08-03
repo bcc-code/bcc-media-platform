@@ -2,13 +2,14 @@ type: http_request
 model: http_request
 id: rq_adminQuery
 createdAt: 2026-07-23T00:00:00
-updatedAt: 2026-07-24T18:37:46.516014
+updatedAt: 2026-08-03T08:01:01.988180
 workspaceId: wk_hGg2sqajat
 folderId: null
 authentication:
   token: ${[ response.body.path(request='rq_directusLogin', path='$.data.auth.login.accessToken', behavior='smart') ]}
 authenticationType: bearer
 body:
+  operationName: AdminPreview
   query: |-
     # Sample admin query; the bearer token is chained from "Directus login".
     query AdminPreview($filter: String!) {

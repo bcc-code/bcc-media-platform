@@ -277,4 +277,4 @@ tool (
 	github.com/sqlc-dev/sqlc/cmd/sqlc
 )
 
-replace github.com/bcc-media/ioriver-url-signer-golang => github.com/bcc-code/ioriver-url-signer-golang v0.0.0-20260504110944-385e16a180f2
+replace github.com/bcc-media/ioriver-url-signer-golang => github.com/bcc-code/ioriver-url-signer-golang v0.0.0-20260803092045-60996bc4cac3

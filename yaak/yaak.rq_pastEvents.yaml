@@ -2,12 +2,13 @@ type: http_request
 model: http_request
 id: rq_pastEvents
 createdAt: 2026-06-03T08:00:00
-updatedAt: 2026-06-11T12:21:49.929079
+updatedAt: 2026-08-03T08:01:02.766458
 workspaceId: wk_hGg2sqajat
 folderId: null
 authentication: {}
 authenticationType: null
 body:
+  operationName: PastEvents
   query: "# Lists past calendar events. Calendar.events(from, to) filters by overlap\n# with the [from, to] window (RFC3339), so a window ending \"now\" returns\n# events that already started/ended.\nquery PastEvents($from: Date!, $to: Date!) {\n  calendar {\n    events(from: $from, to: $to) {\n      id\n      title\n      start\n      end\n      image\n      entries {\n        __typename\n        id\n        title\n        start\n        end\n        \n        buffer {\n          url\n          availableUntil\n        }\n        ... on EpisodeCalendarEntry {\n          isReplay\n          episode {\n            id\n            title\n            streams{\n              type\n              videoLanguage\n            }\n          }\n        }\n        ... on ShowCalendarEntry {\n          show {\n            id\n            title\n          }\n        }\n        ... on SeasonCalendarEntry {\n          season {\n            id\n            title\n          }\n        }\n      }\n    }\n  }\n}"
   variables: |-
     {

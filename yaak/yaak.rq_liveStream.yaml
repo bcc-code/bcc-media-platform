@@ -2,12 +2,13 @@ type: http_request
 model: http_request
 id: rq_liveStream
 createdAt: 2026-06-03T14:54:13.789343
-updatedAt: 2026-06-10T12:00:37.743493
+updatedAt: 2026-08-03T08:03:04.183783
 workspaceId: wk_hGg2sqajat
 folderId: null
 authentication: {}
 authenticationType: null
 body:
+  operationName: Live
   query: |-
     # Live state plus, when online and the caller's roles allow it, a signed
     # manifest URL (with the MediaPackage start tag when an entry is in progress).
@@ -21,7 +22,6 @@ body:
         roles
       }
     }
-  variables: ''
 bodyType: graphql
 description: Live state and signed livestream URL. Requires a profile (authenticated).
 headers:
@@ -34,9 +34,13 @@ headers:
   value: live-mobile
   id: t2jsRyST8N
 - enabled: true
+  name: X-Feature-Flags
+  value: live-cdn-provider:ioriver
+  id: SNdjaBX8Rv
+- enabled: true
   name: ''
   value: ''
-  id: ZCEjPcXS9K
+  id: 5E2e4CM458
 method: POST
 name: Live -> signed stream URL
 sortPriority: 3000.001
