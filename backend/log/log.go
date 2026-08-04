@@ -10,6 +10,14 @@ import (
 // L is the main exposed logger
 var L *zerolog.Logger
 
+func init() {
+	// Guarantee L is never nil. ConfigureGlobalLogger replaces it in the service
+	// entrypoints, but code that logs from tests or from package init would
+	// otherwise dereference a nil logger and panic.
+	l := zerolog.New(os.Stderr).With().Timestamp().Logger()
+	L = &l
+}
+
 // ConfigureGlobalLogger with the correct formatter and debug level
 func ConfigureGlobalLogger(logLevel zerolog.Level) {
 	zerolog.SetGlobalLevel(logLevel)

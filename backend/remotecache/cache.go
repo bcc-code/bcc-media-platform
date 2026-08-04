@@ -2,6 +2,7 @@ package remotecache
 
 import (
 	"context"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/redis/go-redis/v9"
 	"github.com/vmihailenco/msgpack/v5"
 	"time"
@@ -56,8 +57,25 @@ func GetOrCreate[T any](ctx context.Context, rc *Client, key string, valueFactor
 	options := &Options{
 		expiry: time.Minute,
 	}
-	lock, err := Lock(ctx, rc.Locker(), key)
-	defer Release(ctx, lock)
+	lock, lockErr := Lock(ctx, rc.Locker(), key)
+	if lockErr != nil {
+		// Proceed without the lock: doing the work twice is preferable to failing the
+		// request. Note that lock is nil here, so it must not be released.
+		ev := log.L.Error()
+		if lockContended(lockErr) {
+			ev = log.L.Warn()
+		}
+		ev.Err(lockErr).Str("key", key).Msg("Failed to obtain remote cache lock")
+	} else {
+		defer Release(ctx, lock)
+	}
+
+	// Whoever held the lock has likely populated the key by now. Any error here just
+	// means we fall through and produce the value ourselves.
+	if value, err := Get[T](ctx, rc.Client(), key); err == nil {
+		return value, nil
+	}
+
 	value, err = valueFactory(options)
 	if err != nil {
 		return value, err
