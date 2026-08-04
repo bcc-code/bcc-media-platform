@@ -54,7 +54,7 @@ func getProfiles(ctx *gin.Context, queries *sqlc.ApplicationQueries, remoteCache
 	lock.Lock()
 	defer lock.Unlock()
 
-	if p, ok := profileCache.Get(user.PersonID); ok && len(p) > 0 {
+	if p, ok := profileCache.Get(key); ok && len(p) > 0 {
 		return p, nil
 	}
 
@@ -70,7 +70,8 @@ func getProfiles(ctx *gin.Context, queries *sqlc.ApplicationQueries, remoteCache
 	if err != nil {
 		return nil, err
 	}
-	profileCache.Set(user.PersonID, profiles, cache.WithExpiration(time.Second*2))
+	// Keyed by the group-scoped key, not the person alone: profiles differ per application.
+	profileCache.Set(key, profiles, cache.WithExpiration(time.Second*2))
 	return profiles, nil
 }
 
