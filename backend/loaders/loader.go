@@ -3,9 +3,28 @@ package loaders
 import (
 	"context"
 	"reflect"
+	"time"
 
 	"github.com/graph-gophers/dataloader/v7"
 )
+
+// batchTimeout bounds a single batch query. Batches are shared between
+// concurrent requests, so they run detached from the context of whichever
+// request happened to open the batch window (see batchContext); this caps how
+// long a detached batch may run.
+const batchTimeout = time.Second * 30
+
+// batchContext detaches a batch from the cancellation of the request that
+// triggered it, while keeping its values (trace span et al).
+//
+// dataloader executes a batch under the context of the request that opened the
+// batch window, but the keys in that batch usually come from several concurrent
+// requests. Without this, a single client disconnecting cancels the query for
+// everyone piggybacking on the batch - and makes lib/pq send a CancelRequest to
+// Postgres for a statement other requests are still waiting on.
+func batchContext(ctx context.Context) (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.WithoutCancel(ctx), batchTimeout)
+}
 
 // Loader contains loader and additional functions to retrieve data easily
 type Loader[K comparable, V any] struct {
@@ -95,6 +114,9 @@ func New[K comparable, V any](
 	getKey := resolveKeyFunc[K, V](opts...)
 
 	batchLoadItems := func(ctx context.Context, keys []K) []*dataloader.Result[*V] {
+		ctx, cancel := batchContext(ctx)
+		defer cancel()
+
 		res, err := factory(ctx, keys)
 		resMap := map[K]*V{}
 		if err == nil {

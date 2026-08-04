@@ -16,6 +16,9 @@ func NewListLoader[K comparable, V any](
 	getKey := resolveKeyFunc[K, V](opts...)
 
 	batchLoadLists := func(ctx context.Context, keys []K) []*dataloader.Result[[]*V] {
+		ctx, cancel := batchContext(ctx)
+		defer cancel()
+
 		res, err := factory(ctx, keys)
 		resMap := map[K][]*V{}
 		if err == nil {
