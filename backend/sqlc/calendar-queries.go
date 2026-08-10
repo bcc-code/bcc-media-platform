@@ -51,7 +51,7 @@ func (q *Queries) ListEvents(ctx context.Context) ([]common.Event, error) {
 func (q *Queries) GetEntryIDsForEventIDs(ctx context.Context, ids []int) ([]common.Mapping[int, int], error) {
 	rows, err := q.getCalendarEntryIDsForEvents(ctx, intToInt32(ids))
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	return lo.Map(rows, func(r getCalendarEntryIDsForEventsRow, _ int) common.Mapping[int, int] {
 		return common.Mapping[int, int]{Key: int(r.ParentID.Int64), Value: int(r.ID)}

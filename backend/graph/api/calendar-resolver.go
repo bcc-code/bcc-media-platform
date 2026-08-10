@@ -75,7 +75,9 @@ func (r *Resolver) bufferWindowForEntry(ctx context.Context, id string) (*buffer
 
 	entryID, err := strconv.Atoi(id)
 	if err != nil {
-		return nil, nil
+		// A non-numeric id can't name a calendar entry, so there is no buffer
+		// window to report. This is malformed input, not a backend failure.
+		return nil, nil //nolint:nilerr
 	}
 	entry, err := r.GetFilteredLoaders(ctx).CalendarEntryLoader.Get(ctx, entryID)
 	if err != nil {
@@ -140,7 +142,9 @@ const defaultCalendarEntryImageWidth = 100
 func (r *Resolver) imageForEntry(ctx context.Context, id string, width *int) (string, error) {
 	entryID, err := strconv.Atoi(id)
 	if err != nil {
-		return r.entryImageURL(ctx, nil, width), nil
+		// A non-numeric id can't name a calendar entry, so fall back to the
+		// default image. This is malformed input, not a backend failure.
+		return r.entryImageURL(ctx, nil, width), nil //nolint:nilerr
 	}
 	entry, err := r.GetFilteredLoaders(ctx).CalendarEntryLoader.Get(ctx, entryID)
 	if err != nil {

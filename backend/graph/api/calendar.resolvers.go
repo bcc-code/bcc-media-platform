@@ -107,7 +107,7 @@ func (r *episodeCalendarEntryResolver) Title(ctx context.Context, obj *model.Epi
 	}
 	e, err := r.QueryRoot().Episode(ctx, obj.Episode.ID, nil)
 	if err != nil {
-		return "", nil
+		return "", omitted(err, "episodeCalendarEntry.title")
 	}
 	return e.Title, nil
 }
@@ -119,7 +119,7 @@ func (r *episodeCalendarEntryResolver) Description(ctx context.Context, obj *mod
 	}
 	e, err := r.QueryRoot().Episode(ctx, obj.Episode.ID, nil)
 	if err != nil {
-		return "", nil
+		return "", omitted(err, "episodeCalendarEntry.description")
 	}
 	return e.Description, nil
 }
@@ -168,7 +168,7 @@ func (r *seasonCalendarEntryResolver) Title(ctx context.Context, obj *model.Seas
 	}
 	s, err := r.QueryRoot().Season(ctx, obj.Season.ID)
 	if err != nil {
-		return "", nil
+		return "", omitted(err, "seasonCalendarEntry.title")
 	}
 	return s.Title, nil
 }
@@ -180,7 +180,7 @@ func (r *seasonCalendarEntryResolver) Description(ctx context.Context, obj *mode
 	}
 	s, err := r.QueryRoot().Season(ctx, obj.Season.ID)
 	if err != nil {
-		return "", nil
+		return "", omitted(err, "seasonCalendarEntry.description")
 	}
 	return s.Description, nil
 }
@@ -215,7 +215,7 @@ func (r *showCalendarEntryResolver) Title(ctx context.Context, obj *model.ShowCa
 	}
 	s, err := r.QueryRoot().Show(ctx, obj.Show.ID)
 	if err != nil {
-		return "", nil
+		return "", omitted(err, "showCalendarEntry.title")
 	}
 	return s.Title, nil
 }
@@ -227,7 +227,7 @@ func (r *showCalendarEntryResolver) Description(ctx context.Context, obj *model.
 	}
 	s, err := r.QueryRoot().Show(ctx, obj.Show.ID)
 	if err != nil {
-		return "", nil
+		return "", omitted(err, "showCalendarEntry.description")
 	}
 	return s.Description, nil
 }
