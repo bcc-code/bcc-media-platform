@@ -123,6 +123,32 @@ blocks:
         machine:
           type: e2-standard-2
           os_image: ubuntu2404
+  - name: Lint Backend
+    dependencies: []
+    task:
+      agent:
+        machine:
+          type: e2-standard-2
+          os_image: ubuntu2404
+      prologue:
+        commands:
+          - sem-version go 1.26
+          - export GOPATH=~/go
+          - "export PATH=/home/semaphore/go/bin:$PATH"
+          - checkout
+          - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.12.2
+      jobs:
+        - name: golangci-lint
+          commands:
+            # --new-from-rev gates only newly written code. The pre-existing
+            # findings are tracked in the backend investigation report; switch
+            # this to a full-tree run once they are cleared.
+            # Fetched without --depth so the diff against master is accurate
+            # on Semaphore's shallow checkout.
+            - git fetch --no-tags origin master
+            - golangci-lint run --new-from-rev=origin/master --timeout=10m ./backend/...
+    run:
+      when: "change_in(['/backend/', '/.golangci.yml'])"
   - name: Generate Deploy File
     dependencies:
       - Build Backend
