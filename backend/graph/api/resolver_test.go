@@ -23,7 +23,7 @@ func ctxWithFeatureFlagsHeader(t *testing.T, header string) context.Context {
 		req.Header.Set("x-feature-flags", header)
 	}
 	c.Request = req
-	return context.WithValue(req.Context(), "GinContextKey", c)
+	return utils.ContextWithGinContext(req.Context(), c)
 }
 
 func TestPickStreamSigner(t *testing.T) {

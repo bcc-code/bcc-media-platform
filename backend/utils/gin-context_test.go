@@ -25,7 +25,7 @@ func requestContext(t *testing.T) context.Context {
 	ginCtx.Request = httptest.NewRequest("GET", "/", nil)
 	ginCtx.Set(contextLockKey, &sync.Mutex{})
 
-	return context.WithValue(ginCtx.Request.Context(), "GinContextKey", ginCtx) //nolint:staticcheck // mirrors the middleware
+	return ContextWithGinContext(ginCtx.Request.Context(), ginCtx)
 }
 
 // gqlgen resolves fields concurrently, so several goroutines can ask for the

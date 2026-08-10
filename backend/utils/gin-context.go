@@ -10,9 +10,22 @@ import (
 
 const contextLockKey = "context-lock"
 
+// ginContextKey keys the gin context inside a plain context.Context. It is an
+// unexported type rather than a string so that no other package can collide with
+// it, deliberately or by reusing the same literal.
+type ginContextKey struct{}
+
+// ContextWithGinContext returns ctx carrying c, so that GinCtx can recover it.
+// GinContextToContextMiddleware does this for real requests; tests that need a
+// request-flavoured context should use this rather than writing the key
+// themselves.
+func ContextWithGinContext(ctx context.Context, c *gin.Context) context.Context {
+	return context.WithValue(ctx, ginContextKey{}, c)
+}
+
 // GinCtx extract the GIN context from a normal context
 func GinCtx(ctx context.Context) (*gin.Context, error) {
-	ginContext := ctx.Value("GinContextKey")
+	ginContext := ctx.Value(ginContextKey{})
 
 	if ginContext == nil {
 		return nil, merry.Errorf("could not retrieve gin.Context")
@@ -29,7 +42,7 @@ func GinCtx(ctx context.Context) (*gin.Context, error) {
 func GinContextToContextMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set(contextLockKey, &sync.Mutex{})
-		ctx := context.WithValue(c.Request.Context(), "GinContextKey", c)
+		ctx := ContextWithGinContext(c.Request.Context(), c)
 		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	}

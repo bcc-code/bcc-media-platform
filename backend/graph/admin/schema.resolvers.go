@@ -304,8 +304,6 @@ func (r *mutationRootResolver) Auth(ctx context.Context) (*model.Auth, error) {
 
 // Collection is the resolver for the collection field.
 func (r *previewResolver) Collection(ctx context.Context, obj *model.Preview, filter string) (*model.PreviewCollection, error) {
-	ctx = context.WithValue(ctx, "preview", true)
-
 	var f common.Filter
 
 	_ = json.Unmarshal([]byte(filter), &f)
@@ -322,8 +320,6 @@ func (r *previewResolver) Collection(ctx context.Context, obj *model.Preview, fi
 
 // Asset is the resolver for the asset field.
 func (r *previewResolver) Asset(ctx context.Context, obj *model.Preview, id string) (*model.PreviewAsset, error) {
-	ctx = context.WithValue(ctx, "preview", true)
-
 	intID, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return nil, err
