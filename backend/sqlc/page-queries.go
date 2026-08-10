@@ -2,7 +2,6 @@ package sqlc
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -11,11 +10,8 @@ import (
 
 func (q *Queries) mapToPages(pages []getPagesRow) []common.Page {
 	return lo.Map(pages, func(p getPagesRow, _ int) common.Page {
-		var title common.LocaleString
-		var description common.LocaleString
-
-		_ = json.Unmarshal(p.Title.RawMessage, &title)
-		_ = json.Unmarshal(p.Title.RawMessage, &description)
+		title := localeString(p.Title.RawMessage)
+		description := localeString(p.Title.RawMessage)
 
 		return common.Page{
 			ID:          int(p.ID),

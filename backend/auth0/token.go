@@ -38,7 +38,9 @@ func sendTokenRequest[t any](ctx context.Context, body t, endpoint string) (getT
 	// The package client, not http.DefaultClient: the default has no timeout, and
 	// this call gates every Management API request through GetToken, so a hung
 	// Auth0 endpoint would stall user resolution indefinitely.
-	res, err := httpClient.Do(req)
+	// The body is closed by the deferred call below; bodyclose does not recognise
+	// the method-value form that utils.LogError takes, hence the suppression.
+	res, err := httpClient.Do(req) //nolint:bodyclose
 	if err != nil {
 		return getTokenResponse{}, err
 	}

@@ -3,7 +3,6 @@ package sqlc
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"time"
 
@@ -14,9 +13,7 @@ import (
 
 func mapToEvents(items []getEventsRow) []common.Event {
 	return lo.Map(items, func(i getEventsRow, _ int) common.Event {
-		var title common.LocaleString
-
-		_ = json.Unmarshal(i.Title.RawMessage, &title)
+		title := localeString(i.Title.RawMessage)
 
 		return common.Event{
 			ID:    int(i.ID),
@@ -72,11 +69,8 @@ func (q *Queries) GetEventsForPeriod(ctx context.Context, from time.Time, to tim
 
 func mapToCalendarEntries(items []getCalendarEntriesRow) []common.CalendarEntry {
 	return lo.Map(items, func(i getCalendarEntriesRow, _ int) common.CalendarEntry {
-		var title common.LocaleString
-		var description common.LocaleString
-
-		_ = json.Unmarshal(i.Title, &title)
-		_ = json.Unmarshal(i.Description, &description)
+		title := localeString(i.Title)
+		description := localeString(i.Description)
 
 		var itemID null.Int
 		switch i.LinkType.ValueOrZero() {

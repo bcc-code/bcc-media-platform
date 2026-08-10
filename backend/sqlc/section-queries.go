@@ -2,7 +2,6 @@ package sqlc
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -12,11 +11,8 @@ import (
 
 func mapToSections(items []getSectionsRow) []common.Section {
 	return lo.Map(items, func(s getSectionsRow, _ int) common.Section {
-		var title common.LocaleString
-		var description common.LocaleString
-
-		_ = json.Unmarshal(s.Title.RawMessage, &title)
-		_ = json.Unmarshal(s.Description.RawMessage, &description)
+		title := localeString(s.Title.RawMessage)
+		description := localeString(s.Description.RawMessage)
 
 		t := "item"
 		if s.Type.Valid {
@@ -140,11 +136,8 @@ func (q *Queries) GetLinks(ctx context.Context, ids []int) ([]common.Link, error
 		return nil, err
 	}
 	return lo.Map(links, func(i getLinksRow, _ int) common.Link {
-		var title common.LocaleString
-		var desc common.LocaleString
-
-		_ = json.Unmarshal(i.Title.RawMessage, &title)
-		_ = json.Unmarshal(i.Description.RawMessage, &desc)
+		title := localeString(i.Title.RawMessage)
+		desc := localeString(i.Description.RawMessage)
 
 		return common.Link{
 			ID:                  int(i.ID),

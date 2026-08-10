@@ -2,7 +2,6 @@ package sqlc
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -16,10 +15,8 @@ func (q *Queries) GetGames(ctx context.Context, ids []uuid.UUID) ([]common.Game,
 		return nil, err
 	}
 	return lo.Map(rows, func(i getGamesRow, _ int) common.Game {
-		var title = common.LocaleString{}
-		var description = common.LocaleString{}
-		_ = json.Unmarshal(i.Title.RawMessage, &title)
-		_ = json.Unmarshal(i.Description.RawMessage, &description)
+		title := localeString(i.Title.RawMessage)
+		description := localeString(i.Description.RawMessage)
 
 		if i.OriginalTitle != "" {
 			title["no"] = null.StringFrom(i.OriginalTitle)

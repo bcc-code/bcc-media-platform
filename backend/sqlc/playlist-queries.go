@@ -2,7 +2,6 @@ package sqlc
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -16,10 +15,8 @@ func (q *Queries) GetPlaylists(ctx context.Context, ids []uuid.UUID) ([]common.P
 		return nil, err
 	}
 	return lo.Map(rows, func(i getPlaylistsRow, _ int) common.Playlist {
-		var title = common.LocaleString{}
-		var description = common.LocaleString{}
-		_ = json.Unmarshal(i.Title, &title)
-		_ = json.Unmarshal(i.Description, &description)
+		title := localeString(i.Title)
+		description := localeString(i.Description)
 
 		if i.OriginalTitle != "" {
 			title["no"] = null.StringFrom(i.OriginalTitle)
@@ -45,10 +42,8 @@ func (q *Queries) ListPlaylists(ctx context.Context) ([]common.Playlist, error) 
 		return nil, err
 	}
 	return lo.Map(rows, func(i listPlaylistsRow, _ int) common.Playlist {
-		var title = common.LocaleString{}
-		var description = common.LocaleString{}
-		_ = json.Unmarshal(i.Title, &title)
-		_ = json.Unmarshal(i.Description, &description)
+		title := localeString(i.Title)
+		description := localeString(i.Description)
 
 		if i.OriginalTitle != "" {
 			title["no"] = null.StringFrom(i.OriginalTitle)

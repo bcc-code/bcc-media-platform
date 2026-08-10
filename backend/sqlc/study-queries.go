@@ -18,10 +18,8 @@ func (q *Queries) GetTopics(ctx context.Context, ids []uuid.UUID) ([]common.Stud
 		return nil, err
 	}
 	return lo.Map(topics, func(t getTopicsRow, _ int) common.StudyTopic {
-		var title = common.LocaleString{}
-		var description = common.LocaleString{}
-		_ = json.Unmarshal(t.Title.RawMessage, &title)
-		_ = json.Unmarshal(t.Description.RawMessage, &description)
+		title := localeString(t.Title.RawMessage)
+		description := localeString(t.Description.RawMessage)
 
 		if t.OriginalTitle != "" {
 			title["no"] = null.StringFrom(t.OriginalTitle)
@@ -46,10 +44,8 @@ func (q *Queries) GetLessons(ctx context.Context, ids []uuid.UUID) ([]common.Les
 		return nil, err
 	}
 	return lo.Map(lessons, func(l getLessonsRow, _ int) common.Lesson {
-		var title = common.LocaleString{}
-		var description = common.LocaleString{}
-		_ = json.Unmarshal(l.Title.RawMessage, &title)
-		_ = json.Unmarshal(l.Description.RawMessage, &description)
+		title := localeString(l.Title.RawMessage)
+		description := localeString(l.Description.RawMessage)
 
 		if l.OriginalTitle != "" {
 			title["no"] = null.StringFrom(l.OriginalTitle)
@@ -71,14 +67,13 @@ func (q *Queries) GetLessons(ctx context.Context, ids []uuid.UUID) ([]common.Les
 }
 
 func localeStringOrFallback(marshalled json.RawMessage, fallback null.String) common.LocaleString {
-	var localeString = common.LocaleString{}
-	_ = json.Unmarshal(marshalled, &localeString)
+	result := localeString(marshalled)
 
 	if fallback.Valid {
-		localeString["no"] = fallback
+		result["no"] = fallback
 	}
 
-	return localeString
+	return result
 }
 
 // GetTasks returns tasks by ids
@@ -132,8 +127,7 @@ func (q *Queries) GetQuestionAlternatives(ctx context.Context, ids []uuid.UUID) 
 		return nil, err
 	}
 	return lo.Map(alts, func(alt getQuestionAlternativesRow, _ int) common.QuestionAlternative {
-		var title = common.LocaleString{}
-		_ = json.Unmarshal(alt.Title.RawMessage, &title)
+		title := localeString(alt.Title.RawMessage)
 
 		if alt.OriginalTitle.Valid {
 			title["no"] = alt.OriginalTitle

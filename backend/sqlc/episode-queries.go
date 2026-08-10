@@ -13,13 +13,9 @@ import (
 
 func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 	return lo.Map(episodes, func(e getEpisodesRow, _ int) common.Episode {
-		var title = common.LocaleString{}
-		var description = common.LocaleString{}
-		var extraDescription = common.LocaleString{}
-
-		_ = json.Unmarshal(e.Title, &title)
-		_ = json.Unmarshal(e.Description, &description)
-		_ = json.Unmarshal(e.ExtraDescription.RawMessage, &extraDescription)
+		title := localeString(e.Title)
+		description := localeString(e.Description)
+		extraDescription := localeString(e.ExtraDescription.RawMessage)
 
 		title["no"] = e.OriginalTitle
 		description["no"] = e.OriginalDescription
@@ -71,13 +67,9 @@ func (q *Queries) mapToEpisodes(episodes []getEpisodesRow) []common.Episode {
 
 func (q *Queries) mapListToEpisodes(episodes []listEpisodesRow) []common.Episode {
 	return lo.Map(episodes, func(e listEpisodesRow, _ int) common.Episode {
-		var title = common.LocaleString{}
-		var description = common.LocaleString{}
-		var extraDescription = common.LocaleString{}
-
-		_ = json.Unmarshal(e.Title.RawMessage, &title)
-		_ = json.Unmarshal(e.Description.RawMessage, &description)
-		_ = json.Unmarshal(e.ExtraDescription.RawMessage, &extraDescription)
+		title := localeString(e.Title.RawMessage)
+		description := localeString(e.Description.RawMessage)
+		extraDescription := localeString(e.ExtraDescription.RawMessage)
 
 		title["no"] = e.OriginalTitle
 		description["no"] = e.OriginalDescription
