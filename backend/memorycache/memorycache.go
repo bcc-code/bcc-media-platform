@@ -63,9 +63,8 @@ func GetOrSet[T any](ctx context.Context, key string, factory func(ctx context.C
 	if success {
 		return stored, nil
 	}
-	lock := utils.Lock(key)
-	lock.Lock()
-	defer lock.Unlock()
+	unlock := utils.Lock(key)
+	defer unlock()
 
 	stored, success = Get[T](key)
 	if success {

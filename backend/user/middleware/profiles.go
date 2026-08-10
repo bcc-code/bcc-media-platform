@@ -50,9 +50,8 @@ func getProfiles(ctx *gin.Context, queries *sqlc.ApplicationQueries, remoteCache
 		return p, nil
 	}
 
-	lock := utils.Lock(key)
-	lock.Lock()
-	defer lock.Unlock()
+	unlock := utils.Lock(key)
+	defer unlock()
 
 	if p, ok := profileCache.Get(key); ok && len(p) > 0 {
 		return p, nil
