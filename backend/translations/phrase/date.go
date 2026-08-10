@@ -40,7 +40,10 @@ func (d *Datetime) UnmarshalJSON(b []byte) error {
 	for _, layout := range layouts {
 		t, err = time.Parse(layout, s)
 		if err == nil {
-			d = (*Datetime)(&t)
+			// Assign through the receiver. Rebinding d, as this used to do, only
+			// changed the local copy of the pointer and left the caller's value at
+			// the zero time while still reporting success.
+			*d = Datetime(t)
 			return nil
 		}
 	}
