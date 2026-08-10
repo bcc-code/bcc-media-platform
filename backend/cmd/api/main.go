@@ -82,13 +82,16 @@ func personalizedLoaderFactory(
 func filteredLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *loaders.LoadersWithPermissions {
 	return func(ctx context.Context) *loaders.LoadersWithPermissions {
 		ginCtx, err := utils.GinCtx(ctx)
-		var roles []string
 		if err != nil {
+			// GinCtx returns a nil context alongside the error, so the request-scoped
+			// cache below is unreachable — the old code logged this and then
+			// dereferenced the nil context anyway. Honour the intent of the
+			// "unknown" fallback instead: a loader set for a role that grants
+			// nothing. GetLoadersForRoles caches per role key, so this is cheap.
 			log.L.Error().Err(err).Msg("failed to get gin ctx from context")
-			roles = []string{"unknown"}
-		} else {
-			roles = user.GetRolesFromCtx(ginCtx)
+			return loaders.GetLoadersForRoles(queries, []string{"unknown"})
 		}
+		roles := user.GetRolesFromCtx(ginCtx)
 		if ls := ginCtx.Value(filteredLoadersCtxKey); ls != nil {
 			return ls.(*loaders.LoadersWithPermissions)
 		}
