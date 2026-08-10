@@ -133,7 +133,7 @@ func (p *ResendProvider) SendEmail(ctx context.Context, options SendOptions) err
 	// Test connectivity to Resend API before sending
 	log.L.Debug().Msg("Attempting to reach Resend API endpoint")
 
-	sent, err := p.client.Emails.Send(params)
+	sent, err := p.client.Emails.SendWithContext(ctx, params)
 
 	// Handle errors
 	if err != nil {

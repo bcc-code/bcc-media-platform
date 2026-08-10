@@ -321,7 +321,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 				}
 			}
 			if u.AgeGroup != "" && u.IsActiveBCC() {
-				roles = append(roles, "age-group:"+strings.Replace(u.AgeGroup, " ", "", -1))
+				roles = append(roles, "age-group:"+strings.ReplaceAll(u.AgeGroup, " ", ""))
 			}
 
 			u.Roles = roles

@@ -471,7 +471,7 @@ type AsyncRequestResponse struct {
 }
 
 type NotifyAssignedJobsRequest struct {
-	Jobs []JobOnlyUID `json:"jobs"`
+	Jobs          []JobOnlyUID `json:"jobs"`
 	EmailTemplate *struct {
 		ID string `json:"id"`
 	} `json:"emailTemplate,omitempty"`

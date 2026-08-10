@@ -148,8 +148,6 @@ func (r *personResolver) Contributions(ctx context.Context, obj *model.Person, f
 	wg.Add(len(page.Items))
 	result := make([]*model.Contribution, len(page.Items))
 	for i, c := range page.Items {
-		i := i
-		c := c
 		go func() {
 			defer wg.Done()
 			contribution, err := resolveContribution(ctx, c, r.Loaders)

@@ -3,6 +3,7 @@ package version
 import (
 	"encoding/json"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/public/model"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
@@ -40,7 +41,9 @@ func init() {
 			return
 		}
 
-		err = json.Unmarshal(jsonBytes, version)
+		if err := json.Unmarshal(jsonBytes, version); err != nil {
+			log.L.Warn().Err(err).Str("path", jsonPath).Msg("Failed to parse version.json")
+		}
 		return
 	}
 }

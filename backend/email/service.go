@@ -7,10 +7,10 @@ import (
 
 // Config are configurations options for the service
 type Config struct {
-	Provider         string // "sendgrid" or "resend"
-	SendGridAPIKey   string // SendGrid API key
-	ResendAPIKey     string // Resend API key
-	FromEmail        string // From email address for all providers
+	Provider       string // "sendgrid" or "resend"
+	SendGridAPIKey string // SendGrid API key
+	ResendAPIKey   string // Resend API key
+	FromEmail      string // From email address for all providers
 }
 
 // Service contains methods for sending emails

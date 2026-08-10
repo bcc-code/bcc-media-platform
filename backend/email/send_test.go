@@ -187,9 +187,9 @@ func TestSendOptions_Validation(t *testing.T) {
 			valid: true,
 		},
 		{
-			name: "empty options",
+			name:    "empty options",
 			options: SendOptions{},
-			valid: true, // The provider will handle validation
+			valid:   true, // The provider will handle validation
 		},
 	}
 

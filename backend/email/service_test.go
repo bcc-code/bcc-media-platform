@@ -10,17 +10,17 @@ import (
 
 func TestNew(t *testing.T) {
 	tests := []struct {
-		name        string
-		config      Config
-		expectError bool
-		errorMsg    string
+		name         string
+		config       Config
+		expectError  bool
+		errorMsg     string
 		providerType func(service *Service) string // function to determine provider type
 	}{
 		{
 			name: "creates SendGrid provider with valid config",
 			config: Config{
-				Provider:         "sendgrid",
-				SendGridAPIKey:   "test_sendgrid_key",
+				Provider:       "sendgrid",
+				SendGridAPIKey: "test_sendgrid_key",
 			},
 			expectError: false,
 			providerType: func(service *Service) string {
@@ -34,8 +34,8 @@ func TestNew(t *testing.T) {
 		{
 			name: "creates Resend provider with valid config",
 			config: Config{
-				Provider:       "resend",
-				ResendAPIKey:   "test_resend_key",
+				Provider:     "resend",
+				ResendAPIKey: "test_resend_key",
 			},
 			expectError: false,
 			providerType: func(service *Service) string {
@@ -126,7 +126,7 @@ func TestNew(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			service, err := New(tt.config)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 				if tt.errorMsg != "" {
@@ -137,7 +137,7 @@ func TestNew(t *testing.T) {
 				assert.NoError(t, err)
 				require.NotNil(t, service)
 				require.NotNil(t, service.provider)
-				
+
 				if tt.providerType != nil {
 					providerType := tt.providerType(service)
 					assert.NotEqual(t, "unknown", providerType, "Should create the correct provider type")
@@ -149,15 +149,15 @@ func TestNew(t *testing.T) {
 
 func TestNew_LegacyEnvironmentFallback(t *testing.T) {
 	// Test that the service falls back to environment variables for backward compatibility
-	
+
 	// Save original env var
 	originalSendGridKey := os.Getenv("SENDGRID_API_KEY")
 	defer os.Setenv("SENDGRID_API_KEY", originalSendGridKey)
-	
+
 	// Set test environment variable
 	err := os.Setenv("SENDGRID_API_KEY", "env_test_key")
 	require.NoError(t, err)
-	
+
 	tests := []struct {
 		name        string
 		config      Config
@@ -183,11 +183,11 @@ func TestNew_LegacyEnvironmentFallback(t *testing.T) {
 			description: "Should use API key from config, not environment",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			service, err := New(tt.config)
-			
+
 			if tt.expectError {
 				assert.Error(t, err, tt.description)
 			} else {
@@ -196,11 +196,11 @@ func TestNew_LegacyEnvironmentFallback(t *testing.T) {
 			}
 		})
 	}
-	
+
 	// Test with no environment variable and no config API key
 	err = os.Unsetenv("SENDGRID_API_KEY")
 	require.NoError(t, err)
-	
+
 	service, err := New(Config{Provider: "sendgrid"})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "SendGrid API key is required")

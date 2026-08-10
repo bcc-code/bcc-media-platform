@@ -145,7 +145,7 @@ func multiPartCopy(ctx context.Context, svc s3.Client, sourceBucket *string, cop
 		}
 	}
 	if uploadId == "" {
-		return errors.New("No upload id found in start upload request")
+		return errors.New("no upload id found in start upload request")
 	}
 
 	var i int64
@@ -224,7 +224,7 @@ func multiPartCopy(ctx context.Context, svc s3.Client, sourceBucket *string, cop
 
 	compOutput, err := svc.CompleteMultipartUpload(ctx, &complete)
 	if err != nil {
-		return fmt.Errorf("Error completing upload: %w", err)
+		return fmt.Errorf("error completing upload: %w", err)
 	}
 
 	if compOutput != nil {
