@@ -34,7 +34,7 @@ var userCache = cache.New[string, *common.User]()
 var rolesCache = cache.New[string, map[string][]string]()
 
 func ageFromBirthDate(birthDate string) int {
-	date, err := time.Parse("2006-04-02", birthDate)
+	date, err := time.Parse(time.DateOnly, birthDate)
 	if err != nil {
 		return 0
 	}
