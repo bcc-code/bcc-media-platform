@@ -2,7 +2,10 @@ package memorycache
 
 import (
 	"context"
+	"fmt"
+
 	cache "github.com/Code-Hex/go-generics-cache"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
 
@@ -11,7 +14,19 @@ var memoryCache = cache.New[string, any](cache.AsLRU[string, any]())
 // Get retrieve a value from cache
 func Get[V any](key string) (result V, success bool) {
 	if v, ok := memoryCache.Get(key); ok {
-		return v.(V), true
+		// The cache is shared across packages and holds `any`, so a key reused
+		// with a different type is possible. Treat that as a miss: the caller
+		// refetches, where an unchecked assertion would panic the goroutine.
+		typed, ok := v.(V)
+		if !ok {
+			log.L.Error().
+				Str("key", key).
+				Str("stored", fmt.Sprintf("%T", v)).
+				Str("wanted", fmt.Sprintf("%T", result)).
+				Msg("Cached value has an unexpected type; treating as a cache miss")
+			return result, false
+		}
+		return typed, true
 	}
 	return
 }
