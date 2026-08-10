@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"testing"
 	"time"
+
+	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAgeFromBirthDate(t *testing.T) {
@@ -77,4 +80,43 @@ func TestAgeFromBirthDateParsesMonthNotMinute(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestWithRequestRolesLeavesTheCachedUserAlone(t *testing.T) {
+	// Stands in for the entry shared by every request for this user.
+	cached := &common.User{
+		PersonID: "123",
+		Roles:    []string{"registered", "bcc-members"},
+	}
+
+	got := withRequestRoles(cached, []string{"feature-flag:shorts"})
+
+	assert.Equal(t, []string{"registered", "bcc-members"}, cached.Roles,
+		"the cached user must not gain this request's roles")
+	assert.Equal(t, []string{"registered", "bcc-members", "feature-flag:shorts"}, got.Roles)
+	assert.NotSame(t, cached, got, "a copy is required, not the shared pointer")
+	assert.Equal(t, cached.PersonID, got.PersonID, "identity fields should carry over")
+}
+
+// The bug this replaces: roles from one request leaking into every later
+// request served from the same cache entry.
+func TestWithRequestRolesDoesNotLeakBetweenRequests(t *testing.T) {
+	cached := &common.User{Roles: []string{"registered"}}
+
+	first := withRequestRoles(cached, []string{"explicit:beta"})
+	second := withRequestRoles(cached, []string{"feature-flag:debug"})
+
+	assert.NotContains(t, second.Roles, "explicit:beta",
+		"the second request inherited the first request's explicit role")
+	assert.NotContains(t, first.Roles, "feature-flag:debug")
+	assert.Equal(t, []string{"registered"}, cached.Roles)
+}
+
+// Requests that send neither header must be unaffected.
+func TestWithRequestRolesWithNothingToAdd(t *testing.T) {
+	cached := &common.User{Roles: []string{"registered"}}
+
+	assert.Same(t, cached, withRequestRoles(cached, nil))
+	assert.Same(t, cached, withRequestRoles(cached, []string{}))
+	assert.Nil(t, withRequestRoles(nil, []string{"x"}))
 }

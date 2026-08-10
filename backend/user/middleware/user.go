@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -81,6 +82,26 @@ func getFeatureFlagRolesFromContext(ctx *gin.Context) []string {
 	return roles
 }
 
+// withRequestRoles returns u with the roles that belong to this request added.
+//
+// The roles from x-explicit-roles and the feature flag header vary per request,
+// but the user they are attached to is cached — in Redis for five minutes and in
+// process for one. Storing them on the cached user made a caller's effective
+// roles depend on whichever request happened to populate the cache, and every
+// other request for that user then inherited them.
+//
+// The cached *common.User is shared, so this copies rather than appending in
+// place. Roles gets a fresh slice; the remaining fields are values or, in
+// ChurchIDs' case, only ever read.
+func withRequestRoles(u *common.User, requestRoles []string) *common.User {
+	if u == nil || len(requestRoles) == 0 {
+		return u
+	}
+	withRoles := *u
+	withRoles.Roles = slices.Concat(u.Roles, requestRoles)
+	return &withRoles
+}
+
 // NewUserMiddleware returns a gin middleware that ingests a populated User struct
 // into the gin context
 func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, ls *loaders.BatchLoaders, auth0Client *auth0.Client) func(*gin.Context) {
@@ -88,17 +109,12 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 		reqCtx, span := otel.Tracer("user/middleware").Start(ctx.Request.Context(), "run")
 		defer span.End()
 
-		var roles []string
-
-		explicitRoles := getExplicitRolesFromContext(ctx, queries)
-		if len(explicitRoles) > 0 {
-			roles = append(roles, explicitRoles...)
-		}
-
-		featureRoles := getFeatureFlagRolesFromContext(ctx)
-		if len(featureRoles) > 0 {
-			roles = append(roles, featureRoles...)
-		}
+		// These come from headers on *this* request, so they must never be baked
+		// into the cached user — see withRequestRoles.
+		requestRoles := slices.Concat(
+			getExplicitRolesFromContext(ctx, queries),
+			getFeatureFlagRolesFromContext(ctx),
+		)
 
 		authed := ctx.GetBool(auth0.CtxAuthenticated)
 
@@ -108,10 +124,9 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 		// If the user is anonymous we just create a simple object and bail
 		if !authed {
 			span.AddEvent("Anonymous")
-			roles = append(roles, user.RolePublic)
 			ctx.Set(user.CtxUser,
 				&common.User{
-					Roles:     roles,
+					Roles:     append(slices.Clone(requestRoles), user.RolePublic),
 					Anonymous: true,
 					ActiveBCC: false,
 				})
@@ -122,7 +137,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 
 		if u, ok := userCache.Get(userID); ok {
 			span.AddEvent("User From Cache")
-			ctx.Set(user.CtxUser, u)
+			ctx.Set(user.CtxUser, withRequestRoles(u, requestRoles))
 			return
 		}
 
@@ -130,6 +145,11 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 			o.SetTTL(time.Minute * 5)
 			pid := ctx.GetString(auth0.CtxPersonID)
 			intID, _ := strconv.ParseInt(pid, 10, 32)
+
+			// Deliberately starts empty rather than from the request's roles: this
+			// result is shared by every later request for this user, so only roles
+			// derived from the user's own identity belong in it.
+			var roles []string
 
 			roles = append(roles, user.RoleRegistered)
 			if ctx.GetBool(auth0.CtxIsBCCMember) {
@@ -196,8 +216,8 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 						u = dbUser
 					}
 
-					userCache.Set(userID, u, cache.WithExpiration(1*time.Minute))
-					ctx.Set(user.CtxUser, u)
+					// Caching and publishing to the request are the caller's job
+					// below; doing it here would also skip the request roles.
 					return u, nil
 				}
 				u.FirstName = member.FirstName
@@ -324,12 +344,12 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 		if u, err := remotecache.GetOrCreate[*common.User](ctx, remoteCache, fmt.Sprintf("users:%s", userID), getUserFromMembers); err == nil {
 			span.AddEvent("User loaded into cache")
 			userCache.Set(userID, u, cache.WithExpiration(60*time.Second))
-			ctx.Set(user.CtxUser, u)
+			ctx.Set(user.CtxUser, withRequestRoles(u, requestRoles))
 			return
 		} else {
 			log.L.Error().Err(err).Str("user_id", userID).Msg("Loading user from members API failed")
 			ctx.Set(user.CtxUser, &common.User{
-				Roles:     roles,
+				Roles:     requestRoles,
 				Anonymous: true,
 				ActiveBCC: false,
 			})
