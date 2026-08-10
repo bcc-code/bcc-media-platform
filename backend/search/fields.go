@@ -3,13 +3,11 @@ package search
 import (
 	"context"
 	"fmt"
-	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/mitchellh/mapstructure"
 	"github.com/samber/lo"
 	"gopkg.in/guregu/null.v4"
 	"strings"
-	"time"
 )
 
 const (
@@ -161,117 +159,6 @@ func (i *searchItem) assignTags(ctx context.Context, loaders batchLoaders, sourc
 		})
 	}
 	return nil
-}
-
-func (service *Service) getFields() ([]string, error) {
-	translated, err := service.getTranslatedFields()
-	return append(translated, getFunctionalFields()...), err
-}
-
-// Fields which can be used for something
-func getFunctionalFields() []string {
-	return []string{headerField}
-}
-
-func getRelationalTranslatableFields() []string {
-	return []string{showTitleField, seasonTitleField}
-}
-
-func getPrimaryTranslatableFields() []string {
-	return []string{titleField, descriptionField}
-}
-
-// Searchable fields
-func (service *Service) getTextFields() []string {
-	return []string{descriptionField, titleField, showTitleField, seasonTitleField}
-}
-
-// These are the fields which we use to filter for permissions
-func (service *Service) getFilterFields() []string {
-	return []string{rolesField, tagsField, typeField, publishedField}
-}
-
-func (service *Service) getTranslatedTitleFields() ([]string, error) {
-	var fields []string
-	ls, err := service.getLanguageKeys()
-	if err != nil {
-		return nil, err
-	}
-	for _, language := range ls {
-		fields = append(fields, titleField+"_"+language)
-	}
-	return fields, nil
-}
-
-func (service *Service) getTranslatedDescriptionFields() ([]string, error) {
-	var fields []string
-	ls, err := service.getLanguageKeys()
-	if err != nil {
-		return nil, err
-	}
-	for _, language := range ls {
-		fields = append(fields, descriptionField+"_"+language)
-	}
-	return fields, nil
-}
-
-func (service *Service) getPrimaryTranslatedFields() ([]string, error) {
-	var fields []string
-	ls, err := service.getLanguageKeys()
-	if err != nil {
-		return nil, err
-	}
-	for _, field := range getPrimaryTranslatableFields() {
-		for _, language := range ls {
-			fields = append(fields, field+"_"+language)
-		}
-	}
-	return fields, nil
-}
-
-func (service *Service) getRelationalTranslatedFields() ([]string, error) {
-	var fields []string
-	ls, err := service.getLanguageKeys()
-	if err != nil {
-		return nil, err
-	}
-	for _, field := range getRelationalTranslatableFields() {
-		for _, language := range ls {
-			fields = append(fields, field+"_"+language)
-		}
-	}
-	return fields, nil
-}
-
-func (service *Service) getTranslatedFields() ([]string, error) {
-	primary, err := service.getPrimaryTranslatedFields()
-	if err != nil {
-		return nil, err
-	}
-	relational, err := service.getRelationalTranslatedFields()
-	if err != nil {
-		return nil, err
-	}
-	return append(primary, relational...), nil
-}
-
-var languageCache = cache.New[string, []string]()
-
-func (service *Service) getLanguageKeys() ([]string, error) {
-	languages, ok := languageCache.Get("languages")
-	if ok {
-		return languages, nil
-	}
-	languages, err := service.queries.GetLanguageKeys(context.Background())
-	if err != nil {
-		return []string{}, err
-	}
-	// TODO: Remove this filter after cleaning up database
-	languages = lo.Filter(languages, func(lang string, _ int) bool {
-		return len(lang) == 2
-	})
-	languageCache.Set("languages", languages, cache.WithExpiration(time.Minute*10))
-	return languages, nil
 }
 
 func getUrl(model string, id int) string {

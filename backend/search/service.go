@@ -14,24 +14,9 @@ import (
 	"github.com/samber/lo"
 )
 
-const indexName = "global"
 const hitsPerPage = 20
 
 type searchObject map[string]interface{}
-
-func (object *searchObject) assignVisibility(v common.Visibility) {
-	(*object)[publishedField] = v.Published
-	if v.AvailableFrom != nil {
-		(*object)[availableFromField] = v.AvailableFrom.Unix()
-	} else {
-		(*object)[availableFromField] = 0
-	}
-	if v.AvailableTo != nil {
-		(*object)[availableToField] = v.AvailableTo.Unix()
-	} else {
-		(*object)[availableToField] = 0
-	}
-}
 
 type batchLoaders struct {
 	ShowLoader     *loaders.Loader[int, *common.Show]

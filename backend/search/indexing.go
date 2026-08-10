@@ -13,8 +13,6 @@ import (
 	"strconv"
 )
 
-const tempIndexName = "bccm-temp"
-
 type elasticIndex enum.Member[string]
 
 var (
