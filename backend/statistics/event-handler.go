@@ -280,6 +280,7 @@ func (h *Handler) HandleImportShortsScores(ctx context.Context) error {
 		return err
 	}
 
+	var imported, skipped int
 	for {
 		var row shortScoreBQ
 
@@ -293,7 +294,10 @@ func (h *Handler) HandleImportShortsScores(ctx context.Context) error {
 
 		shortID, err := uuid.Parse(row.ShortID)
 		if err != nil {
-			return nil
+			// A single unparseable id must not abandon the rest of the import.
+			log.L.Warn().Err(err).Str("short_id", row.ShortID).Msg("Skipping shorts score with an invalid short id")
+			skipped++
+			continue
 		}
 
 		err = h.queries.UpdateShortsScore(ctx, sqlc.UpdateShortsScoreParams{
@@ -304,7 +308,9 @@ func (h *Handler) HandleImportShortsScores(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
+		imported++
 	}
 
+	log.L.Debug().Int("imported", imported).Int("skipped", skipped).Msg("Finished import of shorts scores")
 	return nil
 }
