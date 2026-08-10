@@ -3,6 +3,7 @@ package memorycache
 import (
 	"context"
 	"errors"
+	"strconv"
 	"testing"
 )
 
@@ -67,5 +68,24 @@ func TestGetOrSetPropagatesFactoryErrors(t *testing.T) {
 	}
 	if _, ok := Get[int]("failing"); ok {
 		t.Error("a failed factory result was cached")
+	}
+}
+
+// The capacity bump is the point of the change, so assert the cache actually
+// holds more than the library's 128 default rather than trusting the option.
+func TestCacheHoldsMoreThanTheLibraryDefault(t *testing.T) {
+	const n = 1000
+	for i := range n {
+		Set("cap-"+strconv.Itoa(i), i)
+	}
+	defer func() {
+		for i := range n {
+			Delete("cap-" + strconv.Itoa(i))
+		}
+	}()
+
+	// With the old 128-entry default, everything but the last 128 was evicted.
+	if _, ok := Get[int]("cap-0"); !ok {
+		t.Errorf("the first of %d entries was evicted; capacity is smaller than expected", n)
 	}
 }
