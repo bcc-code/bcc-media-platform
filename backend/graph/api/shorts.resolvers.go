@@ -118,7 +118,8 @@ func (r *shortResolver) Source(ctx context.Context, obj *model.Short) (*model.Su
 		ep, err := r.QueryRoot().Episode(ctx, strconv.Itoa(int(s.EpisodeID.Int64)), nil)
 		if err != nil {
 			// The short stays playable even when its source episode isn't visible.
-			return nil, omitted(err, "short.source")
+			logOmitted(err, "short.source")
+			return nil, nil //nolint:nilerr // optional field: degrade rather than fail the query
 		}
 		return &model.SubclipSource{
 			Item:  ep,

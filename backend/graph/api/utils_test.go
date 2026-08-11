@@ -1,13 +1,17 @@
 package graph
 
 import (
+	"bytes"
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
+	"github.com/rs/zerolog"
 )
 
 func TestExpectedAbsence(t *testing.T) {
@@ -46,15 +50,35 @@ func TestExpectedAbsence(t *testing.T) {
 	}
 }
 
-func TestOmittedAlwaysReturnsNil(t *testing.T) {
-	for _, err := range []error{
-		nil,
-		common.ErrItemNotFound,
-		merry.Wrap(common.ErrItemNoAccess),
-		errors.New("database is on fire"),
-	} {
-		if got := omitted(err, "test.field"); got != nil {
-			t.Errorf("omitted(%v) = %v, want nil — optional fields must never fail the query", err, got)
-		}
+func TestLogOmitted(t *testing.T) {
+	tests := []struct {
+		name      string
+		err       error
+		wantEntry bool
+	}{
+		{"nil error is not an omission", nil, false},
+		{"expected absence passes quietly", merry.Wrap(common.ErrItemNoAccess), false},
+		{"no profile passes quietly", common.ErrProfileNotSet, false},
+		{"a backend failure is recorded", errors.New("database is on fire"), true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			restore := log.L
+			logger := zerolog.New(&buf)
+			log.L = &logger
+			defer func() { log.L = restore }()
+
+			logOmitted(tt.err, "test.field")
+
+			logged := buf.Len() > 0
+			if logged != tt.wantEntry {
+				t.Errorf("logged = %v, want %v (output: %q)", logged, tt.wantEntry, buf.String())
+			}
+			if tt.wantEntry && !strings.Contains(buf.String(), "test.field") {
+				t.Errorf("log entry does not name the field: %q", buf.String())
+			}
+		})
 	}
 }

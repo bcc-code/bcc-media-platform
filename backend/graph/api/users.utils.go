@@ -146,7 +146,8 @@ func (r *Resolver) isInMyList(ctx context.Context, id uuid.UUID) (bool, error) {
 	myList, err := r.QueryRoot().MyList(ctx)
 	if err != nil {
 		// A caller without a profile has no list, so nothing is in it.
-		return false, omitted(err, "inMyList")
+		logOmitted(err, "inMyList")
+		return false, nil //nolint:nilerr // optional field: degrade rather than fail the query
 	}
 	list, err := r.Loaders.UserCollectionEntryIDsLoader.Get(ctx, utils.AsUuid(myList.ID))
 	if err != nil {

@@ -15,28 +15,29 @@ import (
 // expectedAbsence reports whether err just means the thing being resolved isn't
 // there for this caller — missing, unpublished, not permitted, or no profile at
 // all. These are normal outcomes, not failures.
+//
+// Built on isItemUnavailableErr rather than repeating it, and widened by the
+// no-profile case: an anonymous caller has no list or progress to report, which
+// is not something worth logging.
 func expectedAbsence(err error) bool {
-	return errors.Is(err, common.ErrItemNotFound) ||
-		errors.Is(err, common.ErrItemNoAccess) ||
-		errors.Is(err, common.ErrItemNotPublished) ||
-		errors.Is(err, common.ErrProfileNotSet)
+	return isItemUnavailableErr(err) || errors.Is(err, common.ErrProfileNotSet)
 }
 
-// omitted always returns nil, so an optional field degrades to its zero value
-// instead of failing the caller's whole query. A transient backend problem
-// should leave one field empty, not break the request.
+// logOmitted records err when it is a genuine backend failure rather than the
+// thing simply not being there for this caller.
 //
-// The distinction it draws is in what gets recorded, not what the client sees:
-// an expected absence passes quietly, while a genuine failure is logged so it
-// stays visible in observability rather than disappearing silently.
-// The always-nil error return is deliberate: it keeps the call sites reading as
-// ordinary error handling, and it is what lets them degrade without tripping
-// nilerr on a bare `return nil`.
-func omitted(err error, field string) error { //nolint:unparam
+// It is for optional fields that degrade to their zero value instead of failing
+// the caller's whole query — a transient backend problem should leave one field
+// empty, not break the request. The distinction it draws is in what gets
+// recorded, not what the client sees: an expected absence passes quietly, while
+// a real failure stays visible in observability rather than disappearing.
+//
+// Callers return their zero value themselves, so that the resolver reads as
+// "log this, return nothing" at the point it happens.
+func logOmitted(err error, field string) {
 	if err != nil && !expectedAbsence(err) {
 		log.L.Error().Err(err).Str("field", field).Msg("Omitting field after an unexpected error")
 	}
-	return nil
 }
 
 func withTimestampExpiration(ctx context.Context, key string, timestamp *string, onExpire func()) {

@@ -183,7 +183,8 @@ func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode, audioLa
 	err := user.ValidateAccess(ctx, r.Loaders.EpisodePermissionLoader, utils.AsInt(obj.ID), user.CheckConditions{FromDate: true, PublishDate: true, Download: true})
 	if err != nil {
 		// No download rights means no files; a loader failure is logged instead.
-		return nil, omitted(err, "episode.files")
+		logOmitted(err, "episode.files")
+		return nil, nil //nolint:nilerr // optional field: degrade rather than fail the query
 	}
 
 	intID, err := strconv.ParseInt(obj.ID, 10, 32)
@@ -516,7 +517,8 @@ func (r *episodeResolver) Next(ctx context.Context, obj *model.Episode, limit *i
 	if err != nil {
 		// Episodes fails the whole batch as soon as one entry is unavailable, so
 		// an upcoming episode the caller can't see yet must not fail this field.
-		return nil, omitted(err, "episode.next")
+		logOmitted(err, "episode.next")
+		return nil, nil //nolint:nilerr // optional field: degrade rather than fail the query
 	}
 	return episodes, nil
 }
