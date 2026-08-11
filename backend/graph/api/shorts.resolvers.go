@@ -11,6 +11,7 @@ import (
 
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/google/uuid"
 )
@@ -32,7 +33,9 @@ func (r *shortResolver) Score(ctx context.Context, obj *model.Short) (float64, e
 	}
 
 	featureFlags := utils.GetFeatureFlags(ginCtx)
-	if !featureFlags.Has("debug") {
+	variant, enabled := featureFlags.GetVariant(unleash.DebugFlag)
+	unleash.ReportConsidered(ginCtx, unleash.DebugFlag, variant, enabled)
+	if !enabled {
 		return 0, nil
 	}
 

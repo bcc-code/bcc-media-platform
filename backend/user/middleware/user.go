@@ -19,6 +19,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/gin-gonic/gin"
@@ -71,12 +72,16 @@ func getExplicitRolesFromContext(ctx *gin.Context, queries *sqlc.Queries) []stri
 	return result
 }
 
-func getFeatureFlagRolesFromContext(ctx *gin.Context) []string {
+func getFeatureFlagRolesFromContext(ctx *gin.Context, queries *sqlc.Queries) []string {
 	var roles []string
 	featureFlags := utils.GetFeatureFlags(ctx)
 
 	for _, flag := range featureFlags.List() {
-		roles = append(roles, "feature-flag:"+flag)
+		roles = append(roles, unleash.RolePrefix+flag)
+	}
+
+	if len(roles) > 0 {
+		recordFlagRoleCandidates(ctx, queries, featureFlags)
 	}
 
 	return roles
@@ -102,6 +107,37 @@ func withRequestRoles(u *common.User, requestRoles []string) *common.User {
 	return &withRoles
 }
 
+// recordFlagRoleCandidates notes which of the incoming flags could actually
+// change a permission outcome through the role machinery.
+//
+// Every flag becomes a role, but a role only gates anything if a usergroup with
+// that code exists — otherwise no content, page or application references it and
+// the role is inert. getRoles already holds every usergroup code in a 60-minute
+// cache, so narrowing to the flags that can matter costs no query.
+//
+// Only recorded here; counted later, if the request goes on to run a
+// role-filtered query. A failure to load the roles means we cannot tell, so we
+// record nothing rather than over-reporting.
+func recordFlagRoleCandidates(ctx *gin.Context, queries *sqlc.Queries, featureFlags utils.FeatureFlags) {
+	allRoles, err := getRoles(ctx, queries)
+	if err != nil {
+		log.L.Warn().Err(err).Msg("Loading roles for feature-flag usage reporting failed")
+		return
+	}
+
+	var candidates []unleash.FlagRef
+	for _, flag := range featureFlags {
+		// Both role shapes that FeatureFlags.List emits can be the gate.
+		_, bare := allRoles[unleash.RolePrefix+flag.Key]
+		_, withVariant := allRoles[unleash.RolePrefix+flag.Key+":"+flag.Variant]
+		if bare || (flag.Variant != "" && withVariant) {
+			candidates = append(candidates, unleash.FlagRef{Key: flag.Key, Variant: flag.Variant})
+		}
+	}
+
+	unleash.SetRoleCandidates(ctx, candidates)
+}
+
 // NewUserMiddleware returns a gin middleware that ingests a populated User struct
 // into the gin context
 func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, ls *loaders.BatchLoaders, auth0Client *auth0.Client) func(*gin.Context) {
@@ -113,7 +149,7 @@ func NewUserMiddleware(queries *sqlc.Queries, remoteCache *remotecache.Client, l
 		// into the cached user — see withRequestRoles.
 		requestRoles := slices.Concat(
 			getExplicitRolesFromContext(ctx, queries),
-			getFeatureFlagRolesFromContext(ctx),
+			getFeatureFlagRolesFromContext(ctx, queries),
 		)
 
 		authed := ctx.GetBool(auth0.CtxAuthenticated)

@@ -71,9 +71,14 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 	var shortIDSegments [][]uuid.UUID
 	var err error
 
-	if value, ok := featureFlags.GetVariant(unleash.ShortsWithScoresFlag); ok && value == unleash.ShortsWithScoresEnabledVariant {
+	value, ok := featureFlags.GetVariant(unleash.ShortsWithScoresFlag)
+	enabled := ok && value == unleash.ShortsWithScoresEnabledVariant
+	// Reported either way, so the scores ordering can be compared against the
+	// default ordering it is meant to replace.
+	unleash.ReportConsidered(ginCtx, unleash.ShortsWithScoresFlag, value, enabled)
+
+	if enabled {
 		cursor.RandomFactor = 0 // Else random shorts are inserted, but here we want total control
-		utils.ReportFlagActivation(ginCtx, unleash.ShortsWithScoresFlag, unleash.ShortsWithScoresEnabledVariant)
 		shortIDs, iErr := r.GetFilteredLoaders(ctx).ShortWithScoresLoader(ctx)
 		err = iErr
 

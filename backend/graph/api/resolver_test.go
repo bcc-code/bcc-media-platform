@@ -26,6 +26,83 @@ func ctxWithFeatureFlagsHeader(t *testing.T, header string) context.Context {
 	return utils.ContextWithGinContext(req.Context(), c)
 }
 
+// ctxWithFeatureFlagReporting is ctxWithFeatureFlagsHeader plus the per-request
+// state the usage reporting needs, so a decision point's counts can be asserted.
+func ctxWithFeatureFlagReporting(t *testing.T, header string) (context.Context, *unleash.MetricsReporter) {
+	t.Helper()
+	ctx := ctxWithFeatureFlagsHeader(t, header)
+	c, err := utils.GinCtx(ctx)
+	assert.NoError(t, err)
+
+	reporter := unleash.NewMetricsReporter(unleash.MetricsConfig{
+		URL:   "http://example.invalid",
+		Token: "test",
+	})
+	// What FeatureFlagReporterMiddleware and MetricsMiddleware install per request.
+	utils.EnsureReportedFlags(c)
+	unleash.MetricsMiddleware(reporter)(c)
+
+	return ctx, reporter
+}
+
+// TestPickStreamSignerReportsUsage covers the reporting side effect of the
+// stream-signer decision: the flag is counted whether or not it is set, since
+// the flag-was-off case is the control Unleash needs.
+func TestPickStreamSignerReportsUsage(t *testing.T) {
+	r := &Resolver{
+		StreamURLSigner:       &streamtoken.Signer{},
+		LegacyStreamSigner:    &signing.CloudFrontStreamSigner{},
+		PrimaryStreamProvider: streamtoken.ProviderIoriver,
+	}
+
+	t.Run("flag set counts yes with its variant", func(t *testing.T) {
+		header := unleash.StreamCDNProviderFlag + ":" + unleash.StreamCDNProxyIORiver
+		ctx, reporter := ctxWithFeatureFlagReporting(t, header)
+
+		r.pickStreamSigner(ctx)
+
+		assert.Equal(t, map[string]unleash.FlagCounts{
+			unleash.StreamCDNProviderFlag: {
+				Yes:      1,
+				Variants: map[string]int{unleash.StreamCDNProxyIORiver: 1},
+			},
+		}, reporter.Snapshot())
+	})
+
+	t.Run("flag absent counts no", func(t *testing.T) {
+		ctx, reporter := ctxWithFeatureFlagReporting(t, "")
+
+		r.pickStreamSigner(ctx)
+
+		assert.Equal(t, map[string]unleash.FlagCounts{
+			unleash.StreamCDNProviderFlag: {No: 1, Variants: map[string]int{}},
+		}, reporter.Snapshot())
+	})
+
+	t.Run("repeated calls in one request count once", func(t *testing.T) {
+		header := unleash.StreamCDNProviderFlag + ":" + unleash.StreamCDNProxyIORiver
+		ctx, reporter := ctxWithFeatureFlagReporting(t, header)
+
+		// A single query resolving many streams hits this path per stream.
+		for range 40 {
+			r.pickStreamSigner(ctx)
+		}
+
+		counts := reporter.Snapshot()[unleash.StreamCDNProviderFlag]
+		assert.Equal(t, 1, counts.Yes)
+		assert.Equal(t, map[string]int{unleash.StreamCDNProxyIORiver: 1}, counts.Variants)
+	})
+
+	t.Run("nil gin context reports nothing", func(t *testing.T) {
+		reporter := unleash.NewMetricsReporter(unleash.MetricsConfig{
+			URL:   "http://example.invalid",
+			Token: "test",
+		})
+		r.pickStreamSigner(context.Background())
+		assert.Empty(t, reporter.Snapshot())
+	})
+}
+
 func TestPickStreamSigner(t *testing.T) {
 	streamProxySigner := &streamtoken.Signer{}
 	cfSigner := &signing.CloudFrontStreamSigner{}

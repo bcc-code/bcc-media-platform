@@ -9,6 +9,7 @@ import (
 
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	gqlmodel "github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
 
@@ -16,7 +17,11 @@ import (
 func (r *applicationResolver) Page(ctx context.Context, obj *gqlmodel.Application) (*gqlmodel.Page, error) {
 	ginCtx, _ := utils.GinCtx(ctx)
 	featureFlags := utils.GetFeatureFlags(ginCtx)
-	if f, ok := featureFlags.GetVariant("application-page"); ok && f != "" {
+	f, ok := featureFlags.GetVariant(unleash.ApplicationPageFlag)
+	// The variant is the page code, so an empty variant overrides nothing.
+	overridden := ok && f != ""
+	unleash.ReportConsidered(ginCtx, unleash.ApplicationPageFlag, f, overridden)
+	if overridden {
 		page, err := r.QueryRoot().Page(ctx, nil, &f)
 		if err == nil {
 			return page, nil

@@ -144,9 +144,11 @@ func (r *Resolver) pickStreamSigner(ctx context.Context) (streamSigner, streamto
 	ginCtx, _ := utils.GinCtx(ctx)
 	if ginCtx != nil {
 		flags := utils.GetFeatureFlags(ginCtx)
-		if v, ok := flags.GetVariant(unleash.StreamCDNProviderFlag); ok {
-			utils.ReportFlagActivation(ginCtx, unleash.StreamCDNProviderFlag, v)
-
+		v, ok := flags.GetVariant(unleash.StreamCDNProviderFlag)
+		// Reported either way: the flag being absent here is the control
+		// observation Unleash needs to show anything but 100% adoption.
+		unleash.ReportConsidered(ginCtx, unleash.StreamCDNProviderFlag, v, ok)
+		if ok {
 			switch v {
 			case unleash.StreamCDNProxyIORiver:
 				return r.StreamURLSigner, streamtoken.ProviderIoriver
@@ -186,9 +188,9 @@ func (r *Resolver) pickLiveProxySigner(ctx context.Context) (*streamtoken.Signer
 	ginCtx, _ := utils.GinCtx(ctx)
 	if ginCtx != nil {
 		flags := utils.GetFeatureFlags(ginCtx)
-		if v, ok := flags.GetVariant(unleash.LiveCDNProviderFlag); ok {
-			utils.ReportFlagActivation(ginCtx, unleash.LiveCDNProviderFlag, v)
-
+		v, ok := flags.GetVariant(unleash.LiveCDNProviderFlag)
+		unleash.ReportConsidered(ginCtx, unleash.LiveCDNProviderFlag, v, ok)
+		if ok {
 			switch v {
 			case unleash.StreamCDNProxyIORiver:
 				return r.StreamURLSigner, streamtoken.ProviderIoriver, true
@@ -208,10 +210,13 @@ func (r *Resolver) pickLiveProxySigner(ctx context.Context) (*streamtoken.Signer
 }
 
 // liveSigning is the per-request resolution of which signer mints the livestream
-// manifest URL. pickLiveProxySigner has a telemetry side effect
-// (ReportFlagActivation), so the decision is resolved exactly once per request
-// (resolveLiveSigning) and shared by URL-expiry selection (livestreamExpiresAt)
-// and signing (signLiveManifestWith).
+// manifest URL. The decision is resolved once per request (resolveLiveSigning)
+// and shared by URL-expiry selection (livestreamExpiresAt) and signing
+// (signLiveManifestWith), so the two cannot disagree.
+//
+// pickLiveProxySigner also has a telemetry side effect
+// (unleash.ReportConsidered), but that no longer depends on this: it dedups per
+// request internally.
 type liveSigning struct {
 	proxy    *streamtoken.Signer // signer for the proxy path; nil on the legacy path
 	provider streamtoken.Provider

@@ -16,6 +16,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/google/uuid"
@@ -47,7 +48,9 @@ func (r *episodeResolver) Locked(ctx context.Context, obj *model.Episode) (bool,
 	}
 	ginCtx, _ := utils.GinCtx(ctx)
 	roles := user.GetRolesFromCtx(ginCtx)
-	return e.PublishDate.After(time.Now()) && len(lo.Intersect(perms.Roles.EarlyAccess, roles)) == 0, nil
+	earlyAccess := lo.Intersect(perms.Roles.EarlyAccess, roles)
+	unleash.ReportDecisive(ginCtx, earlyAccess)
+	return e.PublishDate.After(time.Now()) && len(earlyAccess) == 0, nil
 }
 
 // AvailableFrom is the resolver for the availableFrom field.
@@ -61,9 +64,11 @@ func (r *episodeResolver) AvailableFrom(ctx context.Context, obj *model.Episode)
 		return "", err
 	}
 	roles := user.GetRolesFromCtx(ginCtx)
-	if len(lo.Intersect(roles, perms.Roles.EarlyAccess)) == 0 {
+	earlyAccess := lo.Intersect(roles, perms.Roles.EarlyAccess)
+	if len(earlyAccess) == 0 {
 		return perms.Availability.From.Format(time.RFC3339), nil
 	}
+	unleash.ReportDecisive(ginCtx, earlyAccess)
 	return "1800-01-01T00:00:00Z", nil
 }
 

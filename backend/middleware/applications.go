@@ -10,6 +10,7 @@ import (
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
+	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
@@ -66,6 +67,7 @@ func RoleMiddleware(ctx *gin.Context) {
 	}
 
 	effectiveRoles := lo.Intersect(app.ComputedRoles(userRoles), app.Roles)
+	unleash.ReportDecisive(ctx, effectiveRoles)
 
 	ctx.Set(user.CtxRoles, effectiveRoles)
 }

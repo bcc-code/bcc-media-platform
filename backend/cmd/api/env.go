@@ -7,8 +7,10 @@ import (
 	"encoding/pem"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/pubsub"
+	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 
 	"github.com/bcc-code/bcc-media-platform/backend/bmm"
 
@@ -62,6 +64,20 @@ var environment = env(os.Getenv("ENVIRONMENT"))
 
 // splitAndTrim splits a comma-separated env value into trimmed, non-empty
 // entries.
+// parseDuration returns zero for an empty or unparseable value, leaving the
+// consumer to apply its own default.
+func parseDuration(raw string) time.Duration {
+	if raw == "" {
+		return 0
+	}
+	d, err := time.ParseDuration(raw)
+	if err != nil {
+		log.L.Warn().Str("value", raw).Msg("Ignoring unparseable duration in config")
+		return 0
+	}
+	return d
+}
+
 func splitAndTrim(raw string) []string {
 	var out []string
 	for _, s := range strings.Split(raw, ",") {
@@ -89,6 +105,7 @@ type envConfig struct {
 	Email         email.Config
 	Redirect      *redirectConfig
 	Analytics     analytics.Config
+	Unleash       unleash.MetricsConfig
 	BMM           bmm.Config
 	PubSub        pubsub.Config
 	Admin         adminConfig
@@ -346,6 +363,13 @@ func getEnvConfig() envConfig {
 			DataPlane: os.Getenv("RUDDERSTACK_DATA_PLANE_URL"),
 			WriteKey:  os.Getenv("RUDDERSTACK_WRITE_KEY"),
 			Verbose:   strings.ToLower(os.Getenv("RUDDERSTACK_VERBOSE")) == "true",
+		},
+		Unleash: unleash.MetricsConfig{
+			URL:      os.Getenv("UNLEASH_URL"),
+			Token:    os.Getenv("UNLEASH_TOKEN"),
+			AppName:  os.Getenv("UNLEASH_APP_NAME"),
+			Interval: parseDuration(os.Getenv("UNLEASH_METRICS_INTERVAL")),
+			Disabled: strings.ToLower(os.Getenv("UNLEASH_METRICS_DISABLED")) == "true",
 		},
 		BMM: bmm.Config{
 			Auth0BaseURL: os.Getenv("BMM_AUTH0_BASE_URL"),

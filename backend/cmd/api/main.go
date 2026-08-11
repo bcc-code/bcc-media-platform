@@ -29,6 +29,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/signing"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
+	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	userMiddleware "github.com/bcc-code/bcc-media-platform/backend/user/middleware"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
@@ -90,6 +91,10 @@ func filteredLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *loa
 		}
 
 		ls, err := utils.GetOrSetContextWithLock(ctx, filteredLoadersCtxKey, func() (*loaders.LoadersWithPermissions, error) {
+			// Runs only on a miss, so this is the request's first role-filtered
+			// query: any feature flag gating content through a usergroup is
+			// about to influence what comes back.
+			unleash.ReportRoleCandidates(ginCtx)
 			return loaders.GetLoadersForRoles(queries, user.GetRolesFromCtx(ginCtx)), nil
 		})
 		if err != nil {
@@ -232,6 +237,12 @@ func main() {
 
 	analyticsService := analytics.NewService(config.Analytics)
 
+	// Feature flags are evaluated by the clients and forwarded to us, so the
+	// API reports its own usage of them back to Unleash rather than running an
+	// SDK. Inert when unconfigured.
+	unleashMetrics := unleash.NewMetricsReporter(config.Unleash)
+	go unleashMetrics.Start(ctx)
+
 	s3Client := s3.NewFromConfig(awsConfig)
 
 	var jobPubSubTopic *gpubsub.Topic
@@ -260,6 +271,7 @@ func main() {
 
 	r.Use(utils.GinContextToContextMiddleware())
 	r.Use(utils.FeatureFlagReporterMiddleware())
+	r.Use(unleash.MetricsMiddleware(unleashMetrics))
 
 	// Two CORS policies: the public API stays wildcard, while the admin
 	// endpoints carry an httpOnly refresh cookie and therefore need

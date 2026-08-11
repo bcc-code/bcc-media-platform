@@ -27,6 +27,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
 	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
+	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -61,7 +62,9 @@ func (r *queryRootResolver) Application(ctx context.Context, timestamp *string) 
 	}
 
 	u := user.GetFromCtx(ginCtx)
-	livestreamEnabled := len(app.LivestreamRoles) == 0 || len(lo.Intersect(app.LivestreamRoles, app.ComputedRoles(u.Roles))) > 0
+	livestreamRoles := lo.Intersect(app.LivestreamRoles, app.ComputedRoles(u.Roles))
+	unleash.ReportDecisive(ginCtx, livestreamRoles)
+	livestreamEnabled := len(app.LivestreamRoles) == 0 || len(livestreamRoles) > 0
 
 	var page *model.Page
 	if app.DefaultPageID.Valid {
@@ -810,7 +813,9 @@ func (r *queryRootResolver) Live(ctx context.Context) (*model.Live, error) {
 
 	// Gate the URL by livestream roles, matching the Application.livestreamEnabled check.
 	u := user.GetFromCtx(ginCtx)
-	allowed := len(app.LivestreamRoles) == 0 || len(lo.Intersect(app.LivestreamRoles, app.ComputedRoles(u.Roles))) > 0
+	livestreamRoles := lo.Intersect(app.LivestreamRoles, app.ComputedRoles(u.Roles))
+	unleash.ReportDecisive(ginCtx, livestreamRoles)
+	allowed := len(app.LivestreamRoles) == 0 || len(livestreamRoles) > 0
 	if !allowed {
 		return out, nil
 	}

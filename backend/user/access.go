@@ -9,6 +9,7 @@ import (
 
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/samber/lo"
 )
@@ -48,11 +49,16 @@ func ValidateAccess[k comparable](
 	roles := perms.Roles
 	availability := perms.Availability
 
-	if conditions.Download && len(lo.Intersect(rs, roles.Download)) == 0 {
-		return merry.Wrap(ErrItemNoAccess)
+	if conditions.Download {
+		granted := lo.Intersect(rs, roles.Download)
+		if len(granted) == 0 {
+			return merry.Wrap(ErrItemNoAccess)
+		}
+		unleash.ReportDecisive(ginCtx, granted)
 	}
 
-	if len(lo.Intersect(rs, roles.EarlyAccess)) > 0 && (availability.Published || availability.Unlisted) {
+	if earlyAccess := lo.Intersect(rs, roles.EarlyAccess); len(earlyAccess) > 0 && (availability.Published || availability.Unlisted) {
+		unleash.ReportDecisive(ginCtx, earlyAccess)
 		return nil
 	}
 
@@ -62,9 +68,13 @@ func ValidateAccess[k comparable](
 		return merry.Wrap(fmt.Errorf("item ID: %v, ERR: %w", id, ErrItemNotPublished))
 	}
 
-	if len(lo.Intersect(rs, roles.Access)) == 0 {
+	access := lo.Intersect(rs, roles.Access)
+	if len(access) == 0 {
 		return merry.Wrap(ErrItemNoAccess)
 	}
+	// Only counts when a feature-flag role is the sole reason this passed; if an
+	// ordinary role is in the intersection the flag changed nothing.
+	unleash.ReportDecisive(ginCtx, access)
 
 	if conditions.PublishDate && availability.PublishedOn.After(time.Now()) {
 		return merry.Wrap(ErrPublishDateInFuture)

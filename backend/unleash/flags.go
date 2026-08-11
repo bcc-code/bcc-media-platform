@@ -7,11 +7,13 @@ package unleash
 const ShortsWithScoresFlag = "shorts-with-scores3"
 const ShortsWithScoresEnabledVariant = "enabled"
 
-// ElasticSearchFlag enables the elastic search for the client
-//
-// Added: 07.10.2024
-const ElasticSearchFlag = "elastic-search"
-const ElasticSearchEnabledVariant = "enabled"
+// DebugFlag exposes debug-only fields that are otherwise zeroed, currently
+// Short.score.
+const DebugFlag = "debug"
+
+// ApplicationPageFlag overrides the root page an application opens on. Unlike
+// the other flags its variant is not an enum but the page code to use.
+const ApplicationPageFlag = "application-page"
 
 // StreamProxyFlag toggles the URL signing path for stream manifests. The
 // default is the stream-proxy + HS256 JWT path; the `legacy` variant opts a
