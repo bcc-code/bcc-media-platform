@@ -55,7 +55,7 @@ func (p *SendGridProvider) SendEmail(ctx context.Context, options SendOptions) e
 		Str("title", options.Title).
 		Msg("Attempting to send email")
 
-	response, err := p.client.Send(message)
+	response, err := p.client.SendWithContext(ctx, message)
 
 	// Log all SendGrid responses for debugging
 	if response != nil {

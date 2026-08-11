@@ -77,7 +77,6 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	// We lock because of https://github.com/lib/pq/issues/635
 	insertLock := sync.Mutex{}
 	for _, inputTm := range timedMetadatas {
-		inputTm := inputTm
 		eg.Go(func() error {
 			ctx, span := otel.Tracer("timedmetadata").Start(ctx, "ingest loop goroutine")
 			defer span.End()

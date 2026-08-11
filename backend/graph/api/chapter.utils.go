@@ -80,7 +80,7 @@ func resolveChapters(ctx context.Context, loaders *loaders.BatchLoaders, episode
 					title = song.Title.Get(languages)
 				}
 			} else {
-				title = strings.Replace(title, "{{song.title}}", song.Title.Get(languages), -1)
+				title = strings.ReplaceAll(title, "{{song.title}}", song.Title.Get(languages))
 			}
 		case common.ContentTypeSpeech, common.ContentTypeInterview, common.ContentTypeTestimony:
 			if len(tm.PersonIDs) != 1 {
@@ -98,7 +98,7 @@ func resolveChapters(ctx context.Context, loaders *loaders.BatchLoaders, episode
 					title = person.Name
 				}
 			} else {
-				title = strings.Replace(title, "{{person.name}}", person.Name, -1)
+				title = strings.ReplaceAll(title, "{{person.name}}", person.Name)
 			}
 		}
 		chapters = append(chapters, &model.Chapter{
@@ -149,7 +149,7 @@ func resolveChapter(ctx context.Context, loaders *loaders.BatchLoaders, episodeI
 				title = song.Title.Get(languages)
 			}
 		} else {
-			title = strings.Replace(title, "{{song.title}}", song.Title.Get(languages), -1)
+			title = strings.ReplaceAll(title, "{{song.title}}", song.Title.Get(languages))
 		}
 	case common.ContentTypeSpeech, common.ContentTypeInterview, common.ContentTypeTestimony:
 		if len(tm.PersonIDs) != 1 {
@@ -167,7 +167,7 @@ func resolveChapter(ctx context.Context, loaders *loaders.BatchLoaders, episodeI
 				title = person.Name
 			}
 		} else {
-			title = strings.Replace(title, "{{person.name}}", person.Name, -1)
+			title = strings.ReplaceAll(title, "{{person.name}}", person.Name)
 		}
 	}
 

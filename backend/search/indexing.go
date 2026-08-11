@@ -13,8 +13,6 @@ import (
 	"strconv"
 )
 
-const tempIndexName = "bccm-temp"
-
 type elasticIndex enum.Member[string]
 
 var (
@@ -112,6 +110,12 @@ func (service *Service) indexShow(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
+	if i == nil {
+		// Deleting an item can race the reindex event it triggers; there is
+		// nothing to index, and dereferencing nil below would panic the worker.
+		log.L.Debug().Int("id", id).Msg("Skipping index of missing show")
+		return nil
+	}
 	p, err := service.loaders.ShowPermissionLoader.Get(ctx, id)
 	if err != nil {
 		return err
@@ -125,6 +129,12 @@ func (service *Service) indexSeason(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
+	if i == nil {
+		// Deleting an item can race the reindex event it triggers; there is
+		// nothing to index, and dereferencing nil below would panic the worker.
+		log.L.Debug().Int("id", id).Msg("Skipping index of missing season")
+		return nil
+	}
 	p, err := service.loaders.SeasonPermissionLoader.Get(ctx, id)
 	if err != nil {
 		return err
@@ -137,6 +147,12 @@ func (service *Service) indexEpisode(ctx context.Context, id int) error {
 	i, err := service.loaders.EpisodeLoader.Load(ctx, id)()
 	if err != nil {
 		return err
+	}
+	if i == nil {
+		// Deleting an item can race the reindex event it triggers; there is
+		// nothing to index, and dereferencing nil below would panic the worker.
+		log.L.Debug().Int("id", id).Msg("Skipping index of missing episode")
+		return nil
 	}
 	p, err := service.loaders.EpisodePermissionLoader.Get(ctx, id)
 	if err != nil {

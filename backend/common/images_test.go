@@ -13,10 +13,10 @@ func TestImagesGetForLanguages(t *testing.T) {
 		want      map[ImageStyle]*string
 	}{
 		{
-			name: "empty images",
-			images: Images{},
+			name:      "empty images",
+			images:    Images{},
 			languages: []string{"en"},
-			want: map[ImageStyle]*string{},
+			want:      map[ImageStyle]*string{},
 		},
 		{
 			name: "single image style",
@@ -84,7 +84,7 @@ func TestImagesGetForLanguages(t *testing.T) {
 				DefaultLanguages = []string{"es"} // Set to something not in our test data
 				defer func() { DefaultLanguages = originalDefault }()
 			}
-			
+
 			got := tt.images.GetForLanguages(tt.languages)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Images.GetForLanguages() = %v, want %v", got, tt.want)

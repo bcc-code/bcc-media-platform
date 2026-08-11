@@ -578,7 +578,10 @@ func (r *Resolver) updateMessage(ctx context.Context, id string, message *string
 	var md pqtype.NullRawMessage
 	if metadata != nil {
 		md.RawMessage, err = json.Encode(ctx, metadata)
-		md.Valid = err != nil
+		if err != nil {
+			return "", merry.Wrap(err)
+		}
+		md.Valid = true
 	}
 	err = r.Queries.UpdateMessage(ctx, sqlc.UpdateMessageParams{
 		ID:       id,

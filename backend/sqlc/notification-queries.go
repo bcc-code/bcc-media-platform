@@ -21,8 +21,8 @@ func (q *Queries) GetNotifications(ctx context.Context, ids []uuid.UUID) ([]comm
 		var description common.LocaleString
 		var images common.LocaleMap[null.String]
 
-		_ = json.Unmarshal(n.Title, &title)
-		_ = json.Unmarshal(n.Description, &description)
+		title = localeString(n.Title)
+		description = localeString(n.Description)
 		_ = json.Unmarshal(n.Images, &images)
 
 		return common.Notification{

@@ -107,7 +107,8 @@ func (r *episodeCalendarEntryResolver) Title(ctx context.Context, obj *model.Epi
 	}
 	e, err := r.QueryRoot().Episode(ctx, obj.Episode.ID, nil)
 	if err != nil {
-		return "", nil
+		logOmitted(err, "episodeCalendarEntry.title")
+		return "", nil //nolint:nilerr // optional field: degrade rather than fail the query
 	}
 	return e.Title, nil
 }
@@ -119,7 +120,8 @@ func (r *episodeCalendarEntryResolver) Description(ctx context.Context, obj *mod
 	}
 	e, err := r.QueryRoot().Episode(ctx, obj.Episode.ID, nil)
 	if err != nil {
-		return "", nil
+		logOmitted(err, "episodeCalendarEntry.description")
+		return "", nil //nolint:nilerr // optional field: degrade rather than fail the query
 	}
 	return e.Description, nil
 }
@@ -168,7 +170,8 @@ func (r *seasonCalendarEntryResolver) Title(ctx context.Context, obj *model.Seas
 	}
 	s, err := r.QueryRoot().Season(ctx, obj.Season.ID)
 	if err != nil {
-		return "", nil
+		logOmitted(err, "seasonCalendarEntry.title")
+		return "", nil //nolint:nilerr // optional field: degrade rather than fail the query
 	}
 	return s.Title, nil
 }
@@ -180,7 +183,8 @@ func (r *seasonCalendarEntryResolver) Description(ctx context.Context, obj *mode
 	}
 	s, err := r.QueryRoot().Season(ctx, obj.Season.ID)
 	if err != nil {
-		return "", nil
+		logOmitted(err, "seasonCalendarEntry.description")
+		return "", nil //nolint:nilerr // optional field: degrade rather than fail the query
 	}
 	return s.Description, nil
 }
@@ -215,7 +219,8 @@ func (r *showCalendarEntryResolver) Title(ctx context.Context, obj *model.ShowCa
 	}
 	s, err := r.QueryRoot().Show(ctx, obj.Show.ID)
 	if err != nil {
-		return "", nil
+		logOmitted(err, "showCalendarEntry.title")
+		return "", nil //nolint:nilerr // optional field: degrade rather than fail the query
 	}
 	return s.Title, nil
 }
@@ -227,7 +232,8 @@ func (r *showCalendarEntryResolver) Description(ctx context.Context, obj *model.
 	}
 	s, err := r.QueryRoot().Show(ctx, obj.Show.ID)
 	if err != nil {
-		return "", nil
+		logOmitted(err, "showCalendarEntry.description")
+		return "", nil //nolint:nilerr // optional field: degrade rather than fail the query
 	}
 	return s.Description, nil
 }

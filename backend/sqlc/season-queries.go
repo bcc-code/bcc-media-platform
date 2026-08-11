@@ -2,7 +2,6 @@ package sqlc
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -12,11 +11,8 @@ import (
 
 func (q *Queries) mapToSeasons(seasons []getSeasonsRow) []common.Season {
 	return lo.Map(seasons, func(e getSeasonsRow, _ int) common.Season {
-		var title common.LocaleString
-		var description common.LocaleString
-
-		_ = json.Unmarshal(e.Title.RawMessage, &title)
-		_ = json.Unmarshal(e.Description.RawMessage, &description)
+		title := localeString(e.Title.RawMessage)
+		description := localeString(e.Description.RawMessage)
 
 		var image null.String
 		if e.ImageFileName.Valid {

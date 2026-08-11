@@ -18,3 +18,17 @@ __debug_bin*
 .idea
 bin
 *.pem
+
+# `go build ./backend/cmd/<name>` drops the binary in the working directory.
+# Anchored to the repo root so the matching backend/cmd/<name> source
+# directories are unaffected.
+/api
+/events
+/jobs
+/pubsub-helper
+/rewriter
+/sign-url
+/staging-sync
+/stream-proxy
+/tools
+/videomanipulator

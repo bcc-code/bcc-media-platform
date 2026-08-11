@@ -25,15 +25,20 @@ func (service *Service) episodeToSearchItem(ctx context.Context, episode common.
 		if season != nil {
 			shID := season.ShowID
 			showID = &shID
+			seasonID = &season.ID
+			seasonTitle = &season.Title
+
 			show, err := service.loaders.ShowLoader.Load(ctx, shID)()
 			if err != nil {
 				return searchItem{}, err
 			}
-
-			showID = &show.ID
-			showTitle = &show.Title
-			seasonID = &season.ID
-			seasonTitle = &season.Title
+			// The loader yields (nil, nil) for a show that is missing or not
+			// visible. Keep indexing the episode with the season data we do have
+			// rather than dereferencing nil; showID already holds season.ShowID.
+			if show != nil {
+				showID = &show.ID
+				showTitle = &show.Title
+			}
 
 			if episode.Number.Valid {
 				headerString := fmt.Sprintf("S%d:E%d", season.Number, episode.Number.Int64)

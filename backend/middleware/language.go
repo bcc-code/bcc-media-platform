@@ -17,7 +17,7 @@ func LanguagePreferencesMiddleware(loaders *loaders.BatchLoaders) func(*gin.Cont
 		audioLangs := ctx.GetHeader("X-Accept-Audio-Language")
 		subsLangs := ctx.GetHeader("X-Accept-Subtitles-Language")
 
-		lp := common.LanguagePreferences{}
+		var lp common.LanguagePreferences
 
 		if audioLangs == "" && subsLangs == "" {
 			// Assume no language preferences and fall back to defaults

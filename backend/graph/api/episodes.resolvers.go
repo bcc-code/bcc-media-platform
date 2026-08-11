@@ -182,7 +182,9 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode, audioLanguages []string) ([]*model.File, error) {
 	err := user.ValidateAccess(ctx, r.Loaders.EpisodePermissionLoader, utils.AsInt(obj.ID), user.CheckConditions{FromDate: true, PublishDate: true, Download: true})
 	if err != nil {
-		return nil, nil
+		// No download rights means no files; a loader failure is logged instead.
+		logOmitted(err, "episode.files")
+		return nil, nil //nolint:nilerr // optional field: degrade rather than fail the query
 	}
 
 	intID, err := strconv.ParseInt(obj.ID, 10, 32)
@@ -513,7 +515,10 @@ func (r *episodeResolver) Next(ctx context.Context, obj *model.Episode, limit *i
 	}
 	episodes, err := r.QueryRoot().Episodes(ctx, ids)
 	if err != nil {
-		return nil, nil
+		// Episodes fails the whole batch as soon as one entry is unavailable, so
+		// an upcoming episode the caller can't see yet must not fail this field.
+		logOmitted(err, "episode.next")
+		return nil, nil //nolint:nilerr // optional field: degrade rather than fail the query
 	}
 	return episodes, nil
 }

@@ -11,6 +11,12 @@ func (service *Service) seasonToSearchItem(ctx context.Context, season common.Se
 	if err != nil {
 		return searchItem{}, err
 	}
+	// The loader yields (nil, nil) for a show that is missing or not visible;
+	// index the season without a show title rather than dereferencing nil.
+	var showTitle *common.LocaleString
+	if show != nil {
+		showTitle = &show.Title
+	}
 
 	var legacyID *int
 	if season.LegacyID.Valid {
@@ -30,7 +36,7 @@ func (service *Service) seasonToSearchItem(ctx context.Context, season common.Se
 		Description: season.Description,
 		Header:      nil,
 		ShowID:      &season.ShowID,
-		ShowTitle:   &show.Title,
+		ShowTitle:   showTitle,
 		Type:        "season",
 		AgeRating:   &season.AgeRating,
 		Image:       image,

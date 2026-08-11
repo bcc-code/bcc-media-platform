@@ -464,9 +464,6 @@ func (r *mutationRootResolver) ConfirmAchievement(ctx context.Context, id string
 	if !lo.Contains(common.MappingValues(ids), uid) {
 		return nil, merry.New("", merry.WithUserMessage("Achievement is not unconfirmed"))
 	}
-	ids = lo.Filter(ids, func(i *common.Mapping[uuid.UUID, uuid.UUID], _ int) bool {
-		return i != nil && i.Value != uid
-	})
 	err = r.Queries.ConfirmAchievement(ctx, sqlc.ConfirmAchievementParams{
 		ProfileID:     p.ID,
 		AchievementID: uid,

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ansel1/merry/v2"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
 
 var httpClient = &http.Client{
@@ -48,10 +49,12 @@ func sendManagementRequest[T any](ctx context.Context, client *Client, method, p
 	if err != nil {
 		return
 	}
+	defer utils.LogError(res.Body.Close)
 
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
-		var str []byte
-		str, err = io.ReadAll(res.Body)
+		// The body is best-effort context for the error; failing to read it must
+		// not mask the status code, which is the actual problem.
+		str, _ := io.ReadAll(res.Body)
 		err = merry.New("Failed to fetch", merry.WithHTTPCode(res.StatusCode), merry.WithMessage(string(str)))
 		return
 	}

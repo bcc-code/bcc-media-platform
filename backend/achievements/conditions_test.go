@@ -6,6 +6,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/bcc-media-platform/backend/utils/testutils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -62,7 +63,7 @@ func TestCheckNewAchievements(t *testing.T) {
 	}
 
 	c, _ := gin.CreateTestContext(httptest.NewRecorder())
-	ctx = context.WithValue(ctx, "GinContextKey", c)
+	ctx = utils.ContextWithGinContext(ctx, c)
 	c.Set(user.CtxProfile, &profile)
 	c.Set(user.CtxProfiles, profiles)
 

@@ -3,7 +3,6 @@ package sqlc
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"time"
 
@@ -14,9 +13,7 @@ import (
 
 func mapToEvents(items []getEventsRow) []common.Event {
 	return lo.Map(items, func(i getEventsRow, _ int) common.Event {
-		var title common.LocaleString
-
-		_ = json.Unmarshal(i.Title.RawMessage, &title)
+		title := localeString(i.Title.RawMessage)
 
 		return common.Event{
 			ID:    int(i.ID),
@@ -51,7 +48,7 @@ func (q *Queries) ListEvents(ctx context.Context) ([]common.Event, error) {
 func (q *Queries) GetEntryIDsForEventIDs(ctx context.Context, ids []int) ([]common.Mapping[int, int], error) {
 	rows, err := q.getCalendarEntryIDsForEvents(ctx, intToInt32(ids))
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	return lo.Map(rows, func(r getCalendarEntryIDsForEventsRow, _ int) common.Mapping[int, int] {
 		return common.Mapping[int, int]{Key: int(r.ParentID.Int64), Value: int(r.ID)}
@@ -72,11 +69,8 @@ func (q *Queries) GetEventsForPeriod(ctx context.Context, from time.Time, to tim
 
 func mapToCalendarEntries(items []getCalendarEntriesRow) []common.CalendarEntry {
 	return lo.Map(items, func(i getCalendarEntriesRow, _ int) common.CalendarEntry {
-		var title common.LocaleString
-		var description common.LocaleString
-
-		_ = json.Unmarshal(i.Title, &title)
-		_ = json.Unmarshal(i.Description, &description)
+		title := localeString(i.Title)
+		description := localeString(i.Description)
 
 		var itemID null.Int
 		switch i.LinkType.ValueOrZero() {

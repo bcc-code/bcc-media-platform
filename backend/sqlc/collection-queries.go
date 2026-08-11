@@ -10,10 +10,8 @@ import (
 
 func mapToCollections(collections []getCollectionsRow) []common.Collection {
 	return lo.Map(collections, func(e getCollectionsRow, _ int) common.Collection {
-		var title common.LocaleString
-		var slugs common.LocaleString
-		_ = json.Unmarshal(e.Title.RawMessage, &title)
-		_ = json.Unmarshal(e.Slugs.RawMessage, &slugs)
+		title := localeString(e.Title.RawMessage)
+		slugs := localeString(e.Slugs.RawMessage)
 
 		var filter *common.Filter
 

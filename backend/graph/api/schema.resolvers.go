@@ -34,6 +34,7 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/samber/lo"
+	"golang.org/x/sync/errgroup"
 	null "gopkg.in/guregu/null.v4"
 )
 
@@ -432,59 +433,73 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string, context *mod
 	}, episodeID, model.EpisodeFrom)
 }
 
+// maxConcurrentEpisodeResolves bounds how many ids are resolved at once.
+//
+// The ids argument comes straight from the client and previously got one
+// goroutine each, with nothing to bound it: the complexity limit counts fields,
+// not argument lengths. Realistic requests sit well under this, so they still
+// resolve in a single wave and the dataloader still batches them into one round
+// trip; only outsized ones are made to queue.
+const maxConcurrentEpisodeResolves = 50
+
 // Episodes is the resolver for the episodes field.
 func (r *queryRootResolver) Episodes(ctx context.Context, ids []string) ([]*model.Episode, error) {
-	resolved := make([]*model.Episode, len(ids))
-	ch := make(chan *model.Episode, len(ids))
-	errCh := make(chan error, len(ids))
+	// Resolved concurrently on purpose. Loader.Get blocks on its own thunk, so
+	// walking these in sequence would cost one database round trip per id rather
+	// than letting the dataloader collect them into a batch.
+	eg, egCtx := errgroup.WithContext(ctx)
+	eg.SetLimit(maxConcurrentEpisodeResolves)
 
-	for _, id := range ids {
-		go func(id string) {
-			episodeID, err := r.episodeIDResolver(ctx, id)
-			if err != nil {
-				errCh <- err
-				return
+	episodes := make([]*model.Episode, len(ids))
+	for i, id := range ids {
+		// Stop handing out work once the group is done for. Go blocks while the
+		// concurrency limit is saturated, so without this the loop keeps queueing
+		// every remaining id after a failure and each one starts resolving against
+		// an already-cancelled context.
+		if egCtx.Err() != nil {
+			break
+		}
+		eg.Go(func() error {
+			// Go runs f unconditionally, so a unit admitted just before the
+			// cancellation would still resolve without this. Returning the context
+			// error cannot mask the real one: errgroup keeps only the first.
+			if err := egCtx.Err(); err != nil {
+				return err
 			}
-			episode, err := resolverForIntID(ctx, &itemLoaders[int, common.Episode]{
+			episodeID, err := r.episodeIDResolver(egCtx, id)
+			if err != nil {
+				return err
+			}
+			episode, err := resolverForIntID(egCtx, &itemLoaders[int, common.Episode]{
 				Item:        r.Loaders.EpisodeLoader,
 				Permissions: r.Loaders.EpisodePermissionLoader,
 			}, episodeID, model.EpisodeFrom)
 			if err != nil {
-				errCh <- err
-				return
+				return err
 			}
-			ch <- episode
-		}(id)
+			// Placed by index, so the result follows the order asked for without
+			// the quadratic match-by-id pass this needed when results arrived on
+			// a channel in completion order.
+			episodes[i] = episode
+			return nil
+		})
 	}
 
-	for i := 0; i < len(ids); i++ {
-		select {
-		case episode := <-ch:
-			resolved[i] = episode
-		case err := <-errCh:
-			return nil, err
-		}
+	// The schema types this [Episode!]!, so a single unresolvable id has to fail
+	// the field — there is no null element to return in its place.
+	if err := eg.Wait(); err != nil {
+		return nil, err
 	}
 
-	close(ch)
-	close(errCh)
-
-	// sort by original order
-	ordered := make([]*model.Episode, len(ids))
-	for i, id := range ids {
-		for _, episode := range resolved {
-			if episode.ID == id || episode.UUID == id {
-				ordered[i] = episode
-				break
-			}
-		}
+	// Breaking out of the loop leaves holes in episodes, and Wait reports nil when
+	// the cancellation came from the caller rather than from a failed unit. Checked
+	// against the caller's context, not egCtx, because Wait cancels that one on its
+	// way out.
+	if err := ctx.Err(); err != nil {
+		return nil, err
 	}
 
-	if len(ordered) != len(resolved) {
-		return nil, merry.New("Failed to resolve all episodes")
-	}
-
-	return ordered, nil
+	return episodes, nil
 }
 
 // Playlist is the resolver for the playlist field.

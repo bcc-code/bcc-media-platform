@@ -2,7 +2,6 @@ package sqlc
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
 
@@ -13,11 +12,8 @@ import (
 
 func (q *Queries) mapToShows(shows []getShowsRow) []common.Show {
 	return lo.Map(shows, func(e getShowsRow, _ int) common.Show {
-		var title common.LocaleString
-		var description common.LocaleString
-
-		_ = json.Unmarshal(e.Title.RawMessage, &title)
-		_ = json.Unmarshal(e.Description.RawMessage, &description)
+		title := localeString(e.Title.RawMessage)
+		description := localeString(e.Description.RawMessage)
 
 		var image null.String
 		if e.ImageFileName.Valid {

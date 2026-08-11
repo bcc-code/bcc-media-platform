@@ -102,7 +102,7 @@ func (localeString LocaleString) Placeholder(placeholder string, replacementMap 
 			continue
 		}
 		replacement := replacementMap.Get([]string{lang})
-		result[lang] = null.StringFrom(strings.Replace(value.String, placeholder, replacement, -1))
+		result[lang] = null.StringFrom(strings.ReplaceAll(value.String, placeholder, replacement))
 	}
 	return result
 }

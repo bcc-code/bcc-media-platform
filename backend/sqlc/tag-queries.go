@@ -2,15 +2,13 @@ package sqlc
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/samber/lo"
 )
 
 func mapToTags(items []getTagsRow) []common.Tag {
 	return lo.Map(items, func(i getTagsRow, _ int) common.Tag {
-		var name common.LocaleString
-		_ = json.Unmarshal(i.Name.RawMessage, &name)
+		name := localeString(i.Name.RawMessage)
 
 		return common.Tag{
 			ID:   int(i.ID),

@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -25,8 +26,11 @@ type LanguagePreferences struct {
 // as combined view of PreferredAudioLanguage and PreferredSubtitlesLanguage
 func (lp *LanguagePreferences) PreferredLanguages() []string {
 	if len(lp.preferredLanguages) == 0 {
-		l := append(lp.PreferredAudioLanguages, lp.PreferredSubtitlesLanguages...)
-		lp.preferredLanguages = lo.Uniq(l)
+		// slices.Concat, not append: appending onto PreferredAudioLanguages writes
+		// into its backing array whenever it has spare capacity. That slice can come
+		// straight from the cached application group defaults, so the append would
+		// corrupt what every later request in this pod reads.
+		lp.preferredLanguages = lo.Uniq(slices.Concat(lp.PreferredAudioLanguages, lp.PreferredSubtitlesLanguages))
 	}
 
 	return lp.preferredLanguages

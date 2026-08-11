@@ -2,7 +2,6 @@ package sqlc
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/google/uuid"
@@ -11,10 +10,8 @@ import (
 )
 
 func surveyToItem(row getSurveysRow, _ int) common.Survey {
-	var title = common.LocaleString{}
-	var description = common.LocaleString{}
-	_ = json.Unmarshal(row.Title.RawMessage, &title)
-	_ = json.Unmarshal(row.Description.RawMessage, &description)
+	title := localeString(row.Title.RawMessage)
+	description := localeString(row.Description.RawMessage)
 	title["no"] = null.StringFrom(row.OriginalTitle)
 	description["no"] = row.OriginalDescription
 
@@ -26,15 +23,10 @@ func surveyToItem(row getSurveysRow, _ int) common.Survey {
 }
 
 func surveyQuestionToItem(row getSurveyQuestionsRow, _ int) common.SurveyQuestion {
-	var title = common.LocaleString{}
-	var d = common.LocaleString{}
-	var actionButton = common.LocaleString{}
-	var cancelButton = common.LocaleString{}
-
-	_ = json.Unmarshal(row.Title.RawMessage, &title)
-	_ = json.Unmarshal(row.Description.RawMessage, &d)
-	_ = json.Unmarshal(row.ActionButtonText.RawMessage, &actionButton)
-	_ = json.Unmarshal(row.CancelButtonText.RawMessage, &cancelButton)
+	title := localeString(row.Title.RawMessage)
+	d := localeString(row.Description.RawMessage)
+	actionButton := localeString(row.ActionButtonText.RawMessage)
+	cancelButton := localeString(row.CancelButtonText.RawMessage)
 
 	title["no"] = null.StringFrom(row.OriginalTitle)
 	d["no"] = row.OriginalDescription

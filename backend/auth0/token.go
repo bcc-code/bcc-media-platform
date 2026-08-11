@@ -29,11 +29,18 @@ func sendTokenRequest[t any](ctx context.Context, body t, endpoint string) (getT
 		return getTokenResponse{}, err
 	}
 
-	res, err := http.Post(
-		endpoint,
-		"application/json",
-		bytes.NewBuffer(marshalled),
-	)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewBuffer(marshalled))
+	if err != nil {
+		return getTokenResponse{}, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	// The package client, not http.DefaultClient: the default has no timeout, and
+	// this call gates every Management API request through GetToken, so a hung
+	// Auth0 endpoint would stall user resolution indefinitely.
+	// The body is closed by the deferred call below; bodyclose does not recognise
+	// the method-value form that utils.LogError takes, hence the suppression.
+	res, err := httpClient.Do(req) //nolint:bodyclose
 	if err != nil {
 		return getTokenResponse{}, err
 	}

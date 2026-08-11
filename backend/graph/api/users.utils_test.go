@@ -9,6 +9,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
+	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -27,7 +28,7 @@ func ctxWithUser(t *testing.T, languages []string, roles []string, u *common.Use
 	c.Set(user.CtxLanguages, languages)
 	c.Set(user.CtxRoles, roles)
 	c.Set(user.CtxUser, u)
-	return context.WithValue(req.Context(), "GinContextKey", c)
+	return utils.ContextWithGinContext(req.Context(), c)
 }
 
 func TestUserCollectionEntryItemInfo(t *testing.T) {

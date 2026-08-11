@@ -59,41 +59,43 @@ func personalizedLoaderFactory(
 			return nil
 		}
 
-		if ls := ginCtx.Value(personalizedLoadersCtxKey); ls != nil {
-			return ls.(*loaders.PersonalizedLoaders)
+		ls, err := utils.GetOrSetContextWithLock(ctx, personalizedLoadersCtxKey, func() (*loaders.PersonalizedLoaders, error) {
+			return loaders.GetPersonalizedLoaders(
+				queries,
+				user.GetRolesFromCtx(ginCtx),
+				common.GetLanguagePreferencesFromCtx(ginCtx),
+			), nil
+		})
+		if err != nil {
+			log.L.Error().Err(err).Msg("failed to get personalized loaders for request")
+			return nil
 		}
-
-		var roles []string
-		roles = user.GetRolesFromCtx(ginCtx)
-
-		langPreferences := common.GetLanguagePreferencesFromCtx(ginCtx)
-
-		ls := loaders.GetPersonalizedLoaders(
-			queries,
-			roles,
-			langPreferences,
-		)
-
-		ginCtx.Set(personalizedLoadersCtxKey, ls)
 		return ls
 	}
 }
 
 func filteredLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *loaders.LoadersWithPermissions {
 	return func(ctx context.Context) *loaders.LoadersWithPermissions {
+		// Without a request to scope to there is nothing to read roles from and
+		// nowhere to cache, so fall back to a loader set for a role that grants
+		// nothing. GetLoadersForRoles caches per role key, so this is cheap.
+		unprivileged := func() *loaders.LoadersWithPermissions {
+			return loaders.GetLoadersForRoles(queries, []string{"unknown"})
+		}
+
 		ginCtx, err := utils.GinCtx(ctx)
-		var roles []string
 		if err != nil {
 			log.L.Error().Err(err).Msg("failed to get gin ctx from context")
-			roles = []string{"unknown"}
-		} else {
-			roles = user.GetRolesFromCtx(ginCtx)
+			return unprivileged()
 		}
-		if ls := ginCtx.Value(filteredLoadersCtxKey); ls != nil {
-			return ls.(*loaders.LoadersWithPermissions)
+
+		ls, err := utils.GetOrSetContextWithLock(ctx, filteredLoadersCtxKey, func() (*loaders.LoadersWithPermissions, error) {
+			return loaders.GetLoadersForRoles(queries, user.GetRolesFromCtx(ginCtx)), nil
+		})
+		if err != nil {
+			log.L.Error().Err(err).Msg("failed to get filtered loaders for request")
+			return unprivileged()
 		}
-		ls := loaders.GetLoadersForRoles(queries, roles)
-		ginCtx.Set(filteredLoadersCtxKey, ls)
 		return ls
 	}
 }
@@ -108,11 +110,14 @@ func profileLoaderFactory(queries *sqlc.Queries) func(ctx context.Context) *load
 		if p == nil {
 			return nil
 		}
-		if ls := ginCtx.Value(profileLoadersCtxKey); ls != nil {
-			return ls.(*loaders.ProfileLoaders)
+
+		ls, err := utils.GetOrSetContextWithLock(ctx, profileLoadersCtxKey, func() (*loaders.ProfileLoaders, error) {
+			return getLoadersForProfile(queries, p), nil
+		})
+		if err != nil {
+			log.L.Error().Err(err).Msg("failed to get profile loaders for request")
+			return nil
 		}
-		ls := getLoadersForProfile(queries, p)
-		ginCtx.Set(profileLoadersCtxKey, ls)
 		return ls
 	}
 }

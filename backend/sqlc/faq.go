@@ -2,7 +2,6 @@ package sqlc
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -11,11 +10,8 @@ import (
 
 func mapToCategories(items []getFAQCategoriesRow) []common.FAQCategory {
 	return lo.Map(items, func(i getFAQCategoriesRow, _ int) common.FAQCategory {
-		var title = common.LocaleString{}
-		var description = common.LocaleString{}
-
-		_ = json.Unmarshal(i.Title.RawMessage, &title)
-		_ = json.Unmarshal(i.Description.RawMessage, &description)
+		title := localeString(i.Title.RawMessage)
+		description := localeString(i.Description.RawMessage)
 		title["no"] = null.StringFrom(i.OriginalTitle)
 		description["no"] = i.OriginalDescription
 
@@ -37,11 +33,8 @@ func (q *Queries) GetFAQCategories(ctx context.Context, ids []uuid.UUID) ([]comm
 
 func mapToQuestions(items []getQuestionsRow) []common.Question {
 	return lo.Map(items, func(i getQuestionsRow, _ int) common.Question {
-		var question = common.LocaleString{}
-		var answer = common.LocaleString{}
-
-		_ = json.Unmarshal(i.Question.RawMessage, &question)
-		_ = json.Unmarshal(i.Answer.RawMessage, &answer)
+		question := localeString(i.Question.RawMessage)
+		answer := localeString(i.Answer.RawMessage)
 		question["no"] = null.StringFrom(i.OriginalQuestion)
 		answer["no"] = null.StringFrom(i.OriginalAnswer)
 

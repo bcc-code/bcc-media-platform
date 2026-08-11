@@ -45,6 +45,10 @@ func copyObjects(
 	defer span.End()
 
 	copyErrors := []error{}
+	// copyErrors is appended to from every goroutine below, so it needs a lock:
+	// concurrent appends to a shared slice race on both the backing array and the
+	// slice header, which can drop errors and make a failed copy look successful.
+	var copyErrorsMu sync.Mutex
 	var wg sync.WaitGroup
 
 	wg.Add(len(filesToCopy))
@@ -64,7 +68,9 @@ func copyObjects(
 					Str("dst path", *f.Key).
 					Msg("File copy failed")
 
+				copyErrorsMu.Lock()
 				copyErrors = append(copyErrors, merry.Wrap(err))
+				copyErrorsMu.Unlock()
 				// We have an error that we can't handle so just return from the function
 				return
 			}
@@ -139,7 +145,7 @@ func multiPartCopy(ctx context.Context, svc s3.Client, sourceBucket *string, cop
 		}
 	}
 	if uploadId == "" {
-		return errors.New("No upload id found in start upload request")
+		return errors.New("no upload id found in start upload request")
 	}
 
 	var i int64
@@ -166,13 +172,25 @@ func multiPartCopy(ctx context.Context, svc s3.Client, sourceBucket *string, cop
 
 		if err != nil {
 			log.Error().Msg("Attempting to abort upload")
+			// Bucket and Key are required by the S3 API alongside UploadId; without
+			// them the abort itself fails and the multipart upload is left dangling,
+			// holding storage until a lifecycle rule reaps it.
 			abortIn := s3.AbortMultipartUploadInput{
+				Bucket:   copyInput.Bucket,
+				Key:      copyInput.Key,
 				UploadId: &uploadId,
 			}
 
-			//ignoring any errors with aborting the copy
-			_, _ = svc.AbortMultipartUpload(ctx, &abortIn)
-			return fmt.Errorf("Error uploading part %d : %w", partNumber, err)
+			if _, abortErr := svc.AbortMultipartUpload(ctx, &abortIn); abortErr != nil {
+				// Report it but keep the upload error as the one we return.
+				log.Error().
+					Err(abortErr).
+					Str("bucket", *copyInput.Bucket).
+					Str("key", *copyInput.Key).
+					Str("uploadId", uploadId).
+					Msg("Failed to abort multipart upload; it may need cleaning up manually")
+			}
+			return fmt.Errorf("error uploading part %d : %w", partNumber, err)
 		}
 
 		//copy etag and part number from response as it is needed for completion
@@ -206,7 +224,7 @@ func multiPartCopy(ctx context.Context, svc s3.Client, sourceBucket *string, cop
 
 	compOutput, err := svc.CompleteMultipartUpload(ctx, &complete)
 	if err != nil {
-		return fmt.Errorf("Error completing upload: %w", err)
+		return fmt.Errorf("error completing upload: %w", err)
 	}
 
 	if compOutput != nil {

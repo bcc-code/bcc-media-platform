@@ -30,7 +30,6 @@ func main() {
 	router := gin.Default()
 
 	router.POST("assets/clean", DeleteUnusedAssets(queries, "bccm-prod"))
-	router.GET("shorts", ListShorts())
 
 	fmt.Print("Running on http://localhost:9933/")
 	router.Run("127.0.0.1:9933")
