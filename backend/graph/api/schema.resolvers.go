@@ -447,17 +447,30 @@ func (r *queryRootResolver) Episodes(ctx context.Context, ids []string) ([]*mode
 	// Resolved concurrently on purpose. Loader.Get blocks on its own thunk, so
 	// walking these in sequence would cost one database round trip per id rather
 	// than letting the dataloader collect them into a batch.
-	eg, ctx := errgroup.WithContext(ctx)
+	eg, egCtx := errgroup.WithContext(ctx)
 	eg.SetLimit(maxConcurrentEpisodeResolves)
 
 	episodes := make([]*model.Episode, len(ids))
 	for i, id := range ids {
+		// Stop handing out work once the group is done for. Go blocks while the
+		// concurrency limit is saturated, so without this the loop keeps queueing
+		// every remaining id after a failure and each one starts resolving against
+		// an already-cancelled context.
+		if egCtx.Err() != nil {
+			break
+		}
 		eg.Go(func() error {
-			episodeID, err := r.episodeIDResolver(ctx, id)
+			// Go runs f unconditionally, so a unit admitted just before the
+			// cancellation would still resolve without this. Returning the context
+			// error cannot mask the real one: errgroup keeps only the first.
+			if err := egCtx.Err(); err != nil {
+				return err
+			}
+			episodeID, err := r.episodeIDResolver(egCtx, id)
 			if err != nil {
 				return err
 			}
-			episode, err := resolverForIntID(ctx, &itemLoaders[int, common.Episode]{
+			episode, err := resolverForIntID(egCtx, &itemLoaders[int, common.Episode]{
 				Item:        r.Loaders.EpisodeLoader,
 				Permissions: r.Loaders.EpisodePermissionLoader,
 			}, episodeID, model.EpisodeFrom)
@@ -473,9 +486,16 @@ func (r *queryRootResolver) Episodes(ctx context.Context, ids []string) ([]*mode
 	}
 
 	// The schema types this [Episode!]!, so a single unresolvable id has to fail
-	// the field — there is no null element to return in its place. errgroup also
-	// cancels the rest instead of leaving them to finish unread.
+	// the field — there is no null element to return in its place.
 	if err := eg.Wait(); err != nil {
+		return nil, err
+	}
+
+	// Breaking out of the loop leaves holes in episodes, and Wait reports nil when
+	// the cancellation came from the caller rather than from a failed unit. Checked
+	// against the caller's context, not egCtx, because Wait cancels that one on its
+	// way out.
+	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
 
