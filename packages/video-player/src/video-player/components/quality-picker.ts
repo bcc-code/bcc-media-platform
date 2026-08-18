@@ -1,37 +1,32 @@
 import { MediaElement } from "@videojs/html"
 import { wirePickerKeyboard } from "./picker-keyboard"
 import { wirePickerPositioning } from "./picker-position"
+import {
+    findTrackHost,
+    onTrackHostLoad,
+    type VideoRendition,
+    type VideoRenditionList,
+} from "./media-tracks"
 import { getLanguage, onLanguageChange, t } from "../i18n/strings"
 import ICON_QUALITY from "../skin/icons/quality.svg?raw"
 
 const TAG = "bccm-quality-picker"
+const LIST_EVENTS = [
+    "addrendition",
+    "removerendition",
+    "change",
+    "activechange",
+]
 let popoverIdSeq = 0
 
-type HlsLevel = {
-    height?: number
-    width?: number
-    bitrate?: number
-    name?: string
-}
-type HlsEngine = {
-    levels: HlsLevel[]
-    currentLevel: number
-    loadLevel: number
-    autoLevelEnabled: boolean
-    on(event: string, cb: () => void): void
-    off(event: string, cb: () => void): void
-}
-type EngineHost = HTMLElement & { engine?: HlsEngine | null }
-
-// Subscribes to the hls.js engine for quality levels, same as the audio picker.
 export class QualityPickerElement extends MediaElement {
     static readonly tagName = TAG
 
     #disconnect: AbortController | null = null
-    #engineUnsub: (() => void) | null = null
+    #listAbort: AbortController | null = null
+    #list: VideoRenditionList | null = null
     #button = document.createElement("button")
     #menu = document.createElement("div")
-    #pollHandle: ReturnType<typeof setInterval> | null = null
 
     connectedCallback(): void {
         super.connectedCallback()
@@ -60,114 +55,96 @@ export class QualityPickerElement extends MediaElement {
 
         this.replaceChildren(this.#button, this.#menu)
 
-        onLanguageChange(this, signal, () => this.#refreshFromEngine())
-
-        this.#waitForEngine()
+        onLanguageChange(this, signal, () => this.#render())
+        onTrackHostLoad(this, signal, this.#attach)
     }
 
     disconnectedCallback(): void {
         super.disconnectedCallback()
         this.#disconnect?.abort()
         this.#disconnect = null
-        this.#engineUnsub?.()
-        this.#engineUnsub = null
-        if (this.#pollHandle) clearInterval(this.#pollHandle)
-        this.#pollHandle = null
+        this.#listAbort?.abort()
+        this.#listAbort = null
+        this.#list = null
     }
 
-    #waitForEngine(): void {
-        const tryAttach = () => {
-            const media = this.#findMedia()
-            const engine = media?.engine
-            if (engine) {
-                if (this.#pollHandle) clearInterval(this.#pollHandle)
-                this.#pollHandle = null
-                this.#attachEngine(engine)
-                return true
-            }
-            return false
+    #attach = (): void => {
+        const list = findTrackHost(this)?.videoRenditions
+        if (!list || list === this.#list) return
+        this.#listAbort?.abort()
+        this.#listAbort = new AbortController()
+        const { signal } = this.#listAbort
+        this.#list = list
+        for (const event of LIST_EVENTS) {
+            list.addEventListener(event, () => this.#render(), { signal })
         }
-        if (tryAttach()) return
-        this.#pollHandle = setInterval(tryAttach, 250)
+        this.#render()
     }
 
-    #attachEngine(engine: HlsEngine): void {
-        const refresh = () => this.#render(engine)
-        engine.on("hlsLevelsUpdated", refresh)
-        engine.on("hlsLevelSwitched", refresh)
-        engine.on("hlsManifestParsed", refresh)
-        this.#engineUnsub = () => {
-            engine.off("hlsLevelsUpdated", refresh)
-            engine.off("hlsLevelSwitched", refresh)
-            engine.off("hlsManifestParsed", refresh)
-        }
-        refresh()
-    }
-
-    #render(engine: HlsEngine): void {
-        const levels = engine.levels ?? []
-        this.toggleAttribute("data-empty", levels.length <= 1)
-
-        const isAuto = engine.autoLevelEnabled
-        const activeLevel = levels[engine.loadLevel]
+    #render(): void {
+        const list = this.#list
         const lang = getLanguage(this)
+        if (!list) {
+            this.#button.setAttribute("aria-label", t(lang, "videoQuality"))
+            return
+        }
+
+        const renditions = [...list]
+        this.toggleAttribute("data-empty", renditions.length <= 1)
+
+        const isAuto = list.selectedIndex === -1
+        const playing = renditions.find((r) => r.active)
 
         let ariaLabel: string
-        if (!activeLevel?.height) {
+        if (!playing?.height) {
             ariaLabel = t(lang, "videoQuality")
         } else if (isAuto) {
-            ariaLabel = t(lang, "videoQualityAuto", {
-                height: activeLevel.height,
-            })
+            ariaLabel = t(lang, "videoQualityAuto", { height: playing.height })
         } else {
             ariaLabel = t(lang, "videoQualityActive", {
-                height: activeLevel.height,
+                height: playing.height,
             })
         }
         this.#button.setAttribute("aria-label", ariaLabel)
 
-        // Descending by height, keeping the engine.levels index for selection.
-        const sorted = levels
-            .map((level, idx) => ({ level, idx }))
-            .sort((a, b) => (b.level.height ?? 0) - (a.level.height ?? 0))
+        // Descending by height, keeping the list index for selection.
+        const sorted = renditions
+            .map((rendition, idx) => ({ rendition, idx }))
+            .sort(
+                (a, b) => (b.rendition.height ?? 0) - (a.rendition.height ?? 0)
+            )
 
         this.#menu.replaceChildren()
 
         const auto = this.#item(
-            isAuto && activeLevel?.height
-                ? t(lang, "autoWithHeight", { height: activeLevel.height })
+            isAuto && playing?.height
+                ? t(lang, "autoWithHeight", { height: playing.height })
                 : t(lang, "auto"),
             () => {
-                engine.currentLevel = -1
-                this.#menu.hidePopover()
+                list.selectedIndex = -1
             }
         )
         if (isAuto) auto.setAttribute("aria-checked", "true")
         this.#menu.appendChild(auto)
 
-        for (const { level, idx } of sorted) {
-            const label = level.height
-                ? `${level.height}p`
-                : level.name || t(lang, "qualityLevelFallback", { idx })
-            const item = this.#item(label, () => {
-                engine.currentLevel = idx
-                this.#menu.hidePopover()
+        for (const { rendition, idx } of sorted) {
+            const item = this.#item(this.#label(rendition, idx, lang), () => {
+                list.selectedIndex = idx
             })
-            if (!isAuto && idx === engine.currentLevel) {
+            if (!isAuto && idx === list.selectedIndex) {
                 item.setAttribute("aria-checked", "true")
             }
             this.#menu.appendChild(item)
         }
     }
 
-    #refreshFromEngine(): void {
-        const engine = this.#findMedia()?.engine
-        if (engine) this.#render(engine)
-        else
-            this.#button.setAttribute(
-                "aria-label",
-                t(getLanguage(this), "videoQuality")
-            )
+    #label(
+        rendition: VideoRendition,
+        idx: number,
+        lang: ReturnType<typeof getLanguage>
+    ): string {
+        if (rendition.height) return `${rendition.height}p`
+        return t(lang, "qualityLevelFallback", { idx })
     }
 
     #item(label: string, onActivate: () => void): HTMLButtonElement {
@@ -177,15 +154,11 @@ export class QualityPickerElement extends MediaElement {
         b.className = "bccm-picker-item"
         b.setAttribute("role", "menuitemradio")
         b.textContent = label
-        b.addEventListener("click", onActivate)
+        b.addEventListener("click", () => {
+            onActivate()
+            this.#menu.hidePopover()
+        })
         return b
-    }
-
-    #findMedia(): EngineHost | null {
-        const player = this.closest("video-player")
-        return (
-            (player?.querySelector("hlsjs-video") as EngineHost | null) ?? null
-        )
     }
 }
 

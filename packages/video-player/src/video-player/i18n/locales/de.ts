@@ -40,6 +40,8 @@ const de: LocaleTable = {
     exitPip: "Bild-in-Bild beenden",
     startCasting: "Streamen starten",
     stopCasting: "Streamen beenden",
+    startAirplay: "AirPlay starten",
+    stopAirplay: "AirPlay beenden",
     connecting: "Verbinden",
 }
 

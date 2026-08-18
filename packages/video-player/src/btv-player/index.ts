@@ -39,9 +39,9 @@ export class PlayerFactory {
                     (s) => s.type === "hls_ts" && langCheck(s)
                 )
             }
-            if (!stream) {
-                stream = streams.find((s) => s.type === "dash" && langCheck(s))
-            }
+            // No `dash` fallback: the player builds an <hlsjs-video>, which
+            // can't play an .mpd. Falling through to an HLS stream in another
+            // language at least plays.
             if (!stream) {
                 stream = streams.find((s) => s.type === "hls_cmaf")
             }

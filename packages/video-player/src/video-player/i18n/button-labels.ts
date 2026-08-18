@@ -20,6 +20,7 @@ interface ButtonState {
     fullscreen?: boolean
     pip?: boolean
     castState?: "connected" | "connecting" | string
+    state?: "connected" | "connecting" | "disconnected" | string
     direction?: "backward" | "forward"
 }
 
@@ -62,6 +63,15 @@ const SPECS: ButtonSpec[] = [
             if (state.castState === "connected") return t(lang, "stopCasting")
             if (state.castState === "connecting") return t(lang, "connecting")
             return t(lang, "startCasting")
+        },
+    },
+    {
+        selector: "media-airplay-button",
+        label: (el, state) => {
+            const lang = getLanguage(el)
+            if (state.state === "connected") return t(lang, "stopAirplay")
+            if (state.state === "connecting") return t(lang, "connecting")
+            return t(lang, "startAirplay")
         },
     },
     {

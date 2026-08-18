@@ -2,6 +2,7 @@
 // ejected skin (see ./skin) instead of @videojs/html/video/skin.
 import "@videojs/html/video/ui"
 import "@videojs/html/media/hlsjs-video"
+import "@videojs/html/media/google-cast"
 import "./components/subtitle-picker"
 import "./components/audio-picker"
 import "./components/quality-picker"
@@ -28,6 +29,7 @@ import {
     t,
 } from "./i18n/strings"
 import { relabelButtons } from "./i18n/button-labels"
+import type { AudioTrack, TrackHost } from "./components/media-tracks"
 
 export {
     DEFAULT_LANG,
@@ -137,6 +139,9 @@ export async function createPlayer(
         language: initialLang,
     })
     player.appendChild(skin)
+    // Cast is a declared component since beta.26 — <media-cast-button> alone
+    // has nothing behind it. No `receiver`, so it uses the default receiver.
+    player.appendChild(document.createElement("google-cast"))
     container.insertAdjacentElement("afterbegin", player)
 
     const teardown = new AbortController()
@@ -237,56 +242,22 @@ export function restartNPAWView(player: Player, options: NPAWOptions): void {
     restartView(player, options)
 }
 
-// Two paths: hls.js keeps audio tracks on its engine (Chrome/Firefox don't
-// populate HTMLMediaElement.audioTracks for MSE), native HLS uses the DOM API.
-type HlsAudioTrack = { id: number; lang?: string; name?: string }
-type HlsEngine = {
-    audioTracks: HlsAudioTrack[]
-    audioTrack: number
-}
-type NativeAudioTrack = { language?: string; label?: string; enabled: boolean }
-type NativeAudioTrackList = { length: number; [i: number]: NativeAudioTrack }
-function hlsEngine(media: HTMLElement): HlsEngine | null {
-    return (media as { engine?: HlsEngine | null }).engine ?? null
+function audioTracks(media: HTMLElement): AudioTrack[] {
+    const list = (media as TrackHost).audioTracks
+    return list ? [...list] : []
 }
 
 function getAudioLanguages(media: HTMLElement): TrackOption[] {
-    const engine = hlsEngine(media)
-    if (engine?.audioTracks?.length) {
-        return engine.audioTracks.map((t) => ({
-            language: t.lang ?? "",
-            label: t.name ?? t.lang ?? "",
-        }))
-    }
-    const native = (media as unknown as { audioTracks?: NativeAudioTrackList })
-        .audioTracks
-    if (!native) return []
-    const out: TrackOption[] = []
-    for (let i = 0; i < native.length; i++) {
-        const t = native[i]
-        out.push({
-            language: t.language ?? "",
-            label: t.label ?? t.language ?? "",
-        })
-    }
-    return out
+    return audioTracks(media).map((track) => ({
+        language: track.language,
+        label: track.label || track.language,
+    }))
 }
 
 function setAudioTrackToLanguage(media: HTMLElement, language?: string) {
     if (!language) return
-    const engine = hlsEngine(media)
-    if (engine?.audioTracks?.length) {
-        const idx = engine.audioTracks.findIndex((t) => t.lang === language)
-        if (idx >= 0) engine.audioTrack = engine.audioTracks[idx].id
-        return
-    }
-    const native = (media as unknown as { audioTracks?: NativeAudioTrackList })
-        .audioTracks
-    if (!native) return
-    for (let i = 0; i < native.length; i++) {
-        const t = native[i]
-        if (t.language === language) t.enabled = true
-    }
+    const target = audioTracks(media).find((t) => t.language === language)
+    if (target) target.enabled = true
 }
 
 function getSubtitleLanguages(media: HTMLVideoElement): TrackOption[] {
@@ -394,18 +365,14 @@ function renderErrorDialog(skin: HTMLElement, lang: Lang): void {
 }
 
 function setVideoQuality(media: HTMLElement, height: number): void {
-    const engine = (
-        media as {
-            engine?: { levels: { height?: number }[]; currentLevel: number }
-        }
-    ).engine
-    if (!engine?.levels?.length) return
+    const list = (media as TrackHost).videoRenditions
+    if (!list?.length) return
     if (!height || height < 0) {
-        engine.currentLevel = -1 // re-enable ABR (Auto)
+        list.selectedIndex = -1 // back to ABR
         return
     }
-    const idx = engine.levels.findIndex((l) => l.height === height)
-    if (idx >= 0) engine.currentLevel = idx
+    const idx = [...list].findIndex((r) => r.height === height)
+    if (idx >= 0) list.selectedIndex = idx
 }
 
 function setSubtitleTrackToLanguage(

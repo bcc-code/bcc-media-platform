@@ -20,6 +20,8 @@ import ICON_FS_ENTER from "./icons/fullscreen-enter.svg?raw"
 import ICON_FS_EXIT from "./icons/fullscreen-exit.svg?raw"
 import ICON_CAST_ENTER from "./icons/cast-enter.svg?raw"
 import ICON_CAST_EXIT from "./icons/cast-exit.svg?raw"
+import ICON_AIRPLAY_ENTER from "./icons/airplay-enter.svg?raw"
+import ICON_AIRPLAY_EXIT from "./icons/airplay-exit.svg?raw"
 import ICON_SPINNER from "./icons/spinner.svg?raw"
 
 const SEEK_TIME = 15
@@ -54,6 +56,7 @@ export function buildSkin(
     const ID_PIP = `pip-tooltip-${sid}`
     const ID_FS = `fullscreen-tooltip-${sid}`
     const ID_CAST = `cast-tooltip-${sid}`
+    const ID_AIRPLAY = `airplay-tooltip-${sid}`
     const ID_RATE = `rate-tooltip-${sid}`
     const ID_AUDIO = `audio-tooltip-${sid}`
     const ID_SUBS = `subtitles-tooltip-${sid}`
@@ -191,6 +194,11 @@ export function buildSkin(
               ${ICON_CAST_ENTER}${ICON_CAST_EXIT}
             </media-cast-button>
             <media-tooltip id="${ID_CAST}" side="top" class="media-tooltip"></media-tooltip>
+
+            <media-airplay-button commandfor="${ID_AIRPLAY}" class="media-button media-button--subtle media-button--icon media-button--airplay">
+              ${ICON_AIRPLAY_ENTER}${ICON_AIRPLAY_EXIT}
+            </media-airplay-button>
+            <media-tooltip id="${ID_AIRPLAY}" side="top" class="media-tooltip"></media-tooltip>
 
             <media-pip-button commandfor="${ID_PIP}" class="media-button media-button--subtle media-button--icon media-button--pip">
               ${ICON_PIP_ENTER}${ICON_PIP_EXIT}

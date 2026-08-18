@@ -41,6 +41,8 @@ export type StringKey =
     | "exitPip"
     | "startCasting"
     | "stopCasting"
+    | "startAirplay"
+    | "stopAirplay"
     | "connecting"
 
 export type LocaleTable = Record<StringKey, string>
