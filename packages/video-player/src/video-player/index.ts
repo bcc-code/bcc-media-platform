@@ -12,7 +12,7 @@ import "./skin/skin.css"
 
 import { buildSkin } from "./skin/skin"
 import { enableNPAW, type NPAWOptions, restartView, setOptions } from "./npaw"
-import { getDefaults, mergeOptions } from "./utils/options"
+import { getDefaults, mergeOptions, normalizeSourceType } from "./utils/options"
 import {
     BW_WRITE_THROTTLE_MS,
     readSavedBandwidth,
@@ -106,10 +106,8 @@ export async function createPlayer(
     player.setAttribute("data-lang", initialLang)
     const media = document.createElement("hlsjs-video")
 
-    // hls.js config travels with the source: beta.27 retired the untyped
-    // `config` bag in favour of `source.engine.<provider>`, and the engine
-    // reads those options when it is constructed — so `src` and the engine
-    // options go in as one assignment rather than config-then-src.
+    // Engine options are read when the engine is constructed, so they go in
+    // with `src` as one assignment.
     // capLevelToPlayerSize is the v10 equivalent of v8's
     // limitRenditionByPlayerDimensions (don't pull a 1080p rendition into a
     // 320x240 viewport). preferPlayback="mse" — v8's overrideNative — is
@@ -117,8 +115,10 @@ export async function createPlayer(
     // abrEwmaDefaultEstimate seeds the ABR algorithm with the bandwidth we
     // measured last session — replicates v8's `useBandwidthFromLocalStorage`.
     const savedBandwidth = readSavedBandwidth()
+    const sourceType = normalizeSourceType(options.src.type)
     media.source = {
         ...(options.src.src ? { src: options.src.src } : {}),
+        ...(sourceType ? { type: sourceType } : {}),
         engine: {
             hlsJs: {
                 capLevelToPlayerSize: true,

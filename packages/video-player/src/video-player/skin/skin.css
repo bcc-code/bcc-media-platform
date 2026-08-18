@@ -812,7 +812,10 @@ media-tooltip-group {
    ========================================================================== */
 
 .media-minimal-skin--video {
-    --media-border-color: oklch(0 0 0 / 0.15);
+    /* light-dark() resolves against color-scheme, not prefers-color-scheme;
+       without this the dark variants never apply. */
+    color-scheme: light dark;
+    --media-border-color: light-dark(oklch(0 0 0 / 0.15), oklch(1 0 0 / 0.15));
     --media-video-border-radius: var(--media-border-radius, 0.75rem);
     --media-controls-background-color: transparent;
     --media-controls-transition-duration: 100ms;
@@ -838,11 +841,6 @@ media-tooltip-group {
         --media-error-dialog-transition-duration: 50ms;
         --media-error-dialog-transition-delay: 0ms;
         --media-popup-transition-duration: 0ms;
-    }
-}
-@media (prefers-color-scheme: dark) {
-    .media-minimal-skin--video {
-        --media-border-color: oklch(1 0 0 / 0.15);
     }
 }
 @media (prefers-reduced-transparency: reduce) or (prefers-contrast: more) {

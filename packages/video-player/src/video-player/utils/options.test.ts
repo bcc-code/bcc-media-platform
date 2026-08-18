@@ -1,5 +1,29 @@
 import { describe, expect, it } from "vitest"
-import { getDefaults, mergeOptions } from "./options"
+import { getDefaults, mergeOptions, normalizeSourceType } from "./options"
+
+describe("normalizeSourceType", () => {
+    it("maps the v8-era HLS spelling onto the canonical constant", () => {
+        expect(normalizeSourceType("application/x-mpegURL")).toBe(
+            "application/vnd.apple.mpegurl"
+        )
+    })
+
+    it("accepts the canonical spellings and is case/space insensitive", () => {
+        expect(normalizeSourceType("application/vnd.apple.mpegurl")).toBe(
+            "application/vnd.apple.mpegurl"
+        )
+        expect(normalizeSourceType(" VND.APPLE.MPEGURL ")).toBe(
+            "application/vnd.apple.mpegurl"
+        )
+        expect(normalizeSourceType("Video/MP4")).toBe("video/mp4")
+    })
+
+    it("drops unknown or absent types so the element infers from the URL", () => {
+        expect(normalizeSourceType(undefined)).toBeUndefined()
+        expect(normalizeSourceType("")).toBeUndefined()
+        expect(normalizeSourceType("application/dash+xml")).toBeUndefined()
+    })
+})
 
 describe("getDefaults", () => {
     it("returns a fresh object each call (callers may mutate)", () => {
