@@ -1,5 +1,5 @@
 // Pure option helpers, lifted out of ../index.ts so tests don't pull the
-// custom-element side-effect imports (@videojs/html, hls-video, picker
+// custom-element side-effect imports (@videojs/html, hlsjs-video, picker
 // elements) into the node test environment. The `Options` type lives in
 // index.ts and is imported via `import type` (erased at runtime).
 

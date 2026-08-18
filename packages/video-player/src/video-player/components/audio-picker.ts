@@ -150,7 +150,9 @@ export class AudioPickerElement extends MediaElement {
 
     #findMedia(): EngineHost | null {
         const player = this.closest("video-player")
-        return (player?.querySelector("hls-video") as EngineHost | null) ?? null
+        return (
+            (player?.querySelector("hlsjs-video") as EngineHost | null) ?? null
+        )
     }
 }
 

@@ -155,7 +155,7 @@ export class SubtitlePickerElement extends MediaElement {
     #findMedia(): HTMLVideoElement | null {
         const player = this.closest("video-player")
         return (
-            (player?.querySelector("hls-video") as HTMLVideoElement | null) ??
+            (player?.querySelector("hlsjs-video") as HTMLVideoElement | null) ??
             (player?.querySelector("video") as HTMLVideoElement | null)
         )
     }

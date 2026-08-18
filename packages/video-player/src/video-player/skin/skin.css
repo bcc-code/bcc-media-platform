@@ -84,7 +84,7 @@ media-tooltip-group {
 .media-minimal-skin {
     /* Public theming knobs (BCC-prefixed). Consumers set these on the player
        container; v10's internal --media-* vars are not part of our API. */
-    --media-color-primary: var(--bccm-color-primary, oklch(1 0 0));
+    --media-accent-color: var(--bccm-color-primary, oklch(1 0 0));
 
     --media-current-shadow-color: oklch(
         from currentColor 0 0 0 / clamp(0, calc((l - 0.5) * 0.5), 0.15)
@@ -950,7 +950,7 @@ media-tooltip-group {
     column-gap: 0.5rem;
     padding: 0.25rem;
     margin-inline: auto;
-    color: var(--media-color-primary, oklch(1 0 0));
+    color: var(--media-accent-color, oklch(1 0 0));
     border-radius: 0.75rem;
     transition-timing-function: var(
         --media-controls-transition-timing-function
@@ -1049,7 +1049,7 @@ media-tooltip-group {
     /* This layer lives outside .media-controls, which is what normally sets the
        white control color, so set it here too — otherwise the icons inherit the
        document's default text color and render dark. */
-    color: var(--media-color-primary, oklch(1 0 0));
+    color: var(--media-accent-color, oklch(1 0 0));
     text-shadow: 0 1px 0 var(--media-current-shadow-color);
     pointer-events: none;
     opacity: 0;
@@ -1293,7 +1293,7 @@ bccm-subtitle-picker[data-empty] {
     padding: 0.25rem;
     min-width: 11rem;
     overflow-y: auto;
-    color: var(--media-color-primary, oklch(1 0 0));
+    color: var(--media-accent-color, oklch(1 0 0));
     background-color: var(--media-tooltip-background-color, oklch(1 0 0 / 0.1));
     backdrop-filter: var(
         --media-tooltip-backdrop-filter,

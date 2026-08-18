@@ -52,7 +52,7 @@ createPlayer(containerId, options)
 ```ts
 interface Player {
     element: HTMLElement // <video-player> root
-    mediaEl: HTMLVideoElement // underlying <hls-video> (use for play/pause/volume/events)
+    mediaEl: HTMLVideoElement // underlying <hlsjs-video> (use for play/pause/volume/events)
     getAudioLanguages(): TrackOption[]
     getSubtitleLanguages(): TrackOption[]
     setAudioTrackToLanguage(language?: string): void

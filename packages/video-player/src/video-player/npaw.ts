@@ -12,7 +12,7 @@ export type { NPAWOptions } from "./utils/npaw"
 ;(globalThis as { Hls?: unknown }).Hls = Hls
 
 // NPAW ships an HlsjsAdapter that consumes the hls.js engine instance
-// directly — no custom adapter needed. v10's <hls-video> exposes `.engine`
+// directly — no custom adapter needed. v10's <hlsjs-video> exposes `.engine`
 // once the manifest starts loading; we wait for it before registering.
 export function enableNPAW(
     player: Player,
@@ -38,7 +38,7 @@ export function enableNPAW(
 
         // NPAW's adapter calls `checkExistsPlayer()` on every fire and walks
         // parentNode from `engine.media` to verify it's connected to document.
-        // v10's <hls-video> nests the inner video inside a shadow DOM, so the
+        // v10's <hlsjs-video> nests the inner video inside a shadow DOM, so the
         // walk hits the shadow boundary instead of document and returns false
         // — NPAW then refuses to fire any events ("Cannot fire start event
         // because player not exists on the document"). The element IS on the

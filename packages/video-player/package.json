@@ -24,9 +24,9 @@
         "test:watch": "vitest"
     },
     "dependencies": {
-        "@videojs/core": "10.0.0-beta.24",
-        "@videojs/element": "10.0.0-beta.24",
-        "@videojs/html": "10.0.0-beta.24",
+        "@videojs/core": "10.0.0-beta.27",
+        "@videojs/element": "10.0.0-beta.27",
+        "@videojs/html": "10.0.0-beta.27",
         "graphql": "^16.14.2",
         "graphql-request": "^7.4.0",
         "hls.js": "^1.6.16",

@@ -1,7 +1,7 @@
 // Side-effect imports register the v10 custom elements; we ship our own
 // ejected skin (see ./skin) instead of @videojs/html/video/skin.
 import "@videojs/html/video/ui"
-import "@videojs/html/media/hls-video"
+import "@videojs/html/media/hlsjs-video"
 import "./components/subtitle-picker"
 import "./components/audio-picker"
 import "./components/quality-picker"
@@ -104,12 +104,12 @@ export async function createPlayer(
 
     const player = document.createElement("video-player")
     player.setAttribute("data-lang", initialLang)
-    const media = document.createElement("hls-video") as HTMLElement & {
-        src: string
-        config: Record<string, unknown>
-    }
+    const media = document.createElement("hlsjs-video")
 
-    // hls.js config — set before `src` so the engine picks it up on init.
+    // hls.js config travels with the source: beta.27 retired the untyped
+    // `config` bag in favour of `source.engine.<provider>`, and the engine
+    // reads those options when it is constructed — so `src` and the engine
+    // options go in as one assignment rather than config-then-src.
     // capLevelToPlayerSize is the v10 equivalent of v8's
     // limitRenditionByPlayerDimensions (don't pull a 1080p rendition into a
     // 320x240 viewport). preferPlayback="mse" — v8's overrideNative — is
@@ -117,16 +117,18 @@ export async function createPlayer(
     // abrEwmaDefaultEstimate seeds the ABR algorithm with the bandwidth we
     // measured last session — replicates v8's `useBandwidthFromLocalStorage`.
     const savedBandwidth = readSavedBandwidth()
-    media.config = {
-        capLevelToPlayerSize: true,
-        ...(savedBandwidth != null
-            ? { abrEwmaDefaultEstimate: savedBandwidth }
-            : {}),
+    media.source = {
+        ...(options.src.src ? { src: options.src.src } : {}),
+        engine: {
+            hlsJs: {
+                capLevelToPlayerSize: true,
+                ...(savedBandwidth != null
+                    ? { abrEwmaDefaultEstimate: savedBandwidth }
+                    : {}),
+            },
+        },
     }
 
-    if (options.src.src) {
-        media.src = options.src.src
-    }
     if (options.autoplay) {
         media.setAttribute("autoplay", "")
     }
