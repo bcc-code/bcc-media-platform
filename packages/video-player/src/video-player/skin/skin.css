@@ -97,6 +97,7 @@ media-i18n {
        our eject flattened that to fixed values, so this only scales the
        dimensions that carry the visual weight. */
     --bccm-scale: 1;
+    --bccm-space: calc(0.25rem * var(--bccm-scale));
     --media-icon-size: calc(18px * var(--bccm-scale));
     --media-scrollbar-thumb-color: oklch(from currentColor l c h / 0.3);
 
@@ -275,7 +276,7 @@ media-i18n {
     align-items: center;
     justify-content: center;
     min-height: 0;
-    padding: 0.5rem 1rem;
+    padding: calc(var(--bccm-space) * 2) calc(var(--bccm-space) * 4);
     text-align: center;
     touch-action: manipulation;
     cursor: pointer;
@@ -283,7 +284,7 @@ media-i18n {
     outline: 2px solid transparent;
     outline-offset: -2px;
     border: none;
-    border-radius: 0.5rem;
+    border-radius: calc(var(--bccm-space) * 2);
     transition-timing-function: ease-out;
     transition-duration: 150ms;
     transition-property: background-color, outline-offset, scale;
@@ -793,8 +794,8 @@ media-i18n {
 }
 
 .media-minimal-skin .media-tooltip {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
+    padding: var(--bccm-space) calc(var(--bccm-space) * 2);
+    font-size: calc(0.75rem * var(--bccm-scale));
     color: var(--media-tooltip-text-color);
     white-space: nowrap;
     background-color: var(--media-tooltip-background-color);
@@ -1079,8 +1080,8 @@ media-i18n {
     bottom: 0.25rem;
     z-index: 10;
     flex-wrap: wrap;
-    column-gap: 0.5rem;
-    padding: 0.25rem;
+    column-gap: calc(var(--bccm-space) * 2);
+    padding: var(--bccm-space);
     margin-inline: auto;
     color: var(--media-accent-color, oklch(1 0 0));
     border-radius: 0.75rem;
@@ -1393,8 +1394,8 @@ bccm-settings-trigger {
 .media-minimal-skin .bccm-menu {
     margin: 0;
     border: 0;
-    padding: 0.25rem;
-    min-width: 11rem;
+    padding: var(--bccm-space);
+    min-width: calc(11rem * var(--bccm-scale));
     max-width: calc(100vw - 1rem);
     max-height: min(
         16rem,
@@ -1411,7 +1412,7 @@ bccm-settings-trigger {
         0 0 0 1px var(--media-tooltip-border-color, oklch(1 0 0 / 0.1)),
         0 4px 6px -1px oklch(0 0 0 / 0.1),
         0 2px 4px -2px oklch(0 0 0 / 0.1);
-    border-radius: 0.75rem;
+    border-radius: calc(var(--bccm-space) * 3);
     font-family: inherit;
     text-shadow: 0 1px 0 oklch(0 0 0 / 0.25);
 }
@@ -1537,10 +1538,10 @@ bccm-settings-trigger {
     background: transparent;
     color: inherit;
     border: 0;
-    padding: 0.5rem 0.75rem;
+    padding: calc(var(--bccm-space) * 2) calc(var(--bccm-space) * 3);
     text-align: left;
     cursor: pointer;
-    border-radius: 0.5rem;
+    border-radius: calc(var(--bccm-space) * 2);
     font: inherit;
     text-shadow: inherit;
     white-space: nowrap;
@@ -1551,19 +1552,20 @@ bccm-settings-trigger {
     outline: none;
 }
 
-/* Only radio items get a checkmark gutter; submenu rows and the back button
-   carry an icon there instead. */
-.media-minimal-skin media-menu-radio-item.bccm-menu__item::before {
-    content: "✓";
-    display: inline-block;
+/* Selected marker sits at the trailing edge (upstream's layout) rather than in
+   a leading gutter, so labels start flush. force-mount keeps it in the DOM so
+   only its opacity changes. */
+.media-minimal-skin .bccm-menu__indicator {
     flex-shrink: 0;
-    width: 1em;
-    margin-inline-end: 0.5rem;
-    visibility: hidden;
+    margin-inline-start: auto;
+    margin-inline-end: -0.25rem;
+    padding-inline-start: 0.75rem;
+    opacity: 0;
 }
 .media-minimal-skin
-    media-menu-radio-item.bccm-menu__item[aria-checked="true"]::before {
-    visibility: visible;
+    .bccm-menu__item[aria-checked="true"]
+    .bccm-menu__indicator {
+    opacity: 1;
 }
 /* "HD" / "4K" / "8K", derived from the rendition height. Superscripted next
    to the label, as upstream's minimal skin does. */
