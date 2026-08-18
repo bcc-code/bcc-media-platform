@@ -1,6 +1,4 @@
-// Pure NPAW config mapping, split from ../npaw.ts so tests don't pull in
-// the 800 KB NPAW SDK + Hls.js side-effect imports just to exercise the
-// mapping.
+// Split from ../npaw.ts so tests don't pull in the 800 KB NPAW SDK.
 
 export interface NPAWOptions {
     enabled?: boolean

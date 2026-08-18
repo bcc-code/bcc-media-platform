@@ -1,9 +1,6 @@
-// Ejected from @videojs/html/video/minimal-skin per the "Customize skins"
-// guide. Composing the DOM in light DOM lets us insert custom controls into
-// the bottom button group without subclassing the skin or reaching into
-// shadow DOM. Icons live as .svg files under ./icons and are inlined into
-// innerHTML via Vite's ?raw imports — the media-icon--* classes on each SVG
-// drive the skin CSS's state toggling.
+// Ejected from @videojs/html/video/minimal-skin. Building the DOM in light
+// DOM is what lets us add custom controls without subclassing the skin or
+// reaching into shadow DOM.
 
 import { isSmartTV } from "../utils/userAgent"
 import { type Lang, relabelSkin } from "../i18n/strings"
@@ -47,10 +44,8 @@ export function buildSkin(
     container.className = "media-minimal-skin media-minimal-skin--video"
 
     const live = options.live === true
-    // Each skin instance needs unique IDs for tooltip / popover targets.
-    // commandfor / popovertarget look up the first matching ID in the document,
-    // so two players on the same page would otherwise share the VOD player's
-    // volume popover and tooltips.
+    // commandfor / popovertarget resolve against the first matching ID in the
+    // document, so two players on a page would share each other's popovers.
     const sid = ++skinIdSeq
     const ID_PLAY = `play-tooltip-${sid}`
     const ID_SEEK_BACK = `seek-backward-tooltip-${sid}`
@@ -87,11 +82,9 @@ export function buildSkin(
             </media-seek-button>
             <media-tooltip id="${ID_SEEK_FWD}" side="top" class="media-tooltip"><span data-i18n="seekForward" data-i18n-params='{"seconds":${SEEK_TIME}}'></span></media-tooltip>`
 
-    // Touch-only centered playback cluster (YouTube / Netflix style). On coarse
-    // pointers the skin CSS hides the bottom bar's playback group and shows this
-    // over the video instead, giving big thumb targets. These buttons bind to
-    // the same player state as the bar's via context, so only one set is ever
-    // visible / interactive at a time. No tooltips — they're for touch.
+    // Touch-only centered playback cluster. The skin CSS swaps this in for the
+    // bottom bar's playback group on coarse pointers, so only one is ever
+    // visible; both bind the same player state via context.
     const centerControls = `
       <div class="bccm-center-controls">
         <media-seek-button seconds="${-SEEK_TIME}" class="media-button media-button--subtle media-button--icon media-button--seek bccm-center-button">
@@ -250,8 +243,7 @@ export function buildSkin(
       <media-gesture type="doubletap" action="seekStep" value="10" region="right"></media-gesture>
     `
 
-    // Insert the media element first so the buffering indicator / poster
-    // overlay correctly. Order matters for z-index/stacking in the skin CSS.
+    // Media element first — the skin CSS stacks the overlays on source order.
     container.insertAdjacentElement("afterbegin", media)
 
     if (options.poster) {

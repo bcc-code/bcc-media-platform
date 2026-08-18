@@ -49,8 +49,7 @@ export class SubtitlePickerElement extends MediaElement {
         )
         this.#button.innerHTML = ICON_CAPTIONS_OFF + ICON_CAPTIONS_ON
 
-        // Native popover handles open/close + outside-click dismiss. Position
-        // each time it opens so the menu sits above the trigger button.
+        // Native popover handles open/close and outside-click dismiss.
         wirePickerPositioning(this.#button, this.#menu, signal)
         wirePickerKeyboard(this.#button, this.#menu, signal)
 
@@ -75,8 +74,7 @@ export class SubtitlePickerElement extends MediaElement {
         )
         const active = subs.find((t) => t.mode === "showing")
 
-        // .media-button--captions reads [data-active] to swap on/off icons
-        // (rule lives in skin.css, lifted from the default v10 captions button).
+        // skin.css swaps the on/off icons off [data-active].
         this.#button.toggleAttribute("data-active", !!active)
         const lang = getLanguage(this)
         this.#button.setAttribute(

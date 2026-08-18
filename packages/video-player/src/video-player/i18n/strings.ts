@@ -1,12 +1,5 @@
-// UI string tables for the video player.
-//
-// Adding a language: create `./locales/<code>.ts` (default-export a
-// `LocaleTable`), then register it here in three places: the import, the
-// SUPPORTED_LANGS array, and the STRINGS registry. `Record<Lang, ...>` makes
-// it a compile error if you skip any one of them.
-//
-// Adding a string key: extend `StringKey` and `LocaleTable` here; every
-// locale file gets a compile error until you fill the new key in.
+// A new language needs registering in three places here — the import,
+// SUPPORTED_LANGS and STRINGS — and missing any one is a compile error.
 
 export type StringKey =
     | "languageName"
@@ -63,8 +56,6 @@ export const DEFAULT_LANG: Lang = "en"
 
 export const LANGUAGE_CHANGE_EVENT = "bccm-languagechange"
 
-// `Record<Lang, LocaleTable>` enforces that every entry in SUPPORTED_LANGS
-// has a registered table, and that every registered code is in the union.
 const STRINGS: Record<Lang, LocaleTable> = { en, no, nl, de }
 
 export function isSupportedLang(value: unknown): value is Lang {
@@ -87,24 +78,15 @@ export function t(
     )
 }
 
-// Each locale's name in its own writing system — "English", "Norsk",
-// "Nederlands", "Deutsch". Use this in language pickers so a user who can't
-// read the current UI still recognizes their language. (Matches YouTube /
-// Netflix / Vimeo convention.)
+// Each locale's name in its own writing system, so a user who can't read the
+// current UI still recognizes their language.
 export function getLanguageName(lang: Lang): string {
     return t(lang, "languageName")
 }
 
-// Resolve a media-track language code (BCP-47 "en" / ISO 639-2 "eng" /
-// "en-US") to its native name: track "no" → "Norsk", "de" → "Deutsch",
-// "fr" → "Français". Returns undefined for unrecognized codes so callers
-// can fall back to whatever name the manifest supplied.
-//
-// The track picker uses this so a user who can't read the current UI still
-// recognizes their language — the same logic that drives the UI language
-// switcher (matches YouTube / Netflix). For lowercase-by-default scripts
-// (Norwegian "norsk", French "français") the first letter is uppercased so
-// the picker reads as a standalone label rather than mid-sentence prose.
+// Native name for a track's language code ("eng" → "English"), undefined when
+// unrecognized so callers can fall back to the manifest's own label. Scripts
+// that are lowercase by default ("norsk") get their first letter uppercased.
 export function getTrackLanguageName(
     code: string | undefined | null
 ): string | undefined {
@@ -129,9 +111,6 @@ export function getLanguage(el: Element | null | undefined): Lang {
     return isSupportedLang(v) ? v : DEFAULT_LANG
 }
 
-// Wire a custom element to the player root's `bccm-languagechange` event,
-// scoped to the element's lifecycle via `signal`. Callers don't need to know
-// the event name or how the root is located.
 export function onLanguageChange(
     el: Element,
     signal: AbortSignal,
@@ -143,10 +122,6 @@ export function onLanguageChange(
     })
 }
 
-// Walks `[data-i18n]` nodes under `root` and rewrites their textContent
-// using the current language. Used by skin/skin.ts after building the DOM
-// and again from createPlayer's setLanguage() when the language changes.
-//
 // Markup contract:
 //   <span data-i18n="audio"></span>
 //   <span data-i18n="seekBackward" data-i18n-params='{"seconds":15}'></span>

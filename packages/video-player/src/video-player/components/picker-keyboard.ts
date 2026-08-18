@@ -1,15 +1,5 @@
-// Wires WAI-ARIA menu keyboard semantics onto a popover menu opened from a
-// trigger button. Items are matched by `.bccm-picker-item` (the class every
-// picker uses for its menu entries) and must have tabindex="-1" so the
-// browser's native Tab traversal skips them.
-//
-// - Arrow keys roam between items (wrapping)
-// - Home / End jump to first / last
-// - Enter / Space activate the focused item (native button click)
-// - Tab / Shift+Tab close the popover and let the browser advance to the
-//   next/prev control button (items are tabindex=-1, so Tab skips them)
-// - Escape closes the popover and returns focus to the trigger
-// - Opening the popover focuses the aria-checked item, or the first item
+// WAI-ARIA menu keyboard semantics for a popover menu. Items must carry
+// `.bccm-picker-item` and tabindex="-1" so native Tab traversal skips them.
 
 const ITEM_SELECTOR = ".bccm-picker-item"
 
@@ -22,8 +12,7 @@ export function wirePickerKeyboard(
         "keydown",
         (event) => {
             if (event.key === "Tab") {
-                // Let the browser handle Tab natively. Items are tabindex=-1
-                // so the next tab stop is the next control after the picker.
+                // No preventDefault: let Tab land on the next control.
                 menu.hidePopover()
                 return
             }
@@ -66,9 +55,8 @@ export function wirePickerKeyboard(
     )
 
     const focusInitialItem = () => {
-        // rAF defers past the browser's own popover-show focus pass and any
-        // pending Lit re-render. queueMicrotask was running before items were
-        // present / focusable.
+        // rAF, not queueMicrotask: items aren't focusable until after the
+        // browser's popover-show focus pass and any pending Lit re-render.
         requestAnimationFrame(() => {
             if (!menu.matches(":popover-open")) return
             const checked = menu.querySelector<HTMLElement>(
@@ -87,10 +75,8 @@ export function wirePickerKeyboard(
         { signal }
     )
 
-    // Belt-and-braces: invoking the popovertarget triggers click on the
-    // trigger button, but the toggle event fires synchronously inside
-    // showPopover() and some browsers haven't yet settled top-layer focus by
-    // then. Schedule another focus pass from click as a safety net.
+    // Second focus pass: `toggle` fires synchronously inside showPopover(),
+    // before some browsers have settled top-layer focus.
     trigger.addEventListener(
         "click",
         () => {

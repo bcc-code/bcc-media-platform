@@ -23,9 +23,7 @@ type HlsEngine = {
 }
 type EngineHost = HTMLElement & { engine?: HlsEngine | null }
 
-// hls.js owns the quality-level list. v10 core does not have a "qualityLevels"
-// feature as of @videojs/core@10.0.0-beta.23, so we subscribe to the engine
-// directly — same pattern as the audio picker.
+// Subscribes to the hls.js engine for quality levels, same as the audio picker.
 export class QualityPickerElement extends MediaElement {
     static readonly tagName = TAG
 
@@ -128,8 +126,7 @@ export class QualityPickerElement extends MediaElement {
         }
         this.#button.setAttribute("aria-label", ariaLabel)
 
-        // Sort by height descending (highest quality first), preserving the
-        // original engine.levels index for selection.
+        // Descending by height, keeping the engine.levels index for selection.
         const sorted = levels
             .map((level, idx) => ({ level, idx }))
             .sort((a, b) => (b.level.height ?? 0) - (a.level.height ?? 0))

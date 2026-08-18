@@ -21,10 +21,8 @@ type HlsEngine = {
 }
 type EngineHost = HTMLElement & { engine?: HlsEngine | null }
 
-// hls.js owns the audio-track list — there is no v10 store feature for it as of
-// @videojs/core@10.0.0-beta.23. Subscribe to the engine directly. Native HLS
-// (Safari) populates HTMLMediaElement.audioTracks instead; we surface that as
-// a fallback so the picker still works there.
+// Subscribes to the hls.js engine, which owns the audio-track list. Native
+// HLS (Safari) populates HTMLMediaElement.audioTracks instead — the fallback.
 export class AudioPickerElement extends MediaElement {
     static readonly tagName = TAG
 

@@ -6,14 +6,9 @@ import { toConfig, type NPAWOptions } from "./utils/npaw"
 
 export type { NPAWOptions } from "./utils/npaw"
 
-// NPAW's HlsjsAdapter uses bare `Hls.Events.X` references and expects `Hls`
-// to be a runtime global (legacy <script>-tag assumption). Ensure it's
-// reachable before any adapter registration.
+// HlsjsAdapter uses bare `Hls.Events.X` and expects a runtime global.
 ;(globalThis as { Hls?: unknown }).Hls = Hls
 
-// NPAW ships an HlsjsAdapter that consumes the hls.js engine instance
-// directly — no custom adapter needed. v10's <hlsjs-video> exposes `.engine`
-// once the manifest starts loading; we wait for it before registering.
 export function enableNPAW(
     player: Player,
     options: NPAWOptions,
@@ -36,21 +31,15 @@ export function enableNPAW(
             (NpawAdapters as { HlsjsAdapter: unknown }).HlsjsAdapter
         )
 
-        // NPAW's adapter calls `checkExistsPlayer()` on every fire and walks
-        // parentNode from `engine.media` to verify it's connected to document.
-        // v10's <hlsjs-video> nests the inner video inside a shadow DOM, so the
-        // walk hits the shadow boundary instead of document and returns false
-        // — NPAW then refuses to fire any events ("Cannot fire start event
-        // because player not exists on the document"). The element IS on the
-        // page (via the shadow host), so override the check.
+        // checkExistsPlayer walks parentNode from `engine.media`, which stops
+        // at <hlsjs-video>'s shadow boundary and reports the player as absent,
+        // suppressing every event. The element is on the page, so force it.
         const adapter = npaw.getAdapter() as
             | { checkExistsPlayer?: () => boolean }
             | undefined
         if (adapter) adapter.checkExistsPlayer = () => true
 
-        // VideoJsAdapter (used in v8) reported text-track changes natively.
-        // HlsjsAdapter doesn't, so wire equivalent custom events to keep
-        // BTV's audio/subtitle engagement metrics intact post-cutover.
+        // HlsjsAdapter doesn't report track changes; VideoJsAdapter did.
         wireTrackChangeEvents(player.mediaEl, engine, npaw, signal)
     })
 }
@@ -61,12 +50,9 @@ export function setOptions(player: Player, options: NPAWOptions): void {
     npaw.setAnalyticsOptions(toConfig(options))
 }
 
-// Ends the current NPAW view and opens a fresh one with new metadata, so a
-// continuous live stream can be split into one view per program (e.g. each
-// calendar entry / episode). `removeAdapter` fires a stop for the old view;
-// re-registering the adapter on the same — still playing — engine starts a new
-// view. Track-change wiring from `enableNPAW` keeps working because it resolves
-// the current adapter lazily (see `wireTrackChangeEvents`), so we don't re-wire.
+// Splits a continuous live stream into one view per program. removeAdapter
+// stops the old view; re-registering on the still-playing engine starts a new
+// one. No re-wiring needed — wireTrackChangeEvents resolves the adapter lazily.
 export function restartView(player: Player, options: NPAWOptions): void {
     const npaw = (player as Player & { _npaw?: NpawPlugin })._npaw
     if (!npaw) return
@@ -99,8 +85,7 @@ function wireTrackChangeEvents(
     npaw: NpawPlugin,
     signal: AbortSignal | undefined
 ): void {
-    // Resolve the adapter lazily on each fire: `restartView` swaps the adapter
-    // when a new view starts, so capturing it once here would go stale.
+    // Lazily resolved — restartView swaps the adapter out.
     const fire = (name: string, dimensions?: object) => {
         const adapter = npaw.getAdapter() as
             | { fireEvent?(name: string, dimensions?: object): void }
@@ -108,8 +93,8 @@ function wireTrackChangeEvents(
         adapter?.fireEvent?.(name, dimensions)
     }
 
-    // Subtitles: v10's hls.js promotes subtitle tracks onto media.textTracks,
-    // so DOM events cover both native HLS and MSE paths.
+    // hls.js promotes subtitles onto textTracks, so DOM events cover both
+    // the native HLS and MSE paths.
     const tracks = (mediaEl as HTMLVideoElement).textTracks
     const onSubChange = () => {
         const active = Array.from(tracks).find(
@@ -144,10 +129,7 @@ function wireTrackChangeEvents(
     }
 }
 
-// hls.js engine becomes available asynchronously after src is set. Poll
-// until present, then invoke. Returns a teardown so callers can cancel
-// (currently unused — registration is fire-and-forget for the player's
-// lifetime; NPAW handles its own cleanup when the engine is destroyed).
+// The engine only appears some time after src is set.
 function waitForEngine(
     mediaEl: HTMLElement,
     cb: (engine: unknown) => void

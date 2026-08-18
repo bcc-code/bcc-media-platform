@@ -47,8 +47,7 @@ export class DismissControlsButtonElement extends MediaElement {
         super.update(changed)
         const state = this.#controls.value
         if (!state) return
-        // Hide ourselves when controls are already hidden — there's no
-        // meaningful target to dismiss.
+        // Nothing to dismiss once the controls are already hidden.
         this.toggleAttribute("data-hidden", !state.controlsVisible)
     }
 

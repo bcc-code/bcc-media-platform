@@ -107,13 +107,7 @@ export async function createPlayer(
     const media = document.createElement("hlsjs-video")
 
     // Engine options are read when the engine is constructed, so they go in
-    // with `src` as one assignment.
-    // capLevelToPlayerSize is the v10 equivalent of v8's
-    // limitRenditionByPlayerDimensions (don't pull a 1080p rendition into a
-    // 320x240 viewport). preferPlayback="mse" — v8's overrideNative — is
-    // already the default in @videojs/html, so no need to set it explicitly.
-    // abrEwmaDefaultEstimate seeds the ABR algorithm with the bandwidth we
-    // measured last session — replicates v8's `useBandwidthFromLocalStorage`.
+    // with `src` as one assignment. preferPlayback already defaults to "mse".
     const savedBandwidth = readSavedBandwidth()
     const sourceType = normalizeSourceType(options.src.type)
     media.source = {
@@ -149,8 +143,6 @@ export async function createPlayer(
     setupErrorHandling(media, skin, teardown.signal)
     setupBandwidthPersistence(media, teardown.signal)
 
-    // Subtitles passed in as `<track>` descriptors get appended to the media
-    // element. v10 picks them up via the standard text-track API.
     for (const track of options.subtitles ?? []) {
         const el = document.createElement("track")
         if (track.src) el.src = track.src
@@ -239,17 +231,14 @@ export function setNPAWOptions(player: Player, options: NPAWOptions): void {
     setOptions(player, options)
 }
 
-// Ends the current NPAW view and starts a fresh one with new metadata. Use this
-// (rather than `setNPAWOptions`, which updates the ongoing view in place) when a
-// continuous live stream rolls over to a new program, so each program is tracked
-// as its own NPAW view.
+// For live streams rolling over to a new program — unlike setNPAWOptions,
+// which updates the ongoing view in place.
 export function restartNPAWView(player: Player, options: NPAWOptions): void {
     restartView(player, options)
 }
 
-// hls.js (when active) owns the audio-track list via its engine, not via the
-// HTMLMediaElement.audioTracks API (which Chrome/Firefox don't populate for
-// MSE playback). Native HLS (Safari) uses the HTMLMediaElement API. Handle both.
+// Two paths: hls.js keeps audio tracks on its engine (Chrome/Firefox don't
+// populate HTMLMediaElement.audioTracks for MSE), native HLS uses the DOM API.
 type HlsAudioTrack = { id: number; lang?: string; name?: string }
 type HlsEngine = {
     audioTracks: HlsAudioTrack[]
@@ -309,11 +298,8 @@ function getSubtitleLanguages(media: HTMLVideoElement): TrackOption[] {
         }))
 }
 
-// Persist the current ABR bandwidth estimate to localStorage so the next
-// session starts with a sensible bitrate guess instead of hls.js's 500 kbps
-// default. Replicates v8's `useBandwidthFromLocalStorage`. Reads happen in
-// createPlayer() (before `src` is set so hls.js seeds the EWMA on init);
-// writes are throttled to once every 10s so we don't hammer localStorage.
+// Persist the ABR estimate so the next session starts with a real bitrate
+// guess rather than hls.js's 500 kbps default. Writes are throttled.
 
 type BandwidthEngine = {
     bandwidthEstimate: number
@@ -363,16 +349,9 @@ function setupBandwidthPersistence(
     })
 }
 
-// Listen for fatal HLS errors dispatched by v10's HlsJsMediaErrorsMixin and
-// populate the error dialog text. v10's <media-error-dialog> auto-opens when
-// the store error state is non-null, but the title / description elements
-// don't write their own text — we own the contents. For 401/403 responses
-// (BTV's auth tokens expiring during playback) surface a session-expired
-// message that points the user at reloading.
-//
-// State (last code + last message) is cached on the skin element itself so
-// that a language swap (`player.setLanguage`) can re-translate whichever
-// error is currently displayed without re-listening to the original event.
+// <media-error-dialog> auto-opens on error but never writes its own title or
+// description, so we own that text. The last code/message is stashed on the
+// skin element so setLanguage() can re-translate whatever is on screen.
 function setupErrorHandling(
     media: HTMLElement,
     skin: HTMLElement,

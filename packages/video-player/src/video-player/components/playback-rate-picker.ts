@@ -12,9 +12,7 @@ import { getLanguage, onLanguageChange, t } from "../i18n/strings"
 const TAG = "bccm-playback-rate-picker"
 let popoverIdSeq = 0
 
-// v10 core's default rates are [0.2, 0.5, 0.7, 1, 1.2, 1.5, 1.7, 2] (per
-// @videojs/core/dom/store/features/playback-rate). Override with the more
-// conventional YouTube-style set instead of those quirky 0.2 / 0.7 stops.
+// Overrides core's defaults, which include odd 0.2 / 0.7 stops.
 const RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
 
 export class PlaybackRatePickerElement extends MediaElement {

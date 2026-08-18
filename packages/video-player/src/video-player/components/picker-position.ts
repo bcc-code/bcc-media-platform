@@ -1,8 +1,6 @@
-// Anchors a popover menu's bottom-right to the trigger button's top-right with
-// a small gap, then clamps it to the viewport so it never overflows on small
-// or narrow screens. Repositions on viewport resize and on scroll (any
-// ancestor) while the menu is open, since position:fixed keeps the menu still
-// while the trigger moves with the page.
+// Anchors a popover menu above its trigger, clamped to the viewport. Needs to
+// reposition on scroll because position:fixed holds the menu still while the
+// trigger moves with the page.
 
 const MARGIN = 8
 
@@ -48,8 +46,7 @@ export function wirePickerPositioning(
             openCtrl?.abort()
             openCtrl = null
             if (!open) {
-                // Restore CSS-default hidden state so the next open also
-                // waits for JS positioning before becoming visible.
+                // Re-hide so the next open waits for positioning too.
                 menu.style.visibility = ""
                 return
             }

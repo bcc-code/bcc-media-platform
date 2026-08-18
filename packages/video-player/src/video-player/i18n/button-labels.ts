@@ -1,30 +1,18 @@
-// v10's built-in button elements (`<media-play-button>`, `<media-mute-button>`,
-// `<media-cast-button>`, `<media-pip-button>`, `<media-fullscreen-button>`,
-// `<media-seek-button>`) own their tooltip text: `media-tooltip` subscribes to
-// the trigger's `$state` and writes `triggerEl.getLabel()` into its
-// `textContent` after every state tick — overwriting any DOM we put inside the
-// tooltip. To translate these, hook the documented `label` prop on each button
-// core: it accepts either a string or a `(state) => string` function that
-// short-circuits the core's hardcoded English fallback.
-//
-// The property is declared `{ type: String }` in v10's element class, but
-// that's only for attribute parsing; JS property assignment of a function
-// works (Lit-style setters just store-and-requestUpdate). Reflection isn't
-// enabled, so the function isn't serialized back to the DOM as an attribute.
+// media-tooltip overwrites its own textContent from `triggerEl.getLabel()` on
+// every state tick, so translations have to go through each button's `label`
+// prop rather than the tooltip DOM. Despite being declared `{ type: String }`
+// (attribute parsing only), the prop accepts a `(state) => string` function.
 
 import { getLanguage, t, type StringKey } from "./strings"
 
-// Lit-style ReactiveElement shape we need from v10's button elements. Avoids
-// importing the v10 types directly so this file stays decoupled from the
-// version-pinned internals.
+// Structural, to stay decoupled from version-pinned v10 types.
 type LabelableButton = HTMLElement & {
     label?: unknown
     requestUpdate?: () => void
     seconds?: number
 }
 
-// Structural shape of the bits of v10 button-core state each spec reads.
-// All fields optional so v10's state drifting doesn't break the build.
+// All optional so drift in v10's state shape doesn't break the build.
 interface ButtonState {
     ended?: boolean
     paused?: boolean
@@ -80,9 +68,7 @@ const SPECS: ButtonSpec[] = [
         selector: "media-seek-button",
         label: (el, state) => {
             const lang = getLanguage(el)
-            // `seconds` is a v10 reactive Number property post-upgrade; the
-            // attribute parse is only hit on the very first call before the
-            // element has upgraded.
+            // Attribute fallback only hits before the element has upgraded.
             const raw =
                 typeof el.seconds === "number"
                     ? el.seconds
@@ -100,36 +86,27 @@ const SPEC_BY_TAG = new Map(
     SPECS.map((s) => [s.selector.toUpperCase(), s] as const)
 )
 
-// Tracks the buttons we've installed labels on, scoped per skin root. The set
-// of elements stays small (≤7 buttons per player) and refs are weak so a
-// disposed player frees them automatically.
+// Weak so a disposed player frees its buttons.
 const LABELED = new WeakMap<Element, Set<LabelableButton>>()
 
 /**
  * Install translated `label` closures on every v10 default button under
- * `root`. Call once after the skin DOM is built. The closures read the
- * current language each invocation via `getLanguage(el)`, so they don't need
- * to be reinstalled when the language changes — only the buttons need to be
- * told to re-render (see {@link relabelButtons}).
+ * `root`. Call once after the skin DOM is built. The closures resolve the
+ * language per invocation, so a language change only needs
+ * {@link relabelButtons}, not a reinstall.
  */
 export function installButtonLabels(root: Element): void {
     const labeled = new Set<LabelableButton>()
     root.querySelectorAll<LabelableButton>(ALL_SELECTORS).forEach((el) => {
         const spec = SPEC_BY_TAG.get(el.tagName)
         if (!spec) return
-        // Lit reactive properties trigger requestUpdate via the setter, so
-        // assigning here is enough — no further wiring required.
         el.label = (state: ButtonState) => spec.label(el, state)
         labeled.add(el)
     })
     LABELED.set(root, labeled)
 }
 
-/**
- * Re-trigger an update on every button we labeled so its core re-derives
- * `state.label` via our closure and the tooltip's `$state` subscriber picks
- * up the new translated string. Call from `player.setLanguage()`.
- */
+/** Re-render labeled buttons so their tooltips pick up the new language. */
 export function relabelButtons(root: Element): void {
     LABELED.get(root)?.forEach((el) => el.requestUpdate?.())
 }
