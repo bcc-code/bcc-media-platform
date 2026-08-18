@@ -6,13 +6,16 @@ const TAG = "bccm-live-button"
 const ICON_DOT = `<span class="bccm-live-badge__dot" aria-hidden="true"></span>`
 const BADGE_TEXT = `<span class="bccm-live-badge__text" data-i18n="live"></span>`
 
-type EngineHost = HTMLElement & {
-    engine?: { liveSyncPosition?: number | null } | null
-}
+// `liveEdgeStart` is the Seekable Live Edge: seekable end minus the manifest's
+// HOLD-BACK. Not in the store — the live feature ships in liveVideoFeatures,
+// not the default videoFeatures bundle — but the media element exposes it.
+type LiveHost = HTMLElement & { liveEdgeStart?: number }
 
-// liveEdgeStart isn't in the store: the live feature ships in
-// liveVideoFeatures, not the default videoFeatures bundle. Read the engine
-// directly instead, falling back to the media element's seekable range.
+// Tolerances copied from LiveButtonCore so this badge agrees with core's own
+// live button.
+const EDGE_TOLERANCE = 5
+const SEEKABLE_END_OFFSET = 10
+
 export class LiveButtonElement extends MediaElement {
     static readonly tagName = TAG
 
@@ -65,29 +68,42 @@ export class LiveButtonElement extends MediaElement {
     }
 
     #refresh(media: HTMLMediaElement): void {
-        const edge = this.#liveEdge(media)
-        if (edge == null) return
-        // ~one HLS segment of tolerance counts as "at live".
-        const atLive = edge - media.currentTime < 3
-        this.#button.toggleAttribute("data-at-live", atLive)
+        const edge = this.#liveEdgeStart(media)
+        if (edge != null) {
+            const atLive = media.currentTime >= edge - EDGE_TOLERANCE
+            this.#button.toggleAttribute("data-at-live", atLive)
+            return
+        }
+        const end = this.#seekableEnd(media)
+        if (end == null) return
+        this.#button.toggleAttribute(
+            "data-at-live",
+            media.currentTime >= end - SEEKABLE_END_OFFSET
+        )
     }
 
     #seekToLive(): void {
         const media = this.#findMedia()
         if (!media) return
-        const edge = this.#liveEdge(media)
-        if (edge == null) return
-        media.currentTime = edge
+        // Core seeks to the seekable end; we stop at liveEdgeStart, which sits
+        // a HOLD-BACK short of it — the same place hls.js's liveSyncPosition
+        // did, so we don't start seeking past the buffer.
+        const target = this.#liveEdgeStart(media) ?? this.#seekableEnd(media)
+        if (target == null) return
+        media.currentTime = target
         if (media.paused) media.play().catch(() => {})
     }
 
-    #liveEdge(media: HTMLMediaElement): number | null {
-        const sync = (media as EngineHost).engine?.liveSyncPosition
-        if (typeof sync === "number" && Number.isFinite(sync)) return sync
-        if (media.seekable && media.seekable.length > 0) {
-            return media.seekable.end(media.seekable.length - 1)
-        }
-        return null
+    #liveEdgeStart(media: HTMLMediaElement): number | null {
+        const edge = (media as LiveHost).liveEdgeStart
+        return typeof edge === "number" && Number.isFinite(edge) ? edge : null
+    }
+
+    #seekableEnd(media: HTMLMediaElement): number | null {
+        const { seekable } = media
+        if (!seekable || seekable.length === 0) return null
+        const end = seekable.end(seekable.length - 1)
+        return Number.isFinite(end) ? end : null
     }
 
     #findMedia(): HTMLVideoElement | null {
