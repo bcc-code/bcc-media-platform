@@ -1,6 +1,6 @@
 # bccm-video-player
 
-HLS video player built on Video.js v10. Custom skin with audio / subtitle / quality / playback-rate pickers, live mode, NPAW analytics, and Chromecast.
+HLS video player built on Video.js v10. Custom skin with a settings menu (quality / audio / subtitles / speed), chapter markers, live mode, NPAW analytics, Chromecast and AirPlay.
 
 ## Install
 
@@ -35,13 +35,14 @@ createPlayer(containerId, options)
 
 | Option                                 | Type                                      | Notes                                                                                                                                                                                                                                                 |
 | -------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src.src`                              | `string`                                  | HLS / DASH manifest URL.                                                                                                                                                                                                                              |
+| `src.src`                              | `string`                                  | HLS manifest URL. DASH is not supported — the player builds an `<hlsjs-video>`.                                                                                                                                                                       |
 | `autoplay`                             | `boolean`                                 |                                                                                                                                                                                                                                                       |
 | `live`                                 | `boolean`                                 | Switches to the live skin: LIVE badge, no seek buttons / time displays / thumbnails.                                                                                                                                                                  |
 | `language`                             | `string`                                  | UI language for tooltips, pickers, and error messages. Built-in: `"en"`, `"no"`, `"nl"`, `"de"` (default `"en"`). Unsupported codes fall back to `"en"`. Swap at runtime with `player.setLanguage(...)`. See [Adding a language](#adding-a-language). |
 | `languagePreferenceDefaults.audio`     | `string`                                  | 3-letter code, e.g. `"eng"`.                                                                                                                                                                                                                          |
 | `languagePreferenceDefaults.subtitles` | `string`                                  | 3-letter code, or omit to disable.                                                                                                                                                                                                                    |
 | `subtitles`                            | `Track[]`                                 | External `<track>` descriptors (`src`, `srclang`, `label`, `kind`).                                                                                                                                                                                   |
+| `chapters`                             | `Chapter[]`                               | `{ start, duration, title, image? }` in seconds. Renders segment markers on the progress bar and the chapter title while scrubbing; `image` doubles as the scrub preview still.                                                                       |
 | `videojs.poster`                       | `string`                                  | Poster image URL.                                                                                                                                                                                                                                     |
 | `videojs.crossOrigin`                  | `string`                                  | Defaults to `"anonymous"`.                                                                                                                                                                                                                            |
 | `npaw`                                 | `NPAWOptions`                             | See [Analytics](#analytics).                                                                                                                                                                                                                          |
@@ -81,7 +82,9 @@ The skin reads CSS variables from the player container.
 | ---------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `--bccm-color-primary` | `oklch(1 0 0)` (white) | Text / icon color across the whole skin. Cascades via `currentColor` to slider fill, focus ring, hover backgrounds, live-badge accent. |
 | `--bccm-color-accent`  | `oklch(1 0 0)` (white) | Background of primary-action buttons (e.g. the OK on the error dialog). Foreground text auto-flips black/white based on lightness.     |
-| `--bccm-font-family`   | `Inter, system-ui`     | Font stack for all skin text (controls, tooltips, picker menus, error dialog, native captions). Load the webfont yourself.             |
+| `--bccm-font-family`   | `Inter, system-ui`     | Font stack for all skin text (controls, tooltips, menus, error dialog, native captions). Load the webfont yourself.                    |
+
+In fullscreen the skin scales itself up at 1280 / 1536 / 1920px viewport widths via an internal `--bccm-scale`. Any CSS added to the skin should be a `--bccm-space` multiple or multiplied by `var(--bccm-scale)`, or it won't grow with the rest.
 
 Set on the container:
 
@@ -107,19 +110,23 @@ Set on the container:
     export default de
     ```
 
-2. Register it in `src/video-player/i18n/strings.ts` — three lines: an `import`, an entry in `SUPPORTED_LANGS`, and an entry in `STRINGS`. `Record<Lang, LocaleTable>` makes it a compile error if any of the three is missing.
+2. Register it in `src/video-player/i18n/strings.ts` — three lines: an `import`, an entry in `SUPPORTED_LANGS`, and an entry in `STRINGS`.
+
+3. Add the matching BCP 47 tag to `CORE_LOCALE` in `src/video-player/i18n/core-i18n.ts`. This picks which of Video.js core's shipped locale packs to use for its built-in components, with our wording overlaid on top. Note core has no `no` pack — Norwegian maps to `nb`.
+
+`Record<Lang, ...>` in both files makes it a compile error if any step is missed.
 
 `en.ts` is the canonical reference for which keys exist and how interpolation placeholders (e.g. `{seconds}`, `{height}`, `{label}`) are spelled.
 
 ## Keyboard
 
-In picker menus (audio / subtitles / quality / playback rate):
+The settings menu uses Video.js core's menu behaviour:
 
-- `↑ / ↓` — roam wrapping
+- `↑ / ↓` — move between items, wrapping
 - `Home / End` — first / last item
-- `Enter / Space` — select
-- `Tab / Shift+Tab` — leave the popover, continue along the control bar
-- `Esc` — close, restore focus to trigger
+- `Enter / Space` — select, or open a submenu
+- `Esc` — close the menu
+- Typing a letter jumps to the next matching item
 
 ## Analytics (NPAW)
 
