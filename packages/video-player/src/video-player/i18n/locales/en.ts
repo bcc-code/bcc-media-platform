@@ -18,6 +18,7 @@ const en: LocaleTable = {
     off: "Off",
     subtitleTrackFallback: "Track",
     quality: "Quality",
+    settings: "Settings",
     videoQuality: "Video quality",
     videoQualityActive: "Video quality: {height}p",
     videoQualityAuto: "Video quality: Auto ({height}p)",

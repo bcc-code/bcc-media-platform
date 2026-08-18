@@ -1258,29 +1258,12 @@ media-i18n {
    and must target the element directly.
    ========================================================================== */
 
-bccm-audio-trigger,
-bccm-subtitle-trigger,
-bccm-quality-trigger,
-bccm-rate-trigger {
+bccm-settings-trigger {
     position: relative;
     display: inline-flex;
 }
-bccm-audio-trigger[data-empty],
-bccm-quality-trigger[data-empty],
-bccm-subtitle-trigger[data-empty] {
-    display: none;
-}
 .bccm-picker-button {
     line-height: 1;
-}
-/* Rate picker uses a numeric label instead of an icon, so override the
-   square aspect-ratio that .media-button--icon enforces. */
-.bccm-rate-button {
-    width: auto;
-    aspect-ratio: auto;
-    padding: 0 0.5rem;
-    min-width: 2.375rem;
-    font-variant-numeric: tabular-nums;
 }
 
 /* Core-driven menu. <media-menu> positions itself, animates via the shared
@@ -1318,8 +1301,111 @@ bccm-subtitle-trigger[data-empty] {
     flex-direction: column;
     height: auto;
 }
-.media-minimal-skin .bccm-menu media-playback-rate-radio-group {
-    display: contents;
+/* Must generate a box: core measures these to size the menu, and the root
+   group is what slides out when a submenu opens. */
+.media-minimal-skin .bccm-menu__group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+/* Settings menu. Ported from @videojs/html/video/minimal-skin — the root menu
+   animates its own box between panel sizes via --media-menu-width/height,
+   which core measures, while panels slide in from the right. */
+/* [data-open] so this beats the `height: auto` on .bccm-menu[data-open];
+   the measured height is what lets the box animate between panels. */
+.media-minimal-skin .bccm-menu--settings[data-open] {
+    width: var(--media-menu-width);
+    min-width: 12rem;
+    height: var(--media-menu-height);
+    overflow: hidden;
+    transition-property: scale, opacity, filter, width, height;
+}
+/* --media-menu-height is only set once the menu is shown, so on the first open
+   height would animate from `auto` (interpolate-size is on) and clip the list
+   mid-transition. Size only animates between panels. */
+.media-minimal-skin .bccm-menu--settings[data-starting-style],
+.media-minimal-skin .bccm-menu--settings[data-ending-style] {
+    transition-property: scale, opacity, filter;
+}
+.media-minimal-skin .bccm-menu--settings > :not([data-submenu]) {
+    translate: 0 0;
+    transition:
+        translate 250ms ease-out,
+        filter 250ms ease-out;
+}
+.media-minimal-skin
+    .bccm-menu--settings[data-submenu-expanded="true"]
+    > :not([data-submenu]) {
+    filter: blur(8px);
+    translate: -100% 0;
+}
+/* Pinned to the root's box rather than `max-height: inherit`: the root clamps
+   its measured height to --media-menu-max-height and hides overflow, so a
+   taller panel would have its tail clipped outside the scrollable area. */
+.media-minimal-skin .bccm-menu__panel {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    padding: 0.25rem;
+    overflow-y: auto;
+    overscroll-behavior: none;
+    outline: none;
+    translate: 0 0;
+    transition:
+        translate 250ms ease-out,
+        filter 250ms ease-out;
+}
+.media-minimal-skin
+    .bccm-menu__panel:where([data-starting-style], [data-ending-style]) {
+    overflow: hidden;
+    pointer-events: none;
+    filter: blur(8px);
+    translate: 100% 0;
+}
+.media-minimal-skin .bccm-menu__separator {
+    margin: 0.25rem 0;
+    border-bottom: 1px solid oklch(1 0 0 / 0.1);
+}
+.media-minimal-skin .bccm-menu__item--submenu,
+.media-minimal-skin .bccm-menu__back {
+    gap: 0.5rem;
+}
+.media-minimal-skin .bccm-menu__back {
+    width: 100%;
+    margin-bottom: 0.125rem;
+}
+/* The chevron points right; flip it for the back row. */
+.media-minimal-skin .bccm-menu__back .media-icon--chevron {
+    rotate: 180deg;
+}
+.media-minimal-skin .bccm-menu__hint {
+    display: inline-flex;
+    gap: 0.25rem;
+    align-items: center;
+    min-width: 0;
+    padding-left: 0.5rem;
+    margin-left: auto;
+    color: oklch(from currentColor l c h / 0.65);
+}
+.media-minimal-skin .bccm-menu__hint-label {
+    max-width: 8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.media-minimal-skin .media-icon--chevron {
+    width: 0.875rem;
+    height: 0.875rem;
+}
+/* Rows for controls the stream doesn't offer (single audio track, no
+   subtitles) — core writes availability onto the submenu trigger. */
+.media-minimal-skin .bccm-menu__item[data-availability="unavailable"] {
+    display: none;
 }
 .media-minimal-skin .bccm-menu__item {
     display: flex;
@@ -1340,14 +1426,18 @@ bccm-subtitle-trigger[data-empty] {
     background-color: oklch(from currentColor l c h / 0.15);
     outline: none;
 }
-.media-minimal-skin .bccm-menu__item::before {
+/* Only radio items get a checkmark gutter; submenu rows and the back button
+   carry an icon there instead. */
+.media-minimal-skin media-menu-radio-item.bccm-menu__item::before {
     content: "✓";
     display: inline-block;
+    flex-shrink: 0;
     width: 1em;
     margin-inline-end: 0.5rem;
     visibility: hidden;
 }
-.media-minimal-skin .bccm-menu__item[aria-checked="true"]::before {
+.media-minimal-skin
+    media-menu-radio-item.bccm-menu__item[aria-checked="true"]::before {
     visibility: visible;
 }
 /* "HD" / "4K" / "8K", derived from the rendition height. */

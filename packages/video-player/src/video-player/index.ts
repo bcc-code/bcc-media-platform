@@ -3,10 +3,7 @@
 import "@videojs/html/video/ui"
 import "@videojs/html/media/hlsjs-video"
 import "@videojs/html/media/google-cast"
-import "./components/subtitle-trigger"
-import "./components/audio-trigger"
-import "./components/quality-trigger"
-import "./components/rate-trigger"
+import "./components/settings-trigger"
 import "./components/live-button"
 import "./components/dismiss-controls-button"
 import "./skin/skin.css"
@@ -29,7 +26,6 @@ import {
     t,
 } from "./i18n/strings"
 import { registerCoreTranslations, toCoreLocale } from "./i18n/core-i18n"
-import { PLAYBACK_RATES } from "./components/rate-trigger"
 
 export {
     DEFAULT_LANG,
@@ -86,6 +82,8 @@ export interface Player {
     setLanguage(lang: Lang): void
     dispose(): void
 }
+
+const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
 
 export async function createPlayer(
     containerId: string,
@@ -151,7 +149,8 @@ export async function createPlayer(
     player.appendChild(document.createElement("google-cast"))
     container.insertAdjacentElement("afterbegin", player)
 
-    // The rate list lives in the player store; there is no prop for it.
+    // Core's defaults include odd 0.2 / 0.7 stops. The list lives in the
+    // player store; there is no prop for it.
     playerStore(player)?.$state?.patch({ playbackRates: PLAYBACK_RATES })
 
     const teardown = new AbortController()

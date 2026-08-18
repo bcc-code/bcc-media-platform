@@ -19,6 +19,7 @@ export type StringKey =
     | "off"
     | "subtitleTrackFallback"
     | "quality"
+    | "settings"
     | "videoQuality"
     | "videoQualityActive"
     | "videoQualityAuto"

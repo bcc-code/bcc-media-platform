@@ -18,6 +18,7 @@ const de: LocaleTable = {
     off: "Aus",
     subtitleTrackFallback: "Spur",
     quality: "Qualität",
+    settings: "Einstellungen",
     videoQuality: "Videoqualität",
     videoQualityActive: "Videoqualität: {height}p",
     videoQualityAuto: "Videoqualität: Auto ({height}p)",

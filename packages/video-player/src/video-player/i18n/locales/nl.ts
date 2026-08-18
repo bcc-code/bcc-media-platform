@@ -18,6 +18,7 @@ const nl: LocaleTable = {
     off: "Uit",
     subtitleTrackFallback: "Spoor",
     quality: "Kwaliteit",
+    settings: "Instellingen",
     videoQuality: "Videokwaliteit",
     videoQualityActive: "Videokwaliteit: {height}p",
     videoQualityAuto: "Videokwaliteit: Auto ({height}p)",

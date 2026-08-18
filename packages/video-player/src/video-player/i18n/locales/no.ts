@@ -18,6 +18,7 @@ const no: LocaleTable = {
     off: "Av",
     subtitleTrackFallback: "Spor",
     quality: "Kvalitet",
+    settings: "Innstillinger",
     videoQuality: "Videokvalitet",
     videoQualityActive: "Videokvalitet: {height}p",
     videoQualityAuto: "Videokvalitet: Auto ({height}p)",
