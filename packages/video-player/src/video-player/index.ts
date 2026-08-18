@@ -29,7 +29,6 @@ import {
     t,
 } from "./i18n/strings"
 import { registerCoreTranslations, toCoreLocale } from "./i18n/core-i18n"
-import type { AudioTrack, TrackHost } from "./components/media-tracks"
 import { PLAYBACK_RATES } from "./components/rate-trigger"
 
 export {
@@ -153,11 +152,7 @@ export async function createPlayer(
     container.insertAdjacentElement("afterbegin", player)
 
     // The rate list lives in the player store; there is no prop for it.
-    ;(
-        player as unknown as {
-            store?: { $state?: { patch(partial: object): void } }
-        }
-    ).store?.$state?.patch({ playbackRates: PLAYBACK_RATES })
+    playerStore(player)?.$state?.patch({ playbackRates: PLAYBACK_RATES })
 
     const teardown = new AbortController()
     setupErrorHandling(media, skin, teardown.signal)
@@ -188,19 +183,19 @@ export async function createPlayer(
         element: player,
         mediaEl,
         getAudioLanguages() {
-            return getAudioLanguages(media)
+            return getAudioLanguages(player)
         },
         getSubtitleLanguages() {
             return getSubtitleLanguages(mediaEl)
         },
         setAudioTrackToLanguage(language) {
-            setAudioTrackToLanguage(media, language)
+            setAudioTrackToLanguage(player, language)
         },
         setSubtitleTrackToLanguage(language) {
             setSubtitleTrackToLanguage(mediaEl, language)
         },
         setVideoQuality(height) {
-            setVideoQuality(media, height)
+            setVideoQuality(player, height)
         },
         setLanguage(lang) {
             const next: Lang = isSupportedLang(lang) ? lang : DEFAULT_LANG
@@ -257,22 +252,42 @@ export function restartNPAWView(player: Player, options: NPAWOptions): void {
     restartView(player, options)
 }
 
-function audioTracks(media: HTMLElement): AudioTrack[] {
-    const list = (media as TrackHost).audioTracks
-    return list ? [...list] : []
+// Reads of the player store, which the skin's controls already drive. Menu
+// values are `id || index` — see the quality / audioTrack store features.
+type StoreAudioTrack = { id?: string; label: string; language: string }
+type StoreRendition = { id?: string; height?: number }
+type PlayerStore = {
+    $state?: { patch(partial: object): void }
+    audioTrackList?: StoreAudioTrack[]
+    selectAudioTrack?(value: string): void
+    videoRenditionList?: StoreRendition[]
+    selectVideoRendition?(value: string): void
 }
 
-function getAudioLanguages(media: HTMLElement): TrackOption[] {
-    return audioTracks(media).map((track) => ({
+function playerStore(player: HTMLElement): PlayerStore | null {
+    return (player as unknown as { store?: PlayerStore }).store ?? null
+}
+
+function optionValue(item: { id?: string }, index: number): string {
+    return item.id || String(index)
+}
+
+function getAudioLanguages(player: HTMLElement): TrackOption[] {
+    const tracks = playerStore(player)?.audioTrackList ?? []
+    return tracks.map((track) => ({
         language: track.language,
         label: track.label || track.language,
     }))
 }
 
-function setAudioTrackToLanguage(media: HTMLElement, language?: string) {
+function setAudioTrackToLanguage(player: HTMLElement, language?: string) {
     if (!language) return
-    const target = audioTracks(media).find((t) => t.language === language)
-    if (target) target.enabled = true
+    const store = playerStore(player)
+    const index =
+        store?.audioTrackList?.findIndex((t) => t.language === language) ?? -1
+    if (index < 0) return
+    const track = store!.audioTrackList![index]
+    store!.selectAudioTrack?.(optionValue(track, index))
 }
 
 function getSubtitleLanguages(media: HTMLVideoElement): TrackOption[] {
@@ -379,15 +394,18 @@ function renderErrorDialog(skin: HTMLElement, lang: Lang): void {
     }
 }
 
-function setVideoQuality(media: HTMLElement, height: number): void {
-    const list = (media as TrackHost).videoRenditions
-    if (!list?.length) return
+function setVideoQuality(player: HTMLElement, height: number): void {
+    const store = playerStore(player)
+    const renditions = store?.videoRenditionList ?? []
+    if (!renditions.length) return
     if (!height || height < 0) {
-        list.selectedIndex = -1 // back to ABR
+        store?.selectVideoRendition?.("auto")
         return
     }
-    const idx = [...list].findIndex((r) => r.height === height)
-    if (idx >= 0) list.selectedIndex = idx
+    const index = renditions.findIndex((r) => r.height === height)
+    if (index >= 0) {
+        store?.selectVideoRendition?.(optionValue(renditions[index], index))
+    }
 }
 
 function setSubtitleTrackToLanguage(
