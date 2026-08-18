@@ -537,7 +537,7 @@ media-i18n {
    pointer isn't over a chapter, so collapse it rather than reserve a line. */
 .media-minimal-skin .media-preview .media-preview__chapter-title {
     display: block;
-    max-width: 12rem;
+    max-width: 100%;
     margin-top: 0.5rem;
     overflow: hidden;
     font-weight: 600;
@@ -914,7 +914,7 @@ media-i18n {
     padding: 0.1em;
     margin-right: -0.25rem;
     font-family: inherit;
-    font-size: 0.6875rem;
+    font-size: calc(0.6875rem * var(--bccm-scale));
     font-weight: 600;
     line-height: 1.25;
     text-align: center;
@@ -1339,10 +1339,17 @@ media-i18n {
    ========================================================================== */
 
 .media-minimal-skin--video .media-slider__preview {
-    --media-preview-max-width: 11rem;
+    /* Overall cap: the edge clamp below assumes the preview is exactly this
+       wide, so anything inside it (title included) has to respect it. */
+    --media-preview-max-width: min(
+        calc(var(--bccm-space) * 64),
+        calc(100cqi - 1rem)
+    );
+    --media-preview-thumbnail-width: calc(var(--bccm-space) * 44);
     --media-preview-padding: -0.5rem;
     --media-preview-inset: calc(100cqi - 100%);
 
+    max-width: var(--media-preview-max-width);
     position: absolute;
     bottom: 100%;
     left: clamp(
@@ -1386,11 +1393,11 @@ media-i18n {
         0 1px 2px -1px oklch(0 0 0 / 0.2);
 }
 .media-minimal-skin--video .media-slider__preview .media-preview__thumbnail {
-    max-width: var(--media-preview-max-width);
+    max-width: var(--media-preview-thumbnail-width);
 }
 .media-minimal-skin--video
     .media-slider__preview:has(.media-preview__thumbnail[data-loading]) {
-    max-height: 6rem;
+    max-height: calc(var(--bccm-space) * 24);
 }
 /* Visible while pointing if there is anything to show — a loaded thumbnail or
    a chapter title. Was gated on the thumbnail alone, which hid the whole
@@ -1545,7 +1552,7 @@ bccm-settings-trigger {
 }
 .media-minimal-skin .bccm-menu--settings[data-open] {
     width: var(--media-menu-width);
-    min-width: 12rem;
+    min-width: calc(var(--bccm-space) * 48);
     height: var(--media-menu-height);
     overflow: hidden;
     transition-property: scale, opacity, filter, width, height;
@@ -1622,7 +1629,7 @@ bccm-settings-trigger {
     color: oklch(from currentColor l c h / 0.65);
 }
 .media-minimal-skin .bccm-menu__hint-label {
-    max-width: 8rem;
+    max-width: calc(var(--bccm-space) * 32);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1675,7 +1682,7 @@ bccm-settings-trigger {
    to the label, as upstream's minimal skin does. */
 .media-minimal-skin .bccm-menu__tier {
     padding-inline-start: 0.125rem;
-    font-size: 0.5625rem;
+    font-size: calc(0.5625rem * var(--bccm-scale));
     font-weight: 600;
     line-height: 1;
     color: oklch(from currentColor l c h / 0.7);
@@ -1684,7 +1691,7 @@ bccm-settings-trigger {
 .media-minimal-skin .bccm-menu__badge {
     margin-inline-start: 0.375rem;
     padding: 0.25rem 0.375rem;
-    font-size: 0.6875rem;
+    font-size: calc(0.6875rem * var(--bccm-scale));
     font-weight: 500;
     line-height: 1;
     color: oklch(from currentColor l c h / 0.85);
