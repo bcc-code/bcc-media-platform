@@ -786,6 +786,29 @@ media-i18n {
         0 2px 4px -2px oklch(0 0 0 / 0.1);
     backdrop-filter: var(--media-tooltip-backdrop-filter);
 }
+/* Scoped to [data-open] — `display: flex` would otherwise override the UA's
+   [popover] hiding. The flex context also blockifies the shortcut chip so its
+   min-width and padding apply. */
+.media-minimal-skin .media-tooltip[data-open] {
+    display: flex;
+    column-gap: 0.25rem;
+    align-items: center;
+}
+/* Keyboard shortcut chip. Core auto-creates <media-tooltip-shortcut> without a
+   class when the tooltip has no authored children, so match the tag too. */
+.media-minimal-skin media-tooltip-shortcut,
+.media-minimal-skin .media-tooltip__kbd {
+    min-width: 1.5em;
+    padding: 0.1em;
+    margin-right: -0.25rem;
+    font-family: inherit;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: center;
+    background-color: oklch(from currentColor l c h / 0.15);
+    border-radius: 0.25rem;
+}
 .media-minimal-skin .media-tooltip[data-side="top"]::before,
 .media-minimal-skin .media-tooltip[data-side="bottom"]::before {
     height: var(--media-tooltip-side-offset);
