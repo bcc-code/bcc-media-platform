@@ -15,7 +15,7 @@ generate: sqlc/.generated gql
 build: dist/api dist/jobs dist/pubsub-helper
 
 dist/api dist/jobs dist/pubsub-helper: ./**/*.go sqlc/.generated
-	CGO_ENABLED=0 go build -v -o $@ ./cmd/$(@F)
+	CGO_ENABLED=0 go build -buildvcs=true -v -o $@ ./cmd/$(@F)
 
 sqlc/.generated: ../migrations/*.sql
 	go tool github.com/sqlc-dev/sqlc/cmd/sqlc generate
