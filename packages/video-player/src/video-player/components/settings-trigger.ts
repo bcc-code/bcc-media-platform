@@ -19,7 +19,7 @@ export class SettingsTriggerElement extends MediaElement {
 
         this.#button.type = "button"
         this.#button.className =
-            "bccm-picker-button media-button media-button--subtle media-button--icon"
+            "bccm-picker-button media-button media-button--subtle media-button--icon media-button--settings"
         const menu = this.getAttribute("menu")
         if (menu) this.#button.setAttribute("commandfor", menu)
         this.#button.innerHTML = ICON_SETTINGS

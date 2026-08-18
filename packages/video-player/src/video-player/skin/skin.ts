@@ -210,7 +210,7 @@ export function buildSkin(
                 <div class="bccm-menu__separator"></div>
                 <media-quality-radio-group class="bccm-menu__group">
                   <template>
-                    <media-menu-radio-item class="bccm-menu__item"><span data-part="label"></span><span data-part="tier" class="bccm-menu__tier" hidden></span><span data-part="badge" class="bccm-menu__badge" hidden></span></media-menu-radio-item>
+                    <media-menu-radio-item class="bccm-menu__item"><span><span data-part="label"></span><sup data-part="tier" class="bccm-menu__tier" hidden></sup></span><span data-part="badge" class="bccm-menu__badge" hidden></span></media-menu-radio-item>
                   </template>
                 </media-quality-radio-group>
               </media-menu>

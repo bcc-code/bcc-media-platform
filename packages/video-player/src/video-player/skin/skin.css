@@ -396,6 +396,64 @@ media-i18n {
     scale: -1 1;
 }
 
+/* Icon animations. Upstream ships these in a <style> inside each SVG, but its
+   reduced-motion rule targets :root, which escapes our light-DOM skin — so the
+   rules live here and are scoped to the skin instead. */
+@keyframes media-icon--airplay__fill {
+    0% {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.2;
+    }
+}
+@keyframes media-icon--airplay__triangle {
+    0% {
+        translate: 0 0;
+    }
+    to {
+        translate: 0 -2px;
+    }
+}
+@keyframes media-spinner-fade {
+    0% {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+.media-minimal-skin .media-spinner__segment {
+    animation: var(
+        --media-spinner-animation,
+        media-spinner-fade 1s steps(8, end) infinite
+    );
+    animation-delay: var(--media-spinner-delay);
+}
+/* The gear turns while its menu is open; core writes aria-expanded onto the
+   trigger, so no JS needed. Values from upstream's minimal skin. */
+.media-minimal-skin .media-button--settings .media-icon--settings {
+    transition: transform 150ms ease-in-out;
+}
+.media-minimal-skin
+    .media-button--settings[aria-expanded="true"]
+    .media-icon--settings {
+    transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .media-minimal-skin {
+        --media-icon--airplay__fill-animation: none;
+        --media-icon--airplay__triangle-animation: none;
+    }
+    .media-minimal-skin .media-spinner__segment {
+        animation: none;
+    }
+    .media-minimal-skin .media-button--settings .media-icon--settings {
+        transition-duration: 0ms;
+    }
+}
+
 /* ==========================================================================
    Poster Image
    ========================================================================== */
@@ -1442,18 +1500,25 @@ bccm-settings-trigger {
     media-menu-radio-item.bccm-menu__item[aria-checked="true"]::before {
     visibility: visible;
 }
-/* "HD" / "4K" / "8K", derived from the rendition height. */
+/* "HD" / "4K" / "8K", derived from the rendition height. Superscripted next
+   to the label, as upstream's minimal skin does. */
 .media-minimal-skin .bccm-menu__tier {
-    padding-inline-start: 0.375rem;
-    font-size: 0.6875rem;
+    padding-inline-start: 0.125rem;
+    font-size: 0.5625rem;
     font-weight: 600;
     line-height: 1;
     color: oklch(from currentColor l c h / 0.7);
 }
-/* Bitrate, shown only when two renditions share a resolution. */
+/* Bitrate chip, shown only when two renditions share a resolution. */
 .media-minimal-skin .bccm-menu__badge {
-    margin-inline-start: auto;
-    padding-inline-start: 1.5rem;
-    color: oklch(from currentColor l c h / 0.65);
+    margin-inline-start: 0.375rem;
+    padding: 0.25rem 0.375rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1;
+    color: oklch(from currentColor l c h / 0.85);
+    white-space: nowrap;
+    background-color: oklch(from currentColor l c h / 0.1);
+    border-radius: 0.25rem;
     font-variant-numeric: tabular-nums;
 }

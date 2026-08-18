@@ -19,7 +19,7 @@
         "types": "tsc --emitDeclarationOnly",
         "build": "tsc --noEmit && vite build && pnpm types",
         "preview": "vite preview",
-        "prettier": "prettier --write .",
+        "format": "prettier --write .",
         "test": "vitest run",
         "test:watch": "vitest"
     },
