@@ -93,15 +93,22 @@ media-i18n {
     --media-current-shadow-color-subtle: oklch(
         from var(--media-current-shadow-color) l c h / calc(alpha * 0.4)
     );
-    --media-icon-size: 18px;
+    /* Fullscreen scale knob. Upstream drives everything off --scale/--size;
+       our eject flattened that to fixed values, so this only scales the
+       dimensions that carry the visual weight. */
+    --bccm-scale: 1;
+    --media-icon-size: calc(18px * var(--bccm-scale));
+    --media-scrollbar-thumb-color: oklch(from currentColor l c h / 0.3);
 
+    scrollbar-color: var(--media-scrollbar-thumb-color) transparent;
+    scrollbar-width: thin;
     position: relative;
     display: block;
     width: 100%;
     height: 100%;
     container: media-root / inline-size;
     font-family: var(--bccm-font-family, ui-sans-serif, system-ui, sans-serif);
-    font-size: 0.8125rem;
+    font-size: calc(0.8125rem * var(--bccm-scale));
     -webkit-font-smoothing: auto;
     -moz-osx-font-smoothing: auto;
     line-height: 1.5;
@@ -117,6 +124,10 @@ media-i18n {
 .media-minimal-skin:focus-visible {
     outline-color: currentColor;
     outline-offset: 2px;
+}
+.media-minimal-skin ::-webkit-scrollbar-thumb {
+    background: var(--media-scrollbar-thumb-color);
+    border-radius: 9999px;
 }
 
 /* ==========================================================================
@@ -334,7 +345,7 @@ media-i18n {
 
 .media-minimal-skin .media-button--icon {
     display: grid;
-    width: 2.375rem;
+    width: calc(2.375rem * var(--bccm-scale));
     aspect-ratio: 1;
     padding: 0;
 }
@@ -451,6 +462,14 @@ media-i18n {
     }
     .media-minimal-skin .media-button--settings .media-icon--settings {
         transition-duration: 0ms;
+    }
+    .media-minimal-skin .media-button {
+        scale: 1;
+        transition-property: background-color, outline-offset;
+        will-change: auto;
+    }
+    .media-minimal-skin .bccm-menu--settings {
+        --bccm-menu-transition-duration: 0ms;
     }
 }
 
@@ -940,6 +959,10 @@ media-i18n {
     }
 }
 @media (prefers-reduced-transparency: reduce) or (prefers-contrast: more) {
+    .media-minimal-skin {
+        --media-scrollbar-thumb-color: oklch(from currentColor l c h / 0.8);
+        scrollbar-width: auto;
+    }
     .media-minimal-skin--video {
         --media-controls-background-color: oklch(0 0 0);
         --media-tooltip-background-color: oklch(0 0 0);
@@ -972,6 +995,21 @@ media-i18n {
 }
 .media-minimal-skin--video:fullscreen {
     --media-border-radius: 0;
+}
+@media (width >= 1280px) {
+    .media-minimal-skin--video:fullscreen {
+        --bccm-scale: 1.25;
+    }
+}
+@media (width >= 1536px) {
+    .media-minimal-skin--video:fullscreen {
+        --bccm-scale: 1.5;
+    }
+}
+@media (width >= 1920px) {
+    .media-minimal-skin--video:fullscreen {
+        --bccm-scale: 1.75;
+    }
 }
 
 /* ==========================================================================
@@ -1397,6 +1435,9 @@ bccm-settings-trigger {
    which core measures, while panels slide in from the right. */
 /* [data-open] so this beats the `height: auto` on .bccm-menu[data-open];
    the measured height is what lets the box animate between panels. */
+.media-minimal-skin .bccm-menu--settings {
+    --bccm-menu-transition-duration: 250ms;
+}
 .media-minimal-skin .bccm-menu--settings[data-open] {
     width: var(--media-menu-width);
     min-width: 12rem;
@@ -1414,8 +1455,8 @@ bccm-settings-trigger {
 .media-minimal-skin .bccm-menu--settings > :not([data-submenu]) {
     translate: 0 0;
     transition:
-        translate 250ms ease-out,
-        filter 250ms ease-out;
+        translate var(--bccm-menu-transition-duration) ease-out,
+        filter var(--bccm-menu-transition-duration) ease-out;
 }
 .media-minimal-skin
     .bccm-menu--settings[data-submenu-expanded="true"]
@@ -1440,8 +1481,8 @@ bccm-settings-trigger {
     outline: none;
     translate: 0 0;
     transition:
-        translate 250ms ease-out,
-        filter 250ms ease-out;
+        translate var(--bccm-menu-transition-duration) ease-out,
+        filter var(--bccm-menu-transition-duration) ease-out;
 }
 .media-minimal-skin
     .bccm-menu__panel:where([data-starting-style], [data-ending-style]) {
@@ -1509,6 +1550,7 @@ bccm-settings-trigger {
     background-color: oklch(from currentColor l c h / 0.15);
     outline: none;
 }
+
 /* Only radio items get a checkmark gutter; submenu rows and the back button
    carry an icon there instead. */
 .media-minimal-skin media-menu-radio-item.bccm-menu__item::before {
