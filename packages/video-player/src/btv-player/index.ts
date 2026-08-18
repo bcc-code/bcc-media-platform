@@ -49,6 +49,7 @@ export class PlayerFactory {
                 const merged: Partial<Options> = {
                     src: { src: stream.url },
                     videojs: { poster: episode.image },
+                    chapters: episode.chapters,
                     ...options.overrides,
                 }
                 return await createPlayer(elementId, merged)

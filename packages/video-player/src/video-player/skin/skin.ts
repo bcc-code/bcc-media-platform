@@ -123,15 +123,22 @@ export function buildSkin(
 
     const timeControls = `${leadingTime}
             <media-time-slider class="media-slider">
-              <media-slider-track class="media-slider__track">
-                <media-slider-fill class="media-slider__fill"></media-slider-fill>
-                <media-slider-buffer class="media-slider__buffer"></media-slider-buffer>
-              </media-slider-track>
+              <media-time-slider-chapters class="media-slider__chapters">
+                <template>
+                  <div class="media-slider__chapter">
+                    <media-slider-track class="media-slider__track media-slider__chapter-track">
+                      <media-slider-fill class="media-slider__fill"></media-slider-fill>
+                      <media-slider-buffer class="media-slider__buffer"></media-slider-buffer>
+                    </media-slider-track>
+                  </div>
+                </template>
+              </media-time-slider-chapters>
               <media-slider-thumb class="media-slider__thumb"></media-slider-thumb>
               <div class="media-preview media-slider__preview">
                 <div class="media-preview__thumbnail-wrapper">
                   <media-slider-thumbnail class="media-preview__thumbnail"></media-slider-thumbnail>
                 </div>
+                <media-time-slider-chapter-title class="media-preview__chapter-title"></media-time-slider-chapter-title>
                 <media-slider-value type="pointer" class="media-time media-preview__time"></media-slider-value>
                 ${ICON_SPINNER_PREVIEW}
               </div>

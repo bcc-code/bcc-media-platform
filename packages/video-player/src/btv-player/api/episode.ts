@@ -10,6 +10,12 @@ export const getEpisodeStreams = async (
         query getEpisode($ID: ID!) {
             episode(id: $ID) {
                 image
+                chapters {
+                    start
+                    duration
+                    title
+                    image
+                }
                 streams {
                     audioLanguages
                     subtitleLanguages
@@ -39,6 +45,12 @@ export const getEpisodeStreams = async (
     const response = await c.request<{
         episode: {
             image: string
+            chapters: {
+                start: number
+                duration: number
+                title: string
+                image: string | null
+            }[]
             streams: {
                 audioLanguages: string[]
                 subtitleLanguages: string[]

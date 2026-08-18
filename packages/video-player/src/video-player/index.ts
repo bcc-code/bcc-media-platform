@@ -26,6 +26,7 @@ import {
     t,
 } from "./i18n/strings"
 import { registerCoreTranslations, toCoreLocale } from "./i18n/core-i18n"
+import { type Chapter, toChaptersVTT, toThumbnailsVTT } from "./utils/chapters"
 
 export {
     DEFAULT_LANG,
@@ -52,6 +53,9 @@ export interface Options {
      *  displays / seek buttons / thumbnail preview). Defaults to false. */
     live?: boolean
     subtitles: any[]
+    /** Chapter markers for the time slider; their stills double as the scrub
+     *  preview. */
+    chapters?: Chapter[]
     /** UI language for tooltips, pickers, and error messages. Defaults
      *  to `"en"`. Use `player.setLanguage(...)` to swap at runtime. */
     language?: Lang
@@ -156,6 +160,14 @@ export async function createPlayer(
     const teardown = new AbortController()
     setupErrorHandling(media, skin, teardown.signal)
     setupBandwidthPersistence(media, teardown.signal)
+
+    attachVttTrack(media, "chapters", toChaptersVTT(options.chapters ?? []))
+    attachVttTrack(
+        media,
+        "metadata",
+        toThumbnailsVTT(options.chapters ?? []),
+        "thumbnails"
+    )
 
     for (const track of options.subtitles ?? []) {
         const el = document.createElement("track")
@@ -287,6 +299,25 @@ function setAudioTrackToLanguage(player: HTMLElement, language?: string) {
     if (index < 0) return
     const track = store!.audioTrackList![index]
     store!.selectAudioTrack?.(optionValue(track, index))
+}
+
+// Cues are read off `track.cues`, which stays null while a track is disabled.
+// <hlsjs-video> clones light-DOM tracks into its inner <video>, so setting the
+// mode here would target the wrong TextTrack — `default` is what makes the
+// element switch the clone to `hidden` (see custom-media-element).
+function attachVttTrack(
+    media: HTMLElement,
+    kind: "chapters" | "metadata",
+    vtt: string,
+    label?: string
+): void {
+    if (!vtt) return
+    const el = document.createElement("track")
+    el.kind = kind
+    if (label) el.label = label
+    el.default = true
+    el.src = URL.createObjectURL(new Blob([vtt], { type: "text/vtt" }))
+    media.appendChild(el)
 }
 
 function getSubtitleLanguages(media: HTMLVideoElement): TrackOption[] {
