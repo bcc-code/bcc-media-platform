@@ -35,7 +35,8 @@ live-video-player video::-webkit-media-text-track-container {
 /* Shared styles for all HTML skins                                           */
 /* -------------------------------------------------------------------------- */
 
-media-tooltip-group {
+media-tooltip-group,
+media-i18n {
     display: contents;
 }
 

@@ -58,7 +58,7 @@ export const DEFAULT_LANG: Lang = "en"
 
 export const LANGUAGE_CHANGE_EVENT = "bccm-languagechange"
 
-const STRINGS: Record<Lang, LocaleTable> = { en, no, nl, de }
+export const STRINGS: Record<Lang, LocaleTable> = { en, no, nl, de }
 
 export function isSupportedLang(value: unknown): value is Lang {
     return (

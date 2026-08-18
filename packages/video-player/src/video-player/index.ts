@@ -28,7 +28,7 @@ import {
     relabelSkin,
     t,
 } from "./i18n/strings"
-import { relabelButtons } from "./i18n/button-labels"
+import { registerCoreTranslations, toCoreLocale } from "./i18n/core-i18n"
 import type { AudioTrack, TrackHost } from "./components/media-tracks"
 
 export {
@@ -101,6 +101,8 @@ export async function createPlayer(
         ? options.language
         : DEFAULT_LANG
 
+    registerCoreTranslations()
+
     // Tear down any existing player rendered into this container.
     container.querySelector("video-player")?.remove()
 
@@ -138,7 +140,12 @@ export async function createPlayer(
         live: options.live,
         language: initialLang,
     })
-    player.appendChild(skin)
+    // Core's UI text comes from the i18n context, so the provider has to be an
+    // ancestor of the skin — it isn't baked into <video-player>.
+    const i18n = document.createElement("media-i18n")
+    i18n.lang = toCoreLocale(initialLang)
+    i18n.appendChild(skin)
+    player.appendChild(i18n)
     // Cast is a declared component since beta.26 — <media-cast-button> alone
     // has nothing behind it. No `receiver`, so it uses the default receiver.
     player.appendChild(document.createElement("google-cast"))
@@ -191,8 +198,8 @@ export async function createPlayer(
             const next: Lang = isSupportedLang(lang) ? lang : DEFAULT_LANG
             if (player.getAttribute("data-lang") === next) return
             player.setAttribute("data-lang", next)
+            i18n.lang = toCoreLocale(next)
             relabelSkin(skin, next)
-            relabelButtons(skin)
             renderErrorDialog(skin, next)
             player.dispatchEvent(
                 new CustomEvent(LANGUAGE_CHANGE_EVENT, {

@@ -4,7 +4,6 @@
 
 import { isSmartTV } from "../utils/userAgent"
 import { type Lang, relabelSkin } from "../i18n/strings"
-import { installButtonLabels } from "../i18n/button-labels"
 
 import ICON_RESTART from "./icons/restart.svg?raw"
 import ICON_PLAY from "./icons/play.svg?raw"
@@ -265,7 +264,6 @@ export function buildSkin(
     }
 
     relabelSkin(container, options.language ?? "en")
-    installButtonLabels(container)
 
     return container
 }
