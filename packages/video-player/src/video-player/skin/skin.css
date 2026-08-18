@@ -1322,7 +1322,8 @@ bccm-subtitle-trigger[data-empty] {
     display: contents;
 }
 .media-minimal-skin .bccm-menu__item {
-    display: block;
+    display: flex;
+    align-items: center;
     background: transparent;
     color: inherit;
     border: 0;
@@ -1348,4 +1349,19 @@ bccm-subtitle-trigger[data-empty] {
 }
 .media-minimal-skin .bccm-menu__item[aria-checked="true"]::before {
     visibility: visible;
+}
+/* "HD" / "4K" / "8K", derived from the rendition height. */
+.media-minimal-skin .bccm-menu__tier {
+    padding-inline-start: 0.375rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1;
+    color: oklch(from currentColor l c h / 0.7);
+}
+/* Bitrate, shown only when two renditions share a resolution. */
+.media-minimal-skin .bccm-menu__badge {
+    margin-inline-start: auto;
+    padding-inline-start: 1.5rem;
+    color: oklch(from currentColor l c h / 0.65);
+    font-variant-numeric: tabular-nums;
 }

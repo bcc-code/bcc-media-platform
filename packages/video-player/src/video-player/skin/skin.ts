@@ -216,7 +216,7 @@ export function buildSkin(
             <media-menu id="${ID_QUALITY_MENU}" side="top" align="center" class="media-popover bccm-menu">
               <media-quality-radio-group>
                 <template>
-                  <media-menu-radio-item class="bccm-menu__item"><span data-part="label"></span></media-menu-radio-item>
+                  <media-menu-radio-item class="bccm-menu__item"><span data-part="label"></span><span data-part="tier" class="bccm-menu__tier" hidden></span><span data-part="badge" class="bccm-menu__badge" hidden></span></media-menu-radio-item>
                 </template>
               </media-quality-radio-group>
             </media-menu>
