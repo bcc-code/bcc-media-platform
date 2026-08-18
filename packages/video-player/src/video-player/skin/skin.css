@@ -994,17 +994,6 @@ media-i18n {
         translate: 0 100%;
     }
 }
-/* Pin the control bar visible while a picker popover is open, otherwise
-   the bar fades on mouseleave and leaves the menu floating untethered. */
-.media-minimal-skin--video:has(.bccm-picker-menu:popover-open) .media-controls {
-    opacity: 1;
-    pointer-events: auto;
-    translate: 0;
-    filter: none;
-}
-.media-minimal-skin--video:has(.bccm-picker-menu:popover-open) {
-    cursor: auto;
-}
 .media-minimal-skin--video .media-controls .media-time-controls {
     flex: 0 0 100%;
     order: -1;
@@ -1269,16 +1258,16 @@ media-i18n {
    and must target the element directly.
    ========================================================================== */
 
-bccm-audio-picker,
-bccm-subtitle-picker,
-bccm-quality-picker,
-bccm-playback-rate-picker {
+bccm-audio-trigger,
+bccm-subtitle-trigger,
+bccm-quality-trigger,
+bccm-rate-trigger {
     position: relative;
     display: inline-flex;
 }
-bccm-audio-picker[data-empty],
-bccm-quality-picker[data-empty],
-bccm-subtitle-picker[data-empty] {
+bccm-audio-trigger[data-empty],
+bccm-quality-trigger[data-empty],
+bccm-subtitle-trigger[data-empty] {
     display: none;
 }
 .bccm-picker-button {
@@ -1294,15 +1283,19 @@ bccm-subtitle-picker[data-empty] {
     font-variant-numeric: tabular-nums;
 }
 
-.bccm-picker-menu {
-    /* UA stylesheet renders [popover] with display: none until open. */
-    /* Hidden until JS has positioned us — avoids a one-frame flash at the
-       UA-default popover location before the toggle handler runs. */
-    visibility: hidden;
+/* Core-driven menu. <media-menu> positions itself, animates via the shared
+   .media-popover rules and locks the controls visible while open, so this only
+   styles the surface. */
+.media-minimal-skin .bccm-menu {
     margin: 0;
     border: 0;
     padding: 0.25rem;
     min-width: 11rem;
+    max-width: calc(100vw - 1rem);
+    max-height: min(
+        16rem,
+        var(--media-menu-available-height, calc(100vh - 1rem))
+    );
     overflow-y: auto;
     color: var(--media-accent-color, oklch(1 0 0));
     background-color: var(--media-tooltip-background-color, oklch(1 0 0 / 0.1));
@@ -1318,16 +1311,18 @@ bccm-subtitle-picker[data-empty] {
     font-family: inherit;
     text-shadow: 0 1px 0 oklch(0 0 0 / 0.25);
 }
-.bccm-picker-menu:popover-open {
+/* Override the UA [popover] display and height:fit-content so max-height
+   clamps the flex column. */
+.media-minimal-skin .bccm-menu[data-open] {
     display: flex;
     flex-direction: column;
-    /* Override UA [popover] { height: fit-content } so max-height clamps the
-       flex container (otherwise tall menus overflow the viewport). */
     height: auto;
-    max-width: calc(100vw - 1rem);
-    max-height: min(16rem, calc(100vh - 1rem));
 }
-.bccm-picker-item {
+.media-minimal-skin .bccm-menu media-playback-rate-radio-group {
+    display: contents;
+}
+.media-minimal-skin .bccm-menu__item {
+    display: block;
     background: transparent;
     color: inherit;
     border: 0;
@@ -1339,18 +1334,18 @@ bccm-subtitle-picker[data-empty] {
     text-shadow: inherit;
     white-space: nowrap;
 }
-.bccm-picker-item:hover,
-.bccm-picker-item:focus-visible {
+.media-minimal-skin .bccm-menu__item:hover,
+.media-minimal-skin .bccm-menu__item[data-highlighted] {
     background-color: oklch(from currentColor l c h / 0.15);
     outline: none;
 }
-.bccm-picker-item::before {
+.media-minimal-skin .bccm-menu__item::before {
     content: "✓";
     display: inline-block;
     width: 1em;
     margin-inline-end: 0.5rem;
     visibility: hidden;
 }
-.bccm-picker-item[aria-checked="true"]::before {
+.media-minimal-skin .bccm-menu__item[aria-checked="true"]::before {
     visibility: visible;
 }

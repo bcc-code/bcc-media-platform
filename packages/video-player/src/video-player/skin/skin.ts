@@ -3,7 +3,7 @@
 // reaching into shadow DOM.
 
 import { isSmartTV } from "../utils/userAgent"
-import { type Lang, relabelSkin } from "../i18n/strings"
+import { getTrackLanguageName, type Lang, relabelSkin } from "../i18n/strings"
 
 import ICON_RESTART from "./icons/restart.svg?raw"
 import ICON_PLAY from "./icons/play.svg?raw"
@@ -56,7 +56,11 @@ export function buildSkin(
     const ID_FS = `fullscreen-tooltip-${sid}`
     const ID_CAST = `cast-tooltip-${sid}`
     const ID_AIRPLAY = `airplay-tooltip-${sid}`
+    const ID_AUDIO_MENU = `audio-menu-${sid}`
+    const ID_SUBS_MENU = `subs-menu-${sid}`
+    const ID_QUALITY_MENU = `quality-menu-${sid}`
     const ID_RATE = `rate-tooltip-${sid}`
+    const ID_RATE_MENU = `rate-menu-${sid}`
     const ID_AUDIO = `audio-tooltip-${sid}`
     const ID_SUBS = `subtitles-tooltip-${sid}`
     const ID_QUALITY = `quality-tooltip-${sid}`
@@ -163,8 +167,15 @@ export function buildSkin(
             ${
                 live
                     ? ""
-                    : `<bccm-playback-rate-picker commandfor="${ID_RATE}"></bccm-playback-rate-picker>
-            <media-tooltip id="${ID_RATE}" side="top" class="media-tooltip"><span data-i18n="playbackSpeed"></span></media-tooltip>`
+                    : `<bccm-rate-trigger commandfor="${ID_RATE}" menu="${ID_RATE_MENU}"></bccm-rate-trigger>
+            <media-tooltip id="${ID_RATE}" side="top" class="media-tooltip"><span data-i18n="playbackSpeed"></span></media-tooltip>
+            <media-menu id="${ID_RATE_MENU}" side="top" align="center" class="media-popover bccm-menu">
+              <media-playback-rate-radio-group>
+                <template>
+                  <media-menu-radio-item class="bccm-menu__item"><span data-part="label"></span></media-menu-radio-item>
+                </template>
+              </media-playback-rate-radio-group>
+            </media-menu>`
             }
 
             <media-mute-button commandfor="${ID_VOLUME}" class="media-button media-button--subtle media-button--icon media-button--mute">
@@ -180,14 +191,35 @@ export function buildSkin(
               </media-volume-slider>
             </media-popover>
 
-            <bccm-audio-picker commandfor="${ID_AUDIO}"></bccm-audio-picker>
+            <bccm-audio-trigger commandfor="${ID_AUDIO}" menu="${ID_AUDIO_MENU}"></bccm-audio-trigger>
             <media-tooltip id="${ID_AUDIO}" side="top" class="media-tooltip"><span data-i18n="audio"></span></media-tooltip>
+            <media-menu id="${ID_AUDIO_MENU}" side="top" align="center" class="media-popover bccm-menu">
+              <media-audio-track-radio-group>
+                <template>
+                  <media-menu-radio-item class="bccm-menu__item"><span data-part="label"></span></media-menu-radio-item>
+                </template>
+              </media-audio-track-radio-group>
+            </media-menu>
 
-            <bccm-subtitle-picker commandfor="${ID_SUBS}"></bccm-subtitle-picker>
+            <bccm-subtitle-trigger commandfor="${ID_SUBS}" menu="${ID_SUBS_MENU}"></bccm-subtitle-trigger>
             <media-tooltip id="${ID_SUBS}" side="top" class="media-tooltip"><span data-i18n="subtitles"></span></media-tooltip>
+            <media-menu id="${ID_SUBS_MENU}" side="top" align="center" class="media-popover bccm-menu">
+              <media-captions-radio-group>
+                <template>
+                  <media-menu-radio-item class="bccm-menu__item"><span data-part="label"></span></media-menu-radio-item>
+                </template>
+              </media-captions-radio-group>
+            </media-menu>
 
-            <bccm-quality-picker commandfor="${ID_QUALITY}"></bccm-quality-picker>
+            <bccm-quality-trigger commandfor="${ID_QUALITY}" menu="${ID_QUALITY_MENU}"></bccm-quality-trigger>
             <media-tooltip id="${ID_QUALITY}" side="top" class="media-tooltip"><span data-i18n="quality"></span></media-tooltip>
+            <media-menu id="${ID_QUALITY_MENU}" side="top" align="center" class="media-popover bccm-menu">
+              <media-quality-radio-group>
+                <template>
+                  <media-menu-radio-item class="bccm-menu__item"><span data-part="label"></span></media-menu-radio-item>
+                </template>
+              </media-quality-radio-group>
+            </media-menu>
 
             <media-cast-button commandfor="${ID_CAST}" class="media-button media-button--subtle media-button--icon media-button--cast">
               ${ICON_CAST_ENTER}${ICON_CAST_EXIT}
@@ -260,6 +292,23 @@ export function buildSkin(
             img.src = options.poster
             img.alt = ""
             poster.appendChild(img)
+        }
+    }
+
+    // Core's radio groups default to the manifest's own track label; we prefer
+    // the language's native name ("Norsk"), same as the triggers.
+    type TrackLike = { label: string; language: string }
+    type Formattable = Element & { formatTrack?: (t: TrackLike) => string }
+    for (const selector of [
+        "media-audio-track-radio-group",
+        "media-captions-radio-group",
+    ]) {
+        const group = container.querySelector<Formattable>(selector)
+        if (group) {
+            group.formatTrack = (track) =>
+                getTrackLanguageName(track.language) ||
+                track.label ||
+                track.language
         }
     }
 

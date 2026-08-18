@@ -3,10 +3,10 @@
 import "@videojs/html/video/ui"
 import "@videojs/html/media/hlsjs-video"
 import "@videojs/html/media/google-cast"
-import "./components/subtitle-picker"
-import "./components/audio-picker"
-import "./components/quality-picker"
-import "./components/playback-rate-picker"
+import "./components/subtitle-trigger"
+import "./components/audio-trigger"
+import "./components/quality-trigger"
+import "./components/rate-trigger"
 import "./components/live-button"
 import "./components/dismiss-controls-button"
 import "./skin/skin.css"
@@ -30,6 +30,7 @@ import {
 } from "./i18n/strings"
 import { registerCoreTranslations, toCoreLocale } from "./i18n/core-i18n"
 import type { AudioTrack, TrackHost } from "./components/media-tracks"
+import { PLAYBACK_RATES } from "./components/rate-trigger"
 
 export {
     DEFAULT_LANG,
@@ -150,6 +151,13 @@ export async function createPlayer(
     // has nothing behind it. No `receiver`, so it uses the default receiver.
     player.appendChild(document.createElement("google-cast"))
     container.insertAdjacentElement("afterbegin", player)
+
+    // The rate list lives in the player store; there is no prop for it.
+    ;(
+        player as unknown as {
+            store?: { $state?: { patch(partial: object): void } }
+        }
+    ).store?.$state?.patch({ playbackRates: PLAYBACK_RATES })
 
     const teardown = new AbortController()
     setupErrorHandling(media, skin, teardown.signal)
