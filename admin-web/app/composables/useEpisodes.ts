@@ -1,38 +1,25 @@
-import { useQuery } from '@urql/vue'
-import { graphql } from '~/api'
+const episodes = ref<Episode[]>([...mockEpisodes])
 
-const GetEpisodesDocument = graphql(`
-  query GetEpisodes($filter: String!) {
-    preview {
-      collection(filter: $filter) {
-        items {
-          id
-          title
-          collection
-        }
-      }
+export function useEpisodes() {
+  function add(episode: Episode) {
+    episodes.value.unshift(episode)
+  }
+
+  function update(id: string, data: Partial<Episode>) {
+    const index = episodes.value.findIndex((e) => e.id === id)
+    if (index !== -1) {
+      episodes.value[index] = { ...episodes.value[index]!, ...data }
     }
   }
-`)
 
-export function useEpisodes(filter: MaybeRef<string> = '') {
-  const result = useQuery({
-    query: GetEpisodesDocument,
-    variables: computed(() => ({
-      filter: toValue(filter)
-    }))
-  })
+  function remove(id: string) {
+    episodes.value = episodes.value.filter((e) => e.id !== id)
+  }
 
-  const episodes = computed(
-    () =>
-      result.data.value?.preview.collection.items.filter(
-        (item) => item.collection === 'episodes'
-      ) ?? []
+  /** Episodes that cannot be published yet because no video has arrived. */
+  const missingVideo = computed(() =>
+    episodes.value.filter((e) => e.assetId === null)
   )
 
-  return {
-    episodes,
-    fetching: result.fetching,
-    error: result.error
-  }
+  return { episodes, add, update, remove, missingVideo }
 }

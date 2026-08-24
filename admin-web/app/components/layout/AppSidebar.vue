@@ -18,7 +18,14 @@ async function handleLogout() {
   await navigateTo('/login')
 }
 
-const navSections = [
+interface NavItem {
+  to: string
+  icon: string
+  label: string
+  demo?: boolean
+}
+
+const navSections: { label: string; items: NavItem[] }[] = [
   {
     label: 'Oversikt',
     items: [{ to: '/', icon: 'tabler:home', label: 'Hjem' }]
@@ -26,7 +33,18 @@ const navSections = [
   {
     label: 'Innhold',
     items: [
-      { to: '/episodes', icon: 'tabler:player-play', label: 'Episoder' },
+      {
+        to: '/episodes',
+        icon: 'tabler:player-play',
+        label: 'Episoder',
+        demo: true
+      },
+      {
+        to: '/assets',
+        icon: 'tabler:movie',
+        label: 'Mediefiler',
+        demo: true
+      },
       {
         to: '/seasons',
         icon: 'tabler:calendar-event',
@@ -44,6 +62,23 @@ const navSections = [
         to: '/notifications',
         icon: 'tabler:bell',
         label: 'Push-varsler',
+        demo: true
+      }
+    ]
+  },
+  {
+    label: 'Drift',
+    items: [
+      {
+        to: '/livestream',
+        icon: 'tabler:broadcast',
+        label: 'Direktestrøm',
+        demo: true
+      },
+      {
+        to: '/messages',
+        icon: 'tabler:message-2',
+        label: 'Meldinger',
         demo: true
       }
     ]

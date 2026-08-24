@@ -4,7 +4,7 @@ export interface Episode {
   id: string
   uuid: string
   legacyID: string | null
-  status: 'published' | 'unlisted' | 'draft' | 'archived'
+  status: Status
   type: EpisodeType
   title: string
   description: string
@@ -12,8 +12,10 @@ export interface Episode {
   publishDate: string
   availableFrom: string
   availableTo: string
-  ageRating: string
-  duration: number
+  /** The arrived video file. Null means the episode has no video yet. */
+  assetId: string | null
+  /** Gates the background translation export — see docs/admin-web-scope.md. */
+  translationsRequired: boolean
   number: number | null
   season: {
     id: string
@@ -39,8 +41,8 @@ export const mockEpisodes: Episode[] = [
     publishDate: '2026-04-15T10:00:00Z',
     availableFrom: '2026-04-15T10:00:00Z',
     availableTo: '2099-12-31T23:59:59Z',
-    ageRating: 'A',
-    duration: 2820,
+    assetId: 'a1',
+    translationsRequired: true,
     number: 4,
     season: { id: '1', number: 12, show: { id: '1', title: 'Bibeltimen' } }
   },
@@ -56,8 +58,8 @@ export const mockEpisodes: Episode[] = [
     publishDate: '2026-04-22T10:00:00Z',
     availableFrom: '2026-04-22T10:00:00Z',
     availableTo: '2099-12-31T23:59:59Z',
-    ageRating: '6',
-    duration: 2640,
+    assetId: null,
+    translationsRequired: true,
     number: 5,
     season: { id: '1', number: 12, show: { id: '1', title: 'Bibeltimen' } }
   },
@@ -74,8 +76,8 @@ export const mockEpisodes: Episode[] = [
     publishDate: '2026-04-14T08:00:00Z',
     availableFrom: '2026-04-14T08:00:00Z',
     availableTo: '2099-12-31T23:59:59Z',
-    ageRating: 'A',
-    duration: 1440,
+    assetId: 'a3',
+    translationsRequired: true,
     number: 1,
     season: { id: '3', number: 5, show: { id: '2', title: 'Superbook' } }
   },
@@ -91,8 +93,8 @@ export const mockEpisodes: Episode[] = [
     publishDate: '2026-05-01T08:00:00Z',
     availableFrom: '2026-05-01T08:00:00Z',
     availableTo: '2099-12-31T23:59:59Z',
-    ageRating: '9',
-    duration: 1380,
+    assetId: 'a4',
+    translationsRequired: true,
     number: 2,
     season: { id: '3', number: 5, show: { id: '2', title: 'Superbook' } }
   },
@@ -108,8 +110,8 @@ export const mockEpisodes: Episode[] = [
     publishDate: '2026-04-10T20:00:00Z',
     availableFrom: '2026-04-10T20:00:00Z',
     availableTo: '2099-12-31T23:59:59Z',
-    ageRating: 'A',
-    duration: 2100,
+    assetId: 'a5',
+    translationsRequired: true,
     number: 1,
     season: { id: '5', number: 3, show: { id: '3', title: 'Utsatisforsk' } }
   },
@@ -125,8 +127,8 @@ export const mockEpisodes: Episode[] = [
     publishDate: '2026-04-20T20:00:00Z',
     availableFrom: '2026-04-20T20:00:00Z',
     availableTo: '2099-12-31T23:59:59Z',
-    ageRating: '12',
-    duration: 1980,
+    assetId: 'a6',
+    translationsRequired: true,
     number: 2,
     season: { id: '5', number: 3, show: { id: '3', title: 'Utsatisforsk' } }
   },
@@ -142,8 +144,8 @@ export const mockEpisodes: Episode[] = [
     publishDate: '2026-04-08T18:00:00Z',
     availableFrom: '2026-04-08T18:00:00Z',
     availableTo: '2099-12-31T23:59:59Z',
-    ageRating: 'U',
-    duration: 5400,
+    assetId: 'a7',
+    translationsRequired: true,
     number: 3,
     season: { id: '7', number: 1, show: { id: '4', title: 'Musikkvideoer' } }
   },
@@ -159,8 +161,8 @@ export const mockEpisodes: Episode[] = [
     publishDate: '2026-05-15T18:00:00Z',
     availableFrom: '2026-05-15T18:00:00Z',
     availableTo: '2099-12-31T23:59:59Z',
-    ageRating: '15',
-    duration: 240,
+    assetId: null,
+    translationsRequired: true,
     number: 4,
     season: { id: '7', number: 1, show: { id: '4', title: 'Musikkvideoer' } }
   }

@@ -21,19 +21,17 @@ const props = defineProps<{
   episode: Episode
 }>()
 
-const timeAgo = useTimeAgo(computed(() => props.episode.publishDate))
+const { byId } = useAssets()
 
-function formatDuration(seconds: number) {
-  const h = Math.floor(seconds / 3600)
-  const m = Math.floor((seconds % 3600) / 60)
-  const s = seconds % 60
-  if (h > 0) return `${h}t ${m}m`
-  return `${m}m ${s}s`
-}
+const asset = computed(() => byId(props.episode.assetId))
+const timeAgo = useTimeAgo(computed(() => props.episode.publishDate))
 </script>
 
 <template>
-  <tr class="border-border-1 hover:bg-surface-indent border-t">
+  <tr
+    class="border-border-1 hover:bg-surface-indent cursor-pointer border-t"
+    @click="navigateTo(`/episodes/${episode.id}`)"
+  >
     <td class="px-4 py-3">
       <p class="text-title-3 text-text-default">{{ episode.title }}</p>
       <p v-if="episode.season" class="text-caption-1 text-text-muted mt-0.5">
@@ -42,8 +40,11 @@ function formatDuration(seconds: number) {
         }}
       </p>
     </td>
-    <td class="text-body-3 text-text-muted px-4 py-3 whitespace-nowrap">
-      {{ formatDuration(episode.duration) }}
+    <td class="px-4 py-3 whitespace-nowrap">
+      <span v-if="asset" class="text-body-3 text-text-muted">
+        {{ formatDuration(asset.duration) }}
+      </span>
+      <DesignBadge v-else variant="warning">Mangler video</DesignBadge>
     </td>
     <td class="text-body-3 text-text-muted px-4 py-3 whitespace-nowrap">
       {{ typeConfig[episode.type] }}
