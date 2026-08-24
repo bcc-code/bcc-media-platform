@@ -38,9 +38,11 @@ type liveURL struct {
 }
 
 // signedLiveURL signs the configured livestream manifest URL and, when a
-// calendar entry is currently in progress, inserts the AWS Elemental
-// MediaPackage start-over `start` path element so playback joins from the
-// program's start (clamped to at most maxLivestreamStartAge in the past). On the
+// calendar entry is currently in progress — or ended less than bufferLeadOut
+// ago, matching the replay buffer's padded view of the program window —
+// inserts the AWS Elemental MediaPackage start-over `start` path element so
+// playback joins from the program's start (clamped to at most
+// maxLivestreamStartAge in the past). On the
 // legacy path the URL's validity is capped at maxLivestreamURLAgeFromStart past
 // that start; on the proxy path it keeps the full livestreamURLExpiry, and the
 // returned ExpiresAt is earlier than the token's real expiry (see
@@ -54,13 +56,13 @@ func (r *Resolver) signedLiveURL(ctx context.Context, livestreamURL string) (*li
 		return nil, nil
 	}
 
-	entry, err := r.Queries.GetCurrentCalendarEntry(ctx)
+	now := time.Now()
+	entry, err := r.Queries.GetCurrentCalendarEntry(ctx, now.Add(-bufferLeadOut))
 	if err != nil {
 		log.L.Error().Err(err).Msg("signedLiveURL: failed to get current calendar entry")
 		return nil, err
 	}
 
-	now := time.Now()
 	var start *time.Time
 	if entry != nil {
 		s := clampStart(entry.Start, now)

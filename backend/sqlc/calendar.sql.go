@@ -341,7 +341,7 @@ SELECT e.id,
 FROM calendarentries e
 WHERE e.status = 'published'
   AND e.start <= now()
-  AND e.end > now()
+  AND e.end > $1::timestamptz
 ORDER BY e.start DESC
 LIMIT 1
 `
@@ -352,8 +352,8 @@ type getCurrentCalendarEntryRow struct {
 	End   time.Time `db:"end" json:"end"`
 }
 
-func (q *Queries) getCurrentCalendarEntry(ctx context.Context) (getCurrentCalendarEntryRow, error) {
-	row := q.db.QueryRowContext(ctx, getCurrentCalendarEntry)
+func (q *Queries) getCurrentCalendarEntry(ctx context.Context, endsAfter time.Time) (getCurrentCalendarEntryRow, error) {
+	row := q.db.QueryRowContext(ctx, getCurrentCalendarEntry, endsAfter)
 	var i getCurrentCalendarEntryRow
 	err := row.Scan(&i.ID, &i.Start, &i.End)
 	return i, err

@@ -5,7 +5,7 @@ SELECT e.id,
 FROM calendarentries e
 WHERE e.status = 'published'
   AND e.start <= now()
-  AND e.end > now()
+  AND e.end > @ends_after::timestamptz
 ORDER BY e.start DESC
 LIMIT 1;
 

@@ -139,10 +139,12 @@ func (q *Queries) GetCalendarEntriesByID(ctx context.Context, ids []int) ([]comm
 }
 
 // GetCurrentCalendarEntry returns the published calendar entry currently in
-// progress (now within [start, end)), or nil if none is. When several overlap,
-// the most-recently-started one is returned.
-func (q *Queries) GetCurrentCalendarEntry(ctx context.Context) (*common.CalendarEntry, error) {
-	row, err := q.getCurrentCalendarEntry(ctx)
+// progress (started, and ending after endsAfter — pass a time before now to
+// keep a just-ended entry current for a grace period), or nil if none is. When
+// several match, the most-recently-started one is returned, so a running entry
+// wins over a just-ended one.
+func (q *Queries) GetCurrentCalendarEntry(ctx context.Context, endsAfter time.Time) (*common.CalendarEntry, error) {
+	row, err := q.getCurrentCalendarEntry(ctx, endsAfter)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
