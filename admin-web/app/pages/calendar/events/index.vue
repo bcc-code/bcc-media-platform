@@ -20,7 +20,7 @@ const sortedEvents = computed(() =>
     </div>
 
     <DesignTable
-      :columns="['Tittel', 'Start', 'Slutt', 'Varighet']"
+      :columns="['Tittel', 'Start', 'Slutt', 'Varighet', 'Status']"
       :empty="sortedEvents.length === 0 ? 'Ingen hendelser.' : undefined"
     >
       <NuxtLink

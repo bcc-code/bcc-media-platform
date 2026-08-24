@@ -4,6 +4,8 @@ useHead({ title: 'Ny hendelse' })
 const { add } = useCalendarEvents()
 const toaster = useToast()
 
+const status = ref<Status>('draft')
+
 function handleSubmit(event: CalendarEvent) {
   add(event)
   toaster.value.success({
@@ -18,9 +20,12 @@ function handleSubmit(event: CalendarEvent) {
   <div class="flex max-w-5xl flex-col gap-8">
     <div>
       <BackButton to="/calendar/events" label="Tilbake til hendelser" />
-      <h1 class="text-heading-2 text-text-default">Ny hendelse</h1>
+      <div class="flex items-center justify-between gap-4">
+        <h1 class="text-heading-2 text-text-default">Ny hendelse</h1>
+        <StatusSelector v-model="status" />
+      </div>
     </div>
 
-    <CalendarEventForm @submit="handleSubmit" />
+    <CalendarEventForm v-model:status="status" @submit="handleSubmit" />
   </div>
 </template>

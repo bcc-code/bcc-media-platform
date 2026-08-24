@@ -4,9 +4,11 @@ useHead({ title: 'Push-varsler' })
 const { notifications } = useNotifications()
 const { matchesFilter } = useAppFilter()
 
-const filteredNotifications = computed(() => {
-  return notifications.value.filter((n) => matchesFilter(n.applicationCode))
-})
+const filteredNotifications = computed(() =>
+  notifications.value
+    .filter((n) => matchesFilter(n.appGroupId))
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+)
 </script>
 
 <template>
@@ -27,7 +29,7 @@ const filteredNotifications = computed(() => {
       </div>
 
       <DesignTable
-        :columns="['Tittel', 'Mottakere', 'Status', 'Dato']"
+        :columns="['Tittel', 'Mottakere', 'Antall', 'Status', 'Dato']"
         :empty="
           filteredNotifications.length === 0
             ? 'Ingen varsler funnet for denne appen.'

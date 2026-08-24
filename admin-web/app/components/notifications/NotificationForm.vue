@@ -4,36 +4,33 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  submit: [
-    data: {
-      title: string
-      body: string
-      applicationCodes: string[]
-      recipientGroup: string
-      status: PushNotification['status']
-      scheduledAt: string | null
-    }
-  ]
+  submit: [data: NotificationSubmit]
   delete: []
+  change: [draft: NotificationDraft]
 }>()
 
 const isEditing = computed(() => !!props.notification)
-const isSent = computed(
-  () =>
-    props.notification?.status === 'sent' ||
-    props.notification?.status === 'failed'
+
+const state = computed(() =>
+  props.notification ? notificationState(props.notification) : 'draft'
+)
+// Once the send job has started there is nothing left to edit.
+const isLocked = computed(
+  () => state.value === 'sent' || state.value === 'sending'
 )
 
 const title = ref(props.notification?.title ?? '')
 const body = ref(props.notification?.body ?? '')
-const applicationCodes = ref<string[]>(
-  props.notification ? [props.notification.applicationCode] : []
+const appGroupId = ref<string[]>(
+  props.notification ? [props.notification.appGroupId] : []
 )
-const recipientGroup = ref<string[]>(
-  props.notification ? [props.notification.recipientGroup] : []
-)
+const targetIds = ref<string[]>([...(props.notification?.targetIds ?? [])])
+const highPriority = ref(props.notification?.highPriority ?? false)
+const action = ref<NotificationAction>(props.notification?.action ?? 'none')
+const deepLink = ref(props.notification?.deepLink ?? '')
+
 const sendMode = ref<'now' | 'scheduled'>(
-  props.notification?.scheduledAt ? 'scheduled' : 'now'
+  props.notification?.scheduleAt ? 'scheduled' : 'now'
 )
 
 const tomorrow = new Date()
@@ -41,26 +38,25 @@ tomorrow.setDate(tomorrow.getDate() + 1)
 const defaultDate = tomorrow.toISOString().split('T')[0]!
 
 const scheduledDate = ref(
-  props.notification?.scheduledAt
-    ? props.notification.scheduledAt.split('T')[0]!
-    : defaultDate
+  props.notification?.scheduleAt?.split('T')[0] ?? defaultDate
 )
 const scheduledTime = ref(
-  props.notification?.scheduledAt
-    ? (props.notification.scheduledAt.split('T')[1]?.slice(0, 5) ?? '09:00')
-    : '09:00'
+  props.notification?.scheduleAt?.split('T')[1]?.slice(0, 5) ?? '09:00'
 )
 
 const submitted = ref(false)
 
-const appOptions = mockApplications.map((app) => ({
-  label: applicationLabel(app.code),
-  value: app.code
+const appGroupOptions = mockApplicationGroups.map((g) => ({
+  label: g.label,
+  value: g.id
 }))
 
-const recipientGroupOptions = [
-  { label: 'Alle', value: 'Alle' },
-  { label: 'Abonnenter', value: 'Abonnenter' }
+const targetItems = mockTargets.map((t) => ({ label: t.label, value: t.id }))
+
+const actionItems = [
+  { label: 'Ingen', value: 'none', icon: 'tabler:circle-off' },
+  { label: 'Åpne innhold', value: 'deep_link', icon: 'tabler:link' },
+  { label: 'Tøm cache', value: 'clear_cache', icon: 'tabler:refresh' }
 ]
 
 const scheduledDateTime = computed(() => {
@@ -70,8 +66,7 @@ const scheduledDateTime = computed(() => {
 
 const isScheduleInFuture = computed(() => {
   if (sendMode.value !== 'scheduled') return true
-  const dt = new Date(scheduledDateTime.value!)
-  return dt > new Date()
+  return new Date(scheduledDateTime.value!) > new Date()
 })
 
 const errors = computed(() => {
@@ -79,50 +74,48 @@ const errors = computed(() => {
   return {
     title: !title.value.trim() ? 'Tittel er påkrevd' : undefined,
     body: !body.value.trim() ? 'Melding er påkrevd' : undefined,
-    applicationCodes:
-      applicationCodes.value.length === 0 ? 'Velg minst en app' : undefined,
-    recipientGroup:
-      recipientGroup.value.length === 0 ? 'Velg en mottakergruppe' : undefined,
-    scheduledDate:
-      sendMode.value === 'scheduled' && !isScheduleInFuture.value
-        ? 'Tidspunktet må vaere i fremtiden'
-        : undefined
+    appGroupId: appGroupId.value.length === 0 ? 'Velg en app' : undefined,
+    deepLink:
+      action.value === 'deep_link' && !deepLink.value.trim()
+        ? 'Lenke er påkrevd'
+        : undefined,
+    scheduledDate: !isScheduleInFuture.value
+      ? 'Tidspunktet må være i fremtiden'
+      : undefined
   }
 })
 
 const hasErrors = computed(() => Object.values(errors.value).some(Boolean))
 
-const primaryLabel = computed(() => {
-  if (sendMode.value === 'scheduled') return 'Planlegg varsling'
-  return 'Send varsling'
-})
+const primaryLabel = computed(() =>
+  sendMode.value === 'scheduled' ? 'Planlegg varsling' : 'Send varsling'
+)
+
+function payload(overrides: Partial<NotificationSubmit>): NotificationSubmit {
+  return {
+    title: title.value.trim(),
+    body: body.value.trim(),
+    appGroupId: appGroupId.value[0] ?? '',
+    targetIds: [...targetIds.value],
+    highPriority: highPriority.value,
+    action: action.value,
+    deepLink: action.value === 'deep_link' ? deepLink.value.trim() : null,
+    scheduleAt: scheduledDateTime.value,
+    sendNow: false,
+    ...overrides
+  }
+}
 
 function handleSubmit() {
   submitted.value = true
   if (hasErrors.value) return
-
-  emit('submit', {
-    title: title.value.trim(),
-    body: body.value.trim(),
-    applicationCodes: applicationCodes.value,
-    recipientGroup: recipientGroup.value[0] ?? 'Alle',
-    status: sendMode.value === 'scheduled' ? 'scheduled' : 'sent',
-    scheduledAt: scheduledDateTime.value
-  })
+  emit('submit', payload({ sendNow: sendMode.value === 'now' }))
 }
 
 function handleDraft() {
   submitted.value = true
   if (!title.value.trim()) return
-
-  emit('submit', {
-    title: title.value.trim(),
-    body: body.value.trim(),
-    applicationCodes: applicationCodes.value,
-    recipientGroup: recipientGroup.value[0] ?? 'Alle',
-    status: 'draft',
-    scheduledAt: null
-  })
+  emit('submit', payload({ scheduleAt: null, sendNow: false }))
 }
 
 const confirm = useConfirm()
@@ -137,12 +130,22 @@ async function handleDelete() {
   if (ok) emit('delete')
 }
 
-defineExpose({ title, body, applicationCodes })
+watch(
+  [title, body, appGroupId, highPriority],
+  () =>
+    emit('change', {
+      title: title.value,
+      body: body.value,
+      appGroupId: appGroupId.value[0] ?? '',
+      highPriority: highPriority.value
+    }),
+  { immediate: true }
+)
 </script>
 
 <template>
   <div class="flex flex-col">
-    <DesignBanner v-if="isSent" variant="info" icon="tabler:info-circle">
+    <DesignBanner v-if="isLocked" variant="info" icon="tabler:info-circle">
       Denne varslingen er allerede sendt og kan ikke redigeres.
     </DesignBanner>
 
@@ -152,7 +155,7 @@ defineExpose({ title, body, applicationCodes })
         label="Tittel"
         placeholder="Skriv tittel på varslingen"
         required
-        :disabled="isSent"
+        :disabled="isLocked"
         :invalid="!!errors.title"
         :error-text="errors.title"
       />
@@ -162,7 +165,7 @@ defineExpose({ title, body, applicationCodes })
         placeholder="Skriv meldingsteksten"
         :rows="3"
         required
-        :disabled="isSent"
+        :disabled="isLocked"
         :invalid="!!errors.body"
         :error-text="errors.body"
       />
@@ -174,42 +177,76 @@ defineExpose({ title, body, applicationCodes })
       >
         Mottakere
       </h3>
-      <div class="flex gap-4">
-        <div class="flex flex-col gap-1">
-          <label class="text-body-3 text-text-muted block">Apper</label>
-          <DesignSelect
-            v-model="applicationCodes"
-            :items="appOptions"
-            placeholder="Velg apper"
-          />
-          <p
-            v-if="errors.applicationCodes"
-            class="text-caption-1 text-semantic-error mt-1"
-          >
-            {{ errors.applicationCodes }}
+
+      <div class="flex flex-col gap-1">
+        <label class="text-body-3 text-text-muted block">App</label>
+        <DesignSelect
+          v-model="appGroupId"
+          :items="appGroupOptions"
+          placeholder="Velg app"
+        />
+        <p
+          v-if="errors.appGroupId"
+          class="text-caption-1 text-semantic-error mt-1"
+        >
+          {{ errors.appGroupId }}
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-body-3 text-text-muted block">Begrens til</label>
+        <DesignToggleChips
+          v-model="targetIds"
+          :items="targetItems"
+          :disabled="isLocked"
+        />
+        <p class="text-caption-1 text-text-hint">
+          {{
+            targetIds.length === 0
+              ? 'Uten begrensninger går varselet til alle i appen.'
+              : targetIds
+                  .map((id) => mockTargets.find((t) => t.id === id))
+                  .filter(Boolean)
+                  .map((t) => `${t!.label}: ${targetSummary(t!)}`)
+                  .join(' — ')
+          }}
+        </p>
+      </div>
+    </div>
+
+    <div class="border-border-1 flex flex-col gap-4 border-t py-6">
+      <h3
+        class="text-caption-1 text-text-hint font-medium tracking-wide uppercase"
+      >
+        Handling
+      </h3>
+      <DesignSegmentGroup
+        v-model="action"
+        :items="actionItems"
+        :class="isLocked ? 'pointer-events-none opacity-50' : ''"
+      />
+      <DesignInput
+        v-if="action === 'deep_link'"
+        v-model="deepLink"
+        label="Lenke"
+        placeholder="bccm://episode/123"
+        :disabled="isLocked"
+        :invalid="!!errors.deepLink"
+        :error-text="errors.deepLink"
+      />
+      <div class="flex items-start justify-between gap-6">
+        <div>
+          <p class="text-title-3 text-text-default">Høy prioritet</p>
+          <p class="text-body-3 text-text-muted mt-1">
+            Leveres umiddelbart, også når enheten sparer strøm.
           </p>
         </div>
-        <div class="flex flex-col gap-1">
-          <label class="text-body-3 text-text-muted block"
-            >Mottakergruppe</label
-          >
-          <DesignSelect
-            v-model="recipientGroup"
-            :items="recipientGroupOptions"
-            placeholder="Velg gruppe"
-          />
-          <p
-            v-if="errors.recipientGroup"
-            class="text-caption-1 text-semantic-error mt-1"
-          >
-            {{ errors.recipientGroup }}
-          </p>
-        </div>
+        <DesignSwitch v-model="highPriority" :disabled="isLocked" />
       </div>
     </div>
 
     <div
-      v-if="!isSent"
+      v-if="!isLocked"
       class="border-border-1 flex flex-col items-start gap-4 border-t py-6"
     >
       <h3
@@ -232,7 +269,7 @@ defineExpose({ title, body, applicationCodes })
         leave-from-class="max-h-40 opacity-100"
         leave-to-class="max-h-0 opacity-0"
       >
-        <div v-if="sendMode === 'scheduled'" class="flex gap-4">
+        <div v-if="sendMode === 'scheduled'" class="flex w-full gap-4">
           <div class="flex-1">
             <DesignDatePicker
               v-model="scheduledDate"
@@ -253,7 +290,7 @@ defineExpose({ title, body, applicationCodes })
     </div>
 
     <div
-      v-if="!isSent"
+      v-if="!isLocked"
       class="border-border-1 flex items-center gap-3 border-t pt-6"
     >
       <DesignButton @click="handleSubmit">

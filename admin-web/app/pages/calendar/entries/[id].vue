@@ -9,6 +9,14 @@ const entry = computed(() =>
 
 useHead({ title: () => entry.value?.title ?? 'Rediger oppføring' })
 
+const status = ref<Status>(entry.value?.status ?? 'draft')
+watch(
+  () => entry.value?.status,
+  (value) => {
+    if (value) status.value = value
+  }
+)
+
 function handleSubmit(data: CalendarEntry) {
   update(data.id, data)
   toaster.value.success({
@@ -32,10 +40,14 @@ function handleDelete() {
   <div v-if="entry" class="flex max-w-5xl flex-col gap-8">
     <div>
       <BackButton to="/calendar/entries" label="Tilbake til oppføringer" />
-      <h1 class="text-heading-2 text-text-default">Rediger oppføring</h1>
+      <div class="flex items-center justify-between gap-4">
+        <h1 class="text-heading-2 text-text-default">Rediger oppføring</h1>
+        <StatusSelector v-model="status" />
+      </div>
     </div>
 
     <CalendarEntryForm
+      v-model:status="status"
       :entry="entry"
       @submit="handleSubmit"
       @delete="handleDelete"

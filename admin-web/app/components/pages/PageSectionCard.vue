@@ -13,105 +13,89 @@ const emit = defineEmits<{
 
 const expanded = ref(false)
 
-const typeConfig: Record<
-  PageSection['type'],
-  {
-    label: string
-    icon: string
-    variant: 'success' | 'info' | 'neutral' | 'error'
-  }
-> = {
-  FeaturedSection: { label: 'Hero', icon: 'tabler:star', variant: 'info' },
-  PosterSection: { label: 'Poster', icon: 'tabler:photo', variant: 'error' },
-  DefaultSection: {
-    label: 'Standard',
-    icon: 'tabler:carousel-horizontal',
-    variant: 'success'
-  },
-  CardSection: { label: 'Kort', icon: 'tabler:cards', variant: 'neutral' },
-  DefaultGridSection: {
-    label: 'Rutenett',
-    icon: 'tabler:grid-dots',
-    variant: 'neutral'
-  },
-  IconGridSection: {
-    label: 'Ikon-rutenett',
-    icon: 'tabler:grid-dots',
-    variant: 'neutral'
-  }
-}
+const { collections } = useCollections()
+const { messages } = useMessages()
 
-const sizeOptions: Record<
-  PageSection['type'],
-  { label: string; value: string }[]
-> = {
-  FeaturedSection: [
-    { label: 'Liten', value: 'small' },
-    { label: 'Medium', value: 'medium' }
-  ],
-  PosterSection: [
-    { label: 'Liten', value: 'small' },
-    { label: 'Medium', value: 'medium' }
-  ],
-  DefaultSection: [
-    { label: 'Liten', value: 'small' },
-    { label: 'Medium', value: 'medium' }
-  ],
-  CardSection: [
-    { label: 'Stor', value: 'large' },
-    { label: 'Mini', value: 'mini' }
-  ],
-  DefaultGridSection: [{ label: 'Halv', value: 'half' }],
-  IconGridSection: [{ label: 'Halv', value: 'half' }]
-}
+const info = computed(() => sectionTypeInfo(props.section.type))
 
-const sectionType = ref([props.section.type])
+const sectionType = ref<string[]>([props.section.type])
 const title = ref(props.section.title ?? '')
 const description = ref(props.section.description ?? '')
-const size = ref([props.section.size])
-const collectionId = ref(props.section.metadata?.collectionId ?? '')
-const continueWatching = ref(props.section.metadata?.continueWatching ?? false)
-const myList = ref(props.section.metadata?.myList ?? false)
-const secondaryTitles = ref(props.section.metadata?.secondaryTitles ?? false)
-const useContext = ref(props.section.metadata?.useContext ?? false)
-const prependLiveElement = ref(
-  props.section.metadata?.prependLiveElement ?? false
+const size = ref<string[]>([props.section.size])
+const showTitle = ref(props.section.showTitle)
+const needsAuthentication = ref(props.section.needsAuthentication)
+const collectionId = ref<string[]>(
+  props.section.collectionId ? [props.section.collectionId] : []
 )
+const limit = ref(props.section.limit?.toString() ?? '')
+const secondaryTitles = ref(props.section.secondaryTitles)
+const useContext = ref(props.section.useContext)
+const prependLiveElement = ref(props.section.prependLiveElement)
+const embedUrl = ref(props.section.embedUrl ?? '')
+const messageId = ref<string[]>(
+  props.section.messageId ? [props.section.messageId] : []
+)
+const achievementsSource = ref<string[]>([
+  props.section.achievementsSource ?? 'all'
+])
 
-const typeOptions = Object.entries(typeConfig).map(([value, config]) => ({
-  label: config.label,
-  value
+const typeOptions = sectionTypes.map((t) => ({
+  label: t.label,
+  value: t.type
 }))
 
-watch(sectionType, (newType) => {
-  const options = sizeOptions[newType[0] as PageSection['type']]
-  const first = options?.[0]
-  if (first && !options.some((o) => o.value === size.value[0])) {
-    size.value = [first.value as PageSection['size']]
+const selectedInfo = computed(() =>
+  sectionTypeInfo(sectionType.value[0] as SectionType)
+)
+
+const sizeOptions = computed(() =>
+  selectedInfo.value.sizes.map((s) => ({
+    label: sectionSizeLabels[s],
+    value: s
+  }))
+)
+
+const collectionOptions = computed(() =>
+  collections.value.map((c) => ({ label: c.name, value: c.id }))
+)
+
+const messageOptions = computed(() =>
+  messages.value.map((m) => ({ label: m.title, value: m.id }))
+)
+
+const achievementOptions = [
+  { label: 'Alle', value: 'all' },
+  { label: 'Uferdige', value: 'unachieved' }
+]
+
+// Changing type can invalidate the chosen size.
+watch(sectionType, () => {
+  if (!selectedInfo.value.sizes.includes(size.value[0] as SectionSize)) {
+    size.value = [selectedInfo.value.sizes[0]!]
   }
 })
 
 function emitUpdate() {
-  const metadata: ItemSectionMetadata | null = collectionId.value
-    ? {
-        collectionId: collectionId.value,
-        continueWatching: continueWatching.value,
-        myList: myList.value,
-        secondaryTitles: secondaryTitles.value,
-        useContext: useContext.value,
-        prependLiveElement: prependLiveElement.value,
-        limit: props.section.metadata?.limit ?? null
-      }
-    : null
-
+  const type = sectionType.value[0] as SectionType
+  const needsCollection = sectionTypeInfo(type).needsCollection
   emit('update', {
     ...props.section,
-    type: sectionType.value[0],
+    type,
     title: title.value || null,
     description: description.value || null,
-    size: size.value[0],
-    metadata
-  } as PageSection)
+    size: size.value[0] as SectionSize,
+    showTitle: showTitle.value,
+    needsAuthentication: needsAuthentication.value,
+    collectionId: needsCollection ? (collectionId.value[0] ?? null) : null,
+    limit: limit.value.trim() ? parseInt(limit.value) : null,
+    secondaryTitles: secondaryTitles.value,
+    useContext: useContext.value,
+    prependLiveElement: prependLiveElement.value,
+    embedUrl: type === 'WebSection' ? embedUrl.value || null : null,
+    messageId: type === 'MessageSection' ? (messageId.value[0] ?? null) : null,
+    achievementsSource:
+      type === 'AchievementSection' ? (achievementsSource.value[0] ?? null) : null
+  })
 }
 
 watch(
@@ -120,15 +104,26 @@ watch(
     title,
     description,
     size,
+    showTitle,
+    needsAuthentication,
     collectionId,
-    continueWatching,
-    myList,
+    limit,
     secondaryTitles,
     useContext,
-    prependLiveElement
+    prependLiveElement,
+    embedUrl,
+    messageId,
+    achievementsSource
   ],
   emitUpdate
 )
+
+const missingSource = computed(() => {
+  if (info.value.needsCollection) return !props.section.collectionId
+  if (props.section.type === 'WebSection') return !props.section.embedUrl
+  if (props.section.type === 'MessageSection') return !props.section.messageId
+  return false
+})
 
 const confirm = useConfirm()
 
@@ -167,20 +162,28 @@ async function handleRemove() {
           {{ section.description }}
         </p>
 
-        <div
-          class="bg-surface-indent border-border-1 text-caption-1 text-text-hint divide-border-1 mt-2 inline-flex items-center divide-x rounded-lg border"
-        >
-          <span class="flex items-center gap-1 px-2.5 py-1">
-            <Icon
-              :name="typeConfig[section.type].icon"
-              class="text-text-muted size-3"
-            />
-            {{ typeConfig[section.type].label }}
+        <div class="mt-2 flex flex-wrap items-center gap-2">
+          <span
+            class="bg-surface-indent border-border-1 text-caption-1 text-text-hint divide-border-1 inline-flex items-center divide-x rounded-lg border"
+          >
+            <span class="flex items-center gap-1 px-2.5 py-1">
+              <Icon :name="info.icon" class="text-text-muted size-3" />
+              {{ info.label }}
+            </span>
+            <span class="px-2.5 py-1">
+              {{ sectionSizeLabels[section.size] }}
+            </span>
+            <span v-if="section.collectionId" class="truncate px-2.5 py-1">
+              {{ collectionName(section.collectionId) }}
+            </span>
           </span>
-          <span class="px-2.5 py-1">{{ section.size }}</span>
-          <span v-if="section.metadata" class="truncate px-2.5 py-1">
-            {{ section.metadata.collectionId }}
-          </span>
+
+          <DesignBadge v-if="missingSource" variant="warning">
+            Mangler innhold
+          </DesignBadge>
+          <DesignBadge v-if="section.needsAuthentication" variant="neutral">
+            Krever innlogging
+          </DesignBadge>
         </div>
       </div>
 
@@ -188,6 +191,7 @@ async function handleRemove() {
         <DesignButton
           variant="tertiary"
           size="small"
+          aria-label="Innstillinger"
           @click="expanded = !expanded"
         >
           <Icon name="tabler:settings" class="size-4" />
@@ -196,6 +200,7 @@ async function handleRemove() {
           variant="tertiary"
           intent="danger"
           size="small"
+          aria-label="Fjern seksjon"
           @click="handleRemove"
         >
           <Icon name="tabler:trash" class="size-4" />
@@ -207,7 +212,6 @@ async function handleRemove() {
     <Collapsible.Root v-model:open="expanded">
       <Collapsible.Content class="overflow-hidden">
         <div class="border-border-1 flex flex-col gap-5 border-t px-5 py-5">
-          <!-- Innhold -->
           <fieldset>
             <legend class="text-title-3 text-text-default mb-3">Innhold</legend>
             <div class="grid grid-cols-2 gap-4">
@@ -224,7 +228,6 @@ async function handleRemove() {
             </div>
           </fieldset>
 
-          <!-- Visning -->
           <fieldset>
             <legend class="text-title-3 text-text-default mb-3">Visning</legend>
             <div class="grid grid-cols-2 gap-4">
@@ -236,63 +239,105 @@ async function handleRemove() {
               </div>
               <div>
                 <label class="text-body-3 text-text-muted mb-1 block">
-                  Storrelse
+                  Størrelse
                 </label>
-                <DesignSelect
-                  v-model="size"
-                  :items="sizeOptions[sectionType[0] as PageSection['type']]"
-                />
+                <DesignSelect v-model="size" :items="sizeOptions" />
+              </div>
+            </div>
+            <div
+              class="bg-surface-indent divide-border-1 mt-4 max-w-sm divide-y rounded-xl"
+            >
+              <div class="flex items-center justify-between px-4 py-2.5">
+                <span class="text-body-3 text-text-default">Vis tittel</span>
+                <DesignSwitch v-model="showTitle" />
+              </div>
+              <div class="flex items-center justify-between px-4 py-2.5">
+                <span class="text-body-3 text-text-default">
+                  Krever innlogging
+                </span>
+                <DesignSwitch v-model="needsAuthentication" />
               </div>
             </div>
           </fieldset>
 
-          <!-- Datakilde -->
-          <fieldset>
+          <!-- Item sections -->
+          <fieldset v-if="selectedInfo.needsCollection">
             <legend class="text-title-3 text-text-default mb-3">
               Datakilde
             </legend>
             <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-body-3 text-text-muted mb-1 block">
+                  Samling
+                </label>
+                <DesignSelect
+                  v-model="collectionId"
+                  :items="collectionOptions"
+                  placeholder="Velg samling"
+                />
+              </div>
               <DesignInput
-                v-model="collectionId"
-                label="Samling-ID"
-                placeholder="f.eks. col-popular-shows"
+                v-model="limit"
+                label="Maks antall"
+                placeholder="Alle"
               />
             </div>
 
-            <div v-if="collectionId" class="mt-4">
-              <p class="text-body-3 text-text-muted mb-2.5">Alternativer</p>
-              <div
-                class="bg-surface-indent divide-border-1 max-w-sm divide-y rounded-xl"
-              >
-                <div class="flex items-center justify-between px-4 py-2.5">
-                  <span class="text-body-3 text-text-default">
-                    Fortsett a se
-                  </span>
-                  <DesignSwitch v-model="continueWatching" />
-                </div>
-                <div class="flex items-center justify-between px-4 py-2.5">
-                  <span class="text-body-3 text-text-default">Min liste</span>
-                  <DesignSwitch v-model="myList" />
-                </div>
-                <div class="flex items-center justify-between px-4 py-2.5">
-                  <span class="text-body-3 text-text-default">
-                    Sekundaertitler
-                  </span>
-                  <DesignSwitch v-model="secondaryTitles" />
-                </div>
-                <div class="flex items-center justify-between px-4 py-2.5">
-                  <span class="text-body-3 text-text-default">
-                    Bruk kontekst
-                  </span>
-                  <DesignSwitch v-model="useContext" />
-                </div>
-                <div class="flex items-center justify-between px-4 py-2.5">
-                  <span class="text-body-3 text-text-default">
-                    Live-element forst
-                  </span>
-                  <DesignSwitch v-model="prependLiveElement" />
-                </div>
+            <div
+              class="bg-surface-indent divide-border-1 mt-4 max-w-sm divide-y rounded-xl"
+            >
+              <div class="flex items-center justify-between px-4 py-2.5">
+                <span class="text-body-3 text-text-default">
+                  Sekundærtitler
+                </span>
+                <DesignSwitch v-model="secondaryTitles" />
               </div>
+              <div class="flex items-center justify-between px-4 py-2.5">
+                <span class="text-body-3 text-text-default">Bruk kontekst</span>
+                <DesignSwitch v-model="useContext" />
+              </div>
+              <div class="flex items-center justify-between px-4 py-2.5">
+                <span class="text-body-3 text-text-default">
+                  Live-element først
+                </span>
+                <DesignSwitch v-model="prependLiveElement" />
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- WebSection -->
+          <fieldset v-else-if="selectedInfo.type === 'WebSection'">
+            <legend class="text-title-3 text-text-default mb-3">Nettside</legend>
+            <DesignInput
+              v-model="embedUrl"
+              label="Adresse"
+              type="url"
+              placeholder="https://bcc.media/..."
+            />
+          </fieldset>
+
+          <!-- MessageSection -->
+          <fieldset v-else-if="selectedInfo.type === 'MessageSection'">
+            <legend class="text-title-3 text-text-default mb-3">Melding</legend>
+            <div class="max-w-sm">
+              <DesignSelect
+                v-model="messageId"
+                :items="messageOptions"
+                placeholder="Velg melding"
+              />
+            </div>
+          </fieldset>
+
+          <!-- AchievementSection -->
+          <fieldset v-else-if="selectedInfo.type === 'AchievementSection'">
+            <legend class="text-title-3 text-text-default mb-3">
+              Prestasjoner
+            </legend>
+            <div class="max-w-sm">
+              <DesignSelect
+                v-model="achievementsSource"
+                :items="achievementOptions"
+              />
             </div>
           </fieldset>
         </div>

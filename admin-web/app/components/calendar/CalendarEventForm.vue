@@ -10,6 +10,8 @@ const emit = defineEmits<{
 
 const isEditing = computed(() => !!props.event)
 
+const status = defineModel<Status>('status', { default: 'draft' })
+
 const title = ref(props.event?.title ?? '')
 
 const defaultDate = new Date().toISOString().split('T')[0]!
@@ -17,13 +19,12 @@ const startDate = ref(
   props.event ? props.event.start.split('T')[0]! : defaultDate
 )
 const endDate = ref(props.event ? props.event.end.split('T')[0]! : defaultDate)
-const image = ref(props.event?.image ?? '')
 
 const submitted = ref(false)
 
-const isEndAfterStart = computed(() => {
-  return new Date(endDate.value) >= new Date(startDate.value)
-})
+const isEndAfterStart = computed(
+  () => new Date(endDate.value) >= new Date(startDate.value)
+)
 
 const errors = computed(() => {
   if (!submitted.value) return {}
@@ -43,10 +44,10 @@ function handleSubmit() {
 
   emit('submit', {
     id: props.event?.id ?? crypto.randomUUID(),
+    status: status.value,
     title: title.value.trim(),
     start: `${startDate.value}T00:00:00Z`,
-    end: `${endDate.value}T23:59:59Z`,
-    image: image.value.trim()
+    end: `${endDate.value}T23:59:59Z`
   })
 }
 
@@ -74,12 +75,9 @@ async function handleDelete() {
         :invalid="!!errors.title"
         :error-text="errors.title"
       />
-      <DesignInput
-        v-model="image"
-        label="Bilde-URL"
-        placeholder="/images/event.jpg"
-        type="url"
-      />
+      <p class="text-caption-1 text-text-hint">
+        Bilder settes på de enkelte oppføringene, ikke på hendelsen.
+      </p>
     </div>
 
     <div class="border-border-1 flex flex-col gap-4 border-t py-6">

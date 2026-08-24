@@ -42,7 +42,21 @@ function handleDelete() {
       <BackButton to="/episodes" label="Tilbake til episoder" />
       <div class="flex items-center justify-between gap-4">
         <h1 class="text-heading-2 text-text-default">Rediger episode</h1>
-        <StatusSelector v-model="status" />
+        <div class="flex items-center gap-3">
+          <NuxtLink
+            v-if="episode.assetId"
+            :to="`/shorts/new?episode=${episode.id}`"
+          >
+            <DesignButton
+              size="small"
+              variant="secondary"
+              icon="tabler:scissors"
+            >
+              Lag short
+            </DesignButton>
+          </NuxtLink>
+          <StatusSelector v-model="status" />
+        </div>
       </div>
     </div>
 

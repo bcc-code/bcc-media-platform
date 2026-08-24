@@ -44,5 +44,12 @@ const dayCount = computed(() => {
         {{ dayCount }} {{ dayCount === 1 ? 'dag' : 'dager' }}
       </DesignBadge>
     </td>
+    <td class="px-4 py-3">
+      <DesignBadge
+        :variant="event.status === 'published' ? 'success' : 'neutral'"
+      >
+        {{ event.status === 'published' ? 'Publisert' : 'Utkast' }}
+      </DesignBadge>
+    </td>
   </tr>
 </template>

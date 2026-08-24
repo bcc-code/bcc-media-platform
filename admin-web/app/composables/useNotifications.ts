@@ -16,5 +16,11 @@ export function useNotifications() {
     notifications.value = notifications.value.filter((n) => n.id !== id)
   }
 
-  return { notifications, add, update, remove }
+  /** Stands in for the send job kicking off. */
+  function sendNow(id: string) {
+    const now = new Date().toISOString()
+    update(id, { scheduleAt: null, sendStarted: now, sendCompleted: now })
+  }
+
+  return { notifications, add, update, remove, sendNow }
 }

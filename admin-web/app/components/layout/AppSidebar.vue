@@ -40,6 +40,12 @@ const navSections: { label: string; items: NavItem[] }[] = [
         demo: true
       },
       {
+        to: '/shorts',
+        icon: 'tabler:rectangle-vertical',
+        label: 'Shorts',
+        demo: true
+      },
+      {
         to: '/assets',
         icon: 'tabler:movie',
         label: 'Mediefiler',
@@ -58,6 +64,12 @@ const navSections: { label: string; items: NavItem[] }[] = [
     label: 'Applikasjoner',
     items: [
       { to: '/pages', icon: 'tabler:file-text', label: 'Sider', demo: true },
+      {
+        to: '/collections',
+        icon: 'tabler:list-details',
+        label: 'Samlinger',
+        demo: true
+      },
       {
         to: '/notifications',
         icon: 'tabler:bell',

@@ -6,11 +6,13 @@ export const useAppFilterStore = defineStore('app-filter', () => {
 
   const selectedApp = ref<string[]>(parseAppsFromQuery() ?? [ALL])
 
+  // Filters on application group rather than individual app codes — that is
+  // the level the admin thinks in, and what notifications target.
   const appOptions = [
     { label: 'Alle', value: ALL },
-    ...mockApplications.map((app) => ({
-      label: applicationLabel(app.code),
-      value: app.code
+    ...mockApplicationGroups.map((group) => ({
+      label: group.label,
+      value: group.id
     }))
   ]
 
@@ -31,10 +33,9 @@ export const useAppFilterStore = defineStore('app-filter', () => {
     router.replace({ query: { ...route.query, apps } })
   }
 
-  function matchesFilter(applicationCode: string): boolean {
+  function matchesFilter(appGroupId: string): boolean {
     return (
-      selectedApp.value.includes(ALL) ||
-      selectedApp.value.includes(applicationCode)
+      selectedApp.value.includes(ALL) || selectedApp.value.includes(appGroupId)
     )
   }
 

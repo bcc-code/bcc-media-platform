@@ -10,70 +10,85 @@ const emit = defineEmits<{
 
 const isEditing = computed(() => !!props.entry)
 
-const entryType = ref<CalendarEntry['type']>(
+const status = defineModel<Status>('status', { default: 'draft' })
+
+const { calendarEvents } = useCalendarEvents()
+
+const entryType = ref<CalendarEntryType>(
   props.entry?.type ?? 'SimpleCalendarEntry'
 )
 const title = ref(props.entry?.title ?? '')
 const description = ref(props.entry?.description ?? '')
 
 const defaultDate = new Date().toISOString().split('T')[0]!
-const startDate = ref(
-  props.entry ? props.entry.start.split('T')[0]! : defaultDate
-)
-const startTime = ref(
-  props.entry
-    ? (props.entry.start.split('T')[1]?.slice(0, 5) ?? '19:00')
-    : '19:00'
-)
-const endDate = ref(props.entry ? props.entry.end.split('T')[0]! : defaultDate)
-const endTime = ref(
-  props.entry
-    ? (props.entry.end.split('T')[1]?.slice(0, 5) ?? '21:00')
-    : '21:00'
-)
+
+function datePart(value: string | undefined, fallback: string) {
+  return value?.split('T')[0] ?? fallback
+}
+function timePart(value: string | undefined, fallback: string) {
+  return value?.split('T')[1]?.slice(0, 5) ?? fallback
+}
+
+const startDate = ref(datePart(props.entry?.start, defaultDate))
+const startTime = ref(timePart(props.entry?.start, '19:00'))
+const endDate = ref(datePart(props.entry?.end, defaultDate))
+const endTime = ref(timePart(props.entry?.end, '21:00'))
 
 const eventId = ref<string[]>(props.entry ? [props.entry.event.id] : [])
+
+function initialLinkId(entry: CalendarEntry | undefined): string[] {
+  if (!entry) return []
+  if (entry.type === 'EpisodeCalendarEntry') return [entry.episodeId]
+  if (entry.type === 'SeasonCalendarEntry') return [entry.seasonId]
+  if (entry.type === 'ShowCalendarEntry') return [entry.showId]
+  return []
+}
+
+const linkId = ref<string[]>(initialLinkId(props.entry))
 const isReplay = ref(
   props.entry?.type === 'EpisodeCalendarEntry' ? props.entry.isReplay : false
 )
 
+const imageUrl = ref(props.entry?.imageUrl ?? '')
+const imageFromLink = ref(props.entry?.imageFromLink ?? true)
+
+const bufferEnabled = ref((props.entry?.buffer.availableHours ?? 0) > 0)
+const bufferHours = ref(
+  (props.entry?.buffer.availableHours ?? 24).toString()
+)
+const bufferOverride = ref(
+  !!(props.entry?.buffer.start || props.entry?.buffer.end)
+)
+const bufferStartTime = ref(timePart(props.entry?.buffer.start ?? undefined, '18:30'))
+const bufferEndTime = ref(timePart(props.entry?.buffer.end ?? undefined, '21:30'))
+
 const submitted = ref(false)
 
-const { calendarEvents } = useCalendarEvents()
-
-const eventOptions = computed(() =>
-  calendarEvents.value.map((e) => ({
-    label: e.title,
-    value: e.id
-  }))
-)
-
 const typeItems = [
-  {
-    label: 'Arrangement',
-    value: 'SimpleCalendarEntry',
-    icon: 'tabler:broadcast'
-  },
+  { label: 'Direkte', value: 'SimpleCalendarEntry', icon: 'tabler:broadcast' },
   {
     label: 'Episode',
     value: 'EpisodeCalendarEntry',
     icon: 'tabler:player-play'
   },
-  {
-    label: 'Sesong',
-    value: 'SeasonCalendarEntry',
-    icon: 'tabler:sparkles'
-  }
+  { label: 'Sesong', value: 'SeasonCalendarEntry', icon: 'tabler:stack-2' },
+  { label: 'Serie', value: 'ShowCalendarEntry', icon: 'tabler:device-tv' }
 ]
+
+const eventOptions = computed(() =>
+  calendarEvents.value.map((e) => ({ label: e.title, value: e.id }))
+)
+
+const isLinked = computed(() => entryType.value !== 'SimpleCalendarEntry')
 
 const startDateTime = computed(
   () => `${startDate.value}T${startTime.value}:00Z`
 )
 const endDateTime = computed(() => `${endDate.value}T${endTime.value}:00Z`)
 
-const isEndAfterStart = computed(() => {
-  return new Date(endDateTime.value) > new Date(startDateTime.value)
-})
+const isEndAfterStart = computed(
+  () => new Date(endDateTime.value) > new Date(startDateTime.value)
+)
 
 const errors = computed(() => {
   if (!submitted.value) return {}
@@ -83,6 +98,10 @@ const errors = computed(() => {
       ? 'Beskrivelse er påkrevd'
       : undefined,
     event: eventId.value.length === 0 ? 'Velg en hendelse' : undefined,
+    link:
+      isLinked.value && !linkId.value[0]
+        ? 'Velg hva oppføringen skal peke på'
+        : undefined,
     end: !isEndAfterStart.value
       ? 'Sluttidspunkt må være etter starttidspunkt'
       : undefined
@@ -95,27 +114,56 @@ const selectedEvent = computed(() =>
   calendarEvents.value.find((e) => e.id === eventId.value[0])
 )
 
+function buildBuffer(): CalendarEntryBuffer {
+  if (!bufferEnabled.value) return { ...noBuffer }
+  return {
+    availableHours: parseInt(bufferHours.value) || 0,
+    start: bufferOverride.value
+      ? `${startDate.value}T${bufferStartTime.value}:00Z`
+      : null,
+    end: bufferOverride.value
+      ? `${endDate.value}T${bufferEndTime.value}:00Z`
+      : null
+  }
+}
+
 function handleSubmit() {
   submitted.value = true
   if (hasErrors.value) return
 
-  const event = selectedEvent.value!
   const base = {
     id: props.entry?.id ?? crypto.randomUUID(),
+    status: status.value,
     title: title.value.trim(),
     description: description.value.trim(),
     start: startDateTime.value,
     end: endDateTime.value,
-    event
+    event: selectedEvent.value!,
+    imageUrl: imageFromLink.value ? null : imageUrl.value.trim() || null,
+    imageFromLink: isLinked.value ? imageFromLink.value : false,
+    buffer: buildBuffer()
   }
 
+  const target = linkId.value[0]!
+
   let entry: CalendarEntry
-  if (entryType.value === 'EpisodeCalendarEntry') {
-    entry = { ...base, type: 'EpisodeCalendarEntry', isReplay: isReplay.value }
-  } else if (entryType.value === 'SeasonCalendarEntry') {
-    entry = { ...base, type: 'SeasonCalendarEntry' }
-  } else {
-    entry = { ...base, type: 'SimpleCalendarEntry' }
+  switch (entryType.value) {
+    case 'EpisodeCalendarEntry':
+      entry = {
+        ...base,
+        type: 'EpisodeCalendarEntry',
+        episodeId: target,
+        isReplay: isReplay.value
+      }
+      break
+    case 'SeasonCalendarEntry':
+      entry = { ...base, type: 'SeasonCalendarEntry', seasonId: target }
+      break
+    case 'ShowCalendarEntry':
+      entry = { ...base, type: 'ShowCalendarEntry', showId: target }
+      break
+    default:
+      entry = { ...base, type: 'SimpleCalendarEntry' }
   }
 
   emit('submit', entry)
@@ -137,14 +185,16 @@ async function handleDelete() {
 <template>
   <div class="flex flex-col">
     <div class="flex flex-col gap-4 py-6">
-      <div>
-        <label
-          class="text-caption-1 text-text-hint mb-2 block font-medium tracking-wide uppercase"
-        >
-          Type
-        </label>
+      <div class="flex flex-col gap-2">
+        <label class="text-body-3 text-text-muted block">Type</label>
         <DesignSegmentGroup v-model="entryType" :items="typeItems" />
       </div>
+
+      <CalendarLinkField
+        v-model="linkId"
+        :type="entryType"
+        :invalid="errors.link"
+      />
 
       <DesignInput
         v-model="title"
@@ -194,44 +244,89 @@ async function handleDelete() {
       </div>
     </div>
 
+    <div class="border-border-1 flex flex-col gap-2 border-t py-6">
+      <label class="text-body-3 text-text-muted block">Hendelse</label>
+      <DesignSelect
+        v-model="eventId"
+        :items="eventOptions"
+        placeholder="Velg hendelse"
+      />
+      <p v-if="errors.event" class="text-caption-1 text-semantic-error mt-1">
+        {{ errors.event }}
+      </p>
+    </div>
+
+    <div
+      v-if="entryType === 'EpisodeCalendarEntry'"
+      class="border-border-1 border-t py-6"
+    >
+      <DesignSwitch v-model="isReplay" label="Reprise" />
+    </div>
+
     <div class="border-border-1 flex flex-col gap-4 border-t py-6">
       <h3
         class="text-caption-1 text-text-hint font-medium tracking-wide uppercase"
       >
-        Hendelse
+        Bilde
       </h3>
-      <div class="flex flex-col gap-1">
-        <DesignSelect
-          v-model="eventId"
-          :items="eventOptions"
-          placeholder="Velg hendelse"
-        />
-        <p v-if="errors.event" class="text-caption-1 text-semantic-error mt-1">
-          {{ errors.event }}
-        </p>
-      </div>
+      <DesignSwitch
+        v-if="isLinked"
+        v-model="imageFromLink"
+        label="Bruk bildet fra det oppføringen peker på"
+      />
+      <DesignInput
+        v-if="!isLinked || !imageFromLink"
+        v-model="imageUrl"
+        label="Bilde-URL"
+        placeholder="/images/entry.jpg"
+        type="url"
+      />
     </div>
 
-    <Transition
-      enter-active-class="transition-all duration-300 ease-out-expo overflow-hidden"
-      leave-active-class="transition-all duration-200 ease-out-expo overflow-hidden"
-      enter-from-class="max-h-0 opacity-0"
-      enter-to-class="max-h-40 opacity-100"
-      leave-from-class="max-h-40 opacity-100"
-      leave-to-class="max-h-0 opacity-0"
-    >
-      <div
-        v-if="entryType === 'EpisodeCalendarEntry'"
-        class="border-border-1 flex flex-col gap-4 border-t py-6"
+    <div class="border-border-1 flex flex-col gap-4 border-t py-6">
+      <h3
+        class="text-caption-1 text-text-hint font-medium tracking-wide uppercase"
       >
-        <h3
-          class="text-caption-1 text-text-hint font-medium tracking-wide uppercase"
-        >
-          Episode-innstillinger
-        </h3>
-        <DesignSwitch v-model="isReplay" label="Reprise" />
-      </div>
-    </Transition>
+        Start forfra
+      </h3>
+      <DesignSwitch
+        v-model="bufferEnabled"
+        label="La seere starte sendingen forfra"
+      />
+
+      <template v-if="bufferEnabled">
+        <div class="w-48">
+          <DesignInput
+            v-model="bufferHours"
+            label="Tilgjengelig i (timer)"
+            placeholder="24"
+            helper-text="Etter at oppføringen er ferdig."
+          />
+        </div>
+
+        <DesignSwitch
+          v-model="bufferOverride"
+          label="Overstyr start- og sluttid for opptaket"
+        />
+
+        <div v-if="bufferOverride" class="flex gap-4">
+          <div class="flex-1">
+            <DesignInput
+              v-model="bufferStartTime"
+              label="Opptak starter"
+              type="time"
+            />
+          </div>
+          <div class="flex-1">
+            <DesignInput
+              v-model="bufferEndTime"
+              label="Opptak slutter"
+              type="time"
+            />
+          </div>
+        </div>
+      </template>
+    </div>
 
     <div class="border-border-1 flex items-center gap-3 border-t pt-6">
       <DesignButton @click="handleSubmit">

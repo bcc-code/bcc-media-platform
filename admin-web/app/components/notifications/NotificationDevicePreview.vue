@@ -2,7 +2,8 @@
 defineProps<{
   title: string
   body: string
-  applicationCode: string
+  appGroupId: string
+  highPriority?: boolean
 }>()
 </script>
 
@@ -16,8 +17,13 @@ defineProps<{
         <span
           class="text-xs font-medium tracking-wider text-neutral-300 uppercase"
         >
-          {{ applicationCode ? applicationLabel(applicationCode) : 'App' }}
+          {{ appGroupId ? applicationGroupLabel(appGroupId) : 'App' }}
         </span>
+        <Icon
+          v-if="highPriority"
+          name="tabler:alert-circle-filled"
+          class="size-3.5 text-amber-400"
+        />
         <span class="ml-auto text-xs text-neutral-400">nå</span>
       </div>
       <!-- Title -->
