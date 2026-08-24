@@ -266,7 +266,7 @@ func main() {
 	}
 	r := gin.New()
 
-	r.Use(gin.Logger())
+	r.Use(commonMiddleware.AccessLogMiddleware())
 	r.Use(gin.CustomRecovery(panicHandler))
 
 	r.Use(utils.GinContextToContextMiddleware())
