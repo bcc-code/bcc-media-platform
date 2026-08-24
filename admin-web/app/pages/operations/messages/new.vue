@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useHead({ title: 'Ny melding' })
 
-const { add } = useMessages()
+const { add, setPlacement } = useMessages()
 const toaster = useToast()
 
 const active = ref(true)
@@ -10,14 +10,17 @@ const draft = ref<MessageDraft>({ severity: 'info', title: '', body: '' })
 
 const previewMessages = computed(() => [{ id: 'preview', ...draft.value }])
 
-function handleSubmit(data: MessageDraft & { appGroupIds: string[] }) {
+function handleSubmit(data: MessageDraft & { pageIds: string[] }) {
+  const { pageIds, ...fields } = data
+  const id = crypto.randomUUID()
   add({
-    id: crypto.randomUUID(),
-    ...data,
+    id,
+    ...fields,
     active: active.value,
     updatedAt: new Date().toISOString(),
     updatedBy: 'Deg'
   })
+  setPlacement(id, pageIds)
   toaster.value.success({
     title: 'Melding opprettet',
     description: active.value

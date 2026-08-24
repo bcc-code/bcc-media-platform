@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const route = useRoute()
-const { messages, update, remove } = useMessages()
+const { messages, update, remove, setPlacement } = useMessages()
 const toaster = useToast()
 
 const message = computed(() =>
@@ -25,8 +25,11 @@ const draft = ref<MessageDraft>({
 
 const previewMessages = computed(() => [{ id: 'preview', ...draft.value }])
 
-function handleSubmit(data: MessageDraft & { appGroupIds: string[] }) {
-  update(route.params.id as string, { ...data, active: active.value })
+function handleSubmit(data: MessageDraft & { pageIds: string[] }) {
+  const { pageIds, ...fields } = data
+  const id = route.params.id as string
+  update(id, { ...fields, active: active.value })
+  setPlacement(id, pageIds)
   toaster.value.success({
     title: 'Melding oppdatert',
     description: active.value

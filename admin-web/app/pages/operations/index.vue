@@ -2,7 +2,8 @@
 useHead({ title: 'Drift' })
 
 const { config, update } = useLivestream()
-const { messages, activeMessages, setActive } = useMessages()
+const { messages, liveMessages, unplacedActive, placementsFor, setActive } =
+  useMessages()
 const confirm = useConfirm()
 const toaster = useToast()
 
@@ -35,12 +36,21 @@ async function toggleLive() {
   })
 }
 
+function placementLabel(messageId: string): string {
+  const placed = placementsFor(messageId)
+  if (placed.length === 0) return ''
+  return placed
+    .map((p) => `${p.title} · ${applicationLabel(p.applicationCode)}`)
+    .join(', ')
+}
+
 function toggleMessage(message: AppMessage, value: boolean) {
   setActive(message.id, value)
+  const where = placementLabel(message.id)
   toaster.value.success({
     title: value ? 'Meldingen vises nå' : 'Meldingen er skrudd av',
     description: value
-      ? `Vises i ${message.appGroupIds.map(applicationGroupLabel).join(', ')}.`
+      ? where || 'Meldingen er ikke lagt på noen side ennå.'
       : undefined
   })
 }
@@ -161,6 +171,16 @@ function saveUrl() {
           </NuxtLink>
         </div>
 
+        <DesignBanner
+          v-if="unplacedActive.length > 0"
+          variant="warning"
+          icon="tabler:alert-triangle"
+        >
+          {{ unplacedActive.length }}
+          {{ unplacedActive.length === 1 ? 'melding er' : 'meldinger er' }}
+          skrudd på, men ligger ikke på noen side og vises derfor ikke.
+        </DesignBanner>
+
         <DesignEmptyState
           v-if="messages.length === 0"
           icon="tabler:message-off"
@@ -190,9 +210,7 @@ function saveUrl() {
                   {{ message.body }}
                 </span>
                 <span class="text-caption-1 text-text-hint mt-1 block truncate">
-                  {{
-                    message.appGroupIds.map(applicationGroupLabel).join(', ')
-                  }}
+                  {{ placementLabel(message.id) || 'Ikke lagt på noen side' }}
                 </span>
               </span>
             </NuxtLink>
@@ -208,7 +226,7 @@ function saveUrl() {
 
     <aside class="hidden lg:block">
       <MessageDevicePreview
-        :messages="activeMessages"
+        :messages="liveMessages"
         empty-hint="Ingen aktive meldinger"
       />
     </aside>

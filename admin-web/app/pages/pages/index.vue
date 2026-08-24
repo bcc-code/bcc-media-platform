@@ -16,6 +16,7 @@ function createPage() {
   add({
     id,
     code: 'ny-side',
+    isHome: false,
     status: 'draft',
     title: 'Ny side',
     description: null,

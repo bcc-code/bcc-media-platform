@@ -175,11 +175,32 @@ below.
 In Directus this is a four-collection dance: create a `messagetemplates` row
 (`type`: warning/error/info, plus `style` and translations) → attach to a
 `messages` row via m2m → set `enabled` → ensure a `MessageSection` on the right
-page points at it. One screen (severity, text, which apps, on/off) collapses all
-four.
+page points at it.
 
 Each `messages` row has its own `enabled` flag, so several being live at once is
 native to the model, not something we bolt on.
+
+**Placement is positional and cannot be collapsed away.** `MessageGroupLoader`
+is called from exactly one place — the `MessageSection` resolver
+(`backend/graph/api/resolver.go:463-469`), keyed on `sections.message_id`. There
+is no other consumer, so a message reaches an app _only_ by having a section on
+a page point at it. An early version of the UI put an "which apps" field on the
+message itself; that field had nothing behind it and was removed.
+
+What the UI does instead: the message editor has a **"Vises på"** page picker
+that writes and removes `MessageSection`s directly, with an "Alle forsider"
+shortcut resolving to pages flagged `isHome` (mirroring `applications.page_id`).
+The pages editor still shows the section where it sits. Same data, two doors.
+
+Two deliberate simplifications to keep in mind:
+
+- **`messages` is a group.** One row fans out to many `messagetemplates` via
+  m2m, each with its own `style` and translations. The UI models it 1:1. Worth
+  confirming with her that she never uses several variants in one group.
+- **Three gates collapsed to one.** Visibility needs `messages.status`,
+  `messages.enabled` and `messagetemplates.status` all set
+  (`queries/messages.sql:11-16`). The UI exposes a single "Vis meldingen nå"
+  switch.
 
 ### Livestream on/off
 

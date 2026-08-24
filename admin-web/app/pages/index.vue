@@ -7,7 +7,7 @@ const { unlinked } = useAssets()
 const { shorts } = useShorts()
 const { calendarEntries } = useCalendarEntries()
 const { notifications } = useNotifications()
-const { activeMessages } = useMessages()
+const { liveMessages } = useMessages()
 const { config } = useLivestream()
 
 const now = useNow({ interval: 60000 })
@@ -167,7 +167,7 @@ function formatWhen(iso: string) {
           </div>
 
           <NuxtLink
-            v-for="message in activeMessages"
+            v-for="message in liveMessages"
             :key="message.id"
             :to="`/operations/messages/${message.id}`"
             class="border-border-1 hover:bg-surface-indent flex items-center gap-3 rounded-xl border px-4 py-3"
@@ -185,7 +185,7 @@ function formatWhen(iso: string) {
           </NuxtLink>
 
           <p
-            v-if="activeMessages.length === 0"
+            v-if="liveMessages.length === 0"
             class="text-body-3 text-text-hint px-1"
           >
             Ingen aktive meldinger.

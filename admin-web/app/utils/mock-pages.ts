@@ -230,6 +230,8 @@ export interface PageSection {
 export interface Page {
   id: string
   code: string
+  /** Mirrors `applications.page_id` — the app opens on this page. */
+  isHome: boolean
   status: Status
   title: string
   description: string | null
@@ -271,6 +273,7 @@ export const mockPages: Page[] = [
   {
     id: '1',
     code: 'home',
+    isHome: true,
     status: 'published',
     title: 'Hjem',
     description: null,
@@ -300,6 +303,7 @@ export const mockPages: Page[] = [
   {
     id: '2',
     code: 'kids-home',
+    isHome: true,
     status: 'published',
     title: 'Hjem',
     description: null,
@@ -317,6 +321,7 @@ export const mockPages: Page[] = [
   {
     id: '3',
     code: 'live',
+    isHome: true,
     status: 'published',
     title: 'Direkte',
     description: 'Direktesendinger og TV-guide',
@@ -335,6 +340,7 @@ export const mockPages: Page[] = [
   {
     id: '4',
     code: 'search',
+    isHome: false,
     status: 'published',
     title: 'Søk',
     description: null,
@@ -348,6 +354,7 @@ export const mockPages: Page[] = [
   {
     id: '5',
     code: 'music',
+    isHome: false,
     status: 'draft',
     title: 'Musikk',
     description: 'Konserter og musikkvideoer',

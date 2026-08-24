@@ -4,7 +4,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  submit: [data: MessageDraft & { appGroupIds: string[] }]
+  submit: [data: MessageDraft & { pageIds: string[] }]
   delete: []
   change: [draft: MessageDraft]
 }>()
@@ -16,7 +16,13 @@ const active = defineModel<boolean>('active', { default: false })
 const severity = ref<MessageSeverity>(props.message?.severity ?? 'info')
 const title = ref(props.message?.title ?? '')
 const body = ref(props.message?.body ?? '')
-const appGroupIds = ref<string[]>([...(props.message?.appGroupIds ?? [])])
+const { pages } = usePages()
+const { placementsFor } = useMessages()
+
+// Placement lives on the pages, so seed from there rather than from the message.
+const pageIds = ref<string[]>(
+  props.message ? placementsFor(props.message.id).map((p) => p.id) : []
+)
 
 const submitted = ref(false)
 
@@ -26,18 +32,32 @@ const severityItems = [
   { label: 'Feil', value: 'error', icon: 'tabler:alert-octagon' }
 ]
 
-const groupItems = mockApplicationGroups.map((g) => ({
-  label: g.label,
-  value: g.id
-}))
+const pageItems = computed(() =>
+  pages.value.map((page) => ({
+    label: `${page.title} · ${applicationLabel(page.applicationCode)}`,
+    value: page.id
+  }))
+)
+
+const homePageIds = computed(() =>
+  pages.value.filter((p) => p.isHome).map((p) => p.id)
+)
+
+function placeOnAllHomePages() {
+  pageIds.value = [...new Set([...pageIds.value, ...homePageIds.value])]
+}
 
 const errors = computed(() => {
   if (!submitted.value) return {}
   return {
     title: !title.value.trim() ? 'Tittel er påkrevd' : undefined,
     body: !body.value.trim() ? 'Meldingstekst er påkrevd' : undefined,
-    appGroupIds:
-      appGroupIds.value.length === 0 ? 'Velg minst én app' : undefined
+    // Only blocking when it is switched on: an enabled message with no
+    // placement is switched on but invisible.
+    pageIds:
+      active.value && pageIds.value.length === 0
+        ? 'Velg minst én side, ellers vises ikke meldingen noe sted'
+        : undefined
   }
 })
 
@@ -51,7 +71,7 @@ function handleSubmit() {
     severity: severity.value,
     title: title.value.trim(),
     body: body.value.trim(),
-    appGroupIds: [...appGroupIds.value]
+    pageIds: [...pageIds.value]
   })
 }
 
@@ -108,13 +128,24 @@ watch(
     </div>
 
     <div class="border-border-1 flex flex-col gap-2 border-t py-6">
-      <label class="text-body-3 text-text-muted block">Vis i</label>
-      <DesignToggleChips v-model="appGroupIds" :items="groupItems" />
-      <p
-        v-if="errors.appGroupIds"
-        class="text-caption-1 text-semantic-error mt-1"
-      >
-        {{ errors.appGroupIds }}
+      <div class="flex items-center justify-between">
+        <label class="text-body-3 text-text-muted block">Vises på</label>
+        <DesignButton
+          size="small"
+          variant="tertiary"
+          icon="tabler:wand"
+          @click="placeOnAllHomePages"
+        >
+          Alle forsider
+        </DesignButton>
+      </div>
+      <DesignToggleChips v-model="pageIds" :items="pageItems" />
+      <p class="text-caption-1 text-text-hint mt-1">
+        Meldingen legges øverst på sidene du velger. Den vises ingen steder
+        uten minst én side.
+      </p>
+      <p v-if="errors.pageIds" class="text-caption-1 text-semantic-error mt-1">
+        {{ errors.pageIds }}
       </p>
     </div>
 
