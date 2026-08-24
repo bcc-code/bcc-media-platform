@@ -33,13 +33,13 @@ function handleSubmit(data: MessageDraft & { appGroupIds: string[] }) {
       ? 'Endringene vises nå i appene.'
       : 'Meldingen er lagret, men vises ikke.'
   })
-  navigateTo('/messages')
+  navigateTo('/operations')
 }
 
 function handleDelete() {
   remove(route.params.id as string)
   toaster.value.success({ title: 'Melding slettet' })
-  navigateTo('/messages')
+  navigateTo('/operations')
 }
 </script>
 
@@ -47,7 +47,7 @@ function handleDelete() {
   <div v-if="message" class="flex gap-10">
     <div class="flex max-w-2xl flex-1 flex-col gap-8">
       <div>
-        <BackButton to="/messages" label="Tilbake til meldinger" />
+        <BackButton to="/operations" label="Tilbake til drift" />
         <div class="flex items-center justify-between gap-4">
           <h1 class="text-heading-2 text-text-default">Rediger melding</h1>
           <DesignStatusIndicator

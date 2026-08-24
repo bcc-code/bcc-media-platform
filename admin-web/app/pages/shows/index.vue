@@ -21,8 +21,9 @@ const filteredShows = computed(() =>
 
 <template>
   <div class="flex max-w-5xl flex-col gap-8">
-    <div class="flex items-center justify-between">
-      <h1 class="text-heading-2 text-text-default">Serier</h1>
+    <div class="flex items-center justify-between gap-4">
+      <h1 class="sr-only">Serier</h1>
+      <DesignTabs :items="episodeTabs" />
       <NuxtLink to="/shows/new">
         <DesignButton icon="tabler:plus">Ny serie</DesignButton>
       </NuxtLink>

@@ -49,10 +49,11 @@ const groupedByDay = computed(() => {
 
 <template>
   <div class="flex max-w-5xl flex-col gap-8">
-    <div class="flex items-center justify-between">
-      <h1 class="text-heading-2 text-text-default">Oppføringer</h1>
+    <div class="flex items-center justify-between gap-4">
+      <h1 class="sr-only">Oppføringer</h1>
+      <DesignTabs :items="calendarTabs" />
       <NuxtLink to="/calendar/entries/new">
-        <DesignButton icon="tabler:plus"> Ny oppføring </DesignButton>
+        <DesignButton icon="tabler:plus">Ny oppføring</DesignButton>
       </NuxtLink>
     </div>
 

@@ -22,13 +22,9 @@ const rows = computed(() => {
 
 <template>
   <div class="flex max-w-5xl flex-col gap-8">
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-heading-2 text-text-default">Shorts</h1>
-        <p class="text-body-3 text-text-muted mt-1">
-          Korte klipp hentet ut av en episode.
-        </p>
-      </div>
+    <div class="flex items-center justify-between gap-4">
+      <h1 class="sr-only">Shorts</h1>
+      <DesignTabs :items="episodeTabs" />
       <NuxtLink to="/shorts/new">
         <DesignButton icon="tabler:plus">Ny short</DesignButton>
       </NuxtLink>

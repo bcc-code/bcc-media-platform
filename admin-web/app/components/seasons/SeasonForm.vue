@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const props = defineProps<{
   season?: Season
+  /** Preselects the show when arriving from a show page. */
+  presetShowId?: string
 }>()
 
 const emit = defineEmits<{
@@ -19,7 +21,13 @@ const description = ref(props.season?.description ?? '')
 const imageUrl = ref(props.season?.imageUrl ?? '')
 const number = ref(props.season?.number?.toString() ?? '')
 const ageRating = ref(props.season?.ageRating ?? 'A')
-const showId = ref<string[]>(props.season ? [props.season.show.id] : [])
+const showId = ref<string[]>(
+  props.season
+    ? [props.season.show.id]
+    : props.presetShowId
+      ? [props.presetShowId]
+      : []
+)
 
 const submitted = ref(false)
 
@@ -140,7 +148,7 @@ async function handleDelete() {
       <DesignButton
         v-if="!isEditing"
         variant="secondary"
-        @click="navigateTo('/seasons')"
+        @click="navigateTo(props.presetShowId ? `/shows/${props.presetShowId}` : '/shows')"
       >
         Avbryt
       </DesignButton>

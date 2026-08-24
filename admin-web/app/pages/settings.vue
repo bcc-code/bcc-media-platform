@@ -66,5 +66,15 @@ const swatchFor = (b: BrandInfo) =>
         </template>
       </DesignRadioGroup>
     </section>
+
+    <section class="border-border-1 border-t pt-6">
+      <NuxtLink
+        to="/design"
+        class="text-body-3 text-text-hint hover:text-text-default inline-flex items-center gap-2"
+      >
+        <Icon name="tabler:palette" class="size-4" />
+        Design system
+      </NuxtLink>
+    </section>
   </div>
 </template>

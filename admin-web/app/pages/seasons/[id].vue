@@ -17,13 +17,18 @@ watch(
 
 useHead({ title: () => season.value?.title ?? 'Rediger sesong' })
 
+// Seasons are reached through their show, so that is where back goes.
+const backTo = computed(() =>
+  season.value ? `/shows/${season.value.show.id}` : '/shows'
+)
+
 function handleSubmit(data: Season) {
   update(data.id, data)
   toaster.value.success({
     title: 'Sesong oppdatert',
     description: 'Endringene ble lagret.'
   })
-  navigateTo('/seasons')
+  navigateTo(backTo.value)
 }
 
 function handleDelete() {
@@ -32,14 +37,14 @@ function handleDelete() {
     title: 'Sesong slettet',
     description: 'Sesongen ble fjernet.'
   })
-  navigateTo('/seasons')
+  navigateTo(backTo.value)
 }
 </script>
 
 <template>
   <div v-if="season" class="flex max-w-5xl flex-col gap-8">
     <div>
-      <BackButton to="/seasons" label="Tilbake til sesonger" />
+      <BackButton :to="backTo" :label="`Tilbake til ${season.show.title}`" />
       <div class="flex items-center justify-between gap-4">
         <h1 class="text-heading-2 text-text-default">Rediger sesong</h1>
         <StatusSelector v-model="status" />

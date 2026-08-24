@@ -1,528 +1,230 @@
 <script setup lang="ts">
-import type { TourStepDetails } from '@ark-ui/vue'
+useHead({ title: 'Hjem' })
 
-const inputValue = ref('')
-const textareaValue = ref('')
-const selectValue = ref<string[]>([])
-const segmentValue = ref('one')
-const dateValue = ref('')
-const switchValue = ref(false)
-const switchDisabled = ref(true)
-const tagsValue = ref(['Vue', 'Nuxt'])
-const tourRef = ref<{ start: () => void }>()
-const toaster = useToast()
+const { currentUser } = useAuth()
+const { episodes, missingVideo } = useEpisodes()
+const { unlinked } = useAssets()
+const { shorts } = useShorts()
+const { calendarEntries } = useCalendarEntries()
+const { notifications } = useNotifications()
+const { activeMessages } = useMessages()
+const { config } = useLivestream()
 
-const uploadProgress = ref<number | null>(null)
-let uploadTimer: ReturnType<typeof setInterval> | null = null
+const now = useNow({ interval: 60000 })
 
-function simulateUpload() {
-  if (uploadTimer) clearInterval(uploadTimer)
-  uploadProgress.value = 0
-  uploadTimer = setInterval(() => {
-    if (uploadProgress.value === null) return
-    if (uploadProgress.value >= 100) {
-      clearInterval(uploadTimer!)
-      uploadTimer = null
-      return
+const firstName = computed(() => currentUser.value?.firstName ?? '')
+
+const draftCount = computed(
+  () =>
+    episodes.value.filter((e) => e.status === 'draft').length +
+    shorts.value.filter((s) => s.status === 'draft').length
+)
+
+// Only surfaces what actually needs doing — the dashboard should be quiet
+// when there is nothing outstanding.
+const attention = computed(() =>
+  [
+    {
+      key: 'missing-video',
+      to: '/episodes',
+      icon: 'tabler:movie-off',
+      count: missingVideo.value.length,
+      label: 'episoder mangler video',
+      tone: 'warning' as const
+    },
+    {
+      key: 'unlinked',
+      to: '/assets',
+      icon: 'tabler:link-off',
+      count: unlinked.value.length,
+      label: 'mediefiler er ikke koblet',
+      tone: 'neutral' as const
+    },
+    {
+      key: 'drafts',
+      to: '/episodes',
+      icon: 'tabler:pencil',
+      count: draftCount.value,
+      label: 'utkast venter',
+      tone: 'neutral' as const
     }
-    uploadProgress.value = Math.min(100, uploadProgress.value + 8)
-  }, 200)
+  ].filter((item) => item.count > 0)
+)
+
+const upcomingEntries = computed(() =>
+  calendarEntries.value
+    .filter((e) => new Date(e.start) > now.value)
+    .sort((a, b) => a.start.localeCompare(b.start))
+    .slice(0, 4)
+)
+
+const scheduledNotifications = computed(() =>
+  notifications.value
+    .filter((n) => notificationState(n) === 'scheduled')
+    .sort((a, b) => (a.scheduleAt ?? '').localeCompare(b.scheduleAt ?? ''))
+)
+
+function formatWhen(iso: string) {
+  return new Date(iso).toLocaleString('nb-NO', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
-
-onBeforeUnmount(() => {
-  if (uploadTimer) clearInterval(uploadTimer)
-})
-
-const tourSteps: TourStepDetails[] = [
-  {
-    id: 'welcome',
-    type: 'dialog',
-    title: 'Welcome!',
-    description: 'This is a quick tour of the design system components.',
-    actions: [{ label: 'Start', action: 'next' }]
-  },
-  {
-    id: 'button',
-    type: 'tooltip',
-    title: 'Buttons',
-    description: 'These are the available button variants and sizes.',
-    target: () => document.querySelector<HTMLElement>('#button'),
-    actions: [
-      { label: 'Back', action: 'prev' },
-      { label: 'Next', action: 'next' }
-    ]
-  },
-  {
-    id: 'badge',
-    type: 'tooltip',
-    title: 'Badges',
-    description: 'Use badges for status indicators and labels.',
-    target: () => document.querySelector<HTMLElement>('#badge'),
-    actions: [
-      { label: 'Back', action: 'prev' },
-      { label: 'Done', action: 'dismiss' }
-    ]
-  }
-]
-
-const selectItems = [
-  { label: 'Option A', value: 'a' },
-  { label: 'Option B', value: 'b' },
-  { label: 'Option C', value: 'c' }
-]
-
-const segmentItems = [
-  { label: 'One', value: 'one' },
-  { label: 'Two', value: 'two' },
-  { label: 'Three', value: 'three' }
-]
 </script>
 
 <template>
-  <div class="flex flex-col gap-12">
-    <h1 class="text-heading-1">Design System</h1>
+  <div class="flex max-w-4xl flex-col gap-10">
+    <h1 class="text-heading-2 text-text-default">
+      {{ firstName ? `Hei, ${firstName}` : 'Hjem' }}
+    </h1>
 
-    <section id="button">
-      <h2 class="text-heading-2 mb-3">Button</h2>
-      <div class="flex gap-2">
-        <DesignButton variant="primary">Primary variant</DesignButton>
-        <DesignButton variant="secondary">Secondary variant</DesignButton>
-        <DesignButton variant="tertiary">Tertiary variant</DesignButton>
-      </div>
-      <div class="mt-2 flex items-center gap-2">
-        <DesignButton size="small">Small size</DesignButton>
-        <DesignButton size="medium">Medium size</DesignButton>
-        <DesignButton size="large">Large size</DesignButton>
-      </div>
-      <div class="mt-2 flex items-center gap-2">
-        <DesignButton variant="primary" size="small" icon="tabler:plus">
-          With icon
-        </DesignButton>
-        <DesignButton variant="secondary" size="medium" icon="tabler:pencil">
-          With icon
-        </DesignButton>
-        <DesignButton variant="tertiary" size="large" icon="tabler:trash">
-          With icon
-        </DesignButton>
-      </div>
-      <div class="mt-2 flex items-center gap-2">
-        <DesignButton variant="primary" intent="danger" icon="tabler:trash">
-          Danger primary
-        </DesignButton>
-        <DesignButton variant="secondary" intent="danger" icon="tabler:trash">
-          Danger secondary
-        </DesignButton>
-        <DesignButton variant="tertiary" intent="danger" icon="tabler:trash">
-          Danger tertiary
-        </DesignButton>
-      </div>
-    </section>
+    <!-- Needs attention -->
+    <section class="flex flex-col gap-4">
+      <h2 class="text-title-1 text-text-default">Trenger oppmerksomhet</h2>
 
-    <section id="badge">
-      <h2 class="text-heading-2 mb-3">Badge</h2>
-      <div class="flex items-center gap-2">
-        <DesignBadge variant="success">Success</DesignBadge>
-        <DesignBadge variant="warning">Warning</DesignBadge>
-        <DesignBadge variant="info">Info</DesignBadge>
-        <DesignBadge variant="error">Error</DesignBadge>
-        <DesignBadge variant="neutral">Neutral</DesignBadge>
-      </div>
-    </section>
-
-    <section id="status-indicator">
-      <h2 class="text-heading-2 mb-3">Status indicator</h2>
-      <div class="flex flex-col gap-3">
-        <div class="flex items-center gap-4">
-          <DesignStatusIndicator variant="success">
-            Publisert
-          </DesignStatusIndicator>
-          <DesignStatusIndicator variant="info">
-            Ikke oppført
-          </DesignStatusIndicator>
-          <DesignStatusIndicator variant="neutral">
-            Utkast
-          </DesignStatusIndicator>
-          <DesignStatusIndicator variant="warning">
-            Arkivert
-          </DesignStatusIndicator>
-          <DesignStatusIndicator variant="error">Feilet</DesignStatusIndicator>
-        </div>
-        <div class="flex items-center gap-4">
-          <DesignStatusIndicator size="sm" variant="success">
-            Publisert
-          </DesignStatusIndicator>
-          <DesignStatusIndicator size="sm" variant="info">
-            Ikke oppført
-          </DesignStatusIndicator>
-          <DesignStatusIndicator size="sm" variant="neutral">
-            Utkast
-          </DesignStatusIndicator>
-          <DesignStatusIndicator size="sm" variant="warning">
-            Arkivert
-          </DesignStatusIndicator>
-          <DesignStatusIndicator size="sm" variant="error">
-            Feilet
-          </DesignStatusIndicator>
-        </div>
-      </div>
-    </section>
-
-    <section id="input">
-      <h2 class="text-heading-2 mb-3">Input</h2>
-      <div class="flex max-w-sm flex-col gap-4">
-        <DesignInput v-model="inputValue" placeholder="Text input" />
-        <DesignInput
-          label="Email"
-          type="email"
-          placeholder="you@example.com"
-          helper-text="We'll never share your email"
-        />
-        <DesignInput
-          label="Website"
-          type="url"
-          placeholder="https://example.com"
-          required
-        />
-        <DesignInput
-          label="Username"
-          placeholder="Enter username"
-          invalid
-          error-text="Username is already taken"
-        />
-        <DesignInput label="Read-only" placeholder="Disabled input" disabled />
-      </div>
-    </section>
-
-    <section id="textarea">
-      <h2 class="text-heading-2 mb-3">Textarea</h2>
-      <div class="flex max-w-sm flex-col gap-4">
-        <DesignTextarea
-          v-model="textareaValue"
-          label="Description"
-          placeholder="Write something..."
-          helper-text="Markdown is supported"
-        />
-        <DesignTextarea
-          label="Required field"
-          placeholder="This field is required"
-          required
-        />
-        <DesignTextarea
-          label="With error"
-          placeholder="Enter feedback..."
-          invalid
-          error-text="Feedback must be at least 10 characters"
-          :rows="2"
-        />
-        <DesignTextarea
-          label="Disabled"
-          placeholder="Disabled textarea"
-          disabled
-          :rows="2"
+      <div v-if="attention.length > 0" class="grid gap-3 sm:grid-cols-3">
+        <DashboardStat
+          v-for="item in attention"
+          :key="item.key"
+          :to="item.to"
+          :icon="item.icon"
+          :count="item.count"
+          :label="item.label"
+          :tone="item.tone"
         />
       </div>
+
+      <DesignBanner v-else variant="success" icon="tabler:check">
+        Alt er à jour. Ingenting venter på deg.
+      </DesignBanner>
     </section>
 
-    <section id="select">
-      <h2 class="text-heading-2 mb-3">Select</h2>
-      <div class="flex gap-2">
-        <DesignSelect
-          v-model="selectValue"
-          :items="selectItems"
-          placeholder="Choose an option"
-        />
-      </div>
-    </section>
-
-    <section id="date-picker">
-      <h2 class="text-heading-2 mb-3">Date Picker</h2>
-      <div class="flex max-w-sm flex-col gap-4">
-        <DesignDatePicker v-model="dateValue" label="Date" />
-        <DesignDatePicker label="Disabled" disabled />
-      </div>
-    </section>
-
-    <section id="segment-group">
-      <h2 class="text-heading-2 mb-3">Segment Group</h2>
-      <DesignSegmentGroup v-model="segmentValue" :items="segmentItems" />
-    </section>
-
-    <section id="tooltip">
-      <h2 class="text-heading-2 mb-3">Tooltip</h2>
-      <div class="flex items-center gap-4">
-        <DesignTooltip content="Top tooltip">
-          <DesignButton variant="secondary" size="small"
-            >Hover me (top)</DesignButton
+    <div class="grid gap-10 lg:grid-cols-2">
+      <!-- Upcoming calendar -->
+      <section class="flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-title-1 text-text-default">Neste i kalenderen</h2>
+          <NuxtLink
+            to="/calendar/entries"
+            class="text-caption-1 text-text-muted hover:text-text-default"
           >
-        </DesignTooltip>
-        <DesignTooltip content="Bottom tooltip" placement="bottom">
-          <DesignButton variant="secondary" size="small"
-            >Hover me (bottom)</DesignButton
+            Se alle
+          </NuxtLink>
+        </div>
+
+        <div v-if="upcomingEntries.length > 0" class="flex flex-col gap-2">
+          <NuxtLink
+            v-for="entry in upcomingEntries"
+            :key="entry.id"
+            :to="`/calendar/entries/${entry.id}`"
+            class="border-border-1 hover:bg-surface-indent flex items-center gap-3 rounded-xl border px-4 py-3"
           >
-        </DesignTooltip>
-      </div>
-    </section>
+            <span class="min-w-0 flex-1">
+              <span class="text-title-3 text-text-default block truncate">
+                {{ entry.title }}
+              </span>
+              <span class="text-caption-1 text-text-muted block truncate">
+                {{ entry.event.title }}
+              </span>
+            </span>
+            <span class="text-caption-1 text-text-hint whitespace-nowrap">
+              {{ formatWhen(entry.start) }}
+            </span>
+          </NuxtLink>
+        </div>
 
-    <section id="banner">
-      <h2 class="text-heading-2 mb-3">Banner</h2>
-      <div class="flex flex-col gap-2">
-        <DesignBanner variant="success" icon="tabler:check">
-          Operation completed successfully
-        </DesignBanner>
-        <DesignBanner variant="warning" icon="tabler:alert-triangle">
-          Please review before continuing
-        </DesignBanner>
-        <DesignBanner variant="info" icon="tabler:info-circle">
-          Here is some useful information
-        </DesignBanner>
-        <DesignBanner variant="error" icon="tabler:x">
-          Something went wrong
-        </DesignBanner>
-        <DesignBanner variant="neutral" icon="tabler:message">
-          A neutral message
-        </DesignBanner>
-      </div>
-    </section>
+        <p v-else class="text-body-3 text-text-hint">
+          Ingenting planlagt framover.
+        </p>
+      </section>
 
-    <section id="switch">
-      <h2 class="text-heading-2 mb-3">Switch</h2>
-      <div class="flex flex-col gap-3">
-        <DesignSwitch v-model="switchValue" label="Enable notifications" />
-        <DesignSwitch
-          v-model="switchDisabled"
-          label="Disabled switch"
-          disabled
-        />
-      </div>
-    </section>
+      <!-- Live right now -->
+      <section class="flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-title-1 text-text-default">Ute nå</h2>
+          <NuxtLink
+            to="/operations"
+            class="text-caption-1 text-text-muted hover:text-text-default"
+          >
+            Drift
+          </NuxtLink>
+        </div>
 
-    <section id="tags-input">
-      <h2 class="text-heading-2 mb-3">Tags Input</h2>
-      <div class="flex max-w-sm flex-col gap-4">
-        <DesignTagsInput
-          v-model="tagsValue"
-          label="Frameworks"
-          placeholder="Add framework..."
-        />
-        <DesignTagsInput
-          label="With max (3)"
-          placeholder="Add tag..."
-          :max="3"
-        />
-        <DesignTagsInput label="Disabled" placeholder="Disabled" disabled />
-      </div>
-    </section>
+        <div class="flex flex-col gap-2">
+          <div
+            class="border-border-1 flex items-center justify-between gap-3 rounded-xl border px-4 py-3"
+          >
+            <span class="text-body-3 text-text-muted">Direktestrøm</span>
+            <DesignStatusIndicator
+              size="sm"
+              :variant="config.liveOnline ? 'success' : 'neutral'"
+            >
+              {{ config.liveOnline ? 'På luften' : 'Av luften' }}
+            </DesignStatusIndicator>
+          </div>
 
-    <section id="toast">
-      <h2 class="text-heading-2 mb-3">Toast</h2>
-      <div class="flex flex-wrap gap-2">
-        <DesignButton
-          variant="secondary"
-          size="small"
-          @click="
-            toaster.success({
-              title: 'Success',
-              description: 'Changes have been saved.'
-            })
-          "
-        >
-          Success toast
-        </DesignButton>
-        <DesignButton
-          variant="secondary"
-          size="small"
-          @click="
-            toaster.error({
-              title: 'Error',
-              description: 'Something went wrong.'
-            })
-          "
-        >
-          Error toast
-        </DesignButton>
-        <DesignButton
-          variant="secondary"
-          size="small"
-          @click="
-            toaster.warning({
-              title: 'Warning',
-              description: 'Please review before continuing.'
-            })
-          "
-        >
-          Warning toast
-        </DesignButton>
-        <DesignButton
-          variant="secondary"
-          size="small"
-          @click="
-            toaster.info({
-              title: 'Info',
-              description: 'Here is some useful information.'
-            })
-          "
-        >
-          Info toast
-        </DesignButton>
-        <DesignButton
-          variant="secondary"
-          size="small"
-          @click="
-            toaster.create({
-              title: 'Item deleted',
-              description: 'The item has been removed.',
-              type: 'info',
-              action: {
-                label: 'Undo',
-                onClick: () => {
-                  toaster.success({
-                    title: 'Restored'
-                  })
-                }
-              }
-            })
-          "
-        >
-          Action toast
-        </DesignButton>
-      </div>
-    </section>
+          <NuxtLink
+            v-for="message in activeMessages"
+            :key="message.id"
+            :to="`/operations/messages/${message.id}`"
+            class="border-border-1 hover:bg-surface-indent flex items-center gap-3 rounded-xl border px-4 py-3"
+          >
+            <Icon
+              :name="severityIcons[message.severity]"
+              class="text-text-hint size-4 shrink-0"
+            />
+            <span class="text-body-3 text-text-default min-w-0 flex-1 truncate">
+              {{ message.title }}
+            </span>
+            <DesignBadge :variant="severityVariants[message.severity]">
+              Vises
+            </DesignBadge>
+          </NuxtLink>
 
-    <section id="tour">
-      <h2 class="text-heading-2 mb-3">Tour</h2>
-      <DesignButton variant="secondary" size="small" @click="tourRef?.start()">
-        Start tour
-      </DesignButton>
-      <DesignTour ref="tourRef" :steps="tourSteps" />
-    </section>
-
-    <section id="progress-circle">
-      <h2 class="text-heading-2 mb-3">Progress circle</h2>
-      <div class="flex items-center gap-6">
-        <DesignProgressCircle />
-        <DesignProgressCircle :value="25" />
-        <DesignProgressCircle :value="60" />
-        <DesignProgressCircle :value="100" />
-        <DesignProgressCircle :value="40" :size="64" :thickness="4" />
-      </div>
-      <div class="mt-4 flex items-center gap-4">
-        <DesignProgressCircle :value="uploadProgress" :size="56" show-value />
-        <div>
-          <p class="text-body-3 text-text-default">
-            {{
-              uploadProgress === null
-                ? 'Klar til opplasting'
-                : uploadProgress >= 100
-                  ? 'Ferdig'
-                  : 'Laster opp…'
-            }}
+          <p
+            v-if="activeMessages.length === 0"
+            class="text-body-3 text-text-hint px-1"
+          >
+            Ingen aktive meldinger.
           </p>
-          <DesignButton
-            class="mt-2"
-            variant="secondary"
-            size="small"
-            @click="simulateUpload"
-          >
-            Simuler opplasting
-          </DesignButton>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
 
-    <section id="view-states">
-      <h2 class="text-heading-2 mb-3">View States</h2>
-      <div class="grid grid-cols-3 gap-4">
-        <div class="border-border-1 rounded-xl border py-12">
-          <DesignLoadingState />
-        </div>
-        <div class="border-border-1 rounded-xl border py-12">
-          <DesignErrorState
-            title="Noe gikk galt"
-            description="Kunne ikke laste inn data"
-          >
-            <template #action>
-              <DesignButton variant="secondary"> Prøv igjen </DesignButton>
-            </template>
-          </DesignErrorState>
-        </div>
-        <div class="border-border-1 rounded-xl border py-12">
-          <DesignEmptyState
-            title="Ingen resultater"
-            description="Prøv å endre søket ditt"
-          />
-        </div>
+    <!-- Scheduled push -->
+    <section v-if="scheduledNotifications.length > 0" class="flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-title-1 text-text-default">Planlagte varslinger</h2>
+        <NuxtLink
+          to="/notifications"
+          class="text-caption-1 text-text-muted hover:text-text-default"
+        >
+          Se alle
+        </NuxtLink>
       </div>
-    </section>
 
-    <section id="typography">
-      <h2 class="text-heading-2 mb-3">Typography</h2>
-      <div class="flex flex-col gap-3">
-        <div class="flex items-baseline gap-4">
-          <span class="text-caption-1 text-text-muted w-24 shrink-0">
-            heading-1
+      <div class="flex flex-col gap-2">
+        <NuxtLink
+          v-for="notification in scheduledNotifications"
+          :key="notification.id"
+          :to="`/notifications/${notification.id}`"
+          class="border-border-1 hover:bg-surface-indent flex items-center gap-3 rounded-xl border px-4 py-3"
+        >
+          <span class="min-w-0 flex-1">
+            <span class="text-title-3 text-text-default block truncate">
+              {{ notification.title }}
+            </span>
+            <span class="text-caption-1 text-text-muted block truncate">
+              {{ applicationGroupLabel(notification.appGroupId) }}
+            </span>
           </span>
-          <span class="text-heading-1">The quick brown fox</span>
-        </div>
-        <div class="flex items-baseline gap-4">
-          <span class="text-caption-1 text-text-muted w-24 shrink-0">
-            heading-2
+          <span class="text-caption-1 text-text-hint whitespace-nowrap">
+            {{ notification.scheduleAt ? formatWhen(notification.scheduleAt) : '' }}
           </span>
-          <span class="text-heading-2">The quick brown fox</span>
-        </div>
-        <div class="flex items-baseline gap-4">
-          <span class="text-caption-1 text-text-muted w-24 shrink-0">
-            heading-3
-          </span>
-          <span class="text-heading-3">The quick brown fox</span>
-        </div>
-        <div class="flex items-baseline gap-4">
-          <span class="text-caption-1 text-text-muted w-24 shrink-0">
-            title-1
-          </span>
-          <span class="text-title-1">The quick brown fox</span>
-        </div>
-        <div class="flex items-baseline gap-4">
-          <span class="text-caption-1 text-text-muted w-24 shrink-0">
-            title-2
-          </span>
-          <span class="text-title-2">The quick brown fox</span>
-        </div>
-        <div class="flex items-baseline gap-4">
-          <span class="text-caption-1 text-text-muted w-24 shrink-0">
-            title-3
-          </span>
-          <span class="text-title-3">The quick brown fox</span>
-        </div>
-        <div class="flex items-baseline gap-4">
-          <span class="text-caption-1 text-text-muted w-24 shrink-0">
-            body-1
-          </span>
-          <span class="text-body-1">The quick brown fox</span>
-        </div>
-        <div class="flex items-baseline gap-4">
-          <span class="text-caption-1 text-text-muted w-24 shrink-0">
-            body-2
-          </span>
-          <span class="text-body-2">The quick brown fox</span>
-        </div>
-        <div class="flex items-baseline gap-4">
-          <span class="text-caption-1 text-text-muted w-24 shrink-0">
-            body-3
-          </span>
-          <span class="text-body-3">The quick brown fox</span>
-        </div>
-        <div class="flex items-baseline gap-4">
-          <span class="text-caption-1 text-text-muted w-24 shrink-0">
-            caption-1
-          </span>
-          <span class="text-caption-1">The quick brown fox</span>
-        </div>
-        <div class="flex items-baseline gap-4">
-          <span class="text-caption-1 text-text-muted w-24 shrink-0">
-            caption-2
-          </span>
-          <span class="text-caption-2">The quick brown fox</span>
-        </div>
+        </NuxtLink>
       </div>
     </section>
   </div>

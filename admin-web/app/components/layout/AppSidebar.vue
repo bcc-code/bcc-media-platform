@@ -22,96 +22,34 @@ interface NavItem {
   to: string
   icon: string
   label: string
-  demo?: boolean
+  /** Extra path prefixes this area covers, reached through in-page tabs. */
+  match?: string[]
 }
 
-const navSections: { label: string; items: NavItem[] }[] = [
+// One entry per area, not per collection. Sub-views live in tabs inside the
+// area — see docs/admin-web-scope.md.
+const navItems: NavItem[] = [
+  { to: '/', icon: 'tabler:home', label: 'Hjem' },
   {
-    label: 'Oversikt',
-    items: [{ to: '/', icon: 'tabler:home', label: 'Hjem' }]
+    to: '/episodes',
+    icon: 'tabler:player-play',
+    label: 'Episoder',
+    match: ['/shorts', '/assets', '/shows', '/seasons']
   },
   {
-    label: 'Innhold',
-    items: [
-      {
-        to: '/episodes',
-        icon: 'tabler:player-play',
-        label: 'Episoder',
-        demo: true
-      },
-      {
-        to: '/shorts',
-        icon: 'tabler:rectangle-vertical',
-        label: 'Shorts',
-        demo: true
-      },
-      {
-        to: '/assets',
-        icon: 'tabler:movie',
-        label: 'Mediefiler',
-        demo: true
-      },
-      {
-        to: '/seasons',
-        icon: 'tabler:calendar-event',
-        label: 'Sesonger',
-        demo: true
-      },
-      { to: '/shows', icon: 'tabler:device-tv', label: 'Serier', demo: true }
-    ]
-  },
-  {
-    label: 'Applikasjoner',
-    items: [
-      { to: '/pages', icon: 'tabler:file-text', label: 'Sider', demo: true },
-      {
-        to: '/collections',
-        icon: 'tabler:list-details',
-        label: 'Samlinger',
-        demo: true
-      },
-      {
-        to: '/notifications',
-        icon: 'tabler:bell',
-        label: 'Push-varsler',
-        demo: true
-      }
-    ]
-  },
-  {
-    label: 'Drift',
-    items: [
-      {
-        to: '/livestream',
-        icon: 'tabler:broadcast',
-        label: 'Direktestrøm',
-        demo: true
-      },
-      {
-        to: '/messages',
-        icon: 'tabler:message-2',
-        label: 'Meldinger',
-        demo: true
-      }
-    ]
-  },
-  {
+    to: '/calendar/entries',
+    icon: 'tabler:calendar',
     label: 'Kalender',
-    items: [
-      {
-        to: '/calendar/entries',
-        icon: 'tabler:calendar',
-        label: 'Oppføringer',
-        demo: true
-      },
-      {
-        to: '/calendar/events',
-        icon: 'tabler:calendar-event',
-        label: 'Hendelser',
-        demo: true
-      }
-    ]
-  }
+    match: ['/calendar']
+  },
+  {
+    to: '/pages',
+    icon: 'tabler:file-text',
+    label: 'Sider',
+    match: ['/collections']
+  },
+  { to: '/notifications', icon: 'tabler:bell', label: 'Push-varsler' },
+  { to: '/operations', icon: 'tabler:settings-bolt', label: 'Drift' }
 ]
 </script>
 
@@ -134,27 +72,16 @@ const navSections: { label: string; items: NavItem[] }[] = [
       </NuxtLink>
     </div>
 
-    <nav class="flex flex-1 flex-col gap-4 overflow-y-auto px-2 py-4">
-      <div v-for="(section, index) in navSections" :key="section.label">
-        <p
-          v-if="!collapsed && section.label"
-          class="text-caption-2 text-text-hint px-2 pb-1 uppercase"
-        >
-          {{ section.label }}
-        </p>
-        <hr v-if="collapsed && index > 0" class="border-border-1 mb-1" />
-        <div class="flex flex-col gap-1">
-          <AppSidebarLink
-            v-for="item in section.items"
-            :key="item.to"
-            :to="item.to"
-            :icon="item.icon"
-            :label="item.label"
-            :collapsed="collapsed"
-            :demo="item.demo"
-          />
-        </div>
-      </div>
+    <nav class="flex flex-1 flex-col gap-1 overflow-y-auto px-2 py-4">
+      <AppSidebarLink
+        v-for="item in navItems"
+        :key="item.to"
+        :to="item.to"
+        :icon="item.icon"
+        :label="item.label"
+        :match="item.match"
+        :collapsed="collapsed"
+      />
     </nav>
 
     <div class="p-2">

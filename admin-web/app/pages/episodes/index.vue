@@ -35,8 +35,9 @@ const filtered = computed(() =>
 
 <template>
   <div class="flex min-h-1/2 max-w-5xl flex-col gap-8">
-    <div class="flex items-center justify-between">
-      <h1 class="text-heading-2 text-text-default">Episoder</h1>
+    <div class="flex items-center justify-between gap-4">
+      <h1 class="sr-only">Episoder</h1>
+      <DesignTabs :items="episodeTabs" />
       <NuxtLink to="/episodes/new">
         <DesignButton id="episodes-add" icon="tabler:plus">
           Ny episode

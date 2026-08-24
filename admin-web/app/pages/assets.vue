@@ -26,13 +26,14 @@ const rows = computed(() => {
 
 <template>
   <div class="flex max-w-5xl flex-col gap-8">
-    <div>
-      <h1 class="text-heading-2 text-text-default">Mediefiler</h1>
-      <p class="text-body-3 text-text-muted mt-1">
-        Filer som har kommet inn fra eksportsystemet. Koblingen til en episode
-        gjøres på episoden.
-      </p>
+    <div class="flex items-center justify-between gap-4">
+      <h1 class="sr-only">Mediefiler</h1>
+      <DesignTabs :items="episodeTabs" />
     </div>
+    <p class="text-body-3 text-text-muted -mt-4">
+      Filer som har kommet inn fra eksportsystemet. Koblingen til en episode
+      gjøres på episoden.
+    </p>
 
     <button
       v-if="unlinked.length > 0"

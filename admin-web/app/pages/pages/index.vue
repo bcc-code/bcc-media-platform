@@ -32,21 +32,18 @@ function createPage() {
 
 <template>
   <div class="flex max-w-5xl flex-col gap-8">
-    <div class="flex items-center justify-between">
-      <h1 class="text-heading-2 text-text-default">Sider</h1>
-      <div class="flex items-center gap-2">
+    <div class="flex items-center justify-between gap-4">
+      <h1 class="sr-only">Sider</h1>
+      <DesignTabs :items="pageTabs" />
+      <div class="flex items-center gap-3">
         <AppSelector />
-      </div>
-    </div>
-
-    <section>
-      <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-title-1 text-text-default">Alle sider</h2>
         <DesignButton icon="tabler:plus" @click="createPage">
           Ny side
         </DesignButton>
       </div>
+    </div>
 
+    <section>
       <DesignTable
         :columns="['Tittel', 'Kode', 'App', 'Seksjoner', 'Status']"
         :empty="

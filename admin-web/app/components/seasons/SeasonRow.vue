@@ -18,23 +18,23 @@ defineProps<{
 </script>
 
 <template>
-  <tr class="border-border-1 hover:bg-surface-indent cursor-pointer border-t">
+  <tr
+    class="border-border-1 hover:bg-surface-indent cursor-pointer border-t"
+    @click="navigateTo(`/seasons/${season.id}`)"
+  >
     <td class="px-4 py-3">
       <p class="text-title-3 text-text-default">{{ season.title }}</p>
-      <p class="text-caption-1 text-text-muted mt-0.5">
-        {{ season.show.title }}
+      <p class="text-caption-1 text-text-muted mt-0.5 tabular-nums">
+        Sesong {{ season.number }}
       </p>
     </td>
-    <td class="text-body-3 text-text-muted px-4 py-3 tabular-nums">
-      S{{ season.number }}
+    <td class="px-4 py-3">
+      <DesignAgeRating :rating="season.ageRating" />
     </td>
     <td class="px-4 py-3">
       <DesignStatusIndicator :variant="statusConfig[season.status].variant">
         {{ statusConfig[season.status].label }}
       </DesignStatusIndicator>
-    </td>
-    <td class="px-4 py-3">
-      <DesignAgeRating :rating="season.ageRating" />
     </td>
   </tr>
 </template>

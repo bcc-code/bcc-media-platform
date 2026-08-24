@@ -24,7 +24,7 @@ function handleSubmit(data: MessageDraft & { appGroupIds: string[] }) {
       ? 'Meldingen vises nå i appene.'
       : 'Meldingen er lagret, men vises ikke ennå.'
   })
-  navigateTo('/messages')
+  navigateTo('/operations')
 }
 </script>
 
@@ -32,7 +32,7 @@ function handleSubmit(data: MessageDraft & { appGroupIds: string[] }) {
   <div class="flex gap-10">
     <div class="flex max-w-2xl flex-1 flex-col gap-8">
       <div>
-        <BackButton to="/messages" label="Tilbake til meldinger" />
+        <BackButton to="/operations" label="Tilbake til drift" />
         <h1 class="text-heading-2 text-text-default">Ny melding</h1>
       </div>
 

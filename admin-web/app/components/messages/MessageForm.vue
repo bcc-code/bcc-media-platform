@@ -135,7 +135,7 @@ watch(
       <DesignButton
         v-if="!isEditing"
         variant="secondary"
-        @click="navigateTo('/messages')"
+        @click="navigateTo('/operations')"
       >
         Avbryt
       </DesignButton>

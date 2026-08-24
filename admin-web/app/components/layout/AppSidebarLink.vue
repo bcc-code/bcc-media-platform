@@ -4,23 +4,23 @@ const props = defineProps<{
   icon: string
   label: string
   collapsed?: boolean
-  demo?: boolean
+  /** Extra path prefixes that keep this area highlighted. */
+  match?: string[]
 }>()
 
 const route = useRoute()
 
 const active = computed(() => {
-  if (props.to === '/') return route.path === '/'
-  return route.path === props.to || route.path.startsWith(props.to + '/')
+  const paths = [props.to, ...(props.match ?? [])]
+  return paths.some((path) => {
+    if (path === '/') return route.path === '/'
+    return route.path === path || route.path.startsWith(`${path}/`)
+  })
 })
 </script>
 
 <template>
-  <DesignTooltip
-    :content="demo ? `${label} (demo)` : label"
-    placement="right"
-    :disabled="!collapsed"
-  >
+  <DesignTooltip :content="label" placement="right" :disabled="!collapsed">
     <NuxtLink
       :to="to"
       :aria-current="active ? 'page' : undefined"
@@ -35,12 +35,6 @@ const active = computed(() => {
     >
       <Icon :name="icon" class="size-5 shrink-0" />
       <span v-if="!collapsed" class="flex-1 truncate">{{ label }}</span>
-      <DesignBadge v-if="demo && !collapsed" variant="warning" label="Demo" />
-      <span
-        v-if="demo && collapsed"
-        class="bg-semantic-warning ring-surface-indent absolute top-1 right-1 size-2 rounded-full ring-2"
-        aria-hidden="true"
-      />
     </NuxtLink>
   </DesignTooltip>
 </template>

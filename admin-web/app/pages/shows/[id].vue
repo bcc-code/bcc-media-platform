@@ -1,9 +1,17 @@
 <script setup lang="ts">
 const route = useRoute()
 const { shows, update, remove } = useShows()
+const { seasons } = useSeasons()
 const toaster = useToast()
 
 const show = computed(() => shows.value.find((s) => s.id === route.params.id))
+
+// Seasons live inside their show rather than in their own area.
+const showSeasons = computed(() =>
+  seasons.value
+    .filter((s) => s.show.id === route.params.id)
+    .sort((a, b) => b.number - a.number)
+)
 
 const status = ref<Status>(show.value?.status ?? 'draft')
 watch(
@@ -50,6 +58,37 @@ function handleDelete() {
       @submit="handleSubmit"
       @delete="handleDelete"
     />
+
+    <section class="border-border-1 flex flex-col gap-4 border-t pt-8">
+      <div class="flex items-center justify-between">
+        <h2 class="text-title-1 text-text-default">
+          Sesonger ({{ showSeasons.length }})
+        </h2>
+        <NuxtLink :to="`/seasons/new?show=${show.id}`">
+          <DesignButton size="small" variant="secondary" icon="tabler:plus">
+            Ny sesong
+          </DesignButton>
+        </NuxtLink>
+      </div>
+
+      <DesignEmptyState
+        v-if="showSeasons.length === 0"
+        icon="tabler:stack-2"
+        title="Ingen sesonger"
+        description="Legg til en sesong for å kunne publisere episoder."
+      />
+
+      <DesignTable
+        v-else
+        :columns="['Sesong', 'Aldersgrense', 'Status']"
+      >
+        <SeasonRow
+          v-for="season in showSeasons"
+          :key="season.id"
+          :season="season"
+        />
+      </DesignTable>
+    </section>
   </div>
 
   <div v-else class="text-body-2 text-text-hint px-4 py-12 text-center">

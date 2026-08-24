@@ -26,17 +26,16 @@ const rows = computed(() => {
 
 <template>
   <div class="flex max-w-5xl flex-col gap-8">
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-heading-2 text-text-default">Samlinger</h1>
-        <p class="text-body-3 text-text-muted mt-1">
-          Innholdslister som seksjoner henter fra.
-        </p>
-      </div>
+    <div class="flex items-center justify-between gap-4">
+      <h1 class="sr-only">Samlinger</h1>
+      <DesignTabs :items="pageTabs" />
       <NuxtLink to="/collections/new">
         <DesignButton icon="tabler:plus">Ny samling</DesignButton>
       </NuxtLink>
     </div>
+    <p class="text-body-3 text-text-muted -mt-4">
+      Innholdslister som seksjoner henter fra.
+    </p>
 
     <DesignInput
       v-model="filter"
