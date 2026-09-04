@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/log"
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 )
 
 // livestreamURLExpiry is how long a signed livestream manifest URL stays valid.
@@ -22,13 +23,6 @@ const livestreamURLExpiry = 6 * time.Hour
 // (requesting a `start` older than the retained window returns an error).
 const maxLivestreamStartAge = 90 * time.Minute
 
-// maxLivestreamURLAgeFromStart caps how long after the (clamped) start time a
-// signed URL stays valid. It bounds the URL's lifetime to the relevant program
-// window rather than the full livestreamURLExpiry.
-//
-// This is because manifests > 2h grow over the lambda limit.
-const maxLivestreamURLAgeFromStart = 2 * time.Hour
-
 // liveURL is the cached, signed livestream URL plus its expiry. It is not
 // user-specific: the stream and signing key are global, so a single cache entry
 // serves every permitted caller.
@@ -42,20 +36,10 @@ type liveURL struct {
 // ago, matching the replay buffer's padded view of the program window —
 // inserts the AWS Elemental MediaPackage start-over `start` path element so
 // playback joins from the program's start (clamped to at most
-// maxLivestreamStartAge in the past). On the
-// legacy path the URL's validity is capped at maxLivestreamURLAgeFromStart past
-// that start; on the proxy path it keeps the full livestreamURLExpiry, and the
-// returned ExpiresAt is earlier than the token's real expiry (see
-// signLiveManifestWith).
-//
-// It returns nil (with a nil error) when no signer is configured for the
-// selected path, so the caller serves the online flag only.
+// maxLivestreamStartAge in the past). The URL is valid for livestreamURLExpiry;
+// the returned ExpiresAt is earlier than the token's real expiry (see
+// signLiveManifest).
 func (r *Resolver) signedLiveURL(ctx context.Context, livestreamURL string) (*liveURL, error) {
-	ls := r.resolveLiveSigning(ctx)
-	if !r.canSignLive(ls) {
-		return nil, nil
-	}
-
 	now := time.Now()
 	entry, err := r.Queries.GetCurrentCalendarEntry(ctx, now.Add(-bufferLeadOut))
 	if err != nil {
@@ -69,8 +53,7 @@ func (r *Resolver) signedLiveURL(ctx context.Context, livestreamURL string) (*li
 		start = &s
 	}
 
-	ttl := livestreamExpiresAt(start, now, ls.useProxy).Sub(now)
-	signedURL, expiresAt, err := r.signLiveManifestWith(ls, livestreamURL, ttl)
+	signedURL, expiresAt, err := r.signLiveManifest(livestreamURL, livestreamURLExpiry, r.pickLiveProvider(ctx))
 	if err != nil {
 		log.L.Error().Err(err).Str("livestreamURL", livestreamURL).Msg("signedLiveURL: failed to sign livestream URL")
 		return nil, err
@@ -92,15 +75,8 @@ func (r *Resolver) signedLiveURL(ctx context.Context, livestreamURL string) (*li
 // that entry's window. Unlike signedLiveURL it does not clamp the start: the
 // buffer is meant to replay the real program window, and the origin's start-over
 // retention is expected to cover it.
-//
-// Note: on the legacy path a window (end-start) longer than ~2h hits the
-// Lambda@Edge manifest-size limit described on maxLivestreamURLAgeFromStart. The
-// stream-proxy has no such limit. Entries are almost always shorter regardless;
-// revisit (e.g. chunked playback) if long buffers are needed rather than
-// truncating the window here.
-func (r *Resolver) signedBufferURL(ls liveSigning, livestreamURL string, start, end, expiresAt time.Time) (string, error) {
-	now := time.Now()
-	signedURL, _, err := r.signLiveManifestWith(ls, livestreamURL, expiresAt.Sub(now))
+func (r *Resolver) signedBufferURL(livestreamURL string, start, end, expiresAt time.Time, provider streamtoken.Provider) (string, error) {
+	signedURL, _, err := r.signLiveManifest(livestreamURL, time.Until(expiresAt), provider)
 	if err != nil {
 		log.L.Error().Err(err).Str("livestreamURL", livestreamURL).Msg("signedBufferURL: failed to sign livestream URL")
 		return "", err
@@ -108,53 +84,21 @@ func (r *Resolver) signedBufferURL(ls liveSigning, livestreamURL string, start, 
 	return appendTimeShiftTags(signedURL, start, &end), nil
 }
 
-// signLiveManifestWith signs the livestream manifest URL for ttl using the
-// already-resolved signing decision (see resolveLiveSigning). It routes through
-// the stream-proxy (multi-CDN via ioriver) when the proxy path was selected, and
-// otherwise falls back to the legacy CloudFront canned-policy signer, whose URLs
-// are rewritten per-request by the Lambda@Edge manifest handler. It returns the
-// signed URL and its expiry, before any MediaPackage time-shift tags are
-// appended by the caller. On the proxy path that expiry is the advertised one,
-// which streamtoken.SignLiveURL deliberately reports earlier than the JWT's
-// `exp` claim; the legacy signer's expiry is exactly now+ttl.
+// signLiveManifest signs the livestream manifest URL for ttl as a stream-proxy
+// URL (multi-CDN via the proxy; provider names the upstream identity, see
+// pickLiveProvider). It returns the signed URL and its advertised expiry, before
+// any MediaPackage time-shift tags are appended by the caller. That expiry is
+// deliberately earlier than the JWT's `exp` claim (see streamtoken.SignLiveURL).
 //
-// The CDN/CloudFront signature signs the resource path, not the query, so the
+// The JWT authorizes the manifest's directory, not the exact query, so the
 // caller can safely append `start`/`end` time-shift params to the returned URL
-// without invalidating it (see appendTimeShiftTags). On the proxy path those
-// params travel to the proxy, which forwards them to the upstream manifest.
-func (r *Resolver) signLiveManifestWith(ls liveSigning, livestreamURL string, ttl time.Duration) (string, time.Time, error) {
-	if ls.useProxy {
-		u, err := url.Parse(livestreamURL)
-		if err != nil {
-			return "", time.Time{}, err
-		}
-		return ls.proxy.SignLiveURL(u.Path, ttl, ls.provider)
+// (see appendTimeShiftTags); the proxy forwards them to the upstream manifest.
+func (r *Resolver) signLiveManifest(livestreamURL string, ttl time.Duration, provider streamtoken.Provider) (string, time.Time, error) {
+	u, err := url.Parse(livestreamURL)
+	if err != nil {
+		return "", time.Time{}, err
 	}
-	return r.LivestreamSigner.SignURLCanned(livestreamURL, ttl)
-}
-
-// livestreamExpiresAt returns when the signed URL should expire.
-//
-// On the legacy path it is at most livestreamURLExpiry from now and, when a
-// program is in progress, at most maxLivestreamURLAgeFromStart from its (clamped)
-// start time — the from-start cap exists because manifests larger than that
-// exceed the Lambda@Edge size limit. The stream-proxy has no such limit, so on
-// the proxy path (useProxy) the URL keeps the full livestreamURLExpiry.
-//
-// The result is the window handed to the signer as a ttl. On the proxy path the
-// minted JWT outlives it (streamtoken.SignLiveURL); on the legacy path it is the
-// signature's exact expiry.
-func livestreamExpiresAt(start *time.Time, now time.Time, useProxy bool) time.Time {
-	expiresAt := now.Add(livestreamURLExpiry)
-	if useProxy {
-		return expiresAt
-	}
-	if start != nil {
-		if capped := start.Add(maxLivestreamURLAgeFromStart); capped.Before(expiresAt) {
-			expiresAt = capped
-		}
-	}
-	return expiresAt
+	return r.StreamURLSigner.SignLiveURL(u.Path, ttl, provider)
 }
 
 // clampStart caps start so it points at most maxLivestreamStartAge before now.
@@ -176,11 +120,9 @@ func clampStart(start, now time.Time) time.Time {
 //
 // MediaPackage v2 endpoints accept time-shift only as a query parameter — the
 // path-element form (.../start/<time>/index.m3u8) returns 400 there (verified
-// against the live egress endpoint). The values are concatenated raw rather than
-// via url.Values.Encode(), which would double-encode the already
-// percent-encoded CloudFront `EncodedPolicy`. The CloudFront canned policy signs
-// the resource path, not the query, so the extra params do not invalidate the
-// signature.
+// against the live egress endpoint). The values are concatenated raw so the
+// existing `jwt` query parameter is left untouched; the token authorizes the
+// manifest's directory, not the query, so the extra params do not invalidate it.
 func appendTimeShiftTags(signedURL string, start time.Time, end *time.Time) string {
 	sep := "?"
 	if strings.Contains(signedURL, "?") {
