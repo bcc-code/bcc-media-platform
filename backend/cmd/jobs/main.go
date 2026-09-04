@@ -23,6 +23,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/signing"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/statistics"
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 	"github.com/bcc-code/bcc-media-platform/backend/translations"
 	"github.com/bcc-code/bcc-media-platform/backend/translations/phrase"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
@@ -150,7 +151,10 @@ func main() {
 	if err != nil {
 		log.L.Fatal().Err(err).Msg("failed to init cloudfront file signer")
 	}
-	legacyStreamSigner := signing.NewCloudFrontStreamSigner(fileSigner, config.CDNConfig.GetVOD2Domain())
+	streamSigner, err := streamtoken.NewSigner(config.StreamProxy)
+	if err != nil {
+		log.L.Fatal().Err(err).Msg("failed to init stream-proxy signer")
+	}
 
 	services := server.ExternalServices{
 		Database:                db,
@@ -168,7 +172,7 @@ func main() {
 		CDNConfigProvider:       config.CDNConfig,
 		BatchLoaders:            loaders.InitBatchLoaders(queries, nil),
 		FileSigner:              fileSigner,
-		LegacyStreamSigner:      legacyStreamSigner,
+		StreamSigner:            streamSigner,
 	}
 
 	handlers := server.NewServer(services, serverConfig)

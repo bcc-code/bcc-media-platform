@@ -15,20 +15,20 @@ const DebugFlag = "debug"
 // the other flags its variant is not an enum but the page code to use.
 const ApplicationPageFlag = "application-page"
 
-// StreamProxyFlag toggles the URL signing path for stream manifests. The
-// default is the stream-proxy + HS256 JWT path; the `legacy` variant opts a
-// request back to the legacy CloudFront EncodedPolicy URLs (kept temporarily
-// as an emergency rollback lever).
+// StreamCDNProviderFlag picks which upstream CDN identity the stream-proxy
+// signs VOD requests for, carried as the JWT `provider` claim. Without the
+// flag (or with an unknown variant) the signer default applies
+// (streamtoken.DefaultPrimaryProvider = ioriver); the `cloudfront` variant
+// routes a request through the proxy's direct-CloudFront identity instead.
 //
 // Added: 05.05.2026
 const StreamCDNProviderFlag = "cdn-provider"
-const StreamCDNCloudfrontDirect = "cloudfront-direct"
 const StreamCDNProxyCF = "cloudfront"
 const StreamCDNProxyIORiver = "ioriver"
 
 // LiveCDNProviderFlag is the livestream counterpart of StreamCDNProviderFlag,
-// using the same variants, so live can be rolled out to (and rolled back from)
-// the stream-proxy independently of VOD.
+// using the same variants, so live's upstream identity can be switched
+// independently of VOD.
 //
 // Added: 27.07.2026
 const LiveCDNProviderFlag = "live-cdn-provider"
