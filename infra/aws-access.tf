@@ -404,6 +404,30 @@ resource "aws_iam_policy_attachment" "directus-bucket-access" {
   policy_arn = aws_iam_policy.directus-bucket-access.arn
 }
 
+resource "aws_iam_policy" "backgroundjobs-directus-upload" {
+  name = "backgroundjobs-directus-upload-${var.env}"
+  path = "/directus/"
+
+  tags = {
+    Environment = var.env
+  }
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = "s3:PutObject"
+      # Timed metadata thumbnails use image-<asset>-<timestamp>-<uuid>.jpg keys.
+      Resource = "${aws_s3_bucket.s3-directus-storage.arn}/image-*.jpg"
+    }]
+  })
+}
+
+resource "aws_iam_user_policy_attachment" "backgroundjobs-directus-upload" {
+  user       = aws_iam_user.backgroundjobs.name
+  policy_arn = aws_iam_policy.backgroundjobs-directus-upload.arn
+}
+
 resource "local_sensitive_file" "directus-key" {
   content = "AWS_ACCESS_KEY_ID=${aws_iam_access_key.directus.id}\nAWS_SECRET_ACCESS_KEY=${aws_iam_access_key
   .directus.secret}"

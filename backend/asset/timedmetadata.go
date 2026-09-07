@@ -78,6 +78,7 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	insertLock := sync.Mutex{}
 	for _, inputTm := range timedMetadatas {
 		eg.Go(func() error {
+			var err error
 			ctx, span := otel.Tracer("timedmetadata").Start(ctx, "ingest loop goroutine")
 			defer span.End()
 

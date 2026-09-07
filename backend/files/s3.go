@@ -4,6 +4,10 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"image"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -75,4 +79,13 @@ func (s *s3FileService) UploadFile(ctx context.Context, params UploadFileParams)
 		FilePath:    params.FileName,
 		ContentType: params.ContentType,
 	}, nil
+}
+
+func getImageDimensions(reader io.Reader) (width, height int, err error) {
+	// Decode the image to get the image.Config which contains width and height
+	config, _, err := image.DecodeConfig(reader)
+	if err != nil {
+		return 0, 0, err
+	}
+	return config.Width, config.Height, nil
 }

@@ -9,7 +9,6 @@ require (
 	cloud.google.com/go/pubsub v1.49.0
 	firebase.google.com/go/v4 v4.15.0
 	github.com/99designs/gqlgen v0.17.74
-	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.3.2
 	github.com/Code-Hex/go-generics-cache v1.3.1
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.51.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.20.0
@@ -86,8 +85,6 @@ require (
 	cloud.google.com/go/storage v1.55.0 // indirect
 	cloud.google.com/go/trace v1.11.6 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.11.1 // indirect
-	github.com/Azure/azure-sdk-for-go/sdk/internal v1.8.0 // indirect
 	github.com/ClickHouse/ch-go v0.65.1 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.34.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.30.0 // indirect
