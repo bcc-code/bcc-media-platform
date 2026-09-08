@@ -78,6 +78,9 @@ func IngestTimedMetadata(ctx context.Context, services externalServices, config 
 	insertLock := sync.Mutex{}
 	for _, inputTm := range timedMetadatas {
 		eg.Go(func() error {
+			// Shadow err locally - without this, every goroutine here shared the
+			// outer err by closure, a data race that could mask a real failure
+			// with a concurrent goroutine's nil result
 			var err error
 			ctx, span := otel.Tracer("timedmetadata").Start(ctx, "ingest loop goroutine")
 			defer span.End()
