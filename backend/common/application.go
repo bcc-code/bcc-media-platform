@@ -26,11 +26,16 @@ func GetApplicationFromCtx(ctx *gin.Context) (*Application, error) {
 	return app, nil
 }
 
+// GroupSlug is the application group label normalized for use as a key or prefix.
+func (i Application) GroupSlug() string {
+	return strings.ReplaceAll(strings.ToLower(strings.TrimSpace(i.GroupLabel)), " ", "-")
+}
+
 // ComputedRoles expands the user roles with variants prefixed by the
 // application code and by the normalized application group label,
 // e.g. "bcc-members" -> "kids-mobile-bcc-members", "bible-kids-bcc-members".
 func (i Application) ComputedRoles(userRoles []string) []string {
-	groupPrefix := strings.ReplaceAll(strings.ToLower(strings.TrimSpace(i.GroupLabel)), " ", "-")
+	groupPrefix := i.GroupSlug()
 
 	roles := append([]string{}, userRoles...)
 	for _, r := range userRoles {

@@ -984,9 +984,10 @@ type Live struct {
 }
 
 type Message struct {
-	Title   string        `json:"title"`
-	Content string        `json:"content"`
-	Style   *MessageStyle `json:"style"`
+	Title   string              `json:"title"`
+	Content string              `json:"content"`
+	Variant MessageStyleVariant `json:"variant"`
+	Style   *MessageStyle       `json:"style"`
 }
 
 type MessageSection struct {
@@ -2292,6 +2293,63 @@ func (e *LinkType) UnmarshalJSON(b []byte) error {
 }
 
 func (e LinkType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type MessageStyleVariant string
+
+const (
+	MessageStyleVariantInfo    MessageStyleVariant = "info"
+	MessageStyleVariantWarning MessageStyleVariant = "warning"
+	MessageStyleVariantError   MessageStyleVariant = "error"
+)
+
+var AllMessageStyleVariant = []MessageStyleVariant{
+	MessageStyleVariantInfo,
+	MessageStyleVariantWarning,
+	MessageStyleVariantError,
+}
+
+func (e MessageStyleVariant) IsValid() bool {
+	switch e {
+	case MessageStyleVariantInfo, MessageStyleVariantWarning, MessageStyleVariantError:
+		return true
+	}
+	return false
+}
+
+func (e MessageStyleVariant) String() string {
+	return string(e)
+}
+
+func (e *MessageStyleVariant) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = MessageStyleVariant(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid MessageStyleVariant", str)
+	}
+	return nil
+}
+
+func (e MessageStyleVariant) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *MessageStyleVariant) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e MessageStyleVariant) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

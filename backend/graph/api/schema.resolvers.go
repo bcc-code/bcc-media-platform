@@ -436,15 +436,6 @@ func (r *queryRootResolver) Episode(ctx context.Context, id string, context *mod
 	}, episodeID, model.EpisodeFrom)
 }
 
-// maxConcurrentEpisodeResolves bounds how many ids are resolved at once.
-//
-// The ids argument comes straight from the client and previously got one
-// goroutine each, with nothing to bound it: the complexity limit counts fields,
-// not argument lengths. Realistic requests sit well under this, so they still
-// resolve in a single wave and the dataloader still batches them into one round
-// trip; only outsized ones are made to queue.
-const maxConcurrentEpisodeResolves = 50
-
 // Episodes is the resolver for the episodes field.
 func (r *queryRootResolver) Episodes(ctx context.Context, ids []string) ([]*model.Episode, error) {
 	// Resolved concurrently on purpose. Loader.Get blocks on its own thunk, so
