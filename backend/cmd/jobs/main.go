@@ -43,6 +43,9 @@ func main() {
 	log.L.Debug().Msg("Setting up tracing!")
 
 	config := getEnvConfig()
+	if config.AWS.DirectusStorageBucket == "" {
+		log.L.Fatal().Msg("AWS_DIRECTUS_STORAGE_BUCKET is required for S3 file uploads")
+	}
 
 	utils.MustSetupTracing("BCCM-WORKER", config.Tracing)
 	utils.MustSetupMetrics("BCCM-WORKER", config.Tracing)
@@ -140,11 +143,7 @@ func main() {
 
 	locker := redislock.New(rdb)
 
-	fileService, err := files.NewAzureFileService(queries, config.AzureStorage)
-	if err != nil {
-		log.L.Error().Err(err).Msg("Failed to initialize azure file service")
-		return
-	}
+	fileService := files.NewS3FileService(queries, s3Client, config.AWS.DirectusStorageBucket)
 
 	fileSigner, err := signing.NewCloudFrontSigner(config.CDNConfig)
 	if err != nil {

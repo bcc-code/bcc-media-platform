@@ -8,7 +8,6 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
-	"github.com/bcc-code/bcc-media-platform/backend/files"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/bcc-code/bcc-media-platform/backend/search"
@@ -17,6 +16,7 @@ import (
 )
 
 type awsConfig struct {
+	DirectusStorageBucket string
 	Region                string
 	PackagingGroupARN     string
 	MediapackageRoleARN   string
@@ -59,7 +59,6 @@ func (c cdnConfig) GetAwsSigningKeyID() string {
 
 type envConfig struct {
 	AWS               awsConfig
-	AzureStorage      files.AzureConfig
 	Port              string
 	DeleteIngestFiles bool
 	DB                utils.DatabaseConfig
@@ -105,11 +104,7 @@ func getEnvConfig() envConfig {
 			IngestBucket:          os.Getenv("AWS_INGEST_BUCKET"),
 			StorageBucket:         os.Getenv("AWS_STORAGE_BUCKET"),
 			TempBucket:            os.Getenv("AWS_TEMP_BUCKET"),
-		},
-		AzureStorage: files.AzureConfig{
-			AccountName: os.Getenv("AZURE_STORAGE_ACCOUNT_NAME"),
-			AccountKey:  os.Getenv("AZURE_STORAGE_ACCOUNT_KEY"),
-			Container:   os.Getenv("AZURE_STORAGE_CONTAINER"),
+			DirectusStorageBucket: os.Getenv("AWS_DIRECTUS_STORAGE_BUCKET"),
 		},
 		DB: utils.DatabaseConfig{
 			ConnectionString:   os.Getenv("DB_CONNECTION_STRING"),
