@@ -49,6 +49,18 @@ const timestampContextKey = "GqlTimestamp"
 
 const episodeContextKey = "EpisodeContext"
 
+// maxConcurrentEpisodeResolves bounds how many ids are resolved at once.
+//
+// The ids argument comes straight from the client and previously got one
+// goroutine each, with nothing to bound it: the complexity limit counts fields,
+// not argument lengths. Realistic requests sit well under this, so they still
+// resolve in a single wave and the dataloader still batches them into one round
+// trip; only outsized ones are made to queue.
+//
+// Lives here rather than in schema.resolvers.go: gqlgen evicts non-resolver
+// declarations from that file on every regeneration.
+const maxConcurrentEpisodeResolves = 50
+
 type searchProvider interface {
 	SearchElastic(ctx *gin.Context, query common.SearchQuery, userToken string) (searchResult common.SearchResult, err error)
 }
@@ -432,6 +444,16 @@ func messageStyleFromString(styleString string) *model.MessageStyle {
 	return style
 }
 
+// messageVariantFromString falls back to info: the CMS dropdown only offers the three
+// valid values, so anything else is an empty or stale column rather than a real variant.
+func messageVariantFromString(styleString string) model.MessageStyleVariant {
+	variant := model.MessageStyleVariant(styleString)
+	if !variant.IsValid() {
+		return model.MessageStyleVariantInfo
+	}
+	return variant
+}
+
 func resolveMessageSection(ctx context.Context, r *messageSectionResolver, s *common.Section) ([]*model.Message, error) {
 
 	ginCtx, _ := utils.GinCtx(ctx)
@@ -479,6 +501,7 @@ func resolveMessageSection(ctx context.Context, r *messageSectionResolver, s *co
 
 	return lo.Map(group.Messages, func(i common.Message, _ int) *model.Message {
 		return &model.Message{
+			Variant: messageVariantFromString(i.Style),
 			Style:   messageStyleFromString(i.Style),
 			Title:   i.Title.Get(languages),
 			Content: i.Content.Get(languages),
