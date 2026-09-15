@@ -5,7 +5,7 @@ const { t } = useI18n()
 defineProps<{
     episodeId: string
     lessonId: string
-    subRoute: Page
+    subRoute?: Page
 }>()
 </script>
 <template>
