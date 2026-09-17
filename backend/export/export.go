@@ -18,7 +18,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
-	"github.com/bcc-code/bcc-media-platform/backend/signing"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/cloudevents/sdk-go/v2/event"
 	"github.com/google/uuid"
@@ -68,7 +67,7 @@ type serviceProvider interface {
 	GetLoadersForRoles(roles []string) *loaders.LoadersWithPermissions
 	GetPersonalizedLoaders(roles []string, langPreferences common.LanguagePreferences) *loaders.PersonalizedLoaders
 	GetS3Client() *s3.Client
-	GetLegacyStreamSigner() *signing.CloudFrontStreamSigner
+	GetStreamSigner() *streamtoken.Signer
 	GetCDNConfig() CDNConfig
 }
 
@@ -79,7 +78,7 @@ type serviceProviderAPI interface {
 	GetFilteredLoaders(ctx context.Context) *loaders.LoadersWithPermissions
 	GetPersonalizedLoaders(ctx context.Context) *loaders.PersonalizedLoaders
 	GetQueries() *sqlc.Queries
-	GetLegacyStreamSigner() *signing.CloudFrontStreamSigner
+	GetStreamSigner() *streamtoken.Signer
 	GetS3Client() *s3.Client
 }
 
@@ -239,10 +238,10 @@ func exportEpisodes(ctx context.Context, batchLoaders *loaders.BatchLoaders, fil
 }
 
 // exportStreams writes per-episode stream URLs into the offline-export
-// SQLite db. Exports always use the legacy CloudFront-signed URL form because
-// jobs run without a request context to evaluate the per-user feature flag
-// that switches between the proxy and legacy paths.
-func exportStreams(ctx context.Context, ls *loaders.BatchLoaders, streamSigner *signing.CloudFrontStreamSigner, liteQueries *sqlexport.Queries, episodeIDs []int) error {
+// SQLite db as stream-proxy URLs. Exports run without a request context to
+// evaluate the per-user `cdn-provider` flag, so they always use the signer's
+// default upstream identity (streamtoken.DefaultPrimaryProvider).
+func exportStreams(ctx context.Context, ls *loaders.BatchLoaders, streamSigner *streamtoken.Signer, liteQueries *sqlexport.Queries, episodeIDs []int) error {
 
 	episodes, err := ls.EpisodeLoader.GetMany(ctx, episodeIDs)
 	if err != nil {
@@ -512,7 +511,7 @@ func HandleExportMessage(ctx context.Context, s serviceProvider, tempBucketNeme 
 		s.GetLoaders(),
 		s.GetLoadersForRoles(fetchedEntry.UserGroups),
 		s.GetPersonalizedLoaders(fetchedEntry.UserGroups, langPreferences),
-		s.GetLegacyStreamSigner(),
+		s.GetStreamSigner(),
 		s.GetS3Client(),
 		s.GetDatabase(),
 	)
@@ -578,7 +577,7 @@ func DoExport(ctx context.Context, q serviceProviderAPI, bucketName string, user
 		q.GetLoaders(),
 		q.GetFilteredLoaders(ctx),
 		q.GetPersonalizedLoaders(ctx),
-		q.GetLegacyStreamSigner(),
+		q.GetStreamSigner(),
 		q.GetS3Client(),
 		q.GetDatabase(),
 	)
@@ -593,7 +592,7 @@ func doExport(
 	batchLoaders *loaders.BatchLoaders,
 	roleLoaders *loaders.LoadersWithPermissions,
 	personalizedLoaders *loaders.PersonalizedLoaders,
-	streamSigner *signing.CloudFrontStreamSigner,
+	streamSigner *streamtoken.Signer,
 	s3Client *s3.Client,
 	pgSql *sql.DB,
 ) (string, error) {

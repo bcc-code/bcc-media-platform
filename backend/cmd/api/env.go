@@ -26,7 +26,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/search"
 
 	"github.com/bcc-code/bcc-media-platform/backend/auth0"
-	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 	"github.com/joho/godotenv"
 	"github.com/samber/lo"
 )
@@ -95,7 +94,6 @@ type envConfig struct {
 	Port          string
 	Auth0         auth0.Config
 	CDNConfig     cdnConfig
-	Livestream    livestreamConfig
 	StreamProxy   streamProxyConfig
 	Secrets       serviceSecrets
 	Redis         utils.RedisConfig
@@ -130,54 +128,22 @@ type adminConfig struct {
 type cdnConfig struct {
 	ImageCDNDomain    string
 	Vod2Domain        string
-	LegacyVODDomain   string
 	FilesDomain       string
 	AWSSigningKeyPath string
 	AWSSigningKeyID   string
 }
 
-// livestreamConfig holds the CloudFront key pair used to sign the livestream
-// manifest URL. This is a separate key pair from the VOD/file signing key in
-// cdnConfig. It satisfies signing.CloudFrontConfig.
-type livestreamConfig struct {
-	SigningKeyPath string
-	SigningKeyID   string
-}
-
-func (c livestreamConfig) GetAwsSigningKeyPath() string { return c.SigningKeyPath }
-func (c livestreamConfig) GetAwsSigningKeyID() string   { return c.SigningKeyID }
-
+// streamProxyConfig is what the API needs to mint stream-proxy URLs (HS256 JWT
+// on the proxy's public host). It satisfies streamtoken.Config.
 type streamProxyConfig struct {
-	JWTSecret       string
-	JWTIssuer       string
-	Domain          string
-	PrimaryProvider streamtoken.Provider
+	JWTSecret string
+	JWTIssuer string
+	Domain    string
 }
 
-func (c streamProxyConfig) GetStreamJWTSecret() string                     { return c.JWTSecret }
-func (c streamProxyConfig) GetStreamJWTIssuer() string                     { return c.JWTIssuer }
-func (c streamProxyConfig) GetStreamProxyDomain() string                   { return c.Domain }
-func (c streamProxyConfig) GetStreamPrimaryProvider() streamtoken.Provider { return c.PrimaryProvider }
-
-// parsePrimaryProvider maps the user-facing STREAM_PRIMARY_PROVIDER values
-// ("cloudfront", "streamproxy") to the streamtoken.Provider used as the JWT
-// `provider` claim. The claim values are different ("cloudfront", "ioriver")
-// because they are the stream-proxy's internal vocabulary; the API exposes
-// the same routing decision under a name that abstracts away the
-// underlying signer technology. Empty raw → ProviderUnspecified (signer
-// substitutes its own default). Unknown raw passes through so the signer's
-// validity check rejects it with a clear error.
-func parsePrimaryProvider(raw string) streamtoken.Provider {
-	switch raw {
-	case "":
-		return streamtoken.ProviderUnspecified
-	case "cloudfront":
-		return streamtoken.ProviderCloudFront
-	case "streamproxy":
-		return streamtoken.ProviderIoriver
-	}
-	return streamtoken.Provider(raw)
-}
+func (c streamProxyConfig) GetStreamJWTSecret() string   { return c.JWTSecret }
+func (c streamProxyConfig) GetStreamJWTIssuer() string   { return c.JWTIssuer }
+func (c streamProxyConfig) GetStreamProxyDomain() string { return c.Domain }
 
 type awsConfig struct {
 	TempBucket string // Things put here are automatically removed
@@ -233,11 +199,6 @@ func (r *redirectConfig) GetPrivateKey() *rsa.PrivateKey {
 // GetVOD2Domain returns the configured VOD2Domain
 func (c cdnConfig) GetVOD2Domain() string {
 	return c.Vod2Domain
-}
-
-// GetLegacyVODDomain returns the legacy VOD domain
-func (c cdnConfig) GetLegacyVODDomain() string {
-	return c.LegacyVODDomain
 }
 
 // GetFilesCDNDomain returns the configured FilesCDNDomain
@@ -316,17 +277,11 @@ func getEnvConfig() envConfig {
 			FilesDomain:       os.Getenv("FILES_CDN_DOMAIN"),
 			AWSSigningKeyID:   os.Getenv("CF_SIGNING_KEY_ID"),
 			AWSSigningKeyPath: os.Getenv("CF_SIGNING_KEY_PATH"),
-			LegacyVODDomain:   os.Getenv("LEGACY_CDN_DOMAIN"),
-		},
-		Livestream: livestreamConfig{
-			SigningKeyID:   os.Getenv("LIVESTREAM_SIGNING_KEY_ID"),
-			SigningKeyPath: os.Getenv("LIVESTREAM_SIGNING_KEY_PATH"),
 		},
 		StreamProxy: streamProxyConfig{
-			JWTSecret:       os.Getenv("STREAM_JWT_SECRET"),
-			JWTIssuer:       os.Getenv("STREAM_JWT_ISSUER"),
-			Domain:          os.Getenv("STREAM_PROXY_DOMAIN"),
-			PrimaryProvider: parsePrimaryProvider(os.Getenv("STREAM_PRIMARY_PROVIDER")),
+			JWTSecret: os.Getenv("STREAM_JWT_SECRET"),
+			JWTIssuer: os.Getenv("STREAM_JWT_ISSUER"),
+			Domain:    os.Getenv("STREAM_PROXY_DOMAIN"),
 		},
 		Secrets: serviceSecrets{
 			Directus: os.Getenv("SERVICE_SECRET_DIRECTUS"),

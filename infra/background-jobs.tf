@@ -131,6 +131,22 @@ resource "google_cloud_run_service" "background_worker" {
           }
         }
 
+        # Offline exports embed stream-proxy URLs, signed with the same HS256
+        # secret the API and stream-proxy share (gcp-secrets.tf).
+        dynamic "env" {
+          for_each = [for v in module.stream_proxy_secrets.data : v if v.name == "STREAM_JWT_SECRET"]
+          iterator = v
+          content {
+            name = v.value.name
+            value_from {
+              secret_key_ref {
+                key  = v.value.secret_version
+                name = v.value.secret_name
+              }
+            }
+          }
+        }
+
         dynamic "env" {
           for_each = module.background_worker_secret_files.data
           iterator = v

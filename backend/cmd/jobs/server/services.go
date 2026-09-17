@@ -2,10 +2,12 @@ package server
 
 import (
 	"database/sql"
+
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/export"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/signing"
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 	"github.com/bcc-code/bcc-media-platform/backend/translations"
 
 	"github.com/aws/aws-sdk-go-v2/service/mediapackagevod"
@@ -38,7 +40,7 @@ type ExternalServices struct {
 	CDNConfigProvider       export.CDNConfig
 	BatchLoaders            *loaders.BatchLoaders
 	FileSigner              *signing.CloudFrontSigner
-	LegacyStreamSigner      *signing.CloudFrontStreamSigner
+	StreamSigner            *streamtoken.Signer
 }
 
 // GetDatabase as stored in the struct
@@ -112,6 +114,7 @@ func (e ExternalServices) GetFileSigner() *signing.CloudFrontSigner {
 	return e.FileSigner
 }
 
-func (e ExternalServices) GetLegacyStreamSigner() *signing.CloudFrontStreamSigner {
-	return e.LegacyStreamSigner
+// GetStreamSigner returns the stream-proxy URL signer used by the export.
+func (e ExternalServices) GetStreamSigner() *streamtoken.Signer {
+	return e.StreamSigner
 }

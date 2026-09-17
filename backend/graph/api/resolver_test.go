@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/bcc-code/bcc-media-platform/backend/signing"
 	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
@@ -45,21 +44,17 @@ func ctxWithFeatureFlagReporting(t *testing.T, header string) (context.Context, 
 	return ctx, reporter
 }
 
-// TestPickStreamSignerReportsUsage covers the reporting side effect of the
-// stream-signer decision: the flag is counted whether or not it is set, since
-// the flag-was-off case is the control Unleash needs.
-func TestPickStreamSignerReportsUsage(t *testing.T) {
-	r := &Resolver{
-		StreamURLSigner:       &streamtoken.Signer{},
-		LegacyStreamSigner:    &signing.CloudFrontStreamSigner{},
-		PrimaryStreamProvider: streamtoken.ProviderIoriver,
-	}
+// TestPickStreamProviderReportsUsage covers the reporting side effect of the
+// provider decision: the flag is counted whether or not it is set, since the
+// flag-was-off case is the control Unleash needs.
+func TestPickStreamProviderReportsUsage(t *testing.T) {
+	r := &Resolver{StreamURLSigner: &streamtoken.Signer{}}
 
 	t.Run("flag set counts yes with its variant", func(t *testing.T) {
 		header := unleash.StreamCDNProviderFlag + ":" + unleash.StreamCDNProxyIORiver
 		ctx, reporter := ctxWithFeatureFlagReporting(t, header)
 
-		r.pickStreamSigner(ctx)
+		r.pickStreamProvider(ctx)
 
 		assert.Equal(t, map[string]unleash.FlagCounts{
 			unleash.StreamCDNProviderFlag: {
@@ -72,7 +67,7 @@ func TestPickStreamSignerReportsUsage(t *testing.T) {
 	t.Run("flag absent counts no", func(t *testing.T) {
 		ctx, reporter := ctxWithFeatureFlagReporting(t, "")
 
-		r.pickStreamSigner(ctx)
+		r.pickStreamProvider(ctx)
 
 		assert.Equal(t, map[string]unleash.FlagCounts{
 			unleash.StreamCDNProviderFlag: {No: 1, Variants: map[string]int{}},
@@ -85,7 +80,7 @@ func TestPickStreamSignerReportsUsage(t *testing.T) {
 
 		// A single query resolving many streams hits this path per stream.
 		for range 40 {
-			r.pickStreamSigner(ctx)
+			r.pickStreamProvider(ctx)
 		}
 
 		counts := reporter.Snapshot()[unleash.StreamCDNProviderFlag]
@@ -98,52 +93,42 @@ func TestPickStreamSignerReportsUsage(t *testing.T) {
 			URL:   "http://example.invalid",
 			Token: "test",
 		})
-		r.pickStreamSigner(context.Background())
+		r.pickStreamProvider(context.Background())
 		assert.Empty(t, reporter.Snapshot())
 	})
 }
 
-func TestPickStreamSigner(t *testing.T) {
-	streamProxySigner := &streamtoken.Signer{}
-	cfSigner := &signing.CloudFrontStreamSigner{}
+func TestPickStreamProvider(t *testing.T) {
+	r := &Resolver{StreamURLSigner: &streamtoken.Signer{}}
 
-	makeResolver := func(p streamtoken.Provider) *Resolver {
-		return &Resolver{
-			StreamURLSigner:       streamProxySigner,
-			LegacyStreamSigner:    cfSigner,
-			PrimaryStreamProvider: p,
-		}
-	}
-
-	t.Run("env=streamproxy routes through stream-proxy", func(t *testing.T) {
-		r := makeResolver(streamtoken.ProviderIoriver)
-		got, _ := r.pickStreamSigner(ctxWithFeatureFlagsHeader(t, ""))
-		assert.Same(t, streamSigner(streamProxySigner), got)
+	t.Run("flag variant ioriver", func(t *testing.T) {
+		header := unleash.StreamCDNProviderFlag + ":" + unleash.StreamCDNProxyIORiver
+		assert.Equal(t, streamtoken.ProviderIoriver, r.pickStreamProvider(ctxWithFeatureFlagsHeader(t, header)))
 	})
 
-	t.Run("env=cloudfront returns CloudFront-direct signer", func(t *testing.T) {
-		r := makeResolver(streamtoken.ProviderCloudFront)
-		got, _ := r.pickStreamSigner(ctxWithFeatureFlagsHeader(t, ""))
-		assert.Same(t, streamSigner(cfSigner), got)
+	t.Run("flag variant cloudfront selects the proxy's direct-CloudFront identity", func(t *testing.T) {
+		header := unleash.StreamCDNProviderFlag + ":" + unleash.StreamCDNProxyCF
+		assert.Equal(t, streamtoken.ProviderCloudFront, r.pickStreamProvider(ctxWithFeatureFlagsHeader(t, header)))
 	})
 
-	t.Run("env empty (unspecified) returns CloudFront-direct signer", func(t *testing.T) {
-		r := makeResolver(streamtoken.ProviderUnspecified)
-		got, _ := r.pickStreamSigner(ctxWithFeatureFlagsHeader(t, ""))
-		assert.Same(t, streamSigner(cfSigner), got)
+	t.Run("unknown variant falls back to the signer default", func(t *testing.T) {
+		header := unleash.StreamCDNProviderFlag + ":cloudfront-direct"
+		assert.Equal(t, streamtoken.ProviderUnspecified, r.pickStreamProvider(ctxWithFeatureFlagsHeader(t, header)))
 	})
 
-	t.Run("legacy unleash flag forces CloudFront-direct even when env=streamproxy", func(t *testing.T) {
-		r := makeResolver(streamtoken.ProviderIoriver)
-		header := unleash.StreamCDNProviderFlag + ":" + unleash.StreamCDNCloudfrontDirect
-		got, _ := r.pickStreamSigner(ctxWithFeatureFlagsHeader(t, header))
-		assert.Same(t, streamSigner(cfSigner), got)
+	t.Run("flag absent falls back to the signer default", func(t *testing.T) {
+		assert.Equal(t, streamtoken.ProviderUnspecified, r.pickStreamProvider(ctxWithFeatureFlagsHeader(t, "")))
 	})
 
-	t.Run("nil gin context falls back to env routing", func(t *testing.T) {
-		r := makeResolver(streamtoken.ProviderIoriver)
-		got, _ := r.pickStreamSigner(context.Background())
-		assert.Same(t, streamSigner(streamProxySigner), got)
+	t.Run("nil gin context falls back to the signer default", func(t *testing.T) {
+		assert.Equal(t, streamtoken.ProviderUnspecified, r.pickStreamProvider(context.Background()))
+	})
+
+	t.Run("live flag is read independently of the VOD flag", func(t *testing.T) {
+		header := unleash.LiveCDNProviderFlag + ":" + unleash.StreamCDNProxyCF
+		ctx := ctxWithFeatureFlagsHeader(t, header)
+		assert.Equal(t, streamtoken.ProviderCloudFront, r.pickLiveProvider(ctx))
+		assert.Equal(t, streamtoken.ProviderUnspecified, r.pickStreamProvider(ctx))
 	})
 
 	// Sanity: keep test in sync with feature-flags helper.

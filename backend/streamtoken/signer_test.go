@@ -12,16 +12,14 @@ import (
 )
 
 type fakeConfig struct {
-	secret          string
-	issuer          string
-	domain          string
-	primaryProvider Provider
+	secret string
+	issuer string
+	domain string
 }
 
-func (c fakeConfig) GetStreamJWTSecret() string         { return c.secret }
-func (c fakeConfig) GetStreamJWTIssuer() string         { return c.issuer }
-func (c fakeConfig) GetStreamProxyDomain() string       { return c.domain }
-func (c fakeConfig) GetStreamPrimaryProvider() Provider { return c.primaryProvider }
+func (c fakeConfig) GetStreamJWTSecret() string   { return c.secret }
+func (c fakeConfig) GetStreamJWTIssuer() string   { return c.issuer }
+func (c fakeConfig) GetStreamProxyDomain() string { return c.domain }
 
 func TestNewSignerRequiresSecretAndDomain(t *testing.T) {
 	_, err := NewSigner(fakeConfig{secret: "", domain: "proxy.example.com"})
@@ -77,7 +75,7 @@ func TestSignURLRoundTrip(t *testing.T) {
 
 	provRaw, ok := tok.Get("provider")
 	require.True(t, ok, "provider claim must be present (default primary provider)")
-	assert.Equal(t, string(DefaultPrimaryProvider), provRaw)
+	assert.Equal(t, "ioriver", provRaw)
 }
 
 func TestSignURLHyphenatedChannelPath(t *testing.T) {
@@ -100,30 +98,6 @@ func TestSignURLHyphenatedChannelPath(t *testing.T) {
 	raw, ok := tok.Get("base")
 	require.True(t, ok, "base claim must be present")
 	assert.Equal(t, "/out/v1/some-channel/live/", raw)
-}
-
-func TestSignURLUsesConfiguredPrimaryProvider(t *testing.T) {
-	cfg := fakeConfig{secret: "s", domain: "proxy.example.com", primaryProvider: ProviderIoriver}
-	signer, err := NewSigner(cfg)
-	require.NoError(t, err)
-
-	signedURL, _, err := signer.SignURL("/out/v1/aaaaaa/bbbbbb/index.m3u8", time.Hour, ProviderUnspecified)
-	require.NoError(t, err)
-
-	parsed, err := url.Parse(signedURL)
-	require.NoError(t, err)
-	tokStr := parsed.Query().Get("jwt")
-	tok, err := jwt.Parse([]byte(tokStr), jwt.WithKey(jwa.HS256, []byte(cfg.secret)), jwt.WithValidate(true))
-	require.NoError(t, err)
-
-	raw, ok := tok.Get("provider")
-	require.True(t, ok)
-	assert.Equal(t, "ioriver", raw)
-}
-
-func TestNewSignerRejectsInvalidPrimaryProvider(t *testing.T) {
-	_, err := NewSigner(fakeConfig{secret: "s", domain: "proxy.example.com", primaryProvider: Provider("nope")})
-	require.Error(t, err)
 }
 
 func TestSignURLSetsProviderClaim(t *testing.T) {
