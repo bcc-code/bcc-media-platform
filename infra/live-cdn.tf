@@ -42,11 +42,15 @@ resource "ioriver_certificate" "live" {
 resource "ioriver_service" "live" {
   count = local.live_cdn_enabled ? 1 : 0
 
-  name        = "live-cdn"
+  name        = "Live Stream"
   description = "Livestream delivery (managed by terraform, bcc-media-platform/infra)"
   certificate = ioriver_certificate.live[0].id
 
   config = {
+    protocol = {
+      http3_enabled = true
+    }
+
     origins = [
       {
         name = "live-origin"
@@ -54,6 +58,11 @@ resource "ioriver_service" "live" {
           host     = var.live_cdn.origin_host
           protocol = "https"
         }
+        # NOTE: the remote service has an origin shield (FI, providers =
+        # ["vCDN"]) that cannot be expressed with provider v1.4.1: shield.providers
+        # is required but "vCDN" is rejected by its validator. See
+        # ioriver-origin-shield-vcdn-bug.md (repo root). The shield is managed in
+        # the ioriver console and ignored via lifecycle below.
       }
     ]
 
@@ -110,6 +119,10 @@ resource "ioriver_service" "live" {
         }
       }
     }
+  }
+
+  lifecycle {
+    ignore_changes = [config.origins[0].shield]
   }
 }
 
