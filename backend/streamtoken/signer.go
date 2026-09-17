@@ -20,11 +20,6 @@ type Config interface {
 	GetStreamJWTSecret() string
 	GetStreamJWTIssuer() string
 	GetStreamProxyDomain() string
-	// GetStreamPrimaryProvider is the upstream CDN baked into JWTs when the
-	// caller of SignURL passes ProviderUnspecified. Returning
-	// ProviderUnspecified here means "use the package default"
-	// (DefaultPrimaryProvider).
-	GetStreamPrimaryProvider() Provider
 }
 
 // Provider names the upstream CDN identity the stream-proxy should use to
@@ -33,18 +28,16 @@ type Config interface {
 type Provider string
 
 const (
-	// ProviderUnspecified means the JWT carries no provider claim; the proxy
-	// falls back to its configured default.
+	// ProviderUnspecified means the caller has no preference; the Signer
+	// substitutes DefaultPrimaryProvider.
 	ProviderUnspecified Provider = ""
-	// ProviderCloudFront routes upstream traffic directly to CloudFront,
-	// signed with the CloudFront-direct key pair.
+	// ProviderCloudFront routes upstream traffic through the stream-proxy's
+	// direct-CloudFront identity (its own key pair, no ioriver).
 	ProviderCloudFront Provider = "cloudfront"
 	// ProviderIoriver routes upstream traffic via the ioriver-issued key
 	// pair, producing signatures valid for any of ioriver's sub-providers
 	// (CloudFront, Fastly, Akamai). The string value matches the JWT
-	// `provider` claim the stream-proxy switches on; the API exposes the
-	// same routing decision under the user-facing name "streamproxy" and
-	// translates to this constant at config-read time.
+	// `provider` claim the stream-proxy switches on.
 	ProviderIoriver Provider = "ioriver"
 )
 
@@ -59,18 +52,18 @@ func (p Provider) Valid() bool {
 	return false
 }
 
-// DefaultPrimaryProvider is the provider claim baked into JWTs when neither
-// the SignURL caller nor Config specifies one. CloudFront-direct is the
-// safer default since its key pair is always populated in production.
-const DefaultPrimaryProvider = ProviderCloudFront
+// DefaultPrimaryProvider is the provider claim baked into JWTs when the
+// SignURL caller passes ProviderUnspecified. ioriver is the multi-CDN identity
+// and the production default; the `cdn-provider` / `live-cdn-provider` Unleash
+// variants can override it per request (see graph/api Resolver.pickStreamProvider).
+const DefaultPrimaryProvider = ProviderIoriver
 
 // Signer mints stream-proxy URLs with embedded HS256 JWTs.
 type Signer struct {
-	secret          []byte
-	issuer          string
-	proxyScheme     string
-	proxyDomain     string
-	primaryProvider Provider
+	secret      []byte
+	issuer      string
+	proxyScheme string
+	proxyDomain string
 }
 
 // NewSigner returns a Signer or an error if required config is missing.
@@ -84,18 +77,11 @@ func NewSigner(cfg Config) (*Signer, error) {
 		return nil, fmt.Errorf("STREAM_PROXY_DOMAIN is empty")
 	}
 	scheme, host := splitProxyScheme(domain)
-	primary := cfg.GetStreamPrimaryProvider()
-	if primary == ProviderUnspecified {
-		primary = DefaultPrimaryProvider
-	} else if !primary.Valid() {
-		return nil, fmt.Errorf("STREAM_PRIMARY_PROVIDER is invalid: %q", primary)
-	}
 	return &Signer{
-		secret:          []byte(secret),
-		issuer:          cfg.GetStreamJWTIssuer(),
-		proxyScheme:     scheme,
-		proxyDomain:     host,
-		primaryProvider: primary,
+		secret:      []byte(secret),
+		issuer:      cfg.GetStreamJWTIssuer(),
+		proxyScheme: scheme,
+		proxyDomain: host,
 	}, nil
 }
 
@@ -122,8 +108,8 @@ var streamBasePathRegex = regexp.MustCompile(`(/out/v1/[a-zA-Z0-9_-]+/[a-zA-Z0-9
 // with an HS256 JWT in the `jwt` query parameter. The token's `base` claim
 // authorizes any path under the manifest's directory so variant playlists and
 // segments resolve under the same token. The `provider` claim names the
-// upstream CDN; when the caller passes ProviderUnspecified the Signer's
-// configured primary provider is used.
+// upstream CDN; when the caller passes ProviderUnspecified,
+// DefaultPrimaryProvider is used.
 func (s *Signer) SignURL(streamPath string, ttl time.Duration, provider Provider) (string, time.Time, error) {
 	return s.sign(streamPath, ttl, provider, false)
 }
@@ -161,7 +147,7 @@ func (s *Signer) SignLiveURL(streamPath string, ttl time.Duration, provider Prov
 
 func (s *Signer) sign(streamPath string, ttl time.Duration, provider Provider, live bool) (string, time.Time, error) {
 	if provider == ProviderUnspecified {
-		provider = s.primaryProvider
+		provider = DefaultPrimaryProvider
 	}
 	matched := streamBasePathRegex.FindString(streamPath)
 	if matched == "" {
@@ -183,10 +169,8 @@ func (s *Signer) sign(streamPath string, ttl time.Duration, provider Provider, l
 			return "", time.Time{}, fmt.Errorf("set iss claim: %w", err)
 		}
 	}
-	if provider != ProviderUnspecified {
-		if err := tok.Set("provider", string(provider)); err != nil {
-			return "", time.Time{}, fmt.Errorf("set provider claim: %w", err)
-		}
+	if err := tok.Set("provider", string(provider)); err != nil {
+		return "", time.Time{}, fmt.Errorf("set provider claim: %w", err)
 	}
 	if live {
 		if err := tok.Set("live", true); err != nil {

@@ -144,6 +144,7 @@ module "stream_proxy_secrets" {
   secret_accessors = [
     "serviceAccount:${google_service_account.stream_proxy.email}",
     "serviceAccount:${google_service_account.api.email}",
+    "serviceAccount:${google_service_account.background_worker.email}",
   ]
 }
 

@@ -14,7 +14,8 @@ export type Page = '' | 'intro' | 'tasks' | 'more'
 const props = defineProps<{
     episodeId: string
     lessonId: string
-    subRoute: Page
+    // undefined when the optional :subRoute param is absent
+    subRoute?: Page
 }>()
 
 const { error, fetching, data, executeQuery, ...lessonQuery } =
@@ -26,7 +27,7 @@ const { error, fetching, data, executeQuery, ...lessonQuery } =
 
 const { setTitle } = useTitle()
 
-const page = ref(props.subRoute)
+const page = ref<Page>(props.subRoute ?? '')
 
 watch(page, (val) => {
     if (val == 'tasks') {
@@ -42,7 +43,7 @@ onMounted(async () => {
     })
     const result = await lessonQuery
     const data = result.data.value
-    if (props.subRoute == '' && data != null) {
+    if (!props.subRoute && data != null) {
         const completedTasks = data.studyLesson.progress.completed
         const totalTasks = data.studyLesson.progress.total
         const showDiscoverPage = data.studyLesson.showDiscoverPage

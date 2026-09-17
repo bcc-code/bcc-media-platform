@@ -11,6 +11,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
+	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/samber/lo"
@@ -45,14 +46,14 @@ type bufferWindow struct {
 	entry         *common.CalendarEntry
 	livestreamURL string
 	until         time.Time
-	signing       liveSigning
+	provider      streamtoken.Provider
 }
 
 // bufferWindowForEntry resolves the buffer playback window for the calendar entry
 // with the given id, or nil when no buffer should be offered to the caller. It is
 // the single gate shared by the bufferUrl and bufferAvailableUntil fields, so the
-// two are always consistent. A buffer is offered only when: a livestream signing
-// key and URL are configured; the caller passes the permission-group gate
+// two are always consistent. A buffer is offered only when: a livestream URL is
+// configured; the caller passes the permission-group gate
 // (BufferAllowed — empty groups → all BCC members, else intersected with the
 // caller's roles in SQL); the linked episode is not yet watchable for the caller —
 // i.e. either not published, or published but still "locked" (publish date in the
@@ -60,11 +61,6 @@ type bufferWindow struct {
 // then the canonical way to watch; buffer_available_hours > 0; and now is within
 // [entry.start, entry.end + hours] (hours capped at maxBufferAvailableHours).
 func (r *Resolver) bufferWindowForEntry(ctx context.Context, id string) (*bufferWindow, error) {
-	ls := r.resolveLiveSigning(ctx)
-	if !r.canSignLive(ls) {
-		return nil, nil
-	}
-
 	conf, err := withCacheAndTimestamp(ctx, "global_config", r.Queries.GetGlobalConfig, time.Second*30, nil)
 	if err != nil {
 		return nil, err
@@ -107,7 +103,7 @@ func (r *Resolver) bufferWindowForEntry(ctx context.Context, id string) (*buffer
 		return nil, nil
 	}
 
-	return &bufferWindow{entry: entry, livestreamURL: conf.LivestreamURL, until: until, signing: ls}, nil
+	return &bufferWindow{entry: entry, livestreamURL: conf.LivestreamURL, until: until, provider: r.pickLiveProvider(ctx)}, nil
 }
 
 // bufferPlaybackWindow returns the [start, end] window the buffer (start-over)
@@ -186,7 +182,7 @@ func (r *Resolver) bufferForEntry(ctx context.Context, id string) (*model.Calend
 		return nil, err
 	}
 	start, end := bufferPlaybackWindow(w.entry)
-	url, err := r.signedBufferURL(w.signing, w.livestreamURL, start, end, w.until)
+	url, err := r.signedBufferURL(w.livestreamURL, start, end, w.until, w.provider)
 	if err != nil {
 		return nil, err
 	}

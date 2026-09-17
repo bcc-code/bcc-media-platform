@@ -1,3 +1,9 @@
+enum MessageStyleVariant {
+    info
+    warning
+    error
+}
+
 type MessageStyle {
     text: String!
     background: String!
@@ -7,5 +13,6 @@ type MessageStyle {
 type Message {
     title: String!
     content: String!
-    style: MessageStyle!
+    variant: MessageStyleVariant!
+    style: MessageStyle! @deprecated(reason: "Replaced by the variant field. Colors belong in each app's design system, so they can follow dark/light mode.")
 }
