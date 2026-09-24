@@ -179,7 +179,7 @@ func TestReportConsideredDistinctFlags(t *testing.T) {
 	r.GET("/test", func(c *gin.Context) {
 		ReportConsidered(c, "cdn-provider", "ioriver", true)
 		ReportConsidered(c, "live-cdn-provider", "cloudfront", true)
-		ReportConsidered(c, "shorts-with-scores3", "", false)
+		ReportConsidered(c, "debug", "", false)
 	})
 
 	serve(t, r)
@@ -189,7 +189,7 @@ func TestReportConsideredDistinctFlags(t *testing.T) {
 	assert.Len(t, b.Toggles, 3)
 	assert.Equal(t, 1, b.Toggles["cdn-provider"].Yes)
 	assert.Equal(t, 1, b.Toggles["live-cdn-provider"].Yes)
-	assert.Equal(t, 1, b.Toggles["shorts-with-scores3"].No)
+	assert.Equal(t, 1, b.Toggles["debug"].No)
 }
 
 // TestReportConsideredSeparateRequests verifies dedup is per request, not global.

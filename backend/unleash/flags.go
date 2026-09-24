@@ -1,12 +1,5 @@
 package unleash
 
-// ShortsWithScoresFlag enables shorts sorting by scores
-//
-// Started: 20.9.2024
-// To be Removed Latest: 20.12.2024
-const ShortsWithScoresFlag = "shorts-with-scores3"
-const ShortsWithScoresEnabledVariant = "enabled"
-
 // DebugFlag exposes debug-only fields that are otherwise zeroed, currently
 // Short.score.
 const DebugFlag = "debug"

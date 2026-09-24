@@ -6,8 +6,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"time"
 
-	"github.com/bcc-code/bcc-media-platform/backend/unleash"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
@@ -65,43 +63,25 @@ func (r *Resolver) getShuffledShortIDsWithCursor(ctx context.Context, p *common.
 		cursor.Seed = &seed
 	}
 
-	ginCtx, _ := utils.GinCtx(ctx)
-	featureFlags := utils.GetFeatureFlags(ginCtx)
-
-	var shortIDSegments [][]uuid.UUID
-	var err error
-
-	value, ok := featureFlags.GetVariant(unleash.ShortsWithScoresFlag)
-	enabled := ok && value == unleash.ShortsWithScoresEnabledVariant
-	// Reported either way, so the scores ordering can be compared against the
-	// default ordering it is meant to replace.
-	unleash.ReportConsidered(ginCtx, unleash.ShortsWithScoresFlag, value, enabled)
-
-	if enabled {
-		cursor.RandomFactor = 0 // Else random shorts are inserted, but here we want total control
-		shortIDs, iErr := r.GetFilteredLoaders(ctx).ShortWithScoresLoader(ctx)
-		err = iErr
-
-		declumpedShortIds := declumpShorts(shortIDs, 5)
-		shortIDSegments = [][]uuid.UUID{}
-
-		segment := []uuid.UUID{}
-
-		// Split the sorts into groups, so the shuffling happens only within each group
-		for i, short := range declumpedShortIds {
-			segment = append(segment, short)
-
-			if i%5 == 0 {
-				shortIDSegments = append(shortIDSegments, segment)
-				segment = []uuid.UUID{}
-			}
-		}
-	} else {
-		shortIDSegments, err = r.GetFilteredLoaders(ctx).ShortIDsLoader(ctx)
-	}
-
+	cursor.RandomFactor = 0 // Else random shorts are inserted, but here we want total control
+	shortsWithScores, err := r.GetFilteredLoaders(ctx).ShortWithScoresLoader(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	declumpedShortIds := declumpShorts(shortsWithScores, 5)
+	shortIDSegments := [][]uuid.UUID{}
+
+	segment := []uuid.UUID{}
+
+	// Split the sorts into groups, so the shuffling happens only within each group
+	for i, short := range declumpedShortIds {
+		segment = append(segment, short)
+
+		if i%5 == 0 {
+			shortIDSegments = append(shortIDSegments, segment)
+			segment = []uuid.UUID{}
+		}
 	}
 
 	shortIDs := lo.Flatten(shortIDSegments)

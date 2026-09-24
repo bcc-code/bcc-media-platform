@@ -33,7 +33,7 @@ func TestCountAggregatesYesNoAndVariants(t *testing.T) {
 	r.Count("cdn-provider", "ioriver", true)
 	r.Count("cdn-provider", "cloudfront", true)
 	r.Count("cdn-provider", "", false)
-	r.Count("shorts-with-scores3", "", false)
+	r.Count("debug", "", false)
 
 	b := r.swap()
 	require.NotNil(t, b)
@@ -44,7 +44,7 @@ func TestCountAggregatesYesNoAndVariants(t *testing.T) {
 	assert.Equal(t, 1, cdn.No)
 	assert.Equal(t, map[string]int{"ioriver": 2, "cloudfront": 1}, cdn.Variants)
 
-	shorts := b.Toggles["shorts-with-scores3"]
+	shorts := b.Toggles["debug"]
 	require.NotNil(t, shorts)
 	assert.Equal(t, 0, shorts.Yes)
 	assert.Equal(t, 1, shorts.No)
