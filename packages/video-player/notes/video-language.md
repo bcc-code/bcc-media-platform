@@ -138,6 +138,58 @@ Driven in Chrome against episode `7c5d64bf-e80a-470f-b749-845a4cee296c`
 - `bccm-videolanguagechange` fired with the new code;
 - `getVideoLanguage()` and the row hint both followed.
 
+## Following the viewer's language
+
+Second ask: embeds and the site should _start_ on the viewer's own language
+rather than always on the original.
+
+Code formats are the catch. The site picker and `SUPPORT_LOCALES`
+(`web/src/i18n/index.ts`) are 2-letter — `en, no, da, nl, de, bg, es, fi, fr,
+hu, it, pl, pt, ro, ru, sl, tr` — and `Stream.videoLanguage` comes back 2-letter
+too (`es`, `it`, `no`…), so those match directly. But `languageTo3letter`
+(`web/src/utils/languages.ts`) converts to ISO 639-2 for the audio/subtitle
+preferences, and the embed's `?language=` is run through it, so a 3-letter code
+reaches the player as well.
+
+So `findVideoLanguageOption` now matches **canonically**:
+`canonicalVideoLanguage` runs the code through `new Intl.Locale(x).language`,
+which folds every 3-letter spelling onto its 2-letter base — bibliographic
+variants included (`ger`/`deu` → `de`, `dut`/`nld` → `nl`, `fre`/`fra` → `fr`).
+Bokmål and Nynorsk are then mapped onto `no` by hand, since Intl keeps them
+apart and BCC content doesn't. An exact match still wins over a canonical one.
+`dedupeVideoLanguages` and `toVideoLanguageOptions` key on the canonical code
+too, so a list carrying both `no` and `nor` yields one row.
+
+Wiring on the web side:
+
+| File                                       | Change                                                                                                      |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `web/src/components/EpisodeViewer.vue:130` | `videoLanguage: route.query.videoLang \|\| uiLang` — `?videoLang` still wins                                |
+| `web/src/pages/EpisodeEmbed.vue`           | new `videoLanguage` ref: `?videoLang` \|\| the **raw** `?language` (not the 3-letter form `language` holds) |
+
+Behaviour change worth knowing: a Dutch viewer now gets the Dutch-text version
+of an episode by default, where before everyone got the original.
+
+### Verified (embed, prod API)
+
+| URL                         | Video language                                    |
+| --------------------------- | ------------------------------------------------- |
+| no params                   | Original                                          |
+| `?language=nl`              | Nederlands                                        |
+| `?language=de&videoLang=fr` | Français                                          |
+| `?language=sv`              | Original (graceful fallback)                      |
+| `?language=nld`             | Original ← **needs a package release**, see below |
+
+Canonical matching confirmed live against the local build (episode 7c5d64bf,
+15 languages): `nld`/`dut` → `nl`, `deu`/`ger` → `de`, `nor`/`nb` → `no`,
+`fra` → `fr`, and an unknown code leaves the selection untouched.
+
+> `web` depends on the **published** `bccm-video-player` (`^3.5.0` from npm), not
+> the workspace. 3.5.0 already carries the video-language feature, so the
+> 2-letter paths work today — but canonical matching landed after it, so
+> `?language=nld` needs a `pnpm publish` of the package and a bump in
+> `web/package.json`.
+
 ## Follow-ups (not done)
 
 - `web/src/components/EpisodeViewer.vue:132` still only _reads_ `?videoLang`.

@@ -1,5 +1,6 @@
 import type { VideoLanguageOption } from "../video-player"
 import {
+    canonicalVideoLanguage,
     normalizeVideoLanguage,
     videoLanguageLabel,
 } from "../video-player/utils/video-language"
@@ -32,9 +33,10 @@ export function toVideoLanguageOptions(
         if (rank < 0 || !stream.url) continue
 
         const language = normalizeVideoLanguage(stream.videoLanguage)
-        const current = best.get(language)
+        const key = canonicalVideoLanguage(language)
+        const current = best.get(key)
         if (current && current.rank <= rank) continue
-        best.set(language, { option: { language, src: stream.url }, rank })
+        best.set(key, { option: { language, src: stream.url }, rank })
     }
 
     const options = [...best.values()].map((entry) => entry.option)

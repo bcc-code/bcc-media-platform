@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {
+    canonicalVideoLanguage,
     dedupeVideoLanguages,
     findVideoLanguageOption,
     normalizeVideoLanguage,
@@ -20,6 +21,36 @@ describe("normalizeVideoLanguage", () => {
     })
 })
 
+describe("canonicalVideoLanguage", () => {
+    it("folds a three-letter code onto its two-letter form", () => {
+        expect(canonicalVideoLanguage("nor")).toBe("no")
+        expect(canonicalVideoLanguage("deu")).toBe("de")
+        expect(canonicalVideoLanguage("spa")).toBe("es")
+    })
+
+    it("folds the bibliographic spellings too", () => {
+        expect(canonicalVideoLanguage("ger")).toBe("de")
+        expect(canonicalVideoLanguage("dut")).toBe("nl")
+        expect(canonicalVideoLanguage("fre")).toBe("fr")
+    })
+
+    it("treats Bokmål and Nynorsk as Norwegian", () => {
+        expect(canonicalVideoLanguage("nb")).toBe("no")
+        expect(canonicalVideoLanguage("nob")).toBe("no")
+        expect(canonicalVideoLanguage("nn")).toBe("no")
+    })
+
+    it("leaves a code with no two-letter form alone", () => {
+        expect(canonicalVideoLanguage("yue")).toBe("yue")
+        expect(canonicalVideoLanguage("kha")).toBe("kha")
+    })
+
+    it("reads absent and blank codes as the original", () => {
+        expect(canonicalVideoLanguage(null)).toBeNull()
+        expect(canonicalVideoLanguage("  ")).toBeNull()
+    })
+})
+
 describe("dedupeVideoLanguages", () => {
     it("keeps the first of each language and preserves order", () => {
         expect(
@@ -32,6 +63,15 @@ describe("dedupeVideoLanguages", () => {
             { language: null, src: "orig" },
             { language: "nor", src: "nor-cmaf" },
         ])
+    })
+
+    it("collapses two spellings of one language into a single row", () => {
+        expect(
+            dedupeVideoLanguages([
+                { language: "no", src: "two-letter" },
+                { language: "nor", src: "three-letter" },
+            ])
+        ).toEqual([{ language: "no", src: "two-letter" }])
     })
 
     it("drops entries with nothing to play", () => {
@@ -61,6 +101,30 @@ describe("findVideoLanguageOption", () => {
 
     it("returns undefined for a language the episode doesn't have", () => {
         expect(findVideoLanguageOption(options, "deu")).toBeUndefined()
+    })
+
+    it("matches a three-letter preference against a two-letter option", () => {
+        // What the apps actually do: the site picker holds "no"/"nb" and
+        // languageTo3letter turns it into "nor", while the API says "no".
+        expect(findVideoLanguageOption(options, "nor")?.src).toBe("nor")
+        expect(findVideoLanguageOption(options, "nb")?.src).toBe("nor")
+    })
+
+    it("matches a two-letter preference against a three-letter option", () => {
+        const threeLetter = [
+            { language: null, src: "orig" },
+            { language: "deu", src: "de" },
+        ]
+        expect(findVideoLanguageOption(threeLetter, "de")?.src).toBe("de")
+    })
+
+    it("prefers an exact match over a canonical one", () => {
+        const both = [
+            { language: "nor", src: "three-letter" },
+            { language: "no", src: "two-letter" },
+        ]
+        expect(findVideoLanguageOption(both, "no")?.src).toBe("two-letter")
+        expect(findVideoLanguageOption(both, "nor")?.src).toBe("three-letter")
     })
 })
 

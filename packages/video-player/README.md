@@ -92,6 +92,16 @@ Switching keeps the playback position, the play/pause state, and the selected
 audio and subtitle languages. The engine survives the swap, so the persisted
 bandwidth estimate and the NPAW view carry over rather than restarting.
 
+Codes are matched across spellings, so you can pass whatever your own language
+picker holds: `"nor"`, `"nb"` and `"no"` all find the same rendition, as do
+`"deu"`, `"ger"` and `"de"`. A language the episode doesn't have falls back to
+the original, which makes `videoLanguage` safe to set from the viewer's
+language unconditionally:
+
+```ts
+await factory.create("player", { episodeId, videoLanguage: userLanguage })
+```
+
 `player.element` fires `bccm-videolanguagechange` with
 `detail.language` (the new code, or `null`) — useful for mirroring the choice
 into a URL:

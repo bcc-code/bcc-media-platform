@@ -25,9 +25,31 @@ export function normalizeVideoLanguage(
     return trimmed === "" ? null : trimmed
 }
 
+// The two-letter and three-letter codes for a language have to compare equal:
+// the API gives video languages as "no" / "de", while callers hold whatever
+// their own language picker uses — often ISO 639-2 ("nor", "deu"). Intl folds
+// every spelling onto one base, bibliographic variants included ("ger", "deu"
+// and "de" all land on "de").
+export function canonicalVideoLanguage(
+    value: string | null | undefined
+): string | null {
+    const normalized = normalizeVideoLanguage(value)
+    if (!normalized) return null
+    let base = normalized
+    try {
+        base = new Intl.Locale(normalized).language
+    } catch {
+        // Not a well-formed tag; compare it as written.
+    }
+    // Intl keeps Bokmål and Nynorsk apart from the macrolanguage. BCC content
+    // doesn't, and neither does the apps' own language picker.
+    return base === "nb" || base === "nn" ? "no" : base
+}
+
 // First occurrence of each language wins and order is preserved, the same way
 // Flutter's LinkedHashSet over the stream list behaves. Entries without a `src`
-// are dropped — there would be nothing to switch to.
+// are dropped — there would be nothing to switch to. Languages are compared
+// canonically, so a list carrying both "no" and "nor" yields one row.
 export function dedupeVideoLanguages(
     options: readonly VideoLanguageOption[]
 ): VideoLanguageOption[] {
@@ -35,10 +57,13 @@ export function dedupeVideoLanguages(
     const out: VideoLanguageOption[] = []
     for (const option of options) {
         if (!option?.src) continue
-        const language = normalizeVideoLanguage(option.language)
-        if (seen.has(language)) continue
-        seen.add(language)
-        out.push({ ...option, language })
+        const key = canonicalVideoLanguage(option.language)
+        if (seen.has(key)) continue
+        seen.add(key)
+        out.push({
+            ...option,
+            language: normalizeVideoLanguage(option.language),
+        })
     }
     return out
 }
@@ -48,7 +73,12 @@ export function findVideoLanguageOption(
     language: string | null | undefined
 ): VideoLanguageOption | undefined {
     const wanted = normalizeVideoLanguage(language)
-    return options.find((o) => normalizeVideoLanguage(o.language) === wanted)
+    const exact = options.find(
+        (o) => normalizeVideoLanguage(o.language) === wanted
+    )
+    if (exact || wanted == null) return exact
+    const canonical = canonicalVideoLanguage(wanted)
+    return options.find((o) => canonicalVideoLanguage(o.language) === canonical)
 }
 
 // The native name of the language ("Norsk"), or the UI language's word for the
