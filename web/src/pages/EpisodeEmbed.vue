@@ -27,6 +27,9 @@ if (query.get('downloads')) {
 const episodeId = ref<string>('')
 
 const language = ref<string>()
+// Kept as the caller wrote it, rather than the 3-letter form `language` holds:
+// the player matches either spelling, and this is also what ?videoLang carries.
+const videoLanguage = ref<string>()
 
 onMounted(async () => {
     if (props.episodeId) {
@@ -61,6 +64,10 @@ onMounted(async () => {
     if (l) {
         language.value = languageTo3letter(l) ?? l
     }
+    // An episode whose picture carries translated text starts on ?language too,
+    // so an embed in a Dutch page shows the Dutch version. ?videoLang overrides
+    // it; the player falls back to the original when neither is available.
+    videoLanguage.value = q.get('videoLang') || l || undefined
     await load()
 })
 
@@ -79,6 +86,7 @@ const load = async () => {
     }
     const p = await player.value.create('embed-video-player', {
         episodeId: episodeId.value,
+        videoLanguage: videoLanguage.value,
         overrides: {
             languagePreferenceDefaults: {
                 audio: language.value,

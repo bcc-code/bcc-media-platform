@@ -48,8 +48,8 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3(rollup@4.44.1)(vue@3.5.38(typescript@6.0.3))
       bccm-video-player:
-        specifier: ^3.4.0
-        version: 3.4.0(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)
+        specifier: ^3.5.1
+        version: 3.5.1(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)
       graphql:
         specifier: ^16.14.2
         version: 16.14.2
@@ -1986,8 +1986,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  bccm-video-player@3.4.0:
-    resolution: {integrity: sha512-xoO9StUYnaiGR4GsBc5JuMsYLuBnUPK4hqZEA5WUT4wARhnIJQ9MEbXVPPGSQtCUu37pP5joImQIO6Iu5Es4Og==}
+  bccm-video-player@3.5.1:
+    resolution: {integrity: sha512-PoW2kcynFWUz6hWZGfmGGCZm8gTW4+yHyqqT6T7vxcKi1TfaQqTwew3DiMMYq8lcNoNkD4iXuMJoekFjjcxuwg==}
 
   bcp-47-match@2.0.3:
     resolution: {integrity: sha512-JtTezzbAibu8G0R9op9zb3vcWZd9JF6M0xOYGPn0fNCd7wOpRB1mU2mH9T8gaBGbAAyIIVgB2G7xG0GP98zMAQ==}
@@ -2610,6 +2610,9 @@ packages:
   hls.js@1.6.16:
     resolution: {integrity: sha512-VSIRpLfRwlAAdGL4wiTucx2ScRipo0ed1FBatWkyt832jC4CReKstga6yIhYVwGu9LOBjuX9wzmRMeQdBJtzEA==}
 
+  hls.js@1.7.3:
+    resolution: {integrity: sha512-MsPlx6yVW4Qv4C7mEVou4/gk/5cN2dVxOTnrNjPSmyH2f0Ln+/UkG10Ax1PE6OvrmTVPKgQYozTtBaPOuCzq7A==}
+
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
 
@@ -3092,12 +3095,12 @@ packages:
     resolution: {integrity: sha512-3pKJwH184Xo/lnH6oyP1q2pMd7HcypqqmRs91/6/i2CGtWwIKGCkOOMTm/zXbgTEWHw1uNpNi/igc3ePOYHb6w==}
     engines: {node: '>=0.10.0'}
 
-  npaw-plugin-adapters@7.3.31:
-    resolution: {integrity: sha512-RBQJpaE4WLvzq4F3qJTjc2hFCZphQ6g1/nBdMmUkxaS97Ie4+3b0ImuJSji6r1a5Cl7OhBaOBnhX1YO/pZ8H/A==}
+  npaw-plugin-adapters@7.3.42:
+    resolution: {integrity: sha512-w91wk+A/OrzwGpXvOBaIxnxkylbp24zjr6j7EavkdnkcUGgEWY1W47RB/aCAeOT5hhBbFw6gmHO6EPLEVR6gDQ==}
     engines: {node: '>= 10.13'}
 
-  npaw-plugin-nwf@7.3.31:
-    resolution: {integrity: sha512-Y6/TL9puzk0OpgRnm6aEIU2HPYmbJLVQLjxTfVgC+wwQPD7xGF1Je0D6vaRQaC3f8lw6YAe/I+PZLCuz/RE2YA==}
+  npaw-plugin-nwf@7.3.42:
+    resolution: {integrity: sha512-2gmYnAkJmu83HSpLT9lBE5g4P6rrQhLGzKAmywhhM6XaxOg5Y57ajmEqt07nLHnyKFR482GUlz3pitjlPR99rA==}
     engines: {node: '>= 10.13'}
 
   npm-run-path@5.3.0:
@@ -5701,7 +5704,7 @@ snapshots:
       '@videojs/utils': 10.0.0-beta.27
       '@vimeo/player': 2.30.4
       dashjs: 5.2.1(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)
-      hls.js: 1.6.16
+      hls.js: 1.7.3
       mux-embed: 5.18.0
     transitivePeerDependencies:
       - '@svta/cml-cta'
@@ -6050,16 +6053,16 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  bccm-video-player@3.4.0(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1):
+  bccm-video-player@3.5.1(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1):
     dependencies:
       '@videojs/core': 10.0.0-beta.27(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)(@videojs/element@10.0.0-beta.27)
       '@videojs/element': 10.0.0-beta.27
       '@videojs/html': 10.0.0-beta.27(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)
       graphql: 16.14.2
       graphql-request: 7.4.0(graphql@16.14.2)
-      hls.js: 1.6.16
-      npaw-plugin-adapters: 7.3.31
-      npaw-plugin-nwf: 7.3.31
+      hls.js: 1.7.3
+      npaw-plugin-adapters: 7.3.42
+      npaw-plugin-nwf: 7.3.42
     transitivePeerDependencies:
       - '@svta/cml-cta'
       - '@svta/cml-structured-field-values'
@@ -6775,6 +6778,8 @@ snapshots:
 
   hls.js@1.6.16: {}
 
+  hls.js@1.7.3: {}
+
   hookable@5.5.3: {}
 
   html-entities@2.6.0: {}
@@ -7211,9 +7216,9 @@ snapshots:
     dependencies:
       remove-trailing-separator: 1.1.0
 
-  npaw-plugin-adapters@7.3.31: {}
+  npaw-plugin-adapters@7.3.42: {}
 
-  npaw-plugin-nwf@7.3.31:
+  npaw-plugin-nwf@7.3.42:
     dependencies:
       hls-parser: 0.10.6
       jsstore: 4.9.0

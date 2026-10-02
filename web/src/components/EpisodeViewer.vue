@@ -129,7 +129,12 @@ const load = async () => {
         player.value?.dispose()
         player.value = await playerFactory.value.create('video-player', {
             episodeId: episodeId,
-            videoLanguage: route.query.videoLang as string | undefined,
+            // Default to the site language, so an episode whose picture carries
+            // translated text starts on the viewer's own. The player falls back
+            // to the original when the episode has no version in that language,
+            // and ?videoLang still wins for a link that names one.
+            videoLanguage:
+                (route.query.videoLang as string | undefined) || uiLang,
             overrides: options,
         })
 

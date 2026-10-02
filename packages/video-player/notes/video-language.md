@@ -170,25 +170,63 @@ Wiring on the web side:
 Behaviour change worth knowing: a Dutch viewer now gets the Dutch-text version
 of an episode by default, where before everyone got the original.
 
-### Verified (embed, prod API)
+### Verified (embed, prod API, `bccm-video-player@3.5.1`)
 
-| URL                         | Video language                                    |
-| --------------------------- | ------------------------------------------------- |
-| no params                   | Original                                          |
-| `?language=nl`              | Nederlands                                        |
-| `?language=de&videoLang=fr` | Français                                          |
-| `?language=sv`              | Original (graceful fallback)                      |
-| `?language=nld`             | Original ← **needs a package release**, see below |
+Episode `7c5d64bf-e80a-470f-b749-845a4cee296c` — 15 video languages.
 
-Canonical matching confirmed live against the local build (episode 7c5d64bf,
-15 languages): `nld`/`dut` → `nl`, `deu`/`ger` → `de`, `nor`/`nb` → `no`,
-`fra` → `fr`, and an unknown code leaves the selection untouched.
+| URL                         | Video language               |
+| --------------------------- | ---------------------------- |
+| no params                   | Original                     |
+| `?language=nl`              | Nederlands                   |
+| `?language=nld`             | Nederlands                   |
+| `?language=nb`              | Norsk                        |
+| `?language=nor`             | Norsk                        |
+| `?language=ger`             | Deutsch                      |
+| `?language=de&videoLang=fr` | Français — the override wins |
+| `?language=sv`              | Original — graceful fallback |
+| `?videoLang=ron`            | Română                       |
 
-> `web` depends on the **published** `bccm-video-player` (`^3.5.0` from npm), not
-> the workspace. 3.5.0 already carries the video-language feature, so the
-> 2-letter paths work today — but canonical matching landed after it, so
-> `?language=nld` needs a `pnpm publish` of the package and a bump in
-> `web/package.json`.
+Canonical matching also confirmed through the player API directly:
+`nld`/`dut` → `nl`, `deu`/`ger` → `de`, `nor`/`nb` → `no`, `fra` → `fr`, and an
+unknown code leaves the current selection untouched (`setVideoLanguage` ignores
+what it can't resolve, unlike the initial `videoLanguage` option, which falls
+back to the original so there is always something to play).
+
+> `web` consumes the **published** package, not the workspace. The canonical
+> matcher shipped in 3.5.1, which `web/package.json` now pins (`^3.5.1`).
+
+## Downloads do NOT follow the video language
+
+Checked after the player work. Answer: **no** — a download always gives the
+original video, whatever is playing. Three independent layers, each of which
+would have to change:
+
+1. **`File.videoLanguage` is always `null`.** The field exists in the schema
+   (`backend/graph/api/schema/episodes.graphqls:91`) but `FileFrom`
+   (`backend/graph/api/model/asset.go:44`) never sets it — compare the streams
+   path, where `episodes.resolvers.go:169` assigns
+   `stream.VideoLanguage = &languageKey`.
+
+2. **The query only reaches the primary asset.** `getFilesForEpisodes`
+   (`queries/assets.sql:1`) joins
+   `episodes → mediaitems → assets ON mi.asset_id = a.id`, so it returns files
+   for the episode's own asset only. The `Streams` resolver additionally loops
+   `for lang, assetID := range e.Assets` (`episodes.resolvers.go:156`); `Files`
+   (`:187`) has no such loop.
+
+3. **The UI ignores it.** `EmbedDownloadables.vue` — used by the embed _and_ the
+   main episode page (`EpisodeDisplay.vue:391`) — doesn't select
+   `videoLanguage` in `getEpisodeEmbed` / `getEpisode`
+   (`web/src/graph/queries/episode.graphql:80,156`), and both its language
+   dropdown and its file filter key purely on `audioLanguage`.
+
+Confirmed against prod: episode `7c5d64bf…` has 15 video-language _streams_ but
+returns 2 _files_, both `videoLanguage: null`, both the Norwegian original.
+
+**Open question before any of this is worth doing:** do the per-language assets
+even have `assetfiles` rows? If the translated renditions were only ever
+packaged for streaming, layer 2 returns nothing and the work is moot. Check the
+DB / CMS first.
 
 ## Follow-ups (not done)
 
