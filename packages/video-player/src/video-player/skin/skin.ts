@@ -3,7 +3,18 @@
 // reaching into shadow DOM.
 
 import { isSmartTV } from "../utils/userAgent"
-import { getTrackLanguageName, type Lang, relabelSkin } from "../i18n/strings"
+import {
+    getTrackLanguageName,
+    type Lang,
+    relabelSkin,
+    t,
+} from "../i18n/strings"
+import {
+    findVideoLanguageOption,
+    type VideoLanguageOption,
+    videoLanguageLabel,
+    videoLanguageValue,
+} from "../utils/video-language"
 
 import ICON_RESTART from "./icons/restart.svg?raw"
 import ICON_PLAY from "./icons/play.svg?raw"
@@ -21,6 +32,7 @@ import ICON_CHECK from "./icons/check.svg?raw"
 import ICON_CAPTIONS_OFF from "./icons/captions-off.svg?raw"
 import ICON_QUALITY from "./icons/quality.svg?raw"
 import ICON_LANGUAGE from "./icons/language.svg?raw"
+import ICON_VIDEO_LANGUAGE from "./icons/video-language.svg?raw"
 import ICON_CHEVRON from "./icons/chevron.svg?raw"
 import ICON_SPEED from "./icons/speed.svg?raw"
 import ICON_CAST_ENTER from "./icons/cast-enter.svg?raw"
@@ -41,6 +53,9 @@ export interface SkinOptions {
     poster?: string
     live?: boolean
     language?: Lang
+    /** Renders the video-language picker when there are at least two. */
+    videoLanguages?: VideoLanguageOption[]
+    videoLanguage?: string | null
 }
 
 export function buildSkin(
@@ -68,6 +83,7 @@ export function buildSkin(
     const ID_SETTINGS = `settings-tooltip-${sid}`
     const ID_SETTINGS_MENU = `settings-menu-${sid}`
     const ID_RATE_MENU = `rate-menu-${sid}`
+    const ID_VIDEO_LANG_MENU = `video-language-menu-${sid}`
     const ID_LIVE = `live-tooltip-${sid}`
     const ID_DISMISS = `dismiss-tooltip-${sid}`
 
@@ -111,6 +127,35 @@ export function buildSkin(
           </span>
         </media-seek-button>
       </div>`
+
+    // A single video language is just "the video" — the picker only earns its
+    // row once there is something to switch between. Unlike the quality /
+    // audio / subtitle rows this is not a core radio group: the choice swaps
+    // the source URL, which no media setting models, so the items are ours and
+    // createPlayer wires their `value-change`.
+    const videoLanguages = options.videoLanguages ?? []
+    const showVideoLanguages = videoLanguages.length > 1
+    const skinLang = options.language ?? "en"
+
+    // `data-part="hint"` is how a core radio group publishes its current value
+    // to the trigger; a menu with no such group blanks it on every update, so
+    // this hint carries our own attribute and createPlayer fills it.
+    const videoLanguageRow = showVideoLanguages
+        ? `<media-menu-item commandfor="${ID_VIDEO_LANG_MENU}" class="bccm-menu__item bccm-menu__item--submenu">
+                  ${ICON_VIDEO_LANGUAGE}<span data-i18n="videoLanguage"></span>
+                  <span class="bccm-menu__hint"><span data-bccm-video-language-hint class="bccm-menu__hint-label"></span>${ICON_CHEVRON}</span>
+                </media-menu-item>`
+        : ""
+
+    // The group is left empty here and filled by renderVideoLanguageMenu, which
+    // also runs on every UI-language change — "Original" has to follow it.
+    const videoLanguagePanel = showVideoLanguages
+        ? `<media-menu id="${ID_VIDEO_LANG_MENU}" class="bccm-menu__panel">
+                <media-menu-item class="bccm-menu__item bccm-menu__back">${ICON_CHEVRON}<span data-i18n="videoLanguage"></span></media-menu-item>
+                <div class="bccm-menu__separator"></div>
+                <media-menu-radio-group class="bccm-menu__group" data-bccm-video-languages></media-menu-radio-group>
+              </media-menu>`
+        : ""
 
     // Current time sits left of the slider; duration (VOD) or the LIVE badge
     // (live) sits to the right.
@@ -204,6 +249,7 @@ export function buildSkin(
                   ${ICON_CAPTIONS_OFF}<span data-i18n="subtitles"></span>
                   <span class="bccm-menu__hint"><span data-part="hint" class="bccm-menu__hint-label"></span>${ICON_CHEVRON}</span>
                 </media-menu-item>
+${videoLanguageRow}
                 ${
                     live
                         ? ""
@@ -253,6 +299,7 @@ export function buildSkin(
                   </template>
                 </media-captions-radio-group>
               </media-menu>
+              ${videoLanguagePanel}
             </media-menu>
 
             <media-cast-button commandfor="${ID_CAST}" class="media-button media-button--subtle media-button--icon media-button--cast">
@@ -355,7 +402,59 @@ export function buildSkin(
             `${Number.isInteger(rate) ? rate : rate.toString()}×`
     }
 
-    relabelSkin(container, options.language ?? "en")
+    relabelSkin(container, skinLang)
+    renderVideoLanguageMenu(
+        container,
+        videoLanguages,
+        options.videoLanguage ?? null,
+        skinLang
+    )
 
     return container
+}
+
+function createVideoLanguageItem(): HTMLElement {
+    const item = document.createElement("media-menu-radio-item")
+    item.className = "bccm-menu__item"
+    item.innerHTML = `<span data-part="label"></span><media-menu-item-indicator force-mount class="bccm-menu__indicator">${ICON_CHECK}</media-menu-item-indicator>`
+    return item
+}
+
+// Writes the options, the checked one, and the settings-row hint. Idempotent,
+// and it relabels in place rather than rebuilding so an open menu keeps its
+// highlighted item. A no-op on skins built without the picker.
+export function renderVideoLanguageMenu(
+    root: Element,
+    options: readonly VideoLanguageOption[],
+    selected: string | null,
+    lang: Lang
+): void {
+    const group = root.querySelector<HTMLElement>("[data-bccm-video-languages]")
+    if (!group) return
+
+    if (group.childElementCount !== options.length) {
+        group.replaceChildren(...options.map(() => createVideoLanguageItem()))
+    }
+    options.forEach((option, index) => {
+        const item = group.children[index]
+        item.setAttribute("value", videoLanguageValue(option.language))
+        const label = item.querySelector("[data-part='label']")
+        if (label) label.textContent = videoLanguageLabel(option, lang)
+    })
+    group.setAttribute("value", videoLanguageValue(selected))
+    group.setAttribute("aria-label", t(lang, "videoLanguage"))
+
+    const hint = root.querySelector("[data-bccm-video-language-hint]")
+    if (!hint) return
+    const current = findVideoLanguageOption(options, selected)
+    const name = current ? videoLanguageLabel(current, lang) : ""
+    hint.textContent = name
+    // The hint reads as a bare language name on its own, so the row carries
+    // the setting's name and its value together for screen readers.
+    hint.closest("media-menu-item")?.setAttribute(
+        "aria-label",
+        name
+            ? t(lang, "videoLanguageActive", { name })
+            : t(lang, "videoLanguage")
+    )
 }

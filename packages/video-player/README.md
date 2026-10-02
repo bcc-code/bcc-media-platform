@@ -33,20 +33,22 @@ const player = await createPlayer("player", {
 createPlayer(containerId, options)
 ```
 
-| Option                                 | Type                                      | Notes                                                                                                                                                                                                                                                 |
-| -------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src.src`                              | `string`                                  | HLS manifest URL. DASH is not supported — the player builds an `<hlsjs-video>`.                                                                                                                                                                       |
-| `autoplay`                             | `boolean`                                 |                                                                                                                                                                                                                                                       |
-| `live`                                 | `boolean`                                 | Switches to the live skin: LIVE badge, no seek buttons / time displays / thumbnails.                                                                                                                                                                  |
-| `language`                             | `string`                                  | UI language for tooltips, pickers, and error messages. Built-in: `"en"`, `"no"`, `"nl"`, `"de"` (default `"en"`). Unsupported codes fall back to `"en"`. Swap at runtime with `player.setLanguage(...)`. See [Adding a language](#adding-a-language). |
-| `languagePreferenceDefaults.audio`     | `string`                                  | 3-letter code, e.g. `"eng"`.                                                                                                                                                                                                                          |
-| `languagePreferenceDefaults.subtitles` | `string`                                  | 3-letter code, or omit to disable.                                                                                                                                                                                                                    |
-| `subtitles`                            | `Track[]`                                 | External `<track>` descriptors (`src`, `srclang`, `label`, `kind`).                                                                                                                                                                                   |
-| `chapters`                             | `Chapter[]`                               | `{ start, duration, title, image? }` in seconds. Renders segment markers on the progress bar and the chapter title while scrubbing; `image` doubles as the scrub preview still.                                                                       |
-| `videojs.poster`                       | `string`                                  | Poster image URL.                                                                                                                                                                                                                                     |
-| `videojs.crossOrigin`                  | `string`                                  | Defaults to `"anonymous"`.                                                                                                                                                                                                                            |
-| `npaw`                                 | `NPAWOptions`                             | See [Analytics](#analytics).                                                                                                                                                                                                                          |
-| `onProgress`                           | `(currentTime, duration, player) => void` | Fires on `timeupdate`.                                                                                                                                                                                                                                |
+| Option                                 | Type                                      | Notes                                                                                                                                                                                                                                                            |
+| -------------------------------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src.src`                              | `string`                                  | HLS manifest URL. DASH is not supported — the player builds an `<hlsjs-video>`.                                                                                                                                                                                  |
+| `videoLanguages`                       | `VideoLanguageOption[]`                   | Alternate renditions that differ in the picture itself — burned-in translated text, or a sign-language version. `{ language, src, label? }`, `language: null` for the original. The selected entry supplies the source, so `src.src` is unused when this is set. |
+| `videoLanguage`                        | `string \| null`                          | Which of `videoLanguages` to start on; unknown or absent falls back to the first entry.                                                                                                                                                                          |
+| `autoplay`                             | `boolean`                                 |                                                                                                                                                                                                                                                                  |
+| `live`                                 | `boolean`                                 | Switches to the live skin: LIVE badge, no seek buttons / time displays / thumbnails.                                                                                                                                                                             |
+| `language`                             | `string`                                  | UI language for tooltips, pickers, and error messages. Built-in: `"en"`, `"no"`, `"nl"`, `"de"` (default `"en"`). Unsupported codes fall back to `"en"`. Swap at runtime with `player.setLanguage(...)`. See [Adding a language](#adding-a-language).            |
+| `languagePreferenceDefaults.audio`     | `string`                                  | 3-letter code, e.g. `"eng"`.                                                                                                                                                                                                                                     |
+| `languagePreferenceDefaults.subtitles` | `string`                                  | 3-letter code, or omit to disable.                                                                                                                                                                                                                               |
+| `subtitles`                            | `Track[]`                                 | External `<track>` descriptors (`src`, `srclang`, `label`, `kind`).                                                                                                                                                                                              |
+| `chapters`                             | `Chapter[]`                               | `{ start, duration, title, image? }` in seconds. Renders segment markers on the progress bar and the chapter title while scrubbing; `image` doubles as the scrub preview still.                                                                                  |
+| `videojs.poster`                       | `string`                                  | Poster image URL.                                                                                                                                                                                                                                                |
+| `videojs.crossOrigin`                  | `string`                                  | Defaults to `"anonymous"`.                                                                                                                                                                                                                                       |
+| `npaw`                                 | `NPAWOptions`                             | See [Analytics](#analytics).                                                                                                                                                                                                                                     |
+| `onProgress`                           | `(currentTime, duration, player) => void` | Fires on `timeupdate`.                                                                                                                                                                                                                                           |
 
 ## Player API
 
@@ -59,10 +61,51 @@ interface Player {
     setAudioTrackToLanguage(language?: string): void
     setSubtitleTrackToLanguage(language?: string): void
     setVideoQuality(height: number): void // 0 / negative re-enables Auto (ABR)
+    getVideoLanguages(): VideoLanguageOption[]
+    getVideoLanguage(): string | null // null = the original version
+    setVideoLanguage(language: string | null): void
     setLanguage(lang: string): void // swaps UI strings live; unsupported codes fall back to "en"
     dispose(): void
 }
 ```
+
+## Video language
+
+Some episodes ship more than one video rendition: the text burned into the
+picture is translated, or the whole thing is a sign-language version. These are
+separate manifests, not tracks inside one, so switching swaps the source.
+
+Pass the renditions and the player grows a **Video text language** row in the
+settings menu as soon as there are two or more:
+
+```ts
+await createPlayer("player", {
+    videoLanguages: [
+        { language: null, src: "https://.../original.m3u8" },
+        { language: "nor", src: "https://.../nor.m3u8" },
+    ],
+    videoLanguage: "nor", // optional; defaults to the first entry
+})
+```
+
+Switching keeps the playback position, the play/pause state, and the selected
+audio and subtitle languages. The engine survives the swap, so the persisted
+bandwidth estimate and the NPAW view carry over rather than restarting.
+
+`player.element` fires `bccm-videolanguagechange` with
+`detail.language` (the new code, or `null`) — useful for mirroring the choice
+into a URL:
+
+```ts
+import { VIDEO_LANGUAGE_CHANGE_EVENT } from "bccm-video-player"
+
+player.element.addEventListener(VIDEO_LANGUAGE_CHANGE_EVENT, (e) => {
+    console.log(e.detail.language)
+})
+```
+
+`PlayerFactory` fills `videoLanguages` in from the episode's streams, so BTV
+callers get the picker for free and only pass the starting language.
 
 For low-level control (play / pause / volume / events), use `player.mediaEl`:
 
@@ -166,7 +209,13 @@ const factory = new PlayerFactory({
 })
 
 await factory.create("player", { episodeId: "865" })
+
+// Start on a specific video language; the rest stay available in the menu.
+await factory.create("player", { episodeId: "865", videoLanguage: "nor" })
 ```
+
+It picks one stream per video language — `hls_cmaf` ahead of `hls_ts`, DASH
+skipped — and returns `null` when the episode has no playable HLS stream.
 
 ## Development
 

@@ -1,7 +1,9 @@
 import { getEpisodeStreams } from "./api"
 import { ApiClient, ApiClientOptions } from "./api/client"
 import { createPlayer, Options } from "../video-player"
+import { toVideoLanguageOptions } from "./streams"
 export * from "./api"
+export * from "./streams"
 
 export class PlayerFactory {
     private client: ApiClient
@@ -15,47 +17,27 @@ export class PlayerFactory {
         options: {
             episodeId: string
             overrides?: Partial<Options>
+            /** Which video language to start on — the language of text burned
+             *  into the picture, or a sign-language version. Omit for the
+             *  original. The viewer can switch from the settings menu when the
+             *  episode has more than one. */
             videoLanguage?: string
         }
     ) {
         const episode = await getEpisodeStreams(options.episodeId, this.client)
 
-        const streams = episode.streams
+        const videoLanguages = toVideoLanguageOptions(episode.streams)
+        if (!videoLanguages.length) return null
 
-        const videoLanguage = options.videoLanguage
-
-        if (streams.length) {
-            const langCheck = (stream: (typeof streams)[0]) => {
-                if (videoLanguage) {
-                    return stream.videoLanguage === videoLanguage
-                }
-                return true
-            }
-            let stream = streams.find(
-                (s) => s.type === "hls_cmaf" && langCheck(s)
-            )
-            if (!stream) {
-                stream = streams.find(
-                    (s) => s.type === "hls_ts" && langCheck(s)
-                )
-            }
-            // No `dash` fallback: the player builds an <hlsjs-video>, which
-            // can't play an .mpd. Falling through to an HLS stream in another
-            // language at least plays.
-            if (!stream) {
-                stream = streams.find((s) => s.type === "hls_cmaf")
-            }
-            if (stream) {
-                const merged: Partial<Options> = {
-                    src: { src: stream.url },
-                    videojs: { poster: episode.image },
-                    chapters: episode.chapters,
-                    ...options.overrides,
-                }
-                return await createPlayer(elementId, merged)
-            }
+        const merged: Partial<Options> = {
+            videojs: { poster: episode.image },
+            chapters: episode.chapters,
+            ...options.overrides,
+            // After the spread: an episode's renditions are not something a
+            // caller's `overrides` should be able to contradict.
+            videoLanguages,
+            videoLanguage: options.videoLanguage ?? null,
         }
-
-        return null
+        return await createPlayer(elementId, merged)
     }
 }

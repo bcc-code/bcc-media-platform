@@ -8,7 +8,7 @@ import "./components/live-button"
 import "./components/dismiss-controls-button"
 import "./skin/skin.css"
 
-import { buildSkin } from "./skin/skin"
+import { buildSkin, renderVideoLanguageMenu } from "./skin/skin"
 import { enableNPAW, type NPAWOptions, restartView, setOptions } from "./npaw"
 import { getDefaults, mergeOptions, normalizeSourceType } from "./utils/options"
 import {
@@ -27,6 +27,13 @@ import {
 } from "./i18n/strings"
 import { registerCoreTranslations, toCoreLocale } from "./i18n/core-i18n"
 import { type Chapter, toChaptersVTT, toThumbnailsVTT } from "./utils/chapters"
+import {
+    dedupeVideoLanguages,
+    findVideoLanguageOption,
+    normalizeVideoLanguage,
+    type VideoLanguageOption,
+    videoLanguageFromValue,
+} from "./utils/video-language"
 
 export {
     DEFAULT_LANG,
@@ -37,6 +44,11 @@ export {
     SUPPORTED_LANGS,
 } from "./i18n/strings"
 export type { Lang } from "./i18n/strings"
+export type { VideoLanguageOption } from "./utils/video-language"
+
+/** Fired on the player element after the video language changes.
+ *  `detail.language` is the new code, or `null` for the original. */
+export const VIDEO_LANGUAGE_CHANGE_EVENT = "bccm-videolanguagechange"
 
 export interface Options {
     src: {
@@ -59,6 +71,16 @@ export interface Options {
     /** UI language for tooltips, pickers, and error messages. Defaults
      *  to `"en"`. Use `player.setLanguage(...)` to swap at runtime. */
     language?: Lang
+    /** Alternate renditions that differ in the picture itself — burned-in
+     *  translated text, or a sign-language version. Each is its own manifest,
+     *  so switching swaps the source rather than selecting a track.
+     *  `language: null` is the original. A picker appears in the settings menu
+     *  once there are two or more; the selected entry's `src` wins over
+     *  `src.src`. */
+    videoLanguages?: VideoLanguageOption[]
+    /** Which of `videoLanguages` to start on. Unknown or absent falls back to
+     *  the first entry. */
+    videoLanguage?: string | null
     videojs: {
         poster?: string
         crossOrigin?: string
@@ -81,6 +103,13 @@ export interface Player {
     setAudioTrackToLanguage(language?: string): void
     setSubtitleTrackToLanguage(language?: string): void
     setVideoQuality(height: number): void
+    getVideoLanguages(): VideoLanguageOption[]
+    /** The code of the video language on screen, `null` for the original. */
+    getVideoLanguage(): string | null
+    /** Swap the video rendition, keeping the playback position, the play/pause
+     *  state, and the selected audio and subtitle languages. Unknown codes are
+     *  ignored. */
+    setVideoLanguage(language: string | null): void
     /** Swap the UI language (tooltips, pickers, error dialog) at runtime.
      *  Falls back to `"en"` for unsupported values. */
     setLanguage(lang: Lang): void
@@ -112,12 +141,22 @@ export async function createPlayer(
     player.setAttribute("data-lang", initialLang)
     const media = document.createElement("hlsjs-video")
 
+    // The picked rendition supplies the source; `src.src` is the fallback for
+    // callers that have a single stream and no language list. An unknown
+    // request falls back to the first entry rather than failing to play.
+    const videoLanguages = dedupeVideoLanguages(options.videoLanguages ?? [])
+    const initialVideoLanguage =
+        findVideoLanguageOption(videoLanguages, options.videoLanguage) ??
+        videoLanguages[0]
+    let currentVideoLanguage = initialVideoLanguage?.language ?? null
+    const initialSrc = initialVideoLanguage?.src ?? options.src.src
+
     // Engine options are read when the engine is constructed, so they go in
     // with `src` as one assignment. preferPlayback already defaults to "mse".
     const savedBandwidth = readSavedBandwidth()
     const sourceType = normalizeSourceType(options.src.type)
     media.source = {
-        ...(options.src.src ? { src: options.src.src } : {}),
+        ...(initialSrc ? { src: initialSrc } : {}),
         ...(sourceType ? { type: sourceType } : {}),
         engine: {
             hlsJs: {
@@ -141,6 +180,8 @@ export async function createPlayer(
         poster: options.videojs.poster,
         live: options.live,
         language: initialLang,
+        videoLanguages,
+        videoLanguage: currentVideoLanguage,
     })
     // Core's UI text comes from the i18n context, so the provider has to be an
     // ancestor of the skin — it isn't baked into <video-player>.
@@ -208,12 +249,27 @@ export async function createPlayer(
         setVideoQuality(height) {
             setVideoQuality(player, height)
         },
+        getVideoLanguages() {
+            return videoLanguages.map((option) => ({ ...option }))
+        },
+        getVideoLanguage() {
+            return currentVideoLanguage
+        },
+        setVideoLanguage(language) {
+            switchVideoLanguage(language)
+        },
         setLanguage(lang) {
             const next: Lang = isSupportedLang(lang) ? lang : DEFAULT_LANG
             if (player.getAttribute("data-lang") === next) return
             player.setAttribute("data-lang", next)
             i18n.lang = toCoreLocale(next)
             relabelSkin(skin, next)
+            renderVideoLanguageMenu(
+                skin,
+                videoLanguages,
+                currentVideoLanguage,
+                next
+            )
             renderErrorDialog(skin, next)
             player.dispatchEvent(
                 new CustomEvent(LANGUAGE_CHANGE_EVENT, {
@@ -227,6 +283,66 @@ export async function createPlayer(
             player.remove()
         },
     }
+
+    // Swapping the manifest reloads the picture but nothing else should move:
+    // the position, the play/pause state, and whichever audio and subtitle
+    // languages the viewer is on all carry over to the new tracks.
+    function switchVideoLanguage(language: string | null): void {
+        const option = findVideoLanguageOption(videoLanguages, language)
+        if (!option) return
+        if (option.language === currentVideoLanguage) return
+        currentVideoLanguage = option.language
+
+        const resumeAt = mediaEl.currentTime
+        const wasPlaying = !mediaEl.paused && !mediaEl.ended
+        const audio = getEnabledAudioLanguage(player)
+        const subtitles = getShowingSubtitleLanguage(mediaEl)
+
+        media.addEventListener(
+            "loadedmetadata",
+            () => {
+                if (Number.isFinite(resumeAt) && resumeAt > 0) {
+                    mediaEl.currentTime = resumeAt
+                }
+                setAudioTrackToLanguage(player, audio)
+                setSubtitleTrackToLanguage(mediaEl, subtitles)
+                if (wasPlaying) void mediaEl.play().catch(() => {})
+            },
+            { once: true, signal: teardown.signal }
+        )
+
+        // Assigning `src` rather than `source` keeps the engine — and with it
+        // the ABR estimate and the NPAW adapter registered against it — alive
+        // across the swap; hls.js just loads the new manifest.
+        ;(media as unknown as { src: string }).src = option.src
+
+        renderVideoLanguageMenu(
+            skin,
+            videoLanguages,
+            currentVideoLanguage,
+            getLanguage(skin)
+        )
+        player.dispatchEvent(
+            new CustomEvent(VIDEO_LANGUAGE_CHANGE_EVENT, {
+                bubbles: false,
+                detail: { language: currentVideoLanguage },
+            })
+        )
+    }
+
+    // `value-change` bubbles out of <media-menu-radio-group>; the group's own
+    // value is rewritten by renderVideoLanguageMenu, so a rejected choice
+    // snaps back.
+    skin.querySelector("[data-bccm-video-languages]")?.addEventListener(
+        "value-change",
+        (event) => {
+            const value = (event as CustomEvent<{ value: string }>).detail
+                ?.value
+            if (typeof value !== "string") return
+            switchVideoLanguage(videoLanguageFromValue(value))
+        },
+        { signal: teardown.signal }
+    )
 
     if (
         options.languagePreferenceDefaults.audio ||
@@ -265,7 +381,12 @@ export function restartNPAWView(player: Player, options: NPAWOptions): void {
 
 // Reads of the player store, which the skin's controls already drive. Menu
 // values are `id || index` — see the quality / audioTrack store features.
-type StoreAudioTrack = { id?: string; label: string; language: string }
+type StoreAudioTrack = {
+    id?: string
+    label: string
+    language: string
+    enabled?: boolean
+}
 type StoreRendition = { id?: string; height?: number }
 type PlayerStore = {
     $state?: { patch(partial: object): void }
@@ -289,6 +410,25 @@ function getAudioLanguages(player: HTMLElement): TrackOption[] {
         language: track.language,
         label: track.label || track.language,
     }))
+}
+
+// What a source swap has to restore: the viewer's current picks, not the
+// options' defaults, which only seed the first load.
+function getEnabledAudioLanguage(player: HTMLElement): string | undefined {
+    const tracks = playerStore(player)?.audioTrackList ?? []
+    return tracks.find((track) => track.enabled)?.language || undefined
+}
+
+function getShowingSubtitleLanguage(
+    media: HTMLVideoElement
+): string | undefined {
+    return (
+        Array.from(media.textTracks).find(
+            (t) =>
+                (t.kind === "captions" || t.kind === "subtitles") &&
+                t.mode === "showing"
+        )?.language || undefined
+    )
 }
 
 function setAudioTrackToLanguage(player: HTMLElement, language?: string) {
