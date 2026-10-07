@@ -1,3 +1,4 @@
 backend/graph/**/*.resolvers.go linguist-generated=false
 
 *.secret.* filter=git-crypt diff=git-crypt
+web/src/graph/generated.ts linguist-generated=true
