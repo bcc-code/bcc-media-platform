@@ -518,8 +518,8 @@ type Episode struct {
 	Watched           bool       `json:"watched"`
 	AudioLanguages    []string   `json:"audioLanguages"`
 	SubtitleLanguages []string   `json:"subtitleLanguages"`
-	// null = original, listed first.
-	VideoLanguages   []*LanguageCode        `json:"videoLanguages"`
+	// The original counts as `no`.
+	VideoLanguages   []LanguageCode         `json:"videoLanguages"`
 	Context          EpisodeContextUnion    `json:"context,omitempty"`
 	RelatedItems     *SectionItemPagination `json:"relatedItems,omitempty"`
 	Images           []*Image               `json:"images"`

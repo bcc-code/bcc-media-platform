@@ -45,8 +45,8 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     watched: Boolean! @goField(forceResolver: true)
     audioLanguages: [Language!]! @goField(forceResolver: true)
     subtitleLanguages: [Language!]! @goField(forceResolver: true)
-    "null = original, listed first."
-    videoLanguages: [LanguageCode]! @goField(forceResolver: true)
+    "The original counts as `no`."
+    videoLanguages: [LanguageCode!]! @goField(forceResolver: true)
     context: EpisodeContextUnion @goField(forceResolver: true)
     relatedItems(first: Int, offset: Int, cursor: Cursor): SectionItemPagination @goField(forceResolver: true)
     images: [Image!]!

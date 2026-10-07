@@ -3,7 +3,7 @@ import {
     GetEpisodeEmbedQuery,
     useGetEpisodeFilesQuery,
 } from '@/graph/generated'
-import { Language, getLanguage } from '@/services/language'
+import { getLanguage } from '@/services/language'
 import { computed, ref } from 'vue'
 import { DocumentArrowDownIcon } from '@heroicons/vue/24/outline'
 import { analytics } from '@/services/analytics'
@@ -17,22 +17,12 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
-const languages = computed(() => {
-    const langs: Language[] = []
-
-    for (const f of props.episode.files) {
-        if (!langs.some((l) => l.code == f.audioLanguage)) {
-            langs.push(
-                getLanguage({
-                    languageCode: f.audioLanguage,
-                    currentLanguageCode: 'en',
-                })
-            )
-        }
-    }
-
-    return langs
-})
+// Every video version has files in every audio language.
+const languages = computed(() =>
+    props.episode.audioLanguages.map((code) =>
+        getLanguage({ languageCode: code, currentLanguageCode: 'en' })
+    )
+)
 
 const _language = ref<string>('')
 
@@ -238,9 +228,7 @@ const downloadFile = () => {
                 </button>
             </div>
             <div v-if="file && downloading" class="flex flex-col gap-2">
-                <div
-                    class="w-64 flex bg-black/20 my-auto h-8 rounded p-2"
-                >
+                <div class="w-64 flex bg-black/20 my-auto h-8 rounded p-2">
                     <div
                         class="bg-primary h-4 rounded my-auto"
                         :style="{
