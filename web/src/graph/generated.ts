@@ -396,7 +396,7 @@ export type Episode = CollectionItem & MediaItem & PlaylistItem & {
   description: Scalars['String']['output'];
   duration: Scalars['Int']['output'];
   extraDescription: Scalars['String']['output'];
-  /** videoLanguages: null = original. Omitted = original only. */
+  /** videoLanguages: null = original (`no` too, unless a separate `no` version exists). Omitted = original only. */
   files: Array<File>;
   id: Scalars['ID']['output'];
   image?: Maybe<Scalars['String']['output']>;

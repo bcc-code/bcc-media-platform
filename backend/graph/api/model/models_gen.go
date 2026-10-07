@@ -507,7 +507,7 @@ type Episode struct {
 	Image                 *string     `json:"image,omitempty"`
 	ImageURL              *string     `json:"imageUrl,omitempty"`
 	Streams               []*Stream   `json:"streams"`
-	// videoLanguages: null = original. Omitted = original only.
+	// videoLanguages: null = original (`no` too, unless a separate `no` version exists). Omitted = original only.
 	Files             []*File    `json:"files"`
 	Chapters          []*Chapter `json:"chapters"`
 	SkipToChapter     *Chapter   `json:"skipToChapter,omitempty"`

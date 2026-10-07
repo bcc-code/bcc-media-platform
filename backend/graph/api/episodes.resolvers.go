@@ -203,19 +203,35 @@ func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode, audioLa
 		return nil, err
 	}
 
-	files = lo.Filter(files, func(f *common.File, _ int) bool {
-		if videoLanguages == nil {
-			return !f.VideoLanguage.Valid
+	// The default asset is Norwegian, so "no" selects it unless there is a separate "no" version.
+	hasNoVersion := false
+	for _, f := range files {
+		if f.VideoLanguage.String == string(model.LanguageCodeNo) {
+			hasNoVersion = true
 		}
-		return lo.ContainsBy(videoLanguages, func(l *model.LanguageCode) bool {
-			if l == nil {
-				return !f.VideoLanguage.Valid
-			}
-			return f.VideoLanguage.String == string(*l)
-		})
-	})
+	}
 
-	return r.toFiles(ctx, files, audioLanguages), nil
+	// "" is the default asset.
+	wanted := map[string]bool{}
+	if videoLanguages == nil {
+		wanted[""] = true
+	}
+	for _, l := range videoLanguages {
+		if l == nil || (*l == model.LanguageCodeNo && !hasNoVersion) {
+			wanted[""] = true
+		} else {
+			wanted[string(*l)] = true
+		}
+	}
+
+	var selected []*common.File
+	for _, f := range files {
+		if wanted[f.VideoLanguage.String] {
+			selected = append(selected, f)
+		}
+	}
+
+	return r.toFiles(ctx, selected, audioLanguages), nil
 }
 
 // Chapters is the resolver for the chapters field.
