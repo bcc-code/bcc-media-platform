@@ -99,6 +99,7 @@ export type Events = {
         episodeId: string
         fileName: string
         audioLanguage: string
+        videoLanguage: string
         resolution: string
     }
     interaction: {

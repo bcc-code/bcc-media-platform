@@ -347,7 +347,7 @@ type ComplexityRoot struct {
 		Description           func(childComplexity int) int
 		Duration              func(childComplexity int) int
 		ExtraDescription      func(childComplexity int) int
-		Files                 func(childComplexity int, audioLanguages []string) int
+		Files                 func(childComplexity int, audioLanguages []string, videoLanguages []*model.LanguageCode) int
 		ID                    func(childComplexity int) int
 		Image                 func(childComplexity int, style *model.ImageStyle) int
 		ImageURL              func(childComplexity int) int
@@ -375,6 +375,7 @@ type ComplexityRoot struct {
 		Title                 func(childComplexity int) int
 		Type                  func(childComplexity int) int
 		UUID                  func(childComplexity int) int
+		VideoLanguages        func(childComplexity int) int
 		Watched               func(childComplexity int) int
 	}
 
@@ -1239,7 +1240,7 @@ type EpisodeResolver interface {
 	Image(ctx context.Context, obj *model.Episode, style *model.ImageStyle) (*string, error)
 
 	Streams(ctx context.Context, obj *model.Episode) ([]*model.Stream, error)
-	Files(ctx context.Context, obj *model.Episode, audioLanguages []string) ([]*model.File, error)
+	Files(ctx context.Context, obj *model.Episode, audioLanguages []string, videoLanguages []*model.LanguageCode) ([]*model.File, error)
 	Chapters(ctx context.Context, obj *model.Episode) ([]*model.Chapter, error)
 	SkipToChapter(ctx context.Context, obj *model.Episode) (*model.Chapter, error)
 
@@ -1247,7 +1248,9 @@ type EpisodeResolver interface {
 
 	Progress(ctx context.Context, obj *model.Episode) (*int, error)
 	Watched(ctx context.Context, obj *model.Episode) (bool, error)
-
+	AudioLanguages(ctx context.Context, obj *model.Episode) ([]string, error)
+	SubtitleLanguages(ctx context.Context, obj *model.Episode) ([]string, error)
+	VideoLanguages(ctx context.Context, obj *model.Episode) ([]*model.LanguageCode, error)
 	Context(ctx context.Context, obj *model.Episode) (model.EpisodeContextUnion, error)
 	RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 
@@ -2608,7 +2611,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Episode.Files(childComplexity, args["audioLanguages"].([]string)), true
+		return e.complexity.Episode.Files(childComplexity, args["audioLanguages"].([]string), args["videoLanguages"].([]*model.LanguageCode)), true
 
 	case "Episode.id":
 		if e.complexity.Episode.ID == nil {
@@ -2818,6 +2821,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Episode.UUID(childComplexity), true
+
+	case "Episode.videoLanguages":
+		if e.complexity.Episode.VideoLanguages == nil {
+			break
+		}
+
+		return e.complexity.Episode.VideoLanguages(childComplexity), true
 
 	case "Episode.watched":
 		if e.complexity.Episode.Watched == nil {
@@ -7390,7 +7400,8 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     imageUrl: String @deprecated(reason: "Replaced by the image field")
 
     streams: [Stream!]! @goField(forceResolver: true)
-    files(audioLanguages: [String!]): [File!]! @goField(forceResolver: true)
+    "videoLanguages: null = original (` + "`" + `no` + "`" + ` too, unless a separate ` + "`" + `no` + "`" + ` version exists). Omitted = original only."
+    files(audioLanguages: [String!], videoLanguages: [LanguageCode]): [File!]! @goField(forceResolver: true)
     chapters: [Chapter!]! @goField(forceResolver: true)
     skipToChapter: Chapter @goField(forceResolver: true)
     assetVersion: String!
@@ -7399,8 +7410,10 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     duration: Int!
     progress: Int @goField(forceResolver: true)
     watched: Boolean! @goField(forceResolver: true)
-    audioLanguages: [Language!]!
-    subtitleLanguages: [Language!]!
+    audioLanguages: [Language!]! @goField(forceResolver: true)
+    subtitleLanguages: [Language!]! @goField(forceResolver: true)
+    "null = original, listed first."
+    videoLanguages: [LanguageCode]! @goField(forceResolver: true)
     context: EpisodeContextUnion @goField(forceResolver: true)
     relatedItems(first: Int, offset: Int, cursor: Cursor): SectionItemPagination @goField(forceResolver: true)
     images: [Image!]!
@@ -7873,6 +7886,36 @@ interface MediaItem {
 }
 
 scalar Language
+
+"zxx = no linguistic content"
+enum LanguageCode {
+    bg
+    da
+    de
+    en
+    es
+    fi
+    fr
+    hr
+    hu
+    it
+    kha
+    nb
+    nl
+    no
+    pl
+    pt
+    ro
+    ru
+    sl
+    sv
+    ta
+    tr
+    yue
+    zh
+    zxx
+}
+
 scalar Date
 scalar UUID
 
@@ -9365,6 +9408,11 @@ func (ec *executionContext) field_Episode_files_args(ctx context.Context, rawArg
 		return nil, err
 	}
 	args["audioLanguages"] = arg0
+	arg1, err := ec.field_Episode_files_argsVideoLanguages(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["videoLanguages"] = arg1
 	return args, nil
 }
 func (ec *executionContext) field_Episode_files_argsAudioLanguages(
@@ -9382,6 +9430,24 @@ func (ec *executionContext) field_Episode_files_argsAudioLanguages(
 	}
 
 	var zeroVal []string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Episode_files_argsVideoLanguages(
+	ctx context.Context,
+	rawArgs map[string]any,
+) ([]*model.LanguageCode, error) {
+	if _, ok := rawArgs["videoLanguages"]; !ok {
+		var zeroVal []*model.LanguageCode
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("videoLanguages"))
+	if tmp, ok := rawArgs["videoLanguages"]; ok {
+		return ec.unmarshalOLanguageCode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx, tmp)
+	}
+
+	var zeroVal []*model.LanguageCode
 	return zeroVal, nil
 }
 
@@ -18111,6 +18177,8 @@ func (ec *executionContext) fieldContext_Chapter_episode(_ context.Context, fiel
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "videoLanguages":
+				return ec.fieldContext_Episode_videoLanguages(ctx, field)
 			case "context":
 				return ec.fieldContext_Episode_context(ctx, field)
 			case "relatedItems":
@@ -21033,7 +21101,7 @@ func (ec *executionContext) _Episode_files(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Episode().Files(rctx, obj, fc.Args["audioLanguages"].([]string))
+		return ec.resolvers.Episode().Files(rctx, obj, fc.Args["audioLanguages"].([]string), fc.Args["videoLanguages"].([]*model.LanguageCode))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21471,7 +21539,7 @@ func (ec *executionContext) _Episode_audioLanguages(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AudioLanguages, nil
+		return ec.resolvers.Episode().AudioLanguages(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21492,8 +21560,8 @@ func (ec *executionContext) fieldContext_Episode_audioLanguages(_ context.Contex
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Language does not have child fields")
 		},
@@ -21515,7 +21583,7 @@ func (ec *executionContext) _Episode_subtitleLanguages(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.SubtitleLanguages, nil
+		return ec.resolvers.Episode().SubtitleLanguages(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21536,10 +21604,54 @@ func (ec *executionContext) fieldContext_Episode_subtitleLanguages(_ context.Con
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Language does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Episode_videoLanguages(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_videoLanguages(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Episode().VideoLanguages(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.LanguageCode)
+	fc.Result = res
+	return ec.marshalNLanguageCode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_videoLanguages(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type LanguageCode does not have child fields")
 		},
 	}
 	return fc, nil
@@ -22172,6 +22284,8 @@ func (ec *executionContext) fieldContext_Episode_next(ctx context.Context, field
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "videoLanguages":
+				return ec.fieldContext_Episode_videoLanguages(ctx, field)
 			case "context":
 				return ec.fieldContext_Episode_context(ctx, field)
 			case "relatedItems":
@@ -22728,6 +22842,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(_ context.
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "videoLanguages":
+				return ec.fieldContext_Episode_videoLanguages(ctx, field)
 			case "context":
 				return ec.fieldContext_Episode_context(ctx, field)
 			case "relatedItems":
@@ -23217,6 +23333,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(_ context.Conte
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "videoLanguages":
+				return ec.fieldContext_Episode_videoLanguages(ctx, field)
 			case "context":
 				return ec.fieldContext_Episode_context(ctx, field)
 			case "relatedItems":
@@ -28306,6 +28424,8 @@ func (ec *executionContext) fieldContext_Lesson_defaultEpisode(_ context.Context
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "videoLanguages":
+				return ec.fieldContext_Episode_videoLanguages(ctx, field)
 			case "context":
 				return ec.fieldContext_Episode_context(ctx, field)
 			case "relatedItems":
@@ -31296,6 +31416,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "videoLanguages":
+				return ec.fieldContext_Episode_videoLanguages(ctx, field)
 			case "context":
 				return ec.fieldContext_Episode_context(ctx, field)
 			case "relatedItems":
@@ -35505,6 +35627,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "videoLanguages":
+				return ec.fieldContext_Episode_videoLanguages(ctx, field)
 			case "context":
 				return ec.fieldContext_Episode_context(ctx, field)
 			case "relatedItems":
@@ -35646,6 +35770,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episodes(ctx context.Context,
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "videoLanguages":
+				return ec.fieldContext_Episode_videoLanguages(ctx, field)
 			case "context":
 				return ec.fieldContext_Episode_context(ctx, field)
 			case "relatedItems":
@@ -38992,6 +39118,8 @@ func (ec *executionContext) fieldContext_Season_defaultEpisode(_ context.Context
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "videoLanguages":
+				return ec.fieldContext_Episode_videoLanguages(ctx, field)
 			case "context":
 				return ec.fieldContext_Episode_context(ctx, field)
 			case "relatedItems":
@@ -42858,6 +42986,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(_ context.Context, 
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "videoLanguages":
+				return ec.fieldContext_Episode_videoLanguages(ctx, field)
 			case "context":
 				return ec.fieldContext_Episode_context(ctx, field)
 			case "relatedItems":
@@ -49029,6 +49159,8 @@ func (ec *executionContext) fieldContext_VideoTask_episode(_ context.Context, fi
 				return ec.fieldContext_Episode_audioLanguages(ctx, field)
 			case "subtitleLanguages":
 				return ec.fieldContext_Episode_subtitleLanguages(ctx, field)
+			case "videoLanguages":
+				return ec.fieldContext_Episode_videoLanguages(ctx, field)
 			case "context":
 				return ec.fieldContext_Episode_context(ctx, field)
 			case "relatedItems":
@@ -55375,15 +55507,113 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "audioLanguages":
-			out.Values[i] = ec._Episode_audioLanguages(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_audioLanguages(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "subtitleLanguages":
-			out.Values[i] = ec._Episode_subtitleLanguages(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_subtitleLanguages(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "videoLanguages":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_videoLanguages(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "context":
 			field := field
 
@@ -66435,6 +66665,59 @@ func (ec *executionContext) marshalNLanguage2ᚕstringᚄ(ctx context.Context, s
 	return ret
 }
 
+func (ec *executionContext) unmarshalNLanguageCode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx context.Context, v any) ([]*model.LanguageCode, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*model.LanguageCode, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOLanguageCode2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNLanguageCode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx context.Context, sel ast.SelectionSet, v []*model.LanguageCode) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOLanguageCode2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
 func (ec *executionContext) marshalNLegacyIDLookup2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLegacyIDLookup(ctx context.Context, sel ast.SelectionSet, v model.LegacyIDLookup) graphql.Marshaler {
 	return ec._LegacyIDLookup(ctx, sel, &v)
 }
@@ -68453,6 +68736,81 @@ func (ec *executionContext) marshalOLanguage2ᚖstring(ctx context.Context, sel 
 	_ = ctx
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOLanguageCode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx context.Context, v any) ([]*model.LanguageCode, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*model.LanguageCode, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOLanguageCode2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOLanguageCode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx context.Context, sel ast.SelectionSet, v []*model.LanguageCode) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOLanguageCode2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOLanguageCode2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx context.Context, v any) (*model.LanguageCode, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.LanguageCode)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOLanguageCode2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx context.Context, sel ast.SelectionSet, v *model.LanguageCode) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOLegacyIDLookupOptions2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLegacyIDLookupOptions(ctx context.Context, v any) (*model.LegacyIDLookupOptions, error) {

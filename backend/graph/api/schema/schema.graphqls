@@ -36,6 +36,36 @@ interface MediaItem {
 }
 
 scalar Language
+
+"zxx = no linguistic content"
+enum LanguageCode {
+    bg
+    da
+    de
+    en
+    es
+    fi
+    fr
+    hr
+    hu
+    it
+    kha
+    nb
+    nl
+    no
+    pl
+    pt
+    ro
+    ru
+    sl
+    sv
+    ta
+    tr
+    yue
+    zh
+    zxx
+}
+
 scalar Date
 scalar UUID
 

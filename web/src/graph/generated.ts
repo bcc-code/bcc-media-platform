@@ -188,6 +188,8 @@ export type CalendarEntryImageArgs = {
 
 export type CalendarEntryBuffer = {
   availableUntil: Scalars['Date']['output'];
+  end: Scalars['Date']['output'];
+  start: Scalars['Date']['output'];
   url: Scalars['String']['output'];
 };
 
@@ -394,6 +396,7 @@ export type Episode = CollectionItem & MediaItem & PlaylistItem & {
   description: Scalars['String']['output'];
   duration: Scalars['Int']['output'];
   extraDescription: Scalars['String']['output'];
+  /** videoLanguages: null = original (`no` too, unless a separate `no` version exists). Omitted = original only. */
   files: Array<File>;
   id: Scalars['ID']['output'];
   image?: Maybe<Scalars['String']['output']>;
@@ -424,12 +427,15 @@ export type Episode = CollectionItem & MediaItem & PlaylistItem & {
   title: Scalars['String']['output'];
   type: EpisodeType;
   uuid: Scalars['String']['output'];
+  /** null = original, listed first. */
+  videoLanguages: Array<Maybe<LanguageCode>>;
   watched: Scalars['Boolean']['output'];
 };
 
 
 export type EpisodeFilesArgs = {
   audioLanguages?: InputMaybe<Array<Scalars['String']['input']>>;
+  videoLanguages?: InputMaybe<Array<InputMaybe<LanguageCode>>>;
 };
 
 
@@ -761,6 +767,35 @@ export type LabelSectionItemsArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
+/** zxx = no linguistic content */
+export enum LanguageCode {
+  Bg = 'bg',
+  Da = 'da',
+  De = 'de',
+  En = 'en',
+  Es = 'es',
+  Fi = 'fi',
+  Fr = 'fr',
+  Hr = 'hr',
+  Hu = 'hu',
+  It = 'it',
+  Kha = 'kha',
+  Nb = 'nb',
+  Nl = 'nl',
+  No = 'no',
+  Pl = 'pl',
+  Pt = 'pt',
+  Ro = 'ro',
+  Ru = 'ru',
+  Sl = 'sl',
+  Sv = 'sv',
+  Ta = 'ta',
+  Tr = 'tr',
+  Yue = 'yue',
+  Zh = 'zh',
+  Zxx = 'zxx'
+}
+
 export type LegacyIdLookup = {
   id: Scalars['ID']['output'];
 };
@@ -917,8 +952,10 @@ export type MediaItemImageArgs = {
 
 export type Message = {
   content: Scalars['String']['output'];
+  /** @deprecated Replaced by the variant field. Colors belong in each app's design system, so they can follow dark/light mode. */
   style: MessageStyle;
   title: Scalars['String']['output'];
+  variant: MessageStyleVariant;
 };
 
 export type MessageSection = Section & {
@@ -933,6 +970,12 @@ export type MessageStyle = {
   border: Scalars['String']['output'];
   text: Scalars['String']['output'];
 };
+
+export enum MessageStyleVariant {
+  Error = 'error',
+  Info = 'info',
+  Warning = 'warning'
+}
 
 export type MutationRoot = {
   addEpisodeToMyList: AddToCollectionResult;
@@ -1944,8 +1987,12 @@ export type UserCollectionEntriesArgs = {
 };
 
 export type UserCollectionEntry = {
+  /** Whether the underlying item currently resolves for this user (published, within availability window, role access). */
+  available: Scalars['Boolean']['output'];
   id: Scalars['UUID']['output'];
   item?: Maybe<UserCollectionEntryItem>;
+  /** Title of the underlying item, resolvable even when item is null because it is unavailable. Null if the item was deleted. */
+  title?: Maybe<Scalars['String']['output']>;
 };
 
 export type UserCollectionEntryItem = Episode | Short | Show;
@@ -2031,7 +2078,7 @@ export type GetEpisodeQueryVariables = Exact<{
 }>;
 
 
-export type GetEpisodeQuery = { episode: { description: string, number?: number | null, progress?: number | null, locked: boolean, originalTitle: string, ageRating: string, productionDate: any, productionDateInTitle: boolean, availableFrom: any, availableTo: any, shareRestriction: ShareRestriction, id: string, uuid: string, title: string, image?: string | null, publishDate: any, duration: number, chapters: Array<{ id: string, title: string, start: number }>, streams: Array<{ url: string, videoLanguage?: any | null, type: StreamType, primaryMediaType: PrimaryMediaType, audioLanguages: Array<any> }>, files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, size: number, resolution?: string | null }>, next: Array<{ id: string }>, lessons: { items: Array<{ id: string, progress: { total: number, completed: number, alternativesTasksTotal: number, alternativesTasksCompleted: number, alternativesTasksCorrect: number } }> }, context?: { __typename: 'ContextCollection', id: string, slug?: string | null, items?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, id: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Game', id: string } | { __typename: 'Link', id: string, url: string } | { __typename: 'Page', id: string, code: string } | { __typename: 'Person' } | { __typename: 'Playlist', id: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Short', id: string } | { __typename: 'Show', episodeCount: number, seasonCount: number, id: string, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null } | { __typename: 'Playlist' } | { __typename: 'Season', id: string } | null, relatedItems?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, id: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Game', id: string } | { __typename: 'Link', id: string, url: string } | { __typename: 'Page', id: string, code: string } | { __typename: 'Person' } | { __typename: 'Playlist', id: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Short', id: string } | { __typename: 'Show', episodeCount: number, seasonCount: number, id: string, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null, season?: { id: string, title: string, number: number, description: string, show: { id: string, title: string, type: ShowType, description: string, seasons: { items: Array<{ id: string, title: string, number: number }> } } } | null } };
+export type GetEpisodeQuery = { episode: { description: string, number?: number | null, progress?: number | null, locked: boolean, originalTitle: string, ageRating: string, productionDate: any, productionDateInTitle: boolean, availableFrom: any, availableTo: any, shareRestriction: ShareRestriction, videoLanguages: Array<LanguageCode | null>, id: string, uuid: string, title: string, image?: string | null, publishDate: any, duration: number, chapters: Array<{ id: string, title: string, start: number }>, streams: Array<{ url: string, videoLanguage?: any | null, type: StreamType, primaryMediaType: PrimaryMediaType, audioLanguages: Array<any> }>, files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, size: number, resolution?: string | null }>, next: Array<{ id: string }>, lessons: { items: Array<{ id: string, progress: { total: number, completed: number, alternativesTasksTotal: number, alternativesTasksCompleted: number, alternativesTasksCorrect: number } }> }, context?: { __typename: 'ContextCollection', id: string, slug?: string | null, items?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, id: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Game', id: string } | { __typename: 'Link', id: string, url: string } | { __typename: 'Page', id: string, code: string } | { __typename: 'Person' } | { __typename: 'Playlist', id: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Short', id: string } | { __typename: 'Show', episodeCount: number, seasonCount: number, id: string, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null } | { __typename: 'Playlist' } | { __typename: 'Season', id: string } | null, relatedItems?: { items: Array<{ id: string, image?: string | null, title: string, sort: number, item: { __typename: 'Episode', productionDate: any, publishDate: any, progress?: number | null, duration: number, locked: boolean, ageRating: string, description: string, id: string, episodeNumber?: number | null, season?: { id: string, title: string, number: number, show: { id: string, type: ShowType, title: string } } | null } | { __typename: 'Game', id: string } | { __typename: 'Link', id: string, url: string } | { __typename: 'Page', id: string, code: string } | { __typename: 'Person' } | { __typename: 'Playlist', id: string } | { __typename: 'Season', id: string, seasonNumber: number, show: { title: string }, episodes: { items: Array<{ publishDate: any }> } } | { __typename: 'Short', id: string } | { __typename: 'Show', episodeCount: number, seasonCount: number, id: string, seasons: { items: Array<{ episodes: { items: Array<{ publishDate: any }> } }> } } | { __typename: 'StudyTopic', id: string } }> } | null, season?: { id: string, title: string, number: number, description: string, show: { id: string, title: string, type: ShowType, description: string, seasons: { items: Array<{ id: string, title: string, number: number }> } } } | null } };
 
 export type UpdateEpisodeProgressMutationVariables = Exact<{
   episodeId: Scalars['ID']['input'];
@@ -2055,7 +2102,16 @@ export type GetEpisodeEmbedQueryVariables = Exact<{
 }>;
 
 
-export type GetEpisodeEmbedQuery = { episode: { id: string, files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, size: number, resolution?: string | null }> } };
+export type GetEpisodeEmbedQuery = { episode: { id: string, videoLanguages: Array<LanguageCode | null>, files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, size: number, resolution?: string | null }> } };
+
+export type GetEpisodeFilesQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  videoLanguages?: InputMaybe<Array<InputMaybe<LanguageCode>> | InputMaybe<LanguageCode>>;
+  audioLanguages?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type GetEpisodeFilesQuery = { episode: { id: string, files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, videoLanguage?: any | null, size: number, resolution?: string | null }> } };
 
 export type GetFaqQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2690,6 +2746,7 @@ export const GetEpisodeDocument = gql`
       size
       resolution
     }
+    videoLanguages
     next {
       id
     }
@@ -2790,12 +2847,34 @@ export const GetEpisodeEmbedDocument = gql`
       size
       resolution
     }
+    videoLanguages
   }
 }
     `;
 
 export function useGetEpisodeEmbedQuery(options?: Omit<Urql.UseQueryArgs<never, GetEpisodeEmbedQueryVariables | undefined>, 'query'>) {
   return Urql.useQuery<GetEpisodeEmbedQuery, GetEpisodeEmbedQueryVariables | undefined>({ query: GetEpisodeEmbedDocument, variables: undefined, ...options });
+};
+export const GetEpisodeFilesDocument = gql`
+    query getEpisodeFiles($id: ID!, $videoLanguages: [LanguageCode], $audioLanguages: [String!]) {
+  episode(id: $id) {
+    id
+    files(videoLanguages: $videoLanguages, audioLanguages: $audioLanguages) {
+      id
+      url
+      fileName
+      audioLanguage
+      subtitleLanguage
+      videoLanguage
+      size
+      resolution
+    }
+  }
+}
+    `;
+
+export function useGetEpisodeFilesQuery(options?: Omit<Urql.UseQueryArgs<never, GetEpisodeFilesQueryVariables | undefined>, 'query'>) {
+  return Urql.useQuery<GetEpisodeFilesQuery, GetEpisodeFilesQueryVariables | undefined>({ query: GetEpisodeFilesDocument, variables: undefined, ...options });
 };
 export const GetFaqDocument = gql`
     query getFAQ {

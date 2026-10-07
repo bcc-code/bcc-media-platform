@@ -1,13 +1,19 @@
 -- name: getFilesForEpisodes :many
-SELECT e.id AS episodes_id, f.*
+SELECT e.id AS episodes_id, NULL::varchar AS video_language, f.*
 FROM episodes e
          JOIN mediaitems mi ON mi.id = e.mediaitem_id
-         JOIN assets a ON mi.asset_id = a.id
-         JOIN assetfiles f ON a.id = f.asset_id
-WHERE e.id = ANY ($1::int[]);
+         JOIN assetfiles f ON f.asset_id = mi.asset_id
+WHERE e.id = ANY ($1::int[])
+UNION ALL
+SELECT e.id AS episodes_id, ma.language AS video_language, f.*
+FROM episodes e
+         JOIN mediaitems_assets ma ON ma.mediaitems_id = e.mediaitem_id
+         JOIN assetfiles f ON f.asset_id = ma.assets_id
+WHERE e.id = ANY ($1::int[])
+ORDER BY episodes_id, video_language NULLS FIRST, id;
 
 -- name: getFilesForAssets :many
-SELECT 0::int as episodes_id, f.*
+SELECT 0::int as episodes_id, NULL::varchar AS video_language, f.*
 FROM assets a
          JOIN assetfiles f ON a.id = f.asset_id
 WHERE a.id = ANY ($1::int[]);

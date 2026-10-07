@@ -1,5 +1,8 @@
 <script lang="ts" setup>
-import { GetEpisodeEmbedQuery } from '@/graph/generated'
+import {
+    GetEpisodeEmbedQuery,
+    useGetEpisodeFilesQuery,
+} from '@/graph/generated'
 import { Language, getLanguage } from '@/services/language'
 import { computed, ref } from 'vue'
 import { DocumentArrowDownIcon } from '@heroicons/vue/24/outline'
@@ -43,7 +46,24 @@ const language = computed({
     },
 })
 
+// The video version in the selected language, or null (original) if there is none.
+const videoLanguage = computed(
+    () => props.episode.videoLanguages.find((l) => l === language.value) ?? null
+)
+
+const { data: versionFiles } = useGetEpisodeFilesQuery({
+    variables: computed(() => ({
+        id: props.episode.id,
+        videoLanguages: [videoLanguage.value],
+        audioLanguages: [language.value],
+    })),
+    pause: computed(() => videoLanguage.value === null),
+})
+
 const files = computed(() => {
+    if (videoLanguage.value !== null) {
+        return versionFiles.value?.episode.files ?? []
+    }
     if (!language.value) {
         return props.episode.files
     }
@@ -54,7 +74,7 @@ const files = computed(() => {
 const fileId = ref<string>('')
 
 const file = computed(() => {
-    return props.episode.files.find((f) => f.id === fileId.value)
+    return files.value.find((f) => f.id === fileId.value)
 })
 
 const fileSize = (bytes: number) => {
@@ -97,6 +117,7 @@ const downloadFile = () => {
         episodeId: props.episode.id,
         fileName: name,
         audioLanguage: file.value.audioLanguage,
+        videoLanguage: videoLanguage.value ?? '',
         resolution: file.value.resolution ?? '',
     })
     fetch(url)

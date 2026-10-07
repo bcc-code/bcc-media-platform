@@ -1,6 +1,9 @@
 package utils
 
-import "github.com/bcc-code/bcc-media-platform/backend/log"
+import (
+	"github.com/bcc-code/bcc-media-platform/backend/log"
+	"github.com/samber/lo"
+)
 
 var langMap = map[string]string{
 	"nor":       "no",
@@ -41,6 +44,12 @@ var langMap = map[string]string{
 	"tam":       "ta",
 	"kha":       "kha",
 	"yue":       "yue",
+}
+
+// KnownLanguageCodes returns the language codes the legacy codes are normalised to,
+// i.e. the codes that can appear in the DB.
+func KnownLanguageCodes() []string {
+	return lo.Uniq(lo.Values(langMap))
 }
 
 // LegacyLanguageCodeTo639_1 converts language codes used in the legacy system and

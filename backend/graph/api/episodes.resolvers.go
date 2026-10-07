@@ -16,6 +16,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/cursors"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
@@ -184,7 +185,7 @@ func (r *episodeResolver) Streams(ctx context.Context, obj *model.Episode) ([]*m
 }
 
 // Files is the resolver for the files field.
-func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode, audioLanguages []string) ([]*model.File, error) {
+func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode, audioLanguages []string, videoLanguages []*model.LanguageCode) ([]*model.File, error) {
 	err := user.ValidateAccess(ctx, r.Loaders.EpisodePermissionLoader, utils.AsInt(obj.ID), user.CheckConditions{FromDate: true, PublishDate: true, Download: true})
 	if err != nil {
 		// No download rights means no files; a loader failure is logged instead.
@@ -202,16 +203,35 @@ func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode, audioLa
 		return nil, err
 	}
 
-	var out []*model.File
+	// The default asset is Norwegian, so "no" selects it unless there is a separate "no" version.
+	hasNoVersion := false
 	for _, f := range files {
-		if len(audioLanguages) > 0 {
-			if !lo.Contains(audioLanguages, f.AudioLanguage.String) {
-				continue
-			}
+		if f.VideoLanguage.String == string(model.LanguageCodeNo) {
+			hasNoVersion = true
 		}
-		out = append(out, model.FileFrom(ctx, r.FileSigner, r.Resolver.APIConfig.GetFilesCDNDomain(), f))
 	}
-	return out, nil
+
+	// "" is the default asset.
+	wanted := map[string]bool{}
+	if videoLanguages == nil {
+		wanted[""] = true
+	}
+	for _, l := range videoLanguages {
+		if l == nil || (*l == model.LanguageCodeNo && !hasNoVersion) {
+			wanted[""] = true
+		} else {
+			wanted[string(*l)] = true
+		}
+	}
+
+	var selected []*common.File
+	for _, f := range files {
+		if wanted[f.VideoLanguage.String] {
+			selected = append(selected, f)
+		}
+	}
+
+	return r.toFiles(ctx, selected, audioLanguages), nil
 }
 
 // Chapters is the resolver for the chapters field.
@@ -285,6 +305,52 @@ func (r *episodeResolver) Watched(ctx context.Context, obj *model.Episode) (bool
 		return false, err
 	}
 	return progress.Watched > 0, nil
+}
+
+// AudioLanguages is the resolver for the audioLanguages field.
+func (r *episodeResolver) AudioLanguages(ctx context.Context, obj *model.Episode) ([]string, error) {
+	e, err := r.getEpisodeForLanguages(ctx, obj.ID, "episode.audioLanguages")
+	if err != nil {
+		return nil, err
+	}
+	audio, _, err := r.episodeStreamLanguages(ctx, e)
+	return audio, err
+}
+
+// SubtitleLanguages is the resolver for the subtitleLanguages field.
+func (r *episodeResolver) SubtitleLanguages(ctx context.Context, obj *model.Episode) ([]string, error) {
+	e, err := r.getEpisodeForLanguages(ctx, obj.ID, "episode.subtitleLanguages")
+	if err != nil {
+		return nil, err
+	}
+	_, subtitles, err := r.episodeStreamLanguages(ctx, e)
+	return subtitles, err
+}
+
+// VideoLanguages is the resolver for the videoLanguages field.
+func (r *episodeResolver) VideoLanguages(ctx context.Context, obj *model.Episode) ([]*model.LanguageCode, error) {
+	e, err := r.getEpisodeForLanguages(ctx, obj.ID, "episode.videoLanguages")
+	if err != nil || e == nil {
+		return []*model.LanguageCode{}, err
+	}
+
+	var codes []model.LanguageCode
+	for lang := range e.Assets {
+		code := model.LanguageCode(lang)
+		if !code.IsValid() {
+			log.L.Warn().Str("language", lang).Int("episodeId", e.ID).Msg("Unknown video language, add it to the LanguageCode enum")
+			continue
+		}
+		codes = append(codes, code)
+	}
+	slices.Sort(codes)
+
+	// The original version (nil) is always available and comes first.
+	out := []*model.LanguageCode{nil}
+	for i := range codes {
+		out = append(out, &codes[i])
+	}
+	return out, nil
 }
 
 // Context is the resolver for the context field.

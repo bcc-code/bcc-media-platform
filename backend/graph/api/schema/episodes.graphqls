@@ -33,7 +33,8 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     imageUrl: String @deprecated(reason: "Replaced by the image field")
 
     streams: [Stream!]! @goField(forceResolver: true)
-    files(audioLanguages: [String!]): [File!]! @goField(forceResolver: true)
+    "videoLanguages: null = original (`no` too, unless a separate `no` version exists). Omitted = original only."
+    files(audioLanguages: [String!], videoLanguages: [LanguageCode]): [File!]! @goField(forceResolver: true)
     chapters: [Chapter!]! @goField(forceResolver: true)
     skipToChapter: Chapter @goField(forceResolver: true)
     assetVersion: String!
@@ -42,8 +43,10 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     duration: Int!
     progress: Int @goField(forceResolver: true)
     watched: Boolean! @goField(forceResolver: true)
-    audioLanguages: [Language!]!
-    subtitleLanguages: [Language!]!
+    audioLanguages: [Language!]! @goField(forceResolver: true)
+    subtitleLanguages: [Language!]! @goField(forceResolver: true)
+    "null = original, listed first."
+    videoLanguages: [LanguageCode]! @goField(forceResolver: true)
     context: EpisodeContextUnion @goField(forceResolver: true)
     relatedItems(first: Int, offset: Int, cursor: Cursor): SectionItemPagination @goField(forceResolver: true)
     images: [Image!]!

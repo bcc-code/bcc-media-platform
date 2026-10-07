@@ -487,46 +487,49 @@ type EmailOptions struct {
 }
 
 type Episode struct {
-	ID                    string                 `json:"id"`
-	UUID                  string                 `json:"uuid"`
-	Status                Status                 `json:"status"`
-	Type                  EpisodeType            `json:"type"`
-	LegacyID              *string                `json:"legacyID,omitempty"`
-	LegacyProgramID       *string                `json:"legacyProgramID,omitempty"`
-	Locked                bool                   `json:"locked"`
-	PublishDate           string                 `json:"publishDate"`
-	ProductionDate        string                 `json:"productionDate"`
-	ProductionDateInTitle bool                   `json:"productionDateInTitle"`
-	AvailableFrom         string                 `json:"availableFrom"`
-	AvailableTo           string                 `json:"availableTo"`
-	AgeRating             string                 `json:"ageRating"`
-	OriginalTitle         string                 `json:"originalTitle"`
-	Title                 string                 `json:"title"`
-	Description           string                 `json:"description"`
-	ExtraDescription      string                 `json:"extraDescription"`
-	Image                 *string                `json:"image,omitempty"`
-	ImageURL              *string                `json:"imageUrl,omitempty"`
-	Streams               []*Stream              `json:"streams"`
-	Files                 []*File                `json:"files"`
-	Chapters              []*Chapter             `json:"chapters"`
-	SkipToChapter         *Chapter               `json:"skipToChapter,omitempty"`
-	AssetVersion          string                 `json:"assetVersion"`
-	Season                *Season                `json:"season,omitempty"`
-	Duration              int                    `json:"duration"`
-	Progress              *int                   `json:"progress,omitempty"`
-	Watched               bool                   `json:"watched"`
-	AudioLanguages        []string               `json:"audioLanguages"`
-	SubtitleLanguages     []string               `json:"subtitleLanguages"`
-	Context               EpisodeContextUnion    `json:"context,omitempty"`
-	RelatedItems          *SectionItemPagination `json:"relatedItems,omitempty"`
-	Images                []*Image               `json:"images"`
-	Number                *int                   `json:"number,omitempty"`
-	Lessons               *LessonPagination      `json:"lessons"`
-	ShareRestriction      ShareRestriction       `json:"shareRestriction"`
-	InMyList              bool                   `json:"inMyList"`
-	Contributors          []*Contributor         `json:"contributors"`
-	CopyrightHolder       *Person                `json:"copyrightHolder,omitempty"`
-	Songs                 []*Song                `json:"songs"`
+	ID                    string      `json:"id"`
+	UUID                  string      `json:"uuid"`
+	Status                Status      `json:"status"`
+	Type                  EpisodeType `json:"type"`
+	LegacyID              *string     `json:"legacyID,omitempty"`
+	LegacyProgramID       *string     `json:"legacyProgramID,omitempty"`
+	Locked                bool        `json:"locked"`
+	PublishDate           string      `json:"publishDate"`
+	ProductionDate        string      `json:"productionDate"`
+	ProductionDateInTitle bool        `json:"productionDateInTitle"`
+	AvailableFrom         string      `json:"availableFrom"`
+	AvailableTo           string      `json:"availableTo"`
+	AgeRating             string      `json:"ageRating"`
+	OriginalTitle         string      `json:"originalTitle"`
+	Title                 string      `json:"title"`
+	Description           string      `json:"description"`
+	ExtraDescription      string      `json:"extraDescription"`
+	Image                 *string     `json:"image,omitempty"`
+	ImageURL              *string     `json:"imageUrl,omitempty"`
+	Streams               []*Stream   `json:"streams"`
+	// videoLanguages: null = original (`no` too, unless a separate `no` version exists). Omitted = original only.
+	Files             []*File    `json:"files"`
+	Chapters          []*Chapter `json:"chapters"`
+	SkipToChapter     *Chapter   `json:"skipToChapter,omitempty"`
+	AssetVersion      string     `json:"assetVersion"`
+	Season            *Season    `json:"season,omitempty"`
+	Duration          int        `json:"duration"`
+	Progress          *int       `json:"progress,omitempty"`
+	Watched           bool       `json:"watched"`
+	AudioLanguages    []string   `json:"audioLanguages"`
+	SubtitleLanguages []string   `json:"subtitleLanguages"`
+	// null = original, listed first.
+	VideoLanguages   []*LanguageCode        `json:"videoLanguages"`
+	Context          EpisodeContextUnion    `json:"context,omitempty"`
+	RelatedItems     *SectionItemPagination `json:"relatedItems,omitempty"`
+	Images           []*Image               `json:"images"`
+	Number           *int                   `json:"number,omitempty"`
+	Lessons          *LessonPagination      `json:"lessons"`
+	ShareRestriction ShareRestriction       `json:"shareRestriction"`
+	InMyList         bool                   `json:"inMyList"`
+	Contributors     []*Contributor         `json:"contributors"`
+	CopyrightHolder  *Person                `json:"copyrightHolder,omitempty"`
+	Songs            []*Song                `json:"songs"`
 	// Should probably be used asynchronously, and retrieved separately from the episode, as it can be slow in some cases (a few db requests can occur)
 	Next   []*Episode `json:"next"`
 	Cursor string     `json:"cursor"`
@@ -2234,6 +2237,108 @@ func (e *ImageStyle) UnmarshalJSON(b []byte) error {
 }
 
 func (e ImageStyle) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// zxx = no linguistic content
+type LanguageCode string
+
+const (
+	LanguageCodeBg  LanguageCode = "bg"
+	LanguageCodeDa  LanguageCode = "da"
+	LanguageCodeDe  LanguageCode = "de"
+	LanguageCodeEn  LanguageCode = "en"
+	LanguageCodeEs  LanguageCode = "es"
+	LanguageCodeFi  LanguageCode = "fi"
+	LanguageCodeFr  LanguageCode = "fr"
+	LanguageCodeHr  LanguageCode = "hr"
+	LanguageCodeHu  LanguageCode = "hu"
+	LanguageCodeIt  LanguageCode = "it"
+	LanguageCodeKha LanguageCode = "kha"
+	LanguageCodeNb  LanguageCode = "nb"
+	LanguageCodeNl  LanguageCode = "nl"
+	LanguageCodeNo  LanguageCode = "no"
+	LanguageCodePl  LanguageCode = "pl"
+	LanguageCodePt  LanguageCode = "pt"
+	LanguageCodeRo  LanguageCode = "ro"
+	LanguageCodeRu  LanguageCode = "ru"
+	LanguageCodeSl  LanguageCode = "sl"
+	LanguageCodeSv  LanguageCode = "sv"
+	LanguageCodeTa  LanguageCode = "ta"
+	LanguageCodeTr  LanguageCode = "tr"
+	LanguageCodeYue LanguageCode = "yue"
+	LanguageCodeZh  LanguageCode = "zh"
+	LanguageCodeZxx LanguageCode = "zxx"
+)
+
+var AllLanguageCode = []LanguageCode{
+	LanguageCodeBg,
+	LanguageCodeDa,
+	LanguageCodeDe,
+	LanguageCodeEn,
+	LanguageCodeEs,
+	LanguageCodeFi,
+	LanguageCodeFr,
+	LanguageCodeHr,
+	LanguageCodeHu,
+	LanguageCodeIt,
+	LanguageCodeKha,
+	LanguageCodeNb,
+	LanguageCodeNl,
+	LanguageCodeNo,
+	LanguageCodePl,
+	LanguageCodePt,
+	LanguageCodeRo,
+	LanguageCodeRu,
+	LanguageCodeSl,
+	LanguageCodeSv,
+	LanguageCodeTa,
+	LanguageCodeTr,
+	LanguageCodeYue,
+	LanguageCodeZh,
+	LanguageCodeZxx,
+}
+
+func (e LanguageCode) IsValid() bool {
+	switch e {
+	case LanguageCodeBg, LanguageCodeDa, LanguageCodeDe, LanguageCodeEn, LanguageCodeEs, LanguageCodeFi, LanguageCodeFr, LanguageCodeHr, LanguageCodeHu, LanguageCodeIt, LanguageCodeKha, LanguageCodeNb, LanguageCodeNl, LanguageCodeNo, LanguageCodePl, LanguageCodePt, LanguageCodeRo, LanguageCodeRu, LanguageCodeSl, LanguageCodeSv, LanguageCodeTa, LanguageCodeTr, LanguageCodeYue, LanguageCodeZh, LanguageCodeZxx:
+		return true
+	}
+	return false
+}
+
+func (e LanguageCode) String() string {
+	return string(e)
+}
+
+func (e *LanguageCode) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = LanguageCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid LanguageCode", str)
+	}
+	return nil
+}
+
+func (e LanguageCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *LanguageCode) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e LanguageCode) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

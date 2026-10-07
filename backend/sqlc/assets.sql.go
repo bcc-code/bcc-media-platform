@@ -349,7 +349,7 @@ func (q *Queries) UpdateAssetStatus(ctx context.Context, arg UpdateAssetStatusPa
 }
 
 const getFilesForAssets = `-- name: getFilesForAssets :many
-SELECT 0::int as episodes_id, f.asset_id, f.audio_language_id, f.date_created, f.date_updated, f.extra_metadata, f.id, f.mime_type, f.path, f.storage, f.subtitle_language_id, f.type, f.user_created, f.user_updated, f.resolution, f.size
+SELECT 0::int as episodes_id, NULL::varchar AS video_language, f.asset_id, f.audio_language_id, f.date_created, f.date_updated, f.extra_metadata, f.id, f.mime_type, f.path, f.storage, f.subtitle_language_id, f.type, f.user_created, f.user_updated, f.resolution, f.size
 FROM assets a
          JOIN assetfiles f ON a.id = f.asset_id
 WHERE a.id = ANY ($1::int[])
@@ -357,6 +357,7 @@ WHERE a.id = ANY ($1::int[])
 
 type getFilesForAssetsRow struct {
 	EpisodesID         int32                 `db:"episodes_id" json:"episodesId"`
+	VideoLanguage      null_v4.String        `db:"video_language" json:"videoLanguage"`
 	AssetID            int32                 `db:"asset_id" json:"assetId"`
 	AudioLanguageID    null_v4.String        `db:"audio_language_id" json:"audioLanguageId"`
 	DateCreated        time.Time             `db:"date_created" json:"dateCreated"`
@@ -385,6 +386,7 @@ func (q *Queries) getFilesForAssets(ctx context.Context, dollar_1 []int32) ([]ge
 		var i getFilesForAssetsRow
 		if err := rows.Scan(
 			&i.EpisodesID,
+			&i.VideoLanguage,
 			&i.AssetID,
 			&i.AudioLanguageID,
 			&i.DateCreated,
@@ -415,16 +417,23 @@ func (q *Queries) getFilesForAssets(ctx context.Context, dollar_1 []int32) ([]ge
 }
 
 const getFilesForEpisodes = `-- name: getFilesForEpisodes :many
-SELECT e.id AS episodes_id, f.asset_id, f.audio_language_id, f.date_created, f.date_updated, f.extra_metadata, f.id, f.mime_type, f.path, f.storage, f.subtitle_language_id, f.type, f.user_created, f.user_updated, f.resolution, f.size
+SELECT e.id AS episodes_id, NULL::varchar AS video_language, f.asset_id, f.audio_language_id, f.date_created, f.date_updated, f.extra_metadata, f.id, f.mime_type, f.path, f.storage, f.subtitle_language_id, f.type, f.user_created, f.user_updated, f.resolution, f.size
 FROM episodes e
          JOIN mediaitems mi ON mi.id = e.mediaitem_id
-         JOIN assets a ON mi.asset_id = a.id
-         JOIN assetfiles f ON a.id = f.asset_id
+         JOIN assetfiles f ON f.asset_id = mi.asset_id
 WHERE e.id = ANY ($1::int[])
+UNION ALL
+SELECT e.id AS episodes_id, ma.language AS video_language, f.asset_id, f.audio_language_id, f.date_created, f.date_updated, f.extra_metadata, f.id, f.mime_type, f.path, f.storage, f.subtitle_language_id, f.type, f.user_created, f.user_updated, f.resolution, f.size
+FROM episodes e
+         JOIN mediaitems_assets ma ON ma.mediaitems_id = e.mediaitem_id
+         JOIN assetfiles f ON f.asset_id = ma.assets_id
+WHERE e.id = ANY ($1::int[])
+ORDER BY episodes_id, video_language NULLS FIRST, id
 `
 
 type getFilesForEpisodesRow struct {
 	EpisodesID         int32                 `db:"episodes_id" json:"episodesId"`
+	VideoLanguage      null_v4.String        `db:"video_language" json:"videoLanguage"`
 	AssetID            int32                 `db:"asset_id" json:"assetId"`
 	AudioLanguageID    null_v4.String        `db:"audio_language_id" json:"audioLanguageId"`
 	DateCreated        time.Time             `db:"date_created" json:"dateCreated"`
@@ -453,6 +462,7 @@ func (q *Queries) getFilesForEpisodes(ctx context.Context, dollar_1 []int32) ([]
 		var i getFilesForEpisodesRow
 		if err := rows.Scan(
 			&i.EpisodesID,
+			&i.VideoLanguage,
 			&i.AssetID,
 			&i.AudioLanguageID,
 			&i.DateCreated,

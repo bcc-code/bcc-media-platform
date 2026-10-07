@@ -16,6 +16,7 @@ func toFiles(items []getFilesForAssetsRow) []common.File {
 			AssetID:          int(f.AssetID),
 			AudioLanguage:    f.AudioLanguageID,
 			SubtitleLanguage: f.SubtitleLanguageID,
+			VideoLanguage:    f.VideoLanguage,
 			Path:             f.Path,
 			Storage:          f.Storage,
 			MimeType:         f.MimeType,
