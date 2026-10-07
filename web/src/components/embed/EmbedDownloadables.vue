@@ -1,12 +1,10 @@
 <script lang="ts" setup>
 import {
     GetEpisodeEmbedQuery,
-    LanguageCode,
     useGetEpisodeFilesQuery,
 } from '@/graph/generated'
 import { Language, getLanguage } from '@/services/language'
-import { languageTo2letter } from '@/utils/languages'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { DocumentArrowDownIcon } from '@heroicons/vue/24/outline'
 import { analytics } from '@/services/analytics'
 import ModalBase from '../study/ModalBase.vue'
@@ -16,70 +14,13 @@ import { useI18n } from 'vue-i18n'
 const props = defineProps<{
     episode: GetEpisodeEmbedQuery['episode']
     showTitle?: boolean
-    // The video language currently playing, used as the initial selection.
-    playingVideoLanguage?: string
 }>()
 
-const { t, locale } = useI18n()
-
-// The API lists the original version first, as null.
-const videoLanguages = computed(() =>
-    props.episode.videoLanguages.map((code) =>
-        code
-            ? getLanguage({
-                  languageCode: code,
-                  currentLanguageCode: locale.value,
-              })
-            : null
-    )
-)
-
-const initialVideoLanguage = () => {
-    if (!props.playingVideoLanguage) {
-        return null
-    }
-    const code = languageTo2letter(props.playingVideoLanguage)
-    return props.episode.videoLanguages.find((l) => l === code) ?? null
-}
-
-const _videoLanguage = ref<LanguageCode | null>(initialVideoLanguage())
-
-const videoLanguage = computed({
-    get() {
-        return _videoLanguage.value
-    },
-    set(v) {
-        _videoLanguage.value = v
-        language.value = ''
-    },
-})
-
-watch(
-    () => props.episode.id,
-    () => {
-        _videoLanguage.value = initialVideoLanguage()
-    }
-)
-
-const { data: versionFiles } = useGetEpisodeFilesQuery({
-    variables: computed(() => ({
-        id: props.episode.id,
-        videoLanguages: [videoLanguage.value],
-    })),
-    pause: computed(() => videoLanguage.value === null),
-})
-
-const allFiles = computed(() => {
-    if (videoLanguage.value === null) {
-        return props.episode.files
-    }
-    return versionFiles.value?.episode.files ?? []
-})
-
+const { t } = useI18n()
 const languages = computed(() => {
     const langs: Language[] = []
 
-    for (const f of allFiles.value) {
+    for (const f of props.episode.files) {
         if (!langs.some((l) => l.code == f.audioLanguage)) {
             langs.push(
                 getLanguage({
@@ -105,18 +46,35 @@ const language = computed({
     },
 })
 
+// The video version in the selected language, or null (original) if there is none.
+const videoLanguage = computed(
+    () => props.episode.videoLanguages.find((l) => l === language.value) ?? null
+)
+
+const { data: versionFiles } = useGetEpisodeFilesQuery({
+    variables: computed(() => ({
+        id: props.episode.id,
+        videoLanguages: [videoLanguage.value],
+        audioLanguages: [language.value],
+    })),
+    pause: computed(() => videoLanguage.value === null),
+})
+
 const files = computed(() => {
+    if (videoLanguage.value !== null) {
+        return versionFiles.value?.episode.files ?? []
+    }
     if (!language.value) {
-        return allFiles.value
+        return props.episode.files
     }
 
-    return allFiles.value.filter((f) => f.audioLanguage === language.value)
+    return props.episode.files.filter((f) => f.audioLanguage === language.value)
 })
 
 const fileId = ref<string>('')
 
 const file = computed(() => {
-    return allFiles.value.find((f) => f.id === fileId.value)
+    return files.value.find((f) => f.id === fileId.value)
 })
 
 const fileSize = (bytes: number) => {
@@ -233,26 +191,7 @@ const downloadFile = () => {
                     {{ t('buttons.download') }}
                 </h1>
             </div>
-            <div
-                v-if="episode.videoLanguages.length > 1"
-                class="flex flex-col gap-2"
-            >
-                <select
-                    v-model="videoLanguage"
-                    class="bg-primary-light p-2 h-12 rounded-md"
-                    :aria-label="t('download.videoLanguage')"
-                    :title="t('download.videoLanguage')"
-                >
-                    <option
-                        v-for="l in videoLanguages"
-                        :key="l?.code ?? 'original'"
-                        :value="l?.code ?? null"
-                    >
-                        {{ l?.name ?? t('download.original') }}
-                    </option>
-                </select>
-            </div>
-            <div :key="videoLanguage ?? 'original'" class="flex flex-col gap-2">
+            <div class="flex flex-col gap-2">
                 <select
                     v-model="language"
                     class="bg-primary-light p-2 h-12 rounded-md"
@@ -299,7 +238,9 @@ const downloadFile = () => {
                 </button>
             </div>
             <div v-if="file && downloading" class="flex flex-col gap-2">
-                <div class="w-64 flex bg-black/20 my-auto h-8 rounded p-2">
+                <div
+                    class="w-64 flex bg-black/20 my-auto h-8 rounded p-2"
+                >
                     <div
                         class="bg-primary h-4 rounded my-auto"
                         :style="{

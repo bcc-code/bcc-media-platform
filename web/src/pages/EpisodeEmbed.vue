@@ -131,7 +131,6 @@ const load = async () => {
             v-if="episode && showDownloadables"
             show-title
             :episode="episode.episode"
-            :playing-video-language="videoLanguage"
         />
     </section>
 </template>

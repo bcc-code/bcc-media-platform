@@ -167,10 +167,14 @@ query getEpisodeEmbed($id: ID!) {
     }
 }
 
-query getEpisodeFiles($id: ID!, $videoLanguages: [LanguageCode]) {
+query getEpisodeFiles(
+    $id: ID!
+    $videoLanguages: [LanguageCode]
+    $audioLanguages: [String!]
+) {
     episode(id: $id) {
         id
-        files(videoLanguages: $videoLanguages) {
+        files(videoLanguages: $videoLanguages, audioLanguages: $audioLanguages) {
             id
             url
             fileName

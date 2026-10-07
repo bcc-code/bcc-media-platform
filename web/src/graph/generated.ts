@@ -2107,6 +2107,7 @@ export type GetEpisodeEmbedQuery = { episode: { id: string, videoLanguages: Arra
 export type GetEpisodeFilesQueryVariables = Exact<{
   id: Scalars['ID']['input'];
   videoLanguages?: InputMaybe<Array<InputMaybe<LanguageCode>> | InputMaybe<LanguageCode>>;
+  audioLanguages?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
 }>;
 
 
@@ -2855,10 +2856,10 @@ export function useGetEpisodeEmbedQuery(options?: Omit<Urql.UseQueryArgs<never, 
   return Urql.useQuery<GetEpisodeEmbedQuery, GetEpisodeEmbedQueryVariables | undefined>({ query: GetEpisodeEmbedDocument, variables: undefined, ...options });
 };
 export const GetEpisodeFilesDocument = gql`
-    query getEpisodeFiles($id: ID!, $videoLanguages: [LanguageCode]) {
+    query getEpisodeFiles($id: ID!, $videoLanguages: [LanguageCode], $audioLanguages: [String!]) {
   episode(id: $id) {
     id
-    files(videoLanguages: $videoLanguages) {
+    files(videoLanguages: $videoLanguages, audioLanguages: $audioLanguages) {
       id
       url
       fileName

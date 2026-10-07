@@ -24,9 +24,7 @@
     "download": {
         "resolution": "Resolution",
         "language": "Language",
-        "progress": "Progress",
-        "videoLanguage": "Video text language",
-        "original": "Original"
+        "progress": "Progress"
     },
     "error": {
         "couldntSendYourMessage": "Couldn't send your message",
@@ -233,4 +231,5 @@
         "subscribe": "Subscribe",
         "unsubscribe": "Unsubscribe"
     }
+  
 }
