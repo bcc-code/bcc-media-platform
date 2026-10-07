@@ -16,12 +16,20 @@ const props = defineProps<{
     showTitle?: boolean
 }>()
 
+const ORIGINAL_AUDIO_LANGUAGE = 'no'
+
 const { t } = useI18n()
-// Every video version has files in every audio language.
 const languages = computed(() =>
-    props.episode.audioLanguages.map((code) =>
-        getLanguage({ languageCode: code, currentLanguageCode: 'en' })
-    )
+    [
+        ...new Set([
+            ...props.episode.audioLanguages,
+            ...props.episode.videoLanguages,
+        ]),
+    ]
+        .map((code) =>
+            getLanguage({ languageCode: code, currentLanguageCode: 'en' })
+        )
+        .sort((a, b) => a.name.localeCompare(b.name))
 )
 
 const _language = ref<string>('')
@@ -36,16 +44,21 @@ const language = computed({
     },
 })
 
-// The video version in the selected language, or null (original) if there is none.
+// Switch whatever exists in the selected language; the rest stays original.
 const videoLanguage = computed(
     () => props.episode.videoLanguages.find((l) => l === language.value) ?? null
+)
+const audioLanguage = computed(() =>
+    props.episode.audioLanguages.includes(language.value)
+        ? language.value
+        : ORIGINAL_AUDIO_LANGUAGE
 )
 
 const { data: versionFiles } = useGetEpisodeFilesQuery({
     variables: computed(() => ({
         id: props.episode.id,
         videoLanguages: [videoLanguage.value],
-        audioLanguages: [language.value],
+        audioLanguages: [audioLanguage.value],
     })),
     pause: computed(() => videoLanguage.value === null),
 })
@@ -58,7 +71,9 @@ const files = computed(() => {
         return props.episode.files
     }
 
-    return props.episode.files.filter((f) => f.audioLanguage === language.value)
+    return props.episode.files.filter(
+        (f) => f.audioLanguage === audioLanguage.value
+    )
 })
 
 const fileId = ref<string>('')
