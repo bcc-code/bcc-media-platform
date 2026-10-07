@@ -7400,13 +7400,7 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     imageUrl: String @deprecated(reason: "Replaced by the image field")
 
     streams: [Stream!]! @goField(forceResolver: true)
-    """
-    Downloadable files.
-    Without ` + "`" + `videoLanguages` + "`" + ` only the original video version is returned
-    (File.videoLanguage = null), exactly as before.
-    With ` + "`" + `videoLanguages` + "`" + ` only files of the listed video versions are returned.
-    A ` + "`" + `null` + "`" + ` entry selects the original version, e.g. [null, nl].
-    """
+    "videoLanguages: null = original. Omitted = original only."
     files(audioLanguages: [String!], videoLanguages: [LanguageCode]): [File!]! @goField(forceResolver: true)
     chapters: [Chapter!]! @goField(forceResolver: true)
     skipToChapter: Chapter @goField(forceResolver: true)
@@ -7418,11 +7412,7 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     watched: Boolean! @goField(forceResolver: true)
     audioLanguages: [Language!]! @goField(forceResolver: true)
     subtitleLanguages: [Language!]! @goField(forceResolver: true)
-    """
-    Available video versions (burned-in text / sign language).
-    The original version is always listed first, as ` + "`" + `null` + "`" + `, followed by the
-    other versions sorted by code. Can be passed as-is to files(videoLanguages:).
-    """
+    "null = original, listed first."
     videoLanguages: [LanguageCode]! @goField(forceResolver: true)
     context: EpisodeContextUnion @goField(forceResolver: true)
     relatedItems(first: Int, offset: Int, cursor: Cursor): SectionItemPagination @goField(forceResolver: true)
@@ -7897,10 +7887,7 @@ interface MediaItem {
 
 scalar Language
 
-"""
-ISO 639-1 language code (plus a few 639-3 where no 2-letter code exists), as stored in the DB.
-` + "`" + `zxx` + "`" + ` = no linguistic content (e.g. a video version without any burned-in text).
-"""
+"zxx = no linguistic content"
 enum LanguageCode {
     bg
     da

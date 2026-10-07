@@ -37,10 +37,7 @@ interface MediaItem {
 
 scalar Language
 
-"""
-ISO 639-1 language code (plus a few 639-3 where no 2-letter code exists), as stored in the DB.
-`zxx` = no linguistic content (e.g. a video version without any burned-in text).
-"""
+"zxx = no linguistic content"
 enum LanguageCode {
     bg
     da

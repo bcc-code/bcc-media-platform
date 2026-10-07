@@ -507,11 +507,7 @@ type Episode struct {
 	Image                 *string     `json:"image,omitempty"`
 	ImageURL              *string     `json:"imageUrl,omitempty"`
 	Streams               []*Stream   `json:"streams"`
-	// Downloadable files.
-	// Without `videoLanguages` only the original video version is returned
-	// (File.videoLanguage = null), exactly as before.
-	// With `videoLanguages` only files of the listed video versions are returned.
-	// A `null` entry selects the original version, e.g. [null, nl].
+	// videoLanguages: null = original. Omitted = original only.
 	Files             []*File    `json:"files"`
 	Chapters          []*Chapter `json:"chapters"`
 	SkipToChapter     *Chapter   `json:"skipToChapter,omitempty"`
@@ -522,9 +518,7 @@ type Episode struct {
 	Watched           bool       `json:"watched"`
 	AudioLanguages    []string   `json:"audioLanguages"`
 	SubtitleLanguages []string   `json:"subtitleLanguages"`
-	// Available video versions (burned-in text / sign language).
-	// The original version is always listed first, as `null`, followed by the
-	// other versions sorted by code. Can be passed as-is to files(videoLanguages:).
+	// null = original, listed first.
 	VideoLanguages   []*LanguageCode        `json:"videoLanguages"`
 	Context          EpisodeContextUnion    `json:"context,omitempty"`
 	RelatedItems     *SectionItemPagination `json:"relatedItems,omitempty"`
@@ -2248,8 +2242,7 @@ func (e ImageStyle) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// ISO 639-1 language code (plus a few 639-3 where no 2-letter code exists), as stored in the DB.
-// `zxx` = no linguistic content (e.g. a video version without any burned-in text).
+// zxx = no linguistic content
 type LanguageCode string
 
 const (
