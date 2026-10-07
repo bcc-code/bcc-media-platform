@@ -1250,7 +1250,7 @@ type EpisodeResolver interface {
 	Watched(ctx context.Context, obj *model.Episode) (bool, error)
 	AudioLanguages(ctx context.Context, obj *model.Episode) ([]string, error)
 	SubtitleLanguages(ctx context.Context, obj *model.Episode) ([]string, error)
-	VideoLanguages(ctx context.Context, obj *model.Episode) ([]*model.LanguageCode, error)
+	VideoLanguages(ctx context.Context, obj *model.Episode) ([]model.LanguageCode, error)
 	Context(ctx context.Context, obj *model.Episode) (model.EpisodeContextUnion, error)
 	RelatedItems(ctx context.Context, obj *model.Episode, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 
@@ -7412,8 +7412,8 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     watched: Boolean! @goField(forceResolver: true)
     audioLanguages: [Language!]! @goField(forceResolver: true)
     subtitleLanguages: [Language!]! @goField(forceResolver: true)
-    "null = original, listed first."
-    videoLanguages: [LanguageCode]! @goField(forceResolver: true)
+    "The original counts as ` + "`" + `no` + "`" + `."
+    videoLanguages: [LanguageCode!]! @goField(forceResolver: true)
     context: EpisodeContextUnion @goField(forceResolver: true)
     relatedItems(first: Int, offset: Int, cursor: Cursor): SectionItemPagination @goField(forceResolver: true)
     images: [Image!]!
@@ -21639,9 +21639,9 @@ func (ec *executionContext) _Episode_videoLanguages(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.LanguageCode)
+	res := resTmp.([]model.LanguageCode)
 	fc.Result = res
-	return ec.marshalNLanguageCode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx, field.Selections, res)
+	return ec.marshalNLanguageCode2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCodeᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Episode_videoLanguages(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -66665,14 +66665,24 @@ func (ec *executionContext) marshalNLanguage2ᚕstringᚄ(ctx context.Context, s
 	return ret
 }
 
-func (ec *executionContext) unmarshalNLanguageCode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx context.Context, v any) ([]*model.LanguageCode, error) {
+func (ec *executionContext) unmarshalNLanguageCode2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx context.Context, v any) (model.LanguageCode, error) {
+	var res model.LanguageCode
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNLanguageCode2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx context.Context, sel ast.SelectionSet, v model.LanguageCode) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNLanguageCode2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCodeᚄ(ctx context.Context, v any) ([]model.LanguageCode, error) {
 	var vSlice []any
 	vSlice = graphql.CoerceList(v)
 	var err error
-	res := make([]*model.LanguageCode, len(vSlice))
+	res := make([]model.LanguageCode, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalOLanguageCode2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNLanguageCode2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -66680,7 +66690,7 @@ func (ec *executionContext) unmarshalNLanguageCode2ᚕᚖgithubᚗcomᚋbccᚑco
 	return res, nil
 }
 
-func (ec *executionContext) marshalNLanguageCode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx context.Context, sel ast.SelectionSet, v []*model.LanguageCode) graphql.Marshaler {
+func (ec *executionContext) marshalNLanguageCode2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCodeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.LanguageCode) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -66704,7 +66714,7 @@ func (ec *executionContext) marshalNLanguageCode2ᚕᚖgithubᚗcomᚋbccᚑcode
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOLanguageCode2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx, sel, v[i])
+			ret[i] = ec.marshalNLanguageCode2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐLanguageCode(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -66714,6 +66724,12 @@ func (ec *executionContext) marshalNLanguageCode2ᚕᚖgithubᚗcomᚋbccᚑcode
 
 	}
 	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
 
 	return ret
 }

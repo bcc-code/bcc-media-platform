@@ -328,28 +328,24 @@ func (r *episodeResolver) SubtitleLanguages(ctx context.Context, obj *model.Epis
 }
 
 // VideoLanguages is the resolver for the videoLanguages field.
-func (r *episodeResolver) VideoLanguages(ctx context.Context, obj *model.Episode) ([]*model.LanguageCode, error) {
+func (r *episodeResolver) VideoLanguages(ctx context.Context, obj *model.Episode) ([]model.LanguageCode, error) {
 	e, err := r.getEpisodeForLanguages(ctx, obj.ID, "episode.videoLanguages")
 	if err != nil || e == nil {
-		return []*model.LanguageCode{}, err
+		return []model.LanguageCode{}, err
 	}
 
-	var codes []model.LanguageCode
+	out := []model.LanguageCode{model.LanguageCodeNo}
 	for lang := range e.Assets {
 		code := model.LanguageCode(lang)
 		if !code.IsValid() {
 			log.L.Warn().Str("language", lang).Int("episodeId", e.ID).Msg("Unknown video language, add it to the LanguageCode enum")
 			continue
 		}
-		codes = append(codes, code)
+		if code != model.LanguageCodeNo {
+			out = append(out, code)
+		}
 	}
-	slices.Sort(codes)
-
-	// The original version (nil) is always available and comes first.
-	out := []*model.LanguageCode{nil}
-	for i := range codes {
-		out = append(out, &codes[i])
-	}
+	slices.Sort(out)
 	return out, nil
 }
 
