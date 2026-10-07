@@ -47,6 +47,7 @@ func FileFrom(_ context.Context, signer fileSigner, cdnDomain string, file *comm
 		FileName:         path.Base(file.Path),
 		AudioLanguage:    file.AudioLanguage.String,
 		SubtitleLanguage: subLang,
+		VideoLanguage:    file.VideoLanguage.Ptr(),
 		MimeType:         file.MimeType,
 		Resolution:       &file.Resolution,
 		Size:             file.Size,

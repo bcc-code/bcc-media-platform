@@ -359,75 +359,15 @@ func (r *episodeResolver) getChapters(ctx context.Context, episodeId string) ([]
 	return resolveChapters(ctx, r.Loaders, episodeId)
 }
 
-// toFiles filters asset file rows by audio language and converts them to GQL
-// files, tagging them with the video language (nil = original version).
-func (r *episodeResolver) toFiles(ctx context.Context, rows []*common.File, audioLanguages []string, videoLanguage *string) []*model.File {
+func (r *episodeResolver) toFiles(ctx context.Context, rows []*common.File, audioLanguages []string) []*model.File {
 	var out []*model.File
 	for _, f := range rows {
 		if len(audioLanguages) > 0 && !lo.Contains(audioLanguages, f.AudioLanguage.String) {
 			continue
 		}
-		file := model.FileFrom(ctx, r.FileSigner, r.Resolver.APIConfig.GetFilesCDNDomain(), f)
-		file.VideoLanguage = videoLanguage
-		out = append(out, file)
+		out = append(out, model.FileFrom(ctx, r.FileSigner, r.Resolver.APIConfig.GetFilesCDNDomain(), f))
 	}
 	return out
-}
-
-// filesForVideoLanguages returns the files of the requested video versions, in
-// the requested order. A nil entry selects the original version.
-func (r *episodeResolver) filesForVideoLanguages(ctx context.Context, episodeID int, audioLanguages []string, videoLanguages []*model.LanguageCode) ([]*model.File, error) {
-	e, err := r.GetLoaders().EpisodeLoader.Get(ctx, episodeID)
-	if err != nil {
-		return nil, err
-	}
-	if e == nil {
-		return nil, nil
-	}
-
-	var assetIDs []int
-	for _, lang := range videoLanguages {
-		if lang == nil {
-			continue
-		}
-		if assetID, ok := e.Assets[string(*lang)]; ok {
-			assetIDs = append(assetIDs, assetID)
-		}
-	}
-	r.GetLoaders().AssetFilesLoader.LoadMany(ctx, lo.Uniq(assetIDs))
-
-	var out []*model.File
-	seen := map[string]bool{}
-	for _, lang := range videoLanguages {
-		key := ""
-		if lang != nil {
-			key = string(*lang)
-		}
-		if seen[key] {
-			continue
-		}
-		seen[key] = true
-
-		if lang == nil {
-			rows, err := r.GetLoaders().FilesLoader.Get(ctx, episodeID)
-			if err != nil {
-				return nil, err
-			}
-			out = append(out, r.toFiles(ctx, rows, audioLanguages, nil)...)
-			continue
-		}
-
-		assetID, ok := e.Assets[key]
-		if !ok {
-			continue
-		}
-		rows, err := r.GetLoaders().AssetFilesLoader.Get(ctx, assetID)
-		if err != nil {
-			return nil, err
-		}
-		out = append(out, r.toFiles(ctx, rows, audioLanguages, &key)...)
-	}
-	return out, nil
 }
 
 // getEpisodeForLanguages loads the episode if the user may see its media.

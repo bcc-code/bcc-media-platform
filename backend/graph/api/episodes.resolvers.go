@@ -198,16 +198,24 @@ func (r *episodeResolver) Files(ctx context.Context, obj *model.Episode, audioLa
 		return nil, err
 	}
 
-	if videoLanguages != nil {
-		return r.filesForVideoLanguages(ctx, int(intID), audioLanguages, videoLanguages)
-	}
-
 	files, err := r.Resolver.Loaders.FilesLoader.Get(ctx, int(intID))
 	if err != nil {
 		return nil, err
 	}
 
-	return r.toFiles(ctx, files, audioLanguages, nil), nil
+	files = lo.Filter(files, func(f *common.File, _ int) bool {
+		if videoLanguages == nil {
+			return !f.VideoLanguage.Valid
+		}
+		return lo.ContainsBy(videoLanguages, func(l *model.LanguageCode) bool {
+			if l == nil {
+				return !f.VideoLanguage.Valid
+			}
+			return f.VideoLanguage.String == string(*l)
+		})
+	})
+
+	return r.toFiles(ctx, files, audioLanguages), nil
 }
 
 // Chapters is the resolver for the chapters field.

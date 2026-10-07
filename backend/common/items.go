@@ -185,6 +185,7 @@ type File struct {
 	AssetID          int         `json:"assetId"`
 	AudioLanguage    null.String `json:"audioLanguage"`
 	SubtitleLanguage null.String `json:"subtitleLanguage"`
+	VideoLanguage    null.String `json:"videoLanguage"`
 	Path             string      `json:"path"`
 	Storage          string      `json:"storage"`
 	MimeType         string      `json:"mimeType"`
