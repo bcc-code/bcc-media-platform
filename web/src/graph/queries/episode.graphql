@@ -86,6 +86,7 @@ query getEpisode($episodeId: ID!, $context: EpisodeContext) {
             size
             resolution
         }
+        videoLanguages
         next {
             id
         }
@@ -159,6 +160,23 @@ query getEpisodeEmbed($id: ID!) {
             fileName
             audioLanguage
             subtitleLanguage
+            size
+            resolution
+        }
+        videoLanguages
+    }
+}
+
+query getEpisodeFiles($id: ID!, $videoLanguages: [LanguageCode]) {
+    episode(id: $id) {
+        id
+        files(videoLanguages: $videoLanguages) {
+            id
+            url
+            fileName
+            audioLanguage
+            subtitleLanguage
+            videoLanguage
             size
             resolution
         }

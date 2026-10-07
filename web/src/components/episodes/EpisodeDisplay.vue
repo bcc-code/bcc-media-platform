@@ -27,6 +27,7 @@ import EmbedDownloadables from '../embed/EmbedDownloadables.vue'
 import { mdToHTML } from '@/services/converter'
 import { usePlayerTime } from '@/composables/usePlayerTime'
 import { useI18n } from 'vue-i18n'
+import { current as currentLanguage } from '@/services/language'
 import { Player } from 'bccm-video-player'
 import AudioPlayer from '../audio/AudioPlayer.vue'
 
@@ -57,6 +58,13 @@ const emit = defineEmits<{
 const { t } = useI18n()
 
 const episode = ref(null as GetEpisodeQuery['episode'] | null)
+
+// Same initial video language as EpisodeViewer: ?videoLang, else the site language.
+const videoLanguage = computed(
+    () =>
+        (router.currentRoute.value.query.videoLang as string | undefined) ||
+        currentLanguage.value?.code
+)
 const season = ref(null as GetSeasonOnEpisodePageQuery['season'] | null)
 
 const seasonId = ref('')
@@ -388,7 +396,10 @@ const audioOnly = computed(() => {
                             ></ItemList>
                         </div>
                         <div v-else-if="effectiveView === 'download'">
-                            <EmbedDownloadables :episode="episode" />
+                            <EmbedDownloadables
+                                :episode="episode"
+                                :playing-video-language="videoLanguage"
+                            />
                         </div>
                     </Transition>
                 </div>
