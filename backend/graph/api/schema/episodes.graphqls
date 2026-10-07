@@ -33,7 +33,14 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     imageUrl: String @deprecated(reason: "Replaced by the image field")
 
     streams: [Stream!]! @goField(forceResolver: true)
-    files(audioLanguages: [String!]): [File!]! @goField(forceResolver: true)
+    """
+    Downloadable files.
+    Without `videoLanguages` only the original video version is returned
+    (File.videoLanguage = null), exactly as before.
+    With `videoLanguages` only files of the listed video versions are returned.
+    A `null` entry selects the original version, e.g. [null, nl].
+    """
+    files(audioLanguages: [String!], videoLanguages: [LanguageCode]): [File!]! @goField(forceResolver: true)
     chapters: [Chapter!]! @goField(forceResolver: true)
     skipToChapter: Chapter @goField(forceResolver: true)
     assetVersion: String!
@@ -42,8 +49,14 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     duration: Int!
     progress: Int @goField(forceResolver: true)
     watched: Boolean! @goField(forceResolver: true)
-    audioLanguages: [Language!]!
-    subtitleLanguages: [Language!]!
+    audioLanguages: [Language!]! @goField(forceResolver: true)
+    subtitleLanguages: [Language!]! @goField(forceResolver: true)
+    """
+    Available video versions (burned-in text / sign language).
+    The original version is always listed first, as `null`, followed by the
+    other versions sorted by code. Can be passed as-is to files(videoLanguages:).
+    """
+    videoLanguages: [LanguageCode]! @goField(forceResolver: true)
     context: EpisodeContextUnion @goField(forceResolver: true)
     relatedItems(first: Int, offset: Int, cursor: Cursor): SectionItemPagination @goField(forceResolver: true)
     images: [Image!]!

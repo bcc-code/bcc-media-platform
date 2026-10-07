@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/bcc-code/bcc-media-platform/backend/cursors"
+	"slices"
 	"strconv"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -356,4 +357,112 @@ func (r *episodeResolver) getTitleWithCollection(ctx context.Context, episode *m
 
 func (r *episodeResolver) getChapters(ctx context.Context, episodeId string) ([]*model.Chapter, error) {
 	return resolveChapters(ctx, r.Loaders, episodeId)
+}
+
+// toFiles filters asset file rows by audio language and converts them to GQL
+// files, tagging them with the video language (nil = original version).
+func (r *episodeResolver) toFiles(ctx context.Context, rows []*common.File, audioLanguages []string, videoLanguage *string) []*model.File {
+	var out []*model.File
+	for _, f := range rows {
+		if len(audioLanguages) > 0 && !lo.Contains(audioLanguages, f.AudioLanguage.String) {
+			continue
+		}
+		file := model.FileFrom(ctx, r.FileSigner, r.Resolver.APIConfig.GetFilesCDNDomain(), f)
+		file.VideoLanguage = videoLanguage
+		out = append(out, file)
+	}
+	return out
+}
+
+// filesForVideoLanguages returns the files of the requested video versions, in
+// the requested order. A nil entry selects the original version.
+func (r *episodeResolver) filesForVideoLanguages(ctx context.Context, episodeID int, audioLanguages []string, videoLanguages []*model.LanguageCode) ([]*model.File, error) {
+	e, err := r.GetLoaders().EpisodeLoader.Get(ctx, episodeID)
+	if err != nil {
+		return nil, err
+	}
+	if e == nil {
+		return nil, nil
+	}
+
+	var assetIDs []int
+	for _, lang := range videoLanguages {
+		if lang == nil {
+			continue
+		}
+		if assetID, ok := e.Assets[string(*lang)]; ok {
+			assetIDs = append(assetIDs, assetID)
+		}
+	}
+	r.GetLoaders().AssetFilesLoader.LoadMany(ctx, lo.Uniq(assetIDs))
+
+	var out []*model.File
+	seen := map[string]bool{}
+	for _, lang := range videoLanguages {
+		key := ""
+		if lang != nil {
+			key = string(*lang)
+		}
+		if seen[key] {
+			continue
+		}
+		seen[key] = true
+
+		if lang == nil {
+			rows, err := r.GetLoaders().FilesLoader.Get(ctx, episodeID)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, r.toFiles(ctx, rows, audioLanguages, nil)...)
+			continue
+		}
+
+		assetID, ok := e.Assets[key]
+		if !ok {
+			continue
+		}
+		rows, err := r.GetLoaders().AssetFilesLoader.Get(ctx, assetID)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, r.toFiles(ctx, rows, audioLanguages, &key)...)
+	}
+	return out, nil
+}
+
+// getEpisodeForLanguages loads the episode if the user may see its media.
+// Returns nil (and no error) when access is denied, so the language fields
+// degrade to empty lists.
+func (r *episodeResolver) getEpisodeForLanguages(ctx context.Context, episodeID string, field string) (*common.Episode, error) {
+	err := user.ValidateAccess(ctx, r.Loaders.EpisodePermissionLoader, utils.AsInt(episodeID), user.CheckConditions{
+		FromDate:    true,
+		PublishDate: true,
+	})
+	if err != nil {
+		logOmitted(err, field)
+		return nil, nil //nolint:nilerr // optional field: degrade rather than fail the query
+	}
+	return r.GetLoaders().EpisodeLoader.Get(ctx, utils.AsInt(episodeID))
+}
+
+// episodeStreamLanguages returns the sorted, unique audio and subtitle
+// languages of the episode's original asset. All video versions carry the same
+// audio languages, so the original is representative.
+func (r *episodeResolver) episodeStreamLanguages(ctx context.Context, e *common.Episode) (audio []string, subtitles []string, err error) {
+	audio, subtitles = []string{}, []string{}
+	if e == nil || !e.AssetID.Valid {
+		return audio, subtitles, nil
+	}
+	streams, err := r.GetLoaders().AssetStreamsLoader.Get(ctx, int(e.AssetID.Int64))
+	if err != nil {
+		return nil, nil, err
+	}
+	for _, s := range streams {
+		audio = append(audio, s.AudioLanguages...)
+		subtitles = append(subtitles, s.SubtitleLanguages...)
+	}
+	audio, subtitles = lo.Uniq(audio), lo.Uniq(subtitles)
+	slices.Sort(audio)
+	slices.Sort(subtitles)
+	return audio, subtitles, nil
 }

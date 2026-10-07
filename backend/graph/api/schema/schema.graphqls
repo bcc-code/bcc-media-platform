@@ -36,6 +36,39 @@ interface MediaItem {
 }
 
 scalar Language
+
+"""
+ISO 639-1 language code (plus a few 639-3 where no 2-letter code exists), as stored in the DB.
+`zxx` = no linguistic content (e.g. a video version without any burned-in text).
+"""
+enum LanguageCode {
+    bg
+    da
+    de
+    en
+    es
+    fi
+    fr
+    hr
+    hu
+    it
+    kha
+    nb
+    nl
+    no
+    pl
+    pt
+    ro
+    ru
+    sl
+    sv
+    ta
+    tr
+    yue
+    zh
+    zxx
+}
+
 scalar Date
 scalar UUID
 
