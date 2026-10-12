@@ -1,0 +1,230 @@
+{
+ "from": 5,
+ "min_score": 3,
+ "query": {
+  "bool": {
+   "filter": [
+    {
+     "term": {
+      "published": true
+     }
+    },
+    {
+     "bool": {
+      "minimum_should_match": 1,
+      "should": [
+       {
+        "term": {
+         "roles.keyword": "bcc-members"
+        }
+       },
+       {
+        "term": {
+         "roles.keyword": "public"
+        }
+       }
+      ]
+     }
+    },
+    {
+     "bool": {
+      "minimum_should_match": 1,
+      "should": [
+       {
+        "term": {
+         "availableFrom": 0
+        }
+       },
+       {
+        "range": {
+         "availableFrom": {
+          "lt": 1234
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "bool": {
+      "minimum_should_match": 1,
+      "should": [
+       {
+        "term": {
+         "availableTo": 0
+        }
+       },
+       {
+        "range": {
+         "availableTo": {
+          "gt": 1234
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "bool": {
+      "must_not": [
+       {
+        "range": {
+         "publishedOn": {
+          "gt": 1234
+         }
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "should": [
+    {
+     "multi_match": {
+      "boost": 2,
+      "fields": [
+       "title_no",
+       "description_no",
+       "title_en",
+       "description_en"
+      ],
+      "fuzziness": "AUTO",
+      "query": "te\"st"
+     }
+    },
+    {
+     "multi_match": {
+      "boost": 10,
+      "fields": [
+       "tags",
+       "showTitle_no",
+       "showTitle_en"
+      ],
+      "fuzziness": 0,
+      "query": "te\"st"
+     }
+    },
+    {
+     "multi_match": {
+      "boost": 7,
+      "fields": [
+       "title_no",
+       "title_en"
+      ],
+      "fuzziness": 0,
+      "query": "te\"st"
+     }
+    },
+    {
+     "multi_match": {
+      "boost": 3,
+      "fields": [
+       "description_no",
+       "description_en"
+      ],
+      "fuzziness": 0,
+      "query": "te\"st"
+     }
+    },
+    {
+     "multi_match": {
+      "boost": 3,
+      "fields": [
+       "showTitle_no",
+       "title_no",
+       "showTitle_en",
+       "title_en"
+      ],
+      "fuzziness": "AUTO",
+      "query": "te\"st"
+     }
+    },
+    {
+     "prefix": {
+      "title_no": {
+       "value": "te\"st"
+      }
+     }
+    },
+    {
+     "prefix": {
+      "description_no": {
+       "value": "te\"st"
+      }
+     }
+    },
+    {
+     "prefix": {
+      "showTitle_no": {
+       "value": "te\"st"
+      }
+     }
+    },
+    {
+     "prefix": {
+      "seasonTitle_no": {
+       "value": "te\"st"
+      }
+     }
+    },
+    {
+     "prefix": {
+      "title_en": {
+       "value": "te\"st"
+      }
+     }
+    },
+    {
+     "prefix": {
+      "description_en": {
+       "value": "te\"st"
+      }
+     }
+    },
+    {
+     "prefix": {
+      "showTitle_en": {
+       "value": "te\"st"
+      }
+     }
+    },
+    {
+     "prefix": {
+      "seasonTitle_en": {
+       "value": "te\"st"
+      }
+     }
+    },
+    {
+     "multi_match": {
+      "boost": 0.5,
+      "fields": [
+       "title_no",
+       "description_no",
+       "title_de",
+       "description_de",
+       "title_en",
+       "description_en"
+      ],
+      "fuzziness": "AUTO",
+      "query": "te\"st"
+     }
+    },
+    {
+     "multi_match": {
+      "boost": 0.9,
+      "fields": [
+       "tags",
+       "showTitle_no",
+       "showTitle_de",
+       "showTitle_en"
+      ],
+      "fuzziness": 0,
+      "query": "te\"st"
+     }
+    }
+   ]
+  }
+ },
+ "size": 10
+}

@@ -17,6 +17,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/directus"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/admin/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/admin/model"
+	model1 "github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
@@ -211,6 +212,36 @@ func (r *authResolver) Logout(ctx context.Context, obj *model.Auth) (bool, error
 	return true, nil
 }
 
+// Season is the resolver for the season field.
+func (r *episodeResolver) Season(ctx context.Context, obj *model1.Episode) (*model1.Season, error) {
+	if obj.Season == nil {
+		return nil, nil
+	}
+	s, err := r.Loaders.SeasonLoader.Get(ctx, utils.AsInt(obj.Season.ID))
+	if err != nil || s == nil {
+		return nil, err
+	}
+	return model1.SeasonFrom(ctx, s), nil
+}
+
+// Availability is the resolver for the availability field.
+func (r *episodeResolver) Availability(ctx context.Context, obj *model1.Episode) (*model.Availability, error) {
+	p, err := permissions(ctx, r.Loaders.EpisodePermissionLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	return availabilityFrom(p.Availability), nil
+}
+
+// Roles is the resolver for the roles field.
+func (r *episodeResolver) Roles(ctx context.Context, obj *model1.Episode) (*model.Roles, error) {
+	p, err := permissions(ctx, r.Loaders.EpisodePermissionLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	return rolesFrom(p.Roles), nil
+}
+
 // ImportTimedMetadata is the resolver for the importTimedMetadata field.
 func (r *episodesResolver) ImportTimedMetadata(ctx context.Context, obj *model.Episodes, episodeID string) (bool, error) {
 	intID, err := strconv.ParseInt(episodeID, 10, 64)
@@ -371,6 +402,93 @@ func (r *queryRootResolver) MediaItems(ctx context.Context) (*model.MediaItems, 
 	return &model.MediaItems{}, nil
 }
 
+// Search is the resolver for the search field.
+func (r *queryRootResolver) Search(ctx context.Context) (*model.Search, error) {
+	return &model.Search{}, nil
+}
+
+// Query is the resolver for the query field.
+func (r *searchResolver) Query(ctx context.Context, obj *model.Search, query string, filter *model.SearchFilter, first *int, offset *int) (*model.SearchResult, error) {
+	return r.search(ctx, query, filter, first, offset)
+}
+
+// Item is the resolver for the item field.
+func (r *searchHitResolver) Item(ctx context.Context, obj *model.SearchHit) (model.SearchItem, error) {
+	id, err := strconv.Atoi(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	switch obj.Type {
+	case model.SearchTypeEpisode:
+		e, err := r.Loaders.EpisodeLoader.Get(ctx, id)
+		if err != nil || e == nil {
+			return nil, err
+		}
+		return model1.EpisodeFrom(ctx, e), nil
+	case model.SearchTypeSeason:
+		s, err := r.Loaders.SeasonLoader.Get(ctx, id)
+		if err != nil || s == nil {
+			return nil, err
+		}
+		return model1.SeasonFrom(ctx, s), nil
+	case model.SearchTypeShow:
+		s, err := r.Loaders.ShowLoader.Get(ctx, id)
+		if err != nil || s == nil {
+			return nil, err
+		}
+		return model1.ShowFrom(ctx, s), nil
+	}
+	return nil, fmt.Errorf("unsupported search type: %s", obj.Type)
+}
+
+// Show is the resolver for the show field.
+func (r *seasonResolver) Show(ctx context.Context, obj *model1.Season) (*model1.Show, error) {
+	s, err := r.Loaders.ShowLoader.Get(ctx, utils.AsInt(obj.Show.ID))
+	if err != nil {
+		return nil, err
+	}
+	if s == nil {
+		return nil, fmt.Errorf("show %s not found", obj.Show.ID)
+	}
+	return model1.ShowFrom(ctx, s), nil
+}
+
+// Availability is the resolver for the availability field.
+func (r *seasonResolver) Availability(ctx context.Context, obj *model1.Season) (*model.Availability, error) {
+	p, err := permissions(ctx, r.Loaders.SeasonPermissionLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	return availabilityFrom(p.Availability), nil
+}
+
+// Roles is the resolver for the roles field.
+func (r *seasonResolver) Roles(ctx context.Context, obj *model1.Season) (*model.Roles, error) {
+	p, err := permissions(ctx, r.Loaders.SeasonPermissionLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	return rolesFrom(p.Roles), nil
+}
+
+// Availability is the resolver for the availability field.
+func (r *showResolver) Availability(ctx context.Context, obj *model1.Show) (*model.Availability, error) {
+	p, err := permissions(ctx, r.Loaders.ShowPermissionLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	return availabilityFrom(p.Availability), nil
+}
+
+// Roles is the resolver for the roles field.
+func (r *showResolver) Roles(ctx context.Context, obj *model1.Show) (*model.Roles, error) {
+	p, err := permissions(ctx, r.Loaders.ShowPermissionLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	return rolesFrom(p.Roles), nil
+}
+
 // LessonProgressGroupedByOrg is the resolver for the lessonProgressGroupedByOrg field.
 func (r *statisticsResolver) LessonProgressGroupedByOrg(ctx context.Context, obj *model.Statistics, lessonID string, ageGroups []string, orgMaxSize *int, orgMinSize *int) ([]*model.ProgressByOrg, error) {
 	minSize := 0
@@ -407,6 +525,9 @@ func (r *statisticsResolver) LessonProgressGroupedByOrg(ctx context.Context, obj
 // Auth returns generated.AuthResolver implementation.
 func (r *Resolver) Auth() generated.AuthResolver { return &authResolver{r} }
 
+// Episode returns generated.EpisodeResolver implementation.
+func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
+
 // Episodes returns generated.EpisodesResolver implementation.
 func (r *Resolver) Episodes() generated.EpisodesResolver { return &episodesResolver{r} }
 
@@ -422,13 +543,30 @@ func (r *Resolver) Preview() generated.PreviewResolver { return &previewResolver
 // QueryRoot returns generated.QueryRootResolver implementation.
 func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootResolver{r} }
 
+// Search returns generated.SearchResolver implementation.
+func (r *Resolver) Search() generated.SearchResolver { return &searchResolver{r} }
+
+// SearchHit returns generated.SearchHitResolver implementation.
+func (r *Resolver) SearchHit() generated.SearchHitResolver { return &searchHitResolver{r} }
+
+// Season returns generated.SeasonResolver implementation.
+func (r *Resolver) Season() generated.SeasonResolver { return &seasonResolver{r} }
+
+// Show returns generated.ShowResolver implementation.
+func (r *Resolver) Show() generated.ShowResolver { return &showResolver{r} }
+
 // Statistics returns generated.StatisticsResolver implementation.
 func (r *Resolver) Statistics() generated.StatisticsResolver { return &statisticsResolver{r} }
 
 type authResolver struct{ *Resolver }
+type episodeResolver struct{ *Resolver }
 type episodesResolver struct{ *Resolver }
 type mediaItemsResolver struct{ *Resolver }
 type mutationRootResolver struct{ *Resolver }
 type previewResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }
+type searchResolver struct{ *Resolver }
+type searchHitResolver struct{ *Resolver }
+type seasonResolver struct{ *Resolver }
+type showResolver struct{ *Resolver }
 type statisticsResolver struct{ *Resolver }

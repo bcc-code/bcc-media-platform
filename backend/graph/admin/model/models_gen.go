@@ -29,6 +29,15 @@ type AuthResult struct {
 	User        *AdminUser `json:"user"`
 }
 
+type Availability struct {
+	Published bool `json:"published"`
+	Unlisted  bool `json:"unlisted"`
+	// RFC3339
+	From        *string `json:"from,omitempty"`
+	To          *string `json:"to,omitempty"`
+	PublishedOn *string `json:"publishedOn,omitempty"`
+}
+
 type CollectionItem struct {
 	Collection Collection `json:"collection"`
 	ID         string     `json:"id"`
@@ -66,6 +75,38 @@ type ProgressByOrg struct {
 }
 
 type QueryRoot struct {
+}
+
+type Roles struct {
+	Access      []string `json:"access"`
+	Download    []string `json:"download"`
+	EarlyAccess []string `json:"earlyAccess"`
+}
+
+type Search struct {
+	Query *SearchResult `json:"query"`
+}
+
+type SearchFilter struct {
+	// Search as a member of this usergroup: only published, currently available items it can access.
+	Group *string `json:"group,omitempty"`
+	// Defaults to all types.
+	Types []SearchType `json:"types,omitempty"`
+}
+
+type SearchHit struct {
+	ID    string     `json:"id"`
+	Type  SearchType `json:"type"`
+	Score *float64   `json:"score,omitempty"`
+	// Null if the item was deleted after it was indexed.
+	Item SearchItem `json:"item,omitempty"`
+}
+
+type SearchResult struct {
+	Total int `json:"total"`
+	// The group the search ran as, possibly forced by the API key.
+	Group *string      `json:"group,omitempty"`
+	Hits  []*SearchHit `json:"hits"`
 }
 
 type Statistics struct {
@@ -128,6 +169,63 @@ func (e *Collection) UnmarshalJSON(b []byte) error {
 }
 
 func (e Collection) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type SearchType string
+
+const (
+	SearchTypeEpisode SearchType = "episode"
+	SearchTypeSeason  SearchType = "season"
+	SearchTypeShow    SearchType = "show"
+)
+
+var AllSearchType = []SearchType{
+	SearchTypeEpisode,
+	SearchTypeSeason,
+	SearchTypeShow,
+}
+
+func (e SearchType) IsValid() bool {
+	switch e {
+	case SearchTypeEpisode, SearchTypeSeason, SearchTypeShow:
+		return true
+	}
+	return false
+}
+
+func (e SearchType) String() string {
+	return string(e)
+}
+
+func (e *SearchType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SearchType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SearchType", str)
+	}
+	return nil
+}
+
+func (e SearchType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *SearchType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e SearchType) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

@@ -1,0 +1,13 @@
+{
+  "from": {{ .Offset }},
+  "size": {{ .Limit }},
+  "_source": false,
+  "track_total_hits": true,
+  {{ if .QueryString }}"min_score": 3,{{ end }}
+  "query": {
+    "bool": {
+      "filter": {{ .Filters }}{{ if .QueryString }},
+      "should": {{ template "scoring" . }}{{ end }}
+    }
+  }
+}

@@ -241,6 +241,8 @@ type AuthExtension struct {
 	Queries        *sqlc.Queries
 	JWTSecret      []byte
 	DirectusSecret string
+	// SearchKeys maps API keys to the usergroup they always search as. They grant access to `search` only.
+	SearchKeys map[string]string
 }
 
 // Compile-time checks that AuthExtension implements the gqlgen extension hooks it uses.
@@ -281,6 +283,14 @@ func (a AuthExtension) MutateOperationContext(ctx context.Context, opCtx *graphq
 		return nil
 	}
 
+	if group, ok := a.SearchKeys[ginCtx.GetHeader("x-api-key")]; ok {
+		if !isSearchOnlyOperation(opCtx.Operation) {
+			return errUnauthenticated(ctx)
+		}
+		ginCtx.Set(ctxForcedSearchGroup, group)
+		return nil
+	}
+
 	// Browser access from admin-web with a token this service minted. The
 	// user is re-checked so a deactivated account is rejected even while its
 	// short-lived token is still cryptographically valid.
@@ -301,6 +311,23 @@ func (a AuthExtension) MutateOperationContext(ctx context.Context, opCtx *graphq
 	}
 
 	return errUnauthenticated(ctx)
+}
+
+// isSearchOnlyOperation reports whether every root selection of the operation is the `search` query namespace.
+func isSearchOnlyOperation(op *ast.OperationDefinition) bool {
+	if op == nil || op.Operation != ast.Query || len(op.SelectionSet) == 0 {
+		return false
+	}
+	for _, sel := range op.SelectionSet {
+		field, ok := sel.(*ast.Field)
+		if !ok {
+			return false
+		}
+		if field.Name != "search" && field.Name != "__typename" {
+			return false
+		}
+	}
+	return true
 }
 
 // isAuthOnlyOperation reports whether every root selection of the operation

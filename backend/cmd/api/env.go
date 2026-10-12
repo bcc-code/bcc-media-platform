@@ -87,6 +87,21 @@ func splitAndTrim(raw string) []string {
 	return out
 }
 
+// parseSearchKeys parses "key:group,key:group" into a map; malformed entries are skipped.
+func parseSearchKeys(raw string) map[string]string {
+	out := map[string]string{}
+	for _, entry := range splitAndTrim(raw) {
+		key, group, ok := strings.Cut(entry, ":")
+		key, group = strings.TrimSpace(key), strings.TrimSpace(group)
+		if !ok || key == "" || group == "" {
+			log.L.Warn().Msg("Ignoring malformed ADMIN_SEARCH_KEYS entry")
+			continue
+		}
+		out[key] = group
+	}
+	return out
+}
+
 type envConfig struct {
 	Members       members.Config
 	DB            utils.DatabaseConfig
@@ -123,6 +138,8 @@ type adminConfig struct {
 	// SecureCookie sets the Secure attribute on the refresh cookie. Default
 	// true; only the literal env value "false" opts out (local http dev).
 	SecureCookie bool
+	// SearchKeys maps API keys to the usergroup they are pinned to (ADMIN_SEARCH_KEYS="key:group,...").
+	SearchKeys map[string]string
 }
 
 type cdnConfig struct {
@@ -291,6 +308,7 @@ func getEnvConfig() envConfig {
 			JWTSecret:    os.Getenv("ADMIN_JWT_SECRET"),
 			CORSOrigins:  splitAndTrim(os.Getenv("ADMIN_CORS_ORIGINS")),
 			SecureCookie: os.Getenv("ADMIN_COOKIE_SECURE") != "false",
+			SearchKeys:   parseSearchKeys(os.Getenv("ADMIN_SEARCH_KEYS")),
 		},
 		Redis: utils.RedisConfig{
 			Address:  os.Getenv("REDIS_ADDRESS"),

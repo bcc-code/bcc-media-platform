@@ -167,10 +167,10 @@ func publicGraphqlHandler(loaders *loaders.BatchLoaders) gin.HandlerFunc {
 	}
 }
 
-func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *loaders.BatchLoaders, directusClient *directus.Client, remoteCache *remotecache.Client) gin.HandlerFunc {
+func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *loaders.BatchLoaders, directusClient *directus.Client, remoteCache *remotecache.Client, searchService *search.Service) gin.HandlerFunc {
 	directusSecret := config.Secrets.Directus
 
-	if directusSecret == "" && config.Admin.JWTSecret == "" {
+	if directusSecret == "" && config.Admin.JWTSecret == "" && len(config.Admin.SearchKeys) == 0 {
 		log.L.Debug().Msg("No Directus secret or admin JWT secret found in environment. Disabling endpoint")
 		return func(c *gin.Context) {
 			c.AbortWithStatus(404)
@@ -188,6 +188,7 @@ func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, lo
 			SecureCookie: config.Admin.SecureCookie,
 			RemoteCache:  remoteCache,
 		},
+		SearchService: searchService,
 	}
 
 	// NewExecutableSchema and Config are in the generated.go file
@@ -202,6 +203,7 @@ func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, lo
 		Queries:        queries,
 		JWTSecret:      []byte(config.Admin.JWTSecret),
 		DirectusSecret: directusSecret,
+		SearchKeys:     config.Admin.SearchKeys,
 	})
 
 	return func(c *gin.Context) {

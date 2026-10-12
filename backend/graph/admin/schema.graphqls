@@ -75,11 +75,115 @@ type Auth {
     logout: Boolean! @goField(forceResolver: true)
 }
 
+enum SearchType {
+    episode,
+    season,
+    show,
+}
+
+input SearchFilter {
+    "Search as a member of this usergroup: only published, currently available items it can access."
+    group: String
+    "Defaults to all types."
+    types: [SearchType!]
+}
+
+union SearchItem = Episode | Season | Show
+
+type SearchHit {
+    id: ID!
+    type: SearchType!
+    score: Float
+    "Null if the item was deleted after it was indexed."
+    item: SearchItem @goField(forceResolver: true)
+}
+
+type SearchResult {
+    total: Int!
+    "The group the search ran as, possibly forced by the API key."
+    group: String
+    hits: [SearchHit!]!
+}
+
+type Search {
+    query(query: String!, filter: SearchFilter, first: Int, offset: Int): SearchResult! @goField(forceResolver: true)
+}
+
+type Availability {
+    published: Boolean!
+    unlisted: Boolean!
+    "RFC3339"
+    from: String
+    to: String
+    publishedOn: String
+}
+
+type Roles {
+    access: [String!]!
+    download: [String!]!
+    earlyAccess: [String!]!
+}
+
+# Episode, Season, Show, Image and Status are bound to the main API's Go models (see gqlgen.yml).
+# Keep field names and types in sync with graph/api/schema.
+
+enum Status {
+    published
+    unlisted
+}
+
+type Image {
+    style: String!
+    url: String!
+}
+
+type Episode {
+    id: ID!
+    uuid: String!
+    status: Status!
+    title: String!
+    description: String!
+    ageRating: String!
+    duration: Int!
+    number: Int
+    imageUrl: String
+    images: [Image!]!
+    season: Season @goField(forceResolver: true)
+    availability: Availability! @goField(forceResolver: true)
+    roles: Roles! @goField(forceResolver: true)
+}
+
+type Season {
+    id: ID!
+    status: Status!
+    title: String!
+    description: String!
+    ageRating: String!
+    number: Int!
+    imageUrl: String
+    images: [Image!]!
+    show: Show! @goField(forceResolver: true)
+    availability: Availability! @goField(forceResolver: true)
+    roles: Roles! @goField(forceResolver: true)
+}
+
+type Show {
+    id: ID!
+    status: Status!
+    title: String!
+    description: String!
+    imageUrl: String
+    images: [Image!]!
+    availability: Availability! @goField(forceResolver: true)
+    roles: Roles! @goField(forceResolver: true)
+}
+
 type QueryRoot {
     preview: Preview!
     statistics: Statistics!
     episodes: Episodes!
     mediaItems: MediaItems!
+    search: Search!
 }
 
 type MutationRoot {
