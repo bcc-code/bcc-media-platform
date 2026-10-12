@@ -15,9 +15,6 @@ import (
 	"github.com/samber/lo"
 )
 
-// ctxForcedSearchGroup is set by AuthExtension for API keys that are pinned to a usergroup.
-const ctxForcedSearchGroup = "admin-forced-search-group"
-
 const (
 	defaultSearchLimit = 20
 	maxSearchLimit     = 100
@@ -40,8 +37,12 @@ func (r *Resolver) search(ctx context.Context, query string, filter *model.Searc
 		f.Group = filter.Group
 		f.Types = lo.Map(filter.Types, func(t model.SearchType, _ int) string { return string(t) })
 	}
-	if forced := ginCtx.GetString(ctxForcedSearchGroup); forced != "" {
-		f.Group = &forced
+	forced, err := principalFromCtx(ctx).forcedFilter(model.AdminResourceSearch)
+	if err != nil {
+		return nil, err
+	}
+	if !applyForcedSearchFilter(&f, forced) {
+		return &model.SearchResult{Group: f.Group, Hits: []*model.SearchHit{}}, nil
 	}
 
 	if f.Group != nil {
@@ -85,6 +86,27 @@ func (r *Resolver) search(ctx context.Context, query string, filter *model.Searc
 		})
 	}
 	return out, nil
+}
+
+// applyForcedSearchFilter pins the group and narrows the types; it returns false if no requested type is allowed.
+func applyForcedSearchFilter(f *search.AdminFilter, forced *model.ForcedFilterInput) bool {
+	if forced == nil || forced.Search == nil {
+		return true
+	}
+	if forced.Search.Group != nil {
+		f.Group = forced.Search.Group
+	}
+	if len(forced.Search.Types) > 0 {
+		allowed := lo.Map(forced.Search.Types, func(t model.SearchType, _ int) string { return string(t) })
+		if len(f.Types) > 0 {
+			allowed = lo.Intersect(allowed, f.Types)
+		}
+		if len(allowed) == 0 {
+			return false
+		}
+		f.Types = allowed
+	}
+	return true
 }
 
 func permissions(ctx context.Context, loader *loaders.Loader[int, *common.Permissions[int]], id string) (*common.Permissions[int], error) {

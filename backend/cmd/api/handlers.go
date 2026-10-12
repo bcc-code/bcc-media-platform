@@ -170,7 +170,7 @@ func publicGraphqlHandler(loaders *loaders.BatchLoaders) gin.HandlerFunc {
 func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, loaders *loaders.BatchLoaders, directusClient *directus.Client, remoteCache *remotecache.Client, searchService *search.Service) gin.HandlerFunc {
 	directusSecret := config.Secrets.Directus
 
-	if directusSecret == "" && config.Admin.JWTSecret == "" && len(config.Admin.SearchKeys) == 0 {
+	if directusSecret == "" && config.Admin.JWTSecret == "" {
 		log.L.Debug().Msg("No Directus secret or admin JWT secret found in environment. Disabling endpoint")
 		return func(c *gin.Context) {
 			c.AbortWithStatus(404)
@@ -193,17 +193,19 @@ func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, lo
 
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
-	h := handler.NewDefaultServer(graphadmingenerated.NewExecutableSchema(graphadmingenerated.Config{Resolvers: &resolver}))
+	h := handler.NewDefaultServer(graphadmingenerated.NewExecutableSchema(graphadmingenerated.Config{
+		Resolvers:  &resolver,
+		Directives: graphadmingenerated.DirectiveRoot{Access: graphadmin.AccessDirective},
+	}))
 	h.Use(gqlextension.FixedComplexityLimit(5000))
 	h.Use(apiextension.DepthLimit{Max: 20})
-	// Per-operation access control: x-api-key (Directus endpoint-tools,
-	// server-to-server) or a token this service minted (admin-web); only the
-	// `auth` mutations execute without credentials.
+	// Per-operation authentication: the Directus secret or a DB API key as
+	// x-api-key, or a token this service minted (admin-web); only the `auth`
+	// mutations execute without credentials. @access enforces permissions.
 	h.Use(graphadmin.AuthExtension{
 		Queries:        queries,
 		JWTSecret:      []byte(config.Admin.JWTSecret),
 		DirectusSecret: directusSecret,
-		SearchKeys:     config.Admin.SearchKeys,
 	})
 
 	return func(c *gin.Context) {
