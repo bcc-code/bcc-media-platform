@@ -456,3 +456,57 @@ func TestHandle_DefaultProviderUnset_NoClaim_400(t *testing.T) {
 	assert.True(t, strings.Contains(rec.Body.String(), "unknown provider"))
 	assert.Empty(t, transport.last())
 }
+
+// Regression for iOS -12312: refreshing a live playlist with the same JWT must
+// return byte-identical segment and EXT-X-MAP URIs.
+func TestHandle_Live_SegmentURIsStableAcrossRefreshes(t *testing.T) {
+	h, transport := newTestHandler(t)
+	transport.body = []byte("#EXTM3U\n#EXT-X-MEDIA-SEQUENCE:100\n#EXT-X-MAP:URI=\"init.mp4\"\n#EXTINF:6,\nseg100.mp4\n#EXTINF:6,\nseg101.mp4\n")
+	// Expire the cache so each request re-fetches and re-rewrites the playlist.
+	h.liveCacheTTL = time.Nanosecond
+
+	exp := time.Now().Add(7 * time.Hour).Truncate(time.Second)
+	tok := jwt.New()
+	require.NoError(t, tok.Set("base", "/out/v1/cc/dd/"))
+	require.NoError(t, tok.Set(jwt.ExpirationKey, exp))
+	require.NoError(t, tok.Set("provider", string(streamtoken.ProviderIoriver)))
+	require.NoError(t, tok.Set("live", true))
+	signed, err := jwt.Sign(tok, jwt.WithKey(jwa.HS256, []byte(handlerTestSecret)))
+	require.NoError(t, err)
+	target := fmt.Sprintf("/out/v1/cc/dd/ee/index_1.m3u8?jwt=%s", url.QueryEscape(string(signed)))
+
+	clock := time.Now()
+	h.now = func() time.Time { return clock }
+	first := runHandler(h, target)
+	require.Equal(t, http.StatusOK, first.Code, "body=%s", first.Body.String())
+
+	for _, d := range []time.Duration{6 * time.Second, 5 * time.Minute} {
+		clock = clock.Add(d)
+		time.Sleep(time.Millisecond)
+		next := runHandler(h, target)
+		require.Equal(t, http.StatusOK, next.Code)
+		assert.Equal(t, first.Body.String(), next.Body.String(), "playlist changed after %s", d)
+	}
+	assert.GreaterOrEqual(t, transport.calls.Load(), int64(3), "upstream must be re-fetched, not served from cache")
+
+	body := first.Body.String()
+	assert.Contains(t, body, `URI="https://live.example.com/out/v1/cc/dd/ee/init.mp4?`)
+	idx := strings.Index(body, "FS-Policy=")
+	require.GreaterOrEqual(t, idx, 0)
+	enc := body[idx+len("FS-Policy="):]
+	enc = enc[:strings.IndexAny(enc, "&\"\n")]
+	policy, err := base64.RawStdEncoding.DecodeString(enc)
+	require.NoError(t, err)
+	assert.Contains(t, string(policy), fmt.Sprintf("end_time=%d", exp.Unix()))
+}
+
+func TestSegmentSignEnd(t *testing.T) {
+	exp := time.Unix(1791902331, 0)
+	assert.Equal(t, exp, segmentSignEnd(exp, time.Now(), 6*time.Hour))
+
+	base := time.Date(2026, 10, 13, 10, 0, 0, 0, time.UTC)
+	want := base.Add(7 * time.Hour)
+	assert.Equal(t, want, segmentSignEnd(time.Time{}, base.Add(time.Minute), 6*time.Hour))
+	assert.Equal(t, want, segmentSignEnd(time.Time{}, base.Add(59*time.Minute), 6*time.Hour))
+	assert.Equal(t, base.Add(6*time.Hour), segmentSignEnd(time.Time{}, base, 6*time.Hour))
+}
