@@ -163,3 +163,24 @@ func TestSignRawQueryCloudFrontOnly(t *testing.T) {
 		assert.False(t, strings.HasPrefix(k, "AK-Signature-"), "no Akamai params expected, got %s", k)
 	}
 }
+
+func TestSignRawQueryUntilIsDeterministic(t *testing.T) {
+	cfg := &mocks.Config{}
+	cfg.On("GetAwsSigningKeyPath").Return(writeTempPEM(t))
+	cfg.On("GetAwsSigningKeyID").Return("CF-KEY-ID")
+	cfg.On("GetFastlySigningKeyID").Return("FS-KEY-ID")
+	cfg.On("GetAkamaiSigningKeyID").Return("AK-KEY-ID")
+	cfg.On("GetAkamaiEncryptionKey").Return("deadbeef")
+
+	signer, err := NewSigner(cfg)
+	require.NoError(t, err)
+
+	resource := "https://cdn.example.com/out/v1/aaaaaa/bbbbbb/*"
+	end := time.Unix(1791902331, 0)
+	a, err := signer.SignRawQueryUntil(resource, end)
+	require.NoError(t, err)
+	b, err := signer.SignRawQueryUntil(resource, end)
+	require.NoError(t, err)
+	assert.Equal(t, a, b)
+	assert.Contains(t, a, "FS-Policy=")
+}

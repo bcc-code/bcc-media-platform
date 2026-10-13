@@ -60,6 +60,7 @@ type proxyHandler struct {
 	cacheTTL        time.Duration
 	liveCacheTTL    time.Duration
 	signTTL         time.Duration
+	now             func() time.Time
 }
 
 func newProxyHandler(
@@ -79,6 +80,7 @@ func newProxyHandler(
 		cacheTTL:        cfg.CacheTTL,
 		liveCacheTTL:    cfg.LiveCacheTTL,
 		signTTL:         cfg.SignTTL,
+		now:             time.Now,
 	}
 }
 
@@ -131,7 +133,7 @@ func (h *proxyHandler) handle(c *gin.Context) {
 		return
 	}
 
-	auth, err := h.authStringFor(signer, host, reqPath, token, cl.base)
+	auth, err := h.authStringFor(signer, host, reqPath, token, cl)
 	if err != nil {
 		log.L.Error().Err(err).Str("path", reqPath).Msg("failed to compute auth replacement")
 		c.String(http.StatusInternalServerError, "internal error")
@@ -263,7 +265,7 @@ func (h *proxyHandler) fetchAndClean(ctx context.Context, signer *signing.Signer
 	return body, attemptedURL, err
 }
 
-func (h *proxyHandler) authStringFor(signer *signing.Signer, host, reqPath, token, base string) (string, error) {
+func (h *proxyHandler) authStringFor(signer *signing.Signer, host, reqPath, token string, cl claims) (string, error) {
 	if path.Base(reqPath) == indexFilename {
 		// Master playlist: keep variant requests routed through this proxy
 		// with the same JWT. The live start-over window is appended separately
@@ -275,9 +277,9 @@ func (h *proxyHandler) authStringFor(signer *signing.Signer, host, reqPath, toke
 	// scatters segments across sibling directories under <base>, so signing
 	// the variant playlist's own path.Dir is too narrow and produces CF 403s
 	// on segments that resolve outside that directory.
-	resource := "https://" + host + base + "*"
+	resource := "https://" + host + cl.base + "*"
 
-	q, err := signer.SignRawQuery(resource, h.signTTL)
+	q, err := signer.SignRawQueryUntil(resource, segmentSignEnd(cl.exp, h.now(), h.signTTL))
 	if err != nil {
 		return "", err
 	}
@@ -285,4 +287,16 @@ func (h *proxyHandler) authStringFor(signer *signing.Signer, host, reqPath, toke
 		return "", errors.New("signed query string is empty")
 	}
 	return q, nil
+}
+
+// segmentSignEnd must be stable across refreshes: iOS fails (-12312) if a segment URI changes for the same media sequence.
+func segmentSignEnd(exp, now time.Time, ttl time.Duration) time.Time {
+	if !exp.IsZero() {
+		return exp
+	}
+	end := now.Add(ttl)
+	if t := end.Truncate(time.Hour); !t.Equal(end) {
+		return t.Add(time.Hour)
+	}
+	return end
 }
