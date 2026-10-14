@@ -197,6 +197,24 @@ func (q *Queries) GetApiKey(ctx context.Context, id uuid.UUID) (GetApiKeyRow, er
 	return i, err
 }
 
+const getDirectusRole = `-- name: GetDirectusRole :one
+SELECT id, name
+FROM directus_roles
+WHERE id = $1
+`
+
+type GetDirectusRoleRow struct {
+	ID   uuid.UUID `db:"id" json:"id"`
+	Name string    `db:"name" json:"name"`
+}
+
+func (q *Queries) GetDirectusRole(ctx context.Context, id uuid.UUID) (GetDirectusRoleRow, error) {
+	row := q.db.QueryRowContext(ctx, getDirectusRole, id)
+	var i GetDirectusRoleRow
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
 const insertAdminPermission = `-- name: InsertAdminPermission :exec
 INSERT INTO users.admin_permissions (api_key_id, directus_role_id, resource, access, forced_filter)
 VALUES ($1, $2, $3, $4, $5)

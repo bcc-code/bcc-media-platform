@@ -60,3 +60,8 @@ VALUES ($1, $2, $3, $4, $5);
 SELECT id, name
 FROM directus_roles
 ORDER BY name;
+
+-- name: GetDirectusRole :one
+SELECT id, name
+FROM directus_roles
+WHERE id = $1;

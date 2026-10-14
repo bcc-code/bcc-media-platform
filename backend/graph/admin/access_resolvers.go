@@ -50,13 +50,12 @@ func (r *Resolver) getAPIKey(ctx context.Context, id uuid.UUID) (*model.APIKey, 
 }
 
 func (r *Resolver) getRole(ctx context.Context, id uuid.UUID) (*model.Role, error) {
-	roles, err := r.Queries.ListDirectusRoles(ctx)
+	role, err := r.Queries.GetDirectusRole(ctx, id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, fmt.Errorf("role not found")
+	}
 	if err != nil {
 		return nil, err
-	}
-	role, ok := lo.Find(roles, func(role sqlc.ListDirectusRolesRow) bool { return role.ID == id })
-	if !ok {
-		return nil, fmt.Errorf("role not found")
 	}
 	return &model.Role{ID: role.ID.String(), Name: role.Name}, nil
 }
