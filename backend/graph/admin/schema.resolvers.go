@@ -240,6 +240,11 @@ func (r *authResolver) Logout(ctx context.Context, obj *model.Auth) (bool, error
 	return true, nil
 }
 
+// Status is the resolver for the status field.
+func (r *episodeResolver) Status(ctx context.Context, obj *model1.Episode) (model.Status, error) {
+	return itemStatus(ctx, r.Loaders.EpisodeLoader, obj.ID)
+}
+
 // Season is the resolver for the season field.
 func (r *episodeResolver) Season(ctx context.Context, obj *model1.Episode) (*model1.Season, error) {
 	if obj.Season == nil {
@@ -484,6 +489,11 @@ func (r *searchHitResolver) Item(ctx context.Context, obj *model.SearchHit) (mod
 	return nil, fmt.Errorf("unsupported search type: %s", obj.Type)
 }
 
+// Status is the resolver for the status field.
+func (r *seasonResolver) Status(ctx context.Context, obj *model1.Season) (model.Status, error) {
+	return itemStatus(ctx, r.Loaders.SeasonLoader, obj.ID)
+}
+
 // Show is the resolver for the show field.
 func (r *seasonResolver) Show(ctx context.Context, obj *model1.Season) (*model1.Show, error) {
 	s, err := r.Loaders.ShowLoader.Get(ctx, utils.AsInt(obj.Show.ID))
@@ -512,6 +522,11 @@ func (r *seasonResolver) Roles(ctx context.Context, obj *model1.Season) (*model.
 		return nil, err
 	}
 	return rolesFrom(p.Roles), nil
+}
+
+// Status is the resolver for the status field.
+func (r *showResolver) Status(ctx context.Context, obj *model1.Show) (model.Status, error) {
+	return itemStatus(ctx, r.Loaders.ShowLoader, obj.ID)
 }
 
 // Availability is the resolver for the availability field.

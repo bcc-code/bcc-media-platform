@@ -279,6 +279,8 @@ type AuthResolver interface {
 	Logout(ctx context.Context, obj *model.Auth) (bool, error)
 }
 type EpisodeResolver interface {
+	Status(ctx context.Context, obj *model1.Episode) (model.Status, error)
+
 	Season(ctx context.Context, obj *model1.Episode) (*model1.Season, error)
 	Availability(ctx context.Context, obj *model1.Episode) (*model.Availability, error)
 	Roles(ctx context.Context, obj *model1.Episode) (*model.Roles, error)
@@ -315,11 +317,15 @@ type SearchHitResolver interface {
 	Item(ctx context.Context, obj *model.SearchHit) (model.SearchItem, error)
 }
 type SeasonResolver interface {
+	Status(ctx context.Context, obj *model1.Season) (model.Status, error)
+
 	Show(ctx context.Context, obj *model1.Season) (*model1.Show, error)
 	Availability(ctx context.Context, obj *model1.Season) (*model.Availability, error)
 	Roles(ctx context.Context, obj *model1.Season) (*model.Roles, error)
 }
 type ShowResolver interface {
+	Status(ctx context.Context, obj *model1.Show) (model.Status, error)
+
 	Availability(ctx context.Context, obj *model1.Show) (*model.Availability, error)
 	Roles(ctx context.Context, obj *model1.Show) (*model.Roles, error)
 }
@@ -1402,12 +1408,14 @@ type Roles {
     earlyAccess: [String!]!
 }
 
-# Episode, Season, Show, Image and Status are bound to the main API's Go models (see gqlgen.yml).
+# Episode, Season, Show and Image are bound to the main API's Go models (see gqlgen.yml).
 # Keep field names and types in sync with graph/api/schema.
 
 enum Status {
+    draft
     published
     unlisted
+    archived
 }
 
 type Image {
@@ -1418,7 +1426,7 @@ type Image {
 type Episode {
     id: ID!
     uuid: String!
-    status: Status!
+    status: Status! @goField(forceResolver: true)
     title: String!
     description: String!
     ageRating: String!
@@ -1433,7 +1441,7 @@ type Episode {
 
 type Season {
     id: ID!
-    status: Status!
+    status: Status! @goField(forceResolver: true)
     title: String!
     description: String!
     ageRating: String!
@@ -1447,7 +1455,7 @@ type Season {
 
 type Show {
     id: ID!
-    status: Status!
+    status: Status! @goField(forceResolver: true)
     title: String!
     description: String!
     imageUrl: String
@@ -4071,7 +4079,7 @@ func (ec *executionContext) _Episode_status(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Status, nil
+		return ec.resolvers.Episode().Status(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4083,17 +4091,17 @@ func (ec *executionContext) _Episode_status(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model1.Status)
+	res := resTmp.(model.Status)
 	fc.Result = res
-	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx, field.Selections, res)
+	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Episode_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Status does not have child fields")
 		},
@@ -6909,7 +6917,7 @@ func (ec *executionContext) _Season_status(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Status, nil
+		return ec.resolvers.Season().Status(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6921,17 +6929,17 @@ func (ec *executionContext) _Season_status(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model1.Status)
+	res := resTmp.(model.Status)
 	fc.Result = res
-	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx, field.Selections, res)
+	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Season_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Season",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Status does not have child fields")
 		},
@@ -7434,7 +7442,7 @@ func (ec *executionContext) _Show_status(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Status, nil
+		return ec.resolvers.Show().Status(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7446,17 +7454,17 @@ func (ec *executionContext) _Show_status(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model1.Status)
+	res := resTmp.(model.Status)
 	fc.Result = res
-	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx, field.Selections, res)
+	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Show_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Show",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Status does not have child fields")
 		},
@@ -10730,10 +10738,41 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "status":
-			out.Values[i] = ec._Episode_status(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_status(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "title":
 			out.Values[i] = ec._Episode_title(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -12007,10 +12046,41 @@ func (ec *executionContext) _Season(ctx context.Context, sel ast.SelectionSet, o
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "status":
-			out.Values[i] = ec._Season_status(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Season_status(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "title":
 			out.Values[i] = ec._Season_title(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -12186,10 +12256,41 @@ func (ec *executionContext) _Show(ctx context.Context, sel ast.SelectionSet, obj
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "status":
-			out.Values[i] = ec._Show_status(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Show_status(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "title":
 			out.Values[i] = ec._Show_title(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -13456,13 +13557,13 @@ func (ec *executionContext) marshalNStatistics2ᚖgithubᚗcomᚋbccᚑcodeᚋbc
 	return ec._Statistics(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx context.Context, v any) (model1.Status, error) {
-	var res model1.Status
+func (ec *executionContext) unmarshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐStatus(ctx context.Context, v any) (model.Status, error) {
+	var res model.Status
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx context.Context, sel ast.SelectionSet, v model1.Status) graphql.Marshaler {
+func (ec *executionContext) marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐStatus(ctx context.Context, sel ast.SelectionSet, v model.Status) graphql.Marshaler {
 	return v
 }
 

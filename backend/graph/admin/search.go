@@ -126,6 +126,30 @@ func permissions(ctx context.Context, loader *loaders.Loader[int, *common.Permis
 	return &common.Permissions[int]{ItemID: intID}, nil
 }
 
+// itemStatus reads the source status, which the main API's models collapse to published/unlisted.
+func itemStatus[T interface {
+	comparable
+	GetStatus() common.Status
+}](ctx context.Context, loader *loaders.Loader[int, T], id string) (model.Status, error) {
+	intID, err := strconv.Atoi(id)
+	if err != nil {
+		return "", err
+	}
+	item, err := loader.Get(ctx, intID)
+	if err != nil {
+		return "", err
+	}
+	var zero T
+	if item == zero {
+		return "", merry.Errorf("item %s not found", id)
+	}
+	return statusFrom(item.GetStatus()), nil
+}
+
+func statusFrom(s common.Status) model.Status {
+	return model.Status(common.StatusFrom(string(s)))
+}
+
 func availabilityFrom(a common.Availability) *model.Availability {
 	format := func(t time.Time) *string {
 		if t.IsZero() {
