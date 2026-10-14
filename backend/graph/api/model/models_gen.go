@@ -2748,16 +2748,20 @@ type Status string
 const (
 	StatusPublished Status = "published"
 	StatusUnlisted  Status = "unlisted"
+	StatusDraft     Status = "draft"
+	StatusArchived  Status = "archived"
 )
 
 var AllStatus = []Status{
 	StatusPublished,
 	StatusUnlisted,
+	StatusDraft,
+	StatusArchived,
 }
 
 func (e Status) IsValid() bool {
 	switch e {
-	case StatusPublished, StatusUnlisted:
+	case StatusPublished, StatusUnlisted, StatusDraft, StatusArchived:
 		return true
 	}
 	return false

@@ -142,13 +142,13 @@ type Roles {
     earlyAccess: [String!]!
 }
 
-# Episode, Season, Show and Image are bound to the main API's Go models (see gqlgen.yml).
+# Episode, Season, Show, Image and Status are bound to the main API's Go models (see gqlgen.yml).
 # Keep field names and types in sync with graph/api/schema.
 
 enum Status {
-    draft
     published
     unlisted
+    draft
     archived
 }
 

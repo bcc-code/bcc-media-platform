@@ -241,7 +241,7 @@ func (r *authResolver) Logout(ctx context.Context, obj *model.Auth) (bool, error
 }
 
 // Status is the resolver for the status field.
-func (r *episodeResolver) Status(ctx context.Context, obj *model1.Episode) (model.Status, error) {
+func (r *episodeResolver) Status(ctx context.Context, obj *model1.Episode) (model1.Status, error) {
 	return itemStatus(ctx, r.Loaders.EpisodeLoader, obj.ID)
 }
 
@@ -490,7 +490,7 @@ func (r *searchHitResolver) Item(ctx context.Context, obj *model.SearchHit) (mod
 }
 
 // Status is the resolver for the status field.
-func (r *seasonResolver) Status(ctx context.Context, obj *model1.Season) (model.Status, error) {
+func (r *seasonResolver) Status(ctx context.Context, obj *model1.Season) (model1.Status, error) {
 	return itemStatus(ctx, r.Loaders.SeasonLoader, obj.ID)
 }
 
@@ -525,7 +525,7 @@ func (r *seasonResolver) Roles(ctx context.Context, obj *model1.Season) (*model.
 }
 
 // Status is the resolver for the status field.
-func (r *showResolver) Status(ctx context.Context, obj *model1.Show) (model.Status, error) {
+func (r *showResolver) Status(ctx context.Context, obj *model1.Show) (model1.Status, error) {
 	return itemStatus(ctx, r.Loaders.ShowLoader, obj.ID)
 }
 

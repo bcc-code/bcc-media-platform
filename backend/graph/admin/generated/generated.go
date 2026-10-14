@@ -280,7 +280,7 @@ type AuthResolver interface {
 	Logout(ctx context.Context, obj *model.Auth) (bool, error)
 }
 type EpisodeResolver interface {
-	Status(ctx context.Context, obj *model1.Episode) (model.Status, error)
+	Status(ctx context.Context, obj *model1.Episode) (model1.Status, error)
 
 	Season(ctx context.Context, obj *model1.Episode) (*model1.Season, error)
 	Availability(ctx context.Context, obj *model1.Episode) (*model.Availability, error)
@@ -318,14 +318,14 @@ type SearchHitResolver interface {
 	Item(ctx context.Context, obj *model.SearchHit) (model.SearchItem, error)
 }
 type SeasonResolver interface {
-	Status(ctx context.Context, obj *model1.Season) (model.Status, error)
+	Status(ctx context.Context, obj *model1.Season) (model1.Status, error)
 
 	Show(ctx context.Context, obj *model1.Season) (*model1.Show, error)
 	Availability(ctx context.Context, obj *model1.Season) (*model.Availability, error)
 	Roles(ctx context.Context, obj *model1.Season) (*model.Roles, error)
 }
 type ShowResolver interface {
-	Status(ctx context.Context, obj *model1.Show) (model.Status, error)
+	Status(ctx context.Context, obj *model1.Show) (model1.Status, error)
 
 	Availability(ctx context.Context, obj *model1.Show) (*model.Availability, error)
 	Roles(ctx context.Context, obj *model1.Show) (*model.Roles, error)
@@ -1410,13 +1410,13 @@ type Roles {
     earlyAccess: [String!]!
 }
 
-# Episode, Season, Show and Image are bound to the main API's Go models (see gqlgen.yml).
+# Episode, Season, Show, Image and Status are bound to the main API's Go models (see gqlgen.yml).
 # Keep field names and types in sync with graph/api/schema.
 
 enum Status {
-    draft
     published
     unlisted
+    draft
     archived
 }
 
@@ -4092,9 +4092,9 @@ func (ec *executionContext) _Episode_status(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.Status)
+	res := resTmp.(model1.Status)
 	fc.Result = res
-	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐStatus(ctx, field.Selections, res)
+	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Episode_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6910,9 +6910,9 @@ func (ec *executionContext) _Season_status(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.Status)
+	res := resTmp.(model1.Status)
 	fc.Result = res
-	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐStatus(ctx, field.Selections, res)
+	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Season_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7435,9 +7435,9 @@ func (ec *executionContext) _Show_status(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.Status)
+	res := resTmp.(model1.Status)
 	fc.Result = res
-	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐStatus(ctx, field.Selections, res)
+	return ec.marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Show_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -13538,13 +13538,13 @@ func (ec *executionContext) marshalNStatistics2ᚖgithubᚗcomᚋbccᚑcodeᚋbc
 	return ec._Statistics(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐStatus(ctx context.Context, v any) (model.Status, error) {
-	var res model.Status
+func (ec *executionContext) unmarshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx context.Context, v any) (model1.Status, error) {
+	var res model1.Status
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐStatus(ctx context.Context, sel ast.SelectionSet, v model.Status) graphql.Marshaler {
+func (ec *executionContext) marshalNStatus2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐStatus(ctx context.Context, sel ast.SelectionSet, v model1.Status) graphql.Marshaler {
 	return v
 }
 

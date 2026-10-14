@@ -49,6 +49,8 @@ models:
     model: github.com/bcc-code/bcc-media-platform/backend/graph/api/model.Season
   Show:
     model: github.com/bcc-code/bcc-media-platform/backend/graph/api/model.Show
+  Status:
+    model: github.com/bcc-code/bcc-media-platform/backend/graph/api/model.Status
   Image:
     model: github.com/bcc-code/bcc-media-platform/backend/graph/api/model.Image
   SearchItem:

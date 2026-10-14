@@ -8,6 +8,7 @@ import (
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/admin/model"
+	apimodel "github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/search"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
@@ -126,11 +127,11 @@ func permissions(ctx context.Context, loader *loaders.Loader[int, *common.Permis
 	return &common.Permissions[int]{ItemID: intID}, nil
 }
 
-// itemStatus reads the source status, which the main API's models collapse to published/unlisted.
+// itemStatus reads the source status; the main API's converters collapse it to published/unlisted.
 func itemStatus[T interface {
 	comparable
 	GetStatus() common.Status
-}](ctx context.Context, loader *loaders.Loader[int, T], id string) (model.Status, error) {
+}](ctx context.Context, loader *loaders.Loader[int, T], id string) (apimodel.Status, error) {
 	intID, err := strconv.Atoi(id)
 	if err != nil {
 		return "", err
@@ -146,8 +147,8 @@ func itemStatus[T interface {
 	return statusFrom(item.GetStatus()), nil
 }
 
-func statusFrom(s common.Status) model.Status {
-	return model.Status(common.StatusFrom(string(s)))
+func statusFrom(s common.Status) apimodel.Status {
+	return apimodel.Status(common.StatusFrom(string(s)))
 }
 
 func availabilityFrom(a common.Availability) *model.Availability {
