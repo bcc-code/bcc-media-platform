@@ -18,6 +18,8 @@ import (
 const (
 	defaultSearchLimit = 20
 	maxSearchLimit     = 100
+	// Elasticsearch's default index.max_result_window.
+	maxSearchWindow = 10000
 )
 
 var collectionToSearchType = map[string]model.SearchType{
@@ -62,6 +64,9 @@ func (r *Resolver) search(ctx context.Context, query string, filter *model.Searc
 	off := 0
 	if offset != nil {
 		off = max(*offset, 0)
+	}
+	if off+limit > maxSearchWindow {
+		return nil, merry.Errorf("offset + first must not exceed %d", maxSearchWindow)
 	}
 
 	res, err := r.SearchService.AdminSearch(ctx, query, f, limit, off, user.GetLanguagesFromCtx(ginCtx))
