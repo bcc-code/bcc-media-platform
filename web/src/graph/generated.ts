@@ -2102,7 +2102,7 @@ export type GetEpisodeEmbedQueryVariables = Exact<{
 }>;
 
 
-export type GetEpisodeEmbedQuery = { episode: { id: string, audioLanguages: Array<any>, videoLanguages: Array<LanguageCode>, files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, size: number, resolution?: string | null }> } };
+export type GetEpisodeEmbedQuery = { episode: { id: string, uuid: string, audioLanguages: Array<any>, videoLanguages: Array<LanguageCode>, files: Array<{ id: string, url: string, fileName: string, audioLanguage: any, subtitleLanguage?: any | null, size: number, resolution?: string | null }> } };
 
 export type GetEpisodeFilesQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -2839,6 +2839,7 @@ export const GetEpisodeEmbedDocument = gql`
     query getEpisodeEmbed($id: ID!) {
   episode(id: $id) {
     id
+    uuid
     files {
       id
       url

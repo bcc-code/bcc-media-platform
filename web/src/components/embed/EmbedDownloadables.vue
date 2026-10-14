@@ -49,7 +49,7 @@ const videoLanguage = computed(
 
 const { data: versionFiles } = useGetEpisodeFilesQuery({
     variables: computed(() => ({
-        id: props.episode.id,
+        id: props.episode.uuid,
         videoLanguages: [videoLanguage.value],
     })),
     pause: computed(() => videoLanguage.value === null),
