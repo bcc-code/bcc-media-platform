@@ -43,6 +43,18 @@ autobind:
 # modelgen, the others will be allowed when binding to fields. Configure them to
 # your liking
 models:
+  Episode:
+    model: github.com/bcc-code/bcc-media-platform/backend/graph/api/model.Episode
+  Season:
+    model: github.com/bcc-code/bcc-media-platform/backend/graph/api/model.Season
+  Show:
+    model: github.com/bcc-code/bcc-media-platform/backend/graph/api/model.Show
+  Image:
+    model: github.com/bcc-code/bcc-media-platform/backend/graph/api/model.Image
+  Status:
+    model: github.com/bcc-code/bcc-media-platform/backend/graph/api/model.Status
+  SearchItem:
+    model: github.com/bcc-code/bcc-media-platform/backend/graph/admin/model.SearchItem
   ID:
     model:
       - github.com/99designs/gqlgen/graphql.ID
