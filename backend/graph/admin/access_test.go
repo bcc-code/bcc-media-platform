@@ -27,7 +27,8 @@ func TestSchema_RootFieldsDeclareAccess(t *testing.T) {
 			if f.Name == "auth" || f.Name[:2] == "__" {
 				continue
 			}
-			assert.NotNil(t, f.Directives.ForName("access"), "%s.%s must declare @access", root.Name, f.Name)
+			ok := f.Directives.ForName("access") != nil || f.Directives.ForName("superuser") != nil
+			assert.True(t, ok, "%s.%s must declare @access or @superuser", root.Name, f.Name)
 		}
 	}
 }
@@ -41,7 +42,7 @@ func TestPrincipal_Allows(t *testing.T) {
 	assert.False(t, none.allows(model.AdminResourceSearch, model.AccessLevelRead))
 
 	su := &Principal{superuser: true}
-	assert.True(t, su.allows(model.AdminResourceAccess, model.AccessLevelWrite))
+	assert.True(t, su.allows(model.AdminResourceStatistics, model.AccessLevelWrite))
 
 	reader := newPrincipal([]permissionRow{searchGrant(model.AccessLevelRead, "{}"), {resource: "gone", access: "read"}})
 	assert.True(t, reader.allows(model.AdminResourceSearch, model.AccessLevelRead))
@@ -69,11 +70,10 @@ func TestPrincipal_ForcedFilter(t *testing.T) {
 }
 
 func TestPermissionRowsFromInput(t *testing.T) {
-	su := &Principal{superuser: true}
 	group := "bcc-members"
 	pinned := &model.ForcedFilterInput{Search: &model.SearchFilter{Group: &group}}
 
-	rows, err := permissionRowsFromInput(su, []*model.PermissionInput{
+	rows, err := permissionRowsFromInput([]*model.PermissionInput{
 		{Resource: model.AdminResourceSearch, Level: model.AccessLevelRead, ForcedFilter: pinned},
 		{Resource: model.AdminResourcePreview, Level: model.AccessLevelWrite},
 	})
@@ -82,43 +82,16 @@ func TestPermissionRowsFromInput(t *testing.T) {
 	assert.JSONEq(t, `{"search":{"group":"bcc-members"}}`, string(rows[0].forcedFilter))
 	assert.JSONEq(t, `{}`, string(rows[1].forcedFilter))
 
-	_, err = permissionRowsFromInput(su, []*model.PermissionInput{
+	_, err = permissionRowsFromInput([]*model.PermissionInput{
 		{Resource: model.AdminResourcePreview, Level: model.AccessLevelRead, ForcedFilter: pinned},
 	})
 	assert.Error(t, err, "search filter on another resource")
 
-	_, err = permissionRowsFromInput(su, []*model.PermissionInput{
+	_, err = permissionRowsFromInput([]*model.PermissionInput{
 		{Resource: model.AdminResourceSearch, Level: model.AccessLevelRead},
 		{Resource: model.AdminResourceSearch, Level: model.AccessLevelWrite},
 	})
 	assert.Error(t, err, "duplicate resource")
-
-	limited := newPrincipal(rows)
-	_, err = permissionRowsFromInput(limited, []*model.PermissionInput{
-		{Resource: model.AdminResourceStatistics, Level: model.AccessLevelRead},
-	})
-	assert.Error(t, err, "cannot grant a resource the caller lacks")
-
-	_, err = permissionRowsFromInput(limited, []*model.PermissionInput{
-		{Resource: model.AdminResourceSearch, Level: model.AccessLevelWrite, ForcedFilter: pinned},
-	})
-	assert.Error(t, err, "cannot grant a higher level")
-
-	_, err = permissionRowsFromInput(limited, []*model.PermissionInput{
-		{Resource: model.AdminResourceSearch, Level: model.AccessLevelRead},
-	})
-	assert.Error(t, err, "cannot drop the caller's own forced filter")
-
-	other := "public"
-	_, err = permissionRowsFromInput(limited, []*model.PermissionInput{
-		{Resource: model.AdminResourceSearch, Level: model.AccessLevelRead, ForcedFilter: &model.ForcedFilterInput{Search: &model.SearchFilter{Group: &other}}},
-	})
-	assert.Error(t, err, "cannot change the caller's own forced filter")
-
-	_, err = permissionRowsFromInput(limited, []*model.PermissionInput{
-		{Resource: model.AdminResourceSearch, Level: model.AccessLevelRead, ForcedFilter: pinned},
-	})
-	assert.NoError(t, err, "same grant with the same forced filter")
 }
 
 func TestApplyForcedSearchFilter(t *testing.T) {
@@ -165,6 +138,20 @@ func TestAccessDirective(t *testing.T) {
 	assert.Error(t, err)
 
 	_, err = AccessDirective(ctxWithPrincipal(nil), nil, next, model.AdminResourceSearch, model.AccessLevelRead)
+	assert.Error(t, err)
+}
+
+func TestSuperuserDirective(t *testing.T) {
+	next := func(context.Context) (any, error) { return "ok", nil }
+
+	_, err := SuperuserDirective(ctxWithPrincipal(&Principal{superuser: true}), nil, next)
+	assert.NoError(t, err)
+
+	writer := newPrincipal([]permissionRow{{resource: "preview", access: "write", forcedFilter: json.RawMessage("{}")}})
+	_, err = SuperuserDirective(ctxWithPrincipal(writer), nil, next)
+	assert.Error(t, err)
+
+	_, err = SuperuserDirective(ctxWithPrincipal(nil), nil, next)
 	assert.Error(t, err)
 }
 

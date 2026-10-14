@@ -114,9 +114,15 @@ func AccessDirective(ctx context.Context, _ any, next graphql.Resolver, resource
 	return next(ctx)
 }
 
-// permissionRowsFromInput validates grants and checks the caller may hand them out:
-// it must hold each level itself, and grants on a resource it is pinned on must carry the same pin.
-func permissionRowsFromInput(caller *Principal, inputs []*model.PermissionInput) ([]permissionRow, error) {
+// SuperuserDirective implements @superuser.
+func SuperuserDirective(ctx context.Context, _ any, next graphql.Resolver) (any, error) {
+	if p := principalFromCtx(ctx); p == nil || !p.superuser {
+		return nil, errForbidden(ctx)
+	}
+	return next(ctx)
+}
+
+func permissionRowsFromInput(inputs []*model.PermissionInput) ([]permissionRow, error) {
 	var rows []permissionRow
 	seen := map[model.AdminResource]bool{}
 	for _, in := range inputs {
@@ -135,23 +141,6 @@ func permissionRowsFromInput(caller *Principal, inputs []*model.PermissionInput)
 				return nil, err
 			}
 			forced = raw
-		}
-
-		if !caller.allows(in.Resource, in.Level) {
-			return nil, fmt.Errorf("cannot grant %s access to %s without holding it", in.Level, in.Resource)
-		}
-		callerFilter, err := caller.forcedFilter(in.Resource)
-		if err != nil {
-			return nil, err
-		}
-		if callerFilter != nil {
-			want, err := json.Marshal(callerFilter)
-			if err != nil {
-				return nil, err
-			}
-			if !bytes.Equal(want, forced) {
-				return nil, fmt.Errorf("grants on %s must carry your own forced filter", in.Resource)
-			}
 		}
 
 		rows = append(rows, permissionRow{resource: string(in.Resource), access: string(in.Level), forcedFilter: forced})

@@ -102,7 +102,7 @@ func (r *Resolver) replacePermissions(ctx context.Context, rows []permissionRow,
 	return tx.Commit()
 }
 
-func parseAPIKeyInput(caller *Principal, input model.APIKeyInput) (string, null.Time, []permissionRow, error) {
+func parseAPIKeyInput(input model.APIKeyInput) (string, null.Time, []permissionRow, error) {
 	name := strings.TrimSpace(input.Name)
 	if name == "" {
 		return "", null.Time{}, nil, fmt.Errorf("name is required")
@@ -115,13 +115,13 @@ func parseAPIKeyInput(caller *Principal, input model.APIKeyInput) (string, null.
 		}
 		expiresAt = null.TimeFrom(t)
 	}
-	rows, err := permissionRowsFromInput(caller, input.Permissions)
+	rows, err := permissionRowsFromInput(input.Permissions)
 	return name, expiresAt, rows, err
 }
 
 func (r *Resolver) createAPIKey(ctx context.Context, input model.APIKeyInput) (*model.CreatedAPIKey, error) {
 	caller := principalFromCtx(ctx)
-	name, expiresAt, rows, err := parseAPIKeyInput(caller, input)
+	name, expiresAt, rows, err := parseAPIKeyInput(input)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +161,7 @@ func (r *Resolver) updateAPIKey(ctx context.Context, rawID string, input model.A
 	if _, err := r.getAPIKey(ctx, id); err != nil {
 		return nil, err
 	}
-	name, expiresAt, rows, err := parseAPIKeyInput(principalFromCtx(ctx), input)
+	name, expiresAt, rows, err := parseAPIKeyInput(input)
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +196,7 @@ func (r *Resolver) setRolePermissions(ctx context.Context, rawID string, permiss
 	if err != nil {
 		return nil, err
 	}
-	rows, err := permissionRowsFromInput(principalFromCtx(ctx), permissions)
+	rows, err := permissionRowsFromInput(permissions)
 	if err != nil {
 		return nil, err
 	}

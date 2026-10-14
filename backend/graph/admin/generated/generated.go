@@ -58,7 +58,8 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	Access func(ctx context.Context, obj any, next graphql.Resolver, resource model.AdminResource, level model.AccessLevel) (res any, err error)
+	Access    func(ctx context.Context, obj any, next graphql.Resolver, resource model.AdminResource, level model.AccessLevel) (res any, err error)
+	Superuser func(ctx context.Context, obj any, next graphql.Resolver) (res any, err error)
 }
 
 type ComplexityRoot struct {
@@ -1268,8 +1269,10 @@ var sources = []*ast.Source{
 	{Name: "../schema.graphqls", Input: `directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
     | FIELD_DEFINITION
 
-"Requires the caller to hold ` + "`" + `level` + "`" + ` (write implies read) on ` + "`" + `resource` + "`" + `. Every root field except ` + "`" + `auth` + "`" + ` must declare it."
+"Requires the caller to hold ` + "`" + `level` + "`" + ` (write implies read) on ` + "`" + `resource` + "`" + `. Every root field except ` + "`" + `auth` + "`" + ` must declare it or @superuser."
 directive @access(resource: AdminResource!, level: AccessLevel!) on FIELD_DEFINITION
+
+directive @superuser on FIELD_DEFINITION
 
 enum AdminResource {
     search
@@ -1277,7 +1280,6 @@ enum AdminResource {
     statistics
     episodes
     mediaItems
-    access
 }
 
 enum AccessLevel {
@@ -1526,7 +1528,6 @@ type AccessQueries {
     roles: [Role!]! @goField(forceResolver: true)
 }
 
-"Callers can only grant permissions they hold themselves, including any forced filters."
 type AccessMutations {
     createApiKey(input: ApiKeyInput!): CreatedApiKey! @goField(forceResolver: true)
     updateApiKey(id: ID!, input: ApiKeyInput!): ApiKey! @goField(forceResolver: true)
@@ -1540,12 +1541,12 @@ type QueryRoot {
     episodes: Episodes! @access(resource: episodes, level: read)
     mediaItems: MediaItems! @access(resource: mediaItems, level: read)
     search: Search! @access(resource: search, level: read)
-    access: AccessQueries! @access(resource: access, level: read)
+    access: AccessQueries! @superuser
 }
 
 type MutationRoot {
     auth: Auth!
-    access: AccessMutations! @access(resource: access, level: write)
+    access: AccessMutations! @superuser
 }
 
 schema{
@@ -5052,21 +5053,11 @@ func (ec *executionContext) _MutationRoot_access(ctx context.Context, field grap
 		}
 
 		directive1 := func(ctx context.Context) (any, error) {
-			resource, err := ec.unmarshalNAdminResource2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐAdminResource(ctx, "access")
-			if err != nil {
+			if ec.directives.Superuser == nil {
 				var zeroVal *model.AccessMutations
-				return zeroVal, err
+				return zeroVal, errors.New("directive superuser is not implemented")
 			}
-			level, err := ec.unmarshalNAccessLevel2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐAccessLevel(ctx, "write")
-			if err != nil {
-				var zeroVal *model.AccessMutations
-				return zeroVal, err
-			}
-			if ec.directives.Access == nil {
-				var zeroVal *model.AccessMutations
-				return zeroVal, errors.New("directive access is not implemented")
-			}
-			return ec.directives.Access(ctx, nil, directive0, resource, level)
+			return ec.directives.Superuser(ctx, nil, directive0)
 		}
 
 		tmp, err := directive1(rctx)
@@ -6021,21 +6012,11 @@ func (ec *executionContext) _QueryRoot_access(ctx context.Context, field graphql
 		}
 
 		directive1 := func(ctx context.Context) (any, error) {
-			resource, err := ec.unmarshalNAdminResource2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐAdminResource(ctx, "access")
-			if err != nil {
+			if ec.directives.Superuser == nil {
 				var zeroVal *model.AccessQueries
-				return zeroVal, err
+				return zeroVal, errors.New("directive superuser is not implemented")
 			}
-			level, err := ec.unmarshalNAccessLevel2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐAccessLevel(ctx, "read")
-			if err != nil {
-				var zeroVal *model.AccessQueries
-				return zeroVal, err
-			}
-			if ec.directives.Access == nil {
-				var zeroVal *model.AccessQueries
-				return zeroVal, errors.New("directive access is not implemented")
-			}
-			return ec.directives.Access(ctx, nil, directive0, resource, level)
+			return ec.directives.Superuser(ctx, nil, directive0)
 		}
 
 		tmp, err := directive1(rctx)

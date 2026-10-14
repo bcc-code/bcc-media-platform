@@ -1,8 +1,10 @@
 directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
     | FIELD_DEFINITION
 
-"Requires the caller to hold `level` (write implies read) on `resource`. Every root field except `auth` must declare it."
+"Requires the caller to hold `level` (write implies read) on `resource`. Every root field except `auth` must declare it or @superuser."
 directive @access(resource: AdminResource!, level: AccessLevel!) on FIELD_DEFINITION
+
+directive @superuser on FIELD_DEFINITION
 
 enum AdminResource {
     search
@@ -10,7 +12,6 @@ enum AdminResource {
     statistics
     episodes
     mediaItems
-    access
 }
 
 enum AccessLevel {
@@ -259,7 +260,6 @@ type AccessQueries {
     roles: [Role!]! @goField(forceResolver: true)
 }
 
-"Callers can only grant permissions they hold themselves, including any forced filters."
 type AccessMutations {
     createApiKey(input: ApiKeyInput!): CreatedApiKey! @goField(forceResolver: true)
     updateApiKey(id: ID!, input: ApiKeyInput!): ApiKey! @goField(forceResolver: true)
@@ -273,12 +273,12 @@ type QueryRoot {
     episodes: Episodes! @access(resource: episodes, level: read)
     mediaItems: MediaItems! @access(resource: mediaItems, level: read)
     search: Search! @access(resource: search, level: read)
-    access: AccessQueries! @access(resource: access, level: read)
+    access: AccessQueries! @superuser
 }
 
 type MutationRoot {
     auth: Auth!
-    access: AccessMutations! @access(resource: access, level: write)
+    access: AccessMutations! @superuser
 }
 
 schema{

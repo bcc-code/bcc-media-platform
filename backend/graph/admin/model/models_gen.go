@@ -9,7 +9,6 @@ import (
 	"strconv"
 )
 
-// Callers can only grant permissions they hold themselves, including any forced filters.
 type AccessMutations struct {
 	CreateAPIKey       *CreatedAPIKey `json:"createApiKey"`
 	UpdateAPIKey       *APIKey        `json:"updateApiKey"`
@@ -246,7 +245,6 @@ const (
 	AdminResourceStatistics AdminResource = "statistics"
 	AdminResourceEpisodes   AdminResource = "episodes"
 	AdminResourceMediaItems AdminResource = "mediaItems"
-	AdminResourceAccess     AdminResource = "access"
 )
 
 var AllAdminResource = []AdminResource{
@@ -255,12 +253,11 @@ var AllAdminResource = []AdminResource{
 	AdminResourceStatistics,
 	AdminResourceEpisodes,
 	AdminResourceMediaItems,
-	AdminResourceAccess,
 }
 
 func (e AdminResource) IsValid() bool {
 	switch e {
-	case AdminResourceSearch, AdminResourcePreview, AdminResourceStatistics, AdminResourceEpisodes, AdminResourceMediaItems, AdminResourceAccess:
+	case AdminResourceSearch, AdminResourcePreview, AdminResourceStatistics, AdminResourceEpisodes, AdminResourceMediaItems:
 		return true
 	}
 	return false
