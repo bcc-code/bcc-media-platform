@@ -25,11 +25,7 @@ query getPage($code: String!, $first: Int, $offset: Int, $sectionFirst: Int, $se
                     messages {
                         title
                         content
-                        style {
-                            text
-                            background
-                            border
-                        }
+                        variant
                     }
                 }
             }
@@ -137,11 +133,7 @@ query getSectionsForPage($code: String!, $first: Int, $offset: Int, $sectionFirs
                     messages {
                         title
                         content
-                        style {
-                            text
-                            background
-                            border
-                        }
+                        variant
                     }
                 }
             }

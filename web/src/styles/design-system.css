@@ -15,4 +15,15 @@
     --color-separator-on-light: rgb(204 221 255 / 0.1);
     --color-light-1: 230 235 242;
     --color-dark-transparent: rgb(24 24 24 / 0.7);
+
+    /* Message variants, mirrors DesignSystemMessageColors in the flutter app. */
+    --color-message-info-bg: 22 50 74;
+    --color-message-info-text: 228 241 251;
+    --color-message-info-accent: 110 176 230;
+    --color-message-warning-bg: 61 36 0;
+    --color-message-warning-text: 252 233 199;
+    --color-message-warning-accent: 251 191 36;
+    --color-message-error-bg: 58 15 18;
+    --color-message-error-text: 255 222 224;
+    --color-message-error-accent: 255 131 140;
 }
