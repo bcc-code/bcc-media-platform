@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"compress/gzip"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
@@ -157,7 +158,7 @@ func runHandler(h *proxyHandler, target string) *httptest.ResponseRecorder {
 	gin.SetMode(gin.TestMode)
 	rec := httptest.NewRecorder()
 	r := gin.New()
-	r.NoRoute(h.handle)
+	registerRoutes(r, h)
 	req := httptest.NewRequest(http.MethodGet, target, nil)
 	r.ServeHTTP(rec, req)
 	return rec
@@ -441,6 +442,34 @@ func TestHandle_VOD_NoCacheControlHeader(t *testing.T) {
 	rec := runHandler(h, target)
 	require.Equal(t, http.StatusOK, rec.Code)
 	assert.Empty(t, rec.Header().Get("Cache-Control"))
+}
+
+func TestHandle_GzipsWhenAccepted(t *testing.T) {
+	h, _ := newTestHandler(t)
+	tok := mintTestJWT(t, "/out/v1/aa/bb/", string(streamtoken.ProviderIoriver))
+	target := fmt.Sprintf("/out/v1/aa/bb/index.m3u8?jwt=%s", url.QueryEscape(tok))
+
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	registerRoutes(r, h)
+	req := httptest.NewRequest(http.MethodGet, target, nil)
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
+	rec := httptest.NewRecorder()
+	r.ServeHTTP(rec, req)
+
+	require.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "gzip", rec.Header().Get("Content-Encoding"))
+	assert.Equal(t, "Accept-Encoding", rec.Header().Get("Vary"))
+	gz, err := gzip.NewReader(rec.Body)
+	require.NoError(t, err)
+	plain, err := io.ReadAll(gz)
+	require.NoError(t, err)
+	assert.True(t, strings.HasPrefix(string(plain), "#EXTM3U"))
+
+	plainRec := runHandler(h, target)
+	require.Equal(t, http.StatusOK, plainRec.Code)
+	assert.Empty(t, plainRec.Header().Get("Content-Encoding"))
+	assert.Equal(t, string(plain), plainRec.Body.String())
 }
 
 func TestHandle_DefaultProviderUnset_NoClaim_400(t *testing.T) {
