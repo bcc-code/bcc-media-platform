@@ -1,0 +1,87 @@
+type: http_request
+model: http_request
+id: rq_adminSearchApiKey
+createdAt: 2026-10-19T00:00:00
+updatedAt: 2026-10-19T00:00:00
+workspaceId: wk_hGg2sqajat
+folderId: fl_adminApiKey
+authentication: {}
+authenticationType: none
+body:
+  operationName: AdminSearch
+  query: |-
+    query AdminSearch($query: String!, $filter: SearchFilter, $first: Int, $offset: Int) {
+      search {
+        query(query: $query, filter: $filter, first: $first, offset: $offset) {
+          total
+          # Set when the key's grant forces a usergroup.
+          group
+          hits {
+            id
+            type
+            score
+            item {
+              ... on Episode {
+                title
+                status
+                duration
+                season {
+                  number
+                  show {
+                    title
+                  }
+                }
+              }
+              ... on Season {
+                title
+                number
+                show {
+                  title
+                }
+              }
+              ... on Show {
+                title
+                status
+              }
+            }
+          }
+        }
+      }
+    }
+  variables: |-
+    {
+      "query": "bibel",
+      "first": 10,
+      "offset": 0
+    }
+bodyType: graphql
+description: Searches episodes, seasons and shows with the key in ADMIN_API_KEY. Needs a search read grant; a forced filter on the grant overrides the request's filter.
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: h_ct_rq_adminSearchApiKey
+- enabled: true
+  name: x-api-key
+  value: ${[ ADMIN_API_KEY ]}
+  id: h_key_rq_adminSearchApiKey
+method: POST
+name: Search (API key)
+sortPriority: 1.0
+url: ${[ ADMIN_API_URL ]}/admin
+urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

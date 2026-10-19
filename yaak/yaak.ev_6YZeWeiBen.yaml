@@ -50,5 +50,9 @@ variables:
   name: DIRECTUS_PASSWORD
   value: ''
   id: v_directusPassword
+- enabled: false
+  name: ADMIN_API_KEY
+  value: ''
+  id: v_adminApiKey
 color: var(--success)
 sortPriority: 0.0
