@@ -175,6 +175,8 @@ type SearchHit struct {
 	Score *float64   `json:"score,omitempty"`
 	// Null if the item was deleted after it was indexed.
 	Item SearchItem `json:"item,omitempty"`
+	// Absolute link to the item in the web app. Seasons link to their show. Null if the item was deleted after it was indexed.
+	URL *string `json:"url,omitempty"`
 }
 
 type SearchResult struct {

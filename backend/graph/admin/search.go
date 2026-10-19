@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ansel1/merry/v2"
@@ -87,6 +88,38 @@ func (r *Resolver) search(ctx context.Context, query string, filter *model.Searc
 		})
 	}
 	return out, nil
+}
+
+// searchHitURL links to the web app; seasons have no page there, so they link to their show.
+func (r *Resolver) searchHitURL(ctx context.Context, hit *model.SearchHit) (*string, error) {
+	id, err := strconv.Atoi(hit.ID)
+	if err != nil {
+		return nil, err
+	}
+	var path string
+	switch hit.Type {
+	case model.SearchTypeEpisode:
+		e, err := r.Loaders.EpisodeLoader.Get(ctx, id)
+		if err != nil || e == nil {
+			return nil, err
+		}
+		path = "/episode/" + e.UUID.String()
+	case model.SearchTypeSeason:
+		s, err := r.Loaders.SeasonLoader.Get(ctx, id)
+		if err != nil || s == nil {
+			return nil, err
+		}
+		path = "/show/" + strconv.Itoa(s.ShowID)
+	case model.SearchTypeShow:
+		path = "/show/" + hit.ID
+	default:
+		return nil, merry.Errorf("unsupported search type: %s", hit.Type)
+	}
+	return lo.ToPtr(webAppURL(r.WebAppURL, path)), nil
+}
+
+func webAppURL(base, path string) string {
+	return strings.TrimSuffix(base, "/") + path
 }
 
 // applyForcedSearchFilter pins the group and narrows the types; it returns false if no requested type is allowed.

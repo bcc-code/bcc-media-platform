@@ -224,6 +224,7 @@ type ComplexityRoot struct {
 		Item  func(childComplexity int) int
 		Score func(childComplexity int) int
 		Type  func(childComplexity int) int
+		URL   func(childComplexity int) int
 	}
 
 	SearchResult struct {
@@ -317,6 +318,7 @@ type SearchResolver interface {
 }
 type SearchHitResolver interface {
 	Item(ctx context.Context, obj *model.SearchHit) (model.SearchItem, error)
+	URL(ctx context.Context, obj *model.SearchHit) (*string, error)
 }
 type SeasonResolver interface {
 	Status(ctx context.Context, obj *model1.Season) (model1.Status, error)
@@ -999,6 +1001,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.SearchHit.Type(childComplexity), true
 
+	case "SearchHit.url":
+		if e.complexity.SearchHit.URL == nil {
+			break
+		}
+
+		return e.complexity.SearchHit.URL(childComplexity), true
+
 	case "SearchResult.group":
 		if e.complexity.SearchResult.Group == nil {
 			break
@@ -1391,6 +1400,8 @@ type SearchHit {
     score: Float
     "Null if the item was deleted after it was indexed."
     item: SearchItem @goField(forceResolver: true)
+    "Absolute link to the item in the web app. Seasons link to their show. Null if the item was deleted after it was indexed."
+    url: String @goField(forceResolver: true)
 }
 
 type SearchResult {
@@ -6762,6 +6773,47 @@ func (ec *executionContext) fieldContext_SearchHit_item(_ context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _SearchHit_url(ctx context.Context, field graphql.CollectedField, obj *model.SearchHit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SearchHit_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SearchHit().URL(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SearchHit_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SearchHit",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SearchResult_total(ctx context.Context, field graphql.CollectedField, obj *model.SearchResult) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SearchResult_total(ctx, field)
 	if err != nil {
@@ -6894,6 +6946,8 @@ func (ec *executionContext) fieldContext_SearchResult_hits(_ context.Context, fi
 				return ec.fieldContext_SearchHit_score(ctx, field)
 			case "item":
 				return ec.fieldContext_SearchHit_item(ctx, field)
+			case "url":
+				return ec.fieldContext_SearchHit_url(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SearchHit", field.Name)
 		},
@@ -12011,6 +12065,39 @@ func (ec *executionContext) _SearchHit(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._SearchHit_item(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "url":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SearchHit_url(ctx, field, obj)
 				return res
 			}
 

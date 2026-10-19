@@ -25,6 +25,8 @@ type Resolver struct {
 	Loaders       *loaders.BatchLoaders
 	AuthConfig    AuthConfig
 	SearchService *search.Service
+	// WebAppURL is the web app's base URL, for links to items.
+	WebAppURL string
 }
 
 func (r *previewResolver) getItemsForFilter(ctx context.Context, filter common.Filter) ([]*model.CollectionItem, error) {

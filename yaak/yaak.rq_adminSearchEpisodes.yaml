@@ -20,6 +20,7 @@ body:
             id
             type
             score
+            url
             item {
               ... on Episode {
                 title

@@ -123,6 +123,8 @@ type adminConfig struct {
 	// SecureCookie sets the Secure attribute on the refresh cookie. Default
 	// true; only the literal env value "false" opts out (local http dev).
 	SecureCookie bool
+	// WebAppURL is the web app's base URL, for links in admin search results.
+	WebAppURL string
 }
 
 type cdnConfig struct {
@@ -291,6 +293,7 @@ func getEnvConfig() envConfig {
 			JWTSecret:    os.Getenv("ADMIN_JWT_SECRET"),
 			CORSOrigins:  splitAndTrim(os.Getenv("ADMIN_CORS_ORIGINS")),
 			SecureCookie: os.Getenv("ADMIN_COOKIE_SECURE") != "false",
+			WebAppURL:    lo.Ternary(os.Getenv("WEB_APP_URL") != "", os.Getenv("WEB_APP_URL"), "https://app.bcc.media"),
 		},
 		Redis: utils.RedisConfig{
 			Address:  os.Getenv("REDIS_ADDRESS"),

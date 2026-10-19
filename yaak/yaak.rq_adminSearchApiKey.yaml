@@ -2,11 +2,14 @@ type: http_request
 model: http_request
 id: rq_adminSearchApiKey
 createdAt: 2026-10-19T00:00:00
-updatedAt: 2026-10-19T00:00:00
+updatedAt: 2026-10-19T13:43:41.020785
 workspaceId: wk_hGg2sqajat
 folderId: fl_adminApiKey
-authentication: {}
-authenticationType: none
+authentication:
+  disabled: false
+  key: x-api-key
+  value: ${[ ADMIN_API_KEY ]}
+authenticationType: apikey
 body:
   operationName: AdminSearch
   query: |-
@@ -20,8 +23,10 @@ body:
             id
             type
             score
+            url
             item {
               ... on Episode {
+                uuid
                 title
                 status
                 duration
@@ -61,10 +66,18 @@ headers:
   name: Content-Type
   value: application/json
   id: h_ct_rq_adminSearchApiKey
-- enabled: true
-  name: x-api-key
+- enabled: false
+  name: ''
   value: ${[ ADMIN_API_KEY ]}
   id: h_key_rq_adminSearchApiKey
+- enabled: true
+  name: Accept-Language
+  value: de
+  id: xkEXhDRwSZ
+- enabled: true
+  name: ''
+  value: ''
+  id: cMe9srmahb
 method: POST
 name: Search (API key)
 sortPriority: 1.0
@@ -85,3 +98,6 @@ settingFollowRedirects:
 settingRequestTimeout:
   enabled: false
   value: 0
+settingHttpVersion:
+  enabled: false
+  value: auto
