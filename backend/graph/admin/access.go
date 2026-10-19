@@ -23,8 +23,8 @@ const apiKeyPrefix = "bccm_"
 
 type grant struct {
 	level model.AccessLevel
-	// forcedFilter is a JSON-encoded ForcedFilterInput; "{}" when the grant has none.
-	forcedFilter json.RawMessage
+	// forcedFilter is nil when the grant has none.
+	forcedFilter *model.ForcedFilterInput
 }
 
 // Principal is who an admin request acts as, and what it may do.
@@ -49,7 +49,16 @@ func newPrincipal(rows []permissionRow) *Principal {
 			log.L.Warn().Str("resource", r.resource).Str("access", r.access).Msg("Ignoring unknown admin permission")
 			continue
 		}
-		p.grants[res] = grant{level: level, forcedFilter: r.forcedFilter}
+		g := grant{level: level}
+		if !isEmptyFilter(r.forcedFilter) {
+			g.forcedFilter = &model.ForcedFilterInput{}
+			// Drop rather than widen a grant whose restriction can't be read.
+			if err := json.Unmarshal(r.forcedFilter, g.forcedFilter); err != nil {
+				log.L.Warn().Err(err).Str("resource", r.resource).Msg("Ignoring admin permission with invalid forced filter")
+				continue
+			}
+		}
+		p.grants[res] = g
 	}
 	return p
 }
@@ -66,19 +75,11 @@ func (p *Principal) allows(resource model.AdminResource, level model.AccessLevel
 }
 
 // forcedFilter returns the filters this principal is pinned to for resource, or nil.
-func (p *Principal) forcedFilter(resource model.AdminResource) (*model.ForcedFilterInput, error) {
+func (p *Principal) forcedFilter(resource model.AdminResource) *model.ForcedFilterInput {
 	if p == nil || p.superuser {
-		return nil, nil
+		return nil
 	}
-	g, ok := p.grants[resource]
-	if !ok || isEmptyFilter(g.forcedFilter) {
-		return nil, nil
-	}
-	f := &model.ForcedFilterInput{}
-	if err := json.Unmarshal(g.forcedFilter, f); err != nil {
-		return nil, fmt.Errorf("invalid forced filter for %s: %w", resource, err)
-	}
-	return f, nil
+	return p.grants[resource].forcedFilter
 }
 
 func isEmptyFilter(raw json.RawMessage) bool {

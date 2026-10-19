@@ -39,11 +39,7 @@ func (r *Resolver) search(ctx context.Context, query string, filter *model.Searc
 	if filter != nil {
 		f.Types = lo.Map(filter.Types, func(t model.SearchType, _ int) string { return string(t) })
 	}
-	forced, err := principalFromCtx(ctx).forcedFilter(model.AdminResourceSearch)
-	if err != nil {
-		return nil, err
-	}
-	if !applyForcedSearchFilter(&f, forced) {
+	if !applyForcedSearchFilter(&f, principalFromCtx(ctx).forcedFilter(model.AdminResourceSearch)) {
 		return &model.SearchResult{Group: f.Group, Hits: []*model.SearchHit{}}, nil
 	}
 

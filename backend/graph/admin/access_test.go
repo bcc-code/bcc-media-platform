@@ -55,18 +55,16 @@ func TestPrincipal_Allows(t *testing.T) {
 
 func TestPrincipal_ForcedFilter(t *testing.T) {
 	p := newPrincipal([]permissionRow{searchGrant(model.AccessLevelRead, `{"search":{"group":"bcc-members","types":["episode"]}}`)})
-	f, err := p.forcedFilter(model.AdminResourceSearch)
-	require.NoError(t, err)
+	f := p.forcedFilter(model.AdminResourceSearch)
+	require.NotNil(t, f)
 	assert.Equal(t, "bcc-members", *f.Search.Group)
 	assert.Equal(t, []model.SearchType{model.SearchTypeEpisode}, f.Search.Types)
 
-	f, err = newPrincipal([]permissionRow{searchGrant(model.AccessLevelRead, "{}")}).forcedFilter(model.AdminResourceSearch)
-	require.NoError(t, err)
-	assert.Nil(t, f)
+	assert.Nil(t, newPrincipal([]permissionRow{searchGrant(model.AccessLevelRead, "{}")}).forcedFilter(model.AdminResourceSearch))
+	assert.Nil(t, (&Principal{superuser: true}).forcedFilter(model.AdminResourceSearch))
 
-	f, err = (&Principal{superuser: true}).forcedFilter(model.AdminResourceSearch)
-	require.NoError(t, err)
-	assert.Nil(t, f)
+	broken := newPrincipal([]permissionRow{searchGrant(model.AccessLevelRead, `{"search":`)})
+	assert.False(t, broken.allows(model.AdminResourceSearch, model.AccessLevelRead), "unreadable restriction drops the grant")
 }
 
 func TestPermissionRowsFromInput(t *testing.T) {
