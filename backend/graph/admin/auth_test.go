@@ -98,6 +98,18 @@ func TestRefreshTokens(t *testing.T) {
 	assert.Len(t, plain1, 43) // 32 bytes base64url, no padding
 }
 
+func TestBuildAuthResult_Superuser(t *testing.T) {
+	cfg := AuthConfig{JWTSecret: authTestSecret}
+
+	res, err := buildAuthResult(cfg, authTestUser(), &Principal{superuser: true})
+	require.NoError(t, err)
+	assert.True(t, res.User.Superuser)
+
+	res, err = buildAuthResult(cfg, authTestUser(), newPrincipal(nil))
+	require.NoError(t, err)
+	assert.False(t, res.User.Superuser)
+}
+
 // parseOperation parses a query against the real admin schema and returns the
 // (single) operation definition, exactly what the auth extension sees.
 func parseOperation(t *testing.T, query string) *ast.OperationDefinition {

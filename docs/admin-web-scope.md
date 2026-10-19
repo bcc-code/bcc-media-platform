@@ -224,6 +224,13 @@ Built cheapest-and-most-used first, in the order listed here. All mock-backed.
 | Pages       | `/pages`, `/pages/[id]`                                       |
 | Collections | `/collections`, `/collections/new`, `/collections/[id]`       |
 
+**Access** (`/access/api-keys/*`, `/access/roles/*`) is the exception: it talks
+to the real `access` queries/mutations. Superuser only — the sidebar entry and
+the `superuser` route middleware read `AdminUser.superuser`; the API enforces it
+with `@superuser`. API keys show their plaintext once, right after creation.
+Role grants apply to Directus roles; roles themselves are still made in
+Directus. See [admin-api-access.md](admin-api-access.md).
+
 Decisions worth keeping when this gets wired up:
 
 - **Livestream** is a labelled button ("Ta av luften" / "Sett på luften"), not a

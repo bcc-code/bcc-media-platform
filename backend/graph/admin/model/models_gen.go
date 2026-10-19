@@ -27,6 +27,8 @@ type AdminUser struct {
 	FirstName *string `json:"firstName,omitempty"`
 	LastName  *string `json:"lastName,omitempty"`
 	AvatarURL *string `json:"avatarUrl,omitempty"`
+	// Full access, including access management. UI hint only; the API enforces access itself.
+	Superuser bool `json:"superuser"`
 }
 
 type APIKey struct {

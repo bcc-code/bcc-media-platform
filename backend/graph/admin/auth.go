@@ -243,15 +243,16 @@ func newAPIKey() (plain string, hash string, err error) {
 
 // buildAuthResult mints an access token and assembles the login/refresh
 // result. The avatar URL is the unauthenticated Directus asset URL.
-func buildAuthResult(cfg AuthConfig, u sqlc.GetDirectusUserByIDRow) (*model.AuthResult, error) {
+func buildAuthResult(cfg AuthConfig, u sqlc.GetDirectusUserByIDRow, p *Principal) (*model.AuthResult, error) {
 	token, expiresAt, err := mintAccessToken(cfg.JWTSecret, u, time.Now())
 	if err != nil {
 		return nil, err
 	}
 
 	user := &model.AdminUser{
-		ID:    u.ID.String(),
-		Email: u.Email.String,
+		ID:        u.ID.String(),
+		Email:     u.Email.String,
+		Superuser: p.superuser,
 	}
 	if u.FirstName.Valid {
 		user.FirstName = &u.FirstName.String

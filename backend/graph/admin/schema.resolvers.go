@@ -123,7 +123,7 @@ func (r *authResolver) Login(ctx context.Context, obj *model.Auth, email string,
 	}
 
 	// Admission: Directus admin access or admin permissions on the user's role.
-	user, _, err := loadActiveAdminUser(ctx, r.Queries, userID)
+	user, principal, err := loadActiveAdminUser(ctx, r.Queries, userID)
 	if errors.Is(err, errAdminUserNotAllowed) {
 		return nil, fmt.Errorf("not allowed")
 	}
@@ -150,7 +150,7 @@ func (r *authResolver) Login(ctx context.Context, obj *model.Auth, email string,
 		return nil, err
 	}
 
-	res, err := buildAuthResult(r.AuthConfig, user)
+	res, err := buildAuthResult(r.AuthConfig, user, principal)
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +194,7 @@ func (r *authResolver) Refresh(ctx context.Context, obj *model.Auth) (*model.Aut
 		return nil, errUnauthenticated(ctx)
 	}
 
-	user, _, err := loadActiveAdminUser(ctx, r.Queries, session.UserID)
+	user, principal, err := loadActiveAdminUser(ctx, r.Queries, session.UserID)
 	if errors.Is(err, errAdminUserNotAllowed) {
 		// Deactivated or de-admined user — positively confirmed: kill the
 		// session immediately. We just won the CAS, so the cookie we're
@@ -213,7 +213,7 @@ func (r *authResolver) Refresh(ctx context.Context, obj *model.Auth) (*model.Aut
 		return nil, fmt.Errorf("refresh unavailable")
 	}
 
-	res, err := buildAuthResult(r.AuthConfig, user)
+	res, err := buildAuthResult(r.AuthConfig, user, principal)
 	if err != nil {
 		// Same as above: the rotated cookie must reach the browser even when
 		// minting the access token fails.

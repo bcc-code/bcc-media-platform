@@ -11,7 +11,7 @@ pnpm preview      # Preview production build
 pnpm lint         # ESLint
 pnpm format       # Prettier format
 pnpm typecheck    # TypeScript type checking (vue-tsc)
-pnpm codegen      # Generate GraphQL types (requires NUXT_PUBLIC_API_KEY in .env)
+pnpm codegen      # Generate GraphQL types from backend/graph/admin/schema.graphqls
 ```
 
 Package manager is **pnpm 10.33.0**. Do not use npm or yarn.
@@ -28,7 +28,7 @@ Nuxt 4 SPA (SSR disabled) with **Tailwind CSS 4**, **Ark UI** components, and **
   - `stores/` — Pinia stores
   - `api/` — generated GraphQL types (output of `pnpm codegen`, do not edit)
   - `assets/css/main.css` — global styles and Tailwind theme (purple accent palette, light/dark themes)
-- `codegen.ts` — GraphQL codegen config (schema from `api.brunstad.tv/admin`)
+- `codegen.ts` — GraphQL codegen config (schema from `../backend/graph/admin/schema.graphqls`)
 - `nuxt.config.ts` — Nuxt modules, CSS, route rules, runtime config
 
 ## Code Style
