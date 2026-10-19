@@ -177,6 +177,8 @@ type SearchHit struct {
 	Item SearchItem `json:"item,omitempty"`
 	// Absolute link to the item in the web app. Seasons link to their show. Null if the item was deleted after it was indexed.
 	URL *string `json:"url,omitempty"`
+	// Absolute link to the embeddable player. Episodes only; null for seasons and shows.
+	EmbedURL *string `json:"embedUrl,omitempty"`
 }
 
 type SearchResult struct {

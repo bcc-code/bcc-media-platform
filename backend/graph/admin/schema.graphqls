@@ -116,6 +116,8 @@ type SearchHit {
     item: SearchItem @goField(forceResolver: true)
     "Absolute link to the item in the web app. Seasons link to their show. Null if the item was deleted after it was indexed."
     url: String @goField(forceResolver: true)
+    "Absolute link to the embeddable player. Episodes only; null for seasons and shows."
+    embedUrl: String @goField(forceResolver: true)
 }
 
 type SearchResult {

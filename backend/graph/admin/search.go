@@ -118,6 +118,21 @@ func (r *Resolver) searchHitURL(ctx context.Context, hit *model.SearchHit) (*str
 	return lo.ToPtr(webAppURL(r.WebAppURL, path)), nil
 }
 
+func (r *Resolver) searchHitEmbedURL(ctx context.Context, hit *model.SearchHit) (*string, error) {
+	if hit.Type != model.SearchTypeEpisode {
+		return nil, nil
+	}
+	id, err := strconv.Atoi(hit.ID)
+	if err != nil {
+		return nil, err
+	}
+	e, err := r.Loaders.EpisodeLoader.Get(ctx, id)
+	if err != nil || e == nil {
+		return nil, err
+	}
+	return lo.ToPtr(webAppURL(r.WebAppURL, "/embed/"+e.UUID.String())), nil
+}
+
 func webAppURL(base, path string) string {
 	return strings.TrimSuffix(base, "/") + path
 }

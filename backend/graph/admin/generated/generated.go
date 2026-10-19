@@ -220,11 +220,12 @@ type ComplexityRoot struct {
 	}
 
 	SearchHit struct {
-		ID    func(childComplexity int) int
-		Item  func(childComplexity int) int
-		Score func(childComplexity int) int
-		Type  func(childComplexity int) int
-		URL   func(childComplexity int) int
+		EmbedURL func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Item     func(childComplexity int) int
+		Score    func(childComplexity int) int
+		Type     func(childComplexity int) int
+		URL      func(childComplexity int) int
 	}
 
 	SearchResult struct {
@@ -319,6 +320,7 @@ type SearchResolver interface {
 type SearchHitResolver interface {
 	Item(ctx context.Context, obj *model.SearchHit) (model.SearchItem, error)
 	URL(ctx context.Context, obj *model.SearchHit) (*string, error)
+	EmbedURL(ctx context.Context, obj *model.SearchHit) (*string, error)
 }
 type SeasonResolver interface {
 	Status(ctx context.Context, obj *model1.Season) (model1.Status, error)
@@ -973,6 +975,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Search.Query(childComplexity, args["query"].(string), args["filter"].(*model.SearchFilter), args["first"].(*int), args["offset"].(*int)), true
 
+	case "SearchHit.embedUrl":
+		if e.complexity.SearchHit.EmbedURL == nil {
+			break
+		}
+
+		return e.complexity.SearchHit.EmbedURL(childComplexity), true
+
 	case "SearchHit.id":
 		if e.complexity.SearchHit.ID == nil {
 			break
@@ -1402,6 +1411,8 @@ type SearchHit {
     item: SearchItem @goField(forceResolver: true)
     "Absolute link to the item in the web app. Seasons link to their show. Null if the item was deleted after it was indexed."
     url: String @goField(forceResolver: true)
+    "Absolute link to the embeddable player. Episodes only; null for seasons and shows."
+    embedUrl: String @goField(forceResolver: true)
 }
 
 type SearchResult {
@@ -6814,6 +6825,47 @@ func (ec *executionContext) fieldContext_SearchHit_url(_ context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _SearchHit_embedUrl(ctx context.Context, field graphql.CollectedField, obj *model.SearchHit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SearchHit_embedUrl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SearchHit().EmbedURL(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SearchHit_embedUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SearchHit",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SearchResult_total(ctx context.Context, field graphql.CollectedField, obj *model.SearchResult) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SearchResult_total(ctx, field)
 	if err != nil {
@@ -6948,6 +7000,8 @@ func (ec *executionContext) fieldContext_SearchResult_hits(_ context.Context, fi
 				return ec.fieldContext_SearchHit_item(ctx, field)
 			case "url":
 				return ec.fieldContext_SearchHit_url(ctx, field)
+			case "embedUrl":
+				return ec.fieldContext_SearchHit_embedUrl(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SearchHit", field.Name)
 		},
@@ -12098,6 +12152,39 @@ func (ec *executionContext) _SearchHit(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._SearchHit_url(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "embedUrl":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SearchHit_embedUrl(ctx, field, obj)
 				return res
 			}
 

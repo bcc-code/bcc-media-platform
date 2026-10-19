@@ -494,6 +494,11 @@ func (r *searchHitResolver) URL(ctx context.Context, obj *model.SearchHit) (*str
 	return r.searchHitURL(ctx, obj)
 }
 
+// EmbedURL is the resolver for the embedUrl field.
+func (r *searchHitResolver) EmbedURL(ctx context.Context, obj *model.SearchHit) (*string, error) {
+	return r.searchHitEmbedURL(ctx, obj)
+}
+
 // Status is the resolver for the status field.
 func (r *seasonResolver) Status(ctx context.Context, obj *model1.Season) (model1.Status, error) {
 	return itemStatus(ctx, r.Loaders.SeasonLoader, obj.ID)
