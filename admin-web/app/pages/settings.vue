@@ -2,7 +2,6 @@
 useHead({ title: 'Innstillinger' })
 
 const colorMode = useColorMode()
-const { brand, brands } = useBrand()
 
 const themeItems = [
   {
@@ -31,9 +30,6 @@ const themePreference = computed({
     colorMode.preference = value
   }
 })
-
-const swatchFor = (b: BrandInfo) =>
-  colorMode.value === 'dark' ? b.swatch.dark : b.swatch.light
 </script>
 
 <template>
@@ -48,23 +44,6 @@ const swatchFor = (b: BrandInfo) =>
         </p>
       </div>
       <DesignRadioGroup v-model="themePreference" :items="themeItems" />
-    </section>
-
-    <section class="flex flex-col gap-4">
-      <div>
-        <h2 class="text-title-1 text-text-default">Farger</h2>
-        <p class="text-body-3 text-text-muted mt-1">
-          Velg hvilken fargepalett som skal brukes.
-        </p>
-      </div>
-      <DesignRadioGroup v-model="brand" :items="brands">
-        <template #leading="{ item }">
-          <span
-            class="border-border-1 size-4 shrink-0 rounded-full border"
-            :style="{ backgroundColor: swatchFor(item) }"
-          />
-        </template>
-      </DesignRadioGroup>
     </section>
 
     <section class="border-border-1 border-t pt-6">

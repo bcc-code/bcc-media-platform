@@ -1,6 +1,4 @@
 <script setup lang="ts">
-useBrand()
-
 useHead({
   title: 'BCC Media Admin',
   titleTemplate: (title?: string) =>
