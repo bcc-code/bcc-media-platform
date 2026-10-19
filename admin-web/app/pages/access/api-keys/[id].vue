@@ -14,6 +14,8 @@ const apiKey = computed(() =>
 useHead({ title: () => apiKey.value?.name ?? 'API-nøkkel' })
 
 const saving = ref(false)
+const dirty = ref(false)
+const { allowLeave } = useLeaveGuard(dirty)
 
 async function handleSubmit(input: ApiKeyInput) {
   saving.value = true
@@ -23,6 +25,7 @@ async function handleSubmit(input: ApiKeyInput) {
     toaster.value.error(formatGraphQLError(error))
     return
   }
+  allowLeave()
   toaster.value.success({
     title: 'Nøkkel oppdatert',
     description: 'Endringene ble lagret.'
@@ -36,6 +39,7 @@ async function handleRevoke() {
     toaster.value.error(formatGraphQLError(error))
     return
   }
+  allowLeave()
   toaster.value.success({
     title: 'Nøkkel tilbakekalt',
     description: 'Nøkkelen gir ikke lenger tilgang.'
@@ -63,6 +67,7 @@ async function handleRevoke() {
 
     <ApiKeyForm
       :key="apiKey.id"
+      v-model:dirty="dirty"
       :api-key="apiKey"
       :saving="saving"
       @submit="handleSubmit"

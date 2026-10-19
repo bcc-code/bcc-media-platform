@@ -12,6 +12,8 @@ const emit = defineEmits<{
   revoke: []
 }>()
 
+const dirty = defineModel<boolean>('dirty', { default: false })
+
 const isEditing = computed(() => !!props.apiKey)
 const isRevoked = computed(() => !!props.apiKey?.revokedAt)
 
@@ -25,9 +27,18 @@ function toDateValue(iso?: string | null) {
 
 const name = ref(props.apiKey?.name ?? '')
 const expiresOn = ref(toDateValue(props.apiKey?.expiresAt))
-const permissions = ref<PermissionInput[]>(
-  toPermissionInputs(props.apiKey?.permissions ?? [])
-)
+const initialPermissions = toPermissionInputs(props.apiKey?.permissions ?? [])
+const permissions = ref<PermissionInput[]>(initialPermissions)
+
+const initialName = name.value
+const initialExpiresOn = expiresOn.value
+
+watchEffect(() => {
+  dirty.value =
+    name.value !== initialName ||
+    expiresOn.value !== initialExpiresOn ||
+    !samePermissions(permissions.value, initialPermissions)
+})
 
 const submitted = ref(false)
 

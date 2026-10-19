@@ -82,6 +82,27 @@ export function toPermissionInputs(
   })
 }
 
+// Order-insensitive, so toggling a grant off and on again reads as unchanged.
+export function samePermissions(a: PermissionInput[], b: PermissionInput[]) {
+  const key = (list: PermissionInput[]) =>
+    JSON.stringify(
+      toPermissionInputs(list)
+        .map((p) => ({
+          ...p,
+          forcedFilter: p.forcedFilter?.search
+            ? {
+                search: {
+                  group: p.forcedFilter.search.group ?? null,
+                  types: [...(p.forcedFilter.search.types ?? [])].sort()
+                }
+              }
+            : null
+        }))
+        .sort((x, y) => x.resource.localeCompare(y.resource))
+    )
+  return key(a) === key(b)
+}
+
 export function permissionSummary(permissions: readonly PermissionLike[]) {
   if (permissions.length === 0) return 'Ingen tilgang'
   return permissions
