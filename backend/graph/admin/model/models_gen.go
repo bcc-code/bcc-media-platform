@@ -9,12 +9,43 @@ import (
 	"strconv"
 )
 
+type AccessMutations struct {
+	CreateAPIKey       *CreatedAPIKey `json:"createApiKey"`
+	UpdateAPIKey       *APIKey        `json:"updateApiKey"`
+	RevokeAPIKey       bool           `json:"revokeApiKey"`
+	SetRolePermissions *Role          `json:"setRolePermissions"`
+}
+
+type AccessQueries struct {
+	APIKeys []*APIKey `json:"apiKeys"`
+	Roles   []*Role   `json:"roles"`
+}
+
 type AdminUser struct {
 	ID        string  `json:"id"`
 	Email     string  `json:"email"`
 	FirstName *string `json:"firstName,omitempty"`
 	LastName  *string `json:"lastName,omitempty"`
 	AvatarURL *string `json:"avatarUrl,omitempty"`
+}
+
+type APIKey struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	// Leading characters of the key, for recognising it.
+	Prefix      string        `json:"prefix"`
+	CreatedBy   *string       `json:"createdBy,omitempty"`
+	CreatedAt   string        `json:"createdAt"`
+	ExpiresAt   *string       `json:"expiresAt,omitempty"`
+	RevokedAt   *string       `json:"revokedAt,omitempty"`
+	Permissions []*Permission `json:"permissions"`
+}
+
+type APIKeyInput struct {
+	Name string `json:"name"`
+	// RFC3339; omit for a key that never expires.
+	ExpiresAt   *string            `json:"expiresAt,omitempty"`
+	Permissions []*PermissionInput `json:"permissions"`
 }
 
 type Auth struct {
@@ -29,14 +60,49 @@ type AuthResult struct {
 	User        *AdminUser `json:"user"`
 }
 
+type Availability struct {
+	Published bool `json:"published"`
+	Unlisted  bool `json:"unlisted"`
+	// RFC3339
+	From        *string `json:"from,omitempty"`
+	To          *string `json:"to,omitempty"`
+	PublishedOn *string `json:"publishedOn,omitempty"`
+}
+
 type CollectionItem struct {
 	Collection Collection `json:"collection"`
 	ID         string     `json:"id"`
 	Title      string     `json:"title"`
 }
 
+type CreatedAPIKey struct {
+	APIKey *APIKey `json:"apiKey"`
+	// The plaintext key. It is only returned here and cannot be retrieved later.
+	Key string `json:"key"`
+}
+
 type Episodes struct {
 	ImportTimedMetadata bool `json:"importTimedMetadata"`
+}
+
+type ForcedFilter struct {
+	Search *ForcedSearchFilter `json:"search,omitempty"`
+}
+
+// Filters always applied to a grant, keyed by resource. Only the field matching the grant's resource may be set.
+type ForcedFilterInput struct {
+	Search *ForcedSearchFilterInput `json:"search,omitempty"`
+}
+
+type ForcedSearchFilter struct {
+	Group *string      `json:"group,omitempty"`
+	Types []SearchType `json:"types,omitempty"`
+}
+
+type ForcedSearchFilterInput struct {
+	// Search as a member of this usergroup: only published, currently available items it can access.
+	Group *string      `json:"group,omitempty"`
+	Types []SearchType `json:"types,omitempty"`
 }
 
 type MediaItems struct {
@@ -44,6 +110,18 @@ type MediaItems struct {
 }
 
 type MutationRoot struct {
+}
+
+type Permission struct {
+	Resource     AdminResource `json:"resource"`
+	Level        AccessLevel   `json:"level"`
+	ForcedFilter *ForcedFilter `json:"forcedFilter,omitempty"`
+}
+
+type PermissionInput struct {
+	Resource     AdminResource      `json:"resource"`
+	Level        AccessLevel        `json:"level"`
+	ForcedFilter *ForcedFilterInput `json:"forcedFilter,omitempty"`
 }
 
 type Preview struct {
@@ -68,8 +146,160 @@ type ProgressByOrg struct {
 type QueryRoot struct {
 }
 
+type Role struct {
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Permissions []*Permission `json:"permissions"`
+}
+
+type Roles struct {
+	Access      []string `json:"access"`
+	Download    []string `json:"download"`
+	EarlyAccess []string `json:"earlyAccess"`
+}
+
+type Search struct {
+	Query *SearchResult `json:"query"`
+}
+
+type SearchFilter struct {
+	// Defaults to all types.
+	Types []SearchType `json:"types,omitempty"`
+}
+
+type SearchHit struct {
+	ID    string     `json:"id"`
+	Type  SearchType `json:"type"`
+	Score *float64   `json:"score,omitempty"`
+	// Null if the item was deleted after it was indexed.
+	Item SearchItem `json:"item,omitempty"`
+}
+
+type SearchResult struct {
+	Total int `json:"total"`
+	// The usergroup forced by the caller's grant, if any.
+	Group *string      `json:"group,omitempty"`
+	Hits  []*SearchHit `json:"hits"`
+}
+
 type Statistics struct {
 	LessonProgressGroupedByOrg []*ProgressByOrg `json:"lessonProgressGroupedByOrg"`
+}
+
+type AccessLevel string
+
+const (
+	AccessLevelRead  AccessLevel = "read"
+	AccessLevelWrite AccessLevel = "write"
+)
+
+var AllAccessLevel = []AccessLevel{
+	AccessLevelRead,
+	AccessLevelWrite,
+}
+
+func (e AccessLevel) IsValid() bool {
+	switch e {
+	case AccessLevelRead, AccessLevelWrite:
+		return true
+	}
+	return false
+}
+
+func (e AccessLevel) String() string {
+	return string(e)
+}
+
+func (e *AccessLevel) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AccessLevel(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AccessLevel", str)
+	}
+	return nil
+}
+
+func (e AccessLevel) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AccessLevel) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AccessLevel) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type AdminResource string
+
+const (
+	AdminResourceSearch     AdminResource = "search"
+	AdminResourcePreview    AdminResource = "preview"
+	AdminResourceStatistics AdminResource = "statistics"
+	AdminResourceEpisodes   AdminResource = "episodes"
+	AdminResourceMediaItems AdminResource = "mediaItems"
+)
+
+var AllAdminResource = []AdminResource{
+	AdminResourceSearch,
+	AdminResourcePreview,
+	AdminResourceStatistics,
+	AdminResourceEpisodes,
+	AdminResourceMediaItems,
+}
+
+func (e AdminResource) IsValid() bool {
+	switch e {
+	case AdminResourceSearch, AdminResourcePreview, AdminResourceStatistics, AdminResourceEpisodes, AdminResourceMediaItems:
+		return true
+	}
+	return false
+}
+
+func (e AdminResource) String() string {
+	return string(e)
+}
+
+func (e *AdminResource) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AdminResource(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AdminResource", str)
+	}
+	return nil
+}
+
+func (e AdminResource) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AdminResource) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AdminResource) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type Collection string
@@ -128,6 +358,63 @@ func (e *Collection) UnmarshalJSON(b []byte) error {
 }
 
 func (e Collection) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type SearchType string
+
+const (
+	SearchTypeEpisode SearchType = "episode"
+	SearchTypeSeason  SearchType = "season"
+	SearchTypeShow    SearchType = "show"
+)
+
+var AllSearchType = []SearchType{
+	SearchTypeEpisode,
+	SearchTypeSeason,
+	SearchTypeShow,
+}
+
+func (e SearchType) IsValid() bool {
+	switch e {
+	case SearchTypeEpisode, SearchTypeSeason, SearchTypeShow:
+		return true
+	}
+	return false
+}
+
+func (e SearchType) String() string {
+	return string(e)
+}
+
+func (e *SearchType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SearchType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SearchType", str)
+	}
+	return nil
+}
+
+func (e SearchType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *SearchType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e SearchType) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

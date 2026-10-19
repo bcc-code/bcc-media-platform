@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
+	"crypto/subtle"
 	"database/sql"
 	"encoding/base64"
 	"encoding/hex"
@@ -163,30 +164,81 @@ func clearRefreshCookie(c *gin.Context, secure bool) {
 var errAdminUserNotAllowed = errors.New("admin user is not allowed")
 
 // loadActiveAdminUser fetches the Directus user and enforces that it is
-// still active AND still has admin access (derived from the Directus
-// policies in the same query). Login, refresh and the per-request guard all
-// go through here, so revoking either in Directus takes effect immediately —
-// not just at the next login. Returns errAdminUserNotAllowed when the user is
-// confirmed unauthorized; any other error is transient (e.g. a DB hiccup).
-func loadActiveAdminUser(ctx context.Context, queries *sqlc.Queries, userID uuid.UUID) (sqlc.GetDirectusUserByIDRow, error) {
+// still active AND may use the admin API: either Directus admin access
+// (superuser) or at least one permission granted to its role. Login, refresh
+// and the per-request guard all go through here, so revoking either takes
+// effect immediately — not just at the next login. Returns
+// errAdminUserNotAllowed when the user is confirmed unauthorized; any other
+// error is transient (e.g. a DB hiccup).
+func loadActiveAdminUser(ctx context.Context, queries *sqlc.Queries, userID uuid.UUID) (sqlc.GetDirectusUserByIDRow, *Principal, error) {
 	u, err := queries.GetDirectusUserByID(ctx, userID)
 	if errors.Is(err, sql.ErrNoRows) {
 		log.L.Warn().Str(logFieldAdminUserID, userID.String()).Msg("Admin user does not exist")
-		return sqlc.GetDirectusUserByIDRow{}, errAdminUserNotAllowed
+		return sqlc.GetDirectusUserByIDRow{}, nil, errAdminUserNotAllowed
 	}
 	if err != nil {
 		log.L.Warn().Err(err).Str(logFieldAdminUserID, userID.String()).Msg("Admin user could not be loaded")
-		return sqlc.GetDirectusUserByIDRow{}, fmt.Errorf("load admin user: %w", err)
+		return sqlc.GetDirectusUserByIDRow{}, nil, fmt.Errorf("load admin user: %w", err)
 	}
 	if u.Status != "active" {
 		log.L.Warn().Str(logFieldAdminUserID, userID.String()).Str("status", u.Status).Msg("Admin user is not active")
-		return sqlc.GetDirectusUserByIDRow{}, errAdminUserNotAllowed
+		return sqlc.GetDirectusUserByIDRow{}, nil, errAdminUserNotAllowed
 	}
-	if !u.AdminAccess {
-		log.L.Warn().Str(logFieldAdminUserID, userID.String()).Msg("Admin user no longer has admin access")
-		return sqlc.GetDirectusUserByIDRow{}, errAdminUserNotAllowed
+
+	userRef := uuid.NullUUID{UUID: u.ID, Valid: true}
+	if u.AdminAccess {
+		return u, &Principal{superuser: true, userID: userRef}, nil
 	}
-	return u, nil
+	if !u.Role.Valid {
+		log.L.Warn().Str(logFieldAdminUserID, userID.String()).Msg("Admin user has no role")
+		return sqlc.GetDirectusUserByIDRow{}, nil, errAdminUserNotAllowed
+	}
+	rows, err := rolePermissionRows(ctx, queries, u.Role.UUID)
+	if err != nil {
+		log.L.Warn().Err(err).Str(logFieldAdminUserID, userID.String()).Msg("Admin permissions could not be loaded")
+		return sqlc.GetDirectusUserByIDRow{}, nil, fmt.Errorf("load admin permissions: %w", err)
+	}
+	if len(rows) == 0 {
+		log.L.Warn().Str(logFieldAdminUserID, userID.String()).Msg("Admin user has no admin permissions")
+		return sqlc.GetDirectusUserByIDRow{}, nil, errAdminUserNotAllowed
+	}
+	p := newPrincipal(rows)
+	p.userID = userRef
+	return u, p, nil
+}
+
+func rolePermissionRows(ctx context.Context, queries *sqlc.Queries, roleID uuid.UUID) ([]permissionRow, error) {
+	rows, err := queries.GetAdminPermissionsForRoles(ctx, []uuid.UUID{roleID})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]permissionRow, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, permissionRow{resource: r.Resource, access: r.Access, forcedFilter: r.ForcedFilter})
+	}
+	return out, nil
+}
+
+func apiKeyPermissionRows(ctx context.Context, queries *sqlc.Queries, keyID uuid.UUID) ([]permissionRow, error) {
+	rows, err := queries.GetAdminPermissionsForApiKeys(ctx, []uuid.UUID{keyID})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]permissionRow, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, permissionRow{resource: r.Resource, access: r.Access, forcedFilter: r.ForcedFilter})
+	}
+	return out, nil
+}
+
+// newAPIKey returns a random key and its storage hash.
+func newAPIKey() (plain string, hash string, err error) {
+	token, _, err := newRefreshToken()
+	if err != nil {
+		return "", "", err
+	}
+	plain = apiKeyPrefix + token
+	return plain, hashRefreshToken(plain), nil
 }
 
 // buildAuthResult mints an access token and assembles the login/refresh
@@ -232,11 +284,12 @@ func errUnauthenticated(ctx context.Context) *gqlerror.Error {
 	}
 }
 
-// AuthExtension enforces access to the admin GraphQL endpoint per operation:
-// requests authenticate with the shared x-api-key (Directus endpoint-tools,
-// server-to-server) or an access token this service minted (admin-web).
-// Operations that consist solely of the `auth` mutation namespace execute
-// without credentials — that's where clients obtain tokens.
+// AuthExtension authenticates each admin GraphQL operation and stores the
+// resulting Principal for the @access directive. Callers present one of:
+// the shared Directus secret as x-api-key (superuser, server-to-server), an
+// API key from users.api_keys as x-api-key, or an access token this service
+// minted (admin-web). Operations that consist solely of the `auth` mutation
+// namespace execute without credentials — that's where clients obtain tokens.
 type AuthExtension struct {
 	Queries        *sqlc.Queries
 	JWTSecret      []byte
@@ -276,31 +329,60 @@ func (a AuthExtension) MutateOperationContext(ctx context.Context, opCtx *graphq
 		return errUnauthenticated(ctx)
 	}
 
-	// Server-to-server access from the Directus endpoint-tools extension.
-	if a.DirectusSecret != "" && ginCtx.GetHeader("x-api-key") == a.DirectusSecret {
-		return nil
+	// Fail closed on any failure — transient or confirmed — a guard must not
+	// let requests through it could not verify.
+	p := a.authenticate(ctx, ginCtx)
+	if p == nil {
+		return errUnauthenticated(ctx)
+	}
+	ginCtx.Set(ctxPrincipal, p)
+	return nil
+}
+
+func (a AuthExtension) authenticate(ctx context.Context, ginCtx *gin.Context) *Principal {
+	if key := ginCtx.GetHeader("x-api-key"); key != "" {
+		// Server-to-server access from the Directus endpoint-tools extension.
+		if a.DirectusSecret != "" && subtle.ConstantTimeCompare([]byte(key), []byte(a.DirectusSecret)) == 1 {
+			return &Principal{superuser: true}
+		}
+		if !strings.HasPrefix(key, apiKeyPrefix) {
+			return nil
+		}
+		apiKey, err := a.Queries.GetActiveApiKeyByHash(ctx, hashRefreshToken(key))
+		if err != nil {
+			if !errors.Is(err, sql.ErrNoRows) {
+				log.L.Warn().Err(err).Msg("Admin API key could not be loaded")
+			}
+			return nil
+		}
+		rows, err := apiKeyPermissionRows(ctx, a.Queries, apiKey.ID)
+		if err != nil {
+			log.L.Warn().Err(err).Str("api_key_id", apiKey.ID.String()).Msg("Admin API key permissions could not be loaded")
+			return nil
+		}
+		return newPrincipal(rows)
 	}
 
 	// Browser access from admin-web with a token this service minted. The
 	// user is re-checked so a deactivated account is rejected even while its
 	// short-lived token is still cryptographically valid.
-	if len(a.JWTSecret) > 0 {
-		scheme, token, ok := strings.Cut(ginCtx.GetHeader("Authorization"), " ")
-		if ok && strings.EqualFold(scheme, "Bearer") {
-			userID, err := validateAccessToken(a.JWTSecret, token)
-			if err != nil {
-				log.L.Debug().Err(err).Msg("Rejected admin access token")
-				return errUnauthenticated(ctx)
-			}
-			// Fail closed on any failure — transient or confirmed — a guard
-			// must not let requests through it could not verify.
-			if _, err := loadActiveAdminUser(ctx, a.Queries, userID); err == nil {
-				return nil
-			}
-		}
+	if len(a.JWTSecret) == 0 {
+		return nil
 	}
-
-	return errUnauthenticated(ctx)
+	scheme, token, ok := strings.Cut(ginCtx.GetHeader("Authorization"), " ")
+	if !ok || !strings.EqualFold(scheme, "Bearer") {
+		return nil
+	}
+	userID, err := validateAccessToken(a.JWTSecret, token)
+	if err != nil {
+		log.L.Debug().Err(err).Msg("Rejected admin access token")
+		return nil
+	}
+	_, p, err := loadActiveAdminUser(ctx, a.Queries, userID)
+	if err != nil {
+		return nil
+	}
+	return p
 }
 
 // isAuthOnlyOperation reports whether every root selection of the operation

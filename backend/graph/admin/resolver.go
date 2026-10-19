@@ -10,6 +10,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/admin/model"
 	"github.com/bcc-code/bcc-media-platform/backend/items/collection"
+	"github.com/bcc-code/bcc-media-platform/backend/search"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
@@ -19,10 +20,11 @@ import (
 
 // Resolver contains the common properties for all endpoints
 type Resolver struct {
-	DB         *sql.DB
-	Queries    *sqlc.Queries
-	Loaders    *loaders.BatchLoaders
-	AuthConfig AuthConfig
+	DB            *sql.DB
+	Queries       *sqlc.Queries
+	Loaders       *loaders.BatchLoaders
+	AuthConfig    AuthConfig
+	SearchService *search.Service
 }
 
 func (r *previewResolver) getItemsForFilter(ctx context.Context, filter common.Filter) ([]*model.CollectionItem, error) {

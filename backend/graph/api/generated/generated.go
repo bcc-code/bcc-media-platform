@@ -7933,6 +7933,8 @@ enum ImageStyle {
 enum Status {
     published
     unlisted
+    draft
+    archived
 }
 
 input LegacyIDLookupOptions {

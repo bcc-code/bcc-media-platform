@@ -17,6 +17,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/directus"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/admin/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/admin/model"
+	model1 "github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/ratelimit"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
@@ -25,6 +26,41 @@ import (
 	"github.com/samber/lo"
 	null_v4 "gopkg.in/guregu/null.v4"
 )
+
+// CreateAPIKey is the resolver for the createApiKey field.
+func (r *accessMutationsResolver) CreateAPIKey(ctx context.Context, obj *model.AccessMutations, input model.APIKeyInput) (*model.CreatedAPIKey, error) {
+	return r.createAPIKey(ctx, input)
+}
+
+// UpdateAPIKey is the resolver for the updateApiKey field.
+func (r *accessMutationsResolver) UpdateAPIKey(ctx context.Context, obj *model.AccessMutations, id string, input model.APIKeyInput) (*model.APIKey, error) {
+	return r.updateAPIKey(ctx, id, input)
+}
+
+// RevokeAPIKey is the resolver for the revokeApiKey field.
+func (r *accessMutationsResolver) RevokeAPIKey(ctx context.Context, obj *model.AccessMutations, id string) (bool, error) {
+	return r.revokeAPIKey(ctx, id)
+}
+
+// SetRolePermissions is the resolver for the setRolePermissions field.
+func (r *accessMutationsResolver) SetRolePermissions(ctx context.Context, obj *model.AccessMutations, roleID string, permissions []*model.PermissionInput) (*model.Role, error) {
+	return r.setRolePermissions(ctx, roleID, permissions)
+}
+
+// APIKeys is the resolver for the apiKeys field.
+func (r *accessQueriesResolver) APIKeys(ctx context.Context, obj *model.AccessQueries) ([]*model.APIKey, error) {
+	return r.listAPIKeys(ctx)
+}
+
+// Roles is the resolver for the roles field.
+func (r *accessQueriesResolver) Roles(ctx context.Context, obj *model.AccessQueries) ([]*model.Role, error) {
+	return r.listRoles(ctx)
+}
+
+// Permissions is the resolver for the permissions field.
+func (r *apiKeyResolver) Permissions(ctx context.Context, obj *model.APIKey) ([]*model.Permission, error) {
+	return r.apiKeyPermissions(ctx, obj.ID)
+}
 
 // Login is the resolver for the login field. It proxies the credentials to
 // Directus server-side and, when the user is allowed in, responds with our
@@ -80,21 +116,14 @@ func (r *authResolver) Login(ctx context.Context, obj *model.Auth, email string,
 		return nil, fmt.Errorf("login unavailable")
 	}
 
-	// Admin access is granted by Directus policies and only surfaced in the
-	// token claims (Directus 11 moved the flag off the roles table), so this
-	// is the authoritative admission check.
-	if !claims.AdminAccess {
-		log.L.Warn().Str(logFieldAdminUserID, claims.UserID).Msg("Directus user without admin access attempted admin login")
-		return nil, fmt.Errorf("not allowed")
-	}
-
 	userID, err := uuid.Parse(claims.UserID)
 	if err != nil {
 		log.L.Warn().Err(err).Str(logFieldAdminUserID, claims.UserID).Msg("Directus token has an invalid user id")
 		return nil, fmt.Errorf("not allowed")
 	}
 
-	user, err := loadActiveAdminUser(ctx, r.Queries, userID)
+	// Admission: Directus admin access or admin permissions on the user's role.
+	user, _, err := loadActiveAdminUser(ctx, r.Queries, userID)
 	if errors.Is(err, errAdminUserNotAllowed) {
 		return nil, fmt.Errorf("not allowed")
 	}
@@ -165,7 +194,7 @@ func (r *authResolver) Refresh(ctx context.Context, obj *model.Auth) (*model.Aut
 		return nil, errUnauthenticated(ctx)
 	}
 
-	user, err := loadActiveAdminUser(ctx, r.Queries, session.UserID)
+	user, _, err := loadActiveAdminUser(ctx, r.Queries, session.UserID)
 	if errors.Is(err, errAdminUserNotAllowed) {
 		// Deactivated or de-admined user — positively confirmed: kill the
 		// session immediately. We just won the CAS, so the cookie we're
@@ -209,6 +238,41 @@ func (r *authResolver) Logout(ctx context.Context, obj *model.Auth) (bool, error
 	}
 	clearRefreshCookie(ginCtx, r.AuthConfig.SecureCookie)
 	return true, nil
+}
+
+// Status is the resolver for the status field.
+func (r *episodeResolver) Status(ctx context.Context, obj *model1.Episode) (model1.Status, error) {
+	return itemStatus(ctx, r.Loaders.EpisodeLoader, obj.ID)
+}
+
+// Season is the resolver for the season field.
+func (r *episodeResolver) Season(ctx context.Context, obj *model1.Episode) (*model1.Season, error) {
+	if obj.Season == nil {
+		return nil, nil
+	}
+	s, err := r.Loaders.SeasonLoader.Get(ctx, utils.AsInt(obj.Season.ID))
+	if err != nil || s == nil {
+		return nil, err
+	}
+	return model1.SeasonFrom(ctx, s), nil
+}
+
+// Availability is the resolver for the availability field.
+func (r *episodeResolver) Availability(ctx context.Context, obj *model1.Episode) (*model.Availability, error) {
+	p, err := permissions(ctx, r.Loaders.EpisodePermissionLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	return availabilityFrom(p.Availability), nil
+}
+
+// Roles is the resolver for the roles field.
+func (r *episodeResolver) Roles(ctx context.Context, obj *model1.Episode) (*model.Roles, error) {
+	p, err := permissions(ctx, r.Loaders.EpisodePermissionLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	return rolesFrom(p.Roles), nil
 }
 
 // ImportTimedMetadata is the resolver for the importTimedMetadata field.
@@ -302,6 +366,11 @@ func (r *mutationRootResolver) Auth(ctx context.Context) (*model.Auth, error) {
 	return &model.Auth{}, nil
 }
 
+// Access is the resolver for the access field.
+func (r *mutationRootResolver) Access(ctx context.Context) (*model.AccessMutations, error) {
+	return &model.AccessMutations{}, nil
+}
+
 // Collection is the resolver for the collection field.
 func (r *previewResolver) Collection(ctx context.Context, obj *model.Preview, filter string) (*model.PreviewCollection, error) {
 	var f common.Filter
@@ -371,6 +440,113 @@ func (r *queryRootResolver) MediaItems(ctx context.Context) (*model.MediaItems, 
 	return &model.MediaItems{}, nil
 }
 
+// Search is the resolver for the search field.
+func (r *queryRootResolver) Search(ctx context.Context) (*model.Search, error) {
+	return &model.Search{}, nil
+}
+
+// Access is the resolver for the access field.
+func (r *queryRootResolver) Access(ctx context.Context) (*model.AccessQueries, error) {
+	return &model.AccessQueries{}, nil
+}
+
+// Permissions is the resolver for the permissions field.
+func (r *roleResolver) Permissions(ctx context.Context, obj *model.Role) ([]*model.Permission, error) {
+	return r.rolePermissions(ctx, obj.ID)
+}
+
+// Query is the resolver for the query field.
+func (r *searchResolver) Query(ctx context.Context, obj *model.Search, query string, filter *model.SearchFilter, first *int, offset *int) (*model.SearchResult, error) {
+	return r.search(ctx, query, filter, first, offset)
+}
+
+// Item is the resolver for the item field.
+func (r *searchHitResolver) Item(ctx context.Context, obj *model.SearchHit) (model.SearchItem, error) {
+	id, err := strconv.Atoi(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	switch obj.Type {
+	case model.SearchTypeEpisode:
+		e, err := r.Loaders.EpisodeLoader.Get(ctx, id)
+		if err != nil || e == nil {
+			return nil, err
+		}
+		return model1.EpisodeFrom(ctx, e), nil
+	case model.SearchTypeSeason:
+		s, err := r.Loaders.SeasonLoader.Get(ctx, id)
+		if err != nil || s == nil {
+			return nil, err
+		}
+		return model1.SeasonFrom(ctx, s), nil
+	case model.SearchTypeShow:
+		s, err := r.Loaders.ShowLoader.Get(ctx, id)
+		if err != nil || s == nil {
+			return nil, err
+		}
+		return model1.ShowFrom(ctx, s), nil
+	}
+	return nil, fmt.Errorf("unsupported search type: %s", obj.Type)
+}
+
+// Status is the resolver for the status field.
+func (r *seasonResolver) Status(ctx context.Context, obj *model1.Season) (model1.Status, error) {
+	return itemStatus(ctx, r.Loaders.SeasonLoader, obj.ID)
+}
+
+// Show is the resolver for the show field.
+func (r *seasonResolver) Show(ctx context.Context, obj *model1.Season) (*model1.Show, error) {
+	s, err := r.Loaders.ShowLoader.Get(ctx, utils.AsInt(obj.Show.ID))
+	if err != nil {
+		return nil, err
+	}
+	if s == nil {
+		return nil, fmt.Errorf("show %s not found", obj.Show.ID)
+	}
+	return model1.ShowFrom(ctx, s), nil
+}
+
+// Availability is the resolver for the availability field.
+func (r *seasonResolver) Availability(ctx context.Context, obj *model1.Season) (*model.Availability, error) {
+	p, err := permissions(ctx, r.Loaders.SeasonPermissionLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	return availabilityFrom(p.Availability), nil
+}
+
+// Roles is the resolver for the roles field.
+func (r *seasonResolver) Roles(ctx context.Context, obj *model1.Season) (*model.Roles, error) {
+	p, err := permissions(ctx, r.Loaders.SeasonPermissionLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	return rolesFrom(p.Roles), nil
+}
+
+// Status is the resolver for the status field.
+func (r *showResolver) Status(ctx context.Context, obj *model1.Show) (model1.Status, error) {
+	return itemStatus(ctx, r.Loaders.ShowLoader, obj.ID)
+}
+
+// Availability is the resolver for the availability field.
+func (r *showResolver) Availability(ctx context.Context, obj *model1.Show) (*model.Availability, error) {
+	p, err := permissions(ctx, r.Loaders.ShowPermissionLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	return availabilityFrom(p.Availability), nil
+}
+
+// Roles is the resolver for the roles field.
+func (r *showResolver) Roles(ctx context.Context, obj *model1.Show) (*model.Roles, error) {
+	p, err := permissions(ctx, r.Loaders.ShowPermissionLoader, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	return rolesFrom(p.Roles), nil
+}
+
 // LessonProgressGroupedByOrg is the resolver for the lessonProgressGroupedByOrg field.
 func (r *statisticsResolver) LessonProgressGroupedByOrg(ctx context.Context, obj *model.Statistics, lessonID string, ageGroups []string, orgMaxSize *int, orgMinSize *int) ([]*model.ProgressByOrg, error) {
 	minSize := 0
@@ -404,8 +580,22 @@ func (r *statisticsResolver) LessonProgressGroupedByOrg(ctx context.Context, obj
 	return out, err
 }
 
+// AccessMutations returns generated.AccessMutationsResolver implementation.
+func (r *Resolver) AccessMutations() generated.AccessMutationsResolver {
+	return &accessMutationsResolver{r}
+}
+
+// AccessQueries returns generated.AccessQueriesResolver implementation.
+func (r *Resolver) AccessQueries() generated.AccessQueriesResolver { return &accessQueriesResolver{r} }
+
+// ApiKey returns generated.ApiKeyResolver implementation.
+func (r *Resolver) ApiKey() generated.ApiKeyResolver { return &apiKeyResolver{r} }
+
 // Auth returns generated.AuthResolver implementation.
 func (r *Resolver) Auth() generated.AuthResolver { return &authResolver{r} }
+
+// Episode returns generated.EpisodeResolver implementation.
+func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
 
 // Episodes returns generated.EpisodesResolver implementation.
 func (r *Resolver) Episodes() generated.EpisodesResolver { return &episodesResolver{r} }
@@ -422,13 +612,37 @@ func (r *Resolver) Preview() generated.PreviewResolver { return &previewResolver
 // QueryRoot returns generated.QueryRootResolver implementation.
 func (r *Resolver) QueryRoot() generated.QueryRootResolver { return &queryRootResolver{r} }
 
+// Role returns generated.RoleResolver implementation.
+func (r *Resolver) Role() generated.RoleResolver { return &roleResolver{r} }
+
+// Search returns generated.SearchResolver implementation.
+func (r *Resolver) Search() generated.SearchResolver { return &searchResolver{r} }
+
+// SearchHit returns generated.SearchHitResolver implementation.
+func (r *Resolver) SearchHit() generated.SearchHitResolver { return &searchHitResolver{r} }
+
+// Season returns generated.SeasonResolver implementation.
+func (r *Resolver) Season() generated.SeasonResolver { return &seasonResolver{r} }
+
+// Show returns generated.ShowResolver implementation.
+func (r *Resolver) Show() generated.ShowResolver { return &showResolver{r} }
+
 // Statistics returns generated.StatisticsResolver implementation.
 func (r *Resolver) Statistics() generated.StatisticsResolver { return &statisticsResolver{r} }
 
+type accessMutationsResolver struct{ *Resolver }
+type accessQueriesResolver struct{ *Resolver }
+type apiKeyResolver struct{ *Resolver }
 type authResolver struct{ *Resolver }
+type episodeResolver struct{ *Resolver }
 type episodesResolver struct{ *Resolver }
 type mediaItemsResolver struct{ *Resolver }
 type mutationRootResolver struct{ *Resolver }
 type previewResolver struct{ *Resolver }
 type queryRootResolver struct{ *Resolver }
+type roleResolver struct{ *Resolver }
+type searchResolver struct{ *Resolver }
+type searchHitResolver struct{ *Resolver }
+type seasonResolver struct{ *Resolver }
+type showResolver struct{ *Resolver }
 type statisticsResolver struct{ *Resolver }

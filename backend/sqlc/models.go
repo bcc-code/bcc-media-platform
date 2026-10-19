@@ -1983,12 +1983,32 @@ type UsersAchievement struct {
 	ConfirmedAt   null_v4.Time `db:"confirmed_at" json:"confirmedAt"`
 }
 
+type UsersAdminPermission struct {
+	ID             uuid.UUID       `db:"id" json:"id"`
+	ApiKeyID       uuid.NullUUID   `db:"api_key_id" json:"apiKeyId"`
+	DirectusRoleID uuid.NullUUID   `db:"directus_role_id" json:"directusRoleId"`
+	Resource       string          `db:"resource" json:"resource"`
+	Access         string          `db:"access" json:"access"`
+	ForcedFilter   json.RawMessage `db:"forced_filter" json:"forcedFilter"`
+}
+
 type UsersAdminSession struct {
 	ID        uuid.UUID `db:"id" json:"id"`
 	UserID    uuid.UUID `db:"user_id" json:"userId"`
 	TokenHash string    `db:"token_hash" json:"tokenHash"`
 	CreatedAt time.Time `db:"created_at" json:"createdAt"`
 	ExpiresAt time.Time `db:"expires_at" json:"expiresAt"`
+}
+
+type UsersApiKey struct {
+	ID        uuid.UUID     `db:"id" json:"id"`
+	Name      string        `db:"name" json:"name"`
+	KeyPrefix string        `db:"key_prefix" json:"keyPrefix"`
+	KeyHash   string        `db:"key_hash" json:"keyHash"`
+	CreatedBy uuid.NullUUID `db:"created_by" json:"createdBy"`
+	CreatedAt time.Time     `db:"created_at" json:"createdAt"`
+	ExpiresAt null_v4.Time  `db:"expires_at" json:"expiresAt"`
+	RevokedAt null_v4.Time  `db:"revoked_at" json:"revokedAt"`
 }
 
 type UsersCollection struct {
