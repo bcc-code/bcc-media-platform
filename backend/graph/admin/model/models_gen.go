@@ -91,10 +91,16 @@ type ForcedFilter struct {
 
 // Filters always applied to a grant, keyed by resource. Only the field matching the grant's resource may be set.
 type ForcedFilterInput struct {
-	Search *SearchFilter `json:"search,omitempty"`
+	Search *ForcedSearchFilterInput `json:"search,omitempty"`
 }
 
 type ForcedSearchFilter struct {
+	Group *string      `json:"group,omitempty"`
+	Types []SearchType `json:"types,omitempty"`
+}
+
+type ForcedSearchFilterInput struct {
+	// Search as a member of this usergroup: only published, currently available items it can access.
 	Group *string      `json:"group,omitempty"`
 	Types []SearchType `json:"types,omitempty"`
 }
@@ -157,8 +163,6 @@ type Search struct {
 }
 
 type SearchFilter struct {
-	// Search as a member of this usergroup: only published, currently available items it can access.
-	Group *string `json:"group,omitempty"`
 	// Defaults to all types.
 	Types []SearchType `json:"types,omitempty"`
 }
@@ -173,7 +177,7 @@ type SearchHit struct {
 
 type SearchResult struct {
 	Total int `json:"total"`
-	// The group the search ran as, possibly forced by the API key.
+	// The usergroup forced by the caller's grant, if any.
 	Group *string      `json:"group,omitempty"`
 	Hits  []*SearchHit `json:"hits"`
 }

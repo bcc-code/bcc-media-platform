@@ -1167,6 +1167,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputApiKeyInput,
 		ec.unmarshalInputForcedFilterInput,
+		ec.unmarshalInputForcedSearchFilterInput,
 		ec.unmarshalInputPermissionInput,
 		ec.unmarshalInputSearchFilter,
 	)
@@ -1368,8 +1369,6 @@ enum SearchType {
 }
 
 input SearchFilter {
-    "Search as a member of this usergroup: only published, currently available items it can access."
-    group: String
     "Defaults to all types."
     types: [SearchType!]
 }
@@ -1386,7 +1385,7 @@ type SearchHit {
 
 type SearchResult {
     total: Int!
-    "The group the search ran as, possibly forced by the API key."
+    "The usergroup forced by the caller's grant, if any."
     group: String
     hits: [SearchHit!]!
 }
@@ -1468,7 +1467,13 @@ type Show {
 
 "Filters always applied to a grant, keyed by resource. Only the field matching the grant's resource may be set."
 input ForcedFilterInput {
-    search: SearchFilter
+    search: ForcedSearchFilterInput
+}
+
+input ForcedSearchFilterInput {
+    "Search as a member of this usergroup: only published, currently available items it can access."
+    group: String
+    types: [SearchType!]
 }
 
 type ForcedSearchFilter {
@@ -9809,11 +9814,45 @@ func (ec *executionContext) unmarshalInputForcedFilterInput(ctx context.Context,
 		switch k {
 		case "search":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
-			data, err := ec.unmarshalOSearchFilter2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐSearchFilter(ctx, v)
+			data, err := ec.unmarshalOForcedSearchFilterInput2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐForcedSearchFilterInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Search = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputForcedSearchFilterInput(ctx context.Context, obj any) (model.ForcedSearchFilterInput, error) {
+	var it model.ForcedSearchFilterInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"group", "types"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "group":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("group"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Group = data
+		case "types":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("types"))
+			data, err := ec.unmarshalOSearchType2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐSearchTypeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Types = data
 		}
 	}
 
@@ -9868,20 +9907,13 @@ func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"group", "types"}
+	fieldsInOrder := [...]string{"types"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "group":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("group"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Group = data
 		case "types":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("types"))
 			data, err := ec.unmarshalOSearchType2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐSearchTypeᚄ(ctx, v)
@@ -13914,6 +13946,14 @@ func (ec *executionContext) marshalOForcedSearchFilter2ᚖgithubᚗcomᚋbccᚑc
 		return graphql.Null
 	}
 	return ec._ForcedSearchFilter(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOForcedSearchFilterInput2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐForcedSearchFilterInput(ctx context.Context, v any) (*model.ForcedSearchFilterInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputForcedSearchFilterInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v any) (*string, error) {

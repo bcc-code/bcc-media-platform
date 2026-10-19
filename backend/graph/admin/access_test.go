@@ -71,7 +71,7 @@ func TestPrincipal_ForcedFilter(t *testing.T) {
 
 func TestPermissionRowsFromInput(t *testing.T) {
 	group := "bcc-members"
-	pinned := &model.ForcedFilterInput{Search: &model.SearchFilter{Group: &group}}
+	pinned := &model.ForcedFilterInput{Search: &model.ForcedSearchFilterInput{Group: &group}}
 
 	rows, err := permissionRowsFromInput([]*model.PermissionInput{
 		{Resource: model.AdminResourceSearch, Level: model.AccessLevelRead, ForcedFilter: pinned},
@@ -96,7 +96,7 @@ func TestPermissionRowsFromInput(t *testing.T) {
 
 func TestApplyForcedSearchFilter(t *testing.T) {
 	group, forcedGroup := "public", "bcc-members"
-	forced := &model.ForcedFilterInput{Search: &model.SearchFilter{
+	forced := &model.ForcedFilterInput{Search: &model.ForcedSearchFilterInput{
 		Group: &forcedGroup,
 		Types: []model.SearchType{model.SearchTypeEpisode, model.SearchTypeShow},
 	}}

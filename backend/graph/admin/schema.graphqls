@@ -100,8 +100,6 @@ enum SearchType {
 }
 
 input SearchFilter {
-    "Search as a member of this usergroup: only published, currently available items it can access."
-    group: String
     "Defaults to all types."
     types: [SearchType!]
 }
@@ -118,7 +116,7 @@ type SearchHit {
 
 type SearchResult {
     total: Int!
-    "The group the search ran as, possibly forced by the API key."
+    "The usergroup forced by the caller's grant, if any."
     group: String
     hits: [SearchHit!]!
 }
@@ -200,7 +198,13 @@ type Show {
 
 "Filters always applied to a grant, keyed by resource. Only the field matching the grant's resource may be set."
 input ForcedFilterInput {
-    search: SearchFilter
+    search: ForcedSearchFilterInput
+}
+
+input ForcedSearchFilterInput {
+    "Search as a member of this usergroup: only published, currently available items it can access."
+    group: String
+    types: [SearchType!]
 }
 
 type ForcedSearchFilter {
