@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { currentUser, logout, avatarUrl } = useAuth()
+const { currentUser, isSuperuser, logout, avatarUrl } = useAuth()
 const collapsed = useLocalStorage('sidebar:collapsed', false)
 
 const displayName = computed(() => {
@@ -28,7 +28,7 @@ interface NavItem {
 
 // One entry per area, not per collection. Sub-views live in tabs inside the
 // area — see docs/admin-web-scope.md.
-const navItems: NavItem[] = [
+const baseNavItems: NavItem[] = [
   { to: '/', icon: 'tabler:home', label: 'Hjem' },
   {
     to: '/episodes',
@@ -51,6 +51,17 @@ const navItems: NavItem[] = [
   { to: '/notifications', icon: 'tabler:bell', label: 'Push-varsler' },
   { to: '/operations', icon: 'tabler:settings-bolt', label: 'Drift' }
 ]
+
+const accessNavItem: NavItem = {
+  to: '/access/api-keys',
+  icon: 'tabler:key',
+  label: 'Tilgang',
+  match: ['/access']
+}
+
+const navItems = computed(() =>
+  isSuperuser.value ? [...baseNavItems, accessNavItem] : baseNavItems
+)
 </script>
 
 <template>

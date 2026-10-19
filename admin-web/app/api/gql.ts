@@ -14,9 +14,25 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "\n  fragment PermissionFields on Permission {\n    resource\n    level\n    forcedFilter {\n      search {\n        group\n        types\n      }\n    }\n  }\n": typeof types.PermissionFieldsFragmentDoc,
+    "\n  fragment ApiKeyFields on ApiKey {\n    id\n    name\n    prefix\n    createdAt\n    expiresAt\n    revokedAt\n    permissions {\n      ...PermissionFields\n    }\n  }\n": typeof types.ApiKeyFieldsFragmentDoc,
+    "\n  query GetApiKeys {\n    access {\n      apiKeys {\n        ...ApiKeyFields\n      }\n    }\n  }\n": typeof types.GetApiKeysDocument,
+    "\n  query GetRoles {\n    access {\n      roles {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n": typeof types.GetRolesDocument,
+    "\n  mutation CreateApiKey($input: ApiKeyInput!) {\n    access {\n      createApiKey(input: $input) {\n        key\n        apiKey {\n          ...ApiKeyFields\n        }\n      }\n    }\n  }\n": typeof types.CreateApiKeyDocument,
+    "\n  mutation UpdateApiKey($id: ID!, $input: ApiKeyInput!) {\n    access {\n      updateApiKey(id: $id, input: $input) {\n        ...ApiKeyFields\n      }\n    }\n  }\n": typeof types.UpdateApiKeyDocument,
+    "\n  mutation RevokeApiKey($id: ID!) {\n    access {\n      revokeApiKey(id: $id)\n    }\n  }\n": typeof types.RevokeApiKeyDocument,
+    "\n  mutation SetRolePermissions($roleId: ID!, $permissions: [PermissionInput!]!) {\n    access {\n      setRolePermissions(roleId: $roleId, permissions: $permissions) {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n": typeof types.SetRolePermissionsDocument,
     "\n  query GetEpisodes($filter: String!) {\n    preview {\n      collection(filter: $filter) {\n        items {\n          id\n          title\n          collection\n        }\n      }\n    }\n  }\n": typeof types.GetEpisodesDocument,
 };
 const documents: Documents = {
+    "\n  fragment PermissionFields on Permission {\n    resource\n    level\n    forcedFilter {\n      search {\n        group\n        types\n      }\n    }\n  }\n": types.PermissionFieldsFragmentDoc,
+    "\n  fragment ApiKeyFields on ApiKey {\n    id\n    name\n    prefix\n    createdAt\n    expiresAt\n    revokedAt\n    permissions {\n      ...PermissionFields\n    }\n  }\n": types.ApiKeyFieldsFragmentDoc,
+    "\n  query GetApiKeys {\n    access {\n      apiKeys {\n        ...ApiKeyFields\n      }\n    }\n  }\n": types.GetApiKeysDocument,
+    "\n  query GetRoles {\n    access {\n      roles {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n": types.GetRolesDocument,
+    "\n  mutation CreateApiKey($input: ApiKeyInput!) {\n    access {\n      createApiKey(input: $input) {\n        key\n        apiKey {\n          ...ApiKeyFields\n        }\n      }\n    }\n  }\n": types.CreateApiKeyDocument,
+    "\n  mutation UpdateApiKey($id: ID!, $input: ApiKeyInput!) {\n    access {\n      updateApiKey(id: $id, input: $input) {\n        ...ApiKeyFields\n      }\n    }\n  }\n": types.UpdateApiKeyDocument,
+    "\n  mutation RevokeApiKey($id: ID!) {\n    access {\n      revokeApiKey(id: $id)\n    }\n  }\n": types.RevokeApiKeyDocument,
+    "\n  mutation SetRolePermissions($roleId: ID!, $permissions: [PermissionInput!]!) {\n    access {\n      setRolePermissions(roleId: $roleId, permissions: $permissions) {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n": types.SetRolePermissionsDocument,
     "\n  query GetEpisodes($filter: String!) {\n    preview {\n      collection(filter: $filter) {\n        items {\n          id\n          title\n          collection\n        }\n      }\n    }\n  }\n": types.GetEpisodesDocument,
 };
 
@@ -34,6 +50,38 @@ const documents: Documents = {
  */
 export function graphql(source: string): unknown;
 
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  fragment PermissionFields on Permission {\n    resource\n    level\n    forcedFilter {\n      search {\n        group\n        types\n      }\n    }\n  }\n"): (typeof documents)["\n  fragment PermissionFields on Permission {\n    resource\n    level\n    forcedFilter {\n      search {\n        group\n        types\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  fragment ApiKeyFields on ApiKey {\n    id\n    name\n    prefix\n    createdAt\n    expiresAt\n    revokedAt\n    permissions {\n      ...PermissionFields\n    }\n  }\n"): (typeof documents)["\n  fragment ApiKeyFields on ApiKey {\n    id\n    name\n    prefix\n    createdAt\n    expiresAt\n    revokedAt\n    permissions {\n      ...PermissionFields\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetApiKeys {\n    access {\n      apiKeys {\n        ...ApiKeyFields\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetApiKeys {\n    access {\n      apiKeys {\n        ...ApiKeyFields\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetRoles {\n    access {\n      roles {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetRoles {\n    access {\n      roles {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation CreateApiKey($input: ApiKeyInput!) {\n    access {\n      createApiKey(input: $input) {\n        key\n        apiKey {\n          ...ApiKeyFields\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation CreateApiKey($input: ApiKeyInput!) {\n    access {\n      createApiKey(input: $input) {\n        key\n        apiKey {\n          ...ApiKeyFields\n        }\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation UpdateApiKey($id: ID!, $input: ApiKeyInput!) {\n    access {\n      updateApiKey(id: $id, input: $input) {\n        ...ApiKeyFields\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateApiKey($id: ID!, $input: ApiKeyInput!) {\n    access {\n      updateApiKey(id: $id, input: $input) {\n        ...ApiKeyFields\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation RevokeApiKey($id: ID!) {\n    access {\n      revokeApiKey(id: $id)\n    }\n  }\n"): (typeof documents)["\n  mutation RevokeApiKey($id: ID!) {\n    access {\n      revokeApiKey(id: $id)\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation SetRolePermissions($roleId: ID!, $permissions: [PermissionInput!]!) {\n    access {\n      setRolePermissions(roleId: $roleId, permissions: $permissions) {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation SetRolePermissions($roleId: ID!, $permissions: [PermissionInput!]!) {\n    access {\n      setRolePermissions(roleId: $roleId, permissions: $permissions) {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

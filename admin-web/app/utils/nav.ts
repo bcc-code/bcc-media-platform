@@ -30,3 +30,8 @@ export const pageTabs: TabItem[] = [
   { label: 'Sider', to: '/pages', icon: 'tabler:file-text' },
   { label: 'Samlinger', to: '/collections', icon: 'tabler:list-details' }
 ]
+
+export const accessTabs: TabItem[] = [
+  { label: 'API-nøkler', to: '/access/api-keys', icon: 'tabler:key' },
+  { label: 'Roller', to: '/access/roles', icon: 'tabler:users-group' }
+]

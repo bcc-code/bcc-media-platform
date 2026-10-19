@@ -75,6 +75,8 @@ type AdminUser {
     firstName: String
     lastName: String
     avatarUrl: String
+    "Full access, including access management. UI hint only; the API enforces access itself."
+    superuser: Boolean!
 }
 
 type AuthResult {

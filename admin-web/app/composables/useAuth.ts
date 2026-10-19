@@ -14,6 +14,8 @@ interface AdminUser {
   firstName: string | null
   lastName: string | null
   avatarUrl: string | null
+  // UI hint only; the API enforces access itself.
+  superuser: boolean
 }
 
 interface AuthResult {
@@ -32,6 +34,7 @@ const AUTH_RESULT_FIELDS = `
     firstName
     lastName
     avatarUrl
+    superuser
   }
 `
 
@@ -204,6 +207,7 @@ export function useAuth() {
     accessToken: readonly(accessToken),
     tokenNeedsRefresh,
     isAuthenticated: computed(() => !!accessToken.value),
+    isSuperuser: computed(() => !!currentUser.value?.superuser),
     login,
     logout,
     refresh,
