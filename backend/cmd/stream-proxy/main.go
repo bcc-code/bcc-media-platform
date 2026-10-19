@@ -8,6 +8,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/signing"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 )
@@ -100,7 +101,7 @@ func main() {
 		AllowMethods:    []string{http.MethodGet, http.MethodOptions},
 		AllowHeaders:    []string{"Range"},
 	}))
-	r.NoRoute(handler.handle)
+	registerRoutes(r, handler)
 
 	port := cfg.Port
 	if port == "" {
@@ -110,4 +111,9 @@ func main() {
 	if err := r.Run(":" + port); err != nil {
 		log.L.Fatal().Err(err).Msg("server exited")
 	}
+}
+
+func registerRoutes(r *gin.Engine, h *proxyHandler) {
+	r.Use(gzip.Gzip(gzip.DefaultCompression))
+	r.NoRoute(h.handle)
 }

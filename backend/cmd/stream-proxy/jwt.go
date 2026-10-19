@@ -36,6 +36,8 @@ type claims struct {
 	// live is true for livestream tokens, which the handler serves with a short
 	// cache TTL, time-shift forwarding, and no-store — false for VOD.
 	live bool
+	// exp is the token's expiry; zero when the token has no `exp` claim.
+	exp time.Time
 }
 
 // validate parses and verifies the token, then returns its claims.
@@ -64,7 +66,7 @@ func (v *jwtValidator) validate(token string) (claims, error) {
 		return claims{}, fmt.Errorf("base claim is not a non-empty string")
 	}
 
-	out := claims{base: baseStr}
+	out := claims{base: baseStr, exp: tok.Expiration()}
 
 	if rawProv, ok := tok.Get("provider"); ok {
 		s, ok := rawProv.(string)

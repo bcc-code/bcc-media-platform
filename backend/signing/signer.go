@@ -65,10 +65,15 @@ func NewSigner(config Config) (*Signer, error) {
 // wildcard pattern (`https://cdn.example.com/path/*`) to authorize a whole
 // directory in one signature.
 func (s Signer) SignRawQuery(resource string, duration time.Duration) (string, error) {
+	return s.SignRawQueryUntil(resource, time.Now().Add(duration))
+}
+
+// SignRawQueryUntil is SignRawQuery with a fixed end time; the same inputs always produce the same query.
+func (s Signer) SignRawQueryUntil(resource string, endTime time.Time) (string, error) {
 	return s.iov.Sign(urlsigner.Policy{
 		Resources: resource,
 		Condition: urlsigner.Condition{
-			EndTime: time.Now().Add(duration).Unix(),
+			EndTime: endTime.Unix(),
 		},
 	})
 }
