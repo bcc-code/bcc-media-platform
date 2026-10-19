@@ -18,6 +18,7 @@
     "@nuxt/fonts": "^0.14.0",
     "@nuxt/icon": "^2.3.1",
     "@nuxtjs/color-mode": "^4.0.1",
+    "@nuxtjs/i18n": "^10.6.0",
     "@pinia/nuxt": "^1.0.1",
     "@urql/exchange-auth": "^3.0.0",
     "@urql/vue": "^2.1.1",

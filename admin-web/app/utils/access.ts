@@ -5,52 +5,18 @@ import type {
   SearchType
 } from '~/api/graphql'
 
-export const adminResources: {
-  value: AdminResource
-  label: string
-  description: string
-}[] = [
-  {
-    value: 'search',
-    label: 'Søk',
-    description: 'Søk i episoder, sesonger og serier'
-  },
-  {
-    value: 'preview',
-    label: 'Forhåndsvisning',
-    description: 'Forhåndsvis innhold og mediefiler'
-  },
-  {
-    value: 'statistics',
-    label: 'Statistikk',
-    description: 'Fremdrift og bruksstatistikk'
-  },
-  {
-    value: 'episodes',
-    label: 'Episoder',
-    description: 'Import av tidsmetadata for episoder'
-  },
-  {
-    value: 'mediaItems',
-    label: 'Mediefiler',
-    description: 'Import av tidsmetadata for mediefiler'
-  }
+/** Resource order as shown in the permission editor. Labels live in i18n. */
+export const adminResourceValues: AdminResource[] = [
+  'search',
+  'preview',
+  'statistics',
+  'episodes',
+  'mediaItems'
 ]
 
-export const accessLevelLabels: Record<AccessLevel, string> = {
-  read: 'Lese',
-  write: 'Skrive'
-}
+export const accessLevelValues: AccessLevel[] = ['read', 'write']
 
-export const searchTypeItems: { label: string; value: SearchType }[] = [
-  { label: 'Episoder', value: 'episode' },
-  { label: 'Sesonger', value: 'season' },
-  { label: 'Serier', value: 'show' }
-]
-
-export function resourceLabel(resource: AdminResource) {
-  return adminResources.find((r) => r.value === resource)?.label ?? resource
-}
+export const searchTypeValues: SearchType[] = ['episode', 'season', 'show']
 
 export interface PermissionLike {
   resource: AdminResource
@@ -82,16 +48,6 @@ export function toPermissionInputs(
   })
 }
 
-export function permissionSummary(permissions: readonly PermissionLike[]) {
-  if (permissions.length === 0) return 'Ingen tilgang'
-  return permissions
-    .map(
-      (p) =>
-        `${resourceLabel(p.resource)} (${accessLevelLabels[p.level].toLowerCase()})`
-    )
-    .join(', ')
-}
-
 export type ApiKeyStatus = 'active' | 'expired' | 'revoked'
 
 export function apiKeyStatus(key: {
@@ -104,20 +60,11 @@ export function apiKeyStatus(key: {
   return 'active'
 }
 
-export const apiKeyStatusConfig: Record<
+export const apiKeyStatusVariants: Record<
   ApiKeyStatus,
-  { label: string; variant: 'success' | 'warning' | 'neutral' }
+  'success' | 'warning' | 'neutral'
 > = {
-  active: { label: 'Aktiv', variant: 'success' },
-  expired: { label: 'Utløpt', variant: 'warning' },
-  revoked: { label: 'Tilbakekalt', variant: 'neutral' }
-}
-
-export function formatDate(value?: string | null) {
-  if (!value) return '—'
-  return new Date(value).toLocaleDateString('nb-NO', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  })
+  active: 'success',
+  expired: 'warning',
+  revoked: 'neutral'
 }

@@ -1,0 +1,222 @@
+{
+  "common": {
+    "cancel": "Avbryt",
+    "saveChanges": "Lagre endringer",
+    "done": "Ferdig",
+    "retry": "Prøv igjen",
+    "never": "Aldri",
+    "selectDate": "Velg dato"
+  },
+  "nav": {
+    "home": "Hjem",
+    "episodes": "Episoder",
+    "calendar": "Kalender",
+    "pages": "Sider",
+    "notifications": "Push-varsler",
+    "operations": "Drift",
+    "access": "Tilgang",
+    "settings": "Innstillinger",
+    "logout": "Logg ut",
+    "expandSidebar": "Utvid sidemeny",
+    "collapseSidebar": "Skjul sidemeny",
+    "tabs": {
+      "episodes": "Episoder",
+      "shorts": "Shorts",
+      "assets": "Mediefiler",
+      "shows": "Serier",
+      "calendarEntries": "Oppføringer",
+      "calendarEvents": "Hendelser",
+      "pages": "Sider",
+      "collections": "Samlinger",
+      "apiKeys": "API-nøkler",
+      "roles": "Roller"
+    }
+  },
+  "settings": {
+    "title": "Innstillinger",
+    "theme": {
+      "title": "Tema",
+      "description": "Velg mellom lyst og mørkt tema, eller la systemet bestemme.",
+      "system": "System",
+      "systemDescription": "Følg enhetens innstilling",
+      "light": "Lys",
+      "lightDescription": "Alltid lyst tema",
+      "dark": "Mørk",
+      "darkDescription": "Alltid mørkt tema"
+    },
+    "language": {
+      "title": "Språk",
+      "description": "Velg språket admin vises på.",
+      "nb": "Norsk",
+      "nbDescription": "Norsk bokmål",
+      "en": "English",
+      "enDescription": "Engelsk"
+    },
+    "designSystem": "Design system"
+  },
+  "access": {
+    "levels": {
+      "none": "Ingen",
+      "read": "Lese",
+      "write": "Skrive"
+    },
+    "resources": {
+      "search": {
+        "label": "Søk",
+        "description": "Søk i episoder, sesonger og serier"
+      },
+      "preview": {
+        "label": "Forhåndsvisning",
+        "description": "Forhåndsvis innhold og mediefiler"
+      },
+      "statistics": {
+        "label": "Statistikk",
+        "description": "Fremdrift og bruksstatistikk"
+      },
+      "episodes": {
+        "label": "Episoder",
+        "description": "Import av tidsmetadata for episoder"
+      },
+      "mediaItems": {
+        "label": "Mediefiler",
+        "description": "Import av tidsmetadata for mediefiler"
+      }
+    },
+    "searchTypes": {
+      "episode": "Episoder",
+      "season": "Sesonger",
+      "show": "Serier"
+    },
+    "permissions": {
+      "title": "Tilganger",
+      "none": "Ingen tilgang",
+      "summaryItem": "{resource} ({level})",
+      "searchFilterHint": "Begrens søket. La feltene stå tomme for å søke i alt.",
+      "groupLabel": "Brukergruppe",
+      "groupPlaceholder": "F.eks. bcc-members",
+      "groupHelper": "Søk som et medlem av denne gruppen: kun publisert og tilgjengelig innhold.",
+      "typesLabel": "Typer"
+    },
+    "apiKeys": {
+      "title": "API-nøkler",
+      "singular": "API-nøkkel",
+      "new": "Ny API-nøkkel",
+      "newButton": "Ny nøkkel",
+      "back": "Tilbake til API-nøkler",
+      "showRevoked": "Vis tilbakekalte",
+      "empty": "Ingen API-nøkler.",
+      "notFound": "Nøkkelen ble ikke funnet.",
+      "createdSuffix": "opprettet {date}",
+      "columns": {
+        "name": "Navn",
+        "key": "Nøkkel",
+        "status": "Status",
+        "expires": "Utløper",
+        "created": "Opprettet"
+      },
+      "status": {
+        "active": "Aktiv",
+        "expired": "Utløpt",
+        "revoked": "Tilbakekalt"
+      },
+      "form": {
+        "nameLabel": "Navn",
+        "namePlaceholder": "Hva nøkkelen brukes til",
+        "nameRequired": "Navn er påkrevd",
+        "expiresLabel": "Utløper",
+        "expiresPlaceholder": "Utløper aldri",
+        "expiresHelper": "La stå tomt for en nøkkel som ikke utløper.",
+        "permissionsHint": "Hva nøkkelen får lese eller endre i API-et.",
+        "permissionsRequired": "Nøkkelen må ha tilgang til minst én ressurs",
+        "create": "Opprett nøkkel",
+        "revoke": "Tilbakekall",
+        "revokedBanner": "Nøkkelen ble tilbakekalt {date} og kan ikke endres.",
+        "revokeConfirmTitle": "Tilbakekall nøkkelen?",
+        "revokeConfirmDescription": "Alle som bruker nøkkelen mister tilgang umiddelbart. Dette kan ikke angres."
+      },
+      "created": {
+        "title": "Nøkkelen er opprettet",
+        "description": "Kopier nøkkelen nå. Den vises bare denne ene gangen.",
+        "headerHint": "Send nøkkelen i {header}-headeren. Oppbevar den trygt.",
+        "copy": "Kopier nøkkel",
+        "copied": "Kopiert"
+      },
+      "toast": {
+        "updatedTitle": "Nøkkel oppdatert",
+        "updatedDescription": "Endringene ble lagret.",
+        "revokedTitle": "Nøkkel tilbakekalt",
+        "revokedDescription": "Nøkkelen gir ikke lenger tilgang."
+      }
+    },
+    "roles": {
+      "title": "Roller",
+      "singular": "Rolle",
+      "back": "Tilbake til roller",
+      "intro": "Roller opprettes i Directus. Her styrer du hva hver rolle får gjøre i admin. Brukere med administratortilgang i Directus har alltid full tilgang.",
+      "empty": "Ingen roller funnet.",
+      "notFound": "Rollen ble ikke funnet.",
+      "permissionsHint": "En rolle uten tilganger gir ikke innlogging i admin.",
+      "columns": {
+        "role": "Rolle",
+        "permissions": "Tilganger"
+      },
+      "toast": {
+        "updatedTitle": "Tilganger oppdatert",
+        "updatedDescription": "Endringene gjelder umiddelbart.",
+        "clearedDescription": "Brukere med denne rollen kan ikke lenger logge inn i admin."
+      }
+    }
+  },
+  "errors": {
+    "generic": {
+      "title": "Noe gikk galt",
+      "description": "En ukjent feil oppstod. Prøv igjen senere."
+    },
+    "network": {
+      "title": "Tilkoblingsfeil",
+      "description": "Kunne ikke koble til serveren. Sjekk internett-tilkoblingen din."
+    },
+    "http": {
+      "400": {
+        "title": "Ugyldig forespørsel",
+        "description": "Forespørselen kunne ikke behandles."
+      },
+      "401": {
+        "title": "Sesjonen er utløpt",
+        "description": "Logg inn på nytt for å fortsette."
+      },
+      "403": {
+        "title": "Ingen tilgang",
+        "description": "Du har ikke tilgang til dette innholdet."
+      },
+      "404": {
+        "title": "Ikke funnet",
+        "description": "Innholdet du leter etter finnes ikke."
+      },
+      "408": {
+        "title": "Tidsavbrudd",
+        "description": "Forespørselen tok for lang tid. Prøv igjen."
+      },
+      "429": {
+        "title": "For mange forespørsler",
+        "description": "Vent et øyeblikk og prøv igjen."
+      },
+      "500": {
+        "title": "Serverfeil",
+        "description": "Noe gikk galt på serveren. Prøv igjen senere."
+      },
+      "502": {
+        "title": "Tjenesten er utilgjengelig",
+        "description": "Kunne ikke nå serveren. Prøv igjen senere."
+      },
+      "503": {
+        "title": "Tjenesten er utilgjengelig",
+        "description": "Tjenesten er midlertidig nede. Prøv igjen senere."
+      },
+      "504": {
+        "title": "Tidsavbrudd",
+        "description": "Serveren svarte ikke i tide. Prøv igjen."
+      }
+    }
+  }
+}

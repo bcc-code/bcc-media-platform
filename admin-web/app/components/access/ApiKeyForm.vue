@@ -12,6 +12,9 @@ const emit = defineEmits<{
   revoke: []
 }>()
 
+const { t } = useI18n()
+const { formatDate } = useFormat()
+
 const isEditing = computed(() => !!props.apiKey)
 const isRevoked = computed(() => !!props.apiKey?.revokedAt)
 
@@ -34,10 +37,12 @@ const submitted = ref(false)
 const errors = computed(() => {
   if (!submitted.value) return {}
   return {
-    name: !name.value.trim() ? 'Navn er påkrevd' : undefined,
+    name: !name.value.trim()
+      ? t('access.apiKeys.form.nameRequired')
+      : undefined,
     permissions:
       permissions.value.length === 0
-        ? 'Nøkkelen må ha tilgang til minst én ressurs'
+        ? t('access.apiKeys.form.permissionsRequired')
         : undefined
   }
 })
@@ -62,10 +67,9 @@ const confirm = useConfirm()
 
 async function handleRevoke() {
   const ok = await confirm({
-    title: 'Tilbakekall nøkkelen?',
-    description:
-      'Alle som bruker nøkkelen mister tilgang umiddelbart. Dette kan ikke angres.',
-    confirmLabel: 'Tilbakekall',
+    title: t('access.apiKeys.form.revokeConfirmTitle'),
+    description: t('access.apiKeys.form.revokeConfirmDescription'),
+    confirmLabel: t('access.apiKeys.form.revoke'),
     intent: 'danger'
   })
   if (ok) emit('revoke')
@@ -80,15 +84,18 @@ async function handleRevoke() {
       icon="tabler:ban"
       class="mb-2"
     >
-      Nøkkelen ble tilbakekalt {{ formatDate(apiKey?.revokedAt) }} og kan ikke
-      endres.
+      {{
+        t('access.apiKeys.form.revokedBanner', {
+          date: formatDate(apiKey?.revokedAt)
+        })
+      }}
     </DesignBanner>
 
     <div class="flex flex-col gap-4 py-6">
       <DesignInput
         v-model="name"
-        label="Navn"
-        placeholder="Hva nøkkelen brukes til"
+        :label="t('access.apiKeys.form.nameLabel')"
+        :placeholder="t('access.apiKeys.form.namePlaceholder')"
         required
         :disabled="isRevoked"
         :invalid="!!errors.name"
@@ -96,25 +103,25 @@ async function handleRevoke() {
       />
       <DesignDatePicker
         v-model="expiresOn"
-        label="Utløper"
-        placeholder="Utløper aldri"
-        helper-text="La stå tomt for en nøkkel som ikke utløper."
+        :label="t('access.apiKeys.form.expiresLabel')"
+        :placeholder="t('access.apiKeys.form.expiresPlaceholder')"
+        :helper-text="t('access.apiKeys.form.expiresHelper')"
         :disabled="isRevoked"
       />
     </div>
 
     <div class="border-border-1 flex flex-col gap-3 border-t py-6">
       <div>
-        <h2 class="text-title-1 text-text-default">Tilganger</h2>
+        <h2 class="text-title-1 text-text-default">
+          {{ t('access.permissions.title') }}
+        </h2>
         <p
           class="text-body-3 mt-1"
           :class="
             errors.permissions ? 'text-semantic-error' : 'text-text-muted'
           "
         >
-          {{
-            errors.permissions ?? 'Hva nøkkelen får lese eller endre i API-et.'
-          }}
+          {{ errors.permissions ?? t('access.apiKeys.form.permissionsHint') }}
         </p>
       </div>
       <PermissionEditor v-model="permissions" :disabled="isRevoked" />
@@ -125,14 +132,16 @@ async function handleRevoke() {
       class="border-border-1 flex items-center gap-3 border-t pt-6"
     >
       <DesignButton :loading="saving" @click="handleSubmit">
-        {{ isEditing ? 'Lagre endringer' : 'Opprett nøkkel' }}
+        {{
+          isEditing ? t('common.saveChanges') : t('access.apiKeys.form.create')
+        }}
       </DesignButton>
       <DesignButton
         v-if="!isEditing"
         variant="secondary"
         @click="navigateTo('/access/api-keys')"
       >
-        Avbryt
+        {{ t('common.cancel') }}
       </DesignButton>
       <div v-if="isEditing" class="ml-auto">
         <DesignButton
@@ -141,7 +150,7 @@ async function handleRevoke() {
           icon="tabler:ban"
           @click="handleRevoke"
         >
-          Tilbakekall
+          {{ t('access.apiKeys.form.revoke') }}
         </DesignButton>
       </div>
     </div>

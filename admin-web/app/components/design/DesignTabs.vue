@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { TabItem } from '~/composables/useNav'
+
 defineProps<{
   items: TabItem[]
 }>()

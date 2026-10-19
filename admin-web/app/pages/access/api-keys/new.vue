@@ -2,7 +2,11 @@
 import type { ApiKeyInput } from '~/api/graphql'
 
 definePageMeta({ middleware: 'superuser' })
-useHead({ title: 'Ny API-nøkkel' })
+
+const { t } = useI18n()
+const { formatGraphQLError } = useGraphQLError()
+
+useHead({ title: () => t('access.apiKeys.new') })
 
 const { create } = useApiKeys()
 const toaster = useToast()
@@ -35,16 +39,18 @@ watch(dialogOpen, (open) => {
 <template>
   <div class="flex max-w-3xl flex-col gap-8">
     <div>
-      <BackButton to="/access/api-keys" label="Tilbake til API-nøkler" />
-      <h1 class="text-heading-2 text-text-default">Ny API-nøkkel</h1>
+      <BackButton to="/access/api-keys" :label="t('access.apiKeys.back')" />
+      <h1 class="text-heading-2 text-text-default">
+        {{ t('access.apiKeys.new') }}
+      </h1>
     </div>
 
     <ApiKeyForm :saving="saving" @submit="handleSubmit" />
 
     <DesignDialog
       v-model:open="dialogOpen"
-      title="Nøkkelen er opprettet"
-      description="Kopier nøkkelen nå. Den vises bare denne ene gangen."
+      :title="t('access.apiKeys.created.title')"
+      :description="t('access.apiKeys.created.description')"
     >
       <template #default="{ initialFocus }">
         <div class="flex flex-col gap-5">
@@ -54,7 +60,11 @@ watch(dialogOpen, (open) => {
             {{ createdKey }}
           </code>
           <DesignBanner variant="warning" icon="tabler:alert-triangle">
-            Send nøkkelen i <code>x-api-key</code>-headeren. Oppbevar den trygt.
+            <i18n-t keypath="access.apiKeys.created.headerHint" scope="global">
+              <template #header>
+                <code>x-api-key</code>
+              </template>
+            </i18n-t>
           </DesignBanner>
           <div class="flex items-center gap-3">
             <DesignButton
@@ -62,10 +72,14 @@ watch(dialogOpen, (open) => {
               :icon="copied ? 'tabler:check' : 'tabler:copy'"
               @click="copy(createdKey ?? '')"
             >
-              {{ copied ? 'Kopiert' : 'Kopier nøkkel' }}
+              {{
+                copied
+                  ? t('access.apiKeys.created.copied')
+                  : t('access.apiKeys.created.copy')
+              }}
             </DesignButton>
             <DesignButton variant="secondary" @click="dialogOpen = false">
-              Ferdig
+              {{ t('common.done') }}
             </DesignButton>
           </div>
         </div>

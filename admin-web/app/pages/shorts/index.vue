@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { episodeTabs } = useNav()
 useHead({ title: 'Shorts' })
 
 const { shorts, episodeFor } = useShorts()

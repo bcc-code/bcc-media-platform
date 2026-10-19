@@ -5,7 +5,11 @@ const props = defineProps<{
   apiKey: ApiKeyItem
 }>()
 
-const status = computed(() => apiKeyStatusConfig[apiKeyStatus(props.apiKey)])
+const { t } = useI18n()
+const { formatDate } = useFormat()
+const { statusLabel, permissionSummary } = useAccessMeta()
+
+const status = computed(() => apiKeyStatus(props.apiKey))
 </script>
 
 <template>
@@ -20,12 +24,12 @@ const status = computed(() => apiKeyStatusConfig[apiKeyStatus(props.apiKey)])
       {{ apiKey.prefix }}…
     </td>
     <td class="px-4 py-3">
-      <DesignStatusIndicator :variant="status.variant">
-        {{ status.label }}
+      <DesignStatusIndicator :variant="apiKeyStatusVariants[status]">
+        {{ statusLabel(status) }}
       </DesignStatusIndicator>
     </td>
     <td class="text-body-3 text-text-muted px-4 py-3 whitespace-nowrap">
-      {{ apiKey.expiresAt ? formatDate(apiKey.expiresAt) : 'Aldri' }}
+      {{ apiKey.expiresAt ? formatDate(apiKey.expiresAt) : t('common.never') }}
     </td>
     <td class="text-body-3 text-text-muted px-4 py-3 whitespace-nowrap">
       {{ formatDate(apiKey.createdAt) }}

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { calendarTabs } = useNav()
 useHead({ title: 'Hendelser' })
 
 const { calendarEvents } = useCalendarEvents()
