@@ -34,6 +34,11 @@ export const adminResources: {
     value: 'mediaItems',
     label: 'Mediefiler',
     description: 'Import av tidsmetadata for mediefiler'
+  },
+  {
+    value: 'episodeAccess',
+    label: 'Episodetilgang',
+    description: 'Gi og fjern brukergruppers tilgang til episoder'
   }
 ]
 
@@ -55,10 +60,14 @@ export function resourceLabel(resource: AdminResource) {
 export interface PermissionLike {
   resource: AdminResource
   level: AccessLevel
-  forcedFilter?: {
+  scope?: {
     search?: {
       group?: string | null
       types?: SearchType[] | null
+    } | null
+    episodeAccess?: {
+      // ID inputs are typed string | number.
+      groups?: (string | number)[] | null
     } | null
   } | null
 }
@@ -68,15 +77,19 @@ export function toPermissionInputs(
   permissions: readonly PermissionLike[]
 ): PermissionInput[] {
   return permissions.map((p) => {
-    const search = p.forcedFilter?.search
+    const search = p.scope?.search
+    const groups = p.scope?.episodeAccess?.groups
     const input: PermissionInput = { resource: p.resource, level: p.level }
     if (search && (search.group || search.types?.length)) {
-      input.forcedFilter = {
+      input.scope = {
         search: {
           group: search.group || undefined,
           types: search.types?.length ? [...search.types] : undefined
         }
       }
+    }
+    if (groups?.length) {
+      input.scope = { episodeAccess: { groups: groups.map(String) } }
     }
     return input
   })
@@ -89,14 +102,22 @@ export function samePermissions(a: PermissionInput[], b: PermissionInput[]) {
       toPermissionInputs(list)
         .map((p) => ({
           ...p,
-          forcedFilter: p.forcedFilter?.search
+          scope: p.scope?.search
             ? {
                 search: {
-                  group: p.forcedFilter.search.group ?? null,
-                  types: [...(p.forcedFilter.search.types ?? [])].sort()
+                  group: p.scope.search.group ?? null,
+                  types: [...(p.scope.search.types ?? [])].sort()
                 }
               }
-            : null
+            : p.scope?.episodeAccess
+              ? {
+                  episodeAccess: {
+                    groups: (p.scope.episodeAccess.groups ?? [])
+                      .map(String)
+                      .sort()
+                  }
+                }
+              : null
         }))
         .sort((x, y) => x.resource.localeCompare(y.resource))
     )

@@ -13,10 +13,13 @@ graphql(`
   fragment PermissionFields on Permission {
     resource
     level
-    forcedFilter {
+    scope {
       search {
         group
         types
+      }
+      episodeAccess {
+        groups
       }
     }
   }
