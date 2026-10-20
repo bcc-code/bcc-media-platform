@@ -283,6 +283,7 @@ func (service *Service) IndexModel(ctx context.Context, collection string, key s
 	case "episodes":
 		id, _ := strconv.ParseInt(key, 10, 64)
 		service.loaders.EpisodeLoader.Clear(ctx, int(id))
+		service.loaders.EpisodePermissionLoader.Clear(ctx, int(id))
 		return service.indexEpisode(ctx, int(id))
 	}
 	// no reason to return errors, as we know quite well what is supported

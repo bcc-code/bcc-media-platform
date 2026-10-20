@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+
+	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 )
 
 type AccessMutations struct {
@@ -83,28 +85,48 @@ type CreatedAPIKey struct {
 	Key string `json:"key"`
 }
 
+type EpisodeAccessInput struct {
+	EpisodeID string   `json:"episodeId"`
+	Groups    []string `json:"groups"`
+	// Every group is granted to (or revoked from) each of these lists.
+	Lists []GroupList `json:"lists"`
+}
+
+type EpisodeAccessMutations struct {
+	// Adds groups to the episode's media item. Does nothing for groups already there.
+	Grant *EpisodeAccessResult `json:"grant"`
+	// Removes groups from the episode's media item. Does nothing for groups not there.
+	Revoke *EpisodeAccessResult `json:"revoke"`
+}
+
+type EpisodeAccessQueries struct {
+	// Groups the caller may grant or revoke: the grant's allowlist, or every group if no allowlist is set.
+	Groups []*Group `json:"groups"`
+}
+
+type EpisodeAccessResult struct {
+	// Every episode that shares the media item. All of them are affected.
+	Episodes []*model.Episode `json:"episodes"`
+	// The media item's groups after the change, for all three lists.
+	Roles *Roles `json:"roles"`
+}
+
+type EpisodeAccessScope struct {
+	Groups []string `json:"groups,omitempty"`
+}
+
+type EpisodeAccessScopeInput struct {
+	// Group codes the grant may grant or revoke. Null means any group.
+	Groups []string `json:"groups,omitempty"`
+}
+
 type Episodes struct {
 	ImportTimedMetadata bool `json:"importTimedMetadata"`
 }
 
-type ForcedFilter struct {
-	Search *ForcedSearchFilter `json:"search,omitempty"`
-}
-
-// Filters always applied to a grant, keyed by resource. Only the field matching the grant's resource may be set.
-type ForcedFilterInput struct {
-	Search *ForcedSearchFilterInput `json:"search,omitempty"`
-}
-
-type ForcedSearchFilter struct {
-	Group *string      `json:"group,omitempty"`
-	Types []SearchType `json:"types,omitempty"`
-}
-
-type ForcedSearchFilterInput struct {
-	// Search as a member of this usergroup: only published, currently available items it can access.
-	Group *string      `json:"group,omitempty"`
-	Types []SearchType `json:"types,omitempty"`
+type Group struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
 }
 
 type MediaItems struct {
@@ -115,15 +137,26 @@ type MutationRoot struct {
 }
 
 type Permission struct {
-	Resource     AdminResource `json:"resource"`
-	Level        AccessLevel   `json:"level"`
-	ForcedFilter *ForcedFilter `json:"forcedFilter,omitempty"`
+	Resource AdminResource    `json:"resource"`
+	Level    AccessLevel      `json:"level"`
+	Scope    *PermissionScope `json:"scope,omitempty"`
 }
 
 type PermissionInput struct {
-	Resource     AdminResource      `json:"resource"`
-	Level        AccessLevel        `json:"level"`
-	ForcedFilter *ForcedFilterInput `json:"forcedFilter,omitempty"`
+	Resource AdminResource         `json:"resource"`
+	Level    AccessLevel           `json:"level"`
+	Scope    *PermissionScopeInput `json:"scope,omitempty"`
+}
+
+type PermissionScope struct {
+	Search        *SearchScope        `json:"search,omitempty"`
+	EpisodeAccess *EpisodeAccessScope `json:"episodeAccess,omitempty"`
+}
+
+// Limits on a grant, keyed by resource. Only the field matching the grant's resource may be set.
+type PermissionScopeInput struct {
+	Search        *SearchScopeInput        `json:"search,omitempty"`
+	EpisodeAccess *EpisodeAccessScopeInput `json:"episodeAccess,omitempty"`
 }
 
 type Preview struct {
@@ -183,9 +216,20 @@ type SearchHit struct {
 
 type SearchResult struct {
 	Total int `json:"total"`
-	// The usergroup forced by the caller's grant, if any.
+	// The usergroup set by the caller's search scope, if any.
 	Group *string      `json:"group,omitempty"`
 	Hits  []*SearchHit `json:"hits"`
+}
+
+type SearchScope struct {
+	Group *string      `json:"group,omitempty"`
+	Types []SearchType `json:"types,omitempty"`
+}
+
+type SearchScopeInput struct {
+	// Search as a member of this usergroup: only published, currently available items it can access.
+	Group *string      `json:"group,omitempty"`
+	Types []SearchType `json:"types,omitempty"`
 }
 
 type Statistics struct {
@@ -250,11 +294,12 @@ func (e AccessLevel) MarshalJSON() ([]byte, error) {
 type AdminResource string
 
 const (
-	AdminResourceSearch     AdminResource = "search"
-	AdminResourcePreview    AdminResource = "preview"
-	AdminResourceStatistics AdminResource = "statistics"
-	AdminResourceEpisodes   AdminResource = "episodes"
-	AdminResourceMediaItems AdminResource = "mediaItems"
+	AdminResourceSearch        AdminResource = "search"
+	AdminResourcePreview       AdminResource = "preview"
+	AdminResourceStatistics    AdminResource = "statistics"
+	AdminResourceEpisodes      AdminResource = "episodes"
+	AdminResourceMediaItems    AdminResource = "mediaItems"
+	AdminResourceEpisodeAccess AdminResource = "episodeAccess"
 )
 
 var AllAdminResource = []AdminResource{
@@ -263,11 +308,12 @@ var AllAdminResource = []AdminResource{
 	AdminResourceStatistics,
 	AdminResourceEpisodes,
 	AdminResourceMediaItems,
+	AdminResourceEpisodeAccess,
 }
 
 func (e AdminResource) IsValid() bool {
 	switch e {
-	case AdminResourceSearch, AdminResourcePreview, AdminResourceStatistics, AdminResourceEpisodes, AdminResourceMediaItems:
+	case AdminResourceSearch, AdminResourcePreview, AdminResourceStatistics, AdminResourceEpisodes, AdminResourceMediaItems, AdminResourceEpisodeAccess:
 		return true
 	}
 	return false
@@ -364,6 +410,64 @@ func (e *Collection) UnmarshalJSON(b []byte) error {
 }
 
 func (e Collection) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Which list on the media item a group is added to.
+type GroupList string
+
+const (
+	GroupListAccess      GroupList = "access"
+	GroupListDownload    GroupList = "download"
+	GroupListEarlyAccess GroupList = "earlyAccess"
+)
+
+var AllGroupList = []GroupList{
+	GroupListAccess,
+	GroupListDownload,
+	GroupListEarlyAccess,
+}
+
+func (e GroupList) IsValid() bool {
+	switch e {
+	case GroupListAccess, GroupListDownload, GroupListEarlyAccess:
+		return true
+	}
+	return false
+}
+
+func (e GroupList) String() string {
+	return string(e)
+}
+
+func (e *GroupList) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GroupList(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GroupList", str)
+	}
+	return nil
+}
+
+func (e GroupList) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GroupList) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GroupList) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

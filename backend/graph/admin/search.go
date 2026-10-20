@@ -40,7 +40,7 @@ func (r *Resolver) search(ctx context.Context, query string, filter *model.Searc
 	if filter != nil {
 		f.Types = lo.Map(filter.Types, func(t model.SearchType, _ int) string { return string(t) })
 	}
-	if !applyForcedSearchFilter(&f, principalFromCtx(ctx).forcedFilter(model.AdminResourceSearch)) {
+	if !applySearchScope(&f, principalFromCtx(ctx).scope(model.AdminResourceSearch)) {
 		return &model.SearchResult{Group: f.Group, Hits: []*model.SearchHit{}}, nil
 	}
 
@@ -137,16 +137,16 @@ func webAppURL(base, path string) string {
 	return strings.TrimSuffix(base, "/") + path
 }
 
-// applyForcedSearchFilter pins the group and narrows the types; it returns false if no requested type is allowed.
-func applyForcedSearchFilter(f *search.AdminFilter, forced *model.ForcedFilterInput) bool {
-	if forced == nil || forced.Search == nil {
+// applySearchScope pins the group and narrows the types; it returns false if no requested type is allowed.
+func applySearchScope(f *search.AdminFilter, scope *model.PermissionScopeInput) bool {
+	if scope == nil || scope.Search == nil {
 		return true
 	}
-	if forced.Search.Group != nil {
-		f.Group = forced.Search.Group
+	if scope.Search.Group != nil {
+		f.Group = scope.Search.Group
 	}
-	if len(forced.Search.Types) > 0 {
-		allowed := lo.Map(forced.Search.Types, func(t model.SearchType, _ int) string { return string(t) })
+	if len(scope.Search.Types) > 0 {
+		allowed := lo.Map(scope.Search.Types, func(t model.SearchType, _ int) string { return string(t) })
 		if len(f.Types) > 0 {
 			allowed = lo.Intersect(allowed, f.Types)
 		}

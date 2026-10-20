@@ -44,6 +44,8 @@ type ResolverRoot interface {
 	ApiKey() ApiKeyResolver
 	Auth() AuthResolver
 	Episode() EpisodeResolver
+	EpisodeAccessMutations() EpisodeAccessMutationsResolver
+	EpisodeAccessQueries() EpisodeAccessQueriesResolver
 	Episodes() EpisodesResolver
 	MediaItems() MediaItemsResolver
 	MutationRoot() MutationRootResolver
@@ -142,17 +144,31 @@ type ComplexityRoot struct {
 		UUID         func(childComplexity int) int
 	}
 
+	EpisodeAccessMutations struct {
+		Grant  func(childComplexity int, input model.EpisodeAccessInput) int
+		Revoke func(childComplexity int, input model.EpisodeAccessInput) int
+	}
+
+	EpisodeAccessQueries struct {
+		Groups func(childComplexity int) int
+	}
+
+	EpisodeAccessResult struct {
+		Episodes func(childComplexity int) int
+		Roles    func(childComplexity int) int
+	}
+
+	EpisodeAccessScope struct {
+		Groups func(childComplexity int) int
+	}
+
 	Episodes struct {
 		ImportTimedMetadata func(childComplexity int, episodeID string) int
 	}
 
-	ForcedFilter struct {
-		Search func(childComplexity int) int
-	}
-
-	ForcedSearchFilter struct {
-		Group func(childComplexity int) int
-		Types func(childComplexity int) int
+	Group struct {
+		Code func(childComplexity int) int
+		Name func(childComplexity int) int
 	}
 
 	Image struct {
@@ -165,14 +181,20 @@ type ComplexityRoot struct {
 	}
 
 	MutationRoot struct {
-		Access func(childComplexity int) int
-		Auth   func(childComplexity int) int
+		Access        func(childComplexity int) int
+		Auth          func(childComplexity int) int
+		EpisodeAccess func(childComplexity int) int
 	}
 
 	Permission struct {
-		ForcedFilter func(childComplexity int) int
-		Level        func(childComplexity int) int
-		Resource     func(childComplexity int) int
+		Level    func(childComplexity int) int
+		Resource func(childComplexity int) int
+		Scope    func(childComplexity int) int
+	}
+
+	PermissionScope struct {
+		EpisodeAccess func(childComplexity int) int
+		Search        func(childComplexity int) int
 	}
 
 	Preview struct {
@@ -195,12 +217,13 @@ type ComplexityRoot struct {
 	}
 
 	QueryRoot struct {
-		Access     func(childComplexity int) int
-		Episodes   func(childComplexity int) int
-		MediaItems func(childComplexity int) int
-		Preview    func(childComplexity int) int
-		Search     func(childComplexity int) int
-		Statistics func(childComplexity int) int
+		Access        func(childComplexity int) int
+		EpisodeAccess func(childComplexity int) int
+		Episodes      func(childComplexity int) int
+		MediaItems    func(childComplexity int) int
+		Preview       func(childComplexity int) int
+		Search        func(childComplexity int) int
+		Statistics    func(childComplexity int) int
 	}
 
 	Role struct {
@@ -232,6 +255,11 @@ type ComplexityRoot struct {
 		Group func(childComplexity int) int
 		Hits  func(childComplexity int) int
 		Total func(childComplexity int) int
+	}
+
+	SearchScope struct {
+		Group func(childComplexity int) int
+		Types func(childComplexity int) int
 	}
 
 	Season struct {
@@ -289,6 +317,13 @@ type EpisodeResolver interface {
 	Availability(ctx context.Context, obj *model1.Episode) (*model.Availability, error)
 	Roles(ctx context.Context, obj *model1.Episode) (*model.Roles, error)
 }
+type EpisodeAccessMutationsResolver interface {
+	Grant(ctx context.Context, obj *model.EpisodeAccessMutations, input model.EpisodeAccessInput) (*model.EpisodeAccessResult, error)
+	Revoke(ctx context.Context, obj *model.EpisodeAccessMutations, input model.EpisodeAccessInput) (*model.EpisodeAccessResult, error)
+}
+type EpisodeAccessQueriesResolver interface {
+	Groups(ctx context.Context, obj *model.EpisodeAccessQueries) ([]*model.Group, error)
+}
 type EpisodesResolver interface {
 	ImportTimedMetadata(ctx context.Context, obj *model.Episodes, episodeID string) (bool, error)
 }
@@ -298,6 +333,7 @@ type MediaItemsResolver interface {
 type MutationRootResolver interface {
 	Auth(ctx context.Context) (*model.Auth, error)
 	Access(ctx context.Context) (*model.AccessMutations, error)
+	EpisodeAccess(ctx context.Context) (*model.EpisodeAccessMutations, error)
 }
 type PreviewResolver interface {
 	Collection(ctx context.Context, obj *model.Preview, filter string) (*model.PreviewCollection, error)
@@ -310,6 +346,7 @@ type QueryRootResolver interface {
 	MediaItems(ctx context.Context) (*model.MediaItems, error)
 	Search(ctx context.Context) (*model.Search, error)
 	Access(ctx context.Context) (*model.AccessQueries, error)
+	EpisodeAccess(ctx context.Context) (*model.EpisodeAccessQueries, error)
 }
 type RoleResolver interface {
 	Permissions(ctx context.Context, obj *model.Role) ([]*model.Permission, error)
@@ -726,6 +763,58 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Episode.UUID(childComplexity), true
 
+	case "EpisodeAccessMutations.grant":
+		if e.complexity.EpisodeAccessMutations.Grant == nil {
+			break
+		}
+
+		args, err := ec.field_EpisodeAccessMutations_grant_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.EpisodeAccessMutations.Grant(childComplexity, args["input"].(model.EpisodeAccessInput)), true
+
+	case "EpisodeAccessMutations.revoke":
+		if e.complexity.EpisodeAccessMutations.Revoke == nil {
+			break
+		}
+
+		args, err := ec.field_EpisodeAccessMutations_revoke_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.EpisodeAccessMutations.Revoke(childComplexity, args["input"].(model.EpisodeAccessInput)), true
+
+	case "EpisodeAccessQueries.groups":
+		if e.complexity.EpisodeAccessQueries.Groups == nil {
+			break
+		}
+
+		return e.complexity.EpisodeAccessQueries.Groups(childComplexity), true
+
+	case "EpisodeAccessResult.episodes":
+		if e.complexity.EpisodeAccessResult.Episodes == nil {
+			break
+		}
+
+		return e.complexity.EpisodeAccessResult.Episodes(childComplexity), true
+
+	case "EpisodeAccessResult.roles":
+		if e.complexity.EpisodeAccessResult.Roles == nil {
+			break
+		}
+
+		return e.complexity.EpisodeAccessResult.Roles(childComplexity), true
+
+	case "EpisodeAccessScope.groups":
+		if e.complexity.EpisodeAccessScope.Groups == nil {
+			break
+		}
+
+		return e.complexity.EpisodeAccessScope.Groups(childComplexity), true
+
 	case "Episodes.importTimedMetadata":
 		if e.complexity.Episodes.ImportTimedMetadata == nil {
 			break
@@ -738,26 +827,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Episodes.ImportTimedMetadata(childComplexity, args["episodeId"].(string)), true
 
-	case "ForcedFilter.search":
-		if e.complexity.ForcedFilter.Search == nil {
+	case "Group.code":
+		if e.complexity.Group.Code == nil {
 			break
 		}
 
-		return e.complexity.ForcedFilter.Search(childComplexity), true
+		return e.complexity.Group.Code(childComplexity), true
 
-	case "ForcedSearchFilter.group":
-		if e.complexity.ForcedSearchFilter.Group == nil {
+	case "Group.name":
+		if e.complexity.Group.Name == nil {
 			break
 		}
 
-		return e.complexity.ForcedSearchFilter.Group(childComplexity), true
-
-	case "ForcedSearchFilter.types":
-		if e.complexity.ForcedSearchFilter.Types == nil {
-			break
-		}
-
-		return e.complexity.ForcedSearchFilter.Types(childComplexity), true
+		return e.complexity.Group.Name(childComplexity), true
 
 	case "Image.style":
 		if e.complexity.Image.Style == nil {
@@ -799,12 +881,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.MutationRoot.Auth(childComplexity), true
 
-	case "Permission.forcedFilter":
-		if e.complexity.Permission.ForcedFilter == nil {
+	case "MutationRoot.episodeAccess":
+		if e.complexity.MutationRoot.EpisodeAccess == nil {
 			break
 		}
 
-		return e.complexity.Permission.ForcedFilter(childComplexity), true
+		return e.complexity.MutationRoot.EpisodeAccess(childComplexity), true
 
 	case "Permission.level":
 		if e.complexity.Permission.Level == nil {
@@ -819,6 +901,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Permission.Resource(childComplexity), true
+
+	case "Permission.scope":
+		if e.complexity.Permission.Scope == nil {
+			break
+		}
+
+		return e.complexity.Permission.Scope(childComplexity), true
+
+	case "PermissionScope.episodeAccess":
+		if e.complexity.PermissionScope.EpisodeAccess == nil {
+			break
+		}
+
+		return e.complexity.PermissionScope.EpisodeAccess(childComplexity), true
+
+	case "PermissionScope.search":
+		if e.complexity.PermissionScope.Search == nil {
+			break
+		}
+
+		return e.complexity.PermissionScope.Search(childComplexity), true
 
 	case "Preview.asset":
 		if e.complexity.Preview.Asset == nil {
@@ -885,6 +988,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.QueryRoot.Access(childComplexity), true
+
+	case "QueryRoot.episodeAccess":
+		if e.complexity.QueryRoot.EpisodeAccess == nil {
+			break
+		}
+
+		return e.complexity.QueryRoot.EpisodeAccess(childComplexity), true
 
 	case "QueryRoot.episodes":
 		if e.complexity.QueryRoot.Episodes == nil {
@@ -1037,6 +1147,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.SearchResult.Total(childComplexity), true
+
+	case "SearchScope.group":
+		if e.complexity.SearchScope.Group == nil {
+			break
+		}
+
+		return e.complexity.SearchScope.Group(childComplexity), true
+
+	case "SearchScope.types":
+		if e.complexity.SearchScope.Types == nil {
+			break
+		}
+
+		return e.complexity.SearchScope.Types(childComplexity), true
 
 	case "Season.ageRating":
 		if e.complexity.Season.AgeRating == nil {
@@ -1192,10 +1316,12 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputApiKeyInput,
-		ec.unmarshalInputForcedFilterInput,
-		ec.unmarshalInputForcedSearchFilterInput,
+		ec.unmarshalInputEpisodeAccessInput,
+		ec.unmarshalInputEpisodeAccessScopeInput,
 		ec.unmarshalInputPermissionInput,
+		ec.unmarshalInputPermissionScopeInput,
 		ec.unmarshalInputSearchFilter,
+		ec.unmarshalInputSearchScopeInput,
 	)
 	first := true
 
@@ -1307,6 +1433,7 @@ enum AdminResource {
     statistics
     episodes
     mediaItems
+    episodeAccess
 }
 
 enum AccessLevel {
@@ -1417,7 +1544,7 @@ type SearchHit {
 
 type SearchResult {
     total: Int!
-    "The usergroup forced by the caller's grant, if any."
+    "The usergroup set by the caller's search scope, if any."
     group: String
     hits: [SearchHit!]!
 }
@@ -1497,36 +1624,47 @@ type Show {
     roles: Roles! @goField(forceResolver: true)
 }
 
-"Filters always applied to a grant, keyed by resource. Only the field matching the grant's resource may be set."
-input ForcedFilterInput {
-    search: ForcedSearchFilterInput
+"Limits on a grant, keyed by resource. Only the field matching the grant's resource may be set."
+input PermissionScopeInput {
+    search: SearchScopeInput
+    episodeAccess: EpisodeAccessScopeInput
 }
 
-input ForcedSearchFilterInput {
+input SearchScopeInput {
     "Search as a member of this usergroup: only published, currently available items it can access."
     group: String
     types: [SearchType!]
 }
 
-type ForcedSearchFilter {
+input EpisodeAccessScopeInput {
+    "Group codes the grant may grant or revoke. Null means any group."
+    groups: [ID!]
+}
+
+type SearchScope {
     group: String
     types: [SearchType!]
 }
 
-type ForcedFilter {
-    search: ForcedSearchFilter
+type EpisodeAccessScope {
+    groups: [ID!]
+}
+
+type PermissionScope {
+    search: SearchScope
+    episodeAccess: EpisodeAccessScope
 }
 
 input PermissionInput {
     resource: AdminResource!
     level: AccessLevel!
-    forcedFilter: ForcedFilterInput
+    scope: PermissionScopeInput
 }
 
 type Permission {
     resource: AdminResource!
     level: AccessLevel!
-    forcedFilter: ForcedFilter
+    scope: PermissionScope
 }
 
 type ApiKey {
@@ -1572,6 +1710,44 @@ type AccessMutations {
     setRolePermissions(roleId: ID!, permissions: [PermissionInput!]!): Role! @goField(forceResolver: true)
 }
 
+"Which list on the media item a group is added to."
+enum GroupList {
+    access
+    download
+    earlyAccess
+}
+
+type Group {
+    code: ID!
+    name: String!
+}
+
+input EpisodeAccessInput {
+    episodeId: ID!
+    groups: [ID!]!
+    "Every group is granted to (or revoked from) each of these lists."
+    lists: [GroupList!]!
+}
+
+type EpisodeAccessResult {
+    "Every episode that shares the media item. All of them are affected."
+    episodes: [Episode!]!
+    "The media item's groups after the change, for all three lists."
+    roles: Roles!
+}
+
+type EpisodeAccessQueries {
+    "Groups the caller may grant or revoke: the grant's allowlist, or every group if no allowlist is set."
+    groups: [Group!]! @goField(forceResolver: true)
+}
+
+type EpisodeAccessMutations {
+    "Adds groups to the episode's media item. Does nothing for groups already there."
+    grant(input: EpisodeAccessInput!): EpisodeAccessResult! @goField(forceResolver: true) @access(resource: episodeAccess, level: write)
+    "Removes groups from the episode's media item. Does nothing for groups not there."
+    revoke(input: EpisodeAccessInput!): EpisodeAccessResult! @goField(forceResolver: true) @access(resource: episodeAccess, level: write)
+}
+
 type QueryRoot {
     preview: Preview! @access(resource: preview, level: read)
     statistics: Statistics! @access(resource: statistics, level: read)
@@ -1579,11 +1755,13 @@ type QueryRoot {
     mediaItems: MediaItems! @access(resource: mediaItems, level: read)
     search: Search! @access(resource: search, level: read)
     access: AccessQueries! @superuser
+    episodeAccess: EpisodeAccessQueries! @access(resource: episodeAccess, level: read)
 }
 
 type MutationRoot {
     auth: Auth!
     access: AccessMutations! @superuser
+    episodeAccess: EpisodeAccessMutations! @access(resource: episodeAccess, level: read)
 }
 
 schema{
@@ -1878,6 +2056,62 @@ func (ec *executionContext) field_Auth_login_argsOtp(
 	}
 
 	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_EpisodeAccessMutations_grant_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_EpisodeAccessMutations_grant_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_EpisodeAccessMutations_grant_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (model.EpisodeAccessInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal model.EpisodeAccessInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNEpisodeAccessInput2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessInput(ctx, tmp)
+	}
+
+	var zeroVal model.EpisodeAccessInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_EpisodeAccessMutations_revoke_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_EpisodeAccessMutations_revoke_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_EpisodeAccessMutations_revoke_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (model.EpisodeAccessInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal model.EpisodeAccessInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNEpisodeAccessInput2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessInput(ctx, tmp)
+	}
+
+	var zeroVal model.EpisodeAccessInput
 	return zeroVal, nil
 }
 
@@ -3298,8 +3532,8 @@ func (ec *executionContext) fieldContext_ApiKey_permissions(_ context.Context, f
 				return ec.fieldContext_Permission_resource(ctx, field)
 			case "level":
 				return ec.fieldContext_Permission_level(ctx, field)
-			case "forcedFilter":
-				return ec.fieldContext_Permission_forcedFilter(ctx, field)
+			case "scope":
+				return ec.fieldContext_Permission_scope(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Permission", field.Name)
 		},
@@ -4674,6 +4908,407 @@ func (ec *executionContext) fieldContext_Episode_roles(_ context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _EpisodeAccessMutations_grant(ctx context.Context, field graphql.CollectedField, obj *model.EpisodeAccessMutations) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EpisodeAccessMutations_grant(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.EpisodeAccessMutations().Grant(rctx, obj, fc.Args["input"].(model.EpisodeAccessInput))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			resource, err := ec.unmarshalNAdminResource2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐAdminResource(ctx, "episodeAccess")
+			if err != nil {
+				var zeroVal *model.EpisodeAccessResult
+				return zeroVal, err
+			}
+			level, err := ec.unmarshalNAccessLevel2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐAccessLevel(ctx, "write")
+			if err != nil {
+				var zeroVal *model.EpisodeAccessResult
+				return zeroVal, err
+			}
+			if ec.directives.Access == nil {
+				var zeroVal *model.EpisodeAccessResult
+				return zeroVal, errors.New("directive access is not implemented")
+			}
+			return ec.directives.Access(ctx, obj, directive0, resource, level)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.EpisodeAccessResult); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/bcc-code/bcc-media-platform/backend/graph/admin/model.EpisodeAccessResult`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.EpisodeAccessResult)
+	fc.Result = res
+	return ec.marshalNEpisodeAccessResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EpisodeAccessMutations_grant(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EpisodeAccessMutations",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "episodes":
+				return ec.fieldContext_EpisodeAccessResult_episodes(ctx, field)
+			case "roles":
+				return ec.fieldContext_EpisodeAccessResult_roles(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type EpisodeAccessResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_EpisodeAccessMutations_grant_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EpisodeAccessMutations_revoke(ctx context.Context, field graphql.CollectedField, obj *model.EpisodeAccessMutations) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EpisodeAccessMutations_revoke(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.EpisodeAccessMutations().Revoke(rctx, obj, fc.Args["input"].(model.EpisodeAccessInput))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			resource, err := ec.unmarshalNAdminResource2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐAdminResource(ctx, "episodeAccess")
+			if err != nil {
+				var zeroVal *model.EpisodeAccessResult
+				return zeroVal, err
+			}
+			level, err := ec.unmarshalNAccessLevel2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐAccessLevel(ctx, "write")
+			if err != nil {
+				var zeroVal *model.EpisodeAccessResult
+				return zeroVal, err
+			}
+			if ec.directives.Access == nil {
+				var zeroVal *model.EpisodeAccessResult
+				return zeroVal, errors.New("directive access is not implemented")
+			}
+			return ec.directives.Access(ctx, obj, directive0, resource, level)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.EpisodeAccessResult); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/bcc-code/bcc-media-platform/backend/graph/admin/model.EpisodeAccessResult`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.EpisodeAccessResult)
+	fc.Result = res
+	return ec.marshalNEpisodeAccessResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EpisodeAccessMutations_revoke(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EpisodeAccessMutations",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "episodes":
+				return ec.fieldContext_EpisodeAccessResult_episodes(ctx, field)
+			case "roles":
+				return ec.fieldContext_EpisodeAccessResult_roles(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type EpisodeAccessResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_EpisodeAccessMutations_revoke_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EpisodeAccessQueries_groups(ctx context.Context, field graphql.CollectedField, obj *model.EpisodeAccessQueries) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EpisodeAccessQueries_groups(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.EpisodeAccessQueries().Groups(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Group)
+	fc.Result = res
+	return ec.marshalNGroup2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐGroupᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EpisodeAccessQueries_groups(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EpisodeAccessQueries",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "code":
+				return ec.fieldContext_Group_code(ctx, field)
+			case "name":
+				return ec.fieldContext_Group_name(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Group", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EpisodeAccessResult_episodes(ctx context.Context, field graphql.CollectedField, obj *model.EpisodeAccessResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EpisodeAccessResult_episodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Episodes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model1.Episode)
+	fc.Result = res
+	return ec.marshalNEpisode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EpisodeAccessResult_episodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EpisodeAccessResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Episode_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Episode_uuid(ctx, field)
+			case "status":
+				return ec.fieldContext_Episode_status(ctx, field)
+			case "title":
+				return ec.fieldContext_Episode_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Episode_description(ctx, field)
+			case "ageRating":
+				return ec.fieldContext_Episode_ageRating(ctx, field)
+			case "duration":
+				return ec.fieldContext_Episode_duration(ctx, field)
+			case "number":
+				return ec.fieldContext_Episode_number(ctx, field)
+			case "imageUrl":
+				return ec.fieldContext_Episode_imageUrl(ctx, field)
+			case "images":
+				return ec.fieldContext_Episode_images(ctx, field)
+			case "season":
+				return ec.fieldContext_Episode_season(ctx, field)
+			case "availability":
+				return ec.fieldContext_Episode_availability(ctx, field)
+			case "roles":
+				return ec.fieldContext_Episode_roles(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Episode", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EpisodeAccessResult_roles(ctx context.Context, field graphql.CollectedField, obj *model.EpisodeAccessResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EpisodeAccessResult_roles(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Roles, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Roles)
+	fc.Result = res
+	return ec.marshalNRoles2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐRoles(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EpisodeAccessResult_roles(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EpisodeAccessResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "access":
+				return ec.fieldContext_Roles_access(ctx, field)
+			case "download":
+				return ec.fieldContext_Roles_download(ctx, field)
+			case "earlyAccess":
+				return ec.fieldContext_Roles_earlyAccess(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Roles", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EpisodeAccessScope_groups(ctx context.Context, field graphql.CollectedField, obj *model.EpisodeAccessScope) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EpisodeAccessScope_groups(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Groups, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOID2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EpisodeAccessScope_groups(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EpisodeAccessScope",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episodes_importTimedMetadata(ctx context.Context, field graphql.CollectedField, obj *model.Episodes) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episodes_importTimedMetadata(ctx, field)
 	if err != nil {
@@ -4761,8 +5396,8 @@ func (ec *executionContext) fieldContext_Episodes_importTimedMetadata(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ForcedFilter_search(ctx context.Context, field graphql.CollectedField, obj *model.ForcedFilter) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ForcedFilter_search(ctx, field)
+func (ec *executionContext) _Group_code(ctx context.Context, field graphql.CollectedField, obj *model.Group) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Group_code(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4775,41 +5410,38 @@ func (ec *executionContext) _ForcedFilter_search(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Search, nil
+		return obj.Code, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.ForcedSearchFilter)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOForcedSearchFilter2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐForcedSearchFilter(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ForcedFilter_search(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Group_code(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ForcedFilter",
+		Object:     "Group",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "group":
-				return ec.fieldContext_ForcedSearchFilter_group(ctx, field)
-			case "types":
-				return ec.fieldContext_ForcedSearchFilter_types(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ForcedSearchFilter", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ForcedSearchFilter_group(ctx context.Context, field graphql.CollectedField, obj *model.ForcedSearchFilter) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ForcedSearchFilter_group(ctx, field)
+func (ec *executionContext) _Group_name(ctx context.Context, field graphql.CollectedField, obj *model.Group) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Group_name(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4822,69 +5454,31 @@ func (ec *executionContext) _ForcedSearchFilter_group(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Group, nil
+		return obj.Name, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ForcedSearchFilter_group(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Group_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ForcedSearchFilter",
+		Object:     "Group",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ForcedSearchFilter_types(ctx context.Context, field graphql.CollectedField, obj *model.ForcedSearchFilter) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ForcedSearchFilter_types(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Types, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]model.SearchType)
-	fc.Result = res
-	return ec.marshalOSearchType2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐSearchTypeᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ForcedSearchFilter_types(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ForcedSearchFilter",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type SearchType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5193,6 +5787,88 @@ func (ec *executionContext) fieldContext_MutationRoot_access(_ context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _MutationRoot_episodeAccess(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MutationRoot_episodeAccess(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.MutationRoot().EpisodeAccess(rctx)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			resource, err := ec.unmarshalNAdminResource2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐAdminResource(ctx, "episodeAccess")
+			if err != nil {
+				var zeroVal *model.EpisodeAccessMutations
+				return zeroVal, err
+			}
+			level, err := ec.unmarshalNAccessLevel2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐAccessLevel(ctx, "read")
+			if err != nil {
+				var zeroVal *model.EpisodeAccessMutations
+				return zeroVal, err
+			}
+			if ec.directives.Access == nil {
+				var zeroVal *model.EpisodeAccessMutations
+				return zeroVal, errors.New("directive access is not implemented")
+			}
+			return ec.directives.Access(ctx, nil, directive0, resource, level)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.EpisodeAccessMutations); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/bcc-code/bcc-media-platform/backend/graph/admin/model.EpisodeAccessMutations`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.EpisodeAccessMutations)
+	fc.Result = res
+	return ec.marshalNEpisodeAccessMutations2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessMutations(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MutationRoot_episodeAccess(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MutationRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "grant":
+				return ec.fieldContext_EpisodeAccessMutations_grant(ctx, field)
+			case "revoke":
+				return ec.fieldContext_EpisodeAccessMutations_revoke(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type EpisodeAccessMutations", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Permission_resource(ctx context.Context, field graphql.CollectedField, obj *model.Permission) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Permission_resource(ctx, field)
 	if err != nil {
@@ -5281,8 +5957,8 @@ func (ec *executionContext) fieldContext_Permission_level(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Permission_forcedFilter(ctx context.Context, field graphql.CollectedField, obj *model.Permission) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Permission_forcedFilter(ctx, field)
+func (ec *executionContext) _Permission_scope(ctx context.Context, field graphql.CollectedField, obj *model.Permission) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Permission_scope(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5295,7 +5971,7 @@ func (ec *executionContext) _Permission_forcedFilter(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ForcedFilter, nil
+		return obj.Scope, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5304,12 +5980,12 @@ func (ec *executionContext) _Permission_forcedFilter(ctx context.Context, field 
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.ForcedFilter)
+	res := resTmp.(*model.PermissionScope)
 	fc.Result = res
-	return ec.marshalOForcedFilter2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐForcedFilter(ctx, field.Selections, res)
+	return ec.marshalOPermissionScope2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐPermissionScope(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Permission_forcedFilter(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Permission_scope(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Permission",
 		Field:      field,
@@ -5318,9 +5994,103 @@ func (ec *executionContext) fieldContext_Permission_forcedFilter(_ context.Conte
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "search":
-				return ec.fieldContext_ForcedFilter_search(ctx, field)
+				return ec.fieldContext_PermissionScope_search(ctx, field)
+			case "episodeAccess":
+				return ec.fieldContext_PermissionScope_episodeAccess(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ForcedFilter", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type PermissionScope", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PermissionScope_search(ctx context.Context, field graphql.CollectedField, obj *model.PermissionScope) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PermissionScope_search(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Search, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.SearchScope)
+	fc.Result = res
+	return ec.marshalOSearchScope2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐSearchScope(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PermissionScope_search(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PermissionScope",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "group":
+				return ec.fieldContext_SearchScope_group(ctx, field)
+			case "types":
+				return ec.fieldContext_SearchScope_types(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SearchScope", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PermissionScope_episodeAccess(ctx context.Context, field graphql.CollectedField, obj *model.PermissionScope) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PermissionScope_episodeAccess(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EpisodeAccess, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.EpisodeAccessScope)
+	fc.Result = res
+	return ec.marshalOEpisodeAccessScope2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessScope(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PermissionScope_episodeAccess(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PermissionScope",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "groups":
+				return ec.fieldContext_EpisodeAccessScope_groups(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type EpisodeAccessScope", field.Name)
 		},
 	}
 	return fc, nil
@@ -6148,6 +6918,86 @@ func (ec *executionContext) fieldContext_QueryRoot_access(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _QueryRoot_episodeAccess(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QueryRoot_episodeAccess(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.QueryRoot().EpisodeAccess(rctx)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			resource, err := ec.unmarshalNAdminResource2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐAdminResource(ctx, "episodeAccess")
+			if err != nil {
+				var zeroVal *model.EpisodeAccessQueries
+				return zeroVal, err
+			}
+			level, err := ec.unmarshalNAccessLevel2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐAccessLevel(ctx, "read")
+			if err != nil {
+				var zeroVal *model.EpisodeAccessQueries
+				return zeroVal, err
+			}
+			if ec.directives.Access == nil {
+				var zeroVal *model.EpisodeAccessQueries
+				return zeroVal, errors.New("directive access is not implemented")
+			}
+			return ec.directives.Access(ctx, nil, directive0, resource, level)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.EpisodeAccessQueries); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/bcc-code/bcc-media-platform/backend/graph/admin/model.EpisodeAccessQueries`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.EpisodeAccessQueries)
+	fc.Result = res
+	return ec.marshalNEpisodeAccessQueries2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessQueries(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QueryRoot_episodeAccess(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QueryRoot",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "groups":
+				return ec.fieldContext_EpisodeAccessQueries_groups(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type EpisodeAccessQueries", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _QueryRoot___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_QueryRoot___type(ctx, field)
 	if err != nil {
@@ -6410,8 +7260,8 @@ func (ec *executionContext) fieldContext_Role_permissions(_ context.Context, fie
 				return ec.fieldContext_Permission_resource(ctx, field)
 			case "level":
 				return ec.fieldContext_Permission_level(ctx, field)
-			case "forcedFilter":
-				return ec.fieldContext_Permission_forcedFilter(ctx, field)
+			case "scope":
+				return ec.fieldContext_Permission_scope(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Permission", field.Name)
 		},
@@ -7004,6 +7854,88 @@ func (ec *executionContext) fieldContext_SearchResult_hits(_ context.Context, fi
 				return ec.fieldContext_SearchHit_embedUrl(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SearchHit", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SearchScope_group(ctx context.Context, field graphql.CollectedField, obj *model.SearchScope) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SearchScope_group(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Group, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SearchScope_group(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SearchScope",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SearchScope_types(ctx context.Context, field graphql.CollectedField, obj *model.SearchScope) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SearchScope_types(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Types, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]model.SearchType)
+	fc.Result = res
+	return ec.marshalOSearchType2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐSearchTypeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SearchScope_types(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SearchScope",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type SearchType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9962,61 +10894,68 @@ func (ec *executionContext) unmarshalInputApiKeyInput(ctx context.Context, obj a
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputForcedFilterInput(ctx context.Context, obj any) (model.ForcedFilterInput, error) {
-	var it model.ForcedFilterInput
+func (ec *executionContext) unmarshalInputEpisodeAccessInput(ctx context.Context, obj any) (model.EpisodeAccessInput, error) {
+	var it model.EpisodeAccessInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"search"}
+	fieldsInOrder := [...]string{"episodeId", "groups", "lists"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "search":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
-			data, err := ec.unmarshalOForcedSearchFilterInput2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐForcedSearchFilterInput(ctx, v)
+		case "episodeId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("episodeId"))
+			data, err := ec.unmarshalNID2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Search = data
+			it.EpisodeID = data
+		case "groups":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groups"))
+			data, err := ec.unmarshalNID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Groups = data
+		case "lists":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lists"))
+			data, err := ec.unmarshalNGroupList2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐGroupListᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Lists = data
 		}
 	}
 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputForcedSearchFilterInput(ctx context.Context, obj any) (model.ForcedSearchFilterInput, error) {
-	var it model.ForcedSearchFilterInput
+func (ec *executionContext) unmarshalInputEpisodeAccessScopeInput(ctx context.Context, obj any) (model.EpisodeAccessScopeInput, error) {
+	var it model.EpisodeAccessScopeInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"group", "types"}
+	fieldsInOrder := [...]string{"groups"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "group":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("group"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+		case "groups":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groups"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Group = data
-		case "types":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("types"))
-			data, err := ec.unmarshalOSearchType2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐSearchTypeᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Types = data
+			it.Groups = data
 		}
 	}
 
@@ -10030,7 +10969,7 @@ func (ec *executionContext) unmarshalInputPermissionInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"resource", "level", "forcedFilter"}
+	fieldsInOrder := [...]string{"resource", "level", "scope"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10051,13 +10990,47 @@ func (ec *executionContext) unmarshalInputPermissionInput(ctx context.Context, o
 				return it, err
 			}
 			it.Level = data
-		case "forcedFilter":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("forcedFilter"))
-			data, err := ec.unmarshalOForcedFilterInput2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐForcedFilterInput(ctx, v)
+		case "scope":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("scope"))
+			data, err := ec.unmarshalOPermissionScopeInput2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐPermissionScopeInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.ForcedFilter = data
+			it.Scope = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputPermissionScopeInput(ctx context.Context, obj any) (model.PermissionScopeInput, error) {
+	var it model.PermissionScopeInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"search", "episodeAccess"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "search":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
+			data, err := ec.unmarshalOSearchScopeInput2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐSearchScopeInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Search = data
+		case "episodeAccess":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("episodeAccess"))
+			data, err := ec.unmarshalOEpisodeAccessScopeInput2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessScopeInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EpisodeAccess = data
 		}
 	}
 
@@ -10078,6 +11051,40 @@ func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj 
 			continue
 		}
 		switch k {
+		case "types":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("types"))
+			data, err := ec.unmarshalOSearchType2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐSearchTypeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Types = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputSearchScopeInput(ctx context.Context, obj any) (model.SearchScopeInput, error) {
+	var it model.SearchScopeInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"group", "types"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "group":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("group"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Group = data
 		case "types":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("types"))
 			data, err := ec.unmarshalOSearchType2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐSearchTypeᚄ(ctx, v)
@@ -11112,6 +12119,262 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
+var episodeAccessMutationsImplementors = []string{"EpisodeAccessMutations"}
+
+func (ec *executionContext) _EpisodeAccessMutations(ctx context.Context, sel ast.SelectionSet, obj *model.EpisodeAccessMutations) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, episodeAccessMutationsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("EpisodeAccessMutations")
+		case "grant":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._EpisodeAccessMutations_grant(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "revoke":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._EpisodeAccessMutations_revoke(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var episodeAccessQueriesImplementors = []string{"EpisodeAccessQueries"}
+
+func (ec *executionContext) _EpisodeAccessQueries(ctx context.Context, sel ast.SelectionSet, obj *model.EpisodeAccessQueries) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, episodeAccessQueriesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("EpisodeAccessQueries")
+		case "groups":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._EpisodeAccessQueries_groups(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var episodeAccessResultImplementors = []string{"EpisodeAccessResult"}
+
+func (ec *executionContext) _EpisodeAccessResult(ctx context.Context, sel ast.SelectionSet, obj *model.EpisodeAccessResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, episodeAccessResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("EpisodeAccessResult")
+		case "episodes":
+			out.Values[i] = ec._EpisodeAccessResult_episodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "roles":
+			out.Values[i] = ec._EpisodeAccessResult_roles(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var episodeAccessScopeImplementors = []string{"EpisodeAccessScope"}
+
+func (ec *executionContext) _EpisodeAccessScope(ctx context.Context, sel ast.SelectionSet, obj *model.EpisodeAccessScope) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, episodeAccessScopeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("EpisodeAccessScope")
+		case "groups":
+			out.Values[i] = ec._EpisodeAccessScope_groups(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var episodesImplementors = []string{"Episodes"}
 
 func (ec *executionContext) _Episodes(ctx context.Context, sel ast.SelectionSet, obj *model.Episodes) graphql.Marshaler {
@@ -11182,57 +12445,27 @@ func (ec *executionContext) _Episodes(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var forcedFilterImplementors = []string{"ForcedFilter"}
+var groupImplementors = []string{"Group"}
 
-func (ec *executionContext) _ForcedFilter(ctx context.Context, sel ast.SelectionSet, obj *model.ForcedFilter) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, forcedFilterImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ForcedFilter")
-		case "search":
-			out.Values[i] = ec._ForcedFilter_search(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var forcedSearchFilterImplementors = []string{"ForcedSearchFilter"}
-
-func (ec *executionContext) _ForcedSearchFilter(ctx context.Context, sel ast.SelectionSet, obj *model.ForcedSearchFilter) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, forcedSearchFilterImplementors)
+func (ec *executionContext) _Group(ctx context.Context, sel ast.SelectionSet, obj *model.Group) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, groupImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ForcedSearchFilter")
-		case "group":
-			out.Values[i] = ec._ForcedSearchFilter_group(ctx, field, obj)
-		case "types":
-			out.Values[i] = ec._ForcedSearchFilter_types(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("Group")
+		case "code":
+			out.Values[i] = ec._Group_code(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._Group_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -11403,6 +12636,13 @@ func (ec *executionContext) _MutationRoot(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "episodeAccess":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._MutationRoot_episodeAccess(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -11447,8 +12687,46 @@ func (ec *executionContext) _Permission(ctx context.Context, sel ast.SelectionSe
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "forcedFilter":
-			out.Values[i] = ec._Permission_forcedFilter(ctx, field, obj)
+		case "scope":
+			out.Values[i] = ec._Permission_scope(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var permissionScopeImplementors = []string{"PermissionScope"}
+
+func (ec *executionContext) _PermissionScope(ctx context.Context, sel ast.SelectionSet, obj *model.PermissionScope) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, permissionScopeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PermissionScope")
+		case "search":
+			out.Values[i] = ec._PermissionScope_search(ctx, field, obj)
+		case "episodeAccess":
+			out.Values[i] = ec._PermissionScope_episodeAccess(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -11844,6 +13122,28 @@ func (ec *executionContext) _QueryRoot(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._QueryRoot_access(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "episodeAccess":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QueryRoot_episodeAccess(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -12254,6 +13554,44 @@ func (ec *executionContext) _SearchResult(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var searchScopeImplementors = []string{"SearchScope"}
+
+func (ec *executionContext) _SearchScope(ctx context.Context, sel ast.SelectionSet, obj *model.SearchScope) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, searchScopeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SearchScope")
+		case "group":
+			out.Values[i] = ec._SearchScope_group(ctx, field, obj)
+		case "types":
+			out.Values[i] = ec._SearchScope_types(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13313,6 +14651,107 @@ func (ec *executionContext) marshalNCreatedApiKey2ᚖgithubᚗcomᚋbccᚑcode�
 	return ec._CreatedApiKey(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNEpisode2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEpisodeᚄ(ctx context.Context, sel ast.SelectionSet, v []*model1.Episode) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNEpisode2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐEpisode(ctx context.Context, sel ast.SelectionSet, v *model1.Episode) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Episode(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNEpisodeAccessInput2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessInput(ctx context.Context, v any) (model.EpisodeAccessInput, error) {
+	res, err := ec.unmarshalInputEpisodeAccessInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNEpisodeAccessMutations2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessMutations(ctx context.Context, sel ast.SelectionSet, v model.EpisodeAccessMutations) graphql.Marshaler {
+	return ec._EpisodeAccessMutations(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNEpisodeAccessMutations2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessMutations(ctx context.Context, sel ast.SelectionSet, v *model.EpisodeAccessMutations) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._EpisodeAccessMutations(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNEpisodeAccessQueries2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessQueries(ctx context.Context, sel ast.SelectionSet, v model.EpisodeAccessQueries) graphql.Marshaler {
+	return ec._EpisodeAccessQueries(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNEpisodeAccessQueries2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessQueries(ctx context.Context, sel ast.SelectionSet, v *model.EpisodeAccessQueries) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._EpisodeAccessQueries(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNEpisodeAccessResult2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessResult(ctx context.Context, sel ast.SelectionSet, v model.EpisodeAccessResult) graphql.Marshaler {
+	return ec._EpisodeAccessResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNEpisodeAccessResult2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessResult(ctx context.Context, sel ast.SelectionSet, v *model.EpisodeAccessResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._EpisodeAccessResult(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNEpisodes2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodes(ctx context.Context, sel ast.SelectionSet, v model.Episodes) graphql.Marshaler {
 	return ec._Episodes(ctx, sel, &v)
 }
@@ -13343,6 +14782,129 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 	return graphql.WrapContextMarshaler(ctx, res)
 }
 
+func (ec *executionContext) marshalNGroup2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐGroupᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Group) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNGroup2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐGroup(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNGroup2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐGroup(ctx context.Context, sel ast.SelectionSet, v *model.Group) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Group(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGroupList2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐGroupList(ctx context.Context, v any) (model.GroupList, error) {
+	var res model.GroupList
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGroupList2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐGroupList(ctx context.Context, sel ast.SelectionSet, v model.GroupList) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNGroupList2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐGroupListᚄ(ctx context.Context, v any) ([]model.GroupList, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]model.GroupList, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNGroupList2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐGroupList(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNGroupList2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐGroupListᚄ(ctx context.Context, sel ast.SelectionSet, v []model.GroupList) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNGroupList2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐGroupList(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v any) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -13357,6 +14919,36 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNID2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNImage2ᚕᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐImageᚄ(ctx context.Context, sel ast.SelectionSet, v []*model1.Image) graphql.Marshaler {
@@ -14144,6 +15736,21 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
+func (ec *executionContext) marshalOEpisodeAccessScope2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessScope(ctx context.Context, sel ast.SelectionSet, v *model.EpisodeAccessScope) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._EpisodeAccessScope(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOEpisodeAccessScopeInput2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐEpisodeAccessScopeInput(ctx context.Context, v any) (*model.EpisodeAccessScopeInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputEpisodeAccessScopeInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v any) (*float64, error) {
 	if v == nil {
 		return nil, nil
@@ -14161,34 +15768,40 @@ func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel as
 	return graphql.WrapContextMarshaler(ctx, res)
 }
 
-func (ec *executionContext) marshalOForcedFilter2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐForcedFilter(ctx context.Context, sel ast.SelectionSet, v *model.ForcedFilter) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._ForcedFilter(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOForcedFilterInput2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐForcedFilterInput(ctx context.Context, v any) (*model.ForcedFilterInput, error) {
+func (ec *executionContext) unmarshalOID2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputForcedFilterInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
 }
 
-func (ec *executionContext) marshalOForcedSearchFilter2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐForcedSearchFilter(ctx context.Context, sel ast.SelectionSet, v *model.ForcedSearchFilter) graphql.Marshaler {
+func (ec *executionContext) marshalOID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._ForcedSearchFilter(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOForcedSearchFilterInput2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐForcedSearchFilterInput(ctx context.Context, v any) (*model.ForcedSearchFilterInput, error) {
-	if v == nil {
-		return nil, nil
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
 	}
-	res, err := ec.unmarshalInputForcedSearchFilterInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v any) (*string, error) {
@@ -14227,6 +15840,21 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
+func (ec *executionContext) marshalOPermissionScope2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐPermissionScope(ctx context.Context, sel ast.SelectionSet, v *model.PermissionScope) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PermissionScope(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOPermissionScopeInput2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐPermissionScopeInput(ctx context.Context, v any) (*model.PermissionScopeInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputPermissionScopeInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOSearchFilter2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐSearchFilter(ctx context.Context, v any) (*model.SearchFilter, error) {
 	if v == nil {
 		return nil, nil
@@ -14240,6 +15868,21 @@ func (ec *executionContext) marshalOSearchItem2githubᚗcomᚋbccᚑcodeᚋbcc�
 		return graphql.Null
 	}
 	return ec._SearchItem(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOSearchScope2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐSearchScope(ctx context.Context, sel ast.SelectionSet, v *model.SearchScope) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SearchScope(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOSearchScopeInput2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐSearchScopeInput(ctx context.Context, v any) (*model.SearchScopeInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputSearchScopeInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOSearchType2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐSearchTypeᚄ(ctx context.Context, v any) ([]model.SearchType, error) {

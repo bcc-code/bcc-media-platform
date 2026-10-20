@@ -33,12 +33,12 @@ WHERE id = $1
   AND revoked_at IS NULL;
 
 -- name: GetAdminPermissionsForApiKeys :many
-SELECT api_key_id::uuid AS api_key_id, resource, access, forced_filter
+SELECT api_key_id::uuid AS api_key_id, resource, access, scope
 FROM users.admin_permissions
 WHERE api_key_id = ANY (sqlc.arg(ids)::uuid[]);
 
 -- name: GetAdminPermissionsForRoles :many
-SELECT directus_role_id::uuid AS directus_role_id, resource, access, forced_filter
+SELECT directus_role_id::uuid AS directus_role_id, resource, access, scope
 FROM users.admin_permissions
 WHERE directus_role_id = ANY (sqlc.arg(ids)::uuid[]);
 
@@ -53,7 +53,7 @@ FROM users.admin_permissions
 WHERE directus_role_id = $1;
 
 -- name: InsertAdminPermission :exec
-INSERT INTO users.admin_permissions (api_key_id, directus_role_id, resource, access, forced_filter)
+INSERT INTO users.admin_permissions (api_key_id, directus_role_id, resource, access, scope)
 VALUES ($1, $2, $3, $4, $5);
 
 -- name: ListDirectusRoles :many

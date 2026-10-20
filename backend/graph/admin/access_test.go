@@ -33,8 +33,8 @@ func TestSchema_RootFieldsDeclareAccess(t *testing.T) {
 	}
 }
 
-func searchGrant(level model.AccessLevel, forced string) permissionRow {
-	return permissionRow{resource: "search", access: string(level), forcedFilter: json.RawMessage(forced)}
+func searchGrant(level model.AccessLevel, scope string) permissionRow {
+	return permissionRow{resource: "search", access: string(level), scope: json.RawMessage(scope)}
 }
 
 func TestPrincipal_Allows(t *testing.T) {
@@ -53,15 +53,15 @@ func TestPrincipal_Allows(t *testing.T) {
 	assert.True(t, writer.allows(model.AdminResourceSearch, model.AccessLevelRead), "write implies read")
 }
 
-func TestPrincipal_ForcedFilter(t *testing.T) {
+func TestPrincipal_Scope(t *testing.T) {
 	p := newPrincipal([]permissionRow{searchGrant(model.AccessLevelRead, `{"search":{"group":"bcc-members","types":["episode"]}}`)})
-	f := p.forcedFilter(model.AdminResourceSearch)
+	f := p.scope(model.AdminResourceSearch)
 	require.NotNil(t, f)
 	assert.Equal(t, "bcc-members", *f.Search.Group)
 	assert.Equal(t, []model.SearchType{model.SearchTypeEpisode}, f.Search.Types)
 
-	assert.Nil(t, newPrincipal([]permissionRow{searchGrant(model.AccessLevelRead, "{}")}).forcedFilter(model.AdminResourceSearch))
-	assert.Nil(t, (&Principal{superuser: true}).forcedFilter(model.AdminResourceSearch))
+	assert.Nil(t, newPrincipal([]permissionRow{searchGrant(model.AccessLevelRead, "{}")}).scope(model.AdminResourceSearch))
+	assert.Nil(t, (&Principal{superuser: true}).scope(model.AdminResourceSearch))
 
 	broken := newPrincipal([]permissionRow{searchGrant(model.AccessLevelRead, `{"search":`)})
 	assert.False(t, broken.allows(model.AdminResourceSearch, model.AccessLevelRead), "unreadable restriction drops the grant")
@@ -69,21 +69,21 @@ func TestPrincipal_ForcedFilter(t *testing.T) {
 
 func TestPermissionRowsFromInput(t *testing.T) {
 	group := "bcc-members"
-	pinned := &model.ForcedFilterInput{Search: &model.ForcedSearchFilterInput{Group: &group}}
+	pinned := &model.PermissionScopeInput{Search: &model.SearchScopeInput{Group: &group}}
 
 	rows, err := permissionRowsFromInput([]*model.PermissionInput{
-		{Resource: model.AdminResourceSearch, Level: model.AccessLevelRead, ForcedFilter: pinned},
+		{Resource: model.AdminResourceSearch, Level: model.AccessLevelRead, Scope: pinned},
 		{Resource: model.AdminResourcePreview, Level: model.AccessLevelWrite},
 	})
 	require.NoError(t, err)
 	require.Len(t, rows, 2)
-	assert.JSONEq(t, `{"search":{"group":"bcc-members"}}`, string(rows[0].forcedFilter))
-	assert.JSONEq(t, `{}`, string(rows[1].forcedFilter))
+	assert.JSONEq(t, `{"search":{"group":"bcc-members"}}`, string(rows[0].scope))
+	assert.JSONEq(t, `{}`, string(rows[1].scope))
 
 	_, err = permissionRowsFromInput([]*model.PermissionInput{
-		{Resource: model.AdminResourcePreview, Level: model.AccessLevelRead, ForcedFilter: pinned},
+		{Resource: model.AdminResourcePreview, Level: model.AccessLevelRead, Scope: pinned},
 	})
-	assert.Error(t, err, "search filter on another resource")
+	assert.Error(t, err, "search scope on another resource")
 
 	_, err = permissionRowsFromInput([]*model.PermissionInput{
 		{Resource: model.AdminResourceSearch, Level: model.AccessLevelRead},
@@ -92,27 +92,27 @@ func TestPermissionRowsFromInput(t *testing.T) {
 	assert.Error(t, err, "duplicate resource")
 }
 
-func TestApplyForcedSearchFilter(t *testing.T) {
-	group, forcedGroup := "public", "bcc-members"
-	forced := &model.ForcedFilterInput{Search: &model.ForcedSearchFilterInput{
-		Group: &forcedGroup,
+func TestApplySearchScope(t *testing.T) {
+	group, scopeGroup := "public", "bcc-members"
+	scope := &model.PermissionScopeInput{Search: &model.SearchScopeInput{
+		Group: &scopeGroup,
 		Types: []model.SearchType{model.SearchTypeEpisode, model.SearchTypeShow},
 	}}
 
 	f := search.AdminFilter{Group: &group}
-	assert.True(t, applyForcedSearchFilter(&f, forced))
+	assert.True(t, applySearchScope(&f, scope))
 	assert.Equal(t, "bcc-members", *f.Group)
 	assert.ElementsMatch(t, []string{"episode", "show"}, f.Types)
 
 	f = search.AdminFilter{Types: []string{"show", "season"}}
-	assert.True(t, applyForcedSearchFilter(&f, forced))
+	assert.True(t, applySearchScope(&f, scope))
 	assert.Equal(t, []string{"show"}, f.Types)
 
 	f = search.AdminFilter{Types: []string{"season"}}
-	assert.False(t, applyForcedSearchFilter(&f, forced))
+	assert.False(t, applySearchScope(&f, scope))
 
 	f = search.AdminFilter{Group: &group}
-	assert.True(t, applyForcedSearchFilter(&f, nil))
+	assert.True(t, applySearchScope(&f, nil))
 	assert.Equal(t, "public", *f.Group)
 }
 
@@ -145,7 +145,7 @@ func TestSuperuserDirective(t *testing.T) {
 	_, err := SuperuserDirective(ctxWithPrincipal(&Principal{superuser: true}), nil, next)
 	assert.NoError(t, err)
 
-	writer := newPrincipal([]permissionRow{{resource: "preview", access: "write", forcedFilter: json.RawMessage("{}")}})
+	writer := newPrincipal([]permissionRow{{resource: "preview", access: "write", scope: json.RawMessage("{}")}})
 	_, err = SuperuserDirective(ctxWithPrincipal(writer), nil, next)
 	assert.Error(t, err)
 
