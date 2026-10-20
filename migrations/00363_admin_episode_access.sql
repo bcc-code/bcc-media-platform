@@ -1,4 +1,7 @@
 -- +goose Up
+ALTER TABLE users.admin_permissions
+    RENAME COLUMN forced_filter TO scope;
+
 -- The admin API grants and revokes episode access, creating missing auto groups (e.g. <app>-public).
 GRANT INSERT, DELETE ON public.mediaitems_usergroups TO api;
 GRANT INSERT, DELETE ON public.mediaitems_usergroups_download TO api;
@@ -16,3 +19,6 @@ REVOKE USAGE ON SEQUENCE public.mediaitems_usergroups_id_seq FROM api;
 REVOKE USAGE ON SEQUENCE public.mediaitems_usergroups_download_id_seq FROM api;
 REVOKE USAGE ON SEQUENCE public.mediaitems_usergroups_earlyaccess_id_seq FROM api;
 REVOKE INSERT ON public.usergroups FROM api;
+
+ALTER TABLE users.admin_permissions
+    RENAME COLUMN scope TO forced_filter;
