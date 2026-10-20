@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useI18n()
 const { currentUser, isSuperuser, logout, avatarUrl } = useAuth()
 const collapsed = useLocalStorage('sidebar:collapsed', false)
 
@@ -28,39 +29,45 @@ interface NavItem {
 
 // One entry per area, not per collection. Sub-views live in tabs inside the
 // area — see docs/admin-web-scope.md.
-const baseNavItems: NavItem[] = [
-  { to: '/', icon: 'tabler:home', label: 'Hjem' },
+const baseNavItems = computed<NavItem[]>(() => [
+  { to: '/', icon: 'tabler:home', label: t('nav.home') },
   {
     to: '/episodes',
     icon: 'tabler:player-play',
-    label: 'Episoder',
+    label: t('nav.episodes'),
     match: ['/shorts', '/assets', '/shows', '/seasons']
   },
   {
     to: '/calendar/entries',
     icon: 'tabler:calendar',
-    label: 'Kalender',
+    label: t('nav.calendar'),
     match: ['/calendar']
   },
   {
     to: '/pages',
     icon: 'tabler:file-text',
-    label: 'Sider',
+    label: t('nav.pages'),
     match: ['/collections']
   },
-  { to: '/notifications', icon: 'tabler:bell', label: 'Push-varsler' },
-  { to: '/operations', icon: 'tabler:settings-bolt', label: 'Drift' }
-]
+  { to: '/notifications', icon: 'tabler:bell', label: t('nav.notifications') },
+  {
+    to: '/operations',
+    icon: 'tabler:settings-bolt',
+    label: t('nav.operations')
+  }
+])
 
-const accessNavItem: NavItem = {
+const accessNavItem = computed<NavItem>(() => ({
   to: '/access/api-keys',
   icon: 'tabler:key',
-  label: 'Tilgang',
+  label: t('nav.access'),
   match: ['/access']
-}
+}))
 
 const navItems = computed(() =>
-  isSuperuser.value ? [...baseNavItems, accessNavItem] : baseNavItems
+  isSuperuser.value
+    ? [...baseNavItems.value, accessNavItem.value]
+    : baseNavItems.value
 )
 </script>
 
@@ -99,7 +106,7 @@ const navItems = computed(() =>
       <AppSidebarLink
         to="/settings"
         icon="tabler:settings"
-        label="Innstillinger"
+        :label="t('nav.settings')"
         :collapsed="collapsed"
       />
     </div>
@@ -123,11 +130,15 @@ const navItems = computed(() =>
               {{ currentUser?.email }}
             </p>
           </div>
-          <DesignTooltip v-if="!collapsed" content="Logg ut" placement="top">
+          <DesignTooltip
+            v-if="!collapsed"
+            :content="t('nav.logout')"
+            placement="top"
+          >
             <DesignButton
               variant="tertiary"
               icon="tabler:logout"
-              aria-label="Logg ut"
+              :aria-label="t('nav.logout')"
               @click="handleLogout"
             />
           </DesignTooltip>
@@ -137,7 +148,7 @@ const navItems = computed(() =>
 
     <div class="border-border-1 flex items-center justify-end border-t p-2">
       <DesignTooltip
-        :content="collapsed ? 'Utvid sidemeny' : 'Skjul sidemeny'"
+        :content="collapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')"
         :placement="collapsed ? 'right' : 'top'"
       >
         <DesignButton
@@ -147,7 +158,9 @@ const navItems = computed(() =>
               ? 'tabler:layout-sidebar-left-expand'
               : 'tabler:layout-sidebar-left-collapse'
           "
-          :aria-label="collapsed ? 'Utvid sidemeny' : 'Skjul sidemeny'"
+          :aria-label="
+            collapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')
+          "
           @click="toggle"
         />
       </DesignTooltip>

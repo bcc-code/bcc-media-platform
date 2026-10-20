@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { pageTabs } = useNav()
 useHead({ title: 'Sider' })
 
 const { pages, add } = usePages()

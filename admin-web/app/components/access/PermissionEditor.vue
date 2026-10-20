@@ -12,6 +12,9 @@ defineProps<{
 
 const model = defineModel<PermissionInput[]>({ required: true })
 
+const { t } = useI18n()
+const { adminResources, levelItems, searchTypeItems } = useAccessMeta()
+
 type Level = AccessLevel | 'none'
 
 interface Row {
@@ -20,15 +23,9 @@ interface Row {
   types: SearchType[]
 }
 
-const levelItems = [
-  { label: 'Ingen', value: 'none' },
-  { label: accessLevelLabels.read, value: 'read' },
-  { label: accessLevelLabels.write, value: 'write' }
-]
-
 function rowsFrom(permissions: PermissionInput[]) {
   return Object.fromEntries(
-    adminResources.map(({ value }) => {
+    adminResourceValues.map((value) => {
       const p = permissions.find((p) => p.resource === value)
       return [
         value,
@@ -47,7 +44,7 @@ const rows = reactive(rowsFrom(model.value))
 watch(
   rows,
   () => {
-    model.value = adminResources.flatMap(({ value }) => {
+    model.value = adminResourceValues.flatMap((value) => {
       const row = rows[value]
       if (row.level === 'none') return []
       const input: PermissionInput = { resource: value, level: row.level }
@@ -101,17 +98,19 @@ const typeChips = computed({
         class="bg-surface-indent flex flex-col gap-4 rounded-xl p-4"
       >
         <p class="text-body-3 text-text-muted">
-          Begrens søket. La feltene stå tomme for å søke i alt.
+          {{ t('access.permissions.searchFilterHint') }}
         </p>
         <DesignInput
           v-model="rows.search.group"
-          label="Brukergruppe"
-          placeholder="F.eks. bcc-members"
-          helper-text="Søk som et medlem av denne gruppen: kun publisert og tilgjengelig innhold."
+          :label="t('access.permissions.groupLabel')"
+          :placeholder="t('access.permissions.groupPlaceholder')"
+          :helper-text="t('access.permissions.groupHelper')"
           :disabled="disabled"
         />
         <div class="flex flex-col gap-2">
-          <label class="text-body-3 text-text-muted block">Typer</label>
+          <label class="text-body-3 text-text-muted block">
+            {{ t('access.permissions.typesLabel') }}
+          </label>
           <DesignToggleChips
             v-model="typeChips"
             :items="searchTypeItems"

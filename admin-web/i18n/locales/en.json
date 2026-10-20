@@ -1,0 +1,228 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "saveChanges": "Save changes",
+    "done": "Done",
+    "retry": "Try again",
+    "never": "Never",
+    "selectDate": "Select date",
+    "leaveGuard": {
+      "title": "You have unsaved changes",
+      "description": "Your changes will be lost if you leave this page. Do you want to leave?",
+      "confirm": "Leave page",
+      "cancel": "Stay on page"
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "episodes": "Episodes",
+    "calendar": "Calendar",
+    "pages": "Pages",
+    "notifications": "Push notifications",
+    "operations": "Operations",
+    "access": "Access",
+    "settings": "Settings",
+    "logout": "Log out",
+    "expandSidebar": "Expand sidebar",
+    "collapseSidebar": "Collapse sidebar",
+    "tabs": {
+      "episodes": "Episodes",
+      "shorts": "Shorts",
+      "assets": "Assets",
+      "shows": "Shows",
+      "calendarEntries": "Entries",
+      "calendarEvents": "Events",
+      "pages": "Pages",
+      "collections": "Collections",
+      "apiKeys": "API keys",
+      "roles": "Roles"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "theme": {
+      "title": "Theme",
+      "description": "Choose between light and dark, or let the system decide.",
+      "system": "System",
+      "systemDescription": "Follow the device setting",
+      "light": "Light",
+      "lightDescription": "Always light theme",
+      "dark": "Dark",
+      "darkDescription": "Always dark theme"
+    },
+    "language": {
+      "title": "Language",
+      "description": "Choose the language admin is shown in.",
+      "nb": "Norsk",
+      "nbDescription": "Norwegian bokmål",
+      "en": "English",
+      "enDescription": "English"
+    },
+    "designSystem": "Design system"
+  },
+  "access": {
+    "levels": {
+      "none": "None",
+      "read": "Read",
+      "write": "Write"
+    },
+    "resources": {
+      "search": {
+        "label": "Search",
+        "description": "Search episodes, seasons and shows"
+      },
+      "preview": {
+        "label": "Preview",
+        "description": "Preview content and media files"
+      },
+      "statistics": {
+        "label": "Statistics",
+        "description": "Progress and usage statistics"
+      },
+      "episodes": {
+        "label": "Episodes",
+        "description": "Import of time metadata for episodes"
+      },
+      "mediaItems": {
+        "label": "Media files",
+        "description": "Import of time metadata for media files"
+      }
+    },
+    "searchTypes": {
+      "episode": "Episodes",
+      "season": "Seasons",
+      "show": "Shows"
+    },
+    "permissions": {
+      "title": "Permissions",
+      "none": "No access",
+      "summaryItem": "{resource} ({level})",
+      "searchFilterHint": "Narrow the search. Leave the fields empty to search everything.",
+      "groupLabel": "User group",
+      "groupPlaceholder": "E.g. bcc-members",
+      "groupHelper": "Search as a member of this group: published and available content only.",
+      "typesLabel": "Types"
+    },
+    "apiKeys": {
+      "title": "API keys",
+      "singular": "API key",
+      "new": "New API key",
+      "newButton": "New key",
+      "back": "Back to API keys",
+      "showRevoked": "Show revoked",
+      "empty": "No API keys.",
+      "notFound": "The key was not found.",
+      "createdSuffix": "created {date}",
+      "columns": {
+        "name": "Name",
+        "key": "Key",
+        "status": "Status",
+        "expires": "Expires",
+        "created": "Created"
+      },
+      "status": {
+        "active": "Active",
+        "expired": "Expired",
+        "revoked": "Revoked"
+      },
+      "form": {
+        "nameLabel": "Name",
+        "namePlaceholder": "What the key is used for",
+        "nameRequired": "Name is required",
+        "expiresLabel": "Expires",
+        "expiresPlaceholder": "Never expires",
+        "expiresHelper": "Leave empty for a key that never expires.",
+        "permissionsHint": "What the key may read or change in the API.",
+        "permissionsRequired": "The key must have access to at least one resource",
+        "create": "Create key",
+        "revoke": "Revoke",
+        "revokedBanner": "The key was revoked {date} and cannot be changed.",
+        "revokeConfirmTitle": "Revoke the key?",
+        "revokeConfirmDescription": "Everyone using the key loses access immediately. This cannot be undone."
+      },
+      "created": {
+        "title": "The key has been created",
+        "description": "Copy the key now. It is shown this one time only.",
+        "headerHint": "Send the key in the {header} header. Keep it safe.",
+        "copy": "Copy key",
+        "copied": "Copied"
+      },
+      "toast": {
+        "updatedTitle": "Key updated",
+        "updatedDescription": "The changes were saved.",
+        "revokedTitle": "Key revoked",
+        "revokedDescription": "The key no longer grants access."
+      }
+    },
+    "roles": {
+      "title": "Roles",
+      "singular": "Role",
+      "back": "Back to roles",
+      "intro": "Roles are created in Directus. Here you control what each role may do in admin. Users with administrator access in Directus always have full access.",
+      "empty": "No roles found.",
+      "notFound": "The role was not found.",
+      "permissionsHint": "A role without permissions cannot sign in to admin.",
+      "columns": {
+        "role": "Role",
+        "permissions": "Permissions"
+      },
+      "toast": {
+        "updatedTitle": "Permissions updated",
+        "updatedDescription": "The changes take effect immediately.",
+        "clearedDescription": "Users with this role can no longer sign in to admin."
+      }
+    }
+  },
+  "errors": {
+    "generic": {
+      "title": "Something went wrong",
+      "description": "An unknown error occurred. Please try again later."
+    },
+    "network": {
+      "title": "Connection error",
+      "description": "Could not reach the server. Check your internet connection."
+    },
+    "http": {
+      "400": {
+        "title": "Invalid request",
+        "description": "The request could not be processed."
+      },
+      "401": {
+        "title": "Session expired",
+        "description": "Sign in again to continue."
+      },
+      "403": {
+        "title": "No access",
+        "description": "You do not have access to this content."
+      },
+      "404": {
+        "title": "Not found",
+        "description": "The content you are looking for does not exist."
+      },
+      "408": {
+        "title": "Timed out",
+        "description": "The request took too long. Please try again."
+      },
+      "429": {
+        "title": "Too many requests",
+        "description": "Wait a moment and try again."
+      },
+      "500": {
+        "title": "Server error",
+        "description": "Something went wrong on the server. Please try again later."
+      },
+      "502": {
+        "title": "Service unavailable",
+        "description": "Could not reach the server. Please try again later."
+      },
+      "503": {
+        "title": "Service unavailable",
+        "description": "The service is temporarily down. Please try again later."
+      },
+      "504": {
+        "title": "Timed out",
+        "description": "The server did not respond in time. Please try again."
+      }
+    }
+  }
+}

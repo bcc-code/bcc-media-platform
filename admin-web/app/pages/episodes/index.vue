@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { episodeTabs } = useNav()
 useHead({ title: 'Episoder' })
 
 const { episodes, missingVideo } = useEpisodes()

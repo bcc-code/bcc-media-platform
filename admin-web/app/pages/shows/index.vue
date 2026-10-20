@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { episodeTabs } = useNav()
 useHead({ title: 'Serier' })
 
 const { shows } = useShows()

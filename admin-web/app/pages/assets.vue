@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { episodeTabs } = useNav()
 useHead({ title: 'Mediefiler' })
 
 // Verification only: files arrive on their own from the export system, so

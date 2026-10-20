@@ -2,6 +2,7 @@
 // confirm dialog, closing or reloading the tab gets the browser's prompt.
 export function useLeaveGuard(dirty: MaybeRefOrGetter<boolean>) {
   const confirm = useConfirm()
+  const { t } = useI18n()
   // Set after a successful save, so its own redirect isn't questioned.
   const allowed = ref(false)
 
@@ -10,11 +11,10 @@ export function useLeaveGuard(dirty: MaybeRefOrGetter<boolean>) {
   onBeforeRouteLeave(() => {
     if (!blocking()) return true
     return confirm({
-      title: 'Du har ulagrede endringer',
-      description:
-        'Endringene går tapt hvis du forlater siden. Vil du forlate den?',
-      confirmLabel: 'Forlat siden',
-      cancelLabel: 'Bli på siden',
+      title: t('common.leaveGuard.title'),
+      description: t('common.leaveGuard.description'),
+      confirmLabel: t('common.leaveGuard.confirm'),
+      cancelLabel: t('common.leaveGuard.cancel'),
       intent: 'danger'
     })
   })

@@ -118,9 +118,9 @@
 @layer base {
   :root {
     /* Light theme */
-    --ds-primary-default: #b3acff;
-    --ds-primary-contrast: #7569f7;
-    --ds-on-primary: #130d19;
+    --ds-primary-default: #004e48;
+    --ds-primary-contrast: #004e48;
+    --ds-on-primary: #ffffff;
 
     --ds-surface-default: #ffffff;
     --ds-surface-indent: #f5f7f6;
@@ -152,8 +152,8 @@
   .dark {
     /* Dark theme — only themed tokens are overridden; the fixed
        light/dark text tokens stay the same across both themes. */
-    --ds-primary-default: #b3acff;
-    --ds-primary-contrast: #b3acff;
+    --ds-primary-default: #a0cec8;
+    --ds-primary-contrast: #a0cec8;
     --ds-on-primary: #130d19;
 
     --ds-surface-default: #1c1f1d;
@@ -173,42 +173,6 @@
     --ds-on-error: #130d19;
 
     --ds-focus-ring: #ffffff;
-  }
-
-  /* Brand variants — only the primary palette changes per brand so each
-     "brand" recolors the accent without altering the rest of the theme.
-     Activated by setting `data-brand="…"` on <html>. See `useBrand`. */
-  :root[data-brand='bcc'] {
-    --ds-primary-default: #004e48;
-    --ds-primary-contrast: #004e48;
-    --ds-on-primary: #ffffff;
-  }
-  .dark[data-brand='bcc'] {
-    --ds-primary-default: #a0cec8;
-    --ds-primary-contrast: #a0cec8;
-    --ds-on-primary: #130d19;
-  }
-
-  :root[data-brand='play'] {
-    --ds-primary-default: #b3acff;
-    --ds-primary-contrast: #7569f7;
-    --ds-on-primary: #130d19;
-  }
-  .dark[data-brand='play'] {
-    --ds-primary-default: #b3acff;
-    --ds-primary-contrast: #b3acff;
-    --ds-on-primary: #130d19;
-  }
-
-  :root[data-brand='neutral'] {
-    --ds-primary-default: #333333;
-    --ds-primary-contrast: #000000;
-    --ds-on-primary: #ffffff;
-  }
-  .dark[data-brand='neutral'] {
-    --ds-primary-default: #ffffff;
-    --ds-primary-contrast: #ffffff;
-    --ds-on-primary: #000000;
   }
 
   html,
