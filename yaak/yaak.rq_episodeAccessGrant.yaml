@@ -1,0 +1,68 @@
+type: http_request
+model: http_request
+id: rq_episodeAccessGrant
+createdAt: 2026-10-20T00:00:00
+updatedAt: 2026-10-20T00:00:00
+workspaceId: wk_hGg2sqajat
+folderId: fl_adminApiKey
+authentication:
+  disabled: false
+  key: x-api-key
+  value: ${[ ADMIN_API_KEY ]}
+authenticationType: apikey
+body:
+  operationName: GrantEpisodeAccess
+  query: |-
+    mutation GrantEpisodeAccess($input: EpisodeAccessInput!) {
+      episodeAccess {
+        grant(input: $input) {
+          roles {
+            access
+            download
+            earlyAccess
+          }
+          episodes {
+            id
+            title
+          }
+        }
+      }
+    }
+  variables: |-
+    {
+      "input": {
+        "episodeId": "1",
+        "groups": ["public"],
+        "lists": ["access"]
+      }
+    }
+bodyType: graphql
+description: |-
+  Adds the groups to the episode's media item, for each list (access, download, earlyAccess).
+  Affects every episode sharing the media item. Groups outside the key's allowlist are FORBIDDEN;
+  a missing auto group (e.g. <app>-public) is created. Needs an episodeAccess write grant.
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: h_ct_rq_episodeAccessGrant
+name: Grant episode access (API key)
+sortPriority: 4.0
+method: POST
+url: ${[ ADMIN_API_URL ]}/admin
+urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

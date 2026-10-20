@@ -24,7 +24,7 @@ body:
             permissions {
               resource
               level
-              forcedFilter {
+              scope {
                 search {
                   group
                   types
@@ -50,7 +50,7 @@ body:
 bodyType: graphql
 description: |-
   Creates an API key with search read access. To pin searches to a usergroup,
-  add "forcedFilter": { "search": { "group": "bcc-members", "types": ["episode"] } }
+  add "scope": { "search": { "group": "bcc-members", "types": ["episode"] } }
   to the permission.
 headers:
 - enabled: true
