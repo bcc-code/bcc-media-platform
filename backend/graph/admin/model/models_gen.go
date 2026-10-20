@@ -116,7 +116,7 @@ type EpisodeAccessScope struct {
 }
 
 type EpisodeAccessScopeInput struct {
-	// Group codes the grant may grant or revoke. Null means any group.
+	// Group codes the grant may grant or revoke. Null means any group; an empty list allows none.
 	Groups []string `json:"groups,omitempty"`
 }
 

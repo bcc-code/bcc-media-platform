@@ -83,9 +83,10 @@ func (p *Principal) scope(resource model.AdminResource) *model.PermissionScopeIn
 }
 
 // allowedGroups returns the group codes the principal may grant or revoke; all is true when it is unrestricted.
+// A stored episodeAccess scope always restricts: omitempty drops an empty list, so missing groups mean none.
 func (p *Principal) allowedGroups() (codes []string, all bool) {
 	s := p.scope(model.AdminResourceEpisodeAccess)
-	if s == nil || s.EpisodeAccess == nil || s.EpisodeAccess.Groups == nil {
+	if s == nil || s.EpisodeAccess == nil {
 		return nil, true
 	}
 	return s.EpisodeAccess.Groups, false
@@ -149,7 +150,12 @@ func permissionRowsFromInput(inputs []*model.PermissionInput) ([]permissionRow, 
 			if in.Scope.EpisodeAccess != nil && in.Resource != model.AdminResourceEpisodeAccess {
 				return nil, fmt.Errorf("an episodeAccess scope can only be set on the episodeAccess resource")
 			}
-			raw, err := json.Marshal(in.Scope)
+			s := *in.Scope
+			// Null groups means any group, which is the same as no scope.
+			if s.EpisodeAccess != nil && s.EpisodeAccess.Groups == nil {
+				s.EpisodeAccess = nil
+			}
+			raw, err := json.Marshal(s)
 			if err != nil {
 				return nil, err
 			}
@@ -173,6 +179,9 @@ func permissionsToModel(rows []permissionRow) []*model.Permission {
 			if err := json.Unmarshal(r.scope, s); err != nil {
 				log.L.Warn().Err(err).Str("resource", r.resource).Msg("Invalid permission scope")
 			} else {
+				if s.EpisodeAccess != nil && s.EpisodeAccess.Groups == nil {
+					s.EpisodeAccess.Groups = []string{}
+				}
 				p.Scope = s
 			}
 		}

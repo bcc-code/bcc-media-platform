@@ -21,11 +21,8 @@ func TestPrincipal_AllowedGroups(t *testing.T) {
 	_, all = newPrincipal([]permissionRow{episodeAccessGrant("{}")}).allowedGroups()
 	assert.True(t, all, "no scope")
 
-	_, all = newPrincipal([]permissionRow{episodeAccessGrant(`{"episodeAccess":{"groups":null}}`)}).allowedGroups()
-	assert.True(t, all, "null groups")
-
-	codes, all := newPrincipal([]permissionRow{episodeAccessGrant(`{"episodeAccess":{"groups":[]}}`)}).allowedGroups()
-	assert.False(t, all, "empty list allows nothing")
+	codes, all := newPrincipal([]permissionRow{episodeAccessGrant(`{"episodeAccess":{}}`)}).allowedGroups()
+	assert.False(t, all, "stored scope without groups allows nothing")
 	assert.Empty(t, codes)
 
 	codes, all = newPrincipal([]permissionRow{episodeAccessGrant(`{"episodeAccess":{"groups":["public","kids-public"]}}`)}).allowedGroups()
@@ -41,6 +38,24 @@ func TestPermissionRowsFromInput_EpisodeAccessScope(t *testing.T) {
 	})
 	require.NoError(t, err)
 	assert.JSONEq(t, `{"episodeAccess":{"groups":["public"]}}`, string(rows[0].scope))
+
+	// Round trip through storage: omitempty drops [] and the grant must stay restricted.
+	rows, err = permissionRowsFromInput([]*model.PermissionInput{
+		{Resource: model.AdminResourceEpisodeAccess, Level: model.AccessLevelWrite, Scope: &model.PermissionScopeInput{EpisodeAccess: &model.EpisodeAccessScopeInput{Groups: []string{}}}},
+	})
+	require.NoError(t, err)
+	codes, all := newPrincipal(rows).allowedGroups()
+	assert.False(t, all, "empty allowlist stays restricted; stored %s", rows[0].scope)
+	assert.Empty(t, codes)
+	assert.Equal(t, []string{}, permissionsToModel(rows)[0].Scope.EpisodeAccess.Groups, "read back as an empty list, not null")
+
+	rows, err = permissionRowsFromInput([]*model.PermissionInput{
+		{Resource: model.AdminResourceEpisodeAccess, Level: model.AccessLevelWrite, Scope: &model.PermissionScopeInput{EpisodeAccess: &model.EpisodeAccessScopeInput{}}},
+	})
+	require.NoError(t, err)
+	assert.JSONEq(t, `{}`, string(rows[0].scope), "null groups is no scope")
+	_, all = newPrincipal(rows).allowedGroups()
+	assert.True(t, all)
 
 	_, err = permissionRowsFromInput([]*model.PermissionInput{
 		{Resource: model.AdminResourceSearch, Level: model.AccessLevelRead, Scope: scope},
