@@ -7,7 +7,8 @@ export default defineNuxtConfig({
     '@nuxtjs/color-mode',
     '@nuxt/icon',
     '@vueuse/nuxt',
-    '@pinia/nuxt'
+    '@pinia/nuxt',
+    '@nuxtjs/i18n'
   ],
 
   ssr: false,
@@ -43,6 +44,16 @@ export default defineNuxtConfig({
 
   colorMode: {
     classSuffix: ''
+  },
+
+  i18n: {
+    strategy: 'no_prefix',
+    defaultLocale: 'nb',
+    locales: [
+      { code: 'nb', name: 'Norsk', language: 'nb-NO', file: 'nb.json' },
+      { code: 'en', name: 'English', language: 'en-GB', file: 'en.json' }
+    ],
+    detectBrowserLanguage: false
   },
 
   components: {

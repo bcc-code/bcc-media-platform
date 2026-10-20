@@ -3,13 +3,16 @@ import type { PermissionInput } from '~/api/graphql'
 
 definePageMeta({ middleware: 'superuser' })
 
+const { t } = useI18n()
+const { formatGraphQLError } = useGraphQLError()
+
 const route = useRoute('access-roles-id')
 const { roles, fetching, setPermissions } = useRoles()
 const toaster = useToast()
 
 const role = computed(() => roles.value.find((r) => r.id === route.params.id))
 
-useHead({ title: () => role.value?.name ?? 'Rolle' })
+useHead({ title: () => role.value?.name ?? t('access.roles.singular') })
 
 const permissions = ref<PermissionInput[]>([])
 const initialPermissions = ref<PermissionInput[]>([])
@@ -44,11 +47,11 @@ async function handleSave() {
   }
   allowLeave()
   toaster.value.success({
-    title: 'Tilganger oppdatert',
+    title: t('access.roles.toast.updatedTitle'),
     description:
       permissions.value.length === 0
-        ? 'Brukere med denne rollen kan ikke lenger logge inn i admin.'
-        : 'Endringene gjelder umiddelbart.'
+        ? t('access.roles.toast.clearedDescription')
+        : t('access.roles.toast.updatedDescription')
   })
   navigateTo('/access/roles')
 }
@@ -57,15 +60,17 @@ async function handleSave() {
 <template>
   <div v-if="role && loaded" class="flex max-w-3xl flex-col gap-8">
     <div>
-      <BackButton to="/access/roles" label="Tilbake til roller" />
+      <BackButton to="/access/roles" :label="t('access.roles.back')" />
       <h1 class="text-heading-2 text-text-default">{{ role.name }}</h1>
     </div>
 
     <div class="flex flex-col gap-3">
       <div>
-        <h2 class="text-title-1 text-text-default">Tilganger</h2>
+        <h2 class="text-title-1 text-text-default">
+          {{ t('access.permissions.title') }}
+        </h2>
         <p class="text-body-3 text-text-muted mt-1">
-          En rolle uten tilganger gir ikke innlogging i admin.
+          {{ t('access.roles.permissionsHint') }}
         </p>
       </div>
       <PermissionEditor v-model="permissions" />
@@ -73,10 +78,10 @@ async function handleSave() {
 
     <div class="border-border-1 flex items-center gap-3 border-t pt-6">
       <DesignButton :loading="saving" @click="handleSave">
-        Lagre endringer
+        {{ t('common.saveChanges') }}
       </DesignButton>
       <DesignButton variant="secondary" @click="navigateTo('/access/roles')">
-        Avbryt
+        {{ t('common.cancel') }}
       </DesignButton>
     </div>
   </div>
@@ -84,6 +89,6 @@ async function handleSave() {
   <DesignLoadingState v-else-if="fetching" />
 
   <div v-else class="text-body-2 text-text-hint px-4 py-12 text-center">
-    Rollen ble ikke funnet.
+    {{ t('access.roles.notFound') }}
   </div>
 </template>

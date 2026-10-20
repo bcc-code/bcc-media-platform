@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { pageTabs } = useNav()
 useHead({ title: 'Samlinger' })
 
 const { collections, matchesForQuery, usedBy } = useCollections()
@@ -54,16 +55,15 @@ const rows = computed(() => {
         @click="navigateTo(`/collections/${row.collection.id}`)"
       >
         <td class="px-4 py-3">
-          <p class="text-title-3 text-text-default">{{ row.collection.name }}</p>
+          <p class="text-title-3 text-text-default">
+            {{ row.collection.name }}
+          </p>
           <p class="text-caption-1 text-text-hint mt-0.5 font-mono">
             {{ row.collection.id }}
           </p>
         </td>
         <td class="px-4 py-3">
-          <DesignBadge
-            v-if="row.collection.advancedType"
-            variant="info"
-          >
+          <DesignBadge v-if="row.collection.advancedType" variant="info">
             Personlig
           </DesignBadge>
           <DesignBadge

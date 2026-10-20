@@ -1,29 +1,30 @@
 <script setup lang="ts">
-useHead({ title: 'Innstillinger' })
+const { t, locale, setLocale } = useI18n()
+
+useHead({ title: () => t('settings.title') })
 
 const colorMode = useColorMode()
-const { brand, brands } = useBrand()
 
-const themeItems = [
+const themeItems = computed(() => [
   {
-    label: 'System',
+    label: t('settings.theme.system'),
     value: 'system',
     icon: 'tabler:device-desktop',
-    description: 'Følg enhetens innstilling'
+    description: t('settings.theme.systemDescription')
   },
   {
-    label: 'Lys',
+    label: t('settings.theme.light'),
     value: 'light',
     icon: 'tabler:sun',
-    description: 'Alltid lyst tema'
+    description: t('settings.theme.lightDescription')
   },
   {
-    label: 'Mørk',
+    label: t('settings.theme.dark'),
     value: 'dark',
     icon: 'tabler:moon',
-    description: 'Alltid mørkt tema'
+    description: t('settings.theme.darkDescription')
   }
-]
+])
 
 const themePreference = computed({
   get: () => colorMode.preference,
@@ -32,19 +33,42 @@ const themePreference = computed({
   }
 })
 
-const swatchFor = (b: BrandInfo) =>
-  colorMode.value === 'dark' ? b.swatch.dark : b.swatch.light
+const languageItems = computed(() => [
+  {
+    label: t('settings.language.nb'),
+    value: 'nb',
+    icon: 'tabler:flag',
+    description: t('settings.language.nbDescription')
+  },
+  {
+    label: t('settings.language.en'),
+    value: 'en',
+    icon: 'tabler:flag',
+    description: t('settings.language.enDescription')
+  }
+])
+
+// setLocale persists the choice to the `ui_locale` cookie, so it survives
+// reloads and stays per-user rather than per-URL.
+const languagePreference = computed({
+  get: () => locale.value,
+  set: (value) => {
+    setLocale(value as 'nb' | 'en')
+  }
+})
 </script>
 
 <template>
   <div class="flex max-w-3xl flex-col gap-10">
-    <h1 class="text-heading-2 text-text-default">Innstillinger</h1>
+    <h1 class="text-heading-2 text-text-default">{{ t('settings.title') }}</h1>
 
     <section class="flex flex-col gap-4">
       <div>
-        <h2 class="text-title-1 text-text-default">Tema</h2>
+        <h2 class="text-title-1 text-text-default">
+          {{ t('settings.theme.title') }}
+        </h2>
         <p class="text-body-3 text-text-muted mt-1">
-          Velg mellom lyst og mørkt tema, eller la systemet bestemme.
+          {{ t('settings.theme.description') }}
         </p>
       </div>
       <DesignRadioGroup v-model="themePreference" :items="themeItems" />
@@ -52,19 +76,14 @@ const swatchFor = (b: BrandInfo) =>
 
     <section class="flex flex-col gap-4">
       <div>
-        <h2 class="text-title-1 text-text-default">Farger</h2>
+        <h2 class="text-title-1 text-text-default">
+          {{ t('settings.language.title') }}
+        </h2>
         <p class="text-body-3 text-text-muted mt-1">
-          Velg hvilken fargepalett som skal brukes.
+          {{ t('settings.language.description') }}
         </p>
       </div>
-      <DesignRadioGroup v-model="brand" :items="brands">
-        <template #leading="{ item }">
-          <span
-            class="border-border-1 size-4 shrink-0 rounded-full border"
-            :style="{ backgroundColor: swatchFor(item) }"
-          />
-        </template>
-      </DesignRadioGroup>
+      <DesignRadioGroup v-model="languagePreference" :items="languageItems" />
     </section>
 
     <section class="border-border-1 border-t pt-6">
@@ -73,7 +92,7 @@ const swatchFor = (b: BrandInfo) =>
         class="text-body-3 text-text-hint hover:text-text-default inline-flex items-center gap-2"
       >
         <Icon name="tabler:palette" class="size-4" />
-        Design system
+        {{ t('settings.designSystem') }}
       </NuxtLink>
     </section>
   </div>

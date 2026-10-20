@@ -1,21 +1,29 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'superuser' })
-useHead({ title: 'Roller' })
+
+const { t } = useI18n()
+const { accessTabs } = useNav()
+const { formatGraphQLError } = useGraphQLError()
+
+useHead({ title: () => t('access.roles.title') })
 
 const { roles, fetching, error } = useRoles()
+
+const columns = computed(() => [
+  t('access.roles.columns.role'),
+  t('access.roles.columns.permissions')
+])
 </script>
 
 <template>
   <div class="flex max-w-5xl flex-col gap-8">
     <div class="flex items-center justify-between gap-4">
-      <h1 class="sr-only">Roller</h1>
+      <h1 class="sr-only">{{ t('access.roles.title') }}</h1>
       <DesignTabs :items="accessTabs" />
     </div>
 
     <p class="text-body-3 text-text-muted">
-      Roller opprettes i Directus. Her styrer du hva hver rolle får gjøre i
-      admin. Brukere med administratortilgang i Directus har alltid full
-      tilgang.
+      {{ t('access.roles.intro') }}
     </p>
 
     <DesignLoadingState v-if="fetching && roles.length === 0" />
@@ -28,8 +36,8 @@ const { roles, fetching, error } = useRoles()
 
     <DesignTable
       v-else
-      :columns="['Rolle', 'Tilganger']"
-      :empty="roles.length === 0 ? 'Ingen roller funnet.' : undefined"
+      :columns="columns"
+      :empty="roles.length === 0 ? t('access.roles.empty') : undefined"
     >
       <NuxtLink
         v-for="role in roles"

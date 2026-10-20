@@ -3,6 +3,11 @@ import type { ApiKeyInput } from '~/api/graphql'
 
 definePageMeta({ middleware: 'superuser' })
 
+const { t } = useI18n()
+const { formatDate } = useFormat()
+const { statusLabel } = useAccessMeta()
+const { formatGraphQLError } = useGraphQLError()
+
 const route = useRoute('access-api-keys-id')
 const { apiKeys, fetching, update, revoke } = useApiKeys()
 const toaster = useToast()
@@ -11,7 +16,9 @@ const apiKey = computed(() =>
   apiKeys.value.find((k) => k.id === route.params.id)
 )
 
-useHead({ title: () => apiKey.value?.name ?? 'API-nøkkel' })
+useHead({ title: () => apiKey.value?.name ?? t('access.apiKeys.singular') })
+
+const status = computed(() => apiKey.value && apiKeyStatus(apiKey.value))
 
 const saving = ref(false)
 const dirty = ref(false)
@@ -27,8 +34,8 @@ async function handleSubmit(input: ApiKeyInput) {
   }
   allowLeave()
   toaster.value.success({
-    title: 'Nøkkel oppdatert',
-    description: 'Endringene ble lagret.'
+    title: t('access.apiKeys.toast.updatedTitle'),
+    description: t('access.apiKeys.toast.updatedDescription')
   })
   navigateTo('/access/api-keys')
 }
@@ -41,27 +48,30 @@ async function handleRevoke() {
   }
   allowLeave()
   toaster.value.success({
-    title: 'Nøkkel tilbakekalt',
-    description: 'Nøkkelen gir ikke lenger tilgang.'
+    title: t('access.apiKeys.toast.revokedTitle'),
+    description: t('access.apiKeys.toast.revokedDescription')
   })
   navigateTo('/access/api-keys')
 }
 </script>
 
 <template>
-  <div v-if="apiKey" class="flex max-w-3xl flex-col gap-8">
+  <div v-if="apiKey && status" class="flex max-w-3xl flex-col gap-8">
     <div>
-      <BackButton to="/access/api-keys" label="Tilbake til API-nøkler" />
+      <BackButton to="/access/api-keys" :label="t('access.apiKeys.back')" />
       <div class="flex items-center justify-between gap-4">
         <h1 class="text-heading-2 text-text-default">{{ apiKey.name }}</h1>
-        <DesignStatusIndicator
-          :variant="apiKeyStatusConfig[apiKeyStatus(apiKey)].variant"
-        >
-          {{ apiKeyStatusConfig[apiKeyStatus(apiKey)].label }}
+        <DesignStatusIndicator :variant="apiKeyStatusVariants[status]">
+          {{ statusLabel(status) }}
         </DesignStatusIndicator>
       </div>
       <p class="text-body-3 text-text-muted mt-1 font-mono">
-        {{ apiKey.prefix }}… · opprettet {{ formatDate(apiKey.createdAt) }}
+        {{ apiKey.prefix }}… ·
+        {{
+          t('access.apiKeys.createdSuffix', {
+            date: formatDate(apiKey.createdAt)
+          })
+        }}
       </p>
     </div>
 
@@ -78,6 +88,6 @@ async function handleRevoke() {
   <DesignLoadingState v-else-if="fetching" />
 
   <div v-else class="text-body-2 text-text-hint px-4 py-12 text-center">
-    Nøkkelen ble ikke funnet.
+    {{ t('access.apiKeys.notFound') }}
   </div>
 </template>

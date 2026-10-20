@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { Field, DatePicker, parseDate, type DateValue } from '@ark-ui/vue'
 
+const { t } = useI18n()
+const { localeTag } = useFormat()
+
 interface Props {
   label?: string
   placeholder?: string
@@ -11,12 +14,16 @@ interface Props {
   errorText?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   label: undefined,
-  placeholder: 'Velg dato',
+  placeholder: undefined,
   helperText: undefined,
   errorText: undefined
 })
+
+const placeholderText = computed(
+  () => props.placeholder ?? t('common.selectDate')
+)
 
 const model = defineModel<string>()
 
@@ -43,7 +50,7 @@ const dateValue = computed<DateValue[]>({
 
     <DatePicker.Root
       v-model="dateValue"
-      locale="nb-NO"
+      :locale="localeTag"
       :start-of-week="1"
       :positioning="{ placement: 'bottom-start', gutter: 4 }"
       :disabled="disabled"
@@ -53,7 +60,7 @@ const dateValue = computed<DateValue[]>({
         <DatePicker.Trigger
           class="border-border-1 bg-surface-default text-body-2 text-text-default not-disabled:hover:bg-surface-indent data-invalid:border-semantic-error flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl border px-4 py-2.5 duration-150 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <DatePicker.ValueText :placeholder="placeholder" />
+          <DatePicker.ValueText :placeholder="placeholderText" />
           <Icon name="tabler:calendar" class="text-text-hint size-4" />
         </DatePicker.Trigger>
       </DatePicker.Control>

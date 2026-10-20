@@ -4,6 +4,8 @@ import type { PermissionItem } from '~/composables/useAccess'
 defineProps<{
   role: { name: string; permissions: readonly PermissionItem[] }
 }>()
+
+const { permissionSummary } = useAccessMeta()
 </script>
 
 <template>
