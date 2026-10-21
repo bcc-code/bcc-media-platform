@@ -22,15 +22,20 @@ type ItemCallback func(ctx context.Context, item QueuedItem) error
 type Service struct {
 	queueID  string
 	endpoint string
+	audience string
+	// Tasks carry an OIDC token for this account when set
+	invokerServiceAccount string
 
 	onRequest []ItemCallback
 }
 
 // New returns a new Service
-func New(endpoint string, queueID string) *Service {
+func New(endpoint, audience, queueID, invokerServiceAccount string) *Service {
 	return &Service{
-		queueID:  queueID,
-		endpoint: endpoint,
+		queueID:               queueID,
+		endpoint:              endpoint,
+		audience:              audience,
+		invokerServiceAccount: invokerServiceAccount,
 	}
 }
 
@@ -99,6 +104,14 @@ func (s *Service) Queue(ctx context.Context, collection string, id string, at ti
 	}
 
 	task.Task.GetHttpRequest().Body = body
+	if s.invokerServiceAccount != "" {
+		task.Task.GetHttpRequest().AuthorizationHeader = &cloudtaskspb.HttpRequest_OidcToken{
+			OidcToken: &cloudtaskspb.OidcToken{
+				ServiceAccountEmail: s.invokerServiceAccount,
+				Audience:            s.audience,
+			},
+		}
+	}
 
 	_, err = client.CreateTask(ctx, task)
 

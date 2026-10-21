@@ -15,6 +15,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
+	"github.com/bcc-code/bcc-media-platform/backend/middleware"
 	"github.com/bcc-code/bcc-media-platform/backend/notifications"
 	"github.com/bcc-code/bcc-media-platform/backend/push"
 	"github.com/bcc-code/bcc-media-platform/backend/remotecache"
@@ -90,7 +91,7 @@ func main() {
 	}
 	translationsClient := translations.NewService(queries, phraseClient)
 
-	sr := scheduler.New(config.ServiceUrl+"/api/tasks", config.CloudTasks.QueueID)
+	sr := scheduler.New(config.ServiceUrl+"/api/tasks", config.ServiceUrl, config.CloudTasks.QueueID, config.InvokerServiceAccount)
 
 	pushService, err := push.NewService(ctx, config.Firebase.ProjectID, queries)
 	if err != nil {
@@ -176,12 +177,15 @@ func main() {
 
 	handlers := server.NewServer(services, serverConfig)
 
+	requireInvoker := middleware.GoogleInvokerMiddleware(config.ServiceUrl, config.InvokerServiceAccount, nil)
+
 	apiGroup := router.Group("api")
 	{
-		apiGroup.POST("message", handlers.ProcessMessage)
+		apiGroup.POST("message", requireInvoker, handlers.ProcessMessage)
+		apiGroup.POST("tasks", requireInvoker, handlers.ProcessScheduledTask)
+		// Verified in the handler (SNS signature)
 		apiGroup.POST("aws", handlers.ProcessAwsMessage)
-		apiGroup.POST("eventmeta", handlers.IngestEventMeta) // TODO: Protect the endpoint with a simple api key or something
-		apiGroup.POST("tasks", handlers.ProcessScheduledTask)
+		// Phrase webhook; content is downloaded from Phrase, not taken from the body
 		apiGroup.POST("translations", handlers.ProcessTranslationMessage)
 	}
 

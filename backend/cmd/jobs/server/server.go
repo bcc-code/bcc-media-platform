@@ -17,7 +17,6 @@ import (
 	"github.com/ansel1/merry/v2"
 	"github.com/bcc-code/bcc-media-platform/backend/asset"
 	"github.com/bcc-code/bcc-media-platform/backend/events"
-	externalevents "github.com/bcc-code/bcc-media-platform/backend/external-events"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/maintenance"
 	"github.com/bcc-code/bcc-media-platform/backend/pubsub"
@@ -171,25 +170,6 @@ func (s Server) ProcessMessage(c *gin.Context) {
 		c.JSON(http.StatusOK, map[string]string{"error": err.Error()})
 		return
 	}
-}
-
-// IngestEventMeta ingests the event meta
-func (s Server) IngestEventMeta(c *gin.Context) {
-	jsonData, err := io.ReadAll(c.Request.Body)
-	defer utils.LogError(c.Request.Body.Close)
-	if err != nil {
-		_ = c.Error(err)
-		c.AbortWithStatus(http.StatusBadRequest)
-	}
-
-	event, err := externalevents.ParseEvent(jsonData)
-	if err != nil {
-		_ = c.Error(err)
-		c.AbortWithStatus(http.StatusBadRequest)
-	}
-
-	// TODO: Do something with the data :D.
-	log.L.Debug().Str("eventType", event.Type.S()).Msg("Got new event Meta")
 }
 
 // ProcessAwsMessage process an event for AWS
