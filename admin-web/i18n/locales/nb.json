@@ -108,7 +108,8 @@
       "typesLabel": "Typer",
       "episodeAccessHint": "Begrens hvilke brukergrupper som kan gis eller fjernes. La feltet stå tomt for å tillate alle.",
       "groupsLabel": "Brukergrupper",
-      "groupsPlaceholder": "F.eks. public eller kids-public"
+      "groupsPlaceholder": "Søk etter brukergruppe",
+      "groupsEmpty": "Ingen treff"
     },
     "apiKeys": {
       "title": "API-nøkler",

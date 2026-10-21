@@ -43,6 +43,10 @@ function rowsFrom(permissions: PermissionInput[]) {
 
 const rows = reactive(rowsFrom(model.value))
 
+const { items: groupItems } = useEpisodeAccessGroups(
+  () => rows.episodeAccess.level === 'none'
+)
+
 watch(
   rows,
   () => {
@@ -134,10 +138,12 @@ const typeChips = computed({
         <p class="text-body-3 text-text-muted">
           {{ t('access.permissions.episodeAccessHint') }}
         </p>
-        <DesignTagsInput
+        <DesignComboboxTags
           v-model="rows.episodeAccess.groups"
+          :items="groupItems"
           :label="t('access.permissions.groupsLabel')"
           :placeholder="t('access.permissions.groupsPlaceholder')"
+          :empty-text="t('access.permissions.groupsEmpty')"
           :disabled="disabled"
         />
       </div>

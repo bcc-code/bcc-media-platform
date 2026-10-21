@@ -22,6 +22,7 @@ type Documents = {
     "\n  mutation UpdateApiKey($id: ID!, $input: ApiKeyInput!) {\n    access {\n      updateApiKey(id: $id, input: $input) {\n        ...ApiKeyFields\n      }\n    }\n  }\n": typeof types.UpdateApiKeyDocument,
     "\n  mutation RevokeApiKey($id: ID!) {\n    access {\n      revokeApiKey(id: $id)\n    }\n  }\n": typeof types.RevokeApiKeyDocument,
     "\n  mutation SetRolePermissions($roleId: ID!, $permissions: [PermissionInput!]!) {\n    access {\n      setRolePermissions(roleId: $roleId, permissions: $permissions) {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n": typeof types.SetRolePermissionsDocument,
+    "\n  query GetEpisodeAccessGroups {\n    episodeAccess {\n      groups {\n        code\n        name\n      }\n    }\n  }\n": typeof types.GetEpisodeAccessGroupsDocument,
     "\n  query GetEpisodes($filter: String!) {\n    preview {\n      collection(filter: $filter) {\n        items {\n          id\n          title\n          collection\n        }\n      }\n    }\n  }\n": typeof types.GetEpisodesDocument,
 };
 const documents: Documents = {
@@ -33,6 +34,7 @@ const documents: Documents = {
     "\n  mutation UpdateApiKey($id: ID!, $input: ApiKeyInput!) {\n    access {\n      updateApiKey(id: $id, input: $input) {\n        ...ApiKeyFields\n      }\n    }\n  }\n": types.UpdateApiKeyDocument,
     "\n  mutation RevokeApiKey($id: ID!) {\n    access {\n      revokeApiKey(id: $id)\n    }\n  }\n": types.RevokeApiKeyDocument,
     "\n  mutation SetRolePermissions($roleId: ID!, $permissions: [PermissionInput!]!) {\n    access {\n      setRolePermissions(roleId: $roleId, permissions: $permissions) {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n": types.SetRolePermissionsDocument,
+    "\n  query GetEpisodeAccessGroups {\n    episodeAccess {\n      groups {\n        code\n        name\n      }\n    }\n  }\n": types.GetEpisodeAccessGroupsDocument,
     "\n  query GetEpisodes($filter: String!) {\n    preview {\n      collection(filter: $filter) {\n        items {\n          id\n          title\n          collection\n        }\n      }\n    }\n  }\n": types.GetEpisodesDocument,
 };
 
@@ -82,6 +84,10 @@ export function graphql(source: "\n  mutation RevokeApiKey($id: ID!) {\n    acce
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation SetRolePermissions($roleId: ID!, $permissions: [PermissionInput!]!) {\n    access {\n      setRolePermissions(roleId: $roleId, permissions: $permissions) {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation SetRolePermissions($roleId: ID!, $permissions: [PermissionInput!]!) {\n    access {\n      setRolePermissions(roleId: $roleId, permissions: $permissions) {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetEpisodeAccessGroups {\n    episodeAccess {\n      groups {\n        code\n        name\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetEpisodeAccessGroups {\n    episodeAccess {\n      groups {\n        code\n        name\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
