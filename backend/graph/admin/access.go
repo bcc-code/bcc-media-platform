@@ -33,6 +33,14 @@ type Principal struct {
 	grants    map[model.AdminResource]grant
 	// userID is the Directus user behind the request, if any.
 	userID uuid.NullUUID
+
+	// Identity for the audit log.
+	authMethod model.AuditAuthMethod
+	email      string
+	apiKeyID   uuid.NullUUID
+	apiKeyName string
+	// adminUser is the caller-reported x-admin-user header on API key requests.
+	adminUser string
 }
 
 type permissionRow struct {

@@ -21,6 +21,10 @@ type AccessMutations struct {
 type AccessQueries struct {
 	APIKeys []*APIKey `json:"apiKeys"`
 	Roles   []*Role   `json:"roles"`
+	// Newest first. first is capped at 200.
+	AuditLog *AuditLogResult `json:"auditLog"`
+	// Distinct actions present in the audit log.
+	AuditLogActions []string `json:"auditLogActions"`
 }
 
 type AdminUser struct {
@@ -50,6 +54,35 @@ type APIKeyInput struct {
 	// RFC3339; omit for a key that never expires.
 	ExpiresAt   *string            `json:"expiresAt,omitempty"`
 	Permissions []*PermissionInput `json:"permissions"`
+}
+
+type AuditLogEntry struct {
+	ID        string `json:"id"`
+	CreatedAt string `json:"createdAt"`
+	// Field path of the action, e.g. access.createApiKey.
+	Action string `json:"action"`
+	// The call's arguments as JSON.
+	Arguments  string          `json:"arguments"`
+	AuthMethod AuditAuthMethod `json:"authMethod"`
+	UserID     *string         `json:"userId,omitempty"`
+	UserEmail  *string         `json:"userEmail,omitempty"`
+	APIKeyID   *string         `json:"apiKeyId,omitempty"`
+	APIKeyName *string         `json:"apiKeyName,omitempty"`
+	// The x-admin-user header sent with an API key request. Reported by the caller, not verified.
+	AdminUser *string `json:"adminUser,omitempty"`
+	Success   bool    `json:"success"`
+	Error     *string `json:"error,omitempty"`
+}
+
+type AuditLogFilter struct {
+	Action   *string `json:"action,omitempty"`
+	APIKeyID *string `json:"apiKeyId,omitempty"`
+	UserID   *string `json:"userId,omitempty"`
+}
+
+type AuditLogResult struct {
+	Total int              `json:"total"`
+	Items []*AuditLogEntry `json:"items"`
 }
 
 type Auth struct {
@@ -349,6 +382,63 @@ func (e *AdminResource) UnmarshalJSON(b []byte) error {
 }
 
 func (e AdminResource) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type AuditAuthMethod string
+
+const (
+	AuditAuthMethodUser     AuditAuthMethod = "user"
+	AuditAuthMethodAPIKey   AuditAuthMethod = "apiKey"
+	AuditAuthMethodDirectus AuditAuthMethod = "directus"
+)
+
+var AllAuditAuthMethod = []AuditAuthMethod{
+	AuditAuthMethodUser,
+	AuditAuthMethodAPIKey,
+	AuditAuthMethodDirectus,
+}
+
+func (e AuditAuthMethod) IsValid() bool {
+	switch e {
+	case AuditAuthMethodUser, AuditAuthMethodAPIKey, AuditAuthMethodDirectus:
+		return true
+	}
+	return false
+}
+
+func (e AuditAuthMethod) String() string {
+	return string(e)
+}
+
+func (e *AuditAuthMethod) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AuditAuthMethod(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AuditAuthMethod", str)
+	}
+	return nil
+}
+
+func (e AuditAuthMethod) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AuditAuthMethod) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AuditAuthMethod) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

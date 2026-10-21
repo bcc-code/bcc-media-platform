@@ -57,6 +57,16 @@ func (r *accessQueriesResolver) Roles(ctx context.Context, obj *model.AccessQuer
 	return r.listRoles(ctx)
 }
 
+// AuditLog is the resolver for the auditLog field.
+func (r *accessQueriesResolver) AuditLog(ctx context.Context, obj *model.AccessQueries, first *int, offset *int, filter *model.AuditLogFilter) (*model.AuditLogResult, error) {
+	return r.listAuditLog(ctx, first, offset, filter)
+}
+
+// AuditLogActions is the resolver for the auditLogActions field.
+func (r *accessQueriesResolver) AuditLogActions(ctx context.Context, obj *model.AccessQueries) ([]string, error) {
+	return r.Queries.ListAdminAuditLogActions(ctx)
+}
+
 // Permissions is the resolver for the permissions field.
 func (r *apiKeyResolver) Permissions(ctx context.Context, obj *model.APIKey) ([]*model.Permission, error) {
 	return r.apiKeyPermissions(ctx, obj.ID)

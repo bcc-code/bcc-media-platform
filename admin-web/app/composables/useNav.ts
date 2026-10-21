@@ -64,6 +64,11 @@ export function useNav() {
       label: t('nav.tabs.roles'),
       to: '/access/roles',
       icon: 'tabler:users-group'
+    },
+    {
+      label: t('nav.tabs.auditLog'),
+      to: '/access/audit-log',
+      icon: 'tabler:history'
     }
   ])
 
