@@ -162,3 +162,30 @@ export function useRoles() {
     }
   }
 }
+
+const GetEpisodeAccessGroupsDocument = graphql(`
+  query GetEpisodeAccessGroups {
+    episodeAccess {
+      groups {
+        code
+        name
+      }
+    }
+  }
+`)
+
+export function useEpisodeAccessGroups(pause: MaybeRefOrGetter<boolean>) {
+  const result = useQuery({
+    query: GetEpisodeAccessGroupsDocument,
+    pause: computed(() => toValue(pause))
+  })
+
+  const items = computed(() =>
+    (result.data.value?.episodeAccess.groups ?? []).map((g) => ({
+      label: g.name && g.name !== g.code ? `${g.name} (${g.code})` : g.code,
+      value: g.code
+    }))
+  )
+
+  return { items, fetching: result.fetching }
+}

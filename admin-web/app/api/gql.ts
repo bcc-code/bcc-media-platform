@@ -22,6 +22,7 @@ type Documents = {
     "\n  mutation UpdateApiKey($id: ID!, $input: ApiKeyInput!) {\n    access {\n      updateApiKey(id: $id, input: $input) {\n        ...ApiKeyFields\n      }\n    }\n  }\n": typeof types.UpdateApiKeyDocument,
     "\n  mutation RevokeApiKey($id: ID!) {\n    access {\n      revokeApiKey(id: $id)\n    }\n  }\n": typeof types.RevokeApiKeyDocument,
     "\n  mutation SetRolePermissions($roleId: ID!, $permissions: [PermissionInput!]!) {\n    access {\n      setRolePermissions(roleId: $roleId, permissions: $permissions) {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n": typeof types.SetRolePermissionsDocument,
+    "\n  query GetEpisodeAccessGroups {\n    episodeAccess {\n      groups {\n        code\n        name\n      }\n    }\n  }\n": typeof types.GetEpisodeAccessGroupsDocument,
     "\n  fragment AuditLogEntryFields on AuditLogEntry {\n    id\n    createdAt\n    action\n    arguments\n    authMethod\n    userId\n    userEmail\n    apiKeyId\n    apiKeyName\n    adminUser\n    success\n    error\n  }\n": typeof types.AuditLogEntryFieldsFragmentDoc,
     "\n  query GetAuditLog($first: Int, $offset: Int, $filter: AuditLogFilter) {\n    access {\n      auditLog(first: $first, offset: $offset, filter: $filter) {\n        total\n        items {\n          ...AuditLogEntryFields\n        }\n      }\n    }\n  }\n": typeof types.GetAuditLogDocument,
     "\n  query GetAuditLogActions {\n    access {\n      auditLogActions\n    }\n  }\n": typeof types.GetAuditLogActionsDocument,
@@ -36,6 +37,7 @@ const documents: Documents = {
     "\n  mutation UpdateApiKey($id: ID!, $input: ApiKeyInput!) {\n    access {\n      updateApiKey(id: $id, input: $input) {\n        ...ApiKeyFields\n      }\n    }\n  }\n": types.UpdateApiKeyDocument,
     "\n  mutation RevokeApiKey($id: ID!) {\n    access {\n      revokeApiKey(id: $id)\n    }\n  }\n": types.RevokeApiKeyDocument,
     "\n  mutation SetRolePermissions($roleId: ID!, $permissions: [PermissionInput!]!) {\n    access {\n      setRolePermissions(roleId: $roleId, permissions: $permissions) {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n": types.SetRolePermissionsDocument,
+    "\n  query GetEpisodeAccessGroups {\n    episodeAccess {\n      groups {\n        code\n        name\n      }\n    }\n  }\n": types.GetEpisodeAccessGroupsDocument,
     "\n  fragment AuditLogEntryFields on AuditLogEntry {\n    id\n    createdAt\n    action\n    arguments\n    authMethod\n    userId\n    userEmail\n    apiKeyId\n    apiKeyName\n    adminUser\n    success\n    error\n  }\n": types.AuditLogEntryFieldsFragmentDoc,
     "\n  query GetAuditLog($first: Int, $offset: Int, $filter: AuditLogFilter) {\n    access {\n      auditLog(first: $first, offset: $offset, filter: $filter) {\n        total\n        items {\n          ...AuditLogEntryFields\n        }\n      }\n    }\n  }\n": types.GetAuditLogDocument,
     "\n  query GetAuditLogActions {\n    access {\n      auditLogActions\n    }\n  }\n": types.GetAuditLogActionsDocument,
@@ -88,6 +90,10 @@ export function graphql(source: "\n  mutation RevokeApiKey($id: ID!) {\n    acce
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation SetRolePermissions($roleId: ID!, $permissions: [PermissionInput!]!) {\n    access {\n      setRolePermissions(roleId: $roleId, permissions: $permissions) {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation SetRolePermissions($roleId: ID!, $permissions: [PermissionInput!]!) {\n    access {\n      setRolePermissions(roleId: $roleId, permissions: $permissions) {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetEpisodeAccessGroups {\n    episodeAccess {\n      groups {\n        code\n        name\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetEpisodeAccessGroups {\n    episodeAccess {\n      groups {\n        code\n        name\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

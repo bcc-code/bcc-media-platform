@@ -109,7 +109,8 @@
       "typesLabel": "Types",
       "episodeAccessHint": "Limit which user groups can be granted or revoked. Leave the field empty to allow all.",
       "groupsLabel": "User groups",
-      "groupsPlaceholder": "E.g. public or kids-public"
+      "groupsPlaceholder": "Search usergroups",
+      "groupsEmpty": "No matches"
     },
     "apiKeys": {
       "title": "API keys",
