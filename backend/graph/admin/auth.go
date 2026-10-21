@@ -187,7 +187,7 @@ func loadActiveAdminUser(ctx context.Context, queries *sqlc.Queries, userID uuid
 
 	userRef := uuid.NullUUID{UUID: u.ID, Valid: true}
 	if u.AdminAccess {
-		return u, &Principal{superuser: true, userID: userRef}, nil
+		return u, &Principal{superuser: true, userID: userRef, authMethod: model.AuditAuthMethodUser, email: u.Email.String}, nil
 	}
 	if !u.Role.Valid {
 		log.L.Warn().Str(logFieldAdminUserID, userID.String()).Msg("Admin user has no role")
@@ -204,6 +204,8 @@ func loadActiveAdminUser(ctx context.Context, queries *sqlc.Queries, userID uuid
 	}
 	p := newPrincipal(rows)
 	p.userID = userRef
+	p.authMethod = model.AuditAuthMethodUser
+	p.email = u.Email.String
 	return u, p, nil
 }
 
@@ -344,7 +346,7 @@ func (a AuthExtension) authenticate(ctx context.Context, ginCtx *gin.Context) *P
 	if key := ginCtx.GetHeader("x-api-key"); key != "" {
 		// Server-to-server access from the Directus endpoint-tools extension.
 		if a.DirectusSecret != "" && subtle.ConstantTimeCompare([]byte(key), []byte(a.DirectusSecret)) == 1 {
-			return &Principal{superuser: true}
+			return &Principal{superuser: true, authMethod: model.AuditAuthMethodDirectus}
 		}
 		if !strings.HasPrefix(key, apiKeyPrefix) {
 			return nil
@@ -361,7 +363,12 @@ func (a AuthExtension) authenticate(ctx context.Context, ginCtx *gin.Context) *P
 			log.L.Warn().Err(err).Str("api_key_id", apiKey.ID.String()).Msg("Admin API key permissions could not be loaded")
 			return nil
 		}
-		return newPrincipal(rows)
+		p := newPrincipal(rows)
+		p.authMethod = model.AuditAuthMethodAPIKey
+		p.apiKeyID = uuid.NullUUID{UUID: apiKey.ID, Valid: true}
+		p.apiKeyName = apiKey.Name
+		p.adminUser = truncate(strings.TrimSpace(ginCtx.GetHeader("x-admin-user")), maxAdminUserHeaderLen)
+		return p
 	}
 
 	// Browser access from admin-web with a token this service minted. The

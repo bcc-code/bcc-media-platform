@@ -35,7 +35,8 @@
       "pages": "Pages",
       "collections": "Collections",
       "apiKeys": "API keys",
-      "roles": "Roles"
+      "roles": "Roles",
+      "auditLog": "Audit log"
     }
   },
   "settings": {
@@ -178,6 +179,33 @@
         "updatedTitle": "Permissions updated",
         "updatedDescription": "The changes take effect immediately.",
         "clearedDescription": "Users with this role can no longer sign in to admin."
+      }
+    },
+    "auditLog": {
+      "title": "Audit log",
+      "intro": "Every change made through the admin API, newest first. For API keys, the user reported in the x-admin-user header is shown but not verified.",
+      "empty": "No entries found.",
+      "allActions": "All actions",
+      "allApiKeys": "All API keys",
+      "directus": "Directus",
+      "reportedUser": "reported as {user}",
+      "pageOf": "Page {page} of {pages}",
+      "previous": "Previous page",
+      "next": "Next page",
+      "columns": {
+        "time": "Time",
+        "action": "Action",
+        "actor": "Performed by",
+        "status": "Status"
+      },
+      "authMethods": {
+        "user": "Admin user",
+        "apiKey": "API key",
+        "directus": "Directus"
+      },
+      "status": {
+        "success": "Succeeded",
+        "failed": "Failed"
       }
     }
   },

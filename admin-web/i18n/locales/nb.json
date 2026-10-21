@@ -35,7 +35,8 @@
       "pages": "Sider",
       "collections": "Samlinger",
       "apiKeys": "API-nøkler",
-      "roles": "Roller"
+      "roles": "Roller",
+      "auditLog": "Endringslogg"
     }
   },
   "settings": {
@@ -178,6 +179,33 @@
         "updatedTitle": "Tilganger oppdatert",
         "updatedDescription": "Endringene gjelder umiddelbart.",
         "clearedDescription": "Brukere med denne rollen kan ikke lenger logge inn i admin."
+      }
+    },
+    "auditLog": {
+      "title": "Endringslogg",
+      "intro": "Alle endringer gjort via admin-API-et, nyeste først. For API-nøkler vises brukeren oppgitt i x-admin-user-headeren, men den er ikke verifisert.",
+      "empty": "Ingen oppføringer funnet.",
+      "allActions": "Alle handlinger",
+      "allApiKeys": "Alle API-nøkler",
+      "directus": "Directus",
+      "reportedUser": "oppgitt som {user}",
+      "pageOf": "Side {page} av {pages}",
+      "previous": "Forrige side",
+      "next": "Neste side",
+      "columns": {
+        "time": "Tidspunkt",
+        "action": "Handling",
+        "actor": "Utført av",
+        "status": "Status"
+      },
+      "authMethods": {
+        "user": "Admin-bruker",
+        "apiKey": "API-nøkkel",
+        "directus": "Directus"
+      },
+      "status": {
+        "success": "Vellykket",
+        "failed": "Feilet"
       }
     }
   },

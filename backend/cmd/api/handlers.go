@@ -195,8 +195,12 @@ func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, lo
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
 	h := handler.NewDefaultServer(graphadmingenerated.NewExecutableSchema(graphadmingenerated.Config{
-		Resolvers:  &resolver,
-		Directives: graphadmingenerated.DirectiveRoot{Access: graphadmin.AccessDirective, Superuser: graphadmin.SuperuserDirective},
+		Resolvers: &resolver,
+		Directives: graphadmingenerated.DirectiveRoot{
+			Access:    graphadmin.AccessDirective,
+			Superuser: graphadmin.SuperuserDirective,
+			Audit:     resolver.AuditDirective,
+		},
 	}))
 	h.Use(gqlextension.FixedComplexityLimit(5000))
 	h.Use(apiextension.DepthLimit{Max: 20})

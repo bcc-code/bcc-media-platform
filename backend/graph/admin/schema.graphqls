@@ -6,6 +6,9 @@ directive @access(resource: AdminResource!, level: AccessLevel!) on FIELD_DEFINI
 
 directive @superuser on FIELD_DEFINITION
 
+"Records each call in the audit log. Every write field must declare it, listed after @access so denied calls are recorded too."
+directive @audit on FIELD_DEFINITION
+
 enum AdminResource {
     search
     preview
@@ -63,11 +66,11 @@ type Statistics {
 }
 
 type Episodes {
-    importTimedMetadata(episodeId: ID!): Boolean! @goField(forceResolver: true) @access(resource: episodes, level: write)
+    importTimedMetadata(episodeId: ID!): Boolean! @goField(forceResolver: true) @access(resource: episodes, level: write) @audit
 }
 
 type MediaItems {
-    importTimedMetadata(mediaItemId: ID!): Boolean! @goField(forceResolver: true) @access(resource: mediaItems, level: write)
+    importTimedMetadata(mediaItemId: ID!): Boolean! @goField(forceResolver: true) @access(resource: mediaItems, level: write) @audit
 }
 
 type AdminUser {
@@ -277,16 +280,55 @@ input ApiKeyInput {
     permissions: [PermissionInput!]!
 }
 
+enum AuditAuthMethod {
+    user
+    apiKey
+    directus
+}
+
+type AuditLogEntry {
+    id: ID!
+    createdAt: String!
+    "Field path of the action, e.g. access.createApiKey."
+    action: String!
+    "The call's arguments as JSON."
+    arguments: String!
+    authMethod: AuditAuthMethod!
+    userId: ID
+    userEmail: String
+    apiKeyId: ID
+    apiKeyName: String
+    "The x-admin-user header sent with an API key request. Reported by the caller, not verified."
+    adminUser: String
+    success: Boolean!
+    error: String
+}
+
+type AuditLogResult {
+    total: Int!
+    items: [AuditLogEntry!]!
+}
+
+input AuditLogFilter {
+    action: String
+    apiKeyId: ID
+    userId: ID
+}
+
 type AccessQueries {
     apiKeys: [ApiKey!]! @goField(forceResolver: true)
     roles: [Role!]! @goField(forceResolver: true)
+    "Newest first. first is capped at 200."
+    auditLog(first: Int = 50, offset: Int = 0, filter: AuditLogFilter): AuditLogResult! @goField(forceResolver: true)
+    "Distinct actions present in the audit log."
+    auditLogActions: [String!]! @goField(forceResolver: true)
 }
 
 type AccessMutations {
-    createApiKey(input: ApiKeyInput!): CreatedApiKey! @goField(forceResolver: true)
-    updateApiKey(id: ID!, input: ApiKeyInput!): ApiKey! @goField(forceResolver: true)
-    revokeApiKey(id: ID!): Boolean! @goField(forceResolver: true)
-    setRolePermissions(roleId: ID!, permissions: [PermissionInput!]!): Role! @goField(forceResolver: true)
+    createApiKey(input: ApiKeyInput!): CreatedApiKey! @goField(forceResolver: true) @audit
+    updateApiKey(id: ID!, input: ApiKeyInput!): ApiKey! @goField(forceResolver: true) @audit
+    revokeApiKey(id: ID!): Boolean! @goField(forceResolver: true) @audit
+    setRolePermissions(roleId: ID!, permissions: [PermissionInput!]!): Role! @goField(forceResolver: true) @audit
 }
 
 "Which list on the media item a group is added to."
@@ -322,9 +364,9 @@ type EpisodeAccessQueries {
 
 type EpisodeAccessMutations {
     "Adds groups to the episode's media item. Does nothing for groups already there."
-    grant(input: EpisodeAccessInput!): EpisodeAccessResult! @goField(forceResolver: true) @access(resource: episodeAccess, level: write)
+    grant(input: EpisodeAccessInput!): EpisodeAccessResult! @goField(forceResolver: true) @access(resource: episodeAccess, level: write) @audit
     "Removes groups from the episode's media item. Does nothing for groups not there."
-    revoke(input: EpisodeAccessInput!): EpisodeAccessResult! @goField(forceResolver: true) @access(resource: episodeAccess, level: write)
+    revoke(input: EpisodeAccessInput!): EpisodeAccessResult! @goField(forceResolver: true) @access(resource: episodeAccess, level: write) @audit
 }
 
 type QueryRoot {
