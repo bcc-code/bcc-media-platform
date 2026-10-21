@@ -21,6 +21,7 @@ interface Row {
   level: Level
   group: string
   types: SearchType[]
+  groups: string[]
 }
 
 function rowsFrom(permissions: PermissionInput[]) {
@@ -31,8 +32,9 @@ function rowsFrom(permissions: PermissionInput[]) {
         value,
         {
           level: p?.level ?? 'none',
-          group: p?.forcedFilter?.search?.group ?? '',
-          types: [...(p?.forcedFilter?.search?.types ?? [])]
+          group: p?.scope?.search?.group ?? '',
+          types: [...(p?.scope?.search?.types ?? [])],
+          groups: (p?.scope?.episodeAccess?.groups ?? []).map(String)
         }
       ]
     })
@@ -50,12 +52,15 @@ watch(
       const input: PermissionInput = { resource: value, level: row.level }
       const group = row.group.trim()
       if (value === 'search' && (group || row.types.length)) {
-        input.forcedFilter = {
+        input.scope = {
           search: {
             group: group || undefined,
             types: row.types.length ? row.types : undefined
           }
         }
+      }
+      if (value === 'episodeAccess' && row.groups.length) {
+        input.scope = { episodeAccess: { groups: row.groups } }
       }
       return [input]
     })
@@ -117,6 +122,24 @@ const typeChips = computed({
             :disabled="disabled"
           />
         </div>
+      </div>
+
+      <div
+        v-if="
+          resource.value === 'episodeAccess' &&
+          rows.episodeAccess.level !== 'none'
+        "
+        class="bg-surface-indent flex flex-col gap-4 rounded-xl p-4"
+      >
+        <p class="text-body-3 text-text-muted">
+          {{ t('access.permissions.episodeAccessHint') }}
+        </p>
+        <DesignTagsInput
+          v-model="rows.episodeAccess.groups"
+          :label="t('access.permissions.groupsLabel')"
+          :placeholder="t('access.permissions.groupsPlaceholder')"
+          :disabled="disabled"
+        />
       </div>
     </div>
   </div>

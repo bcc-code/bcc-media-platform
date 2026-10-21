@@ -21,6 +21,8 @@ useHead({ title: () => apiKey.value?.name ?? t('access.apiKeys.singular') })
 const status = computed(() => apiKey.value && apiKeyStatus(apiKey.value))
 
 const saving = ref(false)
+const dirty = ref(false)
+const { allowLeave } = useLeaveGuard(dirty)
 
 async function handleSubmit(input: ApiKeyInput) {
   saving.value = true
@@ -30,6 +32,7 @@ async function handleSubmit(input: ApiKeyInput) {
     toaster.value.error(formatGraphQLError(error))
     return
   }
+  allowLeave()
   toaster.value.success({
     title: t('access.apiKeys.toast.updatedTitle'),
     description: t('access.apiKeys.toast.updatedDescription')
@@ -43,6 +46,7 @@ async function handleRevoke() {
     toaster.value.error(formatGraphQLError(error))
     return
   }
+  allowLeave()
   toaster.value.success({
     title: t('access.apiKeys.toast.revokedTitle'),
     description: t('access.apiKeys.toast.revokedDescription')
@@ -73,6 +77,7 @@ async function handleRevoke() {
 
     <ApiKeyForm
       :key="apiKey.id"
+      v-model:dirty="dirty"
       :api-key="apiKey"
       :saving="saving"
       @submit="handleSubmit"

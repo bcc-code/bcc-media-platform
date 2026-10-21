@@ -14,7 +14,7 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-    "\n  fragment PermissionFields on Permission {\n    resource\n    level\n    forcedFilter {\n      search {\n        group\n        types\n      }\n    }\n  }\n": typeof types.PermissionFieldsFragmentDoc,
+    "\n  fragment PermissionFields on Permission {\n    resource\n    level\n    scope {\n      search {\n        group\n        types\n      }\n      episodeAccess {\n        groups\n      }\n    }\n  }\n": typeof types.PermissionFieldsFragmentDoc,
     "\n  fragment ApiKeyFields on ApiKey {\n    id\n    name\n    prefix\n    createdAt\n    expiresAt\n    revokedAt\n    permissions {\n      ...PermissionFields\n    }\n  }\n": typeof types.ApiKeyFieldsFragmentDoc,
     "\n  query GetApiKeys {\n    access {\n      apiKeys {\n        ...ApiKeyFields\n      }\n    }\n  }\n": typeof types.GetApiKeysDocument,
     "\n  query GetRoles {\n    access {\n      roles {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n": typeof types.GetRolesDocument,
@@ -25,7 +25,7 @@ type Documents = {
     "\n  query GetEpisodes($filter: String!) {\n    preview {\n      collection(filter: $filter) {\n        items {\n          id\n          title\n          collection\n        }\n      }\n    }\n  }\n": typeof types.GetEpisodesDocument,
 };
 const documents: Documents = {
-    "\n  fragment PermissionFields on Permission {\n    resource\n    level\n    forcedFilter {\n      search {\n        group\n        types\n      }\n    }\n  }\n": types.PermissionFieldsFragmentDoc,
+    "\n  fragment PermissionFields on Permission {\n    resource\n    level\n    scope {\n      search {\n        group\n        types\n      }\n      episodeAccess {\n        groups\n      }\n    }\n  }\n": types.PermissionFieldsFragmentDoc,
     "\n  fragment ApiKeyFields on ApiKey {\n    id\n    name\n    prefix\n    createdAt\n    expiresAt\n    revokedAt\n    permissions {\n      ...PermissionFields\n    }\n  }\n": types.ApiKeyFieldsFragmentDoc,
     "\n  query GetApiKeys {\n    access {\n      apiKeys {\n        ...ApiKeyFields\n      }\n    }\n  }\n": types.GetApiKeysDocument,
     "\n  query GetRoles {\n    access {\n      roles {\n        id\n        name\n        permissions {\n          ...PermissionFields\n        }\n      }\n    }\n  }\n": types.GetRolesDocument,
@@ -53,7 +53,7 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  fragment PermissionFields on Permission {\n    resource\n    level\n    forcedFilter {\n      search {\n        group\n        types\n      }\n    }\n  }\n"): (typeof documents)["\n  fragment PermissionFields on Permission {\n    resource\n    level\n    forcedFilter {\n      search {\n        group\n        types\n      }\n    }\n  }\n"];
+export function graphql(source: "\n  fragment PermissionFields on Permission {\n    resource\n    level\n    scope {\n      search {\n        group\n        types\n      }\n      episodeAccess {\n        groups\n      }\n    }\n  }\n"): (typeof documents)["\n  fragment PermissionFields on Permission {\n    resource\n    level\n    scope {\n      search {\n        group\n        types\n      }\n      episodeAccess {\n        groups\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

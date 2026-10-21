@@ -12,6 +12,7 @@ enum AdminResource {
     statistics
     episodes
     mediaItems
+    episodeAccess
 }
 
 enum AccessLevel {
@@ -114,11 +115,15 @@ type SearchHit {
     score: Float
     "Null if the item was deleted after it was indexed."
     item: SearchItem @goField(forceResolver: true)
+    "Absolute link to the item in the web app. Seasons link to their show. Null if the item was deleted after it was indexed."
+    url: String @goField(forceResolver: true)
+    "Absolute link to the embeddable player. Episodes only; null for seasons and shows."
+    embedUrl: String @goField(forceResolver: true)
 }
 
 type SearchResult {
     total: Int!
-    "The usergroup forced by the caller's grant, if any."
+    "The usergroup set by the caller's search scope, if any."
     group: String
     hits: [SearchHit!]!
 }
@@ -198,36 +203,47 @@ type Show {
     roles: Roles! @goField(forceResolver: true)
 }
 
-"Filters always applied to a grant, keyed by resource. Only the field matching the grant's resource may be set."
-input ForcedFilterInput {
-    search: ForcedSearchFilterInput
+"Limits on a grant, keyed by resource. Only the field matching the grant's resource may be set."
+input PermissionScopeInput {
+    search: SearchScopeInput
+    episodeAccess: EpisodeAccessScopeInput
 }
 
-input ForcedSearchFilterInput {
+input SearchScopeInput {
     "Search as a member of this usergroup: only published, currently available items it can access."
     group: String
     types: [SearchType!]
 }
 
-type ForcedSearchFilter {
+input EpisodeAccessScopeInput {
+    "Group codes the grant may grant or revoke. Null means any group; an empty list allows none."
+    groups: [ID!]
+}
+
+type SearchScope {
     group: String
     types: [SearchType!]
 }
 
-type ForcedFilter {
-    search: ForcedSearchFilter
+type EpisodeAccessScope {
+    groups: [ID!]
+}
+
+type PermissionScope {
+    search: SearchScope
+    episodeAccess: EpisodeAccessScope
 }
 
 input PermissionInput {
     resource: AdminResource!
     level: AccessLevel!
-    forcedFilter: ForcedFilterInput
+    scope: PermissionScopeInput
 }
 
 type Permission {
     resource: AdminResource!
     level: AccessLevel!
-    forcedFilter: ForcedFilter
+    scope: PermissionScope
 }
 
 type ApiKey {
@@ -273,6 +289,44 @@ type AccessMutations {
     setRolePermissions(roleId: ID!, permissions: [PermissionInput!]!): Role! @goField(forceResolver: true)
 }
 
+"Which list on the media item a group is added to."
+enum GroupList {
+    access
+    download
+    earlyAccess
+}
+
+type Group {
+    code: ID!
+    name: String!
+}
+
+input EpisodeAccessInput {
+    episodeId: ID!
+    groups: [ID!]!
+    "Every group is granted to (or revoked from) each of these lists."
+    lists: [GroupList!]!
+}
+
+type EpisodeAccessResult {
+    "Every episode that shares the media item. All of them are affected."
+    episodes: [Episode!]!
+    "The media item's groups after the change, for all three lists."
+    roles: Roles!
+}
+
+type EpisodeAccessQueries {
+    "Groups the caller may grant or revoke: the grant's allowlist, or every group if no allowlist is set."
+    groups: [Group!]! @goField(forceResolver: true)
+}
+
+type EpisodeAccessMutations {
+    "Adds groups to the episode's media item. Does nothing for groups already there."
+    grant(input: EpisodeAccessInput!): EpisodeAccessResult! @goField(forceResolver: true) @access(resource: episodeAccess, level: write)
+    "Removes groups from the episode's media item. Does nothing for groups not there."
+    revoke(input: EpisodeAccessInput!): EpisodeAccessResult! @goField(forceResolver: true) @access(resource: episodeAccess, level: write)
+}
+
 type QueryRoot {
     preview: Preview! @access(resource: preview, level: read)
     statistics: Statistics! @access(resource: statistics, level: read)
@@ -280,11 +334,13 @@ type QueryRoot {
     mediaItems: MediaItems! @access(resource: mediaItems, level: read)
     search: Search! @access(resource: search, level: read)
     access: AccessQueries! @superuser
+    episodeAccess: EpisodeAccessQueries! @access(resource: episodeAccess, level: read)
 }
 
 type MutationRoot {
     auth: Auth!
     access: AccessMutations! @superuser
+    episodeAccess: EpisodeAccessMutations! @access(resource: episodeAccess, level: read)
 }
 
 schema{

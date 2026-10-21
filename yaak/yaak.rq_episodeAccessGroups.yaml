@@ -1,0 +1,54 @@
+type: http_request
+model: http_request
+id: rq_episodeAccessGroups
+createdAt: 2026-10-20T00:00:00
+updatedAt: 2026-10-20T00:00:00
+workspaceId: wk_hGg2sqajat
+folderId: fl_adminApiKey
+authentication:
+  disabled: false
+  key: x-api-key
+  value: ${[ ADMIN_API_KEY ]}
+authenticationType: apikey
+body:
+  operationName: EpisodeAccessGroups
+  query: |-
+    query EpisodeAccessGroups {
+      episodeAccess {
+        groups {
+          code
+          name
+        }
+      }
+    }
+  variables: |-
+    {}
+bodyType: graphql
+description: |-
+  Groups the key in ADMIN_API_KEY may grant or revoke: its allowlist, or every group if it has none.
+  Needs an episodeAccess read grant.
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: h_ct_rq_episodeAccessGroups
+name: Episode access groups (API key)
+sortPriority: 3.0
+method: POST
+url: ${[ ADMIN_API_URL ]}/admin
+urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

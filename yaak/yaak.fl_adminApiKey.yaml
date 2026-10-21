@@ -1,0 +1,17 @@
+type: folder
+model: folder
+id: fl_adminApiKey
+createdAt: 2026-10-19T00:00:00
+updatedAt: 2026-10-19T00:00:00
+workspaceId: wk_hGg2sqajat
+folderId: null
+authentication: {}
+authenticationType: null
+description: |-
+  Admin search with an API key (x-api-key). Run "Create search API key" once
+  (uses the Admin login token, so log in as a superuser), copy `key` from the
+  response into the ADMIN_API_KEY environment variable, then run the searches.
+  Keys can also be made in admin-web under Tilgang → API-nøkler.
+headers: []
+name: Admin API key search
+sortPriority: 6000.0

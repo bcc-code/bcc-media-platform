@@ -1,0 +1,78 @@
+type: http_request
+model: http_request
+id: rq_createEpisodeAccessApiKey
+createdAt: 2026-10-20T00:00:00
+updatedAt: 2026-10-20T00:00:00
+workspaceId: wk_hGg2sqajat
+folderId: fl_adminApiKey
+authentication:
+  token: ${[ response.body.path(request='rq_directusLogin', path='$.data.auth.login.accessToken', behavior='smart') ]}
+authenticationType: bearer
+body:
+  operationName: CreateEpisodeAccessApiKey
+  query: |-
+    # Superuser only. The plaintext key is returned once; copy it into ADMIN_API_KEY.
+    mutation CreateEpisodeAccessApiKey($input: ApiKeyInput!) {
+      access {
+        createApiKey(input: $input) {
+          key
+          apiKey {
+            id
+            name
+            prefix
+            expiresAt
+            permissions {
+              resource
+              level
+              scope {
+                episodeAccess {
+                  groups
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  variables: |-
+    {
+      "input": {
+        "name": "Yaak episode access (local)",
+        "permissions": [
+          {
+            "resource": "episodeAccess",
+            "level": "write",
+            "scope": { "episodeAccess": { "groups": ["public", "kids-public"] } }
+          }
+        ]
+      }
+    }
+bodyType: graphql
+description: |-
+  Creates an API key that may grant and revoke episode access for the listed groups only.
+  Drop "scope" to allow every group.
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: h_ct_rq_createEpisodeAccessApiKey
+name: Create episode access API key
+sortPriority: 2.0
+method: POST
+url: ${[ ADMIN_API_URL ]}/admin
+urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

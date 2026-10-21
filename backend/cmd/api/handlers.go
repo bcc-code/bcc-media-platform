@@ -189,6 +189,7 @@ func adminGraphqlHandler(config envConfig, db *sql.DB, queries *sqlc.Queries, lo
 			RemoteCache:  remoteCache,
 		},
 		SearchService: searchService,
+		WebAppURL:     config.Admin.WebAppURL,
 	}
 
 	// NewExecutableSchema and Config are in the generated.go file

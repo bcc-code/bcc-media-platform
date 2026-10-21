@@ -5,7 +5,13 @@
     "done": "Ferdig",
     "retry": "Prøv igjen",
     "never": "Aldri",
-    "selectDate": "Velg dato"
+    "selectDate": "Velg dato",
+    "leaveGuard": {
+      "title": "Du har ulagrede endringer",
+      "description": "Endringene går tapt hvis du forlater siden. Vil du forlate den?",
+      "confirm": "Forlat siden",
+      "cancel": "Bli på siden"
+    }
   },
   "nav": {
     "home": "Hjem",
@@ -80,6 +86,10 @@
       "mediaItems": {
         "label": "Mediefiler",
         "description": "Import av tidsmetadata for mediefiler"
+      },
+      "episodeAccess": {
+        "label": "Episodetilgang",
+        "description": "Gi og fjern brukergruppers tilgang til episoder"
       }
     },
     "searchTypes": {
@@ -95,7 +105,10 @@
       "groupLabel": "Brukergruppe",
       "groupPlaceholder": "F.eks. bcc-members",
       "groupHelper": "Søk som et medlem av denne gruppen: kun publisert og tilgjengelig innhold.",
-      "typesLabel": "Typer"
+      "typesLabel": "Typer",
+      "episodeAccessHint": "Begrens hvilke brukergrupper som kan gis eller fjernes. La feltet stå tomt for å tillate alle.",
+      "groupsLabel": "Brukergrupper",
+      "groupsPlaceholder": "F.eks. public eller kids-public"
     },
     "apiKeys": {
       "title": "API-nøkler",

@@ -23,8 +23,8 @@ const apiKeyPrefix = "bccm_"
 
 type grant struct {
 	level model.AccessLevel
-	// forcedFilter is nil when the grant has none.
-	forcedFilter *model.ForcedFilterInput
+	// scope is nil when the grant has none.
+	scope *model.PermissionScopeInput
 }
 
 // Principal is who an admin request acts as, and what it may do.
@@ -36,9 +36,9 @@ type Principal struct {
 }
 
 type permissionRow struct {
-	resource     string
-	access       string
-	forcedFilter json.RawMessage
+	resource string
+	access   string
+	scope    json.RawMessage
 }
 
 func newPrincipal(rows []permissionRow) *Principal {
@@ -50,11 +50,11 @@ func newPrincipal(rows []permissionRow) *Principal {
 			continue
 		}
 		g := grant{level: level}
-		if !isEmptyFilter(r.forcedFilter) {
-			g.forcedFilter = &model.ForcedFilterInput{}
+		if !isEmptyScope(r.scope) {
+			g.scope = &model.PermissionScopeInput{}
 			// Drop rather than widen a grant whose restriction can't be read.
-			if err := json.Unmarshal(r.forcedFilter, g.forcedFilter); err != nil {
-				log.L.Warn().Err(err).Str("resource", r.resource).Msg("Ignoring admin permission with invalid forced filter")
+			if err := json.Unmarshal(r.scope, g.scope); err != nil {
+				log.L.Warn().Err(err).Str("resource", r.resource).Msg("Ignoring admin permission with invalid scope")
 				continue
 			}
 		}
@@ -74,15 +74,25 @@ func (p *Principal) allows(resource model.AdminResource, level model.AccessLevel
 	return ok && (level == model.AccessLevelRead || g.level == model.AccessLevelWrite)
 }
 
-// forcedFilter returns the filters this principal is pinned to for resource, or nil.
-func (p *Principal) forcedFilter(resource model.AdminResource) *model.ForcedFilterInput {
+// scope returns the limits this principal has on resource, or nil.
+func (p *Principal) scope(resource model.AdminResource) *model.PermissionScopeInput {
 	if p == nil || p.superuser {
 		return nil
 	}
-	return p.grants[resource].forcedFilter
+	return p.grants[resource].scope
 }
 
-func isEmptyFilter(raw json.RawMessage) bool {
+// allowedGroups returns the group codes the principal may grant or revoke; all is true when it is unrestricted.
+// A stored episodeAccess scope always restricts: omitempty drops an empty list, so missing groups mean none.
+func (p *Principal) allowedGroups() (codes []string, all bool) {
+	s := p.scope(model.AdminResourceEpisodeAccess)
+	if s == nil || s.EpisodeAccess == nil {
+		return nil, true
+	}
+	return s.EpisodeAccess.Groups, false
+}
+
+func isEmptyScope(raw json.RawMessage) bool {
 	trimmed := bytes.TrimSpace(raw)
 	return len(trimmed) == 0 || bytes.Equal(trimmed, []byte("{}")) || bytes.Equal(trimmed, []byte("null"))
 }
@@ -132,19 +142,27 @@ func permissionRowsFromInput(inputs []*model.PermissionInput) ([]permissionRow, 
 		}
 		seen[in.Resource] = true
 
-		forced := json.RawMessage("{}")
-		if in.ForcedFilter != nil {
-			if in.ForcedFilter.Search != nil && in.Resource != model.AdminResourceSearch {
-				return nil, fmt.Errorf("a search filter can only be forced on the search resource")
+		scope := json.RawMessage("{}")
+		if in.Scope != nil {
+			if in.Scope.Search != nil && in.Resource != model.AdminResourceSearch {
+				return nil, fmt.Errorf("a search scope can only be set on the search resource")
 			}
-			raw, err := json.Marshal(in.ForcedFilter)
+			if in.Scope.EpisodeAccess != nil && in.Resource != model.AdminResourceEpisodeAccess {
+				return nil, fmt.Errorf("an episodeAccess scope can only be set on the episodeAccess resource")
+			}
+			s := *in.Scope
+			// Null groups means any group, which is the same as no scope.
+			if s.EpisodeAccess != nil && s.EpisodeAccess.Groups == nil {
+				s.EpisodeAccess = nil
+			}
+			raw, err := json.Marshal(s)
 			if err != nil {
 				return nil, err
 			}
-			forced = raw
+			scope = raw
 		}
 
-		rows = append(rows, permissionRow{resource: string(in.Resource), access: string(in.Level), forcedFilter: forced})
+		rows = append(rows, permissionRow{resource: string(in.Resource), access: string(in.Level), scope: scope})
 	}
 	return rows, nil
 }
@@ -156,12 +174,15 @@ func permissionsToModel(rows []permissionRow) []*model.Permission {
 		if !p.Resource.IsValid() || !p.Level.IsValid() {
 			continue
 		}
-		if !isEmptyFilter(r.forcedFilter) {
-			f := &model.ForcedFilter{}
-			if err := json.Unmarshal(r.forcedFilter, f); err != nil {
-				log.L.Warn().Err(err).Str("resource", r.resource).Msg("Invalid forced filter")
+		if !isEmptyScope(r.scope) {
+			s := &model.PermissionScope{}
+			if err := json.Unmarshal(r.scope, s); err != nil {
+				log.L.Warn().Err(err).Str("resource", r.resource).Msg("Invalid permission scope")
 			} else {
-				p.ForcedFilter = f
+				if s.EpisodeAccess != nil && s.EpisodeAccess.Groups == nil {
+					s.EpisodeAccess.Groups = []string{}
+				}
+				p.Scope = s
 			}
 		}
 		out = append(out, p)

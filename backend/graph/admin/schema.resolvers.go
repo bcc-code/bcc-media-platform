@@ -275,6 +275,21 @@ func (r *episodeResolver) Roles(ctx context.Context, obj *model1.Episode) (*mode
 	return rolesFrom(p.Roles), nil
 }
 
+// Grant is the resolver for the grant field.
+func (r *episodeAccessMutationsResolver) Grant(ctx context.Context, obj *model.EpisodeAccessMutations, input model.EpisodeAccessInput) (*model.EpisodeAccessResult, error) {
+	return r.changeEpisodeAccess(ctx, input, true)
+}
+
+// Revoke is the resolver for the revoke field.
+func (r *episodeAccessMutationsResolver) Revoke(ctx context.Context, obj *model.EpisodeAccessMutations, input model.EpisodeAccessInput) (*model.EpisodeAccessResult, error) {
+	return r.changeEpisodeAccess(ctx, input, false)
+}
+
+// Groups is the resolver for the groups field.
+func (r *episodeAccessQueriesResolver) Groups(ctx context.Context, obj *model.EpisodeAccessQueries) ([]*model.Group, error) {
+	return r.assignableGroups(ctx)
+}
+
 // ImportTimedMetadata is the resolver for the importTimedMetadata field.
 func (r *episodesResolver) ImportTimedMetadata(ctx context.Context, obj *model.Episodes, episodeID string) (bool, error) {
 	intID, err := strconv.ParseInt(episodeID, 10, 64)
@@ -371,6 +386,11 @@ func (r *mutationRootResolver) Access(ctx context.Context) (*model.AccessMutatio
 	return &model.AccessMutations{}, nil
 }
 
+// EpisodeAccess is the resolver for the episodeAccess field.
+func (r *mutationRootResolver) EpisodeAccess(ctx context.Context) (*model.EpisodeAccessMutations, error) {
+	return &model.EpisodeAccessMutations{}, nil
+}
+
 // Collection is the resolver for the collection field.
 func (r *previewResolver) Collection(ctx context.Context, obj *model.Preview, filter string) (*model.PreviewCollection, error) {
 	var f common.Filter
@@ -450,6 +470,11 @@ func (r *queryRootResolver) Access(ctx context.Context) (*model.AccessQueries, e
 	return &model.AccessQueries{}, nil
 }
 
+// EpisodeAccess is the resolver for the episodeAccess field.
+func (r *queryRootResolver) EpisodeAccess(ctx context.Context) (*model.EpisodeAccessQueries, error) {
+	return &model.EpisodeAccessQueries{}, nil
+}
+
 // Permissions is the resolver for the permissions field.
 func (r *roleResolver) Permissions(ctx context.Context, obj *model.Role) ([]*model.Permission, error) {
 	return r.rolePermissions(ctx, obj.ID)
@@ -487,6 +512,16 @@ func (r *searchHitResolver) Item(ctx context.Context, obj *model.SearchHit) (mod
 		return model1.ShowFrom(ctx, s), nil
 	}
 	return nil, fmt.Errorf("unsupported search type: %s", obj.Type)
+}
+
+// URL is the resolver for the url field.
+func (r *searchHitResolver) URL(ctx context.Context, obj *model.SearchHit) (*string, error) {
+	return r.searchHitURL(ctx, obj)
+}
+
+// EmbedURL is the resolver for the embedUrl field.
+func (r *searchHitResolver) EmbedURL(ctx context.Context, obj *model.SearchHit) (*string, error) {
+	return r.searchHitEmbedURL(ctx, obj)
 }
 
 // Status is the resolver for the status field.
@@ -597,6 +632,16 @@ func (r *Resolver) Auth() generated.AuthResolver { return &authResolver{r} }
 // Episode returns generated.EpisodeResolver implementation.
 func (r *Resolver) Episode() generated.EpisodeResolver { return &episodeResolver{r} }
 
+// EpisodeAccessMutations returns generated.EpisodeAccessMutationsResolver implementation.
+func (r *Resolver) EpisodeAccessMutations() generated.EpisodeAccessMutationsResolver {
+	return &episodeAccessMutationsResolver{r}
+}
+
+// EpisodeAccessQueries returns generated.EpisodeAccessQueriesResolver implementation.
+func (r *Resolver) EpisodeAccessQueries() generated.EpisodeAccessQueriesResolver {
+	return &episodeAccessQueriesResolver{r}
+}
+
 // Episodes returns generated.EpisodesResolver implementation.
 func (r *Resolver) Episodes() generated.EpisodesResolver { return &episodesResolver{r} }
 
@@ -635,6 +680,8 @@ type accessQueriesResolver struct{ *Resolver }
 type apiKeyResolver struct{ *Resolver }
 type authResolver struct{ *Resolver }
 type episodeResolver struct{ *Resolver }
+type episodeAccessMutationsResolver struct{ *Resolver }
+type episodeAccessQueriesResolver struct{ *Resolver }
 type episodesResolver struct{ *Resolver }
 type mediaItemsResolver struct{ *Resolver }
 type mutationRootResolver struct{ *Resolver }

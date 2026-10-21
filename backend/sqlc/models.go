@@ -1989,7 +1989,7 @@ type UsersAdminPermission struct {
 	DirectusRoleID uuid.NullUUID   `db:"directus_role_id" json:"directusRoleId"`
 	Resource       string          `db:"resource" json:"resource"`
 	Access         string          `db:"access" json:"access"`
-	ForcedFilter   json.RawMessage `db:"forced_filter" json:"forcedFilter"`
+	Scope          json.RawMessage `db:"scope" json:"scope"`
 }
 
 type UsersAdminSession struct {

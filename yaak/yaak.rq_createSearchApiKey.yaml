@@ -1,0 +1,79 @@
+type: http_request
+model: http_request
+id: rq_createSearchApiKey
+createdAt: 2026-10-19T00:00:00
+updatedAt: 2026-10-19T00:00:00
+workspaceId: wk_hGg2sqajat
+folderId: fl_adminApiKey
+authentication:
+  token: ${[ response.body.path(request='rq_directusLogin', path='$.data.auth.login.accessToken', behavior='smart') ]}
+authenticationType: bearer
+body:
+  operationName: CreateSearchApiKey
+  query: |-
+    # Superuser only. The plaintext key is returned once; copy it into ADMIN_API_KEY.
+    mutation CreateSearchApiKey($input: ApiKeyInput!) {
+      access {
+        createApiKey(input: $input) {
+          key
+          apiKey {
+            id
+            name
+            prefix
+            expiresAt
+            permissions {
+              resource
+              level
+              scope {
+                search {
+                  group
+                  types
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  variables: |-
+    {
+      "input": {
+        "name": "Yaak search (local)",
+        "permissions": [
+          {
+            "resource": "search",
+            "level": "read"
+          }
+        ]
+      }
+    }
+bodyType: graphql
+description: |-
+  Creates an API key with search read access. To pin searches to a usergroup,
+  add "scope": { "search": { "group": "bcc-members", "types": ["episode"] } }
+  to the permission.
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: h_ct_createSearchApiKey
+method: POST
+name: Create search API key
+sortPriority: 0.0
+url: ${[ ADMIN_API_URL ]}/admin
+urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

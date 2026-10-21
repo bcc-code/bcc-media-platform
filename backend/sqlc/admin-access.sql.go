@@ -85,16 +85,16 @@ func (q *Queries) GetActiveApiKeyByHash(ctx context.Context, keyHash string) (Ge
 }
 
 const getAdminPermissionsForApiKeys = `-- name: GetAdminPermissionsForApiKeys :many
-SELECT api_key_id::uuid AS api_key_id, resource, access, forced_filter
+SELECT api_key_id::uuid AS api_key_id, resource, access, scope
 FROM users.admin_permissions
 WHERE api_key_id = ANY ($1::uuid[])
 `
 
 type GetAdminPermissionsForApiKeysRow struct {
-	ApiKeyID     uuid.UUID       `db:"api_key_id" json:"apiKeyId"`
-	Resource     string          `db:"resource" json:"resource"`
-	Access       string          `db:"access" json:"access"`
-	ForcedFilter json.RawMessage `db:"forced_filter" json:"forcedFilter"`
+	ApiKeyID uuid.UUID       `db:"api_key_id" json:"apiKeyId"`
+	Resource string          `db:"resource" json:"resource"`
+	Access   string          `db:"access" json:"access"`
+	Scope    json.RawMessage `db:"scope" json:"scope"`
 }
 
 func (q *Queries) GetAdminPermissionsForApiKeys(ctx context.Context, ids []uuid.UUID) ([]GetAdminPermissionsForApiKeysRow, error) {
@@ -110,7 +110,7 @@ func (q *Queries) GetAdminPermissionsForApiKeys(ctx context.Context, ids []uuid.
 			&i.ApiKeyID,
 			&i.Resource,
 			&i.Access,
-			&i.ForcedFilter,
+			&i.Scope,
 		); err != nil {
 			return nil, err
 		}
@@ -126,7 +126,7 @@ func (q *Queries) GetAdminPermissionsForApiKeys(ctx context.Context, ids []uuid.
 }
 
 const getAdminPermissionsForRoles = `-- name: GetAdminPermissionsForRoles :many
-SELECT directus_role_id::uuid AS directus_role_id, resource, access, forced_filter
+SELECT directus_role_id::uuid AS directus_role_id, resource, access, scope
 FROM users.admin_permissions
 WHERE directus_role_id = ANY ($1::uuid[])
 `
@@ -135,7 +135,7 @@ type GetAdminPermissionsForRolesRow struct {
 	DirectusRoleID uuid.UUID       `db:"directus_role_id" json:"directusRoleId"`
 	Resource       string          `db:"resource" json:"resource"`
 	Access         string          `db:"access" json:"access"`
-	ForcedFilter   json.RawMessage `db:"forced_filter" json:"forcedFilter"`
+	Scope          json.RawMessage `db:"scope" json:"scope"`
 }
 
 func (q *Queries) GetAdminPermissionsForRoles(ctx context.Context, ids []uuid.UUID) ([]GetAdminPermissionsForRolesRow, error) {
@@ -151,7 +151,7 @@ func (q *Queries) GetAdminPermissionsForRoles(ctx context.Context, ids []uuid.UU
 			&i.DirectusRoleID,
 			&i.Resource,
 			&i.Access,
-			&i.ForcedFilter,
+			&i.Scope,
 		); err != nil {
 			return nil, err
 		}
@@ -216,7 +216,7 @@ func (q *Queries) GetDirectusRole(ctx context.Context, id uuid.UUID) (GetDirectu
 }
 
 const insertAdminPermission = `-- name: InsertAdminPermission :exec
-INSERT INTO users.admin_permissions (api_key_id, directus_role_id, resource, access, forced_filter)
+INSERT INTO users.admin_permissions (api_key_id, directus_role_id, resource, access, scope)
 VALUES ($1, $2, $3, $4, $5)
 `
 
@@ -225,7 +225,7 @@ type InsertAdminPermissionParams struct {
 	DirectusRoleID uuid.NullUUID   `db:"directus_role_id" json:"directusRoleId"`
 	Resource       string          `db:"resource" json:"resource"`
 	Access         string          `db:"access" json:"access"`
-	ForcedFilter   json.RawMessage `db:"forced_filter" json:"forcedFilter"`
+	Scope          json.RawMessage `db:"scope" json:"scope"`
 }
 
 func (q *Queries) InsertAdminPermission(ctx context.Context, arg InsertAdminPermissionParams) error {
@@ -234,7 +234,7 @@ func (q *Queries) InsertAdminPermission(ctx context.Context, arg InsertAdminPerm
 		arg.DirectusRoleID,
 		arg.Resource,
 		arg.Access,
-		arg.ForcedFilter,
+		arg.Scope,
 	)
 	return err
 }

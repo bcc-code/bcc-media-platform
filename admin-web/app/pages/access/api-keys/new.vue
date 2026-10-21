@@ -15,6 +15,8 @@ const { copy, copied } = useClipboard({ legacy: true })
 const saving = ref(false)
 const createdKey = ref<string | null>(null)
 const dialogOpen = ref(false)
+const dirty = ref(false)
+const { allowLeave } = useLeaveGuard(dirty)
 
 async function handleSubmit(input: ApiKeyInput) {
   saving.value = true
@@ -24,6 +26,7 @@ async function handleSubmit(input: ApiKeyInput) {
     toaster.value.error(formatGraphQLError(error))
     return
   }
+  allowLeave()
   createdKey.value = key
   dialogOpen.value = true
 }
@@ -45,7 +48,7 @@ watch(dialogOpen, (open) => {
       </h1>
     </div>
 
-    <ApiKeyForm :saving="saving" @submit="handleSubmit" />
+    <ApiKeyForm v-model:dirty="dirty" :saving="saving" @submit="handleSubmit" />
 
     <DesignDialog
       v-model:open="dialogOpen"

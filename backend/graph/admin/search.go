@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ansel1/merry/v2"
@@ -39,7 +40,7 @@ func (r *Resolver) search(ctx context.Context, query string, filter *model.Searc
 	if filter != nil {
 		f.Types = lo.Map(filter.Types, func(t model.SearchType, _ int) string { return string(t) })
 	}
-	if !applyForcedSearchFilter(&f, principalFromCtx(ctx).forcedFilter(model.AdminResourceSearch)) {
+	if !applySearchScope(&f, principalFromCtx(ctx).scope(model.AdminResourceSearch)) {
 		return &model.SearchResult{Group: f.Group, Hits: []*model.SearchHit{}}, nil
 	}
 
@@ -89,16 +90,63 @@ func (r *Resolver) search(ctx context.Context, query string, filter *model.Searc
 	return out, nil
 }
 
-// applyForcedSearchFilter pins the group and narrows the types; it returns false if no requested type is allowed.
-func applyForcedSearchFilter(f *search.AdminFilter, forced *model.ForcedFilterInput) bool {
-	if forced == nil || forced.Search == nil {
+// searchHitURL links to the web app; seasons have no page there, so they link to their show.
+func (r *Resolver) searchHitURL(ctx context.Context, hit *model.SearchHit) (*string, error) {
+	id, err := strconv.Atoi(hit.ID)
+	if err != nil {
+		return nil, err
+	}
+	var path string
+	switch hit.Type {
+	case model.SearchTypeEpisode:
+		e, err := r.Loaders.EpisodeLoader.Get(ctx, id)
+		if err != nil || e == nil {
+			return nil, err
+		}
+		path = "/episode/" + e.UUID.String()
+	case model.SearchTypeSeason:
+		s, err := r.Loaders.SeasonLoader.Get(ctx, id)
+		if err != nil || s == nil {
+			return nil, err
+		}
+		path = "/show/" + strconv.Itoa(s.ShowID)
+	case model.SearchTypeShow:
+		path = "/show/" + hit.ID
+	default:
+		return nil, merry.Errorf("unsupported search type: %s", hit.Type)
+	}
+	return lo.ToPtr(webAppURL(r.WebAppURL, path)), nil
+}
+
+func (r *Resolver) searchHitEmbedURL(ctx context.Context, hit *model.SearchHit) (*string, error) {
+	if hit.Type != model.SearchTypeEpisode {
+		return nil, nil
+	}
+	id, err := strconv.Atoi(hit.ID)
+	if err != nil {
+		return nil, err
+	}
+	e, err := r.Loaders.EpisodeLoader.Get(ctx, id)
+	if err != nil || e == nil {
+		return nil, err
+	}
+	return lo.ToPtr(webAppURL(r.WebAppURL, "/embed/"+e.UUID.String())), nil
+}
+
+func webAppURL(base, path string) string {
+	return strings.TrimSuffix(base, "/") + path
+}
+
+// applySearchScope pins the group and narrows the types; it returns false if no requested type is allowed.
+func applySearchScope(f *search.AdminFilter, scope *model.PermissionScopeInput) bool {
+	if scope == nil || scope.Search == nil {
 		return true
 	}
-	if forced.Search.Group != nil {
-		f.Group = forced.Search.Group
+	if scope.Search.Group != nil {
+		f.Group = scope.Search.Group
 	}
-	if len(forced.Search.Types) > 0 {
-		allowed := lo.Map(forced.Search.Types, func(t model.SearchType, _ int) string { return string(t) })
+	if len(scope.Search.Types) > 0 {
+		allowed := lo.Map(scope.Search.Types, func(t model.SearchType, _ int) string { return string(t) })
 		if len(f.Types) > 0 {
 			allowed = lo.Intersect(allowed, f.Types)
 		}

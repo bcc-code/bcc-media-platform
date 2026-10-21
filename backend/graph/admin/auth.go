@@ -214,7 +214,7 @@ func rolePermissionRows(ctx context.Context, queries *sqlc.Queries, roleID uuid.
 	}
 	out := make([]permissionRow, 0, len(rows))
 	for _, r := range rows {
-		out = append(out, permissionRow{resource: r.Resource, access: r.Access, forcedFilter: r.ForcedFilter})
+		out = append(out, permissionRow{resource: r.Resource, access: r.Access, scope: r.Scope})
 	}
 	return out, nil
 }
@@ -226,7 +226,7 @@ func apiKeyPermissionRows(ctx context.Context, queries *sqlc.Queries, keyID uuid
 	}
 	out := make([]permissionRow, 0, len(rows))
 	for _, r := range rows {
-		out = append(out, permissionRow{resource: r.Resource, access: r.Access, forcedFilter: r.ForcedFilter})
+		out = append(out, permissionRow{resource: r.Resource, access: r.Access, scope: r.Scope})
 	}
 	return out, nil
 }

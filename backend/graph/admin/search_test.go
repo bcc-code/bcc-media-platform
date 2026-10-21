@@ -19,3 +19,8 @@ func TestStatusFrom(t *testing.T) {
 		assert.Equal(t, want, statusFrom(in), in)
 	}
 }
+
+func TestWebAppURL(t *testing.T) {
+	assert.Equal(t, "https://app.bcc.media/show/12", webAppURL("https://app.bcc.media", "/show/12"))
+	assert.Equal(t, "https://app.bcc.media/show/12", webAppURL("https://app.bcc.media/", "/show/12"))
+}

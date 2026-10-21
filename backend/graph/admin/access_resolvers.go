@@ -93,7 +93,7 @@ func (r *Resolver) replacePermissions(ctx context.Context, rows []permissionRow,
 			DirectusRoleID: owner.roleID,
 			Resource:       row.resource,
 			Access:         row.access,
-			ForcedFilter:   row.forcedFilter,
+			Scope:          row.scope,
 		})
 		if err != nil {
 			return err

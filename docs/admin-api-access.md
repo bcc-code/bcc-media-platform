@@ -20,7 +20,7 @@ flowchart TD
   RL{has role?}
   RP[GetAdminPermissionsForRoles]
   ANY{any rows?}
-  NP["newPrincipal: grants by resource,<br/>forced filters parsed once<br/>(unknown/unreadable rows dropped)"]
+  NP["newPrincipal: grants by resource,<br/>scopes parsed once<br/>(unknown/unreadable rows dropped)"]
   UN[UNAUTHENTICATED]
   SET[ginCtx ctxPrincipal]
   EXEC[execute]

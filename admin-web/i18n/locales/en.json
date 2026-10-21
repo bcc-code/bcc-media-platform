@@ -5,7 +5,13 @@
     "done": "Done",
     "retry": "Try again",
     "never": "Never",
-    "selectDate": "Select date"
+    "selectDate": "Select date",
+    "leaveGuard": {
+      "title": "You have unsaved changes",
+      "description": "Your changes will be lost if you leave this page. Do you want to leave?",
+      "confirm": "Leave page",
+      "cancel": "Stay on page"
+    }
   },
   "nav": {
     "home": "Home",
@@ -80,6 +86,10 @@
       "mediaItems": {
         "label": "Media files",
         "description": "Import of time metadata for media files"
+      },
+      "episodeAccess": {
+        "label": "Episode access",
+        "description": "Grant and revoke user groups' access to episodes"
       }
     },
     "searchTypes": {
@@ -95,7 +105,10 @@
       "groupLabel": "User group",
       "groupPlaceholder": "E.g. bcc-members",
       "groupHelper": "Search as a member of this group: published and available content only.",
-      "typesLabel": "Types"
+      "typesLabel": "Types",
+      "episodeAccessHint": "Limit which user groups can be granted or revoked. Leave the field empty to allow all.",
+      "groupsLabel": "User groups",
+      "groupsPlaceholder": "E.g. public or kids-public"
     },
     "apiKeys": {
       "title": "API keys",

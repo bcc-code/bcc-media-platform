@@ -15,13 +15,21 @@ const role = computed(() => roles.value.find((r) => r.id === route.params.id))
 useHead({ title: () => role.value?.name ?? t('access.roles.singular') })
 
 const permissions = ref<PermissionInput[]>([])
+const initialPermissions = ref<PermissionInput[]>([])
 const loaded = ref(false)
+
+const { allowLeave } = useLeaveGuard(
+  () =>
+    loaded.value &&
+    !samePermissions(permissions.value, initialPermissions.value)
+)
 
 watch(
   role,
   (value) => {
     if (!value || loaded.value) return
     permissions.value = toPermissionInputs(value.permissions)
+    initialPermissions.value = permissions.value
     loaded.value = true
   },
   { immediate: true }
@@ -37,6 +45,7 @@ async function handleSave() {
     toaster.value.error(formatGraphQLError(error))
     return
   }
+  allowLeave()
   toaster.value.success({
     title: t('access.roles.toast.updatedTitle'),
     description:
