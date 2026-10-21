@@ -1984,18 +1984,18 @@ type UsersAchievement struct {
 }
 
 type UsersAdminAuditLog struct {
-	ID              int64           `db:"id" json:"id"`
-	CreatedAt       time.Time       `db:"created_at" json:"createdAt"`
-	Action          string          `db:"action" json:"action"`
-	Arguments       json.RawMessage `db:"arguments" json:"arguments"`
-	AuthMethod      string          `db:"auth_method" json:"authMethod"`
-	UserID          uuid.NullUUID   `db:"user_id" json:"userId"`
-	UserEmail       null_v4.String  `db:"user_email" json:"userEmail"`
-	ApiKeyID        uuid.NullUUID   `db:"api_key_id" json:"apiKeyId"`
-	ApiKeyName      null_v4.String  `db:"api_key_name" json:"apiKeyName"`
-	AdminUserHeader null_v4.String  `db:"admin_user_header" json:"adminUserHeader"`
-	Success         bool            `db:"success" json:"success"`
-	Error           null_v4.String  `db:"error" json:"error"`
+	ID         int64           `db:"id" json:"id"`
+	CreatedAt  time.Time       `db:"created_at" json:"createdAt"`
+	Action     string          `db:"action" json:"action"`
+	Arguments  json.RawMessage `db:"arguments" json:"arguments"`
+	AuthMethod string          `db:"auth_method" json:"authMethod"`
+	UserID     uuid.NullUUID   `db:"user_id" json:"userId"`
+	UserEmail  null_v4.String  `db:"user_email" json:"userEmail"`
+	ApiKeyID   uuid.NullUUID   `db:"api_key_id" json:"apiKeyId"`
+	ApiKeyName null_v4.String  `db:"api_key_name" json:"apiKeyName"`
+	UserHeader null_v4.String  `db:"user_header" json:"userHeader"`
+	Success    bool            `db:"success" json:"success"`
+	Error      null_v4.String  `db:"error" json:"error"`
 }
 
 type UsersAdminPermission struct {

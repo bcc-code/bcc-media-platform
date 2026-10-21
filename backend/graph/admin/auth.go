@@ -367,7 +367,7 @@ func (a AuthExtension) authenticate(ctx context.Context, ginCtx *gin.Context) *P
 		p.authMethod = model.AuditAuthMethodAPIKey
 		p.apiKeyID = uuid.NullUUID{UUID: apiKey.ID, Valid: true}
 		p.apiKeyName = apiKey.Name
-		p.adminUser = truncate(strings.TrimSpace(ginCtx.GetHeader("x-admin-user")), maxAdminUserHeaderLen)
+		p.userHeader = truncate(strings.TrimSpace(ginCtx.GetHeader("x-user")), maxUserHeaderLen)
 		return p
 	}
 

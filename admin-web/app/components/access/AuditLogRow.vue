@@ -41,8 +41,8 @@ const actor = computed(() => {
       <p class="text-title-3 text-text-default">{{ actor }}</p>
       <p class="text-caption-1 text-text-muted mt-0.5">
         {{ t(`access.auditLog.authMethods.${entry.authMethod}`) }}
-        <template v-if="entry.adminUser">
-          · {{ t('access.auditLog.reportedUser', { user: entry.adminUser }) }}
+        <template v-if="entry.userHeader">
+          · {{ t('access.auditLog.reportedUser', { user: entry.userHeader }) }}
         </template>
       </p>
     </td>

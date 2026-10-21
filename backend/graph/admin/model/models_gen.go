@@ -68,10 +68,10 @@ type AuditLogEntry struct {
 	UserEmail  *string         `json:"userEmail,omitempty"`
 	APIKeyID   *string         `json:"apiKeyId,omitempty"`
 	APIKeyName *string         `json:"apiKeyName,omitempty"`
-	// The x-admin-user header sent with an API key request. Reported by the caller, not verified.
-	AdminUser *string `json:"adminUser,omitempty"`
-	Success   bool    `json:"success"`
-	Error     *string `json:"error,omitempty"`
+	// The x-user header sent with an API key request, required on audited calls. Reported by the caller, not verified.
+	UserHeader *string `json:"userHeader,omitempty"`
+	Success    bool    `json:"success"`
+	Error      *string `json:"error,omitempty"`
 }
 
 type AuditLogFilter struct {

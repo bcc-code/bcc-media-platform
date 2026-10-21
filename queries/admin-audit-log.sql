@@ -1,6 +1,6 @@
 -- name: InsertAdminAuditLog :exec
 INSERT INTO users.admin_audit_log (action, arguments, auth_method, user_id, user_email, api_key_id, api_key_name,
-                                   admin_user_header, success, error)
+                                   user_header, success, error)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
 
 -- name: ListAdminAuditLog :many
@@ -13,7 +13,7 @@ SELECT id,
        user_email,
        api_key_id,
        api_key_name,
-       admin_user_header,
+       user_header,
        success,
        error
 FROM users.admin_audit_log
