@@ -19,7 +19,7 @@ graphql(`
     userEmail
     apiKeyId
     apiKeyName
-    adminUser
+    userHeader
     success
     error
   }

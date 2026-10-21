@@ -6,7 +6,7 @@ directive @access(resource: AdminResource!, level: AccessLevel!) on FIELD_DEFINI
 
 directive @superuser on FIELD_DEFINITION
 
-"Records each call in the audit log. Every write field must declare it, listed after @access so denied calls are recorded too."
+"Records each call in the audit log. API key calls must name the acting user in the x-user header. Every write field must declare it, listed after @access so denied calls are recorded too."
 directive @audit on FIELD_DEFINITION
 
 enum AdminResource {
@@ -298,8 +298,8 @@ type AuditLogEntry {
     userEmail: String
     apiKeyId: ID
     apiKeyName: String
-    "The x-admin-user header sent with an API key request. Reported by the caller, not verified."
-    adminUser: String
+    "The x-user header sent with an API key request, required on audited calls. Reported by the caller, not verified."
+    userHeader: String
     success: Boolean!
     error: String
 }

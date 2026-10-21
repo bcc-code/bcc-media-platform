@@ -104,7 +104,6 @@ type ComplexityRoot struct {
 		APIKeyID   func(childComplexity int) int
 		APIKeyName func(childComplexity int) int
 		Action     func(childComplexity int) int
-		AdminUser  func(childComplexity int) int
 		Arguments  func(childComplexity int) int
 		AuthMethod func(childComplexity int) int
 		CreatedAt  func(childComplexity int) int
@@ -112,6 +111,7 @@ type ComplexityRoot struct {
 		ID         func(childComplexity int) int
 		Success    func(childComplexity int) int
 		UserEmail  func(childComplexity int) int
+		UserHeader func(childComplexity int) int
 		UserID     func(childComplexity int) int
 	}
 
@@ -620,13 +620,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.AuditLogEntry.Action(childComplexity), true
 
-	case "AuditLogEntry.adminUser":
-		if e.complexity.AuditLogEntry.AdminUser == nil {
-			break
-		}
-
-		return e.complexity.AuditLogEntry.AdminUser(childComplexity), true
-
 	case "AuditLogEntry.arguments":
 		if e.complexity.AuditLogEntry.Arguments == nil {
 			break
@@ -675,6 +668,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AuditLogEntry.UserEmail(childComplexity), true
+
+	case "AuditLogEntry.userHeader":
+		if e.complexity.AuditLogEntry.UserHeader == nil {
+			break
+		}
+
+		return e.complexity.AuditLogEntry.UserHeader(childComplexity), true
 
 	case "AuditLogEntry.userId":
 		if e.complexity.AuditLogEntry.UserID == nil {
@@ -1570,7 +1570,7 @@ directive @access(resource: AdminResource!, level: AccessLevel!) on FIELD_DEFINI
 
 directive @superuser on FIELD_DEFINITION
 
-"Records each call in the audit log. Every write field must declare it, listed after @access so denied calls are recorded too."
+"Records each call in the audit log. API key calls must name the acting user in the x-user header. Every write field must declare it, listed after @access so denied calls are recorded too."
 directive @audit on FIELD_DEFINITION
 
 enum AdminResource {
@@ -1862,8 +1862,8 @@ type AuditLogEntry {
     userEmail: String
     apiKeyId: ID
     apiKeyName: String
-    "The x-admin-user header sent with an API key request. Reported by the caller, not verified."
-    adminUser: String
+    "The x-user header sent with an API key request, required on audited calls. Reported by the caller, not verified."
+    userHeader: String
     success: Boolean!
     error: String
 }
@@ -4377,8 +4377,8 @@ func (ec *executionContext) fieldContext_AuditLogEntry_apiKeyName(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditLogEntry_adminUser(ctx context.Context, field graphql.CollectedField, obj *model.AuditLogEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditLogEntry_adminUser(ctx, field)
+func (ec *executionContext) _AuditLogEntry_userHeader(ctx context.Context, field graphql.CollectedField, obj *model.AuditLogEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditLogEntry_userHeader(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4391,7 +4391,7 @@ func (ec *executionContext) _AuditLogEntry_adminUser(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AdminUser, nil
+		return obj.UserHeader, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4405,7 +4405,7 @@ func (ec *executionContext) _AuditLogEntry_adminUser(ctx context.Context, field 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuditLogEntry_adminUser(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuditLogEntry_userHeader(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AuditLogEntry",
 		Field:      field,
@@ -4604,8 +4604,8 @@ func (ec *executionContext) fieldContext_AuditLogResult_items(_ context.Context,
 				return ec.fieldContext_AuditLogEntry_apiKeyId(ctx, field)
 			case "apiKeyName":
 				return ec.fieldContext_AuditLogEntry_apiKeyName(ctx, field)
-			case "adminUser":
-				return ec.fieldContext_AuditLogEntry_adminUser(ctx, field)
+			case "userHeader":
+				return ec.fieldContext_AuditLogEntry_userHeader(ctx, field)
 			case "success":
 				return ec.fieldContext_AuditLogEntry_success(ctx, field)
 			case "error":
@@ -12836,8 +12836,8 @@ func (ec *executionContext) _AuditLogEntry(ctx context.Context, sel ast.Selectio
 			out.Values[i] = ec._AuditLogEntry_apiKeyId(ctx, field, obj)
 		case "apiKeyName":
 			out.Values[i] = ec._AuditLogEntry_apiKeyName(ctx, field, obj)
-		case "adminUser":
-			out.Values[i] = ec._AuditLogEntry_adminUser(ctx, field, obj)
+		case "userHeader":
+			out.Values[i] = ec._AuditLogEntry_userHeader(ctx, field, obj)
 		case "success":
 			out.Values[i] = ec._AuditLogEntry_success(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

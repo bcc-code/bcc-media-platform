@@ -36,21 +36,21 @@ func (q *Queries) CountAdminAuditLog(ctx context.Context, arg CountAdminAuditLog
 
 const insertAdminAuditLog = `-- name: InsertAdminAuditLog :exec
 INSERT INTO users.admin_audit_log (action, arguments, auth_method, user_id, user_email, api_key_id, api_key_name,
-                                   admin_user_header, success, error)
+                                   user_header, success, error)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 `
 
 type InsertAdminAuditLogParams struct {
-	Action          string          `db:"action" json:"action"`
-	Arguments       json.RawMessage `db:"arguments" json:"arguments"`
-	AuthMethod      string          `db:"auth_method" json:"authMethod"`
-	UserID          uuid.NullUUID   `db:"user_id" json:"userId"`
-	UserEmail       null_v4.String  `db:"user_email" json:"userEmail"`
-	ApiKeyID        uuid.NullUUID   `db:"api_key_id" json:"apiKeyId"`
-	ApiKeyName      null_v4.String  `db:"api_key_name" json:"apiKeyName"`
-	AdminUserHeader null_v4.String  `db:"admin_user_header" json:"adminUserHeader"`
-	Success         bool            `db:"success" json:"success"`
-	Error           null_v4.String  `db:"error" json:"error"`
+	Action     string          `db:"action" json:"action"`
+	Arguments  json.RawMessage `db:"arguments" json:"arguments"`
+	AuthMethod string          `db:"auth_method" json:"authMethod"`
+	UserID     uuid.NullUUID   `db:"user_id" json:"userId"`
+	UserEmail  null_v4.String  `db:"user_email" json:"userEmail"`
+	ApiKeyID   uuid.NullUUID   `db:"api_key_id" json:"apiKeyId"`
+	ApiKeyName null_v4.String  `db:"api_key_name" json:"apiKeyName"`
+	UserHeader null_v4.String  `db:"user_header" json:"userHeader"`
+	Success    bool            `db:"success" json:"success"`
+	Error      null_v4.String  `db:"error" json:"error"`
 }
 
 func (q *Queries) InsertAdminAuditLog(ctx context.Context, arg InsertAdminAuditLogParams) error {
@@ -62,7 +62,7 @@ func (q *Queries) InsertAdminAuditLog(ctx context.Context, arg InsertAdminAuditL
 		arg.UserEmail,
 		arg.ApiKeyID,
 		arg.ApiKeyName,
-		arg.AdminUserHeader,
+		arg.UserHeader,
 		arg.Success,
 		arg.Error,
 	)
@@ -79,7 +79,7 @@ SELECT id,
        user_email,
        api_key_id,
        api_key_name,
-       admin_user_header,
+       user_header,
        success,
        error
 FROM users.admin_audit_log
@@ -123,7 +123,7 @@ func (q *Queries) ListAdminAuditLog(ctx context.Context, arg ListAdminAuditLogPa
 			&i.UserEmail,
 			&i.ApiKeyID,
 			&i.ApiKeyName,
-			&i.AdminUserHeader,
+			&i.UserHeader,
 			&i.Success,
 			&i.Error,
 		); err != nil {

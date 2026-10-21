@@ -15,13 +15,14 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 	"gopkg.in/guregu/null.v4"
 )
 
 const (
-	maxAdminUserHeaderLen = 256
-	maxAuditErrorLen      = 1000
-	maxAuditLogPageSize   = 200
+	maxUserHeaderLen    = 256
+	maxAuditErrorLen    = 1000
+	maxAuditLogPageSize = 200
 )
 
 func truncate(s string, n int) string {
@@ -32,12 +33,31 @@ func truncate(s string, n int) string {
 	return string(r[:n])
 }
 
-// AuditDirective implements @audit. A failed insert is logged but does not fail the call.
+func errUserHeaderRequired(ctx context.Context) *gqlerror.Error {
+	return &gqlerror.Error{
+		Path:    graphql.GetPath(ctx),
+		Message: "the x-user header is required for this call",
+		Extensions: map[string]interface{}{
+			"code": "USER_HEADER_REQUIRED",
+		},
+	}
+}
+
+// AuditDirective implements @audit. API key calls must name the user in x-user; rejected calls are still recorded.
+// A failed insert is logged but does not fail the call.
 func (r *Resolver) AuditDirective(ctx context.Context, _ any, next graphql.Resolver) (any, error) {
-	res, err := next(ctx)
+	p := principalFromCtx(ctx)
+
+	var res any
+	var err error
+	if p != nil && p.authMethod == model.AuditAuthMethodAPIKey && p.userHeader == "" {
+		err = errUserHeaderRequired(ctx)
+	} else {
+		res, err = next(ctx)
+	}
 
 	fc := graphql.GetFieldContext(ctx)
-	entry, buildErr := auditEntry(principalFromCtx(ctx), auditAction(fc), fc.Args, err)
+	entry, buildErr := auditEntry(p, auditAction(fc), fc.Args, err)
 	if buildErr != nil {
 		log.L.Error().Err(buildErr).Str("action", entry.Action).Msg("Admin audit entry could not be built")
 	}
@@ -73,7 +93,7 @@ func auditEntry(p *Principal, action string, args map[string]any, callErr error)
 		entry.UserEmail = null.NewString(p.email, p.email != "")
 		entry.ApiKeyID = p.apiKeyID
 		entry.ApiKeyName = null.NewString(p.apiKeyName, p.apiKeyName != "")
-		entry.AdminUserHeader = null.NewString(p.adminUser, p.adminUser != "")
+		entry.UserHeader = null.NewString(p.userHeader, p.userHeader != "")
 	}
 
 	var err error
@@ -95,7 +115,7 @@ func auditLogEntryToModel(e sqlc.UsersAdminAuditLog) *model.AuditLogEntry {
 		AuthMethod: model.AuditAuthMethod(e.AuthMethod),
 		UserEmail:  e.UserEmail.Ptr(),
 		APIKeyName: e.ApiKeyName.Ptr(),
-		AdminUser:  e.AdminUserHeader.Ptr(),
+		UserHeader: e.UserHeader.Ptr(),
 		Success:    e.Success,
 		Error:      e.Error.Ptr(),
 	}

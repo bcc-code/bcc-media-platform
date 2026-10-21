@@ -39,8 +39,8 @@ type Principal struct {
 	email      string
 	apiKeyID   uuid.NullUUID
 	apiKeyName string
-	// adminUser is the caller-reported x-admin-user header on API key requests.
-	adminUser string
+	// userHeader is the caller-reported x-user header on API key requests.
+	userHeader string
 }
 
 type permissionRow struct {

@@ -183,7 +183,7 @@
     },
     "auditLog": {
       "title": "Audit log",
-      "intro": "Every change made through the admin API, newest first. For API keys, the user reported in the x-admin-user header is shown but not verified.",
+      "intro": "Every change made through the admin API, newest first. For API keys, the user reported in the required x-user header is shown but not verified.",
       "empty": "No entries found.",
       "allActions": "All actions",
       "allApiKeys": "All API keys",

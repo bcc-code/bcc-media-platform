@@ -183,7 +183,7 @@
     },
     "auditLog": {
       "title": "Endringslogg",
-      "intro": "Alle endringer gjort via admin-API-et, nyeste først. For API-nøkler vises brukeren oppgitt i x-admin-user-headeren, men den er ikke verifisert.",
+      "intro": "Alle endringer gjort via admin-API-et, nyeste først. For API-nøkler vises brukeren oppgitt i den påkrevde x-user-headeren, men den er ikke verifisert.",
       "empty": "Ingen oppføringer funnet.",
       "allActions": "Alle handlinger",
       "allApiKeys": "Alle API-nøkler",
