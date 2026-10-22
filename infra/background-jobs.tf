@@ -2,6 +2,8 @@ locals {
   service_name                          = "background-worker-${var.env}"
   image_name                            = "eu.gcr.io/${google_project.brunstadtv.project_id}/background-worker/background-jobs"
   cf_signing_key_path_background_worker = "/secrets/aws_key.pem"
+  # Must match SERVICE_URL, which the worker validates invoker tokens against
+  background_worker_audience = try(var.background_worker_env["SERVICE_URL"], google_cloud_run_service.background_worker.status[0].url)
 }
 
 data "google_iam_policy" "bgjobs-actas" {
@@ -23,6 +25,38 @@ resource "google_service_account" "background_worker" {
 resource "google_service_account_iam_policy" "background-worker-iam" {
   service_account_id = google_service_account.background_worker.name
   policy_data        = data.google_iam_policy.bgjobs-actas.policy_data
+}
+
+# Identity Pub/Sub push and Cloud Tasks use to call the worker
+resource "google_service_account" "worker_invoker" {
+  project      = google_project.brunstadtv.project_id
+  account_id   = "worker-invoker"
+  display_name = "Invokes the background worker (Pub/Sub push, Cloud Tasks)"
+}
+
+resource "google_project_service_identity" "pubsub_sa" {
+  provider = google-beta
+  project  = google_project.brunstadtv.project_id
+  service  = "pubsub.googleapis.com"
+}
+
+data "google_iam_policy" "worker_invoker" {
+  # Pub/Sub mints push tokens for the invoker
+  binding {
+    role    = "roles/iam.serviceAccountTokenCreator"
+    members = ["serviceAccount:${google_project_service_identity.pubsub_sa.email}"]
+  }
+
+  # The worker creates Cloud Tasks that run as the invoker
+  binding {
+    role    = "roles/iam.serviceAccountUser"
+    members = ["serviceAccount:${google_service_account.background_worker.email}"]
+  }
+}
+
+resource "google_service_account_iam_policy" "worker_invoker" {
+  service_account_id = google_service_account.worker_invoker.name
+  policy_data        = data.google_iam_policy.worker_invoker.policy_data
 }
 
 resource "google_project_iam_member" "cloudbuild_iam_gcradmin" {
@@ -101,6 +135,11 @@ resource "google_cloud_run_service" "background_worker" {
         env {
           name  = "VIDEOMANIPULATOR_API_KEY"
           value = module.videomanipulator.api_key
+        }
+
+        env {
+          name  = "INVOKER_SERVICE_ACCOUNT"
+          value = google_service_account.worker_invoker.email
         }
 
         env {
@@ -312,6 +351,25 @@ resource "google_pubsub_subscription" "push_background_worker" {
 
   push_config {
     push_endpoint = "${google_cloud_run_service.background_worker.status[0].url}/api/message"
+
+    oidc_token {
+      service_account_email = google_service_account.worker_invoker.email
+      audience              = local.background_worker_audience
+    }
+  }
+
+  depends_on = [google_service_account_iam_policy.worker_invoker]
+}
+
+data "google_iam_policy" "background_worker_invoker" {
+  binding {
+    role = "roles/run.invoker"
+    members = [
+      # SNS and Phrase webhooks cannot send Google tokens; the worker verifies
+      # /api/message and /api/tasks itself
+      "allUsers",
+      "serviceAccount:${google_service_account.worker_invoker.email}",
+    ]
   }
 }
 
@@ -319,5 +377,5 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
   project     = google_project.brunstadtv.project_id
   service     = google_cloud_run_service.background_worker.name
   location    = google_cloud_run_service.background_worker.location
-  policy_data = data.google_iam_policy.noauth.policy_data
+  policy_data = data.google_iam_policy.background_worker_invoker.policy_data
 }

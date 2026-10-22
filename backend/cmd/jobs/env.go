@@ -80,14 +80,16 @@ type envConfig struct {
 	Tracing           utils.TracingConfig
 	CloudTasks        cloudTasks
 	ServiceUrl        string
-	Redis             utils.RedisConfig
-	Auth0             auth0.Config
-	Members           members.Config
-	BigQuery          statistics.BigQueryConfig
-	VideoManipulator  videomanipulatorConfig
-	Phrase            phrase.Config
-	CDNConfig         cdnConfig
-	StreamProxy       streamProxyConfig
+	// Pub/Sub push and Cloud Tasks sign as this account; empty disables the check.
+	InvokerServiceAccount string
+	Redis                 utils.RedisConfig
+	Auth0                 auth0.Config
+	Members               members.Config
+	BigQuery              statistics.BigQueryConfig
+	VideoManipulator      videomanipulatorConfig
+	Phrase                phrase.Config
+	CDNConfig             cdnConfig
+	StreamProxy           streamProxyConfig
 }
 
 func getEnvConfig() envConfig {
@@ -151,7 +153,8 @@ func getEnvConfig() envConfig {
 			Password: os.Getenv("REDIS_PASSWORD"),
 			Database: utils.AsInt(os.Getenv("REDIS_DATABASE")),
 		},
-		ServiceUrl: os.Getenv("SERVICE_URL"),
+		ServiceUrl:            os.Getenv("SERVICE_URL"),
+		InvokerServiceAccount: os.Getenv("INVOKER_SERVICE_ACCOUNT"),
 		Auth0: auth0.Config{
 			ClientID:     os.Getenv("AUTH0_CLIENT_ID"),
 			ClientSecret: os.Getenv("AUTH0_CLIENT_SECRET"),
