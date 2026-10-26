@@ -378,26 +378,28 @@ type DirectusActivity struct {
 }
 
 type DirectusCollection struct {
-	Collection            string                `db:"collection" json:"collection"`
-	Icon                  null_v4.String        `db:"icon" json:"icon"`
-	Note                  null_v4.String        `db:"note" json:"note"`
-	DisplayTemplate       null_v4.String        `db:"display_template" json:"displayTemplate"`
-	Hidden                bool                  `db:"hidden" json:"hidden"`
-	Singleton             bool                  `db:"singleton" json:"singleton"`
-	Translations          pqtype.NullRawMessage `db:"translations" json:"translations"`
-	ArchiveField          null_v4.String        `db:"archive_field" json:"archiveField"`
-	ArchiveAppFilter      bool                  `db:"archive_app_filter" json:"archiveAppFilter"`
-	ArchiveValue          null_v4.String        `db:"archive_value" json:"archiveValue"`
-	UnarchiveValue        null_v4.String        `db:"unarchive_value" json:"unarchiveValue"`
-	SortField             null_v4.String        `db:"sort_field" json:"sortField"`
-	Accountability        null_v4.String        `db:"accountability" json:"accountability"`
-	Color                 null_v4.String        `db:"color" json:"color"`
-	ItemDuplicationFields pqtype.NullRawMessage `db:"item_duplication_fields" json:"itemDuplicationFields"`
-	Sort                  null_v4.Int           `db:"sort" json:"sort"`
-	Group                 null_v4.String        `db:"group" json:"group"`
-	Collapse              string                `db:"collapse" json:"collapse"`
-	PreviewUrl            null_v4.String        `db:"preview_url" json:"previewUrl"`
-	Versioning            bool                  `db:"versioning" json:"versioning"`
+	Collection               string                `db:"collection" json:"collection"`
+	Icon                     null_v4.String        `db:"icon" json:"icon"`
+	Note                     null_v4.String        `db:"note" json:"note"`
+	DisplayTemplate          null_v4.String        `db:"display_template" json:"displayTemplate"`
+	Hidden                   bool                  `db:"hidden" json:"hidden"`
+	Singleton                bool                  `db:"singleton" json:"singleton"`
+	Translations             pqtype.NullRawMessage `db:"translations" json:"translations"`
+	ArchiveField             null_v4.String        `db:"archive_field" json:"archiveField"`
+	ArchiveAppFilter         bool                  `db:"archive_app_filter" json:"archiveAppFilter"`
+	ArchiveValue             null_v4.String        `db:"archive_value" json:"archiveValue"`
+	UnarchiveValue           null_v4.String        `db:"unarchive_value" json:"unarchiveValue"`
+	SortField                null_v4.String        `db:"sort_field" json:"sortField"`
+	Accountability           null_v4.String        `db:"accountability" json:"accountability"`
+	Color                    null_v4.String        `db:"color" json:"color"`
+	ItemDuplicationFields    pqtype.NullRawMessage `db:"item_duplication_fields" json:"itemDuplicationFields"`
+	Sort                     null_v4.Int           `db:"sort" json:"sort"`
+	Group                    null_v4.String        `db:"group" json:"group"`
+	Collapse                 string                `db:"collapse" json:"collapse"`
+	PreviewUrl               null_v4.String        `db:"preview_url" json:"previewUrl"`
+	Versioning               bool                  `db:"versioning" json:"versioning"`
+	Status                   string                `db:"status" json:"status"`
+	AutosaveRevisionInterval sql.NullFloat64       `db:"autosave_revision_interval" json:"autosaveRevisionInterval"`
 }
 
 type DirectusComment struct {
@@ -531,12 +533,14 @@ type DirectusFlow struct {
 	Operation      uuid.NullUUID         `db:"operation" json:"operation"`
 	DateCreated    null_v4.Time          `db:"date_created" json:"dateCreated"`
 	UserCreated    uuid.NullUUID         `db:"user_created" json:"userCreated"`
+	Folder         uuid.NullUUID         `db:"folder" json:"folder"`
 }
 
 type DirectusFolder struct {
 	ID     uuid.UUID     `db:"id" json:"id"`
 	Name   string        `db:"name" json:"name"`
 	Parent uuid.NullUUID `db:"parent" json:"parent"`
+	Type   string        `db:"type" json:"type"`
 }
 
 type DirectusMigration struct {
@@ -555,6 +559,61 @@ type DirectusNotification struct {
 	Message    null_v4.String `db:"message" json:"message"`
 	Collection null_v4.String `db:"collection" json:"collection"`
 	Item       null_v4.String `db:"item" json:"item"`
+}
+
+type DirectusOauthClient struct {
+	ClientID                string          `db:"client_id" json:"clientId"`
+	ClientName              string          `db:"client_name" json:"clientName"`
+	RedirectUris            json.RawMessage `db:"redirect_uris" json:"redirectUris"`
+	GrantTypes              json.RawMessage `db:"grant_types" json:"grantTypes"`
+	TokenEndpointAuthMethod string          `db:"token_endpoint_auth_method" json:"tokenEndpointAuthMethod"`
+	ClientSecretHash        null_v4.String  `db:"client_secret_hash" json:"clientSecretHash"`
+	RegistrationType        string          `db:"registration_type" json:"registrationType"`
+	ClientUri               null_v4.String  `db:"client_uri" json:"clientUri"`
+	LogoUri                 null_v4.String  `db:"logo_uri" json:"logoUri"`
+	TosUri                  null_v4.String  `db:"tos_uri" json:"tosUri"`
+	PolicyUri               null_v4.String  `db:"policy_uri" json:"policyUri"`
+	MetadataFetchedAt       null_v4.Time    `db:"metadata_fetched_at" json:"metadataFetchedAt"`
+	MetadataExpiresAt       null_v4.Time    `db:"metadata_expires_at" json:"metadataExpiresAt"`
+	MetadataEtag            null_v4.String  `db:"metadata_etag" json:"metadataEtag"`
+	DateCreated             time.Time       `db:"date_created" json:"dateCreated"`
+}
+
+type DirectusOauthCode struct {
+	ID                  uuid.UUID      `db:"id" json:"id"`
+	CodeHash            string         `db:"code_hash" json:"codeHash"`
+	Client              string         `db:"client" json:"client"`
+	User                uuid.UUID      `db:"user" json:"user"`
+	RedirectUri         string         `db:"redirect_uri" json:"redirectUri"`
+	Resource            string         `db:"resource" json:"resource"`
+	CodeChallenge       string         `db:"code_challenge" json:"codeChallenge"`
+	CodeChallengeMethod string         `db:"code_challenge_method" json:"codeChallengeMethod"`
+	Scope               null_v4.String `db:"scope" json:"scope"`
+	ExpiresAt           time.Time      `db:"expires_at" json:"expiresAt"`
+	UsedAt              null_v4.Time   `db:"used_at" json:"usedAt"`
+}
+
+type DirectusOauthConsent struct {
+	ID          uuid.UUID      `db:"id" json:"id"`
+	User        uuid.UUID      `db:"user" json:"user"`
+	Client      string         `db:"client" json:"client"`
+	RedirectUri string         `db:"redirect_uri" json:"redirectUri"`
+	Scope       null_v4.String `db:"scope" json:"scope"`
+	DateCreated time.Time      `db:"date_created" json:"dateCreated"`
+	DateUpdated time.Time      `db:"date_updated" json:"dateUpdated"`
+}
+
+type DirectusOauthToken struct {
+	ID              uuid.UUID      `db:"id" json:"id"`
+	Client          string         `db:"client" json:"client"`
+	User            uuid.UUID      `db:"user" json:"user"`
+	Session         string         `db:"session" json:"session"`
+	PreviousSession null_v4.String `db:"previous_session" json:"previousSession"`
+	Resource        string         `db:"resource" json:"resource"`
+	CodeHash        string         `db:"code_hash" json:"codeHash"`
+	Scope           null_v4.String `db:"scope" json:"scope"`
+	ExpiresAt       time.Time      `db:"expires_at" json:"expiresAt"`
+	DateCreated     time.Time      `db:"date_created" json:"dateCreated"`
 }
 
 type DirectusOperation struct {
@@ -661,14 +720,15 @@ type DirectusRole struct {
 }
 
 type DirectusSession struct {
-	Token     string         `db:"token" json:"token"`
-	User      uuid.NullUUID  `db:"user" json:"user"`
-	Expires   time.Time      `db:"expires" json:"expires"`
-	Ip        null_v4.String `db:"ip" json:"ip"`
-	UserAgent null_v4.String `db:"user_agent" json:"userAgent"`
-	Share     uuid.NullUUID  `db:"share" json:"share"`
-	Origin    null_v4.String `db:"origin" json:"origin"`
-	NextToken null_v4.String `db:"next_token" json:"nextToken"`
+	Token       string         `db:"token" json:"token"`
+	User        uuid.NullUUID  `db:"user" json:"user"`
+	Expires     time.Time      `db:"expires" json:"expires"`
+	Ip          null_v4.String `db:"ip" json:"ip"`
+	UserAgent   null_v4.String `db:"user_agent" json:"userAgent"`
+	Share       uuid.NullUUID  `db:"share" json:"share"`
+	Origin      null_v4.String `db:"origin" json:"origin"`
+	NextToken   null_v4.String `db:"next_token" json:"nextToken"`
+	OauthClient null_v4.String `db:"oauth_client" json:"oauthClient"`
 }
 
 type DirectusSetting struct {
@@ -730,6 +790,16 @@ type DirectusSetting struct {
 	AiAnthropicAllowedModels      pqtype.NullRawMessage `db:"ai_anthropic_allowed_models" json:"aiAnthropicAllowedModels"`
 	AiGoogleAllowedModels         pqtype.NullRawMessage `db:"ai_google_allowed_models" json:"aiGoogleAllowedModels"`
 	CollaborativeEditingEnabled   bool                  `db:"collaborative_editing_enabled" json:"collaborativeEditingEnabled"`
+	AiTranslationDefaultModel     null_v4.String        `db:"ai_translation_default_model" json:"aiTranslationDefaultModel"`
+	AiTranslationGlossary         pqtype.NullRawMessage `db:"ai_translation_glossary" json:"aiTranslationGlossary"`
+	AiTranslationStyleGuide       null_v4.String        `db:"ai_translation_style_guide" json:"aiTranslationStyleGuide"`
+	LicenseKey                    null_v4.String        `db:"license_key" json:"licenseKey"`
+	LicenseToken                  null_v4.String        `db:"license_token" json:"licenseToken"`
+	McpOauthEnabled               bool                  `db:"mcp_oauth_enabled" json:"mcpOauthEnabled"`
+	McpOauthDcrEnabled            bool                  `db:"mcp_oauth_dcr_enabled" json:"mcpOauthDcrEnabled"`
+	McpOauthCimdEnabled           bool                  `db:"mcp_oauth_cimd_enabled" json:"mcpOauthCimdEnabled"`
+	DefaultSaveAction             string                `db:"default_save_action" json:"defaultSaveAction"`
+	PreviewBaseUrl                null_v4.String        `db:"preview_base_url" json:"previewBaseUrl"`
 }
 
 type DirectusShare struct {
@@ -789,7 +859,7 @@ type DirectusVersion struct {
 	Key         string                `db:"key" json:"key"`
 	Name        null_v4.String        `db:"name" json:"name"`
 	Collection  string                `db:"collection" json:"collection"`
-	Item        string                `db:"item" json:"item"`
+	Item        null_v4.String        `db:"item" json:"item"`
 	Hash        null_v4.String        `db:"hash" json:"hash"`
 	DateCreated null_v4.Time          `db:"date_created" json:"dateCreated"`
 	DateUpdated null_v4.Time          `db:"date_updated" json:"dateUpdated"`
