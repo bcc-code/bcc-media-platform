@@ -1,9 +1,4 @@
 -- +goose Up
-/**********************************************************/
-/*** SCRIPT AUTHOR: Matjaz Debelak (matjaz@debelak.org) ***/
-/***    CREATED ON: 2026-10-26T07:26:31.978Z            ***/
-/**********************************************************/
-
 ALTER TABLE IF EXISTS "public"."directus_collections" ADD COLUMN IF NOT EXISTS "status" varchar(255) NOT NULL DEFAULT 'active'::character varying ;
 
 ALTER TABLE IF EXISTS "public"."directus_collections" ADD COLUMN IF NOT EXISTS "autosave_revision_interval" float4 NULL  ;
@@ -169,11 +164,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE "public"."directus_oauth_tokens" T
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE "public"."directus_oauth_consents" TO directus;
 
 -- +goose Down
-/**********************************************************/
-/*** SCRIPT AUTHOR: Matjaz Debelak (matjaz@debelak.org) ***/
-/***    CREATED ON: 2026-10-26T07:26:35.334Z            ***/
-/**********************************************************/
-
 ALTER TABLE IF EXISTS "public"."directus_collections" DROP COLUMN IF EXISTS "status" CASCADE; --WARN: Drop column can occure in data loss!
 
 ALTER TABLE IF EXISTS "public"."directus_collections" DROP COLUMN IF EXISTS "autosave_revision_interval" CASCADE; --WARN: Drop column can occure in data loss!
