@@ -26,7 +26,7 @@ You can start a local instance (after completing the above section) using `make 
 
 The initial login credentials are:
 
-Username: admin@brunstad.tv
+Username: admin@bcc.media
 Pass: btv123
 
 ## Development

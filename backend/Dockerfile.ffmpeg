@@ -1,5 +1,4 @@
-FROM alpine:latest
+FROM alpine:3.24
 COPY bin /app
-RUN apk update
 RUN apk add --no-cache ffmpeg
 CMD ["/app"]

@@ -13,9 +13,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@directus/extensions-sdk": "^17.1.4",
-    "@unhead/vue": "1.11.20",
-    "directus": "^11.17.4",
+    "@directus/extensions-sdk": "^18.0.6",
+    "@unhead/vue": "3.4.1",
+    "directus": "^12.5.1",
     "knex": "^3.1.0",
     "pg": "^8.16.3",
     "pinia": "2.3.1"
