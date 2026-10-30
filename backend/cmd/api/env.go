@@ -107,6 +107,7 @@ type envConfig struct {
 	BMM           bmm.Config
 	PubSub        pubsub.Config
 	Admin         adminConfig
+	LiveAppURL string
 }
 
 // adminConfig configures the admin API's own auth: /auth/* endpoints proxy
@@ -295,6 +296,7 @@ func getEnvConfig() envConfig {
 			SecureCookie: os.Getenv("ADMIN_COOKIE_SECURE") != "false",
 			WebAppURL:    lo.Ternary(os.Getenv("WEB_APP_URL") != "", os.Getenv("WEB_APP_URL"), "https://app.bcc.media"),
 		},
+		LiveAppURL: lo.Ternary(os.Getenv("LIVE_APP_URL") != "", os.Getenv("LIVE_APP_URL"), "https://live.bcc-connect.org"),
 		Redis: utils.RedisConfig{
 			Address:  os.Getenv("REDIS_ADDRESS"),
 			Username: os.Getenv("REDIS_USERNAME"),
