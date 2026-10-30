@@ -986,6 +986,12 @@ type Live struct {
 	ExpiresAt *string `json:"expiresAt,omitempty"`
 }
 
+type LiveBanner struct {
+	State LiveBannerState `json:"state"`
+	Entry CalendarEntry   `json:"entry"`
+	URL   string          `json:"url"`
+}
+
 type Message struct {
 	Title   string              `json:"title"`
 	Content string              `json:"content"`
@@ -2398,6 +2404,61 @@ func (e *LinkType) UnmarshalJSON(b []byte) error {
 }
 
 func (e LinkType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type LiveBannerState string
+
+const (
+	LiveBannerStateLive   LiveBannerState = "live"
+	LiveBannerStateReplay LiveBannerState = "replay"
+)
+
+var AllLiveBannerState = []LiveBannerState{
+	LiveBannerStateLive,
+	LiveBannerStateReplay,
+}
+
+func (e LiveBannerState) IsValid() bool {
+	switch e {
+	case LiveBannerStateLive, LiveBannerStateReplay:
+		return true
+	}
+	return false
+}
+
+func (e LiveBannerState) String() string {
+	return string(e)
+}
+
+func (e *LiveBannerState) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = LiveBannerState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid LiveBannerState", str)
+	}
+	return nil
+}
+
+func (e LiveBannerState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *LiveBannerState) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e LiveBannerState) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

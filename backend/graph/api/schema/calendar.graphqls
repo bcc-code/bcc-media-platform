@@ -96,3 +96,16 @@ type Calendar {
         day: Date!
     ): CalendarDay! @goField(forceResolver: true)
 }
+
+enum LiveBannerState {
+    live
+    replay
+}
+
+# Points members to the Live app while a broadcast is on air, or while its
+# recording is still available there afterwards (the entry's buffer window).
+type LiveBanner {
+    state: LiveBannerState!
+    entry: CalendarEntry!
+    url: String!
+}
