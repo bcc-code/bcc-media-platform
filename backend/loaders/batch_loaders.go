@@ -45,8 +45,9 @@ type BatchLoaders struct {
 	AssetFilesLoader   *Loader[int, []*common.File]
 	AssetStreamsLoader *Loader[int, []*common.Stream]
 
-	EventLoader        *Loader[int, *common.Event]
-	EventEntriesLoader *Loader[int, []*common.Mapping[int, int]]
+	EventLoader                  *Loader[int, *common.Event]
+	EventEntriesLoader           *Loader[int, []*common.Mapping[int, int]]
+	EpisodeCalendarEntriesLoader *Loader[int, []*common.Mapping[int, int]]
 
 	FAQCategoryLoader    *Loader[uuid.UUID, *common.FAQCategory]
 	QuestionLoader       *Loader[uuid.UUID, *common.Question]
@@ -133,6 +134,7 @@ func InitBatchLoaders(queries *sqlc.Queries, membersClient *members.Client) *Bat
 		LinkLoader:                         New(ctx, queries.GetLinks),
 		EventLoader:                        New(ctx, queries.GetEvents),
 		EventEntriesLoader:                 NewListLoader(ctx, queries.GetEntryIDsForEventIDs, WithName("event-entries")),
+		EpisodeCalendarEntriesLoader:       NewListLoader(ctx, queries.GetEntryIDsForEpisodeIDs, WithName("episode-calendar-entries")),
 		PlaylistLoader: New(ctx, queries.GetPlaylists, WithName("playlist-loader"), WithKeyFunc(func(i common.Playlist) uuid.UUID {
 			return i.ID
 		})),

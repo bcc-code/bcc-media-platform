@@ -182,6 +182,10 @@ type QueryRoot {
     # Live state plus, when online and permitted, a signed manifest URL.
     live: Live! @goField(forceResolver: true)
 
+    # Banner linking to the Live app, for active BCC members. Null when nothing
+    # is on air and no recent broadcast is still available there.
+    liveBanner: LiveBanner @goField(forceResolver: true)
+
     profiles: [Profile!]!
     profile: Profile!
 

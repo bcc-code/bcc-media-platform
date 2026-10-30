@@ -52,6 +52,14 @@ FROM calendarentries e
 WHERE e.status = 'published'
   AND e.id = ANY ($1::int[]);
 
+-- name: getCalendarEntryIDsForEpisodes :many
+SELECT e.id, e.episode_id as parent_id
+FROM calendarentries e
+WHERE e.status = 'published'
+  AND e.link_type = 'episode'
+  AND e.episode_id = ANY (@ids::int[])
+ORDER BY e.end DESC;
+
 -- name: getCalendarEntryIDsForEvents :many
 SELECT e.id, e.event_id as parent_id
 FROM calendarentries e

@@ -825,6 +825,11 @@ func (r *queryRootResolver) Live(ctx context.Context) (*model.Live, error) {
 	return out, nil
 }
 
+// LiveBanner is the resolver for the liveBanner field.
+func (r *queryRootResolver) LiveBanner(ctx context.Context) (*model.LiveBanner, error) {
+	return r.liveBanner(ctx)
+}
+
 // Profiles is the resolver for the profiles field.
 func (r *queryRootResolver) Profiles(ctx context.Context) ([]*model.Profile, error) {
 	ginCtx, err := utils.GinCtx(ctx)

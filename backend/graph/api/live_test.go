@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -138,4 +140,121 @@ func TestClampStart(t *testing.T) {
 		start := now.Add(10 * time.Minute)
 		assert.Equal(t, start, clampStart(start, now))
 	})
+}
+
+func TestLiveBannerURL(t *testing.T) {
+	t.Run("live links to the live player", func(t *testing.T) {
+		got, err := liveBannerURL("https://live.bcc-connect.org", model.LiveBannerStateLive, 42)
+		require.NoError(t, err)
+		assert.Equal(t, "https://live.bcc-connect.org/live", got)
+	})
+
+	t.Run("replay links to the entry's replay", func(t *testing.T) {
+		got, err := liveBannerURL("https://live.bcc-connect.org", model.LiveBannerStateReplay, 42)
+		require.NoError(t, err)
+		assert.Equal(t, "https://live.bcc-connect.org/replay/42", got)
+	})
+
+	t.Run("trailing slash in the base URL is not doubled", func(t *testing.T) {
+		got, err := liveBannerURL("https://live.bcc-connect.org/", model.LiveBannerStateLive, 42)
+		require.NoError(t, err)
+		assert.Equal(t, "https://live.bcc-connect.org/live", got)
+	})
+}
+
+// TestLiveBanner_HiddenWithoutLookups covers the cases that return no banner
+// before touching the database: the Resolver has no Queries, so reaching a
+// lookup would panic.
+func TestLiveBanner_HiddenWithoutLookups(t *testing.T) {
+	member := &common.User{ActiveBCC: true}
+
+	cases := []struct {
+		name       string
+		liveAppURL string
+		user       *common.User
+	}{
+		{name: "no live app URL configured", liveAppURL: "", user: member},
+		{name: "no user in context", liveAppURL: "https://live.bcc-connect.org", user: nil},
+		{name: "anonymous user", liveAppURL: "https://live.bcc-connect.org", user: &common.User{Anonymous: true}},
+		{name: "logged in, not an active BCC member", liveAppURL: "https://live.bcc-connect.org", user: &common.User{}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			r := &Resolver{LiveAppURL: tc.liveAppURL}
+			ctx := ctxWithUser(t, []string{"en"}, nil, tc.user)
+			banner, err := r.liveBanner(ctx)
+			require.NoError(t, err)
+			assert.Nil(t, banner)
+		})
+	}
+}
+
+func TestEndedNewestFirst(t *testing.T) {
+	now := time.Unix(1_700_000_000, 0)
+	entry := func(id int, end time.Time) *common.CalendarEntry {
+		return &common.CalendarEntry{ID: id, Start: end.Add(-time.Hour), End: end}
+	}
+	ids := func(entries []*common.CalendarEntry) []int {
+		out := []int{}
+		for _, e := range entries {
+			out = append(out, e.ID)
+		}
+		return out
+	}
+
+	t.Run("still running entries are skipped", func(t *testing.T) {
+		got := endedNewestFirst([]*common.CalendarEntry{entry(1, now.Add(time.Minute))}, now)
+		assert.Empty(t, got)
+	})
+
+	t.Run("entry ending exactly now counts as ended", func(t *testing.T) {
+		got := endedNewestFirst([]*common.CalendarEntry{entry(1, now)}, now)
+		assert.Equal(t, []int{1}, ids(got))
+	})
+
+	t.Run("most recently ended first", func(t *testing.T) {
+		got := endedNewestFirst([]*common.CalendarEntry{
+			entry(1, now.Add(-48*time.Hour)),
+			entry(2, now.Add(-time.Hour)),
+			entry(3, now.Add(time.Hour)),
+			entry(4, now.Add(-24*time.Hour)),
+		}, now)
+		assert.Equal(t, []int{2, 4, 1}, ids(got))
+	})
+
+	t.Run("nil entries from the loader are skipped", func(t *testing.T) {
+		got := endedNewestFirst([]*common.CalendarEntry{nil, entry(1, now.Add(-time.Hour))}, now)
+		assert.Equal(t, []int{1}, ids(got))
+	})
+
+	t.Run("empty input", func(t *testing.T) {
+		assert.Empty(t, endedNewestFirst(nil, now))
+	})
+}
+
+// TestEpisodeLiveAppURL_NilWithoutLookups covers the cases that return no
+// redirect before touching the loaders: the Resolver has no Loaders, so
+// reaching a lookup would panic.
+func TestEpisodeLiveAppURL_NilWithoutLookups(t *testing.T) {
+	member := &common.User{ActiveBCC: true}
+
+	cases := []struct {
+		name       string
+		liveAppURL string
+		user       *common.User
+	}{
+		{name: "no live app URL configured", liveAppURL: "", user: member},
+		{name: "no user in context", liveAppURL: "https://live.bcc-connect.org", user: nil},
+		{name: "anonymous user", liveAppURL: "https://live.bcc-connect.org", user: &common.User{Anonymous: true}},
+		{name: "logged in, not an active BCC member", liveAppURL: "https://live.bcc-connect.org", user: &common.User{}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			r := &Resolver{LiveAppURL: tc.liveAppURL}
+			ctx := ctxWithUser(t, []string{"en"}, nil, tc.user)
+			link, err := r.episodeLiveAppURL(ctx, 1)
+			require.NoError(t, err)
+			assert.Nil(t, link)
+		})
+	}
 }
