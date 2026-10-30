@@ -262,6 +262,43 @@ func (q *Queries) getCalendarEntriesByID(ctx context.Context, dollar_1 []int32) 
 	return items, nil
 }
 
+const getCalendarEntryIDsForEpisodes = `-- name: getCalendarEntryIDsForEpisodes :many
+SELECT e.id, e.episode_id as parent_id
+FROM calendarentries e
+WHERE e.status = 'published'
+  AND e.link_type = 'episode'
+  AND e.episode_id = ANY ($1::int[])
+ORDER BY e.end DESC
+`
+
+type getCalendarEntryIDsForEpisodesRow struct {
+	ID       int32       `db:"id" json:"id"`
+	ParentID null_v4.Int `db:"parent_id" json:"parentId"`
+}
+
+func (q *Queries) getCalendarEntryIDsForEpisodes(ctx context.Context, ids []int32) ([]getCalendarEntryIDsForEpisodesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCalendarEntryIDsForEpisodes, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getCalendarEntryIDsForEpisodesRow
+	for rows.Next() {
+		var i getCalendarEntryIDsForEpisodesRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getCalendarEntryIDsForEvents = `-- name: getCalendarEntryIDsForEvents :many
 SELECT e.id, e.event_id as parent_id
 FROM calendarentries e

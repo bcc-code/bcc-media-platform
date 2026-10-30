@@ -494,6 +494,7 @@ type Episode struct {
 	LegacyID              *string     `json:"legacyID,omitempty"`
 	LegacyProgramID       *string     `json:"legacyProgramID,omitempty"`
 	Locked                bool        `json:"locked"`
+	LiveAppURL            *string     `json:"liveAppUrl,omitempty"`
 	PublishDate           string      `json:"publishDate"`
 	ProductionDate        string      `json:"productionDate"`
 	ProductionDateInTitle bool        `json:"productionDateInTitle"`

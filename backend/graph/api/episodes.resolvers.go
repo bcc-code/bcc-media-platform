@@ -54,6 +54,11 @@ func (r *episodeResolver) Locked(ctx context.Context, obj *model.Episode) (bool,
 	return e.PublishDate.After(time.Now()) && len(earlyAccess) == 0, nil
 }
 
+// LiveAppURL is the resolver for the liveAppUrl field.
+func (r *episodeResolver) LiveAppURL(ctx context.Context, obj *model.Episode) (*string, error) {
+	return r.episodeLiveAppURL(ctx, utils.AsInt(obj.ID))
+}
+
 // AvailableFrom is the resolver for the availableFrom field.
 func (r *episodeResolver) AvailableFrom(ctx context.Context, obj *model.Episode) (string, error) {
 	perms, err := r.Loaders.EpisodePermissionLoader.Get(ctx, utils.AsInt(obj.ID))

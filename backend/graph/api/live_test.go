@@ -231,3 +231,30 @@ func TestEndedNewestFirst(t *testing.T) {
 		assert.Empty(t, endedNewestFirst(nil, now))
 	})
 }
+
+// TestEpisodeLiveAppURL_NilWithoutLookups covers the cases that return no
+// redirect before touching the loaders: the Resolver has no Loaders, so
+// reaching a lookup would panic.
+func TestEpisodeLiveAppURL_NilWithoutLookups(t *testing.T) {
+	member := &common.User{ActiveBCC: true}
+
+	cases := []struct {
+		name       string
+		liveAppURL string
+		user       *common.User
+	}{
+		{name: "no live app URL configured", liveAppURL: "", user: member},
+		{name: "no user in context", liveAppURL: "https://live.bcc-connect.org", user: nil},
+		{name: "anonymous user", liveAppURL: "https://live.bcc-connect.org", user: &common.User{Anonymous: true}},
+		{name: "logged in, not an active BCC member", liveAppURL: "https://live.bcc-connect.org", user: &common.User{}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			r := &Resolver{LiveAppURL: tc.liveAppURL}
+			ctx := ctxWithUser(t, []string{"en"}, nil, tc.user)
+			link, err := r.episodeLiveAppURL(ctx, 1)
+			require.NoError(t, err)
+			assert.Nil(t, link)
+		})
+	}
+}

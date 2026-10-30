@@ -178,6 +178,46 @@ func (r *Resolver) newLiveBanner(ctx context.Context, state model.LiveBannerStat
 	}, nil
 }
 
+// episodeLiveAppURL is the Live app URL to redirect a meeting episode to while
+// its calendar entry is on air or within its buffer window. Nil otherwise.
+func (r *Resolver) episodeLiveAppURL(ctx context.Context, episodeID int) (*string, error) {
+	if r.LiveAppURL == "" {
+		return nil, nil
+	}
+	ginCtx, err := utils.GinCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if u := user.GetFromCtx(ginCtx); u == nil || !u.IsActiveBCC() {
+		return nil, nil
+	}
+
+	entryIDs, err := r.Loaders.EpisodeCalendarEntriesLoader.Get(ctx, episodeID)
+	if err != nil {
+		return nil, err
+	}
+	now := time.Now()
+	for _, entryID := range common.MappingValues(entryIDs) {
+		window, err := r.bufferWindowForEntry(ctx, strconv.Itoa(entryID))
+		if err != nil {
+			return nil, err
+		}
+		if window == nil {
+			continue
+		}
+		state := model.LiveBannerStateReplay
+		if now.Before(window.entry.End) {
+			state = model.LiveBannerStateLive
+		}
+		link, err := liveBannerURL(r.LiveAppURL, state, entryID)
+		if err != nil {
+			return nil, err
+		}
+		return &link, nil
+	}
+	return nil, nil
+}
+
 // liveBannerURL is the Live app page for the banner state: the live player, or
 // the replay of the given calendar entry.
 func liveBannerURL(liveAppURL string, state model.LiveBannerState, entryID int) (string, error) {
