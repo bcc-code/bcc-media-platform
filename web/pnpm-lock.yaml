@@ -72,8 +72,8 @@ importers:
         specifier: ^3.5.38
         version: 3.5.38(typescript@6.0.3)
       vue-i18n:
-        specifier: ^11.4.6
-        version: 11.4.6(vue@3.5.38(typescript@6.0.3))
+        specifier: ^11.4.14
+        version: 11.4.14(vue@3.5.38(typescript@6.0.3))
       vue-router:
         specifier: ^5.1.0
         version: 5.1.0(@vue/compiler-sfc@3.5.38)(vite@8.0.16(@types/node@25.9.3)(jiti@2.7.0)(yaml@2.9.0))(vue@3.5.38(typescript@6.0.3))
@@ -98,7 +98,7 @@ importers:
         version: 3.2.1(graphql-tag@2.12.7(graphql@16.14.2))(graphql@16.14.2)
       '@intlify/unplugin-vue-i18n':
         specifier: ^11.2.4
-        version: 11.2.4(@vue/compiler-dom@3.5.38)(eslint@10.5.0(jiti@2.7.0))(rollup@4.44.1)(typescript@6.0.3)(vite@8.0.16(@types/node@25.9.3)(jiti@2.7.0)(yaml@2.9.0))(vue-i18n@11.4.6(vue@3.5.38(typescript@6.0.3)))(vue@3.5.38(typescript@6.0.3))
+        version: 11.2.4(@vue/compiler-dom@3.5.38)(eslint@10.5.0(jiti@2.7.0))(rollup@4.44.1)(typescript@6.0.3)(vite@8.0.16(@types/node@25.9.3)(jiti@2.7.0)(yaml@2.9.0))(vue-i18n@11.4.14(vue@3.5.38(typescript@6.0.3)))(vue@3.5.38(typescript@6.0.3))
       '@tailwindcss/postcss':
         specifier: 4.3.1
         version: 4.3.1
@@ -159,10 +159,10 @@ importers:
 
 packages:
 
-  '@0no-co/graphql.web@1.1.2':
-    resolution: {integrity: sha512-N2NGsU5FLBhT8NZ+3l2YrzZSHITjNXNuDhC4iDiikv0IujaJ0Xc6xIxQZ/Ek3Cb+rgPjnLHYyJm11tInuJn+cw==}
+  '@0no-co/graphql.web@1.3.4':
+    resolution: {integrity: sha512-imSwulOeDQodRy/olQmVEo2PiY6ntjkZ9eiGdw6lMYylh/tay9b7MusyJBmEnkL8GiKRKr6ltr+D42mY5bd8Bg==}
     peerDependencies:
-      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
+      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
     peerDependenciesMeta:
       graphql:
         optional: true
@@ -951,6 +951,7 @@ packages:
   '@graphql-tools/prisma-loader@8.0.17':
     resolution: {integrity: sha512-fnuTLeQhqRbA156pAyzJYN0KxCjKYRU5bz1q/SKOwElSnAU4k7/G1kyVsWLh7fneY78LoMNH5n+KlFV8iQlnyg==}
     engines: {node: '>=16.0.0'}
+    deprecated: 'This package was intended to be used with an older versions of Prisma.\nThe newer versions of Prisma has a different approach to GraphQL integration.\nTherefore, this package is no longer needed and has been deprecated and removed.\nLearn more: https://www.prisma.io/graphql'
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
@@ -1054,16 +1055,24 @@ packages:
       vue-i18n:
         optional: true
 
-  '@intlify/core-base@11.4.6':
-    resolution: {integrity: sha512-EOeHO95XESK9IFHgHeZXunsM/WBAoCA0DlaWODvx14vKmetAuS97t+l6Xe9hTUqntPpF93vtVSjjUDafw3wXMw==}
+  '@intlify/core-base@11.4.14':
+    resolution: {integrity: sha512-Lox+qRGBLnEYfNz4iajqKpw1zuvSAWl4PtzEk654bEM+0NT1GBy9AbOecxzSh7krsyqn9mGKhgmvtuyBsqS6oQ==}
     engines: {node: '>= 22'}
 
-  '@intlify/devtools-types@11.4.6':
-    resolution: {integrity: sha512-wowQPpNem56b2d43IJmqbrzG2FeBKe5f/kUGlpNuBmXs6OSqncF8m1+1lxHuW8ISZJF0ma2RkW3iLkw0g0G4VA==}
+  '@intlify/devtools-types@11.4.14':
+    resolution: {integrity: sha512-EQHRYveQg6yHQ51kePfsFyaW2WW+0hk3FdVxSpLDyuKtqFtsRFoyQR2QzASZPmY767ujs9ipuxc2DiGJARkuiQ==}
+    engines: {node: '>= 22'}
+
+  '@intlify/message-compiler@11.4.14':
+    resolution: {integrity: sha512-y79GatHfMhN672Vooxw0v6mgX/vclFHggO1ENL6aH/QubLXiV529WXu/+FhVUbYF+HLTeDDkQpmnpfvSJddBCg==}
     engines: {node: '>= 22'}
 
   '@intlify/message-compiler@11.4.6':
     resolution: {integrity: sha512-5nj3jULqeTAC1WovwMs1LQWgatTa2pM/rXN9T3XW8rdOtXW9ZF6/GLSNFTKDQmPLwclhPdgUWLJ/4w3fMeeC/Q==}
+    engines: {node: '>= 22'}
+
+  '@intlify/shared@11.4.14':
+    resolution: {integrity: sha512-f8zSlPs4+Yd9za3CPQfW9OHxAJBOeRQzB/hhOhkbGA7hlqWk0W0bUtSV/LmyrGNwdl8JriBnFtJqZyF140bjGg==}
     engines: {node: '>= 22'}
 
   '@intlify/shared@11.4.6':
@@ -3473,6 +3482,10 @@ packages:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
 
+  source-map-js@1.2.2:
+    resolution: {integrity: sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==}
+    engines: {node: '>=0.10.0'}
+
   source-map@0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
@@ -3770,8 +3783,8 @@ packages:
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
 
-  vue-i18n@11.4.6:
-    resolution: {integrity: sha512-l0gE7Rfy0phCa5ChKYkOq543Wgd39BCK6hkktfr1Ed4D99oRkgPK9ffShASZdeC8OJxGfdWmpYoAaAH6iLEuIg==}
+  vue-i18n@11.4.14:
+    resolution: {integrity: sha512-oRFZtQjRDRQtfxu7tFlsZlnCa5gPkg/KX89kJDKdC9bz4GIYgo3cAMaD0XFeUx/WHuKoVbDMRTIo9Hvg67HnPw==}
     engines: {node: '>= 22'}
     peerDependencies:
       vue: ^3.0.0
@@ -3841,8 +3854,8 @@ packages:
   wonka@6.3.4:
     resolution: {integrity: sha512-CjpbqNtBGNAeyNS/9W6q3kSkKE52+FjIj7AkFlLr11s/VWGUu6a2CdYSdGxocIhIVjaW/zchesBQUKPVU69Cqg==}
 
-  wonka@6.3.5:
-    resolution: {integrity: sha512-SSil+ecw6B4/Dm7Pf2sAshKQ5hWFvfyGlfPbEd6A14dOH6VDjrmbY86u6nZvy9omGwwIPFR8V41+of1EezgoUw==}
+  wonka@6.3.6:
+    resolution: {integrity: sha512-MXH+6mDHAZ2GuMpgKS055FR6v0xVP3XwquxIMYXgiW+FejHQlMGlvVRZT4qMCxR+bEo/FCtIdKxwej9WV3YQag==}
 
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
@@ -3931,7 +3944,7 @@ packages:
 
 snapshots:
 
-  '@0no-co/graphql.web@1.1.2(graphql@16.14.2)':
+  '@0no-co/graphql.web@1.3.4(graphql@16.14.2)':
     optionalDependencies:
       graphql: 16.14.2
 
@@ -5042,7 +5055,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@intlify/bundle-utils@11.2.4(vue-i18n@11.4.6(vue@3.5.38(typescript@6.0.3)))':
+  '@intlify/bundle-utils@11.2.4(vue-i18n@11.4.14(vue@3.5.38(typescript@6.0.3)))':
     dependencies:
       '@intlify/message-compiler': 11.4.6
       '@intlify/shared': 11.4.6
@@ -5054,32 +5067,39 @@ snapshots:
       source-map-js: 1.2.1
       yaml-eslint-parser: 1.2.3
     optionalDependencies:
-      vue-i18n: 11.4.6(vue@3.5.38(typescript@6.0.3))
+      vue-i18n: 11.4.14(vue@3.5.38(typescript@6.0.3))
 
-  '@intlify/core-base@11.4.6':
+  '@intlify/core-base@11.4.14':
     dependencies:
-      '@intlify/devtools-types': 11.4.6
-      '@intlify/message-compiler': 11.4.6
-      '@intlify/shared': 11.4.6
+      '@intlify/devtools-types': 11.4.14
+      '@intlify/message-compiler': 11.4.14
+      '@intlify/shared': 11.4.14
 
-  '@intlify/devtools-types@11.4.6':
+  '@intlify/devtools-types@11.4.14':
     dependencies:
-      '@intlify/core-base': 11.4.6
-      '@intlify/shared': 11.4.6
+      '@intlify/core-base': 11.4.14
+      '@intlify/shared': 11.4.14
+
+  '@intlify/message-compiler@11.4.14':
+    dependencies:
+      '@intlify/shared': 11.4.14
+      source-map-js: 1.2.2
 
   '@intlify/message-compiler@11.4.6':
     dependencies:
       '@intlify/shared': 11.4.6
       source-map-js: 1.2.1
 
+  '@intlify/shared@11.4.14': {}
+
   '@intlify/shared@11.4.6': {}
 
-  '@intlify/unplugin-vue-i18n@11.2.4(@vue/compiler-dom@3.5.38)(eslint@10.5.0(jiti@2.7.0))(rollup@4.44.1)(typescript@6.0.3)(vite@8.0.16(@types/node@25.9.3)(jiti@2.7.0)(yaml@2.9.0))(vue-i18n@11.4.6(vue@3.5.38(typescript@6.0.3)))(vue@3.5.38(typescript@6.0.3))':
+  '@intlify/unplugin-vue-i18n@11.2.4(@vue/compiler-dom@3.5.38)(eslint@10.5.0(jiti@2.7.0))(rollup@4.44.1)(typescript@6.0.3)(vite@8.0.16(@types/node@25.9.3)(jiti@2.7.0)(yaml@2.9.0))(vue-i18n@11.4.14(vue@3.5.38(typescript@6.0.3)))(vue@3.5.38(typescript@6.0.3))':
     dependencies:
       '@eslint-community/eslint-utils': 4.9.1(eslint@10.5.0(jiti@2.7.0))
-      '@intlify/bundle-utils': 11.2.4(vue-i18n@11.4.6(vue@3.5.38(typescript@6.0.3)))
+      '@intlify/bundle-utils': 11.2.4(vue-i18n@11.4.14(vue@3.5.38(typescript@6.0.3)))
       '@intlify/shared': 11.4.6
-      '@intlify/vue-i18n-extensions': 8.0.0(@intlify/shared@11.4.6)(@vue/compiler-dom@3.5.38)(vue-i18n@11.4.6(vue@3.5.38(typescript@6.0.3)))(vue@3.5.38(typescript@6.0.3))
+      '@intlify/vue-i18n-extensions': 8.0.0(@intlify/shared@11.4.6)(@vue/compiler-dom@3.5.38)(vue-i18n@11.4.14(vue@3.5.38(typescript@6.0.3)))(vue@3.5.38(typescript@6.0.3))
       '@rollup/pluginutils': 5.1.3(rollup@4.44.1)
       '@typescript-eslint/scope-manager': 8.61.1
       '@typescript-eslint/typescript-estree': 8.61.1(typescript@6.0.3)
@@ -5091,7 +5111,7 @@ snapshots:
       vue: 3.5.38(typescript@6.0.3)
     optionalDependencies:
       vite: 8.0.16(@types/node@25.9.3)(jiti@2.7.0)(yaml@2.9.0)
-      vue-i18n: 11.4.6(vue@3.5.38(typescript@6.0.3))
+      vue-i18n: 11.4.14(vue@3.5.38(typescript@6.0.3))
     transitivePeerDependencies:
       - '@vue/compiler-dom'
       - eslint
@@ -5099,14 +5119,14 @@ snapshots:
       - supports-color
       - typescript
 
-  '@intlify/vue-i18n-extensions@8.0.0(@intlify/shared@11.4.6)(@vue/compiler-dom@3.5.38)(vue-i18n@11.4.6(vue@3.5.38(typescript@6.0.3)))(vue@3.5.38(typescript@6.0.3))':
+  '@intlify/vue-i18n-extensions@8.0.0(@intlify/shared@11.4.6)(@vue/compiler-dom@3.5.38)(vue-i18n@11.4.14(vue@3.5.38(typescript@6.0.3)))(vue@3.5.38(typescript@6.0.3))':
     dependencies:
       '@babel/parser': 7.29.7
     optionalDependencies:
       '@intlify/shared': 11.4.6
       '@vue/compiler-dom': 3.5.38
       vue: 3.5.38(typescript@6.0.3)
-      vue-i18n: 11.4.6(vue@3.5.38(typescript@6.0.3))
+      vue-i18n: 11.4.14(vue@3.5.38(typescript@6.0.3))
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -5653,8 +5673,8 @@ snapshots:
 
   '@urql/core@5.1.0(graphql@16.14.2)':
     dependencies:
-      '@0no-co/graphql.web': 1.1.2(graphql@16.14.2)
-      wonka: 6.3.5
+      '@0no-co/graphql.web': 1.3.4(graphql@16.14.2)
+      wonka: 6.3.6
     transitivePeerDependencies:
       - graphql
 
@@ -5773,7 +5793,7 @@ snapshots:
       '@vue/shared': 3.5.17
       entities: 4.5.0
       estree-walker: 2.0.2
-      source-map-js: 1.2.1
+      source-map-js: 1.2.2
 
   '@vue/compiler-core@3.5.38':
     dependencies:
@@ -7622,6 +7642,8 @@ snapshots:
 
   source-map-js@1.2.1: {}
 
+  source-map-js@1.2.2: {}
+
   source-map@0.6.1:
     optional: true
 
@@ -7917,11 +7939,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vue-i18n@11.4.6(vue@3.5.38(typescript@6.0.3)):
+  vue-i18n@11.4.14(vue@3.5.38(typescript@6.0.3)):
     dependencies:
-      '@intlify/core-base': 11.4.6
-      '@intlify/devtools-types': 11.4.6
-      '@intlify/shared': 11.4.6
+      '@intlify/core-base': 11.4.14
+      '@intlify/devtools-types': 11.4.14
+      '@intlify/shared': 11.4.14
       '@vue/devtools-api': 6.6.4
       vue: 3.5.38(typescript@6.0.3)
 
@@ -7995,7 +8017,7 @@ snapshots:
 
   wonka@6.3.4: {}
 
-  wonka@6.3.5: {}
+  wonka@6.3.6: {}
 
   word-wrap@1.2.5: {}
 
