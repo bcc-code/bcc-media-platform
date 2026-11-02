@@ -20,6 +20,8 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     legacyProgramID: ID
     locked: Boolean! @goField(forceResolver: true)
     liveAppUrl: String @goField(forceResolver: true)
+    # URL to open instead of playing this episode, while set and not expired.
+    overrideUrl: String
     publishDate: Date!
     productionDate: Date!
     productionDateInTitle: Boolean!

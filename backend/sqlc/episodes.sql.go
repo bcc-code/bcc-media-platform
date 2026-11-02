@@ -416,7 +416,9 @@ SELECT e.id,
        COALESCE(mi.agerating_code, e.agerating_code, s.agerating_code, 'A') as agerating,
        mi.audience,
        mi.content_type,
-       mi.copyright_holder_id
+       mi.copyright_holder_id,
+       e.override_url,
+       e.override_url_until
 FROM episodes e
          LEFT JOIN mediaitems_by_episodes_v2($1::int[]) mi ON mi.id = e.mediaitem_id
          LEFT JOIN ts ON e.id = ts.episodes_id
@@ -462,6 +464,8 @@ type getEpisodesRow struct {
 	Audience              null_v4.String        `db:"audience" json:"audience"`
 	ContentType           null_v4.String        `db:"content_type" json:"contentType"`
 	CopyrightHolderID     uuid.NullUUID         `db:"copyright_holder_id" json:"copyrightHolderId"`
+	OverrideUrl           null_v4.String        `db:"override_url" json:"overrideUrl"`
+	OverrideUrlUntil      null_v4.Time          `db:"override_url_until" json:"overrideUrlUntil"`
 }
 
 func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpisodesRow, error) {
@@ -507,6 +511,8 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 			&i.Audience,
 			&i.ContentType,
 			&i.CopyrightHolderID,
+			&i.OverrideUrl,
+			&i.OverrideUrlUntil,
 		); err != nil {
 			return nil, err
 		}

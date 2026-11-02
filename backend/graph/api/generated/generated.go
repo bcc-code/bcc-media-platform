@@ -361,6 +361,7 @@ type ComplexityRoot struct {
 		Next                  func(childComplexity int, limit *int) int
 		Number                func(childComplexity int) int
 		OriginalTitle         func(childComplexity int) int
+		OverrideURL           func(childComplexity int) int
 		ProductionDate        func(childComplexity int) int
 		ProductionDateInTitle func(childComplexity int) int
 		Progress              func(childComplexity int) int
@@ -2728,6 +2729,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Episode.OriginalTitle(childComplexity), true
+
+	case "Episode.overrideUrl":
+		if e.complexity.Episode.OverrideURL == nil {
+			break
+		}
+
+		return e.complexity.Episode.OverrideURL(childComplexity), true
 
 	case "Episode.productionDate":
 		if e.complexity.Episode.ProductionDate == nil {
@@ -7445,6 +7453,8 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     legacyProgramID: ID
     locked: Boolean! @goField(forceResolver: true)
     liveAppUrl: String @goField(forceResolver: true)
+    # URL to open instead of playing this episode, while set and not expired.
+    overrideUrl: String
     publishDate: Date!
     productionDate: Date!
     productionDateInTitle: Boolean!
@@ -18198,6 +18208,8 @@ func (ec *executionContext) fieldContext_Chapter_episode(_ context.Context, fiel
 				return ec.fieldContext_Episode_locked(ctx, field)
 			case "liveAppUrl":
 				return ec.fieldContext_Episode_liveAppUrl(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -20598,6 +20610,47 @@ func (ec *executionContext) fieldContext_Episode_liveAppUrl(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_overrideUrl(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_overrideUrl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OverrideURL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_overrideUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_publishDate(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_publishDate(ctx, field)
 	if err != nil {
@@ -22348,6 +22401,8 @@ func (ec *executionContext) fieldContext_Episode_next(ctx context.Context, field
 				return ec.fieldContext_Episode_locked(ctx, field)
 			case "liveAppUrl":
 				return ec.fieldContext_Episode_liveAppUrl(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -22908,6 +22963,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(_ context.
 				return ec.fieldContext_Episode_locked(ctx, field)
 			case "liveAppUrl":
 				return ec.fieldContext_Episode_liveAppUrl(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -23401,6 +23458,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(_ context.Conte
 				return ec.fieldContext_Episode_locked(ctx, field)
 			case "liveAppUrl":
 				return ec.fieldContext_Episode_liveAppUrl(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -28494,6 +28553,8 @@ func (ec *executionContext) fieldContext_Lesson_defaultEpisode(_ context.Context
 				return ec.fieldContext_Episode_locked(ctx, field)
 			case "liveAppUrl":
 				return ec.fieldContext_Episode_liveAppUrl(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -31620,6 +31681,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 				return ec.fieldContext_Episode_locked(ctx, field)
 			case "liveAppUrl":
 				return ec.fieldContext_Episode_liveAppUrl(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -35833,6 +35896,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_locked(ctx, field)
 			case "liveAppUrl":
 				return ec.fieldContext_Episode_liveAppUrl(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -35978,6 +36043,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episodes(ctx context.Context,
 				return ec.fieldContext_Episode_locked(ctx, field)
 			case "liveAppUrl":
 				return ec.fieldContext_Episode_liveAppUrl(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -39377,6 +39444,8 @@ func (ec *executionContext) fieldContext_Season_defaultEpisode(_ context.Context
 				return ec.fieldContext_Episode_locked(ctx, field)
 			case "liveAppUrl":
 				return ec.fieldContext_Episode_liveAppUrl(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -43247,6 +43316,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(_ context.Context, 
 				return ec.fieldContext_Episode_locked(ctx, field)
 			case "liveAppUrl":
 				return ec.fieldContext_Episode_liveAppUrl(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -49422,6 +49493,8 @@ func (ec *executionContext) fieldContext_VideoTask_episode(_ context.Context, fi
 				return ec.fieldContext_Episode_locked(ctx, field)
 			case "liveAppUrl":
 				return ec.fieldContext_Episode_liveAppUrl(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -55417,6 +55490,8 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "overrideUrl":
+			out.Values[i] = ec._Episode_overrideUrl(ctx, field, obj)
 		case "publishDate":
 			out.Values[i] = ec._Episode_publishDate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
