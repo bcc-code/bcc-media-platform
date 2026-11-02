@@ -116,6 +116,7 @@ func main() {
 		remoteCache:       remotecache.New(rdb, redislock.New(rdb)),
 		members:           membersClient,
 		notificationUtils: notificationUtils,
+		liveAppBaseURL:    config.LiveAppBaseURL,
 	}
 
 	sr.OnRequest(func(ctx context.Context, item scheduler.QueuedItem) error {
@@ -130,6 +131,7 @@ func main() {
 	}
 
 	eventHandler.On([]string{events.EventItemsCreate, events.EventItemsUpdate}, mh.handleModelUpdate)
+	eventHandler.On([]string{events.EventItemsCreate, events.EventItemsUpdate, events.EventItemsDelete}, mh.handleCalendarEntryEvent)
 	eventHandler.On([]string{events.EventItemsCreate, events.EventItemsUpdate}, searchService.IndexModel)
 	eventHandler.On([]string{events.EventItemsDelete}, searchService.DeleteModel)
 

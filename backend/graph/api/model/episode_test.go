@@ -17,6 +17,7 @@ func TestOverrideURL(t *testing.T) {
 	cases := []struct {
 		name  string
 		url   null.String
+		from  null.Time
 		until null.Time
 		want  *string
 	}{
@@ -26,10 +27,13 @@ func TestOverrideURL(t *testing.T) {
 		{name: "before expiry", url: null.StringFrom(link), until: null.TimeFrom(now.Add(time.Minute)), want: lo.ToPtr(link)},
 		{name: "exactly at expiry", url: null.StringFrom(link), until: null.TimeFrom(now), want: nil},
 		{name: "after expiry", url: null.StringFrom(link), until: null.TimeFrom(now.Add(-time.Minute)), want: nil},
+		{name: "before start", url: null.StringFrom(link), from: null.TimeFrom(now.Add(time.Minute)), want: nil},
+		{name: "exactly at start", url: null.StringFrom(link), from: null.TimeFrom(now), want: lo.ToPtr(link)},
+		{name: "within window", url: null.StringFrom(link), from: null.TimeFrom(now.Add(-time.Minute)), until: null.TimeFrom(now.Add(time.Minute)), want: lo.ToPtr(link)},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			e := &common.Episode{OverrideURL: tc.url, OverrideURLUntil: tc.until}
+			e := &common.Episode{OverrideURL: tc.url, OverrideURLFrom: tc.from, OverrideURLUntil: tc.until}
 			assert.Equal(t, tc.want, overrideURL(e, now))
 		})
 	}

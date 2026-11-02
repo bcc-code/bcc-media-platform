@@ -98,9 +98,13 @@ func EpisodeFrom(ctx context.Context, e *common.Episode) *Episode {
 	return episode
 }
 
-// overrideURL returns the episode's URL override unless it is unset or expired
+// overrideURL returns the episode's URL override unless it is unset, not yet
+// started or expired
 func overrideURL(e *common.Episode, now time.Time) *string {
 	if e.OverrideURL.ValueOrZero() == "" {
+		return nil
+	}
+	if e.OverrideURLFrom.Valid && now.Before(e.OverrideURLFrom.Time) {
 		return nil
 	}
 	if e.OverrideURLUntil.Valid && !now.Before(e.OverrideURLUntil.Time) {

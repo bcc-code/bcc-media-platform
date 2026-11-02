@@ -53,6 +53,48 @@ func (q *Queries) GetCalendarEntriesTranslatable(ctx context.Context, dateUpdate
 	return items, nil
 }
 
+const refreshEpisodeOverridesForCalendarEntry = `-- name: RefreshEpisodeOverridesForCalendarEntry :exec
+WITH args AS (SELECT $1::int           AS entry_id,
+                     $2::text AS prefix,
+                     $3::int       AS window_hours),
+     ids AS (SELECT c.episode_id AS id
+             FROM calendarentries c, args
+             WHERE c.id = args.entry_id
+               AND c.episode_id IS NOT NULL
+             UNION
+             SELECT e.id
+             FROM episodes e, args
+             WHERE e.override_url = args.prefix || args.entry_id),
+     latest AS (SELECT DISTINCT ON (c.episode_id) c.episode_id, c.id, c."end"
+                FROM calendarentries c
+                WHERE c.episode_id IN (SELECT id FROM ids)
+                  AND c.status = 'published'
+                  AND c.link_type = 'episode'
+                ORDER BY c.episode_id, c."end" DESC)
+UPDATE episodes ep
+SET override_url       = args.prefix || latest.id,
+    override_url_from  = latest."end",
+    override_url_until = latest."end" + args.window_hours * interval '1 hour'
+FROM args, ids
+         LEFT JOIN latest ON latest.episode_id = ids.id
+WHERE ep.id = ids.id
+`
+
+type RefreshEpisodeOverridesForCalendarEntryParams struct {
+	EntryID         int32  `db:"entry_id" json:"entryId"`
+	ReplayUrlPrefix string `db:"replay_url_prefix" json:"replayUrlPrefix"`
+	WindowHours     int32  `db:"window_hours" json:"windowHours"`
+}
+
+// Points the episodes affected by a calendar entry (the one it links to, and any
+// still pointing to its replay) to the replay of their latest-ending published
+// calendar entry from its end for window_hours, or clears the override when no
+// such entry is left.
+func (q *Queries) RefreshEpisodeOverridesForCalendarEntry(ctx context.Context, arg RefreshEpisodeOverridesForCalendarEntryParams) error {
+	_, err := q.db.ExecContext(ctx, refreshEpisodeOverridesForCalendarEntry, arg.EntryID, arg.ReplayUrlPrefix, arg.WindowHours)
+	return err
+}
+
 const getCalendarEntries = `-- name: getCalendarEntries :many
 SELECT e.id,
        e.event_id,

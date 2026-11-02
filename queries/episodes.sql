@@ -84,6 +84,7 @@ SELECT e.id,
        mi.content_type,
        mi.copyright_holder_id,
        e.override_url,
+       e.override_url_from,
        e.override_url_until
 FROM episodes e
          LEFT JOIN mediaitems_by_episodes_v2($1::int[]) mi ON mi.id = e.mediaitem_id

@@ -39,7 +39,7 @@ VALUES ($1,
     $17::timestamp,
     $18::uuid
        )
-RETURNING agerating_code, asset_id, available_from, available_to, date_created, date_updated, episode_number, id, image_file_id, legacy_description_id, legacy_extra_description_id, legacy_id, legacy_program_id, legacy_tags_id, legacy_title_id, migration_data, publish_date, season_id, status, type, user_created, user_updated, publish_date_in_title, label, production_date, public_title, prevent_public_indexing, uuid, content_type, audience, timedmetadata_from_asset, translations_required, mediaitem_id, override_url, override_url_until
+RETURNING agerating_code, asset_id, available_from, available_to, date_created, date_updated, episode_number, id, image_file_id, legacy_description_id, legacy_extra_description_id, legacy_id, legacy_program_id, legacy_tags_id, legacy_title_id, migration_data, publish_date, season_id, status, type, user_created, user_updated, publish_date_in_title, label, production_date, public_title, prevent_public_indexing, uuid, content_type, audience, timedmetadata_from_asset, translations_required, mediaitem_id, override_url, override_url_until, override_url_from
 `
 
 type AddEpisodeParams struct {
@@ -121,6 +121,7 @@ func (q *Queries) AddEpisode(ctx context.Context, arg AddEpisodeParams) (Episode
 		&i.MediaitemID,
 		&i.OverrideUrl,
 		&i.OverrideUrlUntil,
+		&i.OverrideUrlFrom,
 	)
 	return i, err
 }

@@ -7394,7 +7394,7 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     legacyID: ID
     legacyProgramID: ID
     locked: Boolean! @goField(forceResolver: true)
-    # URL to open instead of playing this episode, while set and not expired.
+    # URL to open instead of playing this episode, while set and within its time window.
     overrideUrl: String
     publishDate: Date!
     productionDate: Date!

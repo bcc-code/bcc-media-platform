@@ -157,6 +157,7 @@ type Episode struct {
 	MediaItemID       uuid.NullUUID `json:"mediaItemId"`
 
 	OverrideURL      null.String `json:"overrideUrl"`
+	OverrideURLFrom  null.Time   `json:"overrideUrlFrom"`
 	OverrideURLUntil null.Time   `json:"overrideUrlUntil"`
 }
 
