@@ -91,7 +91,6 @@ type Resolver struct {
 	AWSConfig             awsConfig
 	AnalyticsIDFactory    func(ctx context.Context) string
 	RedirectConfig        redirectConfig
-	LiveAppURL            string
 	AuthClient            *auth0.Client
 	RemoteCache           *remotecache.Client
 	AnalyticsClient       analyticsService
