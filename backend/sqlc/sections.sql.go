@@ -242,6 +242,7 @@ SELECT s.id,
        s.prepend_live_element,
        s.limit,
        s.achievements_source,
+       s.banner_source,
        c.advanced_type,
        COALESCE(s.secondary_titles, true)::bool as secondary_titles,
        t.title,
@@ -277,6 +278,7 @@ type getSectionsRow struct {
 	PrependLiveElement  sql.NullBool          `db:"prepend_live_element" json:"prependLiveElement"`
 	Limit               null_v4.Int           `db:"limit" json:"limit"`
 	AchievementsSource  null_v4.String        `db:"achievements_source" json:"achievementsSource"`
+	BannerSource        null_v4.String        `db:"banner_source" json:"bannerSource"`
 	AdvancedType        null_v4.String        `db:"advanced_type" json:"advancedType"`
 	SecondaryTitles     bool                  `db:"secondary_titles" json:"secondaryTitles"`
 	Title               pqtype.NullRawMessage `db:"title" json:"title"`
@@ -313,6 +315,7 @@ func (q *Queries) getSections(ctx context.Context, dollar_1 []int32) ([]getSecti
 			&i.PrependLiveElement,
 			&i.Limit,
 			&i.AchievementsSource,
+			&i.BannerSource,
 			&i.AdvancedType,
 			&i.SecondaryTitles,
 			&i.Title,

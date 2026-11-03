@@ -194,6 +194,27 @@ type AchievementSection implements Section {
     source: AchievementsSource!
 }
 
+# Where a BannerSection gets its content from.
+enum BannerSource {
+    # The meeting on air, linking to the Live app.
+    live
+}
+
+type Banner {
+    title: String!
+    url: String!
+}
+
+type BannerSection implements Section {
+    id: ID!
+    title: String
+    description: String
+    # Null when this API version doesn't know the configured source.
+    source: BannerSource
+    # Null when the source has nothing to show right now; hide the section then.
+    banner: Banner @goField(forceResolver: true)
+}
+
 type PageDetailsSection implements Section {
     id: ID!
     title: String

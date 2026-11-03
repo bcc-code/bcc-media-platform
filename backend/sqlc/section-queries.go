@@ -58,6 +58,7 @@ func mapToSections(items []getSectionsRow) []common.Section {
 			EmbedAspectRatio:    aspectRatio,
 			EmbedHeight:         s.EmbedHeight,
 			AchievementsSource:  s.AchievementsSource,
+			BannerSource:        s.BannerSource,
 			Options: common.SectionOptions{
 				SecondaryTitles:    s.SecondaryTitles,
 				ContinueWatching:   s.AdvancedType.String == "continue_watching",

@@ -223,6 +223,19 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 			Description: description,
 			Source:      aSource,
 		}
+	case "banner":
+		// An unknown source shows nothing rather than another source's content.
+		var source *BannerSource
+		if v := BannerSource(s.BannerSource.String); v.IsValid() {
+			source = &v
+		}
+
+		return &BannerSection{
+			ID:          id,
+			Title:       title,
+			Description: description,
+			Source:      source,
+		}
 	case "page_details":
 		return &PageDetailsSection{
 			ID:          id,

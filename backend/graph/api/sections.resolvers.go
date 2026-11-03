@@ -18,6 +18,14 @@ func (r *avatarSectionResolver) Items(ctx context.Context, obj *model.AvatarSect
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
 }
 
+// Banner is the resolver for the banner field.
+func (r *bannerSectionResolver) Banner(ctx context.Context, obj *model.BannerSection) (*model.Banner, error) {
+	if obj.Source == nil {
+		return nil, nil
+	}
+	return r.banner(ctx, *obj.Source)
+}
+
 // Items is the resolver for the items field.
 func (r *cardListSectionResolver) Items(ctx context.Context, obj *model.CardListSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
@@ -118,6 +126,9 @@ func (r *sectionItemResolver) Image(ctx context.Context, obj *model.SectionItem)
 // AvatarSection returns generated.AvatarSectionResolver implementation.
 func (r *Resolver) AvatarSection() generated.AvatarSectionResolver { return &avatarSectionResolver{r} }
 
+// BannerSection returns generated.BannerSectionResolver implementation.
+func (r *Resolver) BannerSection() generated.BannerSectionResolver { return &bannerSectionResolver{r} }
+
 // CardListSection returns generated.CardListSectionResolver implementation.
 func (r *Resolver) CardListSection() generated.CardListSectionResolver {
 	return &cardListSectionResolver{r}
@@ -177,6 +188,7 @@ func (r *Resolver) PosterSection() generated.PosterSectionResolver { return &pos
 func (r *Resolver) SectionItem() generated.SectionItemResolver { return &sectionItemResolver{r} }
 
 type avatarSectionResolver struct{ *Resolver }
+type bannerSectionResolver struct{ *Resolver }
 type cardListSectionResolver struct{ *Resolver }
 type cardSectionResolver struct{ *Resolver }
 type defaultGridSectionResolver struct{ *Resolver }
