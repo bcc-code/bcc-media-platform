@@ -55,6 +55,18 @@ func (q *Queries) GetEntryIDsForEventIDs(ctx context.Context, ids []int) ([]comm
 	}), nil
 }
 
+// GetEntryIDsForEpisodeIDs returns the ids of calendar entries linking to the
+// specified episodes, most recently ended first
+func (q *Queries) GetEntryIDsForEpisodeIDs(ctx context.Context, ids []int) ([]common.Mapping[int, int], error) {
+	rows, err := q.getCalendarEntryIDsForEpisodes(ctx, intToInt32(ids))
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(r getCalendarEntryIDsForEpisodesRow, _ int) common.Mapping[int, int] {
+		return common.Mapping[int, int]{Key: int(r.ParentID.Int64), Value: int(r.ID)}
+	}), nil
+}
+
 // GetEventsForPeriod returns events for the specific period
 func (q *Queries) GetEventsForPeriod(ctx context.Context, from time.Time, to time.Time) ([]int, error) {
 	ids, err := q.getEventIDsForPeriod(ctx, getEventIDsForPeriodParams{

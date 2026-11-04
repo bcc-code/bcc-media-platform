@@ -1249,6 +1249,7 @@ type DefaultSectionResolver interface {
 }
 type EpisodeResolver interface {
 	Locked(ctx context.Context, obj *model.Episode) (bool, error)
+	OverrideURL(ctx context.Context, obj *model.Episode) (*string, error)
 
 	AvailableFrom(ctx context.Context, obj *model.Episode) (string, error)
 
@@ -7460,8 +7461,8 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     legacyID: ID
     legacyProgramID: ID
     locked: Boolean! @goField(forceResolver: true)
-    # URL to open instead of playing this episode, while set and within its time window.
-    overrideUrl: String
+    # URL to open instead of playing this episode: a manual override, or the Live app while the meeting is in the live buffer.
+    overrideUrl: String @goField(forceResolver: true)
     publishDate: Date!
     productionDate: Date!
     productionDateInTitle: Boolean!
@@ -20907,7 +20908,7 @@ func (ec *executionContext) _Episode_overrideUrl(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.OverrideURL, nil
+		return ec.resolvers.Episode().OverrideURL(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20925,8 +20926,8 @@ func (ec *executionContext) fieldContext_Episode_overrideUrl(_ context.Context, 
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -55669,7 +55670,38 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "overrideUrl":
-			out.Values[i] = ec._Episode_overrideUrl(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_overrideUrl(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "publishDate":
 			out.Values[i] = ec._Episode_publishDate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

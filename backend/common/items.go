@@ -156,9 +156,7 @@ type Episode struct {
 	CopyrightHolderID uuid.NullUUID `json:"copyrightHolderId"`
 	MediaItemID       uuid.NullUUID `json:"mediaItemId"`
 
-	OverrideURL      null.String `json:"overrideUrl"`
-	OverrideURLFrom  null.Time   `json:"overrideUrlFrom"`
-	OverrideURLUntil null.Time   `json:"overrideUrlUntil"`
+	OverrideURL null.String `json:"overrideUrl"`
 }
 
 // GetKey returns the key for this item

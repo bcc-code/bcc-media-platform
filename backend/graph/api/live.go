@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/streamtoken"
 )
@@ -133,4 +134,39 @@ func appendTimeShiftTags(signedURL string, start time.Time, end *time.Time) stri
 		out += "&end=" + strconv.FormatInt(end.Unix(), 10)
 	}
 	return out
+}
+
+// episodeOverrideURL is the episode's manual URL override, else the Live app while
+// one of its calendar entries is in the live buffer for the caller.
+func (r *Resolver) episodeOverrideURL(ctx context.Context, episodeID int) (*string, error) {
+	e, err := r.Loaders.EpisodeLoader.Get(ctx, episodeID)
+	if err != nil || e == nil {
+		return nil, err
+	}
+	if u := e.OverrideURL.ValueOrZero(); u != "" {
+		return &u, nil
+	}
+	if r.LiveApp.BaseURL == "" {
+		return nil, nil
+	}
+
+	entryIDs, err := r.Loaders.EpisodeCalendarEntriesLoader.Get(ctx, episodeID)
+	if err != nil {
+		return nil, err
+	}
+	for _, entryID := range common.MappingValues(entryIDs) {
+		window, err := r.bufferWindowForEntry(ctx, strconv.Itoa(entryID))
+		if err != nil {
+			return nil, err
+		}
+		if window == nil {
+			continue
+		}
+		u := r.LiveApp.ReplayURL(entryID)
+		if time.Now().Before(window.entry.End) {
+			u = r.LiveApp.RootURL()
+		}
+		return &u, nil
+	}
+	return nil, nil
 }

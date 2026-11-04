@@ -2,14 +2,11 @@ package liveapp
 
 import (
 	"os"
+	"strconv"
 	"strings"
-	"time"
 )
 
 const defaultBaseURL = "https://live.bcc-connect.org"
-
-// ReplayWindow is how long after a meeting ends its episode redirects to the Live app replay.
-const ReplayWindow = 48 * time.Hour
 
 type Config struct {
 	BaseURL string
@@ -32,7 +29,6 @@ func (c Config) RootURL() string {
 	return c.base() + "/"
 }
 
-// ReplayURLPrefix is the replay URL without the calendar entry id.
-func (c Config) ReplayURLPrefix() string {
-	return c.base() + "/replay/"
+func (c Config) ReplayURL(entryID int) string {
+	return c.base() + "/replay/" + strconv.Itoa(entryID)
 }

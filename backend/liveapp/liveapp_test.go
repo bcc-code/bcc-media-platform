@@ -10,7 +10,7 @@ func TestURLs(t *testing.T) {
 	for _, base := range []string{"https://live.bcc-connect.org", "https://live.bcc-connect.org/"} {
 		c := Config{BaseURL: base}
 		assert.Equal(t, "https://live.bcc-connect.org/", c.RootURL())
-		assert.Equal(t, "https://live.bcc-connect.org/replay/", c.ReplayURLPrefix())
+		assert.Equal(t, "https://live.bcc-connect.org/replay/42", c.ReplayURL(42))
 	}
 }
 

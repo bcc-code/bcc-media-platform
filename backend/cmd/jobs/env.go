@@ -4,7 +4,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/bcc-code/bcc-media-platform/backend/liveapp"
 	"github.com/bcc-code/bcc-media-platform/backend/translations/phrase"
 	"github.com/joho/godotenv"
 
@@ -91,7 +90,6 @@ type envConfig struct {
 	Phrase                phrase.Config
 	CDNConfig             cdnConfig
 	StreamProxy           streamProxyConfig
-	LiveApp               liveapp.Config
 }
 
 func getEnvConfig() envConfig {
@@ -191,6 +189,5 @@ func getEnvConfig() envConfig {
 			JWTIssuer: os.Getenv("STREAM_JWT_ISSUER"),
 			Domain:    os.Getenv("STREAM_PROXY_DOMAIN"),
 		},
-		LiveApp: liveapp.ConfigFromEnv(),
 	}
 }

@@ -54,6 +54,11 @@ func (r *episodeResolver) Locked(ctx context.Context, obj *model.Episode) (bool,
 	return e.PublishDate.After(time.Now()) && len(earlyAccess) == 0, nil
 }
 
+// OverrideURL is the resolver for the overrideUrl field.
+func (r *episodeResolver) OverrideURL(ctx context.Context, obj *model.Episode) (*string, error) {
+	return r.episodeOverrideURL(ctx, utils.AsInt(obj.ID))
+}
+
 // AvailableFrom is the resolver for the availableFrom field.
 func (r *episodeResolver) AvailableFrom(ctx context.Context, obj *model.Episode) (string, error) {
 	perms, err := r.Loaders.EpisodePermissionLoader.Get(ctx, utils.AsInt(obj.ID))

@@ -902,12 +902,8 @@ type Episode struct {
 	TimedmetadataFromAsset   bool                  `db:"timedmetadata_from_asset" json:"timedmetadataFromAsset"`
 	TranslationsRequired     bool                  `db:"translations_required" json:"translationsRequired"`
 	MediaitemID              uuid.NullUUID         `db:"mediaitem_id" json:"mediaitemId"`
-	// URL clients open instead of playing the episode, between override_url_from and override_url_until. Set automatically for meeting episodes (Live app replay); NULL for all other episodes.
+	// URL clients open instead of playing the episode. Takes precedence over the automatic Live app redirect of meeting episodes.
 	OverrideUrl null_v4.String `db:"override_url" json:"overrideUrl"`
-	// When override_url stops applying. NULL = no expiry.
-	OverrideUrlUntil null_v4.Time `db:"override_url_until" json:"overrideUrlUntil"`
-	// When override_url starts applying. NULL = immediately.
-	OverrideUrlFrom null_v4.Time `db:"override_url_from" json:"overrideUrlFrom"`
 }
 
 type EpisodeAvailability struct {

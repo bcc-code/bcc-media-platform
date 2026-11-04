@@ -53,48 +53,6 @@ func (q *Queries) GetCalendarEntriesTranslatable(ctx context.Context, dateUpdate
 	return items, nil
 }
 
-const refreshEpisodeOverridesForCalendarEntry = `-- name: RefreshEpisodeOverridesForCalendarEntry :exec
-WITH args AS (SELECT $1::int           AS entry_id,
-                     $2::text AS prefix,
-                     $3::int     AS window_seconds),
-     ids AS (SELECT c.episode_id AS id
-             FROM calendarentries c, args
-             WHERE c.id = args.entry_id
-               AND c.episode_id IS NOT NULL
-             UNION
-             SELECT e.id
-             FROM episodes e, args
-             WHERE e.override_url = args.prefix || args.entry_id),
-     latest AS (SELECT DISTINCT ON (c.episode_id) c.episode_id, c.id, c."end"
-                FROM calendarentries c
-                WHERE c.episode_id IN (SELECT id FROM ids)
-                  AND c.status = 'published'
-                  AND c.link_type = 'episode'
-                ORDER BY c.episode_id, c."end" DESC)
-UPDATE episodes ep
-SET override_url       = args.prefix || latest.id,
-    override_url_from  = latest."end",
-    override_url_until = latest."end" + args.window_seconds * interval '1 second'
-FROM args, ids
-         LEFT JOIN latest ON latest.episode_id = ids.id
-WHERE ep.id = ids.id
-`
-
-type RefreshEpisodeOverridesForCalendarEntryParams struct {
-	EntryID         int32  `db:"entry_id" json:"entryId"`
-	ReplayUrlPrefix string `db:"replay_url_prefix" json:"replayUrlPrefix"`
-	WindowSeconds   int32  `db:"window_seconds" json:"windowSeconds"`
-}
-
-// Points the episodes affected by a calendar entry (the one it links to, and any
-// still pointing to its replay) to the replay of their latest-ending published
-// calendar entry from its end for window_seconds, or clears the override when no
-// such entry is left.
-func (q *Queries) RefreshEpisodeOverridesForCalendarEntry(ctx context.Context, arg RefreshEpisodeOverridesForCalendarEntryParams) error {
-	_, err := q.db.ExecContext(ctx, refreshEpisodeOverridesForCalendarEntry, arg.EntryID, arg.ReplayUrlPrefix, arg.WindowSeconds)
-	return err
-}
-
 const getCalendarEntries = `-- name: getCalendarEntries :many
 SELECT e.id,
        e.event_id,
@@ -291,6 +249,43 @@ func (q *Queries) getCalendarEntriesByID(ctx context.Context, dollar_1 []int32) 
 			&i.EpisodeLocked,
 			&i.BufferAllowed,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getCalendarEntryIDsForEpisodes = `-- name: getCalendarEntryIDsForEpisodes :many
+SELECT e.id, e.episode_id as parent_id
+FROM calendarentries e
+WHERE e.status = 'published'
+  AND e.link_type = 'episode'
+  AND e.episode_id = ANY ($1::int[])
+ORDER BY e.end DESC
+`
+
+type getCalendarEntryIDsForEpisodesRow struct {
+	ID       int32       `db:"id" json:"id"`
+	ParentID null_v4.Int `db:"parent_id" json:"parentId"`
+}
+
+func (q *Queries) getCalendarEntryIDsForEpisodes(ctx context.Context, ids []int32) ([]getCalendarEntryIDsForEpisodesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCalendarEntryIDsForEpisodes, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getCalendarEntryIDsForEpisodesRow
+	for rows.Next() {
+		var i getCalendarEntryIDsForEpisodesRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

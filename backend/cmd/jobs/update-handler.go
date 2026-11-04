@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
-	"github.com/bcc-code/bcc-media-platform/backend/liveapp"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/members"
 	"github.com/bcc-code/bcc-media-platform/backend/notifications"
@@ -24,7 +23,6 @@ type modelHandler struct {
 	remoteCache       *remotecache.Client
 	members           *members.Client
 	notificationUtils *notifications.Utils
-	liveApp           liveapp.Config
 }
 
 func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string, key string) error {
