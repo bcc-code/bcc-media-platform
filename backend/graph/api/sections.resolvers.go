@@ -10,7 +10,6 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
-	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
 
@@ -83,15 +82,13 @@ func (r *liveSectionResolver) URL(ctx context.Context, obj *model.LiveSection) (
 	return r.LiveApp.RootURL(), nil
 }
 
-// EventTitle is the resolver for the eventTitle field.
-func (r *liveSectionResolver) EventTitle(ctx context.Context, obj *model.LiveSection) (*string, error) {
+// Entry is the resolver for the entry field.
+func (r *liveSectionResolver) Entry(ctx context.Context, obj *model.LiveSection) (model.CalendarEntry, error) {
 	entry, err := r.liveSectionEntry(ctx)
 	if err != nil || entry == nil {
 		return nil, err
 	}
-	ginCtx, _ := utils.GinCtx(ctx)
-	title := entry.Title.Get(user.GetLanguagesFromCtx(ginCtx))
-	return &title, nil
+	return model.CalendarEntryFrom(ctx, entry), nil
 }
 
 // Messages is the resolver for the messages field.

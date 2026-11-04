@@ -988,12 +988,12 @@ type Live struct {
 }
 
 type LiveSection struct {
-	ID          string  `json:"id"`
-	Title       *string `json:"title,omitempty"`
-	Description *string `json:"description,omitempty"`
-	OnAir       bool    `json:"onAir"`
-	URL         string  `json:"url"`
-	EventTitle  *string `json:"eventTitle,omitempty"`
+	ID          string        `json:"id"`
+	Title       *string       `json:"title,omitempty"`
+	Description *string       `json:"description,omitempty"`
+	OnAir       bool          `json:"onAir"`
+	URL         string        `json:"url"`
+	Entry       CalendarEntry `json:"entry,omitempty"`
 }
 
 func (LiveSection) IsSection()                   {}

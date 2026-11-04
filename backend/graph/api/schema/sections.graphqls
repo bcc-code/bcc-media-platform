@@ -203,8 +203,8 @@ type LiveSection implements Section {
     onAir: Boolean! @goField(forceResolver: true)
     # The Live app.
     url: String! @goField(forceResolver: true)
-    # Localized title of the calendar entry on air. Null when not on air.
-    eventTitle: String @goField(forceResolver: true)
+    # The calendar entry on air. Null when not on air.
+    entry: CalendarEntry @goField(forceResolver: true)
 }
 
 type PageDetailsSection implements Section {

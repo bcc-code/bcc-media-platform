@@ -637,7 +637,7 @@ type ComplexityRoot struct {
 
 	LiveSection struct {
 		Description func(childComplexity int) int
-		EventTitle  func(childComplexity int) int
+		Entry       func(childComplexity int) int
 		ID          func(childComplexity int) int
 		OnAir       func(childComplexity int) int
 		Title       func(childComplexity int) int
@@ -1346,7 +1346,7 @@ type ListSectionResolver interface {
 type LiveSectionResolver interface {
 	OnAir(ctx context.Context, obj *model.LiveSection) (bool, error)
 	URL(ctx context.Context, obj *model.LiveSection) (string, error)
-	EventTitle(ctx context.Context, obj *model.LiveSection) (*string, error)
+	Entry(ctx context.Context, obj *model.LiveSection) (model.CalendarEntry, error)
 }
 type MessageSectionResolver interface {
 	Messages(ctx context.Context, obj *model.MessageSection) ([]*model.Message, error)
@@ -4137,12 +4137,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.LiveSection.Description(childComplexity), true
 
-	case "LiveSection.eventTitle":
-		if e.complexity.LiveSection.EventTitle == nil {
+	case "LiveSection.entry":
+		if e.complexity.LiveSection.Entry == nil {
 			break
 		}
 
-		return e.complexity.LiveSection.EventTitle(childComplexity), true
+		return e.complexity.LiveSection.Entry(childComplexity), true
 
 	case "LiveSection.id":
 		if e.complexity.LiveSection.ID == nil {
@@ -8423,8 +8423,8 @@ type LiveSection implements Section {
     onAir: Boolean! @goField(forceResolver: true)
     # The Live app.
     url: String! @goField(forceResolver: true)
-    # Localized title of the calendar entry on air. Null when not on air.
-    eventTitle: String @goField(forceResolver: true)
+    # The calendar entry on air. Null when not on air.
+    entry: CalendarEntry @goField(forceResolver: true)
 }
 
 type PageDetailsSection implements Section {
@@ -31056,8 +31056,8 @@ func (ec *executionContext) fieldContext_LiveSection_url(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _LiveSection_eventTitle(ctx context.Context, field graphql.CollectedField, obj *model.LiveSection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_LiveSection_eventTitle(ctx, field)
+func (ec *executionContext) _LiveSection_entry(ctx context.Context, field graphql.CollectedField, obj *model.LiveSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiveSection_entry(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -31070,7 +31070,7 @@ func (ec *executionContext) _LiveSection_eventTitle(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.LiveSection().EventTitle(rctx, obj)
+		return ec.resolvers.LiveSection().Entry(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -31079,19 +31079,19 @@ func (ec *executionContext) _LiveSection_eventTitle(ctx context.Context, field g
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(model.CalendarEntry)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOCalendarEntry2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntry(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LiveSection_eventTitle(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LiveSection_entry(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LiveSection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -59259,7 +59259,7 @@ func (ec *executionContext) _LiveSection(ctx context.Context, sel ast.SelectionS
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "eventTitle":
+		case "entry":
 			field := field
 
 			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
@@ -59268,7 +59268,7 @@ func (ec *executionContext) _LiveSection(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._LiveSection_eventTitle(ctx, field, obj)
+				res = ec._LiveSection_entry(ctx, field, obj)
 				return res
 			}
 
@@ -69139,6 +69139,13 @@ func (ec *executionContext) marshalOCalendar2ᚖgithubᚗcomᚋbccᚑcodeᚋbcc�
 		return graphql.Null
 	}
 	return ec._Calendar(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOCalendarEntry2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntry(ctx context.Context, sel ast.SelectionSet, v model.CalendarEntry) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CalendarEntry(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOCalendarEntryBuffer2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntryBuffer(ctx context.Context, sel ast.SelectionSet, v *model.CalendarEntryBuffer) graphql.Marshaler {

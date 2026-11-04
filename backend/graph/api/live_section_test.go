@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
@@ -16,7 +17,6 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/bcc-code/bcc-media-platform/backend/utils/testutils"
 	"github.com/gin-gonic/gin"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -58,8 +58,10 @@ func TestLiveSection(t *testing.T) {
 
 	cases := 0
 	type state struct {
-		OnAir      bool
-		EventTitle *string
+		OnAir   bool
+		EntryID string
+		Title   string
+		HasTime bool
 	}
 	off := state{}
 	liveSection := func(u *common.User) state {
@@ -87,11 +89,16 @@ func TestLiveSection(t *testing.T) {
 		sr := r.LiveSection()
 		onAir, err := sr.OnAir(rctx, &model.LiveSection{})
 		require.NoError(t, err)
-		title, err := sr.EventTitle(rctx, &model.LiveSection{})
+		entry, err := sr.Entry(rctx, &model.LiveSection{})
 		require.NoError(t, err)
-		return state{OnAir: onAir, EventTitle: title}
+		st := state{OnAir: onAir}
+		if entry != nil {
+			st.EntryID, st.Title = entry.GetID(), entry.GetTitle()
+			st.HasTime = entry.GetStart() != "" && entry.GetEnd() > entry.GetStart()
+		}
+		return st
 	}
-	want := state{OnAir: true, EventTitle: lo.ToPtr("Møte")}
+	want := state{OnAir: true, EntryID: strconv.Itoa(entryID), Title: "Møte", HasTime: true}
 
 	assert.Equal(t, want, liveSection(member), "meeting on air")
 	assert.Equal(t, off, liveSection(&common.User{ActiveBCC: false}), "not an active member")
