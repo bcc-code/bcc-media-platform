@@ -1345,7 +1345,7 @@ type ListSectionResolver interface {
 }
 type LiveSectionResolver interface {
 	OnAir(ctx context.Context, obj *model.LiveSection) (bool, error)
-	URL(ctx context.Context, obj *model.LiveSection) (string, error)
+
 	Entry(ctx context.Context, obj *model.LiveSection) (model.CalendarEntry, error)
 }
 type MessageSectionResolver interface {
@@ -8420,7 +8420,7 @@ type LiveSection implements Section {
     description: String
     # Also false when the meeting's live buffer isn't open to the caller.
     onAir: Boolean! @goField(forceResolver: true)
-    url: String! @goField(forceResolver: true)
+    url: String!
     entry: CalendarEntry @goField(forceResolver: true)
 }
 
@@ -31023,7 +31023,7 @@ func (ec *executionContext) _LiveSection_url(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.LiveSection().URL(rctx, obj)
+		return obj.URL, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -31044,8 +31044,8 @@ func (ec *executionContext) fieldContext_LiveSection_url(_ context.Context, fiel
 	fc = &graphql.FieldContext{
 		Object:     "LiveSection",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -59221,41 +59221,10 @@ func (ec *executionContext) _LiveSection(ctx context.Context, sel ast.SelectionS
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "url":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._LiveSection_url(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._LiveSection_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "entry":
 			field := field
 

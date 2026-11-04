@@ -77,11 +77,6 @@ func (r *liveSectionResolver) OnAir(ctx context.Context, obj *model.LiveSection)
 	return entry != nil, err
 }
 
-// URL is the resolver for the url field.
-func (r *liveSectionResolver) URL(ctx context.Context, obj *model.LiveSection) (string, error) {
-	return r.LiveApp.RootURL(), nil
-}
-
 // Entry is the resolver for the entry field.
 func (r *liveSectionResolver) Entry(ctx context.Context, obj *model.LiveSection) (model.CalendarEntry, error) {
 	entry, err := r.liveSectionEntry(ctx)

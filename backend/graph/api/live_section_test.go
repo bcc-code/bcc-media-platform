@@ -21,6 +21,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestSectionFrom_LiveURL(t *testing.T) {
+	r := &Resolver{LiveApp: liveapp.Config{BaseURL: "https://live.bcc-connect.org"}}
+	ctx := utils.ContextWithGinContext(context.Background(), &gin.Context{})
+	s := r.sectionFrom(ctx, &common.Section{ID: 1, Type: "live"})
+	assert.Equal(t, "https://live.bcc-connect.org/", s.(*model.LiveSection).URL)
+}
+
 func TestLiveSection_NoLiveAppURL(t *testing.T) {
 	r := &Resolver{}
 	e, err := r.liveSectionEntry(context.Background())

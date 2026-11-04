@@ -200,7 +200,7 @@ type LiveSection implements Section {
     description: String
     # Also false when the meeting's live buffer isn't open to the caller.
     onAir: Boolean! @goField(forceResolver: true)
-    url: String! @goField(forceResolver: true)
+    url: String!
     entry: CalendarEntry @goField(forceResolver: true)
 }
 

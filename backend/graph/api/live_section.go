@@ -7,6 +7,7 @@ import (
 
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
@@ -51,4 +52,13 @@ func (r *Resolver) liveSectionEntry(ctx context.Context) (*common.CalendarEntry,
 		return nil, err
 	}
 	return window.entry, nil
+}
+
+// sectionFrom is model.SectionFrom plus the fields that need resolver config.
+func (r *Resolver) sectionFrom(ctx context.Context, s *common.Section) model.Section {
+	section := model.SectionFrom(ctx, s)
+	if l, ok := section.(*model.LiveSection); ok {
+		l.URL = r.LiveApp.RootURL()
+	}
+	return section
 }
