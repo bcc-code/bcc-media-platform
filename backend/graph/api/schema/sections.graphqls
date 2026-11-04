@@ -194,25 +194,17 @@ type AchievementSection implements Section {
     source: AchievementsSource!
 }
 
-# Where a BannerSection gets its content from.
-enum BannerSource {
-    # The meeting on air, linking to the Live app.
-    live
-}
-
-type Banner {
-    title: String!
-    url: String!
-}
-
-type BannerSection implements Section {
+# The meeting on air, linking to the Live app.
+type LiveSection implements Section {
     id: ID!
     title: String
     description: String
-    # Null when this API version doesn't know the configured source.
-    source: BannerSource
-    # Null when the source has nothing to show right now; hide the section then.
-    banner: Banner @goField(forceResolver: true)
+    # True while a meeting is on air and its live buffer is open to the caller.
+    onAir: Boolean! @goField(forceResolver: true)
+    # The Live app.
+    url: String! @goField(forceResolver: true)
+    # Localized title of the calendar entry on air. Null when not on air.
+    eventTitle: String @goField(forceResolver: true)
 }
 
 type PageDetailsSection implements Section {

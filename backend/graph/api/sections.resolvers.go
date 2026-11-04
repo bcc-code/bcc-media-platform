@@ -10,20 +10,13 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/generated"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
 
 // Items is the resolver for the items field.
 func (r *avatarSectionResolver) Items(ctx context.Context, obj *model.AvatarSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
-}
-
-// Banner is the resolver for the banner field.
-func (r *bannerSectionResolver) Banner(ctx context.Context, obj *model.BannerSection) (*model.Banner, error) {
-	if obj.Source == nil {
-		return nil, nil
-	}
-	return r.banner(ctx, *obj.Source)
 }
 
 // Items is the resolver for the items field.
@@ -79,6 +72,28 @@ func (r *listSectionResolver) Items(ctx context.Context, obj *model.ListSection,
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
 }
 
+// OnAir is the resolver for the onAir field.
+func (r *liveSectionResolver) OnAir(ctx context.Context, obj *model.LiveSection) (bool, error) {
+	entry, err := r.liveSectionEntry(ctx)
+	return entry != nil, err
+}
+
+// URL is the resolver for the url field.
+func (r *liveSectionResolver) URL(ctx context.Context, obj *model.LiveSection) (string, error) {
+	return r.LiveApp.RootURL(), nil
+}
+
+// EventTitle is the resolver for the eventTitle field.
+func (r *liveSectionResolver) EventTitle(ctx context.Context, obj *model.LiveSection) (*string, error) {
+	entry, err := r.liveSectionEntry(ctx)
+	if err != nil || entry == nil {
+		return nil, err
+	}
+	ginCtx, _ := utils.GinCtx(ctx)
+	title := entry.Title.Get(user.GetLanguagesFromCtx(ginCtx))
+	return &title, nil
+}
+
 // Messages is the resolver for the messages field.
 func (r *messageSectionResolver) Messages(ctx context.Context, obj *model.MessageSection) ([]*model.Message, error) {
 	s, err := r.Loaders.SectionLoader.Get(ctx, utils.AsInt(obj.ID))
@@ -126,9 +141,6 @@ func (r *sectionItemResolver) Image(ctx context.Context, obj *model.SectionItem)
 // AvatarSection returns generated.AvatarSectionResolver implementation.
 func (r *Resolver) AvatarSection() generated.AvatarSectionResolver { return &avatarSectionResolver{r} }
 
-// BannerSection returns generated.BannerSectionResolver implementation.
-func (r *Resolver) BannerSection() generated.BannerSectionResolver { return &bannerSectionResolver{r} }
-
 // CardListSection returns generated.CardListSectionResolver implementation.
 func (r *Resolver) CardListSection() generated.CardListSectionResolver {
 	return &cardListSectionResolver{r}
@@ -171,6 +183,9 @@ func (r *Resolver) LabelSection() generated.LabelSectionResolver { return &label
 // ListSection returns generated.ListSectionResolver implementation.
 func (r *Resolver) ListSection() generated.ListSectionResolver { return &listSectionResolver{r} }
 
+// LiveSection returns generated.LiveSectionResolver implementation.
+func (r *Resolver) LiveSection() generated.LiveSectionResolver { return &liveSectionResolver{r} }
+
 // MessageSection returns generated.MessageSectionResolver implementation.
 func (r *Resolver) MessageSection() generated.MessageSectionResolver {
 	return &messageSectionResolver{r}
@@ -188,7 +203,6 @@ func (r *Resolver) PosterSection() generated.PosterSectionResolver { return &pos
 func (r *Resolver) SectionItem() generated.SectionItemResolver { return &sectionItemResolver{r} }
 
 type avatarSectionResolver struct{ *Resolver }
-type bannerSectionResolver struct{ *Resolver }
 type cardListSectionResolver struct{ *Resolver }
 type cardSectionResolver struct{ *Resolver }
 type defaultGridSectionResolver struct{ *Resolver }
@@ -199,6 +213,7 @@ type iconSectionResolver struct{ *Resolver }
 type itemSectionMetadataResolver struct{ *Resolver }
 type labelSectionResolver struct{ *Resolver }
 type listSectionResolver struct{ *Resolver }
+type liveSectionResolver struct{ *Resolver }
 type messageSectionResolver struct{ *Resolver }
 type posterGridSectionResolver struct{ *Resolver }
 type posterSectionResolver struct{ *Resolver }

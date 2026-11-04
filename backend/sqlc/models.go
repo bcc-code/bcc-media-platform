@@ -1658,8 +1658,6 @@ type Section struct {
 	Limit                null_v4.Int     `db:"limit" json:"limit"`
 	AchievementsSource   null_v4.String  `db:"achievements_source" json:"achievementsSource"`
 	PlaylistID           uuid.NullUUID   `db:"playlist_id" json:"playlistId"`
-	// Where a banner section gets its content from, e.g. live: the meeting on air, linking to the Live app.
-	BannerSource null_v4.String `db:"banner_source" json:"bannerSource"`
 }
 
 type SectionsTranslation struct {
