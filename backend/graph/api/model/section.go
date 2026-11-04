@@ -223,6 +223,12 @@ func SectionFrom(ctx context.Context, s *common.Section) Section {
 			Description: description,
 			Source:      aSource,
 		}
+	case "live":
+		return &LiveSection{
+			ID:          id,
+			Title:       title,
+			Description: description,
+		}
 	case "page_details":
 		return &PageDetailsSection{
 			ID:          id,

@@ -24,6 +24,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/email"
 	"github.com/bcc-code/bcc-media-platform/backend/export"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/liveapp"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
@@ -91,6 +92,7 @@ type Resolver struct {
 	AWSConfig             awsConfig
 	AnalyticsIDFactory    func(ctx context.Context) string
 	RedirectConfig        redirectConfig
+	LiveApp               liveapp.Config
 	AuthClient            *auth0.Client
 	RemoteCache           *remotecache.Client
 	AnalyticsClient       analyticsService

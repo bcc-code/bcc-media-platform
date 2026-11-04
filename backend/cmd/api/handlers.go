@@ -73,6 +73,7 @@ func graphqlHandler(
 		APIConfig:             config.CDNConfig,
 		AWSConfig:             config.AWS,
 		RedirectConfig:        config.Redirect,
+		LiveApp:               config.LiveApp,
 		AuthClient:            authClient,
 		RemoteCache:           remoteCache,
 		AnalyticsClient:       analyticsClient,

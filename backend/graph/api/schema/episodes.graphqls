@@ -19,6 +19,8 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     legacyID: ID
     legacyProgramID: ID
     locked: Boolean! @goField(forceResolver: true)
+    # Open this instead of playing: the manual override, else the Live app while in the live buffer.
+    overrideUrl: String @goField(forceResolver: true)
     publishDate: Date!
     productionDate: Date!
     productionDateInTitle: Boolean!

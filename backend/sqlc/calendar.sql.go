@@ -262,6 +262,43 @@ func (q *Queries) getCalendarEntriesByID(ctx context.Context, dollar_1 []int32) 
 	return items, nil
 }
 
+const getCalendarEntryIDsForEpisodes = `-- name: getCalendarEntryIDsForEpisodes :many
+SELECT e.id, e.episode_id as parent_id
+FROM calendarentries e
+WHERE e.status = 'published'
+  AND e.link_type = 'episode'
+  AND e.episode_id = ANY ($1::int[])
+ORDER BY e.end DESC
+`
+
+type getCalendarEntryIDsForEpisodesRow struct {
+	ID       int32       `db:"id" json:"id"`
+	ParentID null_v4.Int `db:"parent_id" json:"parentId"`
+}
+
+func (q *Queries) getCalendarEntryIDsForEpisodes(ctx context.Context, ids []int32) ([]getCalendarEntryIDsForEpisodesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCalendarEntryIDsForEpisodes, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []getCalendarEntryIDsForEpisodesRow
+	for rows.Next() {
+		var i getCalendarEntryIDsForEpisodesRow
+		if err := rows.Scan(&i.ID, &i.ParentID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getCalendarEntryIDsForEvents = `-- name: getCalendarEntryIDsForEvents :many
 SELECT e.id, e.event_id as parent_id
 FROM calendarentries e
@@ -355,6 +392,34 @@ type getCurrentCalendarEntryRow struct {
 func (q *Queries) getCurrentCalendarEntry(ctx context.Context, endsAfter time.Time) (getCurrentCalendarEntryRow, error) {
 	row := q.db.QueryRowContext(ctx, getCurrentCalendarEntry, endsAfter)
 	var i getCurrentCalendarEntryRow
+	err := row.Scan(&i.ID, &i.Start, &i.End)
+	return i, err
+}
+
+const getCurrentMeetingEntry = `-- name: getCurrentMeetingEntry :one
+SELECT e.id,
+       e.start,
+       e.end
+FROM calendarentries e
+WHERE e.status = 'published'
+  AND e.link_type = 'episode'
+  AND e.episode_id IS NOT NULL
+  AND NOT COALESCE(e.is_replay, false)
+  AND e.start <= now()
+  AND e.end > now()
+ORDER BY e.start DESC
+LIMIT 1
+`
+
+type getCurrentMeetingEntryRow struct {
+	ID    int32     `db:"id" json:"id"`
+	Start time.Time `db:"start" json:"start"`
+	End   time.Time `db:"end" json:"end"`
+}
+
+func (q *Queries) getCurrentMeetingEntry(ctx context.Context) (getCurrentMeetingEntryRow, error) {
+	row := q.db.QueryRowContext(ctx, getCurrentMeetingEntry)
+	var i getCurrentMeetingEntryRow
 	err := row.Scan(&i.ID, &i.Start, &i.End)
 	return i, err
 }

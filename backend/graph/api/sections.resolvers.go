@@ -71,6 +71,21 @@ func (r *listSectionResolver) Items(ctx context.Context, obj *model.ListSection,
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
 }
 
+// OnAir is the resolver for the onAir field.
+func (r *liveSectionResolver) OnAir(ctx context.Context, obj *model.LiveSection) (bool, error) {
+	entry, err := r.liveSectionEntry(ctx)
+	return entry != nil, err
+}
+
+// Entry is the resolver for the entry field.
+func (r *liveSectionResolver) Entry(ctx context.Context, obj *model.LiveSection) (model.CalendarEntry, error) {
+	entry, err := r.liveSectionEntry(ctx)
+	if err != nil || entry == nil {
+		return nil, err
+	}
+	return model.CalendarEntryFrom(ctx, entry), nil
+}
+
 // Messages is the resolver for the messages field.
 func (r *messageSectionResolver) Messages(ctx context.Context, obj *model.MessageSection) ([]*model.Message, error) {
 	s, err := r.Loaders.SectionLoader.Get(ctx, utils.AsInt(obj.ID))
@@ -160,6 +175,9 @@ func (r *Resolver) LabelSection() generated.LabelSectionResolver { return &label
 // ListSection returns generated.ListSectionResolver implementation.
 func (r *Resolver) ListSection() generated.ListSectionResolver { return &listSectionResolver{r} }
 
+// LiveSection returns generated.LiveSectionResolver implementation.
+func (r *Resolver) LiveSection() generated.LiveSectionResolver { return &liveSectionResolver{r} }
+
 // MessageSection returns generated.MessageSectionResolver implementation.
 func (r *Resolver) MessageSection() generated.MessageSectionResolver {
 	return &messageSectionResolver{r}
@@ -187,6 +205,7 @@ type iconSectionResolver struct{ *Resolver }
 type itemSectionMetadataResolver struct{ *Resolver }
 type labelSectionResolver struct{ *Resolver }
 type listSectionResolver struct{ *Resolver }
+type liveSectionResolver struct{ *Resolver }
 type messageSectionResolver struct{ *Resolver }
 type posterGridSectionResolver struct{ *Resolver }
 type posterSectionResolver struct{ *Resolver }

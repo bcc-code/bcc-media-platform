@@ -9,6 +9,20 @@ WHERE e.status = 'published'
 ORDER BY e.start DESC
 LIMIT 1;
 
+-- name: getCurrentMeetingEntry :one
+SELECT e.id,
+       e.start,
+       e.end
+FROM calendarentries e
+WHERE e.status = 'published'
+  AND e.link_type = 'episode'
+  AND e.episode_id IS NOT NULL
+  AND NOT COALESCE(e.is_replay, false)
+  AND e.start <= now()
+  AND e.end > now()
+ORDER BY e.start DESC
+LIMIT 1;
+
 -- name: getCalendarEntries :many
 SELECT e.id,
        e.event_id,
@@ -148,3 +162,11 @@ FROM calendarentries_translations et
 WHERE et.languages_code ='no'
   AND et.date_updated > @date_updated
   AND e.status = ANY ('{published,unlisted}');
+
+-- name: getCalendarEntryIDsForEpisodes :many
+SELECT e.id, e.episode_id as parent_id
+FROM calendarentries e
+WHERE e.status = 'published'
+  AND e.link_type = 'episode'
+  AND e.episode_id = ANY (@ids::int[])
+ORDER BY e.end DESC;

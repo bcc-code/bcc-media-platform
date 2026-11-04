@@ -194,6 +194,16 @@ type AchievementSection implements Section {
     source: AchievementsSource!
 }
 
+type LiveSection implements Section {
+    id: ID!
+    title: String
+    description: String
+    # Also false when the meeting's live buffer isn't open to the caller.
+    onAir: Boolean! @goField(forceResolver: true)
+    url: String!
+    entry: CalendarEntry @goField(forceResolver: true)
+}
+
 type PageDetailsSection implements Section {
     id: ID!
     title: String

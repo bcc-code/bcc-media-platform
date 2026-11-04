@@ -372,7 +372,7 @@ func (r *queryRootResolver) Section(ctx context.Context, id string, timestamp *s
 	return resolverForIntID(ctx, &itemLoaders[int, common.Section]{
 		Item:        r.Loaders.SectionLoader,
 		Permissions: r.Loaders.SectionPermissionLoader,
-	}, id, model.SectionFrom)
+	}, id, r.sectionFrom)
 }
 
 // Person is the resolver for the person field.

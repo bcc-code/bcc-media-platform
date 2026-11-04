@@ -72,6 +72,7 @@ type ResolverRoot interface {
 	Link() LinkResolver
 	LinkTask() LinkTaskResolver
 	ListSection() ListSectionResolver
+	LiveSection() LiveSectionResolver
 	MessageSection() MessageSectionResolver
 	MutationRoot() MutationRootResolver
 	Page() PageResolver
@@ -360,6 +361,7 @@ type ComplexityRoot struct {
 		Next                  func(childComplexity int, limit *int) int
 		Number                func(childComplexity int) int
 		OriginalTitle         func(childComplexity int) int
+		OverrideURL           func(childComplexity int) int
 		ProductionDate        func(childComplexity int) int
 		ProductionDateInTitle func(childComplexity int) int
 		Progress              func(childComplexity int) int
@@ -631,6 +633,15 @@ type ComplexityRoot struct {
 		ExpiresAt func(childComplexity int) int
 		IsOnline  func(childComplexity int) int
 		URL       func(childComplexity int) int
+	}
+
+	LiveSection struct {
+		Description func(childComplexity int) int
+		Entry       func(childComplexity int) int
+		ID          func(childComplexity int) int
+		OnAir       func(childComplexity int) int
+		Title       func(childComplexity int) int
+		URL         func(childComplexity int) int
 	}
 
 	Message struct {
@@ -1231,6 +1242,7 @@ type DefaultSectionResolver interface {
 }
 type EpisodeResolver interface {
 	Locked(ctx context.Context, obj *model.Episode) (bool, error)
+	OverrideURL(ctx context.Context, obj *model.Episode) (*string, error)
 
 	AvailableFrom(ctx context.Context, obj *model.Episode) (string, error)
 
@@ -1330,6 +1342,11 @@ type LinkTaskResolver interface {
 }
 type ListSectionResolver interface {
 	Items(ctx context.Context, obj *model.ListSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
+}
+type LiveSectionResolver interface {
+	OnAir(ctx context.Context, obj *model.LiveSection) (bool, error)
+
+	Entry(ctx context.Context, obj *model.LiveSection) (model.CalendarEntry, error)
 }
 type MessageSectionResolver interface {
 	Messages(ctx context.Context, obj *model.MessageSection) ([]*model.Message, error)
@@ -2711,6 +2728,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Episode.OriginalTitle(childComplexity), true
+
+	case "Episode.overrideUrl":
+		if e.complexity.Episode.OverrideURL == nil {
+			break
+		}
+
+		return e.complexity.Episode.OverrideURL(childComplexity), true
 
 	case "Episode.productionDate":
 		if e.complexity.Episode.ProductionDate == nil {
@@ -4105,6 +4129,48 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Live.URL(childComplexity), true
+
+	case "LiveSection.description":
+		if e.complexity.LiveSection.Description == nil {
+			break
+		}
+
+		return e.complexity.LiveSection.Description(childComplexity), true
+
+	case "LiveSection.entry":
+		if e.complexity.LiveSection.Entry == nil {
+			break
+		}
+
+		return e.complexity.LiveSection.Entry(childComplexity), true
+
+	case "LiveSection.id":
+		if e.complexity.LiveSection.ID == nil {
+			break
+		}
+
+		return e.complexity.LiveSection.ID(childComplexity), true
+
+	case "LiveSection.onAir":
+		if e.complexity.LiveSection.OnAir == nil {
+			break
+		}
+
+		return e.complexity.LiveSection.OnAir(childComplexity), true
+
+	case "LiveSection.title":
+		if e.complexity.LiveSection.Title == nil {
+			break
+		}
+
+		return e.complexity.LiveSection.Title(childComplexity), true
+
+	case "LiveSection.url":
+		if e.complexity.LiveSection.URL == nil {
+			break
+		}
+
+		return e.complexity.LiveSection.URL(childComplexity), true
 
 	case "Message.content":
 		if e.complexity.Message.Content == nil {
@@ -7386,6 +7452,8 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     legacyID: ID
     legacyProgramID: ID
     locked: Boolean! @goField(forceResolver: true)
+    # Open this instead of playing: the manual override, else the Live app while in the live buffer.
+    overrideUrl: String @goField(forceResolver: true)
     publishDate: Date!
     productionDate: Date!
     productionDateInTitle: Boolean!
@@ -8344,6 +8412,16 @@ type AchievementSection implements Section {
     title: String
     description: String
     source: AchievementsSource!
+}
+
+type LiveSection implements Section {
+    id: ID!
+    title: String
+    description: String
+    # Also false when the meeting's live buffer isn't open to the caller.
+    onAir: Boolean! @goField(forceResolver: true)
+    url: String!
+    entry: CalendarEntry @goField(forceResolver: true)
 }
 
 type PageDetailsSection implements Section {
@@ -18133,6 +18211,8 @@ func (ec *executionContext) fieldContext_Chapter_episode(_ context.Context, fiel
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
 			case "locked":
 				return ec.fieldContext_Episode_locked(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -20492,6 +20572,47 @@ func (ec *executionContext) fieldContext_Episode_locked(_ context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Episode_overrideUrl(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Episode_overrideUrl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Episode().OverrideURL(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Episode_overrideUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Episode",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episode_publishDate(ctx context.Context, field graphql.CollectedField, obj *model.Episode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Episode_publishDate(ctx, field)
 	if err != nil {
@@ -22240,6 +22361,8 @@ func (ec *executionContext) fieldContext_Episode_next(ctx context.Context, field
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
 			case "locked":
 				return ec.fieldContext_Episode_locked(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -22798,6 +22921,8 @@ func (ec *executionContext) fieldContext_EpisodeCalendarEntry_episode(_ context.
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
 			case "locked":
 				return ec.fieldContext_Episode_locked(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -23289,6 +23414,8 @@ func (ec *executionContext) fieldContext_EpisodePagination_items(_ context.Conte
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
 			case "locked":
 				return ec.fieldContext_Episode_locked(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -28380,6 +28507,8 @@ func (ec *executionContext) fieldContext_Lesson_defaultEpisode(_ context.Context
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
 			case "locked":
 				return ec.fieldContext_Episode_locked(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -30710,6 +30839,261 @@ func (ec *executionContext) fieldContext_Live_expiresAt(_ context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _LiveSection_id(ctx context.Context, field graphql.CollectedField, obj *model.LiveSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiveSection_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiveSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiveSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LiveSection_title(ctx context.Context, field graphql.CollectedField, obj *model.LiveSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiveSection_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiveSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiveSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LiveSection_description(ctx context.Context, field graphql.CollectedField, obj *model.LiveSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiveSection_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiveSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiveSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LiveSection_onAir(ctx context.Context, field graphql.CollectedField, obj *model.LiveSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiveSection_onAir(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.LiveSection().OnAir(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiveSection_onAir(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiveSection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LiveSection_url(ctx context.Context, field graphql.CollectedField, obj *model.LiveSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiveSection_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiveSection_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiveSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LiveSection_entry(ctx context.Context, field graphql.CollectedField, obj *model.LiveSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiveSection_entry(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.LiveSection().Entry(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(model.CalendarEntry)
+	fc.Result = res
+	return ec.marshalOCalendarEntry2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntry(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiveSection_entry(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiveSection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Message_title(ctx context.Context, field graphql.CollectedField, obj *model.Message) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Message_title(ctx, field)
 	if err != nil {
@@ -31372,6 +31756,8 @@ func (ec *executionContext) fieldContext_MutationRoot_setEpisodeProgress(ctx con
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
 			case "locked":
 				return ec.fieldContext_Episode_locked(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -35583,6 +35969,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episode(ctx context.Context, 
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
 			case "locked":
 				return ec.fieldContext_Episode_locked(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -35726,6 +36114,8 @@ func (ec *executionContext) fieldContext_QueryRoot_episodes(ctx context.Context,
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
 			case "locked":
 				return ec.fieldContext_Episode_locked(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -39074,6 +39464,8 @@ func (ec *executionContext) fieldContext_Season_defaultEpisode(_ context.Context
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
 			case "locked":
 				return ec.fieldContext_Episode_locked(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -42942,6 +43334,8 @@ func (ec *executionContext) fieldContext_Show_defaultEpisode(_ context.Context, 
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
 			case "locked":
 				return ec.fieldContext_Episode_locked(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -49115,6 +49509,8 @@ func (ec *executionContext) fieldContext_VideoTask_episode(_ context.Context, fi
 				return ec.fieldContext_Episode_legacyProgramID(ctx, field)
 			case "locked":
 				return ec.fieldContext_Episode_locked(ctx, field)
+			case "overrideUrl":
+				return ec.fieldContext_Episode_overrideUrl(ctx, field)
 			case "publishDate":
 				return ec.fieldContext_Episode_publishDate(ctx, field)
 			case "productionDate":
@@ -52356,6 +52752,13 @@ func (ec *executionContext) _Section(ctx context.Context, sel ast.SelectionSet, 
 			return graphql.Null
 		}
 		return ec._MessageSection(ctx, sel, obj)
+	case model.LiveSection:
+		return ec._LiveSection(ctx, sel, &obj)
+	case *model.LiveSection:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._LiveSection(ctx, sel, obj)
 	case model.ItemSection:
 		if obj == nil {
 			return graphql.Null
@@ -55054,6 +55457,39 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "overrideUrl":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_overrideUrl(ctx, field, obj)
 				return res
 			}
 
@@ -58705,6 +59141,123 @@ func (ec *executionContext) _Live(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Live_url(ctx, field, obj)
 		case "expiresAt":
 			out.Values[i] = ec._Live_expiresAt(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var liveSectionImplementors = []string{"LiveSection", "Section"}
+
+func (ec *executionContext) _LiveSection(ctx context.Context, sel ast.SelectionSet, obj *model.LiveSection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, liveSectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LiveSection")
+		case "id":
+			out.Values[i] = ec._LiveSection_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "title":
+			out.Values[i] = ec._LiveSection_title(ctx, field, obj)
+		case "description":
+			out.Values[i] = ec._LiveSection_description(ctx, field, obj)
+		case "onAir":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._LiveSection_onAir(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "url":
+			out.Values[i] = ec._LiveSection_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "entry":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._LiveSection_entry(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -68552,6 +69105,13 @@ func (ec *executionContext) marshalOCalendar2ᚖgithubᚗcomᚋbccᚑcodeᚋbcc�
 		return graphql.Null
 	}
 	return ec._Calendar(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOCalendarEntry2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntry(ctx context.Context, sel ast.SelectionSet, v model.CalendarEntry) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CalendarEntry(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOCalendarEntryBuffer2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntryBuffer(ctx context.Context, sel ast.SelectionSet, v *model.CalendarEntryBuffer) graphql.Marshaler {

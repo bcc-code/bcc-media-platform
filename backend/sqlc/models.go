@@ -902,6 +902,8 @@ type Episode struct {
 	TimedmetadataFromAsset   bool                  `db:"timedmetadata_from_asset" json:"timedmetadataFromAsset"`
 	TranslationsRequired     bool                  `db:"translations_required" json:"translationsRequired"`
 	MediaitemID              uuid.NullUUID         `db:"mediaitem_id" json:"mediaitemId"`
+	// URL clients open instead of playing the episode. Takes precedence over the automatic Live app redirect of meeting episodes.
+	OverrideUrl null_v4.String `db:"override_url" json:"overrideUrl"`
 }
 
 type EpisodeAvailability struct {

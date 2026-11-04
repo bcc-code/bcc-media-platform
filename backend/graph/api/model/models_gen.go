@@ -494,6 +494,7 @@ type Episode struct {
 	LegacyID              *string     `json:"legacyID,omitempty"`
 	LegacyProgramID       *string     `json:"legacyProgramID,omitempty"`
 	Locked                bool        `json:"locked"`
+	OverrideURL           *string     `json:"overrideUrl,omitempty"`
 	PublishDate           string      `json:"publishDate"`
 	ProductionDate        string      `json:"productionDate"`
 	ProductionDateInTitle bool        `json:"productionDateInTitle"`
@@ -985,6 +986,20 @@ type Live struct {
 	URL       *string `json:"url,omitempty"`
 	ExpiresAt *string `json:"expiresAt,omitempty"`
 }
+
+type LiveSection struct {
+	ID          string        `json:"id"`
+	Title       *string       `json:"title,omitempty"`
+	Description *string       `json:"description,omitempty"`
+	OnAir       bool          `json:"onAir"`
+	URL         string        `json:"url"`
+	Entry       CalendarEntry `json:"entry,omitempty"`
+}
+
+func (LiveSection) IsSection()                   {}
+func (this LiveSection) GetID() string           { return this.ID }
+func (this LiveSection) GetTitle() *string       { return this.Title }
+func (this LiveSection) GetDescription() *string { return this.Description }
 
 type Message struct {
 	Title   string              `json:"title"`

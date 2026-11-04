@@ -55,6 +55,17 @@ func (q *Queries) GetEntryIDsForEventIDs(ctx context.Context, ids []int) ([]comm
 	}), nil
 }
 
+// GetEntryIDsForEpisodeIDs returns entries most recently ended first.
+func (q *Queries) GetEntryIDsForEpisodeIDs(ctx context.Context, ids []int) ([]common.Mapping[int, int], error) {
+	rows, err := q.getCalendarEntryIDsForEpisodes(ctx, intToInt32(ids))
+	if err != nil {
+		return nil, err
+	}
+	return lo.Map(rows, func(r getCalendarEntryIDsForEpisodesRow, _ int) common.Mapping[int, int] {
+		return common.Mapping[int, int]{Key: int(r.ParentID.Int64), Value: int(r.ID)}
+	}), nil
+}
+
 // GetEventsForPeriod returns events for the specific period
 func (q *Queries) GetEventsForPeriod(ctx context.Context, from time.Time, to time.Time) ([]int, error) {
 	ids, err := q.getEventIDsForPeriod(ctx, getEventIDsForPeriodParams{
@@ -145,6 +156,21 @@ func (q *Queries) GetCalendarEntriesByID(ctx context.Context, ids []int) ([]comm
 // wins over a just-ended one.
 func (q *Queries) GetCurrentCalendarEntry(ctx context.Context, endsAfter time.Time) (*common.CalendarEntry, error) {
 	row, err := q.getCurrentCalendarEntry(ctx, endsAfter)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &common.CalendarEntry{
+		ID:    int(row.ID),
+		Start: row.Start,
+		End:   row.End,
+	}, nil
+}
+
+func (q *Queries) GetCurrentMeetingEntry(ctx context.Context) (*common.CalendarEntry, error) {
+	row, err := q.getCurrentMeetingEntry(ctx)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
