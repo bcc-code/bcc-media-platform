@@ -56,7 +56,7 @@ func (q *Queries) GetCalendarEntriesTranslatable(ctx context.Context, dateUpdate
 const refreshEpisodeOverridesForCalendarEntry = `-- name: RefreshEpisodeOverridesForCalendarEntry :exec
 WITH args AS (SELECT $1::int           AS entry_id,
                      $2::text AS prefix,
-                     $3::int       AS window_hours),
+                     $3::int     AS window_seconds),
      ids AS (SELECT c.episode_id AS id
              FROM calendarentries c, args
              WHERE c.id = args.entry_id
@@ -74,7 +74,7 @@ WITH args AS (SELECT $1::int           AS entry_id,
 UPDATE episodes ep
 SET override_url       = args.prefix || latest.id,
     override_url_from  = latest."end",
-    override_url_until = latest."end" + args.window_hours * interval '1 hour'
+    override_url_until = latest."end" + args.window_seconds * interval '1 second'
 FROM args, ids
          LEFT JOIN latest ON latest.episode_id = ids.id
 WHERE ep.id = ids.id
@@ -83,15 +83,15 @@ WHERE ep.id = ids.id
 type RefreshEpisodeOverridesForCalendarEntryParams struct {
 	EntryID         int32  `db:"entry_id" json:"entryId"`
 	ReplayUrlPrefix string `db:"replay_url_prefix" json:"replayUrlPrefix"`
-	WindowHours     int32  `db:"window_hours" json:"windowHours"`
+	WindowSeconds   int32  `db:"window_seconds" json:"windowSeconds"`
 }
 
 // Points the episodes affected by a calendar entry (the one it links to, and any
 // still pointing to its replay) to the replay of their latest-ending published
-// calendar entry from its end for window_hours, or clears the override when no
+// calendar entry from its end for window_seconds, or clears the override when no
 // such entry is left.
 func (q *Queries) RefreshEpisodeOverridesForCalendarEntry(ctx context.Context, arg RefreshEpisodeOverridesForCalendarEntryParams) error {
-	_, err := q.db.ExecContext(ctx, refreshEpisodeOverridesForCalendarEntry, arg.EntryID, arg.ReplayUrlPrefix, arg.WindowHours)
+	_, err := q.db.ExecContext(ctx, refreshEpisodeOverridesForCalendarEntry, arg.EntryID, arg.ReplayUrlPrefix, arg.WindowSeconds)
 	return err
 }
 

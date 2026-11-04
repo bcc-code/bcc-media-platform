@@ -6,6 +6,7 @@ import (
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
+	"github.com/bcc-code/bcc-media-platform/backend/liveapp"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/memorycache"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
@@ -16,11 +17,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-func TestLiveAppRootURL(t *testing.T) {
-	assert.Equal(t, "https://live.bcc-connect.org/", liveAppRootURL("https://live.bcc-connect.org"))
-	assert.Equal(t, "https://live.bcc-connect.org/", liveAppRootURL("https://live.bcc-connect.org/"))
-}
 
 func TestBanner_UnknownSource(t *testing.T) {
 	r := &Resolver{}
@@ -70,8 +66,8 @@ func TestLiveBanner(t *testing.T) {
 		requestCache.Delete("global_config")
 
 		r := &Resolver{
-			Queries:        q,
-			LiveAppBaseURL: baseURL,
+			Queries: q,
+			LiveApp: liveapp.Config{BaseURL: baseURL},
 			FilteredLoaders: func(ctx context.Context) *loaders.LoadersWithPermissions {
 				return loaders.GetLoadersForRoles(q, roles)
 			},

@@ -1,0 +1,38 @@
+package liveapp
+
+import (
+	"os"
+	"strings"
+	"time"
+)
+
+const defaultBaseURL = "https://live.bcc-connect.org"
+
+// ReplayWindow is how long after a meeting ends its episode redirects to the Live app replay.
+const ReplayWindow = 48 * time.Hour
+
+type Config struct {
+	BaseURL string
+}
+
+// ConfigFromEnv reads LIVE_APP_BASE_URL, falling back to the production Live app.
+func ConfigFromEnv() Config {
+	if u := os.Getenv("LIVE_APP_BASE_URL"); u != "" {
+		return Config{BaseURL: u}
+	}
+	return Config{BaseURL: defaultBaseURL}
+}
+
+func (c Config) base() string {
+	return strings.TrimRight(c.BaseURL, "/")
+}
+
+// RootURL opens the live stream.
+func (c Config) RootURL() string {
+	return c.base() + "/"
+}
+
+// ReplayURLPrefix is the replay URL without the calendar entry id.
+func (c Config) ReplayURLPrefix() string {
+	return c.base() + "/replay/"
+}

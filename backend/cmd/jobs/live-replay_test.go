@@ -7,11 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLiveReplayURLPrefix(t *testing.T) {
-	assert.Equal(t, "https://live.bcc-connect.org/replay/", liveReplayURLPrefix("https://live.bcc-connect.org"))
-	assert.Equal(t, "https://live.bcc-connect.org/replay/", liveReplayURLPrefix("https://live.bcc-connect.org/"))
-}
-
 func TestHandleCalendarEntryEvent_IgnoresOtherCollections(t *testing.T) {
 	// No queries configured: touching the DB would panic.
 	h := &modelHandler{}

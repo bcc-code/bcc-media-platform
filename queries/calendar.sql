@@ -152,11 +152,11 @@ WHERE et.languages_code ='no'
 -- name: RefreshEpisodeOverridesForCalendarEntry :exec
 -- Points the episodes affected by a calendar entry (the one it links to, and any
 -- still pointing to its replay) to the replay of their latest-ending published
--- calendar entry from its end for window_hours, or clears the override when no
+-- calendar entry from its end for window_seconds, or clears the override when no
 -- such entry is left.
 WITH args AS (SELECT @entry_id::int           AS entry_id,
                      @replay_url_prefix::text AS prefix,
-                     @window_hours::int       AS window_hours),
+                     @window_seconds::int     AS window_seconds),
      ids AS (SELECT c.episode_id AS id
              FROM calendarentries c, args
              WHERE c.id = args.entry_id
@@ -174,7 +174,7 @@ WITH args AS (SELECT @entry_id::int           AS entry_id,
 UPDATE episodes ep
 SET override_url       = args.prefix || latest.id,
     override_url_from  = latest."end",
-    override_url_until = latest."end" + args.window_hours * interval '1 hour'
+    override_url_until = latest."end" + args.window_seconds * interval '1 second'
 FROM args, ids
          LEFT JOIN latest ON latest.episode_id = ids.id
 WHERE ep.id = ids.id;

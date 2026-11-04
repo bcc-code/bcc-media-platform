@@ -13,6 +13,7 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/unleash"
 
 	"github.com/bcc-code/bcc-media-platform/backend/bmm"
+	"github.com/bcc-code/bcc-media-platform/backend/liveapp"
 
 	"github.com/bcc-code/bcc-media-platform/backend/analytics"
 
@@ -107,8 +108,7 @@ type envConfig struct {
 	BMM           bmm.Config
 	PubSub        pubsub.Config
 	Admin         adminConfig
-	// LiveAppBaseURL is the Live app's base URL, linked from live banner sections.
-	LiveAppBaseURL string
+	LiveApp       liveapp.Config
 }
 
 // adminConfig configures the admin API's own auth: /auth/* endpoints proxy
@@ -297,7 +297,7 @@ func getEnvConfig() envConfig {
 			SecureCookie: os.Getenv("ADMIN_COOKIE_SECURE") != "false",
 			WebAppURL:    lo.Ternary(os.Getenv("WEB_APP_URL") != "", os.Getenv("WEB_APP_URL"), "https://app.bcc.media"),
 		},
-		LiveAppBaseURL: lo.Ternary(os.Getenv("LIVE_APP_BASE_URL") != "", os.Getenv("LIVE_APP_BASE_URL"), "https://live.bcc-connect.org"),
+		LiveApp: liveapp.ConfigFromEnv(),
 		Redis: utils.RedisConfig{
 			Address:  os.Getenv("REDIS_ADDRESS"),
 			Username: os.Getenv("REDIS_USERNAME"),

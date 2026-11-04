@@ -116,7 +116,7 @@ func main() {
 		remoteCache:       remotecache.New(rdb, redislock.New(rdb)),
 		members:           membersClient,
 		notificationUtils: notificationUtils,
-		liveAppBaseURL:    config.LiveAppBaseURL,
+		liveApp:           config.LiveApp,
 	}
 
 	sr.OnRequest(func(ctx context.Context, item scheduler.QueuedItem) error {

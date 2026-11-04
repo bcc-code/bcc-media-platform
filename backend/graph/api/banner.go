@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	cache "github.com/Code-Hex/go-generics-cache"
@@ -31,7 +30,7 @@ func (r *Resolver) banner(ctx context.Context, source model.BannerSource) (*mode
 // liveBanner links active BCC members to the Live app while a meeting is on air
 // and the stream is online. Nil otherwise.
 func (r *Resolver) liveBanner(ctx context.Context) (*model.Banner, error) {
-	if r.LiveAppBaseURL == "" {
+	if r.LiveApp.BaseURL == "" {
 		return nil, nil
 	}
 	ginCtx, err := utils.GinCtx(ctx)
@@ -71,11 +70,6 @@ func (r *Resolver) liveBanner(ctx context.Context) (*model.Banner, error) {
 	}
 	return &model.Banner{
 		Title: entry.Title.Get(user.GetLanguagesFromCtx(ginCtx)),
-		URL:   liveAppRootURL(r.LiveAppBaseURL),
+		URL:   r.LiveApp.RootURL(),
 	}, nil
-}
-
-// liveAppRootURL is the Live app's root page, which opens the live stream.
-func liveAppRootURL(liveAppBaseURL string) string {
-	return strings.TrimRight(liveAppBaseURL, "/") + "/"
 }
