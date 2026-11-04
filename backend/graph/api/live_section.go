@@ -15,7 +15,7 @@ import (
 // liveSectionCacheTTL is how long the meeting on air is cached. Live sections
 // are requested on every page load, and a meeting showing up or ending this
 // much late is not noticeable.
-const liveSectionCacheTTL = 30 * time.Second
+const liveSectionCacheTTL = 2 * time.Minute
 
 // liveSectionEntry is the meeting on air as the caller sees it, while the stream
 // is online and the meeting's live buffer is open to them. Nil otherwise.
