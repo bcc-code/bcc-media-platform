@@ -88,7 +88,7 @@ func (r *pageResolver) Sections(ctx context.Context, obj *model.Page, first *int
 		Offset:      page.Offset,
 		First:       page.First,
 		Total:       page.Total,
-		Items:       utils.MapWithCtx(ctx, sections, model.SectionFrom),
+		Items:       utils.MapWithCtx(ctx, sections, r.sectionFrom),
 		Cursor:      page.Cursor.Encode(),
 		NextCursor:  page.NextCursor.Encode(),
 		HasNext:     page.HasNext,

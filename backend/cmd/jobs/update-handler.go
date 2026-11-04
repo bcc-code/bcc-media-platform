@@ -23,7 +23,6 @@ type modelHandler struct {
 	remoteCache       *remotecache.Client
 	members           *members.Client
 	notificationUtils *notifications.Utils
-	liveAppBaseURL    string
 }
 
 func (h *modelHandler) handleModelUpdate(ctx context.Context, collection string, key string) error {

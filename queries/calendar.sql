@@ -9,6 +9,20 @@ WHERE e.status = 'published'
 ORDER BY e.start DESC
 LIMIT 1;
 
+-- name: getCurrentMeetingEntry :one
+SELECT e.id,
+       e.start,
+       e.end
+FROM calendarentries e
+WHERE e.status = 'published'
+  AND e.link_type = 'episode'
+  AND e.episode_id IS NOT NULL
+  AND NOT COALESCE(e.is_replay, false)
+  AND e.start <= now()
+  AND e.end > now()
+ORDER BY e.start DESC
+LIMIT 1;
+
 -- name: getCalendarEntries :many
 SELECT e.id,
        e.event_id,
@@ -149,32 +163,10 @@ WHERE et.languages_code ='no'
   AND et.date_updated > @date_updated
   AND e.status = ANY ('{published,unlisted}');
 
--- name: RefreshEpisodeOverridesForCalendarEntry :exec
--- Points the episodes affected by a calendar entry (the one it links to, and any
--- still pointing to its replay) to the replay of their latest-ending published
--- calendar entry from its end for window_hours, or clears the override when no
--- such entry is left.
-WITH args AS (SELECT @entry_id::int           AS entry_id,
-                     @replay_url_prefix::text AS prefix,
-                     @window_hours::int       AS window_hours),
-     ids AS (SELECT c.episode_id AS id
-             FROM calendarentries c, args
-             WHERE c.id = args.entry_id
-               AND c.episode_id IS NOT NULL
-             UNION
-             SELECT e.id
-             FROM episodes e, args
-             WHERE e.override_url = args.prefix || args.entry_id),
-     latest AS (SELECT DISTINCT ON (c.episode_id) c.episode_id, c.id, c."end"
-                FROM calendarentries c
-                WHERE c.episode_id IN (SELECT id FROM ids)
-                  AND c.status = 'published'
-                  AND c.link_type = 'episode'
-                ORDER BY c.episode_id, c."end" DESC)
-UPDATE episodes ep
-SET override_url       = args.prefix || latest.id,
-    override_url_from  = latest."end",
-    override_url_until = latest."end" + args.window_hours * interval '1 hour'
-FROM args, ids
-         LEFT JOIN latest ON latest.episode_id = ids.id
-WHERE ep.id = ids.id;
+-- name: getCalendarEntryIDsForEpisodes :many
+SELECT e.id, e.episode_id as parent_id
+FROM calendarentries e
+WHERE e.status = 'published'
+  AND e.link_type = 'episode'
+  AND e.episode_id = ANY (@ids::int[])
+ORDER BY e.end DESC;

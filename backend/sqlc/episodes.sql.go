@@ -417,9 +417,7 @@ SELECT e.id,
        mi.audience,
        mi.content_type,
        mi.copyright_holder_id,
-       e.override_url,
-       e.override_url_from,
-       e.override_url_until
+       e.override_url
 FROM episodes e
          LEFT JOIN mediaitems_by_episodes_v2($1::int[]) mi ON mi.id = e.mediaitem_id
          LEFT JOIN ts ON e.id = ts.episodes_id
@@ -466,8 +464,6 @@ type getEpisodesRow struct {
 	ContentType           null_v4.String        `db:"content_type" json:"contentType"`
 	CopyrightHolderID     uuid.NullUUID         `db:"copyright_holder_id" json:"copyrightHolderId"`
 	OverrideUrl           null_v4.String        `db:"override_url" json:"overrideUrl"`
-	OverrideUrlFrom       null_v4.Time          `db:"override_url_from" json:"overrideUrlFrom"`
-	OverrideUrlUntil      null_v4.Time          `db:"override_url_until" json:"overrideUrlUntil"`
 }
 
 func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpisodesRow, error) {
@@ -514,8 +510,6 @@ func (q *Queries) getEpisodes(ctx context.Context, dollar_1 []int32) ([]getEpiso
 			&i.ContentType,
 			&i.CopyrightHolderID,
 			&i.OverrideUrl,
-			&i.OverrideUrlFrom,
-			&i.OverrideUrlUntil,
 		); err != nil {
 			return nil, err
 		}

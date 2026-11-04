@@ -280,24 +280,6 @@ func (this AvatarSection) GetMetadata() *ItemSectionMetadata { return this.Metad
 
 func (this AvatarSection) GetItems() *SectionItemPagination { return this.Items }
 
-type Banner struct {
-	Title string `json:"title"`
-	URL   string `json:"url"`
-}
-
-type BannerSection struct {
-	ID          string        `json:"id"`
-	Title       *string       `json:"title,omitempty"`
-	Description *string       `json:"description,omitempty"`
-	Source      *BannerSource `json:"source,omitempty"`
-	Banner      *Banner       `json:"banner,omitempty"`
-}
-
-func (BannerSection) IsSection()                   {}
-func (this BannerSection) GetID() string           { return this.ID }
-func (this BannerSection) GetTitle() *string       { return this.Title }
-func (this BannerSection) GetDescription() *string { return this.Description }
-
 type BirthOptions struct {
 	Year int `json:"year"`
 }
@@ -1004,6 +986,20 @@ type Live struct {
 	URL       *string `json:"url,omitempty"`
 	ExpiresAt *string `json:"expiresAt,omitempty"`
 }
+
+type LiveSection struct {
+	ID          string        `json:"id"`
+	Title       *string       `json:"title,omitempty"`
+	Description *string       `json:"description,omitempty"`
+	OnAir       bool          `json:"onAir"`
+	URL         string        `json:"url"`
+	Entry       CalendarEntry `json:"entry,omitempty"`
+}
+
+func (LiveSection) IsSection()                   {}
+func (this LiveSection) GetID() string           { return this.ID }
+func (this LiveSection) GetTitle() *string       { return this.Title }
+func (this LiveSection) GetDescription() *string { return this.Description }
 
 type Message struct {
 	Title   string              `json:"title"`
@@ -1839,59 +1835,6 @@ func (e *AchievementsSource) UnmarshalJSON(b []byte) error {
 }
 
 func (e AchievementsSource) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	e.MarshalGQL(&buf)
-	return buf.Bytes(), nil
-}
-
-type BannerSource string
-
-const (
-	BannerSourceLive BannerSource = "live"
-)
-
-var AllBannerSource = []BannerSource{
-	BannerSourceLive,
-}
-
-func (e BannerSource) IsValid() bool {
-	switch e {
-	case BannerSourceLive:
-		return true
-	}
-	return false
-}
-
-func (e BannerSource) String() string {
-	return string(e)
-}
-
-func (e *BannerSource) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = BannerSource(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid BannerSource", str)
-	}
-	return nil
-}
-
-func (e BannerSource) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-func (e *BannerSource) UnmarshalJSON(b []byte) error {
-	s, err := strconv.Unquote(string(b))
-	if err != nil {
-		return err
-	}
-	return e.UnmarshalGQL(s)
-}
-
-func (e BannerSource) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

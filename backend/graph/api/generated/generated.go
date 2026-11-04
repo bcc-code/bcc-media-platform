@@ -46,7 +46,6 @@ type ResolverRoot interface {
 	Analytics() AnalyticsResolver
 	Application() ApplicationResolver
 	AvatarSection() AvatarSectionResolver
-	BannerSection() BannerSectionResolver
 	Calendar() CalendarResolver
 	CardListSection() CardListSectionResolver
 	CardSection() CardSectionResolver
@@ -73,6 +72,7 @@ type ResolverRoot interface {
 	Link() LinkResolver
 	LinkTask() LinkTaskResolver
 	ListSection() ListSectionResolver
+	LiveSection() LiveSectionResolver
 	MessageSection() MessageSectionResolver
 	MutationRoot() MutationRootResolver
 	Page() PageResolver
@@ -200,19 +200,6 @@ type ComplexityRoot struct {
 		Items       func(childComplexity int, first *int, offset *int, cursor *string) int
 		Metadata    func(childComplexity int) int
 		Size        func(childComplexity int) int
-		Title       func(childComplexity int) int
-	}
-
-	Banner struct {
-		Title func(childComplexity int) int
-		URL   func(childComplexity int) int
-	}
-
-	BannerSection struct {
-		Banner      func(childComplexity int) int
-		Description func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Source      func(childComplexity int) int
 		Title       func(childComplexity int) int
 	}
 
@@ -646,6 +633,15 @@ type ComplexityRoot struct {
 		ExpiresAt func(childComplexity int) int
 		IsOnline  func(childComplexity int) int
 		URL       func(childComplexity int) int
+	}
+
+	LiveSection struct {
+		Description func(childComplexity int) int
+		Entry       func(childComplexity int) int
+		ID          func(childComplexity int) int
+		OnAir       func(childComplexity int) int
+		Title       func(childComplexity int) int
+		URL         func(childComplexity int) int
 	}
 
 	Message struct {
@@ -1212,9 +1208,6 @@ type ApplicationResolver interface {
 type AvatarSectionResolver interface {
 	Items(ctx context.Context, obj *model.AvatarSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
 }
-type BannerSectionResolver interface {
-	Banner(ctx context.Context, obj *model.BannerSection) (*model.Banner, error)
-}
 type CalendarResolver interface {
 	Events(ctx context.Context, obj *model.Calendar, from *string, to *string) ([]*model.Event, error)
 	Period(ctx context.Context, obj *model.Calendar, from string, to string) (*model.CalendarPeriod, error)
@@ -1249,6 +1242,7 @@ type DefaultSectionResolver interface {
 }
 type EpisodeResolver interface {
 	Locked(ctx context.Context, obj *model.Episode) (bool, error)
+	OverrideURL(ctx context.Context, obj *model.Episode) (*string, error)
 
 	AvailableFrom(ctx context.Context, obj *model.Episode) (string, error)
 
@@ -1348,6 +1342,11 @@ type LinkTaskResolver interface {
 }
 type ListSectionResolver interface {
 	Items(ctx context.Context, obj *model.ListSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error)
+}
+type LiveSectionResolver interface {
+	OnAir(ctx context.Context, obj *model.LiveSection) (bool, error)
+
+	Entry(ctx context.Context, obj *model.LiveSection) (model.CalendarEntry, error)
 }
 type MessageSectionResolver interface {
 	Messages(ctx context.Context, obj *model.MessageSection) ([]*model.Message, error)
@@ -1985,55 +1984,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AvatarSection.Title(childComplexity), true
-
-	case "Banner.title":
-		if e.complexity.Banner.Title == nil {
-			break
-		}
-
-		return e.complexity.Banner.Title(childComplexity), true
-
-	case "Banner.url":
-		if e.complexity.Banner.URL == nil {
-			break
-		}
-
-		return e.complexity.Banner.URL(childComplexity), true
-
-	case "BannerSection.banner":
-		if e.complexity.BannerSection.Banner == nil {
-			break
-		}
-
-		return e.complexity.BannerSection.Banner(childComplexity), true
-
-	case "BannerSection.description":
-		if e.complexity.BannerSection.Description == nil {
-			break
-		}
-
-		return e.complexity.BannerSection.Description(childComplexity), true
-
-	case "BannerSection.id":
-		if e.complexity.BannerSection.ID == nil {
-			break
-		}
-
-		return e.complexity.BannerSection.ID(childComplexity), true
-
-	case "BannerSection.source":
-		if e.complexity.BannerSection.Source == nil {
-			break
-		}
-
-		return e.complexity.BannerSection.Source(childComplexity), true
-
-	case "BannerSection.title":
-		if e.complexity.BannerSection.Title == nil {
-			break
-		}
-
-		return e.complexity.BannerSection.Title(childComplexity), true
 
 	case "Calendar.day":
 		if e.complexity.Calendar.Day == nil {
@@ -4179,6 +4129,48 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Live.URL(childComplexity), true
+
+	case "LiveSection.description":
+		if e.complexity.LiveSection.Description == nil {
+			break
+		}
+
+		return e.complexity.LiveSection.Description(childComplexity), true
+
+	case "LiveSection.entry":
+		if e.complexity.LiveSection.Entry == nil {
+			break
+		}
+
+		return e.complexity.LiveSection.Entry(childComplexity), true
+
+	case "LiveSection.id":
+		if e.complexity.LiveSection.ID == nil {
+			break
+		}
+
+		return e.complexity.LiveSection.ID(childComplexity), true
+
+	case "LiveSection.onAir":
+		if e.complexity.LiveSection.OnAir == nil {
+			break
+		}
+
+		return e.complexity.LiveSection.OnAir(childComplexity), true
+
+	case "LiveSection.title":
+		if e.complexity.LiveSection.Title == nil {
+			break
+		}
+
+		return e.complexity.LiveSection.Title(childComplexity), true
+
+	case "LiveSection.url":
+		if e.complexity.LiveSection.URL == nil {
+			break
+		}
+
+		return e.complexity.LiveSection.URL(childComplexity), true
 
 	case "Message.content":
 		if e.complexity.Message.Content == nil {
@@ -7460,8 +7452,8 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     legacyID: ID
     legacyProgramID: ID
     locked: Boolean! @goField(forceResolver: true)
-    # URL to open instead of playing this episode, while set and within its time window.
-    overrideUrl: String
+    # Open this instead of playing: the manual override, else the Live app while in the live buffer.
+    overrideUrl: String @goField(forceResolver: true)
     publishDate: Date!
     productionDate: Date!
     productionDateInTitle: Boolean!
@@ -8422,25 +8414,14 @@ type AchievementSection implements Section {
     source: AchievementsSource!
 }
 
-# Where a BannerSection gets its content from.
-enum BannerSource {
-    # The meeting on air, linking to the Live app.
-    live
-}
-
-type Banner {
-    title: String!
-    url: String!
-}
-
-type BannerSection implements Section {
+type LiveSection implements Section {
     id: ID!
     title: String
     description: String
-    # Null when this API version doesn't know the configured source.
-    source: BannerSource
-    # Null when the source has nothing to show right now; hide the section then.
-    banner: Banner @goField(forceResolver: true)
+    # Also false when the meeting's live buffer isn't open to the caller.
+    onAir: Boolean! @goField(forceResolver: true)
+    url: String!
+    entry: CalendarEntry @goField(forceResolver: true)
 }
 
 type PageDetailsSection implements Section {
@@ -16743,308 +16724,6 @@ func (ec *executionContext) fieldContext_AvatarSection_items(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Banner_title(ctx context.Context, field graphql.CollectedField, obj *model.Banner) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Banner_title(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Title, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Banner_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Banner",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Banner_url(ctx context.Context, field graphql.CollectedField, obj *model.Banner) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Banner_url(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.URL, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Banner_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Banner",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _BannerSection_id(ctx context.Context, field graphql.CollectedField, obj *model.BannerSection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BannerSection_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BannerSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BannerSection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _BannerSection_title(ctx context.Context, field graphql.CollectedField, obj *model.BannerSection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BannerSection_title(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Title, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BannerSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BannerSection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _BannerSection_description(ctx context.Context, field graphql.CollectedField, obj *model.BannerSection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BannerSection_description(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Description, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BannerSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BannerSection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _BannerSection_source(ctx context.Context, field graphql.CollectedField, obj *model.BannerSection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BannerSection_source(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Source, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.BannerSource)
-	fc.Result = res
-	return ec.marshalOBannerSource2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐBannerSource(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BannerSection_source(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BannerSection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type BannerSource does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _BannerSection_banner(ctx context.Context, field graphql.CollectedField, obj *model.BannerSection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BannerSection_banner(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.BannerSection().Banner(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.Banner)
-	fc.Result = res
-	return ec.marshalOBanner2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐBanner(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BannerSection_banner(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BannerSection",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "title":
-				return ec.fieldContext_Banner_title(ctx, field)
-			case "url":
-				return ec.fieldContext_Banner_url(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Banner", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Calendar_events(ctx context.Context, field graphql.CollectedField, obj *model.Calendar) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Calendar_events(ctx, field)
 	if err != nil {
@@ -20907,7 +20586,7 @@ func (ec *executionContext) _Episode_overrideUrl(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.OverrideURL, nil
+		return ec.resolvers.Episode().OverrideURL(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20925,8 +20604,8 @@ func (ec *executionContext) fieldContext_Episode_overrideUrl(_ context.Context, 
 	fc = &graphql.FieldContext{
 		Object:     "Episode",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -31155,6 +30834,261 @@ func (ec *executionContext) fieldContext_Live_expiresAt(_ context.Context, field
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Date does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LiveSection_id(ctx context.Context, field graphql.CollectedField, obj *model.LiveSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiveSection_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiveSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiveSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LiveSection_title(ctx context.Context, field graphql.CollectedField, obj *model.LiveSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiveSection_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiveSection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiveSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LiveSection_description(ctx context.Context, field graphql.CollectedField, obj *model.LiveSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiveSection_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiveSection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiveSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LiveSection_onAir(ctx context.Context, field graphql.CollectedField, obj *model.LiveSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiveSection_onAir(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.LiveSection().OnAir(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiveSection_onAir(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiveSection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LiveSection_url(ctx context.Context, field graphql.CollectedField, obj *model.LiveSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiveSection_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiveSection_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiveSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LiveSection_entry(ctx context.Context, field graphql.CollectedField, obj *model.LiveSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiveSection_entry(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.LiveSection().Entry(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(model.CalendarEntry)
+	fc.Result = res
+	return ec.marshalOCalendarEntry2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntry(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiveSection_entry(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiveSection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -52818,18 +52752,18 @@ func (ec *executionContext) _Section(ctx context.Context, sel ast.SelectionSet, 
 			return graphql.Null
 		}
 		return ec._MessageSection(ctx, sel, obj)
+	case model.LiveSection:
+		return ec._LiveSection(ctx, sel, &obj)
+	case *model.LiveSection:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._LiveSection(ctx, sel, obj)
 	case model.ItemSection:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._ItemSection(ctx, sel, obj)
-	case model.BannerSection:
-		return ec._BannerSection(ctx, sel, &obj)
-	case *model.BannerSection:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._BannerSection(ctx, sel, obj)
 	case model.AchievementSection:
 		return ec._AchievementSection(ctx, sel, &obj)
 	case *model.AchievementSection:
@@ -54073,128 +54007,6 @@ func (ec *executionContext) _AvatarSection(ctx context.Context, sel ast.Selectio
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var bannerImplementors = []string{"Banner"}
-
-func (ec *executionContext) _Banner(ctx context.Context, sel ast.SelectionSet, obj *model.Banner) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, bannerImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Banner")
-		case "title":
-			out.Values[i] = ec._Banner_title(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "url":
-			out.Values[i] = ec._Banner_url(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var bannerSectionImplementors = []string{"BannerSection", "Section"}
-
-func (ec *executionContext) _BannerSection(ctx context.Context, sel ast.SelectionSet, obj *model.BannerSection) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, bannerSectionImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("BannerSection")
-		case "id":
-			out.Values[i] = ec._BannerSection_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "title":
-			out.Values[i] = ec._BannerSection_title(ctx, field, obj)
-		case "description":
-			out.Values[i] = ec._BannerSection_description(ctx, field, obj)
-		case "source":
-			out.Values[i] = ec._BannerSection_source(ctx, field, obj)
-		case "banner":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._BannerSection_banner(ctx, field, obj)
 				return res
 			}
 
@@ -55669,7 +55481,38 @@ func (ec *executionContext) _Episode(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "overrideUrl":
-			out.Values[i] = ec._Episode_overrideUrl(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Episode_overrideUrl(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "publishDate":
 			out.Values[i] = ec._Episode_publishDate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -59298,6 +59141,123 @@ func (ec *executionContext) _Live(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Live_url(ctx, field, obj)
 		case "expiresAt":
 			out.Values[i] = ec._Live_expiresAt(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var liveSectionImplementors = []string{"LiveSection", "Section"}
+
+func (ec *executionContext) _LiveSection(ctx context.Context, sel ast.SelectionSet, obj *model.LiveSection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, liveSectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LiveSection")
+		case "id":
+			out.Values[i] = ec._LiveSection_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "title":
+			out.Values[i] = ec._LiveSection_title(ctx, field, obj)
+		case "description":
+			out.Values[i] = ec._LiveSection_description(ctx, field, obj)
+		case "onAir":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._LiveSection_onAir(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "url":
+			out.Values[i] = ec._LiveSection_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "entry":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._LiveSection_entry(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -69110,29 +69070,6 @@ func (ec *executionContext) marshalOAchievementGroup2ᚖgithubᚗcomᚋbccᚑcod
 	return ec._AchievementGroup(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOBanner2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐBanner(ctx context.Context, sel ast.SelectionSet, v *model.Banner) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Banner(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOBannerSource2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐBannerSource(ctx context.Context, v any) (*model.BannerSource, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(model.BannerSource)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOBannerSource2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐBannerSource(ctx context.Context, sel ast.SelectionSet, v *model.BannerSource) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
-}
-
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v any) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -69168,6 +69105,13 @@ func (ec *executionContext) marshalOCalendar2ᚖgithubᚗcomᚋbccᚑcodeᚋbcc�
 		return graphql.Null
 	}
 	return ec._Calendar(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOCalendarEntry2githubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntry(ctx context.Context, sel ast.SelectionSet, v model.CalendarEntry) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CalendarEntry(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOCalendarEntryBuffer2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋapiᚋmodelᚐCalendarEntryBuffer(ctx context.Context, sel ast.SelectionSet, v *model.CalendarEntryBuffer) graphql.Marshaler {

@@ -90,8 +90,6 @@ type envConfig struct {
 	Phrase                phrase.Config
 	CDNConfig             cdnConfig
 	StreamProxy           streamProxyConfig
-	// Base URL of the Live app; meeting episodes are redirected to its replay page.
-	LiveAppBaseURL string
 }
 
 func getEnvConfig() envConfig {
@@ -108,11 +106,6 @@ func getEnvConfig() envConfig {
 	deleteIngestFilesString := os.Getenv("DELETE_INGEST_FILES")
 	// Error is intentionally ignored, if not set default to FALSE
 	deleteIngestFilesStringBool, _ := strconv.ParseBool(deleteIngestFilesString)
-
-	liveAppBaseURL := os.Getenv("LIVE_APP_BASE_URL")
-	if liveAppBaseURL == "" {
-		liveAppBaseURL = "https://live.bcc-connect.org"
-	}
 
 	return envConfig{
 		Port:              os.Getenv("PORT"),
@@ -196,6 +189,5 @@ func getEnvConfig() envConfig {
 			JWTIssuer: os.Getenv("STREAM_JWT_ISSUER"),
 			Domain:    os.Getenv("STREAM_PROXY_DOMAIN"),
 		},
-		LiveAppBaseURL: liveAppBaseURL,
 	}
 }

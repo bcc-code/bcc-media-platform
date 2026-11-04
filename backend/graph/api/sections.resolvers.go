@@ -18,14 +18,6 @@ func (r *avatarSectionResolver) Items(ctx context.Context, obj *model.AvatarSect
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
 }
 
-// Banner is the resolver for the banner field.
-func (r *bannerSectionResolver) Banner(ctx context.Context, obj *model.BannerSection) (*model.Banner, error) {
-	if obj.Source == nil {
-		return nil, nil
-	}
-	return r.banner(ctx, *obj.Source)
-}
-
 // Items is the resolver for the items field.
 func (r *cardListSectionResolver) Items(ctx context.Context, obj *model.CardListSection, first *int, offset *int, cursor *string) (*model.SectionItemPagination, error) {
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
@@ -79,6 +71,21 @@ func (r *listSectionResolver) Items(ctx context.Context, obj *model.ListSection,
 	return sectionCollectionItemResolver(ctx, r.Resolver, obj.ID, first, offset, cursor)
 }
 
+// OnAir is the resolver for the onAir field.
+func (r *liveSectionResolver) OnAir(ctx context.Context, obj *model.LiveSection) (bool, error) {
+	entry, err := r.liveSectionEntry(ctx)
+	return entry != nil, err
+}
+
+// Entry is the resolver for the entry field.
+func (r *liveSectionResolver) Entry(ctx context.Context, obj *model.LiveSection) (model.CalendarEntry, error) {
+	entry, err := r.liveSectionEntry(ctx)
+	if err != nil || entry == nil {
+		return nil, err
+	}
+	return model.CalendarEntryFrom(ctx, entry), nil
+}
+
 // Messages is the resolver for the messages field.
 func (r *messageSectionResolver) Messages(ctx context.Context, obj *model.MessageSection) ([]*model.Message, error) {
 	s, err := r.Loaders.SectionLoader.Get(ctx, utils.AsInt(obj.ID))
@@ -126,9 +133,6 @@ func (r *sectionItemResolver) Image(ctx context.Context, obj *model.SectionItem)
 // AvatarSection returns generated.AvatarSectionResolver implementation.
 func (r *Resolver) AvatarSection() generated.AvatarSectionResolver { return &avatarSectionResolver{r} }
 
-// BannerSection returns generated.BannerSectionResolver implementation.
-func (r *Resolver) BannerSection() generated.BannerSectionResolver { return &bannerSectionResolver{r} }
-
 // CardListSection returns generated.CardListSectionResolver implementation.
 func (r *Resolver) CardListSection() generated.CardListSectionResolver {
 	return &cardListSectionResolver{r}
@@ -171,6 +175,9 @@ func (r *Resolver) LabelSection() generated.LabelSectionResolver { return &label
 // ListSection returns generated.ListSectionResolver implementation.
 func (r *Resolver) ListSection() generated.ListSectionResolver { return &listSectionResolver{r} }
 
+// LiveSection returns generated.LiveSectionResolver implementation.
+func (r *Resolver) LiveSection() generated.LiveSectionResolver { return &liveSectionResolver{r} }
+
 // MessageSection returns generated.MessageSectionResolver implementation.
 func (r *Resolver) MessageSection() generated.MessageSectionResolver {
 	return &messageSectionResolver{r}
@@ -188,7 +195,6 @@ func (r *Resolver) PosterSection() generated.PosterSectionResolver { return &pos
 func (r *Resolver) SectionItem() generated.SectionItemResolver { return &sectionItemResolver{r} }
 
 type avatarSectionResolver struct{ *Resolver }
-type bannerSectionResolver struct{ *Resolver }
 type cardListSectionResolver struct{ *Resolver }
 type cardSectionResolver struct{ *Resolver }
 type defaultGridSectionResolver struct{ *Resolver }
@@ -199,6 +205,7 @@ type iconSectionResolver struct{ *Resolver }
 type itemSectionMetadataResolver struct{ *Resolver }
 type labelSectionResolver struct{ *Resolver }
 type listSectionResolver struct{ *Resolver }
+type liveSectionResolver struct{ *Resolver }
 type messageSectionResolver struct{ *Resolver }
 type posterGridSectionResolver struct{ *Resolver }
 type posterSectionResolver struct{ *Resolver }
