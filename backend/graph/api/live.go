@@ -136,8 +136,6 @@ func appendTimeShiftTags(signedURL string, start time.Time, end *time.Time) stri
 	return out
 }
 
-// liveBufferOverrideURL is the Live app URL while one of the episode's calendar
-// entries is in the live buffer for the caller. Nil otherwise.
 func (r *Resolver) liveBufferOverrideURL(ctx context.Context, episodeID int) (*string, error) {
 	if r.LiveApp.BaseURL == "" {
 		return nil, nil

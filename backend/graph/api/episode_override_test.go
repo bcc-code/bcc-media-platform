@@ -48,7 +48,6 @@ func TestEpisodeOverrideURL(t *testing.T) {
 	overrideURL := func(name string) *string {
 		t.Helper()
 		requestCache.Delete("global_config")
-		// Fresh loaders and a role of their own, so no case sees another's cache.
 		roles := []string{"bcc-members", t.Name() + "/" + name}
 		r := &Resolver{
 			Queries: q,
@@ -80,7 +79,6 @@ func TestEpisodeOverrideURL(t *testing.T) {
 	exec(`UPDATE episodes SET override_url = 'https://example.com/manual' WHERE id = $1`, episodeID)
 	require.Equal(t, lo.ToPtr("https://example.com/manual"), overrideURL("manual override"))
 
-	// The manual URL must win even while the live buffer would redirect.
 	exec(`UPDATE calendarentries SET start = start - interval '1 day', "end" = "end" - interval '1 day' WHERE id = $1`, entryID)
 	require.Equal(t, lo.ToPtr("https://example.com/manual"), overrideURL("manual override during meeting"))
 	exec(`UPDATE episodes SET override_url = NULL WHERE id = $1`, episodeID)

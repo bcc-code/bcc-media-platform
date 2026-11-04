@@ -12,7 +12,6 @@ type Config struct {
 	BaseURL string
 }
 
-// ConfigFromEnv reads LIVE_APP_BASE_URL, falling back to the production Live app.
 func ConfigFromEnv() Config {
 	if u := os.Getenv("LIVE_APP_BASE_URL"); u != "" {
 		return Config{BaseURL: u}
@@ -24,7 +23,6 @@ func (c Config) base() string {
 	return strings.TrimRight(c.BaseURL, "/")
 }
 
-// RootURL opens the live stream.
 func (c Config) RootURL() string {
 	return c.base() + "/"
 }

@@ -19,7 +19,7 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     legacyID: ID
     legacyProgramID: ID
     locked: Boolean! @goField(forceResolver: true)
-    # URL to open instead of playing this episode: a manual override, or the Live app while the meeting is in the live buffer.
+    # Open this instead of playing: the manual override, else the Live app while in the live buffer.
     overrideUrl: String @goField(forceResolver: true)
     publishDate: Date!
     productionDate: Date!

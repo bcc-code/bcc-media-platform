@@ -10,7 +10,6 @@ ORDER BY e.start DESC
 LIMIT 1;
 
 -- name: getCurrentMeetingEntry :one
--- Like getCurrentCalendarEntry, but only original meetings (linked to an episode, not replays).
 SELECT e.id,
        e.start,
        e.end

@@ -7452,7 +7452,7 @@ type Episode implements CollectionItem & PlaylistItem & MediaItem {
     legacyID: ID
     legacyProgramID: ID
     locked: Boolean! @goField(forceResolver: true)
-    # URL to open instead of playing this episode: a manual override, or the Live app while the meeting is in the live buffer.
+    # Open this instead of playing: the manual override, else the Live app while in the live buffer.
     overrideUrl: String @goField(forceResolver: true)
     publishDate: Date!
     productionDate: Date!
@@ -8414,16 +8414,13 @@ type AchievementSection implements Section {
     source: AchievementsSource!
 }
 
-# The meeting on air, linking to the Live app.
 type LiveSection implements Section {
     id: ID!
     title: String
     description: String
-    # True while a meeting is on air and its live buffer is open to the caller.
+    # Also false when the meeting's live buffer isn't open to the caller.
     onAir: Boolean! @goField(forceResolver: true)
-    # The Live app.
     url: String! @goField(forceResolver: true)
-    # The calendar entry on air. Null when not on air.
     entry: CalendarEntry @goField(forceResolver: true)
 }
 

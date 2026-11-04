@@ -12,13 +12,8 @@ import (
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 )
 
-// liveSectionCacheTTL is how long the meeting on air is cached. Live sections
-// are requested on every page load, and a meeting showing up or ending this
-// much late is not noticeable.
 const liveSectionCacheTTL = 2 * time.Minute
 
-// liveSectionEntry is the meeting on air as the caller sees it, while the stream
-// is online and the meeting's live buffer is open to them. Nil otherwise.
 func (r *Resolver) liveSectionEntry(ctx context.Context) (*common.CalendarEntry, error) {
 	if r.LiveApp.BaseURL == "" {
 		return nil, nil
@@ -50,7 +45,7 @@ func (r *Resolver) liveSectionEntry(ctx context.Context) (*common.CalendarEntry,
 		return nil, nil
 	}
 
-	// Same gate as Episode.overrideUrl, so the section and the episode redirect agree.
+	// Same gate as Episode.overrideUrl.
 	window, err := r.bufferWindowForEntry(ctx, strconv.Itoa(current.ID))
 	if err != nil || window == nil {
 		return nil, err

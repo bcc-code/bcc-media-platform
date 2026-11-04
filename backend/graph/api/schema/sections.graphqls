@@ -194,16 +194,13 @@ type AchievementSection implements Section {
     source: AchievementsSource!
 }
 
-# The meeting on air, linking to the Live app.
 type LiveSection implements Section {
     id: ID!
     title: String
     description: String
-    # True while a meeting is on air and its live buffer is open to the caller.
+    # Also false when the meeting's live buffer isn't open to the caller.
     onAir: Boolean! @goField(forceResolver: true)
-    # The Live app.
     url: String! @goField(forceResolver: true)
-    # The calendar entry on air. Null when not on air.
     entry: CalendarEntry @goField(forceResolver: true)
 }
 

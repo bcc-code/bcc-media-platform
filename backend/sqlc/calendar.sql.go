@@ -417,7 +417,6 @@ type getCurrentMeetingEntryRow struct {
 	End   time.Time `db:"end" json:"end"`
 }
 
-// Like getCurrentCalendarEntry, but only original meetings (linked to an episode, not replays).
 func (q *Queries) getCurrentMeetingEntry(ctx context.Context) (getCurrentMeetingEntryRow, error) {
 	row := q.db.QueryRowContext(ctx, getCurrentMeetingEntry)
 	var i getCurrentMeetingEntryRow

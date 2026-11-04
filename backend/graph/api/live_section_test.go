@@ -22,15 +22,12 @@ import (
 )
 
 func TestLiveSection_NoLiveAppURL(t *testing.T) {
-	// Returns before touching the request context or the DB.
 	r := &Resolver{}
 	e, err := r.liveSectionEntry(context.Background())
 	assert.NoError(t, err)
 	assert.Nil(t, e)
 }
 
-// TestLiveSection runs the live section against a database: a meeting on air
-// with the stream online, and the cases where members see nothing on air.
 func TestLiveSection(t *testing.T) {
 	db := testutils.NewDB(t)
 	ctx := context.Background()
@@ -66,11 +63,9 @@ func TestLiveSection(t *testing.T) {
 	off := state{}
 	liveSection := func(u *common.User) state {
 		t.Helper()
-		// A role of its own per case keeps the shared per-role loaders from
-		// serving another case's (or test's) cached rows.
+		// Unique roles per case, so the shared per-role loaders don't serve cached rows.
 		cases++
 		roles := []string{"bcc-members", fmt.Sprintf("%s/%d", t.Name(), cases)}
-		// Start each case from the database, not from what an earlier case cached.
 		memorycache.Delete("live_section:current")
 		requestCache.Delete("global_config")
 

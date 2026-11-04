@@ -55,8 +55,7 @@ func (q *Queries) GetEntryIDsForEventIDs(ctx context.Context, ids []int) ([]comm
 	}), nil
 }
 
-// GetEntryIDsForEpisodeIDs returns the ids of calendar entries linking to the
-// specified episodes, most recently ended first
+// GetEntryIDsForEpisodeIDs returns entries most recently ended first.
 func (q *Queries) GetEntryIDsForEpisodeIDs(ctx context.Context, ids []int) ([]common.Mapping[int, int], error) {
 	rows, err := q.getCalendarEntryIDsForEpisodes(ctx, intToInt32(ids))
 	if err != nil {
@@ -170,7 +169,6 @@ func (q *Queries) GetCurrentCalendarEntry(ctx context.Context, endsAfter time.Ti
 	}, nil
 }
 
-// GetCurrentMeetingEntry returns the meeting on air now, or nil if none is.
 func (q *Queries) GetCurrentMeetingEntry(ctx context.Context) (*common.CalendarEntry, error) {
 	row, err := q.getCurrentMeetingEntry(ctx)
 	if err != nil {
