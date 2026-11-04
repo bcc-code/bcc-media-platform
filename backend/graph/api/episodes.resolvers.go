@@ -56,7 +56,14 @@ func (r *episodeResolver) Locked(ctx context.Context, obj *model.Episode) (bool,
 
 // OverrideURL is the resolver for the overrideUrl field.
 func (r *episodeResolver) OverrideURL(ctx context.Context, obj *model.Episode) (*string, error) {
-	return r.episodeOverrideURL(ctx, utils.AsInt(obj.ID))
+	e, err := r.Loaders.EpisodeLoader.Get(ctx, utils.AsInt(obj.ID))
+	if err != nil || e == nil {
+		return nil, err
+	}
+	if u := e.OverrideURL.ValueOrZero(); u != "" {
+		return &u, nil
+	}
+	return r.liveBufferOverrideURL(ctx, e.ID)
 }
 
 // AvailableFrom is the resolver for the availableFrom field.

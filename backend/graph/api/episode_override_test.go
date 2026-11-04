@@ -3,9 +3,11 @@ package graph
 import (
 	"context"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/bcc-code/bcc-media-platform/backend/common"
+	"github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/liveapp"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
@@ -59,7 +61,7 @@ func TestEpisodeOverrideURL(t *testing.T) {
 		gc := &gin.Context{Request: httptest.NewRequest("POST", "/query", nil)}
 		gc.Set(user.CtxUser, &common.User{ActiveBCC: true})
 		gc.Set(user.CtxRoles, roles)
-		u, err := r.episodeOverrideURL(utils.ContextWithGinContext(ctx, gc), episodeID)
+		u, err := r.Episode().OverrideURL(utils.ContextWithGinContext(ctx, gc), &model.Episode{ID: strconv.Itoa(episodeID)})
 		require.NoError(t, err)
 		return u
 	}
