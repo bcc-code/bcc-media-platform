@@ -396,6 +396,35 @@ func (q *Queries) getCurrentCalendarEntry(ctx context.Context, endsAfter time.Ti
 	return i, err
 }
 
+const getCurrentMeetingEntry = `-- name: getCurrentMeetingEntry :one
+SELECT e.id,
+       e.start,
+       e.end
+FROM calendarentries e
+WHERE e.status = 'published'
+  AND e.link_type = 'episode'
+  AND e.episode_id IS NOT NULL
+  AND NOT COALESCE(e.is_replay, false)
+  AND e.start <= now()
+  AND e.end > now()
+ORDER BY e.start DESC
+LIMIT 1
+`
+
+type getCurrentMeetingEntryRow struct {
+	ID    int32     `db:"id" json:"id"`
+	Start time.Time `db:"start" json:"start"`
+	End   time.Time `db:"end" json:"end"`
+}
+
+// Like getCurrentCalendarEntry, but only original meetings (linked to an episode, not replays).
+func (q *Queries) getCurrentMeetingEntry(ctx context.Context) (getCurrentMeetingEntryRow, error) {
+	row := q.db.QueryRowContext(ctx, getCurrentMeetingEntry)
+	var i getCurrentMeetingEntryRow
+	err := row.Scan(&i.ID, &i.Start, &i.End)
+	return i, err
+}
+
 const getEventIDsForPeriod = `-- name: getEventIDsForPeriod :many
 SELECT e.id
 FROM events e

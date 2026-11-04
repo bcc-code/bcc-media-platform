@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	cache "github.com/Code-Hex/go-generics-cache"
@@ -27,8 +28,8 @@ func (r *Resolver) banner(ctx context.Context, source model.BannerSource) (*mode
 	return nil, nil
 }
 
-// liveBanner links active BCC members to the Live app while a meeting is on air
-// and the stream is online. Nil otherwise.
+// liveBanner links active BCC members to the Live app while a meeting is on air,
+// the stream is online and the meeting's live buffer is open to them. Nil otherwise.
 func (r *Resolver) liveBanner(ctx context.Context) (*model.Banner, error) {
 	if r.LiveApp.BaseURL == "" {
 		return nil, nil
@@ -50,7 +51,7 @@ func (r *Resolver) liveBanner(ctx context.Context) (*model.Banner, error) {
 	}
 
 	current, err := memorycache.GetOrSet(ctx, "live_banner:current", func(ctx context.Context) (*common.CalendarEntry, error) {
-		return r.Queries.GetCurrentCalendarEntry(ctx, time.Now())
+		return r.Queries.GetCurrentMeetingEntry(ctx)
 	}, cache.WithExpiration(liveBannerCacheTTL))
 	if err != nil {
 		return nil, err
@@ -67,6 +68,11 @@ func (r *Resolver) liveBanner(ctx context.Context) (*model.Banner, error) {
 	}
 	if entry == nil {
 		return nil, nil
+	}
+	// Same gate as Episode.overrideUrl, so the banner and the episode redirect agree.
+	window, err := r.bufferWindowForEntry(ctx, strconv.Itoa(entry.ID))
+	if err != nil || window == nil {
+		return nil, err
 	}
 	return &model.Banner{
 		Title: entry.Title.Get(user.GetLanguagesFromCtx(ginCtx)),

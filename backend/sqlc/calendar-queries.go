@@ -169,3 +169,19 @@ func (q *Queries) GetCurrentCalendarEntry(ctx context.Context, endsAfter time.Ti
 		End:   row.End,
 	}, nil
 }
+
+// GetCurrentMeetingEntry returns the meeting on air now, or nil if none is.
+func (q *Queries) GetCurrentMeetingEntry(ctx context.Context) (*common.CalendarEntry, error) {
+	row, err := q.getCurrentMeetingEntry(ctx)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &common.CalendarEntry{
+		ID:    int(row.ID),
+		Start: row.Start,
+		End:   row.End,
+	}, nil
+}
