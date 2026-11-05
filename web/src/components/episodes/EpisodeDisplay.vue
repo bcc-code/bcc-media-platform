@@ -22,7 +22,7 @@ import SharePopover from './SharePopover.vue'
 import LessonButton from '../study/LessonButton.vue'
 import EpisodeChapterList from './EpisodeChapterList.vue'
 import router from '@/router'
-import { episodeComingSoon } from '../../utils/items'
+import { episodeComingSoon, openOverrideUrl } from '../../utils/items'
 import EmbedDownloadables from '../embed/EmbedDownloadables.vue'
 import { mdToHTML } from '@/services/converter'
 import { usePlayerTime } from '@/composables/usePlayerTime'
@@ -126,6 +126,11 @@ const load = async () => {
     season.value = null
     seasonId.value = ''
     const r = await executeQuery()
+    const overrideUrl = r.data.value?.episode?.overrideUrl
+    if (overrideUrl) {
+        openOverrideUrl(overrideUrl, true)
+        return
+    }
     if (r.data.value?.episode) {
         episode.value = r.data.value.episode
 

@@ -8,6 +8,7 @@ fragment CollectionItemThumbnail on CollectionItem {
         progress
         duration
         locked
+        overrideUrl
         ageRating
         description
         season {
