@@ -91,6 +91,15 @@ export const goToEpisode = (
     }
 }
 
+// Relative paths stay in the SPA, absolute URLs leave it.
+export const openOverrideUrl = (url: string, replace = false) => {
+    if (url.startsWith('/') && !url.startsWith('//')) {
+        return replace ? router.replace(url) : router.push(url)
+    }
+    if (replace) window.location.replace(url)
+    else window.location.assign(url)
+}
+
 export const goToLink = async (item: Partial<Link>) => {
     if (!item.url) return
     window.location.assign(item.url)
@@ -166,6 +175,9 @@ export const itemHref = (
     if (!sectionItem.item) return null
     switch (sectionItem.item.__typename) {
         case 'Episode':
+            if (sectionItem.item.overrideUrl) {
+                return sectionItem.item.overrideUrl
+            }
             if (options?.useContext) {
                 return router.resolve({
                     name: 'episode-collection-page',
@@ -241,6 +253,10 @@ export const goToSectionItem = async (
 
     switch (item.item.item?.__typename) {
         case 'Episode':
+            if (item.item.item.overrideUrl) {
+                openOverrideUrl(item.item.item.overrideUrl)
+                break
+            }
             goToEpisode(item.item.id, section?.options)
             break
         case 'Show':
