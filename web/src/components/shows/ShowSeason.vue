@@ -3,7 +3,7 @@ import { GetShowQuery } from '@/graph/generated'
 import SectionTitle from '@/components/sections/item/SectionTitle.vue'
 import Carousel from '@/components/Carousel.vue'
 import CollectionItemThumbnail from '../sections/item/CollectionItemThumbnail.vue'
-import { episodeHref, goToEpisode } from '@/utils/items'
+import { episodeHref, goToEpisode, openOverrideUrl } from '@/utils/items'
 import { analytics } from '@/services/analytics'
 
 const props = defineProps<{
@@ -29,7 +29,11 @@ function onClick(
     // When the browser handles navigation (modifier/middle click on the <a>),
     // skip the SPA push.
     if (!isModified) {
-        goToEpisode(episode.id)
+        if (episode.overrideUrl) {
+            openOverrideUrl(episode.overrideUrl)
+        } else {
+            goToEpisode(episode.id)
+        }
     }
 }
 </script>
@@ -42,7 +46,7 @@ function onClick(
                 :item="item"
                 :title="item.title"
                 :image="item.image ?? ''"
-                :href="episodeHref(item.id)"
+                :href="item.overrideUrl ?? episodeHref(item.id)"
                 @click="(isModified) => onClick(item, index, isModified)"
             />
         </Carousel>

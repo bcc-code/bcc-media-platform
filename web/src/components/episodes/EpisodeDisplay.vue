@@ -16,7 +16,7 @@ import SeasonSelector from '@/components/SeasonSelector.vue'
 import ItemList from '../sections/ItemList.vue'
 import NotFound from '../NotFound.vue'
 import LoginToView from './LoginToView.vue'
-import { episodesToListItems, toListItems } from '@/utils/lists'
+import { ListItem, episodesToListItems, toListItems } from '@/utils/lists'
 import { useAuth } from '@/services/auth'
 import SharePopover from './SharePopover.vue'
 import LessonButton from '../study/LessonButton.vue'
@@ -70,12 +70,29 @@ const setEpisode = (id: string) => {
     episodeId.value = id
     nextTick()
         .then(load)
-        .then(() => {
-            if (episode.value) {
+        .then((redirected) => {
+            if (!redirected && episode.value) {
                 emit('episode', episode.value)
             }
         })
 }
+
+const onItemClick = (item: ListItem) => {
+    if (item.overrideUrl) {
+        openOverrideUrl(item.overrideUrl)
+        return
+    }
+    setEpisode(props.uuid && item.uuid ? item.uuid : item.id)
+}
+
+watch(
+    () => props.initialEpisodeId,
+    (id) => {
+        if (id && id !== episodeId.value) {
+            setEpisode(id)
+        }
+    }
+)
 
 const { error, executeQuery } = useGetEpisodeQuery({
     pause: true,
@@ -129,7 +146,7 @@ const load = async () => {
     const overrideUrl = r.data.value?.episode?.overrideUrl
     if (overrideUrl) {
         openOverrideUrl(overrideUrl, true)
-        return
+        return true
     }
     if (r.data.value?.episode) {
         episode.value = r.data.value.episode
@@ -143,6 +160,7 @@ const load = async () => {
         await loadSeason()
     }
     loading.value = false
+    return false
 }
 
 load()
@@ -364,12 +382,7 @@ const audioOnly = computed(() => {
                                     )
                                 "
                                 :current-id="episode.id"
-                                @item-click="
-                                    (i) =>
-                                        setEpisode(
-                                            uuid ? (i as any).uuid : i.id
-                                        )
-                                "
+                                @item-click="onItemClick"
                             ></ItemList>
                         </div>
                         <div
@@ -384,12 +397,7 @@ const audioOnly = computed(() => {
                             <ItemList
                                 :items="seasonEpisodes"
                                 :current-id="episode.id"
-                                @item-click="
-                                    (i) =>
-                                        setEpisode(
-                                            uuid ? (i as any).uuid : i.id
-                                        )
-                                "
+                                @item-click="onItemClick"
                             ></ItemList>
                         </div>
                         <div v-else-if="effectiveView === 'download'">
