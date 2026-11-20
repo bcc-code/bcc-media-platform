@@ -153,8 +153,9 @@ func (r *Resolver) liveBufferOverrideURL(ctx context.Context, episodeID int) (*s
 		if window == nil {
 			continue
 		}
+		_, end := bufferPlaybackWindow(window.entry)
 		u := r.LiveApp.ReplayURL(entryID)
-		if time.Now().Before(window.entry.End) {
+		if time.Now().Before(end) {
 			u = r.LiveApp.RootURL()
 		}
 		return &u, nil

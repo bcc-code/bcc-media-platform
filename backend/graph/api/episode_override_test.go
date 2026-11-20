@@ -83,4 +83,17 @@ func TestEpisodeOverrideURL(t *testing.T) {
 	require.Equal(t, lo.ToPtr("https://example.com/manual"), overrideURL("manual override during meeting"))
 	exec(`UPDATE episodes SET override_url = NULL WHERE id = $1`, episodeID)
 	require.Equal(t, lo.ToPtr(live.ReplayURL(entryID)), overrideURL("buffer again without manual override"))
+
+	// The switch to the replay follows the buffer playback window's end, like the Live app.
+	exec(`UPDATE calendarentries SET start = (now() AT TIME ZONE 'UTC') - interval '1 hour', "end" = (now() AT TIME ZONE 'UTC') - interval '2 minutes' WHERE id = $1`, entryID)
+	require.Equal(t, lo.ToPtr(live.RootURL()), overrideURL("within lead-out after end"))
+
+	exec(`UPDATE calendarentries SET "end" = (now() AT TIME ZONE 'UTC') - interval '6 minutes' WHERE id = $1`, entryID)
+	require.Equal(t, lo.ToPtr(live.ReplayURL(entryID)), overrideURL("after lead-out"))
+
+	exec(`UPDATE calendarentries SET buffer_end = (now() AT TIME ZONE 'UTC') + interval '10 minutes' WHERE id = $1`, entryID)
+	require.Equal(t, lo.ToPtr(live.RootURL()), overrideURL("before buffer_end"))
+
+	exec(`UPDATE calendarentries SET buffer_end = (now() AT TIME ZONE 'UTC') - interval '1 minute' WHERE id = $1`, entryID)
+	require.Equal(t, lo.ToPtr(live.ReplayURL(entryID)), overrideURL("after buffer_end"))
 }
