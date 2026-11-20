@@ -21,6 +21,7 @@ query getSeasonOnEpisodePage($seasonId: ID!, $firstEpisodes: Int, $offsetEpisode
                 progress
                 description
                 ageRating
+                overrideUrl
             }
         }
         show {

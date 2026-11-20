@@ -5,6 +5,7 @@ import {
 
 export type ListItem = {
     id: string
+    uuid?: string
     type: SectionItemFragment['item']['__typename']
     title: string
     image?: string | null
@@ -14,6 +15,7 @@ export type ListItem = {
     ageRating?: string | null
     description?: string | null
     publishDate?: string | null
+    overrideUrl?: string | null
 }
 
 export const toListItem = (fragment: SectionItemFragment): ListItem => {
@@ -31,6 +33,7 @@ export const toListItem = (fragment: SectionItemFragment): ListItem => {
             item.duration = fragment.item.duration
             item.description = fragment.item.description
             item.publishDate = fragment.item.publishDate
+            item.overrideUrl = fragment.item.overrideUrl
     }
     return item
 }
@@ -56,6 +59,7 @@ export const episodesToListItems = (
                 progress: i.progress,
                 description: i.description,
                 publishDate: i.publishDate,
+                overrideUrl: i.overrideUrl,
             }) as ListItem
     )
 

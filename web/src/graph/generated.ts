@@ -2067,7 +2067,7 @@ export type GetSeasonOnEpisodePageQueryVariables = Exact<{
 }>;
 
 
-export type GetSeasonOnEpisodePageQuery = { season: { id: string, title: string, image?: string | null, number: number, episodes: { total: number, items: Array<{ number?: number | null, progress?: number | null, description: string, ageRating: string, id: string, uuid: string, title: string, image?: string | null, publishDate: any, duration: number }> }, show: { id: string, title: string, description: string, type: ShowType, image?: string | null } } };
+export type GetSeasonOnEpisodePageQuery = { season: { id: string, title: string, image?: string | null, number: number, episodes: { total: number, items: Array<{ number?: number | null, progress?: number | null, description: string, ageRating: string, overrideUrl?: string | null, id: string, uuid: string, title: string, image?: string | null, publishDate: any, duration: number }> }, show: { id: string, title: string, description: string, type: ShowType, image?: string | null } } };
 
 export type LessonProgressOverviewFragment = { id: string, progress: { total: number, completed: number, alternativesTasksTotal: number, alternativesTasksCompleted: number, alternativesTasksCorrect: number } };
 
@@ -2713,6 +2713,7 @@ export const GetSeasonOnEpisodePageDocument = gql`
         progress
         description
         ageRating
+        overrideUrl
       }
     }
     show {
