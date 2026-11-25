@@ -26,7 +26,7 @@ body:
               level
               scope {
                 search {
-                  group
+                  groups
                   types
                 }
               }
@@ -50,7 +50,7 @@ body:
 bodyType: graphql
 description: |-
   Creates an API key with search read access. To pin searches to a usergroup,
-  add "scope": { "search": { "group": "bcc-members", "types": ["episode"] } }
+  add "scope": { "search": { "groups": ["public", "registered", "bcc-members"], "types": ["episode"] } }
   to the permission.
 headers:
 - enabled: true

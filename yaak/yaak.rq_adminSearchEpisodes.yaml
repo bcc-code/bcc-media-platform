@@ -15,7 +15,7 @@ body:
         query(query: $query, filter: $filter, first: $first, offset: $offset) {
           total
           # Set when the key's grant forces a usergroup.
-          group
+          groups
           hits {
             id
             type

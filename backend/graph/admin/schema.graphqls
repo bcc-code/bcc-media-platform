@@ -126,8 +126,8 @@ type SearchHit {
 
 type SearchResult {
     total: Int!
-    "The usergroup set by the caller's search scope, if any."
-    group: String
+    "The usergroups set by the caller's search scope, if any."
+    groups: [String!]
     hits: [SearchHit!]!
 }
 
@@ -213,8 +213,8 @@ input PermissionScopeInput {
 }
 
 input SearchScopeInput {
-    "Search as a member of this usergroup: only published, currently available items it can access."
-    group: String
+    "Search as a member of these usergroups: only published, currently available items any of them can access."
+    groups: [String!]
     types: [SearchType!]
 }
 
@@ -224,7 +224,7 @@ input EpisodeAccessScopeInput {
 }
 
 type SearchScope {
-    group: String
+    groups: [String!]
     types: [SearchType!]
 }
 

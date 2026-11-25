@@ -17,8 +17,8 @@ type obj = map[string]any
 
 // AdminFilter narrows an admin search. Add new filters as optional fields with a clause in clauses().
 type AdminFilter struct {
-	// Group restricts results to what a member of this usergroup can see in the app.
-	Group *string
+	// Groups restricts results to what a member of any of these usergroups can see in the app.
+	Groups []string
 	// Types are search types ("episode", "season", "show"). Empty means all.
 	Types []string
 }
@@ -41,8 +41,8 @@ type adminQueryParams struct {
 
 func (f AdminFilter) clauses(now int64) []any {
 	clauses := []any{}
-	if f.Group != nil {
-		clauses = append(clauses, visibilityClauses([]string{*f.Group}, now)...)
+	if len(f.Groups) > 0 {
+		clauses = append(clauses, visibilityClauses(f.Groups, now)...)
 	}
 	return clauses
 }

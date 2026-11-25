@@ -275,14 +275,14 @@ type ComplexityRoot struct {
 	}
 
 	SearchResult struct {
-		Group func(childComplexity int) int
-		Hits  func(childComplexity int) int
-		Total func(childComplexity int) int
+		Groups func(childComplexity int) int
+		Hits   func(childComplexity int) int
+		Total  func(childComplexity int) int
 	}
 
 	SearchScope struct {
-		Group func(childComplexity int) int
-		Types func(childComplexity int) int
+		Groups func(childComplexity int) int
+		Types  func(childComplexity int) int
 	}
 
 	Season struct {
@@ -1269,12 +1269,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.SearchHit.URL(childComplexity), true
 
-	case "SearchResult.group":
-		if e.complexity.SearchResult.Group == nil {
+	case "SearchResult.groups":
+		if e.complexity.SearchResult.Groups == nil {
 			break
 		}
 
-		return e.complexity.SearchResult.Group(childComplexity), true
+		return e.complexity.SearchResult.Groups(childComplexity), true
 
 	case "SearchResult.hits":
 		if e.complexity.SearchResult.Hits == nil {
@@ -1290,12 +1290,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.SearchResult.Total(childComplexity), true
 
-	case "SearchScope.group":
-		if e.complexity.SearchScope.Group == nil {
+	case "SearchScope.groups":
+		if e.complexity.SearchScope.Groups == nil {
 			break
 		}
 
-		return e.complexity.SearchScope.Group(childComplexity), true
+		return e.complexity.SearchScope.Groups(childComplexity), true
 
 	case "SearchScope.types":
 		if e.complexity.SearchScope.Types == nil {
@@ -1690,8 +1690,8 @@ type SearchHit {
 
 type SearchResult {
     total: Int!
-    "The usergroup set by the caller's search scope, if any."
-    group: String
+    "The usergroups set by the caller's search scope, if any."
+    groups: [String!]
     hits: [SearchHit!]!
 }
 
@@ -1777,8 +1777,8 @@ input PermissionScopeInput {
 }
 
 input SearchScopeInput {
-    "Search as a member of this usergroup: only published, currently available items it can access."
-    group: String
+    "Search as a member of these usergroups: only published, currently available items any of them can access."
+    groups: [String!]
     types: [SearchType!]
 }
 
@@ -1788,7 +1788,7 @@ input EpisodeAccessScopeInput {
 }
 
 type SearchScope {
-    group: String
+    groups: [String!]
     types: [SearchType!]
 }
 
@@ -7144,8 +7144,8 @@ func (ec *executionContext) fieldContext_PermissionScope_search(_ context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "group":
-				return ec.fieldContext_SearchScope_group(ctx, field)
+			case "groups":
+				return ec.fieldContext_SearchScope_groups(ctx, field)
 			case "types":
 				return ec.fieldContext_SearchScope_types(ctx, field)
 			}
@@ -8550,8 +8550,8 @@ func (ec *executionContext) fieldContext_Search_query(ctx context.Context, field
 			switch field.Name {
 			case "total":
 				return ec.fieldContext_SearchResult_total(ctx, field)
-			case "group":
-				return ec.fieldContext_SearchResult_group(ctx, field)
+			case "groups":
+				return ec.fieldContext_SearchResult_groups(ctx, field)
 			case "hits":
 				return ec.fieldContext_SearchResult_hits(ctx, field)
 			}
@@ -8868,8 +8868,8 @@ func (ec *executionContext) fieldContext_SearchResult_total(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _SearchResult_group(ctx context.Context, field graphql.CollectedField, obj *model.SearchResult) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SearchResult_group(ctx, field)
+func (ec *executionContext) _SearchResult_groups(ctx context.Context, field graphql.CollectedField, obj *model.SearchResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SearchResult_groups(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8882,7 +8882,7 @@ func (ec *executionContext) _SearchResult_group(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Group, nil
+		return obj.Groups, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8891,12 +8891,12 @@ func (ec *executionContext) _SearchResult_group(ctx context.Context, field graph
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SearchResult_group(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SearchResult_groups(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SearchResult",
 		Field:      field,
@@ -8967,8 +8967,8 @@ func (ec *executionContext) fieldContext_SearchResult_hits(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _SearchScope_group(ctx context.Context, field graphql.CollectedField, obj *model.SearchScope) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SearchScope_group(ctx, field)
+func (ec *executionContext) _SearchScope_groups(ctx context.Context, field graphql.CollectedField, obj *model.SearchScope) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SearchScope_groups(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8981,7 +8981,7 @@ func (ec *executionContext) _SearchScope_group(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Group, nil
+		return obj.Groups, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8990,12 +8990,12 @@ func (ec *executionContext) _SearchScope_group(ctx context.Context, field graphq
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SearchScope_group(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SearchScope_groups(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SearchScope",
 		Field:      field,
@@ -12220,20 +12220,20 @@ func (ec *executionContext) unmarshalInputSearchScopeInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"group", "types"}
+	fieldsInOrder := [...]string{"groups", "types"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "group":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("group"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+		case "groups":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groups"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Group = data
+			it.Groups = data
 		case "types":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("types"))
 			data, err := ec.unmarshalOSearchType2ᚕgithubᚗcomᚋbccᚑcodeᚋbccᚑmediaᚑplatformᚋbackendᚋgraphᚋadminᚋmodelᚐSearchTypeᚄ(ctx, v)
@@ -14888,8 +14888,8 @@ func (ec *executionContext) _SearchResult(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "group":
-			out.Values[i] = ec._SearchResult_group(ctx, field, obj)
+		case "groups":
+			out.Values[i] = ec._SearchResult_groups(ctx, field, obj)
 		case "hits":
 			out.Values[i] = ec._SearchResult_hits(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -14929,8 +14929,8 @@ func (ec *executionContext) _SearchScope(ctx context.Context, sel ast.SelectionS
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SearchScope")
-		case "group":
-			out.Values[i] = ec._SearchScope_group(ctx, field, obj)
+		case "groups":
+			out.Values[i] = ec._SearchScope_groups(ctx, field, obj)
 		case "types":
 			out.Values[i] = ec._SearchScope_types(ctx, field, obj)
 		default:
@@ -17382,6 +17382,42 @@ func (ec *executionContext) marshalOSeason2ᚖgithubᚗcomᚋbccᚑcodeᚋbccᚑ
 		return graphql.Null
 	}
 	return ec._Season(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v any) (*string, error) {

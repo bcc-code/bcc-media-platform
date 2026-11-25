@@ -24,7 +24,7 @@ export interface PermissionLike {
   level: AccessLevel
   scope?: {
     search?: {
-      group?: string | null
+      groups?: string[] | null
       types?: SearchType[] | null
     } | null
     episodeAccess?: {
@@ -42,10 +42,10 @@ export function toPermissionInputs(
     const search = p.scope?.search
     const groups = p.scope?.episodeAccess?.groups
     const input: PermissionInput = { resource: p.resource, level: p.level }
-    if (search && (search.group || search.types?.length)) {
+    if (search && (search.groups?.length || search.types?.length)) {
       input.scope = {
         search: {
-          group: search.group || undefined,
+          groups: search.groups?.length ? [...search.groups] : undefined,
           types: search.types?.length ? [...search.types] : undefined
         }
       }
@@ -67,7 +67,7 @@ export function samePermissions(a: PermissionInput[], b: PermissionInput[]) {
           scope: p.scope?.search
             ? {
                 search: {
-                  group: p.scope.search.group ?? null,
+                  groups: [...(p.scope.search.groups ?? [])].sort(),
                   types: [...(p.scope.search.types ?? [])].sort()
                 }
               }

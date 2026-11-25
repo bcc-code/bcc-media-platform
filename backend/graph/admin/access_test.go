@@ -54,10 +54,10 @@ func TestPrincipal_Allows(t *testing.T) {
 }
 
 func TestPrincipal_Scope(t *testing.T) {
-	p := newPrincipal([]permissionRow{searchGrant(model.AccessLevelRead, `{"search":{"group":"bcc-members","types":["episode"]}}`)})
+	p := newPrincipal([]permissionRow{searchGrant(model.AccessLevelRead, `{"search":{"groups":["public","bcc-members"],"types":["episode"]}}`)})
 	f := p.scope(model.AdminResourceSearch)
 	require.NotNil(t, f)
-	assert.Equal(t, "bcc-members", *f.Search.Group)
+	assert.Equal(t, []string{"public", "bcc-members"}, f.Search.Groups)
 	assert.Equal(t, []model.SearchType{model.SearchTypeEpisode}, f.Search.Types)
 
 	assert.Nil(t, newPrincipal([]permissionRow{searchGrant(model.AccessLevelRead, "{}")}).scope(model.AdminResourceSearch))
@@ -68,8 +68,7 @@ func TestPrincipal_Scope(t *testing.T) {
 }
 
 func TestPermissionRowsFromInput(t *testing.T) {
-	group := "bcc-members"
-	pinned := &model.PermissionScopeInput{Search: &model.SearchScopeInput{Group: &group}}
+	pinned := &model.PermissionScopeInput{Search: &model.SearchScopeInput{Groups: []string{" public", "bcc-members", "", "public"}}}
 
 	rows, err := permissionRowsFromInput([]*model.PermissionInput{
 		{Resource: model.AdminResourceSearch, Level: model.AccessLevelRead, Scope: pinned},
@@ -77,8 +76,15 @@ func TestPermissionRowsFromInput(t *testing.T) {
 	})
 	require.NoError(t, err)
 	require.Len(t, rows, 2)
-	assert.JSONEq(t, `{"search":{"group":"bcc-members"}}`, string(rows[0].scope))
+	assert.JSONEq(t, `{"search":{"groups":["public","bcc-members"]}}`, string(rows[0].scope))
 	assert.JSONEq(t, `{}`, string(rows[1].scope))
+	assert.Equal(t, []string{" public", "bcc-members", "", "public"}, pinned.Search.Groups, "input is not mutated")
+
+	rows, err = permissionRowsFromInput([]*model.PermissionInput{
+		{Resource: model.AdminResourceSearch, Level: model.AccessLevelRead, Scope: &model.PermissionScopeInput{Search: &model.SearchScopeInput{Groups: []string{" "}}}},
+	})
+	require.NoError(t, err)
+	assert.JSONEq(t, `{"search":{}}`, string(rows[0].scope), "blank groups mean no group restriction")
 
 	_, err = permissionRowsFromInput([]*model.PermissionInput{
 		{Resource: model.AdminResourcePreview, Level: model.AccessLevelRead, Scope: pinned},
@@ -93,15 +99,14 @@ func TestPermissionRowsFromInput(t *testing.T) {
 }
 
 func TestApplySearchScope(t *testing.T) {
-	group, scopeGroup := "public", "bcc-members"
 	scope := &model.PermissionScopeInput{Search: &model.SearchScopeInput{
-		Group: &scopeGroup,
+		Groups: []string{"public", "bcc-members"},
 		Types: []model.SearchType{model.SearchTypeEpisode, model.SearchTypeShow},
 	}}
 
-	f := search.AdminFilter{Group: &group}
+	f := search.AdminFilter{Groups: []string{"other"}}
 	assert.True(t, applySearchScope(&f, scope))
-	assert.Equal(t, "bcc-members", *f.Group)
+	assert.Equal(t, []string{"public", "bcc-members"}, f.Groups)
 	assert.ElementsMatch(t, []string{"episode", "show"}, f.Types)
 
 	f = search.AdminFilter{Types: []string{"show", "season"}}
@@ -111,9 +116,9 @@ func TestApplySearchScope(t *testing.T) {
 	f = search.AdminFilter{Types: []string{"season"}}
 	assert.False(t, applySearchScope(&f, scope))
 
-	f = search.AdminFilter{Group: &group}
+	f = search.AdminFilter{Groups: []string{"other"}}
 	assert.True(t, applySearchScope(&f, nil))
-	assert.Equal(t, "public", *f.Group)
+	assert.Equal(t, []string{"other"}, f.Groups)
 }
 
 func ctxWithPrincipal(p *Principal) context.Context {
