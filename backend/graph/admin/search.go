@@ -12,6 +12,7 @@ import (
 	apimodel "github.com/bcc-code/bcc-media-platform/backend/graph/api/model"
 	"github.com/bcc-code/bcc-media-platform/backend/loaders"
 	"github.com/bcc-code/bcc-media-platform/backend/search"
+	"github.com/bcc-code/bcc-media-platform/backend/sqlc"
 	"github.com/bcc-code/bcc-media-platform/backend/user"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/samber/lo"
@@ -41,16 +42,17 @@ func (r *Resolver) search(ctx context.Context, query string, filter *model.Searc
 		f.Types = lo.Map(filter.Types, func(t model.SearchType, _ int) string { return string(t) })
 	}
 	if !applySearchScope(&f, principalFromCtx(ctx).scope(model.AdminResourceSearch)) {
-		return &model.SearchResult{Group: f.Group, Hits: []*model.SearchHit{}}, nil
+		return &model.SearchResult{Groups: f.Groups, Hits: []*model.SearchHit{}}, nil
 	}
 
-	if f.Group != nil {
-		groups, err := r.Queries.GetRolesWithCode(ctx, []string{*f.Group})
+	if len(f.Groups) > 0 {
+		known, err := r.Queries.GetRolesWithCode(ctx, f.Groups)
 		if err != nil {
 			return nil, err
 		}
-		if len(groups) == 0 {
-			return nil, merry.Errorf("unknown usergroup: %s", *f.Group)
+		codes := lo.Map(known, func(g sqlc.GetRolesWithCodeRow, _ int) string { return g.Code })
+		if missing, _ := lo.Difference(f.Groups, codes); len(missing) > 0 {
+			return nil, merry.Errorf("unknown usergroups: %s", strings.Join(missing, ", "))
 		}
 	}
 
@@ -72,9 +74,9 @@ func (r *Resolver) search(ctx context.Context, query string, filter *model.Searc
 	}
 
 	out := &model.SearchResult{
-		Total: res.Total,
-		Group: f.Group,
-		Hits:  []*model.SearchHit{},
+		Total:  res.Total,
+		Groups: f.Groups,
+		Hits:   []*model.SearchHit{},
 	}
 	for _, h := range res.Hits {
 		t, ok := collectionToSearchType[h.Collection]
@@ -137,13 +139,13 @@ func webAppURL(base, path string) string {
 	return strings.TrimSuffix(base, "/") + path
 }
 
-// applySearchScope pins the group and narrows the types; it returns false if no requested type is allowed.
+// applySearchScope pins the groups and narrows the types; it returns false if no requested type is allowed.
 func applySearchScope(f *search.AdminFilter, scope *model.PermissionScopeInput) bool {
 	if scope == nil || scope.Search == nil {
 		return true
 	}
-	if scope.Search.Group != nil {
-		f.Group = scope.Search.Group
+	if len(scope.Search.Groups) > 0 {
+		f.Groups = scope.Search.Groups
 	}
 	if len(scope.Search.Types) > 0 {
 		allowed := lo.Map(scope.Search.Types, func(t model.SearchType, _ int) string { return string(t) })

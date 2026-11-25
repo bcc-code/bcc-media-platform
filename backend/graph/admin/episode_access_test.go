@@ -62,9 +62,8 @@ func TestPermissionRowsFromInput_EpisodeAccessScope(t *testing.T) {
 	})
 	assert.Error(t, err, "episodeAccess scope on another resource")
 
-	group := "bcc-members"
 	_, err = permissionRowsFromInput([]*model.PermissionInput{
-		{Resource: model.AdminResourceEpisodeAccess, Level: model.AccessLevelWrite, Scope: &model.PermissionScopeInput{Search: &model.SearchScopeInput{Group: &group}}},
+		{Resource: model.AdminResourceEpisodeAccess, Level: model.AccessLevelWrite, Scope: &model.PermissionScopeInput{Search: &model.SearchScopeInput{Groups: []string{"bcc-members"}}}},
 	})
 	assert.Error(t, err, "search scope on episodeAccess")
 }

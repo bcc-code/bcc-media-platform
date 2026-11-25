@@ -6,12 +6,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"slices"
+	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/bcc-code/bcc-media-platform/backend/graph/admin/model"
 	"github.com/bcc-code/bcc-media-platform/backend/log"
 	"github.com/bcc-code/bcc-media-platform/backend/utils"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
@@ -159,6 +161,14 @@ func permissionRowsFromInput(inputs []*model.PermissionInput) ([]permissionRow, 
 				return nil, fmt.Errorf("an episodeAccess scope can only be set on the episodeAccess resource")
 			}
 			s := *in.Scope
+			if s.Search != nil {
+				search := *s.Search
+				search.Groups = lo.Uniq(lo.Compact(lo.Map(search.Groups, func(g string, _ int) string { return strings.TrimSpace(g) })))
+				if len(search.Groups) == 0 {
+					search.Groups = nil
+				}
+				s.Search = &search
+			}
 			// Null groups means any group, which is the same as no scope.
 			if s.EpisodeAccess != nil && s.EpisodeAccess.Groups == nil {
 				s.EpisodeAccess = nil

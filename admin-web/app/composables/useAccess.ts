@@ -15,7 +15,7 @@ graphql(`
     level
     scope {
       search {
-        group
+        groups
         types
       }
       episodeAccess {

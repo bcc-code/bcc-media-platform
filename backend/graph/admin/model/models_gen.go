@@ -249,20 +249,20 @@ type SearchHit struct {
 
 type SearchResult struct {
 	Total int `json:"total"`
-	// The usergroup set by the caller's search scope, if any.
-	Group *string      `json:"group,omitempty"`
-	Hits  []*SearchHit `json:"hits"`
+	// The usergroups set by the caller's search scope, if any.
+	Groups []string     `json:"groups,omitempty"`
+	Hits   []*SearchHit `json:"hits"`
 }
 
 type SearchScope struct {
-	Group *string      `json:"group,omitempty"`
-	Types []SearchType `json:"types,omitempty"`
+	Groups []string     `json:"groups,omitempty"`
+	Types  []SearchType `json:"types,omitempty"`
 }
 
 type SearchScopeInput struct {
-	// Search as a member of this usergroup: only published, currently available items it can access.
-	Group *string      `json:"group,omitempty"`
-	Types []SearchType `json:"types,omitempty"`
+	// Search as a member of these usergroups: only published, currently available items any of them can access.
+	Groups []string     `json:"groups,omitempty"`
+	Types  []SearchType `json:"types,omitempty"`
 }
 
 type Statistics struct {

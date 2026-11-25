@@ -19,7 +19,7 @@ type Level = AccessLevel | 'none'
 
 interface Row {
   level: Level
-  group: string
+  searchGroups: string[]
   types: SearchType[]
   groups: string[]
 }
@@ -32,7 +32,7 @@ function rowsFrom(permissions: PermissionInput[]) {
         value,
         {
           level: p?.level ?? 'none',
-          group: p?.scope?.search?.group ?? '',
+          searchGroups: [...(p?.scope?.search?.groups ?? [])],
           types: [...(p?.scope?.search?.types ?? [])],
           groups: (p?.scope?.episodeAccess?.groups ?? []).map(String)
         }
@@ -54,11 +54,13 @@ watch(
       const row = rows[value]
       if (row.level === 'none') return []
       const input: PermissionInput = { resource: value, level: row.level }
-      const group = row.group.trim()
-      if (value === 'search' && (group || row.types.length)) {
+      const searchGroups = [
+        ...new Set(row.searchGroups.map((g) => g.trim()).filter(Boolean))
+      ]
+      if (value === 'search' && (searchGroups.length || row.types.length)) {
         input.scope = {
           search: {
-            group: group || undefined,
+            groups: searchGroups.length ? searchGroups : undefined,
             types: row.types.length ? row.types : undefined
           }
         }
@@ -109,13 +111,17 @@ const typeChips = computed({
         <p class="text-body-3 text-text-muted">
           {{ t('access.permissions.searchFilterHint') }}
         </p>
-        <DesignInput
-          v-model="rows.search.group"
-          :label="t('access.permissions.groupLabel')"
-          :placeholder="t('access.permissions.groupPlaceholder')"
-          :helper-text="t('access.permissions.groupHelper')"
-          :disabled="disabled"
-        />
+        <div>
+          <DesignTagsInput
+            v-model="rows.search.searchGroups"
+            :label="t('access.permissions.searchGroupsLabel')"
+            :placeholder="t('access.permissions.searchGroupsPlaceholder')"
+            :disabled="disabled"
+          />
+          <p class="text-caption-1 text-text-hint mt-1">
+            {{ t('access.permissions.searchGroupsHelper') }}
+          </p>
+        </div>
         <div class="flex flex-col gap-2">
           <label class="text-body-3 text-text-muted block">
             {{ t('access.permissions.typesLabel') }}
